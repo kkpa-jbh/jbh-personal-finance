@@ -3,7 +3,7 @@ package com.jbh.notification_infra;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 
-@Path("/test-notification")
+@Path(com.jbh.notification.ApiConstants.BASE_PATH + "/test-notification")
 public class TestNotificationResource {
 
 

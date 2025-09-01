@@ -20,7 +20,6 @@ public class AssemblyApplication implements QuarkusApplication {
     public int run(String... args) throws Exception {
         LOG.info("JBH Personal Finance Platform started successfully!");
         LOG.info("All modules loaded and APIs available");
-        LOG.info("Available endpoints should include: /jbh-account/hello/{name}");
 
         Quarkus.waitForExit();
         return 0;

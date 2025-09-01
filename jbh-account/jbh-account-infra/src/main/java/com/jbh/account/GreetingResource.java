@@ -11,7 +11,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 @ApplicationScoped
-@Path("/jbh-account/hello")
+@Path(ApiConstants.BASE_PATH + "/hello")
 public class GreetingResource {
 
   @PostConstruct
