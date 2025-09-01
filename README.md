@@ -169,3 +169,28 @@ The key is step 2 - mvn clean install puts the new module JAR in your local Mave
 dependencies.
 
 This workflow ensures the module exists before other modules try to depend on it.
+
+
+1. Parent pom dependencies in root dependencyManagement:
+
+The jbh-account parent pom dependency in root pom.xml:65-69 is NOT necessary and should be removed. Here's why:
+
+- Parent poms (<packaging>pom</packaging>) don't produce JARs
+- They're only for aggregation and inheritance
+- Only actual JAR/WAR modules should be in dependencyManagement
+
+2. When adding new submodules like jbh-account-domain, jbh-account-application:
+
+Root pom dependencyManagement: Add entries for modules that will be used as dependencies:
+<dependency>
+<groupId>com.jbh</groupId>
+<artifactId>jbh-account-domain</artifactId>
+<version>${project.version}</version>
+</dependency>
+
+Assembly dependencies: Only add if the assembly needs that specific module. Typically:
+- ✅ Add -infra modules (contain REST endpoints, repositories)
+- ✅ Add -application modules (contain use cases, services)
+- ❌ Don't add -domain modules directly (they're transitive dependencies)
+
+Best practice: Remove parent pom entries from dependencyManagement and only include actual JAR-producing modules that other modules will depend on.

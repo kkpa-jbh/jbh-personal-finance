@@ -16,13 +16,15 @@
   <!-- =============================================== -->
   <properties>
     <!-- Java & Encoding -->
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
+    <java.version>21</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
     <!-- Quarkus -->
     <quarkus.version>3.18.4</quarkus.version>
+    <jandex-plugin.version>3.1.2</jandex-plugin.version>
 
     <!-- Testing -->
     <junit.version>5.10.1</junit.version>
@@ -48,6 +50,7 @@
 
   <!-- =============================================== -->
   <!-- DEPENDENCY MANAGEMENT -->
+  <!-- Only actual JAR/WAR modules should be in dependencyManagement -->
   <!-- =============================================== -->
   <dependencyManagement>
     <dependencies>
@@ -62,20 +65,15 @@
 
       <dependency>
         <groupId>com.jbh</groupId>
-        <artifactId>jbh-account</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>com.jbh</groupId>
         <artifactId>jbh-account-infra</artifactId>
         <version>${project.version}</version>
       </dependency>
 
+
       <dependency>
         <groupId>com.jbh</groupId>
         <artifactId>jbh-notification-infra</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>${project.version}</version>
       </dependency>
 
     </dependencies>
@@ -137,7 +135,7 @@
         <plugin>
           <groupId>io.smallrye</groupId>
           <artifactId>jandex-maven-plugin</artifactId>
-          <version>3.1.2</version>
+          <version>${jandex-plugin.version}</version>
         </plugin>
 
       </plugins>
