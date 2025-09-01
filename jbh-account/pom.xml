@@ -12,6 +12,7 @@
   <artifactId>jbh-account</artifactId>
   <packaging>pom</packaging>
   <modules>
+    <module>jbh-account-domain</module>
     <module>jbh-account-infra</module>
   </modules>
 
@@ -20,5 +21,56 @@
     <maven.compiler.target>21</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+
+  <build>
+
+    <pluginManagement>
+      <plugins>
+        <!-- Compiler Plugin - EXTENDS parent configuration -->
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+        </plugin>
+
+        <!-- Quarkus Plugin - EXTENDS parent configuration -->
+        <plugin>
+          <groupId>io.quarkus.platform</groupId>
+          <artifactId>quarkus-maven-plugin</artifactId>
+          <!-- Version and base config inherited from parent -->
+          <configuration>
+            <!-- INHERITS parent configuration (debug, suspend, executions) -->
+            <!-- ADDS Module A specific configuration -->
+            <jvmArgs>-XX:+UseG1GC</jvmArgs>
+            <!-- Module A specific Quarkus settings -->
+            <environmentVariables>
+              <MODULE_NAME>module-a</MODULE_NAME>
+            </environmentVariables>
+          </configuration>
+        </plugin>
+      </plugins>
+
+    </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+      </plugin>
+
+      <plugin>
+        <groupId>io.quarkus.platform</groupId>
+        <artifactId>quarkus-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
+  <!-- Common dependencies for Module A and its children -->
+  <dependencies>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-arc</artifactId>
+    </dependency>
+
+  </dependencies>
 
 </project>

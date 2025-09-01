@@ -29,7 +29,7 @@ Easy future migration: if module-b needs to become its own service, just move it
 <dependencies>
     <dependency>
         <groupId>com.example</groupId>
-        <artifactId>module-a-infrastructure</artifactId>
+        <artifactId>jbh-account-infrastructure</artifactId>
     </dependency>
     <dependency>
         <groupId>com.example</groupId>
@@ -46,17 +46,17 @@ Easy future migration: if module-b needs to become its own service, just move it
 ```
 jbh-personal-finance/
 ├── pom.xml                                 (Root Parent)
-├── module-a/
+├── jbh-account/
 │   ├── pom.xml                            (Module A Parent)
-│   ├── a-domain/
+│   ├── jbh-account-domain/
 │   │   ├── pom.xml
-│   │   └── src/main/java/com/jbh/finance/a/domain/
-│   ├── a-application/
+│   │   └── src/main/java/com/jbh/finance/jbh-account/domain/
+│   ├── jbh-account-application/
 │   │   ├── pom.xml
-│   │   └── src/main/java/com/jbh/finance/a/application/
-│   └── a-infrastructure/
+│   │   └── src/main/java/com/jbh/finance/jbh-account/application/
+│   └── jbh-account-infra/
 │       ├── pom.xml
-│       └── src/main/java/com/jbh/finance/a/infrastructure/
+│       └── src/main/java/com/jbh/finance/jbh-account/infra/
 ├── module-b/
 │   ├── pom.xml                            (Module B Parent)
 │   ├── b-domain/
@@ -65,9 +65,9 @@ jbh-personal-finance/
 │   ├── b-application/
 │   │   ├── pom.xml
 │   │   └── src/main/java/com/jbh/finance/b/application/
-│   └── b-infrastructure/
+│   └── b-infra/
 │       ├── pom.xml
-│       └── src/main/java/com/jbh/finance/b/infrastructure/
+│       └── src/main/java/com/jbh/finance/b/infra/
 ├── module-c/
 │   ├── pom.xml                            (Module C Parent)
 │   ├── c-domain/
@@ -76,13 +76,13 @@ jbh-personal-finance/
 │   ├── c-application/
 │   │   ├── pom.xml
 │   │   └── src/main/java/com/jbh/finance/c/application/
-│   └── c-infrastructure/
+│   └── c-infra/
 │       ├── pom.xml
-│       └── src/main/java/com/jbh/finance/c/infrastructure/
+│       └── src/main/java/com/jbh/finance/c/infra/
 └── assembly/
-├── pom.xml                            (Assembly Module - Quarkus Runner)
-└── src/main/
-├── java/com/jbh/finance/assembly/
-└── resources/
-└── application.properties
+    ├── pom.xml                            (Assembly Module - Quarkus Runner)
+    └── src/main/
+    ├── java/com/jbh/finance/assembly/
+    └── resources/
+    └── application.properties
 ```

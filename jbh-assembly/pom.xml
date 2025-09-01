@@ -10,28 +10,39 @@
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
+  <packaging>jar</packaging>
   <artifactId>jbh-assembly</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
   <name>JBH Assembly</name>
   <description>Assembly module that aggregates all infrastructure modules</description>
 
   <dependencies>
+
+    <!-- Infrastructure Modules -->
+    <!-- FIXED: Remove explicit version, use dependency management -->
+    <dependency>
+      <groupId>com.jbh</groupId>
+      <artifactId>jbh-account-infra</artifactId>
+    </dependency>
+
     <!-- Minimal Quarkus Core for bootstrapping -->
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-arc</artifactId>
     </dependency>
 
-
-
-
-
-    <!-- Infrastructure Modules -->
+    <!-- REST Support - REQUIRED for JAX-RS endpoints -->
     <dependency>
-      <groupId>com.jbh</groupId>
-      <artifactId>jbh-account-infra</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-rest</artifactId>
     </dependency>
+
+    <!-- Cross-cutting concerns -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-smallrye-health</artifactId>
+    </dependency>
+
+
 
     <!-- Test Dependencies -->
     <dependency>
@@ -43,10 +54,10 @@
 
   <build>
     <plugins>
+
       <plugin>
         <groupId>io.quarkus.platform</groupId>
         <artifactId>quarkus-maven-plugin</artifactId>
-        <version>${quarkus.version}</version>
         <extensions>true</extensions>
         <executions>
           <execution>
@@ -58,14 +69,19 @@
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
       </plugin>
+
+      <!-- Surefire Plugin for Unit Tests -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
       </plugin>
+
+      <!-- Failsafe Plugin for Integration Tests -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
@@ -80,4 +96,19 @@
       </plugin>
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>native</id>
+      <activation>
+        <property>
+          <name>native</name>
+        </property>
+      </activation>
+      <properties>
+        <skipITs>false</skipITs>
+        <quarkus.package.type>native</quarkus.package.type>
+      </properties>
+    </profile>
+  </profiles>
 </project>
