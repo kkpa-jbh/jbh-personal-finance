@@ -156,3 +156,16 @@ Manage plugin versions in root POM, use in infrastructure modules:
     <executions>...</executions>
 </plugin>
 ```
+
+
+# ADDING NEW MODULES TO THE ASSEMBLY
+
+1. Add new module using IntelliJ - Creates the module structure and updates parent pom
+2. Run mvn clean install from root - Builds and installs all modules to local repository
+3. Add module dependency to assembly - Reference the new module in jbh-assembly/pom.xml
+4. Run the app - Everything should work since JARs are in local repo
+
+The key is step 2 - mvn clean install puts the new module JAR in your local Maven repository (~/.m2/repository), making it available for other modules to reference. Without this, Maven can't find the JAR when resolving
+dependencies.
+
+This workflow ensures the module exists before other modules try to depend on it.

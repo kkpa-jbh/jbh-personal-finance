@@ -40,6 +40,7 @@
   <!-- =============================================== -->
   <modules>
     <module>jbh-account</module>
+    <module>jbh-notification</module>
 
     <!-- Assembly module last to ensure all dependencies are built -->
     <module>jbh-assembly</module>
@@ -69,6 +70,12 @@
         <groupId>com.jbh</groupId>
         <artifactId>jbh-account-infra</artifactId>
         <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.jbh</groupId>
+        <artifactId>jbh-notification-infra</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
     </dependencies>

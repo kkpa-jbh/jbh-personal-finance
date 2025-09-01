@@ -17,12 +17,7 @@
 
   <dependencies>
 
-    <!-- Infrastructure Modules -->
-    <!-- FIXED: Remove explicit version, use dependency management -->
-    <dependency>
-      <groupId>com.jbh</groupId>
-      <artifactId>jbh-account-infra</artifactId>
-    </dependency>
+
 
     <!-- Minimal Quarkus Core for bootstrapping -->
     <dependency>
@@ -40,6 +35,19 @@
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-smallrye-health</artifactId>
+    </dependency>
+
+
+    <!-- Infrastructure Modules -->
+    <!-- FIXED: Remove explicit version, use dependency management -->
+    <dependency>
+      <groupId>com.jbh</groupId>
+      <artifactId>jbh-account-infra</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.jbh</groupId>
+      <artifactId>jbh-notification-infra</artifactId>
     </dependency>
 
 

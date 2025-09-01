@@ -5,12 +5,11 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.jbh</groupId>
-    <artifactId>jbh-account</artifactId>
+    <artifactId>jbh-notification</artifactId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
 
-  <artifactId>jbh-account-infra</artifactId>
-  <packaging>jar</packaging>
+  <artifactId>jbh-notification-infra</artifactId>
 
   <properties>
     <maven.compiler.source>21</maven.compiler.source>
@@ -19,16 +18,15 @@
   </properties>
 
   <dependencies>
-
     <dependency>
       <groupId>io.quarkus</groupId>
       <artifactId>quarkus-arc</artifactId>
     </dependency>
 
-      <dependency>
-        <groupId>io.quarkus</groupId>
-        <artifactId>quarkus-rest</artifactId>
-      </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-rest</artifactId>
+    </dependency>
     <!-- Add Jackson for JSON support -->
     <dependency>
       <groupId>io.quarkus</groupId>
@@ -46,42 +44,8 @@
       <artifactId>quarkus-junit5</artifactId>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>io.rest-assured</groupId>
-      <artifactId>rest-assured</artifactId>
-      <scope>test</scope>
-    </dependency>
-
   </dependencies>
 
-  <build>
-    <plugins>
 
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-      </plugin>
-
-      <plugin>
-        <groupId>io.quarkus.platform</groupId>
-        <artifactId>quarkus-maven-plugin</artifactId>
-      </plugin>
-
-      <!-- Jandex Plugin for CDI Bean Discovery -->
-      <plugin>
-        <groupId>io.smallrye</groupId>
-        <artifactId>jandex-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <id>make-index</id>
-            <goals>
-              <goal>jandex</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-    </plugins>
-  </build>
 
 </project>
