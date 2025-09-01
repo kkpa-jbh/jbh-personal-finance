@@ -59,6 +59,13 @@
         <scope>import</scope>
       </dependency>
 
+      <!-- Internal module dependencies -->
+      <dependency>
+        <groupId>com.jbh</groupId>
+        <artifactId>jbh-account-infra</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
@@ -66,7 +73,11 @@
   <!-- COMMON DEPENDENCIES (for ALL modules) -->
   <!-- =============================================== -->
   <dependencies>
-
+    <!-- Cross-cutting concerns -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-smallrye-health</artifactId>
+    </dependency>
   </dependencies>
 
   <!-- =============================================== -->
