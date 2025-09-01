@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.jbh</groupId>
+  <artifactId>jbh-personal-finance</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>JBH Personal Finance Platform</name>
+  <description>Multi-module personal finance management system</description>
+
+  <!-- =============================================== -->
+  <!-- MODULE DECLARATIONS -->
+  <!-- =============================================== -->
+  <modules>
+
+    <module>jbh-account</module>
+    <module>jbh-assembly</module>
+  </modules>
+
+  <!-- =============================================== -->
+  <!-- PROPERTIES -->
+  <!-- =============================================== -->
+  <properties>
+    <!-- Java & Encoding -->
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <!-- Quarkus -->
+    <quarkus.version>3.26.1</quarkus.version>
+
+    <!-- Testing -->
+    <junit.version>5.10.1</junit.version>
+    <mockito.version>5.10.0</mockito.version>
+    <testcontainers.version>1.19.5</testcontainers.version>
+
+    <!-- Plugins -->
+    <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
+    <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
+  </properties>
+
+  <!-- =============================================== -->
+  <!-- DEPENDENCY MANAGEMENT -->
+  <!-- =============================================== -->
+  <dependencyManagement>
+    <dependencies>
+      <!-- Quarkus BOM - Manages all Quarkus dependencies -->
+      <dependency>
+        <groupId>io.quarkus.platform</groupId>
+        <artifactId>quarkus-bom</artifactId>
+        <version>${quarkus.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+  <!-- =============================================== -->
+  <!-- COMMON DEPENDENCIES (for ALL modules) -->
+  <!-- =============================================== -->
+  <dependencies>
+
+  </dependencies>
+
+  <!-- =============================================== -->
+  <!-- PLUGIN MANAGEMENT -->
+  <!-- =============================================== -->
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${maven-compiler-plugin.version}</version>
+          <configuration>
+            <parameters>true</parameters>
+            <enablePreview>false</enablePreview>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>${maven-surefire-plugin.version}</version>
+          <configuration>
+            <systemPropertyVariables>
+              <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+            </systemPropertyVariables>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <version>${maven-failsafe-plugin.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+</project>
