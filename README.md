@@ -25,25 +25,24 @@ Easy future migration: if module-b needs to become its own service, just move it
   - Contains application.properties with quarkus.http.port=7777 → applies to the entire app
   - Is the only module with the Quarkus Maven plugin → builds the runnable JAR.
     - Depends on all infrastructure modules:
-    ```
-<dependencies>
-    <dependency>
-        <groupId>com.example</groupId>
-        <artifactId>jbh-account-infrastructure</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>com.example</groupId>
-        <artifactId>module-b-infrastructure</artifactId>
-    </dependency>
-    <dependency>
-        <groupId>com.example</groupId>
-        <artifactId>module-c-infrastructure</artifactId>
-    </dependency>
-</dependencies>
-
+    ```xml
+    <dependencies>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>jbh-account-infrastructure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>module-b-infrastructure</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>module-c-infrastructure</artifactId>
+        </dependency>
+    </dependencies>
 ```
 
-```
+```bash
 jbh-personal-finance/
 ├── pom.xml                                 (Root Parent)
 ├── jbh-account/
@@ -85,4 +84,75 @@ jbh-personal-finance/
     ├── java/com/jbh/finance/assembly/
     └── resources/
     └── application.properties
+```
+
+## CDI Bean Discovery with Jandex
+
+### Why Jandex Plugin is Required
+
+Quarkus uses **Jandex indexing** for CDI bean discovery in modular projects. Without proper indexing, your REST endpoints and CDI beans won't be discovered at runtime.
+
+### Plugin Placement Strategy
+
+**❌ Don't put Jandex in Assembly/Root POM:**
+- Assembly can only index its own classes
+- Cannot retroactively index dependency JARs
+- Each JAR needs its own `META-INF/jandex.idx` file
+
+**✅ Put Jandex in Infrastructure Modules:**
+```xml
+<!-- In each *-infra module pom.xml -->
+<plugin>
+    <groupId>io.smallrye</groupId>
+    <artifactId>jandex-maven-plugin</artifactId>
+    <executions>
+        <execution>
+            <id>make-index</id>
+            <goals>
+                <goal>jandex</goal>
+            </goals>
+        </execution>
+    </executions>
+</plugin>
+```
+
+### How It Works
+
+1. **Build Time**: Each infrastructure module creates its own Jandex index
+   ```
+   jbh-account-infra.jar → contains META-INF/jandex.idx
+   jbh-transaction-infra.jar → contains META-INF/jandex.idx
+   ```
+
+2. **Runtime**: Quarkus assembly scans all dependency JARs
+   ```
+   Startup:
+   ├── Scan assembly JAR → finds AssemblyApplication
+   ├── Scan jbh-account-infra.jar → finds GreetingResource ✅
+   └── Register all beans from all indices
+   ```
+
+3. **Result**: All REST endpoints and CDI beans are properly discovered
+
+### Best Practice
+
+Manage plugin versions in root POM, use in infrastructure modules:
+
+```xml
+<!-- Root pom.xml - Version Management -->
+<pluginManagement>
+    <plugin>
+        <groupId>io.smallrye</groupId>
+        <artifactId>jandex-maven-plugin</artifactId>
+        <version>3.1.2</version>
+    </plugin>
+</pluginManagement>
+
+<!-- Infrastructure module pom.xml - Usage -->
+<plugin>
+    <groupId>io.smallrye</groupId>
+    <artifactId>jandex-maven-plugin</artifactId>
+    <!-- Inherits version from parent -->
+    <executions>...</executions>
+</plugin>
 ```
