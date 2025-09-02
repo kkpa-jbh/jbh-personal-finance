@@ -1,6 +1,27 @@
 # jbh-personal-finance
 Modular monolith to handle personal finance
 
+# MAKEFILE
+
+Global commands:
+- make help - Shows comprehensive help for all modules
+- make create-all-schemas - Creates all module schemas
+- make drop-all-schemas - Drops all schemas (with confirmation)
+- make recreate-all-schemas - Recreates all schemas
+- make check-all-connections - Tests all database connections
+
+Module-specific help:
+- make account-help - Shows account module help
+- make notification-help - Shows notification module help
+
+Individual module commands:
+- make account-create-schema - Creates only account schema
+- make account-drop-schema - Drops only account schema
+- make notification-create-schema - Creates only notification schema
+- make notification-drop-schema - Drops only notification schema
+
+The root Makefile delegates to each module's specific .mk file, maintaining separation while providing centralized control.
+
 ## Project Overview
 
 I want to build a modular monolith with some boundaries (A , B, C ) and each module (A , B , C) will contain submodules where each submodule will use hexagonal architecture.
