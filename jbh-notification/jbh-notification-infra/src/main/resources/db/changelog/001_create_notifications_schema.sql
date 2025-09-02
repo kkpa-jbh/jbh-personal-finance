@@ -1,6 +1,9 @@
--- liquibase formatted sql
-
--- changeset author:accounts-team id:001-create-accounts-schema
-CREATE SCHEMA IF NOT EXISTS notifications;
-
--- rollback DROP SCHEMA IF EXISTS accounts CASCADE;
+CREATE TABLE notifications.notifications (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    message TEXT NOT NULL,
+    read BOOLEAN NOT NULL DEFAULT FALSE,
+    metadata JSONB,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
