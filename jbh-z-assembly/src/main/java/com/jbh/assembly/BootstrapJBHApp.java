@@ -6,14 +6,14 @@ import io.quarkus.runtime.annotations.QuarkusMain;
 import org.jboss.logging.Logger;
 
 @QuarkusMain
-public class AssemblyApplication implements QuarkusApplication {
+public class BootstrapJBHApp implements QuarkusApplication {
 
-    private static final Logger LOG = Logger.getLogger(AssemblyApplication.class);
+    private static final Logger LOG = Logger.getLogger(BootstrapJBHApp.class);
 
     public static void main(String... args) {
         LOG.info("Starting JBH Personal Finance Platform...");
         System.out.println("Hello from AssemblyApplication main method!");
-        Quarkus.run(AssemblyApplication.class, args);
+        Quarkus.run(BootstrapJBHApp.class, args);
     }
 
     @Override

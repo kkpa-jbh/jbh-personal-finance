@@ -45,7 +45,7 @@
     <module>jbh-notification</module>
 
     <!-- Assembly module last to ensure all dependencies are built -->
-    <module>jbh-assembly</module>
+    <module>jbh-z-assembly</module>
   </modules>
 
   <!-- =============================================== -->

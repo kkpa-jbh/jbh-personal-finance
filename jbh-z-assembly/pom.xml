@@ -11,7 +11,7 @@
   </parent>
 
   <packaging>jar</packaging>
-  <artifactId>jbh-assembly</artifactId>
+  <artifactId>jbh-z-assembly</artifactId>
   <name>JBH Assembly</name>
   <description>Assembly module that aggregates all infrastructure modules</description>
 
