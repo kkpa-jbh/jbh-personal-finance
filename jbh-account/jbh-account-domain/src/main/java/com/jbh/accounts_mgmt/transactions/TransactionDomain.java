@@ -1,0 +1,45 @@
+package com.jbh.accounts_mgmt.transactions;
+
+import com.jbh.accounts_mgmt.accounts.domain.AccountId;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import lombok.Data;
+
+@Data
+public class TransactionDomain {
+
+  private TransactionId id;
+  private AccountId accountId;
+  private TransactionType txnType;
+  private BigDecimal totalAmount;
+  private LocalDate txnDate;
+
+  private TransactionDomain(AccountId accountId, LocalDate txnDate, BigDecimal totalAmount, TransactionType txnType) {
+    this.txnDate = txnDate;
+    this.totalAmount = totalAmount;
+    this.txnType = txnType;
+    validate();
+  }
+
+  public static TransactionDomain of(AccountId accountId, LocalDate txnDate, BigDecimal totalAmount) {
+    if (totalAmount == null) {
+      throw new IllegalArgumentException("Total amount cannot be null");
+    }
+
+    TransactionType txnType =
+        totalAmount.compareTo(BigDecimal.ZERO) >= 0 ? TransactionType.DEPOSIT : TransactionType.WITHDRAWAL;
+    return new TransactionDomain(accountId, txnDate, totalAmount, txnType);
+  }
+
+  private void validate() {
+    if (accountId == null || accountId.getValue() == null) {
+      throw new IllegalArgumentException("Account ID cannot be null");
+    }
+    if (txnDate == null) {
+      throw new IllegalArgumentException("Transaction date cannot be null");
+    }
+    if (totalAmount == null) {
+      throw new IllegalArgumentException("Total amount cannot be null");
+    }
+  }
+}

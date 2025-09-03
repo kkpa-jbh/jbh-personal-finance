@@ -1,44 +1,106 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-
-  <groupId>com.jbh</groupId>
   <artifactId>jbh-personal-finance</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <name>JBH Personal Finance Platform</name>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <enablePreview>false</enablePreview>
+            <parameters>true</parameters>
+          </configuration>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-compiler-plugin.version}</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>quarkus-maven-plugin</artifactId>
+          <groupId>io.quarkus.platform</groupId>
+          <version>${quarkus.version}</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <systemPropertyVariables>
+              <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+            </systemPropertyVariables>
+          </configuration>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-surefire-plugin.version}</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>maven-failsafe-plugin</artifactId>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-failsafe-plugin.version}</version>
+        </plugin>
+
+        <plugin>
+          <artifactId>jandex-maven-plugin</artifactId>
+          <groupId>io.smallrye</groupId>
+          <version>${jandex-plugin.version}</version>
+        </plugin>
+
+      </plugins>
+    </pluginManagement>
+  </build>
+  <dependencies>
+    <dependency>
+      <artifactId>quarkus-arc</artifactId>
+      <groupId>io.quarkus</groupId>
+    </dependency>
+    <!-- akarta Contexts and Dependency Injection (CDI)  for compile-time checks -->
+    <dependency>
+      <artifactId>jakarta.enterprise.cdi-api</artifactId>
+      <groupId>jakarta.enterprise</groupId>
+    </dependency>
+
+  </dependencies>
+  <dependencyManagement>
+    <dependencies>
+      <!-- Quarkus BOM - Manages all Quarkus dependencies -->
+      <dependency>
+        <artifactId>quarkus-bom</artifactId>
+        <groupId>io.quarkus.platform</groupId>
+        <scope>import</scope>
+        <type>pom</type>
+        <version>${quarkus.version}</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>jbh-account-infra</artifactId>
+        <groupId>com.jbh</groupId>
+        <version>${project.version}</version>
+      </dependency>
+
+
+      <dependency>
+        <artifactId>jbh-notification-infra</artifactId>
+        <groupId>com.jbh</groupId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <!-- Lombok for boilerplate code reduction -->
+      <dependency>
+        <artifactId>lombok</artifactId>
+        <groupId>org.projectlombok</groupId>
+        <version>${lombok.version}</version>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
   <description>Multi-module personal finance management system</description>
+  <groupId>com.jbh</groupId>
+  <modelVersion>4.0.0</modelVersion>
   <!-- =============================================== -->
   <!-- PROPERTIES -->
-  <!-- =============================================== -->
-  <properties>
-    <!-- Java & Encoding -->
-    <java.version>21</java.version>
-    <maven.compiler.source>${java.version}</maven.compiler.source>
-    <maven.compiler.target>${java.version}</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
-    <!-- Quarkus -->
-    <quarkus.version>3.18.4</quarkus.version>
-    <jandex-plugin.version>3.1.2</jandex-plugin.version>
-
-    <!-- Testing -->
-    <junit.version>5.10.1</junit.version>
-    <mockito.version>5.10.0</mockito.version>
-    <testcontainers.version>1.19.5</testcontainers.version>
-
-    <!-- Plugins -->
-    <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
-    <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
-    <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
-  </properties>
-
-  <!-- =============================================== -->
-  <!-- MODULE DECLARATIONS -->
   <!-- =============================================== -->
   <modules>
     <module>jbh-account</module>
@@ -49,97 +111,45 @@
   </modules>
 
   <!-- =============================================== -->
+  <!-- MODULE DECLARATIONS -->
+  <!-- =============================================== -->
+  <name>JBH Personal Finance Platform</name>
+
+  <!-- =============================================== -->
   <!-- DEPENDENCY MANAGEMENT -->
   <!-- Only actual JAR/WAR modules should be in dependencyManagement -->
   <!-- =============================================== -->
-  <dependencyManagement>
-    <dependencies>
-      <!-- Quarkus BOM - Manages all Quarkus dependencies -->
-      <dependency>
-        <groupId>io.quarkus.platform</groupId>
-        <artifactId>quarkus-bom</artifactId>
-        <version>${quarkus.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
+  <packaging>pom</packaging>
 
-      <dependency>
-        <groupId>com.jbh</groupId>
-        <artifactId>jbh-account-infra</artifactId>
-        <version>${project.version}</version>
-      </dependency>
+  <properties>
+    <!-- Java & Encoding -->
+    <jandex-plugin.version>3.1.2</jandex-plugin.version>
+    <java.version>21</java.version>
+    <junit.version>5.10.1</junit.version>
+    <lombok.version>1.18.30</lombok.version>
+    <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
 
+    <!-- Quarkus -->
+    <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
+    <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
 
-      <dependency>
-        <groupId>com.jbh</groupId>
-        <artifactId>jbh-notification-infra</artifactId>
-        <version>${project.version}</version>
-      </dependency>
+    <!-- External Libraries -->
+    <maven.compiler.source>${java.version}</maven.compiler.source>
 
-    </dependencies>
-  </dependencyManagement>
+    <!-- Testing -->
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <mockito.version>5.10.0</mockito.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-  <dependencies>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-arc</artifactId>
-    </dependency>
-    <!-- akarta Contexts and Dependency Injection (CDI)  for compile-time checks -->
-    <dependency>
-      <groupId>jakarta.enterprise</groupId>
-      <artifactId>jakarta.enterprise.cdi-api</artifactId>
-    </dependency>
-
-  </dependencies>
+    <!-- Plugins -->
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <quarkus.version>3.18.4</quarkus.version>
+    <testcontainers.version>1.19.5</testcontainers.version>
+  </properties>
 
 
   <!-- =============================================== -->
   <!-- PLUGIN MANAGEMENT -->
   <!-- =============================================== -->
-  <build>
-    <pluginManagement>
-      <plugins>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-compiler-plugin</artifactId>
-          <version>${maven-compiler-plugin.version}</version>
-          <configuration>
-            <parameters>true</parameters>
-            <enablePreview>false</enablePreview>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>io.quarkus.platform</groupId>
-          <artifactId>quarkus-maven-plugin</artifactId>
-          <version>${quarkus.version}</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>${maven-surefire-plugin.version}</version>
-          <configuration>
-            <systemPropertyVariables>
-              <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-            </systemPropertyVariables>
-          </configuration>
-        </plugin>
-
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-failsafe-plugin</artifactId>
-          <version>${maven-failsafe-plugin.version}</version>
-        </plugin>
-
-        <plugin>
-          <groupId>io.smallrye</groupId>
-          <artifactId>jandex-maven-plugin</artifactId>
-          <version>${jandex-plugin.version}</version>
-        </plugin>
-
-      </plugins>
-    </pluginManagement>
-  </build>
+  <version>1.0.0-SNAPSHOT</version>
 </project>
