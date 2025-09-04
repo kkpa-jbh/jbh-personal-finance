@@ -58,6 +58,11 @@
   <dependencies>
 
     <dependency>
+      <artifactId>jbh-account-application</artifactId>
+      <groupId>com.jbh</groupId>
+    </dependency>
+
+    <dependency>
       <artifactId>quarkus-arc</artifactId>
       <groupId>io.quarkus</groupId>
     </dependency>
@@ -90,9 +95,6 @@
       <artifactId>quarkus-liquibase</artifactId>
       <groupId>io.quarkus</groupId>
     </dependency>
-
-    <!-- Test Dependencies -->
-
 
   </dependencies>
   <modelVersion>4.0.0</modelVersion>

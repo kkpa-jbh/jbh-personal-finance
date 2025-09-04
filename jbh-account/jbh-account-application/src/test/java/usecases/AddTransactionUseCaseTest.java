@@ -9,8 +9,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.jbh.account_app.accounts.ports.input.AddTransactionInputPort;
+import com.jbh.account_app.accounts.ports.output.AccountMonthlyBalanceRepository;
 import com.jbh.account_app.accounts.ports.output.AccountRepository;
 import com.jbh.account_app.accounts.vo.AddTransactionWithDateAmount;
+import com.jbh.account_app.acid.UnitOfWork;
 import com.jbh.account_app.transactions.ports.output.TransactionRepository;
 import com.jbh.accounts_mgmt.accounts.domain.AccountDomain;
 import com.jbh.accounts_mgmt.accounts.domain.AccountId;
@@ -23,21 +25,24 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import utils.UnitOfWorkTest;
 
 public class AddTransactionUseCaseTest {
 
+  private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   @Mock
   private AccountRepository accountRepository;
-
   @Mock
   private TransactionRepository transactionRepository;
-
+  @Mock
+  private AccountMonthlyBalanceRepository accountMonthlyBalanceRepository;
   private AddTransactionInputPort addTransactionUseCase;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    addTransactionUseCase = new AddTransactionInputPort(accountRepository, transactionRepository);
+    addTransactionUseCase = new AddTransactionInputPort(accountRepository, transactionRepository, unitOfWork,
+        accountMonthlyBalanceRepository);
   }
 
   @Test

@@ -30,7 +30,7 @@ public class TransactionDomain {
   }
 
   private void validate() {
-    if (accountId == null || accountId.getValue() == null) {
+    if (accountId == null || accountId.value() == null) {
       throw new GenericSpecificationException("Account ID cannot be null");
     }
     if (txnDate == null) {
