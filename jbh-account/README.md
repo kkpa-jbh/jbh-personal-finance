@@ -1,6 +1,7 @@
 # MakeFile
 
 Available commands:
+
 - make help - Shows usage instructions and available targets
 - make create-schema - Creates the account_management schema
 - make drop-schema - Drops the schema with confirmation prompt
@@ -12,3 +13,20 @@ cd jbh-account
 make -f Account.mk help
 make -f Account.mk create-schema
 make -f Account.mk drop-schema
+
+# Plugins
+
+## Surefire
+
+The Surefire plugin is configured in the root pom.xml to run unit tests across all modules.
+Each module can have its own test classes, and Surefire will automatically discover and execute them during the build
+process.
+
+## JACOCO
+
+The JaCoCo plugin is also configured in the root pom.xml to provide code coverage reports for the entire project.
+It aggregates coverage data from all modules, allowing you to see overall test coverage as well as module-specific
+coverage.
+
+- To generate one report for the entire project, configure the `report-aggregate` goal in the parent POM
+- Each module where you run tests should attach the JaCoCo agent so coverage is collected:

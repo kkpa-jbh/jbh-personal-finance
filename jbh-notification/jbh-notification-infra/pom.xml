@@ -1,65 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>jbh-notification-infra</artifactId>
+  <dependencies>
+    <dependency>
+      <artifactId>quarkus-arc</artifactId>
+      <groupId>io.quarkus</groupId>
+    </dependency>
+
+    <dependency>
+      <artifactId>quarkus-rest</artifactId>
+      <groupId>io.quarkus</groupId>
+    </dependency>
+    <!-- Add Jackson for JSON support -->
+    <dependency>
+      <artifactId>quarkus-rest-jackson</artifactId>
+      <groupId>io.quarkus</groupId>
+    </dependency>
+
+    <dependency>
+      <artifactId>quarkus-smallrye-openapi</artifactId>
+      <groupId>io.quarkus</groupId>
+    </dependency>
+
+    <!-- Database Dependencies -->
+    <dependency>
+      <artifactId>quarkus-hibernate-orm-panache</artifactId>
+      <groupId>io.quarkus</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>quarkus-jdbc-postgresql</artifactId>
+      <groupId>io.quarkus</groupId>
+    </dependency>
+    <dependency>
+      <artifactId>quarkus-liquibase</artifactId>
+      <groupId>io.quarkus</groupId>
+    </dependency>
+
+    <!-- Test Dependencies -->
+
+  </dependencies>
+
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
-    <groupId>com.jbh</groupId>
     <artifactId>jbh-notification</artifactId>
+    <groupId>com.jbh</groupId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
-
-  <artifactId>jbh-notification-infra</artifactId>
 
   <properties>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
-
-  <dependencies>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-arc</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-rest</artifactId>
-    </dependency>
-    <!-- Add Jackson for JSON support -->
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-rest-jackson</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-smallrye-openapi</artifactId>
-    </dependency>
-
-    <!-- Database Dependencies -->
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-hibernate-orm-panache</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-jdbc-postgresql</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-liquibase</artifactId>
-    </dependency>
-
-    <!-- Test Dependencies -->
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-junit5</artifactId>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
-
 
 
 </project>

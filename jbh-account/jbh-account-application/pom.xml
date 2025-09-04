@@ -1,16 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>jbh-account-application</artifactId>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+            <id>prepare-agent</id>
+          </execution>
+          <execution>
+            <goals>
+              <goal>report</goal>
+            </goals>
+            <id>report</id>
+            <phase>verify</phase>
+          </execution>
+        </executions>
+        <groupId>org.jacoco</groupId>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <artifactId>jbh-account-domain</artifactId>
+      <groupId>com.jbh</groupId>
+    </dependency>
+
+
+    <dependency>
+      <artifactId>mockito-core</artifactId>
+      <groupId>org.mockito</groupId>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
   <modelVersion>4.0.0</modelVersion>
+
+  <packaging>jar</packaging>
+
   <parent>
-    <groupId>com.jbh</groupId>
     <artifactId>jbh-account</artifactId>
+    <groupId>com.jbh</groupId>
     <version>1.0.0-SNAPSHOT</version>
   </parent>
-
-  <artifactId>jbh-account-application</artifactId>
-  <packaging>jar</packaging>
 
   <properties>
     <maven.compiler.source>21</maven.compiler.source>
@@ -18,11 +57,5 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-  <dependencies>
-    <dependency>
-      <groupId>com.jbh</groupId>
-      <artifactId>jbh-account-domain</artifactId>
-    </dependency>
-  </dependencies>
 
 </project>

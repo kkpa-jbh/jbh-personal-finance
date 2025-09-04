@@ -15,6 +15,7 @@ public class TransactionDomain {
   private LocalDate txnDate;
 
   private TransactionDomain(AccountId accountId, LocalDate txnDate, BigDecimal totalAmount, TransactionType txnType) {
+    this.accountId = accountId;
     this.txnDate = txnDate;
     this.totalAmount = totalAmount;
     this.txnType = txnType;
