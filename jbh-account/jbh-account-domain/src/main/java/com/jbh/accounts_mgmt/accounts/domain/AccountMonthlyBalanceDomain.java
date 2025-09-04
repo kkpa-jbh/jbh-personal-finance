@@ -3,8 +3,10 @@ package com.jbh.accounts_mgmt.accounts.domain;
 import com.jbh.accounts_mgmt.transactions.TransactionDomain;
 import java.math.BigDecimal;
 import lombok.Builder;
+import lombok.Getter;
 
 @Builder
+@Getter
 public class AccountMonthlyBalanceDomain {
 
   private Long id;

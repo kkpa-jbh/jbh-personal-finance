@@ -40,6 +40,13 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- Logging Dependencies -->
+    <!-- Only the API, no implementation -->
+    <dependency>
+      <artifactId>slf4j-api</artifactId>
+      <groupId>org.slf4j</groupId>
+    </dependency>
+
   </dependencies>
   <modelVersion>4.0.0</modelVersion>
 

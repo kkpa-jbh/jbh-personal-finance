@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -16,6 +17,7 @@ import com.jbh.account_app.acid.UnitOfWork;
 import com.jbh.account_app.transactions.ports.output.TransactionRepository;
 import com.jbh.accounts_mgmt.accounts.domain.AccountDomain;
 import com.jbh.accounts_mgmt.accounts.domain.AccountId;
+import com.jbh.accounts_mgmt.accounts.domain.AccountMonthlyBalanceDomain;
 import com.jbh.accounts_mgmt.exceptions.GenericSpecificationException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -45,29 +47,6 @@ public class AddTransactionUseCaseTest {
         accountMonthlyBalanceRepository);
   }
 
-  @Test
-  void shouldAddTransactionSuccessfully_WhenValidInputProvided() {
-    // Given
-    UUID userId = UUID.randomUUID();
-    AccountId accountId = AccountId.generate();
-    LocalDate txnDate = LocalDate.now();
-    BigDecimal amount = new BigDecimal("100.00");
-
-    AddTransactionWithDateAmount request = new AddTransactionWithDateAmount(userId, txnDate, amount);
-    AccountDomain accountDomain = AccountDomain.withId(accountId);
-
-    when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(accountDomain));
-
-    // When & Then
-    assertDoesNotThrow(() -> addTransactionUseCase.addTransaction(accountId, request));
-
-    verify(accountRepository).findByAccountId(userId, accountId);
-    verify(transactionRepository).save(any());
-    verify(accountRepository).save(accountDomain);
-
-    assertEquals(accountDomain.getBalance(), amount);
-  }
 
   @Test
   void shouldThrowException_WhenUserIdIsNull() {
@@ -254,5 +233,74 @@ public class AddTransactionUseCaseTest {
     verify(accountRepository).findByAccountId(userId, accountId);
     verify(transactionRepository, never()).save(any());
     verify(accountRepository, never()).save(accountDomain);
+  }
+
+  @Test
+  void shouldAddTransactionSuccessfully_WhenValidInputProvided() {
+    // Given
+    UUID userId = UUID.randomUUID();
+    AccountId accountId = AccountId.generate();
+    LocalDate txnDate = LocalDate.now();
+    BigDecimal amount = new BigDecimal("100.00");
+
+    AddTransactionWithDateAmount request = new AddTransactionWithDateAmount(userId, txnDate, amount);
+    AccountDomain accountDomain = AccountDomain.withId(accountId);
+
+    when(accountRepository.findByAccountId(userId, accountId))
+        .thenReturn(Optional.of(accountDomain));
+
+    // When & Then
+    assertDoesNotThrow(() -> addTransactionUseCase.addTransaction(accountId, request));
+
+    verify(accountRepository).findByAccountId(userId, accountId);
+    verify(transactionRepository).save(any());
+    verify(accountRepository).save(accountDomain);
+
+    assertEquals(accountDomain.getBalance(), amount);
+  }
+
+  @Test
+  void shouldAddEntryWithExistingMonthlyEntries() {
+    // Given
+    UUID userId = UUID.randomUUID();
+    AccountId accountId = AccountId.generate();
+    LocalDate txnDate = LocalDate.now();
+    BigDecimal amount = new BigDecimal("100.00");
+
+    AddTransactionWithDateAmount request = new AddTransactionWithDateAmount(userId, txnDate, amount);
+    AccountDomain accountDomain = AccountDomain.withId(accountId);
+
+    when(accountRepository.findByAccountId(userId, accountId))
+        .thenReturn(Optional.of(accountDomain));
+
+    int existingEntries = 10;
+    BigDecimal existingTotalDebits = new BigDecimal("1000.00");
+    BigDecimal existingClosingBalance = new BigDecimal("600.00");
+    AccountMonthlyBalanceDomain existingBalance = AccountMonthlyBalanceDomain.builder()
+        .id(1L)
+        .accountId(accountId)
+        .balanceYear(txnDate.getYear())
+        .balanceMonth(txnDate.getMonthValue())
+        .openingBalance(new BigDecimal("500.00"))
+        .closingBalance(existingClosingBalance)
+        .totalCredits(new BigDecimal("200.00"))
+        .totalDebits(existingTotalDebits)
+        .transactionCount(existingEntries)
+        .build();
+
+    when(accountMonthlyBalanceRepository.findByAccountIdYearAndMonth(accountId, txnDate.getYear(),
+        txnDate.getMonthValue()))
+        .thenReturn(Optional.of(existingBalance));
+
+    // When & Then
+    assertDoesNotThrow(() -> addTransactionUseCase.addTransaction(accountId, request));
+
+    verify(accountRepository).findByAccountId(userId, accountId);
+    verify(transactionRepository).save(any());
+    verify(accountRepository).save(accountDomain);
+    verify(accountMonthlyBalanceRepository, atMostOnce()).save(any());
+
+    assertEquals(accountDomain.getBalance(), amount);
+    assertEquals(existingEntries + 1, existingBalance.getTransactionCount());
   }
 }

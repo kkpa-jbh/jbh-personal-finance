@@ -34,6 +34,12 @@
       <groupId>org.projectlombok</groupId>
       <scope>provided</scope>
     </dependency>
+
+    <!-- Logging Dependencies -->
+    <dependency>
+      <artifactId>slf4j-api</artifactId>
+      <groupId>org.slf4j</groupId>
+    </dependency>
   </dependencies>
 
   <modelVersion>4.0.0</modelVersion>

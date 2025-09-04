@@ -1,7 +1,8 @@
 package com.jbh.accounts_mgmt.transactions;
 
-public enum TransactionType {
+public enum AccountEntryType {
   DEPOSIT,
   WITHDRAWAL,
-  REFRESH_EFFECTIVE_BALANCE
+  EXPENSE,
+  BALANCE_SNAPSHOT
 }

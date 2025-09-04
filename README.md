@@ -1,9 +1,11 @@
 # jbh-personal-finance
+
 Modular monolith to handle personal finance
 
 # MAKEFILE
 
 Global commands:
+
 - make help - Shows comprehensive help for all modules
 - make create-all-schemas - Creates all module schemas
 - make drop-all-schemas - Drops all schemas (with confirmation)
@@ -11,24 +13,30 @@ Global commands:
 - make check-all-connections - Tests all database connections
 
 Module-specific help:
+
 - make account-help - Shows account module help
 - make notification-help - Shows notification module help
 
 Individual module commands:
+
 - make account-create-schema - Creates only account schema
 - make account-drop-schema - Drops only account schema
 - make notification-create-schema - Creates only notification schema
 - make notification-drop-schema - Drops only notification schema
 
-The root Makefile delegates to each module's specific .mk file, maintaining separation while providing centralized control.
+The root Makefile delegates to each module's specific .mk file, maintaining separation while providing centralized
+control.
 
 ## Project Overview
 
-I want to build a modular monolith with some boundaries (A , B, C ) and each module (A , B , C) will contain submodules where each submodule will use hexagonal architecture.
-At the end all modules belong to the same root parent project running with quarkus and only the submodule (C.infrastructure, A.infrastructure, B.infrastructure) will the ones that exposes APIs ...
-and I'd like to be able to centralize the server port for all modules. 
+I want to build a modular monolith with some boundaries (A , B, C ) and each module (A , B , C) will contain submodules
+where each submodule will use hexagonal architecture.
+At the end all modules belong to the same root parent project running with quarkus and only the submodule (
+C.infrastructure, A.infrastructure, B.infrastructure) will the ones that exposes APIs ...
+and I'd like to be able to centralize the server port for all modules.
 
-Each module should be completely independent in how it exposes its APIs, and the assembly should just aggregate them without imposing any specific technology choices.
+Each module should be completely independent in how it exposes its APIs, and the assembly should just aggregate them
+without imposing any specific technology choices.
 
 A modular monolith with clean hexagonal boundaries.
 
@@ -36,31 +44,33 @@ One single Quarkus runtime.
 
 Central control over server, DB, logging, health, metrics.
 
-Easy future migration: if module-b needs to become its own service, just move its infrastructure into a new Quarkus app module.
+Easy future migration: if module-b needs to become its own service, just move its infrastructure into a new Quarkus app
+module.
 
 ## How it works
 
 - Root POM → BOM & plugin versions, no Quarkus runtime.
 - Modules A/B/C → structured into hexagonal submodules.
 - App module
-  - Contains application.properties with quarkus.http.port=7777 → applies to the entire app
-  - Is the only module with the Quarkus Maven plugin → builds the runnable JAR.
-    - Depends on all infrastructure modules:
-    ```xml
-    <dependencies>
-        <dependency>
-            <groupId>com.example</groupId>
-            <artifactId>jbh-account-infrastructure</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.example</groupId>
-            <artifactId>module-b-infrastructure</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.example</groupId>
-            <artifactId>module-c-infrastructure</artifactId>
-        </dependency>
-    </dependencies>
+    - Contains application.properties with quarkus.http.port=7777 → applies to the entire app
+    - Is the only module with the Quarkus Maven plugin → builds the runnable JAR.
+        - Depends on all infrastructure modules:
+      ```xml
+      <dependencies>
+          <dependency>
+              <groupId>com.example</groupId>
+              <artifactId>jbh-account-infrastructure</artifactId>
+          </dependency>
+          <dependency>
+              <groupId>com.example</groupId>
+              <artifactId>module-b-infrastructure</artifactId>
+          </dependency>
+          <dependency>
+              <groupId>com.example</groupId>
+              <artifactId>module-c-infrastructure</artifactId>
+          </dependency>
+      </dependencies>
+
 ```
 
 ```bash
@@ -111,29 +121,32 @@ jbh-personal-finance/
 
 ### Why Jandex Plugin is Required
 
-Quarkus uses **Jandex indexing** for CDI bean discovery in modular projects. Without proper indexing, your REST endpoints and CDI beans won't be discovered at runtime.
+Quarkus uses **Jandex indexing** for CDI bean discovery in modular projects. Without proper indexing, your REST
+endpoints and CDI beans won't be discovered at runtime.
 
 ### Plugin Placement Strategy
 
 **❌ Don't put Jandex in Assembly/Root POM:**
+
 - Assembly can only index its own classes
 - Cannot retroactively index dependency JARs
 - Each JAR needs its own `META-INF/jandex.idx` file
 
 **✅ Put Jandex in Infrastructure Modules:**
+
 ```xml
 <!-- In each *-infra module pom.xml -->
 <plugin>
-    <groupId>io.smallrye</groupId>
-    <artifactId>jandex-maven-plugin</artifactId>
-    <executions>
-        <execution>
-            <id>make-index</id>
-            <goals>
-                <goal>jandex</goal>
-            </goals>
-        </execution>
-    </executions>
+  <groupId>io.smallrye</groupId>
+  <artifactId>jandex-maven-plugin</artifactId>
+  <executions>
+    <execution>
+      <id>make-index</id>
+      <goals>
+        <goal>jandex</goal>
+      </goals>
+    </execution>
+  </executions>
 </plugin>
 ```
 
@@ -162,22 +175,21 @@ Manage plugin versions in root POM, use in infrastructure modules:
 ```xml
 <!-- Root pom.xml - Version Management -->
 <pluginManagement>
-    <plugin>
-        <groupId>io.smallrye</groupId>
-        <artifactId>jandex-maven-plugin</artifactId>
-        <version>3.1.2</version>
-    </plugin>
-</pluginManagement>
-
-<!-- Infrastructure module pom.xml - Usage -->
-<plugin>
+  <plugin>
     <groupId>io.smallrye</groupId>
     <artifactId>jandex-maven-plugin</artifactId>
-    <!-- Inherits version from parent -->
-    <executions>...</executions>
+    <version>3.1.2</version>
+  </plugin>
+</pluginManagement>
+
+  <!-- Infrastructure module pom.xml - Usage -->
+<plugin>
+<groupId>io.smallrye</groupId>
+<artifactId>jandex-maven-plugin</artifactId>
+<!-- Inherits version from parent -->
+<executions>...</executions>
 </plugin>
 ```
-
 
 # ADDING NEW MODULES TO THE ASSEMBLY
 
@@ -186,11 +198,11 @@ Manage plugin versions in root POM, use in infrastructure modules:
 3. Add module dependency to assembly - Reference the new module in jbh-assembly/pom.xml
 4. Run the app - Everything should work since JARs are in local repo
 
-The key is step 2 - mvn clean install puts the new module JAR in your local Maven repository (~/.m2/repository), making it available for other modules to reference. Without this, Maven can't find the JAR when resolving
+The key is step 2 - mvn clean install puts the new module JAR in your local Maven repository (~/.m2/repository), making
+it available for other modules to reference. Without this, Maven can't find the JAR when resolving
 dependencies.
 
 This workflow ensures the module exists before other modules try to depend on it.
-
 
 1. Parent pom dependencies in root dependencyManagement:
 
@@ -210,8 +222,20 @@ Root pom dependencyManagement: Add entries for modules that will be used as depe
 </dependency>
 
 Assembly dependencies: Only add if the assembly needs that specific module. Typically:
+
 - ✅ Add -infra modules (contain REST endpoints, repositories)
 - ✅ Add -application modules (contain use cases, services)
 - ❌ Don't add -domain modules directly (they're transitive dependencies)
 
-Best practice: Remove parent pom entries from dependencyManagement and only include actual JAR-producing modules that other modules will depend on.
+Best practice: Remove parent pom entries from dependencyManagement and only include actual JAR-producing modules that
+other modules will depend on.
+
+## LOGGING
+
+### slf4j-api:
+
+- Use slf4j-api in all modules for logging calls
+- The Simple Logging Facade for Java API
+- Provides the logging interface/contract (Logger, LoggerFactory, etc.)
+- Your code uses this API for logging calls
+- Acts as an abstraction layer over actual logging implementation

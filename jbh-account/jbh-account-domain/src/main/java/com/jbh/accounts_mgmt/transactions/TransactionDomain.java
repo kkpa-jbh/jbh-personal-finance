@@ -11,11 +11,11 @@ public class TransactionDomain {
 
   private TransactionId id;
   private AccountId accountId;
-  private TransactionType txnType;
+  private AccountEntryType txnType;
   private BigDecimal totalAmount;
   private LocalDate txnDate;
 
-  private TransactionDomain(AccountId accountId, LocalDate txnDate, BigDecimal totalAmount, TransactionType txnType) {
+  private TransactionDomain(AccountId accountId, LocalDate txnDate, BigDecimal totalAmount, AccountEntryType txnType) {
     this.accountId = accountId;
     this.txnDate = txnDate;
     this.totalAmount = totalAmount;
@@ -24,8 +24,8 @@ public class TransactionDomain {
   }
 
   public static TransactionDomain of(AccountId accountId, LocalDate txnDate, BigDecimal totalAmount) {
-    TransactionType txnType =
-        totalAmount.compareTo(BigDecimal.ZERO) >= 0 ? TransactionType.DEPOSIT : TransactionType.WITHDRAWAL;
+    AccountEntryType txnType =
+        totalAmount.compareTo(BigDecimal.ZERO) >= 0 ? AccountEntryType.DEPOSIT : AccountEntryType.WITHDRAWAL;
     return new TransactionDomain(accountId, txnDate, totalAmount, txnType);
   }
 

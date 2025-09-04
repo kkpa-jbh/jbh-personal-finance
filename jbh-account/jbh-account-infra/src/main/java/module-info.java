@@ -7,4 +7,5 @@ module jbh.account.infra {
   requires quarkus.panache.common;
 
   requires jbh.account.application;
+  requires org.slf4j;
 }
