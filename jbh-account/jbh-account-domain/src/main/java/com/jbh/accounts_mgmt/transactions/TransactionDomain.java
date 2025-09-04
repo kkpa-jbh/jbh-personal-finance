@@ -39,5 +39,9 @@ public class TransactionDomain {
     if (totalAmount == null) {
       throw new GenericSpecificationException("Total amount cannot be null");
     }
+
+    if (txnDate.isAfter(LocalDate.now())) {
+      throw new GenericSpecificationException("Transaction date cannot be in the future");
+    }
   }
 }

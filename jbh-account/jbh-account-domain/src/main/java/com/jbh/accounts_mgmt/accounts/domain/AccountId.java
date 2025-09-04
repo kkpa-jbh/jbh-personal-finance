@@ -14,7 +14,7 @@ public class AccountId {
     validateFormat(value);
   }
 
-  public static AccountId from(UUID value) {
+  public static AccountId of(UUID value) {
     return new AccountId(value);
   }
 

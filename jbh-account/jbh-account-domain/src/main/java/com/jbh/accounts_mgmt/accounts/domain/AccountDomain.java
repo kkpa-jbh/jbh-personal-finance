@@ -18,6 +18,19 @@ public class AccountDomain {
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
+  private AccountDomain() {
+    this.balance = BigDecimal.ZERO;
+    this.effectiveBalance = BigDecimal.ZERO;
+    this.createdAt = LocalDateTime.now();
+    this.updatedAt = LocalDateTime.now();
+  }
+
+  public static AccountDomain withId(AccountId id) {
+    AccountDomain account = new AccountDomain();
+    account.setId(id);
+    return account;
+  }
+
   public void syncBalances(TransactionDomain txnDomain) {
     if (txnDomain == null) {
       throw new GenericSpecificationException("Transaction cannot be null");
@@ -30,7 +43,7 @@ public class AccountDomain {
     }
 
     if (txnDomain.getTotalAmount().signum() < 0) {
-      if (this.effectiveBalance.subtract(txnDomain.getTotalAmount()).signum() < 0) {
+      if (this.effectiveBalance.add(txnDomain.getTotalAmount()).signum() < 0) {
         throw new GenericSpecificationException("Insufficient effective balance");
       }
     }
