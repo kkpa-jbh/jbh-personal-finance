@@ -28,10 +28,12 @@ public class AccountDomain {
     if (txnDomain.getTotalAmount() == null) {
       throw new GenericSpecificationException("Transaction amount cannot be null");
     }
-    if (this.effectiveBalance.subtract(txnDomain.getTotalAmount()).signum() < 0) {
-      throw new GenericSpecificationException("Insufficient effective balance");
-    }
 
+    if (txnDomain.getTotalAmount().signum() < 0) {
+      if (this.effectiveBalance.subtract(txnDomain.getTotalAmount()).signum() < 0) {
+        throw new GenericSpecificationException("Insufficient effective balance");
+      }
+    }
     applyTransaction(txnDomain);
   }
 

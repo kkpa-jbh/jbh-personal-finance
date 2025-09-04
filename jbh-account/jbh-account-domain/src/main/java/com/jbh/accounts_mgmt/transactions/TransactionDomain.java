@@ -1,6 +1,7 @@
 package com.jbh.accounts_mgmt.transactions;
 
 import com.jbh.accounts_mgmt.accounts.domain.AccountId;
+import com.jbh.accounts_mgmt.exceptions.GenericSpecificationException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import lombok.Data;
@@ -23,10 +24,6 @@ public class TransactionDomain {
   }
 
   public static TransactionDomain of(AccountId accountId, LocalDate txnDate, BigDecimal totalAmount) {
-    if (totalAmount == null) {
-      throw new IllegalArgumentException("Total amount cannot be null");
-    }
-
     TransactionType txnType =
         totalAmount.compareTo(BigDecimal.ZERO) >= 0 ? TransactionType.DEPOSIT : TransactionType.WITHDRAWAL;
     return new TransactionDomain(accountId, txnDate, totalAmount, txnType);
@@ -34,13 +31,13 @@ public class TransactionDomain {
 
   private void validate() {
     if (accountId == null || accountId.getValue() == null) {
-      throw new IllegalArgumentException("Account ID cannot be null");
+      throw new GenericSpecificationException("Account ID cannot be null");
     }
     if (txnDate == null) {
-      throw new IllegalArgumentException("Transaction date cannot be null");
+      throw new GenericSpecificationException("Transaction date cannot be null");
     }
     if (totalAmount == null) {
-      throw new IllegalArgumentException("Total amount cannot be null");
+      throw new GenericSpecificationException("Total amount cannot be null");
     }
   }
 }

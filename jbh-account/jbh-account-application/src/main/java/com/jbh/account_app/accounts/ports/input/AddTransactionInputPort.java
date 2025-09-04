@@ -7,9 +7,7 @@ import com.jbh.account_app.transactions.ports.output.TransactionRepository;
 import com.jbh.accounts_mgmt.accounts.domain.AccountDomain;
 import com.jbh.accounts_mgmt.accounts.domain.AccountId;
 import com.jbh.accounts_mgmt.transactions.TransactionDomain;
-import jakarta.enterprise.context.ApplicationScoped;
 
-@ApplicationScoped
 public class AddTransactionInputPort implements AddTransactionUseCase {
 
   private final AccountRepository accountRepository;
@@ -33,9 +31,9 @@ public class AddTransactionInputPort implements AddTransactionUseCase {
     TransactionDomain transactionDomain = TransactionDomain.of(accountDomain.getId(), requestVO.txnDate(),
         requestVO.totalAmount());
 
-    transactionRepository.save(transactionDomain);
-
     accountDomain.syncBalances(transactionDomain);
+    
+    transactionRepository.save(transactionDomain);
     accountRepository.save(accountDomain);
   }
 }

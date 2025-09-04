@@ -19,11 +19,6 @@
           <version>${maven-compiler-plugin.version}</version>
         </plugin>
 
-        <plugin>
-          <artifactId>quarkus-maven-plugin</artifactId>
-          <groupId>io.quarkus.platform</groupId>
-          <version>${quarkus.version}</version>
-        </plugin>
 
         <!--Discover Tests & Generate reports (target/surefire-reports)  -->
         <plugin>
@@ -54,14 +49,7 @@
       </plugins>
     </pluginManagement>
   </build>
-  <dependencies>
-    <dependency>
-      <artifactId>quarkus-arc</artifactId>
-      <groupId>io.quarkus</groupId>
-    </dependency>
 
-
-  </dependencies>
   <dependencyManagement>
     <dependencies>
       <!-- Quarkus BOM - Manages all Quarkus dependencies -->

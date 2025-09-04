@@ -39,10 +39,6 @@
         <groupId>org.apache.maven.plugins</groupId>
       </plugin>
 
-      <plugin>
-        <artifactId>quarkus-maven-plugin</artifactId>
-        <groupId>io.quarkus.platform</groupId>
-      </plugin>
 
       <!-- Surefire Plugin for Unit Tests -->
       <plugin>
@@ -68,10 +64,7 @@
   </build>
 
   <dependencies>
-    <dependency>
-      <artifactId>quarkus-arc</artifactId>
-      <groupId>io.quarkus</groupId>
-    </dependency>
+
 
     <dependency>
       <artifactId>lombok</artifactId>
@@ -140,8 +133,8 @@
   </parent>
 
   <properties>
-    <maven.compiler.source>21</maven.compiler.source>
-    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 

@@ -34,7 +34,9 @@
       <plugin>
         <artifactId>quarkus-maven-plugin</artifactId>
         <groupId>io.quarkus.platform</groupId>
+        <version>${quarkus.version}</version>
       </plugin>
+
 
       <!-- Jandex Plugin for CDI Bean Discovery -->
       <plugin>
