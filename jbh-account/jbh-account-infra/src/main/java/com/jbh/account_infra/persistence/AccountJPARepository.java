@@ -1,4 +1,4 @@
-package com.jbh.account.infra.persistence;
+package com.jbh.account_infra.persistence;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;

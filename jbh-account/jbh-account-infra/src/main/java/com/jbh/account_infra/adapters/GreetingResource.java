@@ -1,9 +1,9 @@
-package com.jbh.account;
+package com.jbh.account_infra.adapters;
 
+import com.jbh.account_infra.ApiConstants;
 import io.quarkus.logging.Log;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;

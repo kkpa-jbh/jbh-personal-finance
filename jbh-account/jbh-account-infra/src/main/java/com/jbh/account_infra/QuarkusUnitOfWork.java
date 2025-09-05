@@ -1,4 +1,4 @@
-package com.jbh.account.infra.persistence;
+package com.jbh.account_infra;
 
 import com.jbh.account_app.acid.UnitOfWork;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 @Transactional
 public class QuarkusUnitOfWork implements UnitOfWork {
 
- 
+
   @Override
   public void execute(Runnable action) {
     action.run();

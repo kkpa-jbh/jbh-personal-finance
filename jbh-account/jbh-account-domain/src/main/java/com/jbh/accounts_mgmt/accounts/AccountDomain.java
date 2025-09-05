@@ -1,7 +1,7 @@
-package com.jbh.accounts_mgmt.accounts.domain;
+package com.jbh.accounts_mgmt.accounts;
 
 import com.jbh.accounts_mgmt.exceptions.GenericSpecificationException;
-import com.jbh.accounts_mgmt.transactions.TransactionDomain;
+import com.jbh.accounts_mgmt.movements.AccountMovement;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Data;
@@ -31,27 +31,27 @@ public class AccountDomain {
     return account;
   }
 
-  public void syncBalances(TransactionDomain txnDomain) {
+  public void syncBalances(AccountMovement txnDomain) {
     if (txnDomain == null) {
-      throw new GenericSpecificationException("Transaction cannot be null");
+      throw new GenericSpecificationException("Movement cannot be null");
     }
-    if (txnDomain.getTxnDate() == null) {
-      throw new GenericSpecificationException("Transaction date cannot be null");
+    if (txnDomain.getMovementDate() == null) {
+      throw new GenericSpecificationException("Movement date cannot be null");
     }
-    if (txnDomain.getTotalAmount() == null) {
-      throw new GenericSpecificationException("Transaction amount cannot be null");
+    if (txnDomain.getMovementAmount() == null) {
+      throw new GenericSpecificationException("Movement amount cannot be null");
     }
 
-    if (txnDomain.getTotalAmount().signum() < 0) {
-      if (this.effectiveBalance.add(txnDomain.getTotalAmount()).signum() < 0) {
+    if (txnDomain.getMovementAmount().signum() < 0) {
+      if (this.effectiveBalance.add(txnDomain.getMovementAmount()).signum() < 0) {
         throw new GenericSpecificationException("Insufficient effective balance");
       }
     }
-    applyTransaction(txnDomain);
+    applyMovement(txnDomain);
   }
 
-  private void applyTransaction(TransactionDomain txnDomain) {
-    this.balance = this.balance.add(txnDomain.getTotalAmount());
-    this.effectiveBalance = this.effectiveBalance.add(txnDomain.getTotalAmount());
+  private void applyMovement(AccountMovement txnDomain) {
+    this.balance = this.balance.add(txnDomain.getMovementAmount());
+    this.effectiveBalance = this.effectiveBalance.add(txnDomain.getMovementAmount());
   }
 }

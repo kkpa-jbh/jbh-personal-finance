@@ -1,6 +1,6 @@
-package com.jbh.accounts_mgmt.accounts.domain;
+package com.jbh.accounts_mgmt.accounts;
 
-import com.jbh.accounts_mgmt.transactions.TransactionDomain;
+import com.jbh.accounts_mgmt.movements.AccountMovement;
 import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,7 +17,7 @@ public class AccountMonthlyBalanceDomain {
   private BigDecimal closingBalance;
   private BigDecimal totalCredits;
   private BigDecimal totalDebits;
-  private Integer transactionCount;
+  private Integer MovementCount;
 
   public static AccountMonthlyBalanceDomain of(AccountId accountId, int year, int month) {
     return new AccountMonthlyBalanceDomain(null, accountId, year, month,
@@ -25,10 +25,10 @@ public class AccountMonthlyBalanceDomain {
   }
 
 
-  public void syncTransaction(TransactionDomain txnDomain) {
-    this.transactionCount++;
+  public void syncMovement(AccountMovement txnDomain) {
+    this.MovementCount++;
 
-    BigDecimal amount = txnDomain.getTotalAmount();
+    BigDecimal amount = txnDomain.getMovementAmount();
     if (amount.signum() > 0) {
       this.totalCredits = this.totalCredits.add(amount);
     } else {
