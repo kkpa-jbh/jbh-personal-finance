@@ -3,7 +3,7 @@ package com.jbh.account.application.accounts.usecases;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,8 +13,8 @@ import com.jbh.account.application.accounts.ports.output.AccountMonthlyBalanceRe
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import com.jbh.account.application.accounts.usecases.utils.TestDataFactory;
 import com.jbh.account.application.accounts.usecases.utils.UnitOfWorkTest;
-import com.jbh.account.application.accounts.vo.AddMovementResponse;
-import com.jbh.account.application.accounts.vo.AddSimpleMovementRequest;
+import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
+import com.jbh.account.application.accounts.vo.AddBasicMovementResponse;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.accounts_mgmt.accounts.AccountDomain;
@@ -43,12 +43,13 @@ public class RegisterSimpleMovementExecutionTest {
   private AccountMovementRepository accountMovementRepository;
   @Mock
   private AccountMonthlyBalanceRepository accountMonthlyBalanceRepository;
-  private RegisterSimpleMovementInputPort registerSimpleMovementInputPort;
+
+  private RegisterSimpleMovementInputPort useCaseInstanceTest;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    registerSimpleMovementInputPort = new RegisterSimpleMovementInputPort(accountRepository, accountMovementRepository,
+    useCaseInstanceTest = new RegisterSimpleMovementInputPort(accountRepository, accountMovementRepository,
         unitOfWork,
         accountMonthlyBalanceRepository);
   }
@@ -61,19 +62,19 @@ public class RegisterSimpleMovementExecutionTest {
     LocalDate movementDate = LocalDate.now();
     BigDecimal amount = new BigDecimal("100.00");
 
-    AddSimpleMovementRequest request = new AddSimpleMovementRequest(movementDate, amount);
+    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
     AccountDomain accountDomain = AccountDomain.withId(accountId);
 
     when(accountRepository.findByAccountId(userId, accountId))
         .thenReturn(Optional.of(accountDomain));
 
     // When & Then
-    AtomicReference<AddMovementResponse> mvmtResponse = new AtomicReference<>();
+    AtomicReference<AddBasicMovementResponse> mvmtResponse = new AtomicReference<>();
     assertDoesNotThrow(
-        () -> mvmtResponse.set(registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request)));
+        () -> mvmtResponse.set(useCaseInstanceTest.addSimpleMovement(userId, accountId, request)));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save(any());
+    verify(accountMovementRepository).save(anyList());
     verify(accountRepository).save(accountDomain);
 
     assertEquals(accountDomain.getMovementBalance(), amount);
@@ -89,7 +90,7 @@ public class RegisterSimpleMovementExecutionTest {
     LocalDate movementDate = LocalDate.now();
     BigDecimal balanceSnashot = new BigDecimal("200.00");
 
-    AddSimpleMovementRequest request = new AddSimpleMovementRequest(movementDate, null, balanceSnashot);
+    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, null, balanceSnashot);
     AccountDomain accountDomain = AccountDomain.withId(accountId);
     BigDecimal existingAccountPpalBalance = new BigDecimal("100.00");
     accountDomain.setMovementBalance(existingAccountPpalBalance);
@@ -99,12 +100,12 @@ public class RegisterSimpleMovementExecutionTest {
         .thenReturn(Optional.of(accountDomain));
 
     // When & Then
-    AtomicReference<AddMovementResponse> mvmtResponse = new AtomicReference<>();
+    AtomicReference<AddBasicMovementResponse> mvmtResponse = new AtomicReference<>();
     assertDoesNotThrow(
-        () -> mvmtResponse.set(registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request)));
+        () -> mvmtResponse.set(useCaseInstanceTest.addSimpleMovement(userId, accountId, request)));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save(any());
+    verify(accountMovementRepository).save(anyList());
     verify(accountRepository).save(accountDomain);
 
     assertEquals(balanceSnashot, mvmtResponse.get().account().getCurrentBalance());
@@ -124,7 +125,7 @@ public class RegisterSimpleMovementExecutionTest {
     BigDecimal amount = new BigDecimal("22685312.00");
     BigDecimal balanceSnapshot = new BigDecimal("35693653.00");
 
-    AddSimpleMovementRequest request = new AddSimpleMovementRequest(movementDate, amount, balanceSnapshot);
+    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount, balanceSnapshot);
     AccountDomain accountDomain = AccountDomain.withId(accountId);
     BigDecimal existingMovBalance = new BigDecimal("12591000.00");
     accountDomain.setMovementBalance(existingMovBalance);
@@ -134,12 +135,12 @@ public class RegisterSimpleMovementExecutionTest {
         .thenReturn(Optional.of(accountDomain));
 
     // When & Then
-    AtomicReference<AddMovementResponse> mvmtResponse = new AtomicReference<>();
+    AtomicReference<AddBasicMovementResponse> mvmtResponse = new AtomicReference<>();
     assertDoesNotThrow(() -> mvmtResponse.set(
-        registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request)));
+        useCaseInstanceTest.addSimpleMovement(userId, accountId, request)));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save(any());
+    verify(accountMovementRepository).save(anyList());
     verify(accountRepository).save(accountDomain);
 
     AccountDomain accountResponse = mvmtResponse.get().account();
@@ -167,7 +168,7 @@ public class RegisterSimpleMovementExecutionTest {
     LocalDate movementDate = LocalDate.now();
     BigDecimal amount = new BigDecimal("100.00");
 
-    AddSimpleMovementRequest request = new AddSimpleMovementRequest(movementDate, amount);
+    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
     AccountDomain accountDomain = AccountDomain.withId(accountId);
 
     when(accountRepository.findByAccountId(userId, accountId))
@@ -195,14 +196,14 @@ public class RegisterSimpleMovementExecutionTest {
         .thenReturn(Optional.of(existingMonthlyBalance));
 
     // When & Then
-    AtomicReference<AddMovementResponse> processedResponse = new AtomicReference<>();
+    AtomicReference<AddBasicMovementResponse> processedResponse = new AtomicReference<>();
     assertDoesNotThrow(() -> processedResponse.set(
-        registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request)));
+        useCaseInstanceTest.addSimpleMovement(userId, accountId, request)));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save(any());
+    verify(accountMovementRepository).save(anyList());
     verify(accountRepository).save(accountDomain);
-    verify(accountMonthlyBalanceRepository, atMostOnce()).save(any());
+    verify(accountMonthlyBalanceRepository, atMostOnce()).save(anyList());
 
     assertEquals(accountDomain.getMovementBalance(), amount);
     assertEquals(existingEntries + 1, processedResponse.get().monthlyBalance().getTotalMovements());
@@ -215,31 +216,33 @@ public class RegisterSimpleMovementExecutionTest {
 
   @Test
   @DisplayName("Should create account movement test data with correct values")
-  void shouldCreateAccountMovementTestData() {
+  void shouldSyncBalancesWithMultipleMovements() {
     // Given
-    List<AddSimpleMovementRequest> testData = TestDataFactory.createAccountMovementTestData();
+    UUID userId = UUID.randomUUID();
+    AccountId accountId = AccountId.generate();
+    List<AddBasicMovementRequest> allSimpleMovements = TestDataFactory.createAccountMovementTestData();
 
     // Then
-    assertEquals(10, testData.size());
+    assertEquals(10, allSimpleMovements.size());
 
     // Verify first entry
-    AddSimpleMovementRequest firstEntry = testData.get(0);
+    AddBasicMovementRequest firstEntry = allSimpleMovements.get(0);
     assertEquals(LocalDate.of(2024, 7, 30), firstEntry.entryDate());
     assertEquals(0, new BigDecimal("12591000.00").compareTo(firstEntry.totalAmount()));
     assertEquals(0, new BigDecimal("12689712.00").compareTo(firstEntry.balanceSnapshot()));
 
     // Verify last entry (account reaches zero)
-    AddSimpleMovementRequest lastEntry = testData.get(9);
+    AddBasicMovementRequest lastEntry = allSimpleMovements.get(9);
     assertEquals(LocalDate.of(2025, 3, 31), lastEntry.entryDate());
     assertEquals(0, new BigDecimal("-3768488.00").compareTo(lastEntry.totalAmount()));
     assertEquals(0, BigDecimal.ZERO.compareTo(lastEntry.balanceSnapshot()));
 
     // Verify some negative amounts
-    AddSimpleMovementRequest novemberEntry = testData.get(4); // 30/11/2024
+    AddBasicMovementRequest novemberEntry = allSimpleMovements.get(4); // 30/11/2024
     assertTrue(novemberEntry.totalAmount().compareTo(BigDecimal.ZERO) < 0);
     assertEquals(0, new BigDecimal("-673605.00").compareTo(novemberEntry.totalAmount()));
 
-    AccountId accountId = AccountId.generate();
+    useCaseInstanceTest.addSimpleMovement(userId, accountId, allSimpleMovements);
 
 
   }
@@ -248,31 +251,31 @@ public class RegisterSimpleMovementExecutionTest {
   @DisplayName("Should create extended account movement test data with correct values")
   void shouldCreateExtendedAccountMovementTestData() {
     // Given
-    List<AddSimpleMovementRequest> testData = TestDataFactory.createExtendedAccountMovementTestData();
+    List<AddBasicMovementRequest> testData = TestDataFactory.createExtendedAccountMovementTestData();
 
     // Then
     assertEquals(25, testData.size());
 
     // Verify first entry (October 2023)
-    AddSimpleMovementRequest firstEntry = testData.get(0);
+    AddBasicMovementRequest firstEntry = testData.get(0);
     assertEquals(LocalDate.of(2023, 10, 31), firstEntry.entryDate());
     assertEquals(0, new BigDecimal("13010000.00").compareTo(firstEntry.totalAmount()));
     assertEquals(0, new BigDecimal("13062118.00").compareTo(firstEntry.balanceSnapshot()));
 
     // Verify large deposit in May 2024
-    AddSimpleMovementRequest mayDeposit = testData.get(8); // 03/05/2024
+    AddBasicMovementRequest mayDeposit = testData.get(8); // 03/05/2024
     assertEquals(LocalDate.of(2024, 5, 3), mayDeposit.entryDate());
     assertEquals(0, new BigDecimal("24100000.00").compareTo(mayDeposit.totalAmount()));
     assertEquals(0, new BigDecimal("65394365.00").compareTo(mayDeposit.balanceSnapshot()));
 
     // Verify large withdrawal in July 2024
-    AddSimpleMovementRequest julyWithdrawal = testData.get(13); // 31/07/2024
+    AddBasicMovementRequest julyWithdrawal = testData.get(13); // 31/07/2024
     assertEquals(LocalDate.of(2024, 7, 31), julyWithdrawal.entryDate());
     assertEquals(0, new BigDecimal("-20000000.00").compareTo(julyWithdrawal.totalAmount()));
     assertEquals(0, new BigDecimal("32809397.00").compareTo(julyWithdrawal.balanceSnapshot()));
 
     // Verify final entry (August 2025)
-    AddSimpleMovementRequest lastEntry = testData.get(24);
+    AddBasicMovementRequest lastEntry = testData.get(24);
     assertEquals(LocalDate.of(2025, 8, 30), lastEntry.entryDate());
     assertEquals(0, BigDecimal.ZERO.compareTo(lastEntry.totalAmount()));
     assertEquals(0, new BigDecimal("37074883.00").compareTo(lastEntry.balanceSnapshot()));

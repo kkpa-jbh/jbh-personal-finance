@@ -3,6 +3,7 @@ package com.jbh.accounts_mgmt.accounts;
 import com.jbh.accounts_mgmt.movements.AccountMovementDomain;
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -45,6 +46,10 @@ public class AccountMonthlyBalanceDomain {
       this.closingBalance = mvmt.getBalanceSnapshot();
     }
 
+  }
+
+  public void syncMovements(List<AccountMovementDomain> movementsInPeriod) {
+    movementsInPeriod.forEach(this::syncMovement);
   }
 }
 

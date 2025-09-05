@@ -2,6 +2,7 @@ package com.jbh.account.application.accounts.ports.output;
 
 import com.jbh.accounts_mgmt.accounts.AccountId;
 import com.jbh.accounts_mgmt.accounts.AccountMonthlyBalanceDomain;
+import java.util.List;
 import java.util.Optional;
 
 public interface AccountMonthlyBalanceRepository {
@@ -10,4 +11,6 @@ public interface AccountMonthlyBalanceRepository {
       Integer balanceMonth);
 
   void save(AccountMonthlyBalanceDomain accountMonthlyBalance);
+
+  void save(List<AccountMonthlyBalanceDomain> accountMonthlyBalance);
 }

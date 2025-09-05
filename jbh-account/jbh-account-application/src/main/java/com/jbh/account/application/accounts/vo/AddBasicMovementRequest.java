@@ -10,12 +10,12 @@ import java.time.LocalDate;
  * @param totalAmount     Positive for deposit, negative for withdrawal
  * @param balanceSnapshot Current balance after the movement (optional)
  */
-public record AddSimpleMovementRequest(
+public record AddBasicMovementRequest(
     LocalDate entryDate,
     BigDecimal totalAmount,
     BigDecimal balanceSnapshot) {
 
-  public AddSimpleMovementRequest(LocalDate entryDate, BigDecimal totalAmount) {
+  public AddBasicMovementRequest(LocalDate entryDate, BigDecimal totalAmount) {
     this(entryDate, totalAmount, null);
   }
 

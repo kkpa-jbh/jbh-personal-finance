@@ -4,6 +4,9 @@ import com.jbh.accounts_mgmt.exceptions.GenericSpecificationException;
 import com.jbh.accounts_mgmt.movements.AccountMovementDomain;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.Data;
 
 @Data
@@ -31,6 +34,17 @@ public class AccountDomain {
     return account;
   }
 
+  public void syncBalances(List<AccountMovementDomain> multipleMovements) {
+    if (multipleMovements == null || multipleMovements.isEmpty()) {
+      throw new GenericSpecificationException("Movements cannot be null or empty");
+    }
+    multipleMovements = multipleMovements.stream().filter(Objects::nonNull).collect(Collectors.toList());
+
+    for (AccountMovementDomain movement : multipleMovements) {
+      syncBalances(movement);
+    }
+  }
+
   public void syncBalances(AccountMovementDomain movement) {
     if (movement == null) {
       throw new GenericSpecificationException("Movement cannot be null");
@@ -52,6 +66,7 @@ public class AccountDomain {
 
     applyMovement(movement);
   }
+
 
   private void applyMovement(AccountMovementDomain newAccountMovement) {
     if (newAccountMovement.getMovementAmount() != null) {

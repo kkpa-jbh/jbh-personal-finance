@@ -3,7 +3,7 @@ package com.jbh.account.application.accounts.usecases;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -12,8 +12,8 @@ import com.jbh.account.application.accounts.ports.input.RegisterSimpleMovementIn
 import com.jbh.account.application.accounts.ports.output.AccountMonthlyBalanceRepository;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import com.jbh.account.application.accounts.usecases.utils.UnitOfWorkTest;
-import com.jbh.account.application.accounts.vo.AddMovementResponse;
-import com.jbh.account.application.accounts.vo.AddSimpleMovementRequest;
+import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
+import com.jbh.account.application.accounts.vo.AddBasicMovementResponse;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.accounts_mgmt.accounts.AccountDomain;
@@ -58,7 +58,7 @@ public class RegisterSimpleMovementValidationTest {
     LocalDate movementDate = LocalDate.now();
     BigDecimal amount = new BigDecimal("100.00");
 
-    AddSimpleMovementRequest request = new AddSimpleMovementRequest(movementDate, amount);
+    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
 
     // When & Then
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -73,7 +73,7 @@ public class RegisterSimpleMovementValidationTest {
     UUID userId = UUID.randomUUID();
     AccountId accountId = AccountId.generate();
     BigDecimal amount = new BigDecimal("100.00");
-    AddSimpleMovementRequest request = new AddSimpleMovementRequest(null, amount);
+    AddBasicMovementRequest request = new AddBasicMovementRequest(null, amount);
 
     // When & Then
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -89,7 +89,7 @@ public class RegisterSimpleMovementValidationTest {
     AccountId accountId = AccountId.generate();
     LocalDate movementDate = LocalDate.now();
 
-    AddSimpleMovementRequest request = new AddSimpleMovementRequest(movementDate, null);
+    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, null);
 
     // When & Then
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
@@ -106,7 +106,7 @@ public class RegisterSimpleMovementValidationTest {
     LocalDate movementDate = LocalDate.now();
     BigDecimal amount = new BigDecimal("100.00");
 
-    AddSimpleMovementRequest request = new AddSimpleMovementRequest(movementDate, amount);
+    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
 
     when(accountRepository.findByAccountId(userId, accountId))
         .thenReturn(Optional.empty());
@@ -128,7 +128,7 @@ public class RegisterSimpleMovementValidationTest {
     LocalDate movementDate = LocalDate.now();
     BigDecimal amount = BigDecimal.ZERO;
 
-    AddSimpleMovementRequest request = new AddSimpleMovementRequest(movementDate, amount);
+    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
     AccountDomain accountDomain = AccountDomain.withId(accountId);
 
     when(accountRepository.findByAccountId(userId, accountId))
@@ -137,7 +137,7 @@ public class RegisterSimpleMovementValidationTest {
     // When & Then
     assertDoesNotThrow(() -> registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request));
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save(any());
+    verify(accountMovementRepository).save(anyList());
     verify(accountRepository).save(accountDomain);
     assertEquals(accountDomain.getMovementBalance(), amount);
   }
@@ -150,7 +150,7 @@ public class RegisterSimpleMovementValidationTest {
     LocalDate movementDate = LocalDate.now();
     BigDecimal amount = new BigDecimal("-50.00");
 
-    AddSimpleMovementRequest request = new AddSimpleMovementRequest(movementDate, amount);
+    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
     AccountDomain accountDomain = AccountDomain.withId(accountId);
     accountDomain.setMovementBalance(new BigDecimal("170.00"));
     accountDomain.setCurrentBalance(new BigDecimal("180.00"));
@@ -159,12 +159,12 @@ public class RegisterSimpleMovementValidationTest {
         .thenReturn(Optional.of(accountDomain));
 
     // When & Then
-    AtomicReference<AddMovementResponse> mvmtResponse = new AtomicReference<>();
+    AtomicReference<AddBasicMovementResponse> mvmtResponse = new AtomicReference<>();
     assertDoesNotThrow(
         () -> mvmtResponse.set(registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request)));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save(any());
+    verify(accountMovementRepository).save(anyList());
     verify(accountRepository).save(accountDomain);
 
     assertEquals(new BigDecimal("120.00"), mvmtResponse.get().account().getMovementBalance());
@@ -185,7 +185,7 @@ public class RegisterSimpleMovementValidationTest {
     LocalDate movementDate = LocalDate.now().minusDays(30);
     BigDecimal amount = new BigDecimal("100.00");
 
-    AddSimpleMovementRequest request = new AddSimpleMovementRequest(movementDate, amount);
+    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
     AccountDomain accountDomain = AccountDomain.withId(accountId);
 
     when(accountRepository.findByAccountId(userId, accountId))
@@ -195,7 +195,7 @@ public class RegisterSimpleMovementValidationTest {
     assertDoesNotThrow(() -> registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save(any());
+    verify(accountMovementRepository).save(anyList());
     verify(accountRepository).save(accountDomain);
   }
 
@@ -207,7 +207,7 @@ public class RegisterSimpleMovementValidationTest {
     LocalDate movementDate = LocalDate.now().plusDays(30);
     BigDecimal amount = new BigDecimal("100.00");
 
-    AddSimpleMovementRequest request = new AddSimpleMovementRequest(movementDate, amount);
+    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
     AccountDomain accountDomain = AccountDomain.withId(accountId);
 
     when(accountRepository.findByAccountId(userId, accountId))
@@ -218,7 +218,7 @@ public class RegisterSimpleMovementValidationTest {
         () -> registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository, never()).save(any());
+    verify(accountMovementRepository, never()).save(anyList());
     verify(accountRepository, never()).save(accountDomain);
   }
 
@@ -230,7 +230,7 @@ public class RegisterSimpleMovementValidationTest {
     LocalDate movementDate = LocalDate.now();
     BigDecimal amount = new BigDecimal("-50.00");
 
-    AddSimpleMovementRequest request = new AddSimpleMovementRequest(movementDate, amount);
+    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
     AccountDomain accountDomain = AccountDomain.withId(accountId);
     accountDomain.setMovementBalance(new BigDecimal("30.00"));
     accountDomain.setCurrentBalance(new BigDecimal("30.00"));
@@ -245,7 +245,7 @@ public class RegisterSimpleMovementValidationTest {
     assertEquals("Insufficient effective balance", exception.getMessage());
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository, never()).save(any());
+    verify(accountMovementRepository, never()).save(anyList());
     verify(accountRepository, never()).save(accountDomain);
   }
 
