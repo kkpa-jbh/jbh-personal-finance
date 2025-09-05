@@ -1,14 +1,9 @@
-package com.jbh.account_infra;
+package com.jbh.account.application.accounts.usecases.utils;
 
 import com.jbh.account.application.acid.UnitOfWork;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.transaction.Transactional;
 import java.util.function.Supplier;
 
-@ApplicationScoped
-@Transactional
-public class QuarkusUnitOfWork implements UnitOfWork {
-
+public class UnitOfWorkTest implements UnitOfWork {
 
   @Override
   public void execute(Runnable action) {
@@ -20,4 +15,3 @@ public class QuarkusUnitOfWork implements UnitOfWork {
     return action.get();
   }
 }
-

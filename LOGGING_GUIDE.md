@@ -100,7 +100,7 @@ Located in: `jbh-account-infra/src/main/resources/logback-spring.xml`
 
 **Purpose**: Manage MDC values for request context tracking
 
-**Location**: `com.jbh.account_app.common.logging.LoggingContext`
+**Location**: `logging.common.com.jbh.account.application.LoggingContext`
 
 **Key Methods:**
 
@@ -142,7 +142,7 @@ accountId("acc-789")
 
 **Purpose**: Create loggers with structured logging support
 
-**Location**: `com.jbh.account_app.common.logging.LoggerFactory`
+**Location**: `logging.common.com.jbh.account.application.LoggerFactory`
 
 **Usage:**
 
@@ -197,8 +197,8 @@ public class AccountDomain {
 ```java
 package com.jbh.account_app.accounts.ports.input;
 
-import com.jbh.account_app.common.logging.LoggerFactory;
-import com.jbh.account_app.common.logging.LoggingContext;
+import logging.common.com.jbh.account.application.LoggerFactory;
+import logging.common.com.jbh.account.application.LoggingContext;
 
 public class AddTransactionInputPort {
 
@@ -233,8 +233,8 @@ public class AddTransactionInputPort {
 ```java
 package com.jbh.account_infra.controllers;
 
-import com.jbh.account_app.common.logging.LoggerFactory;
-import com.jbh.account_app.common.logging.LoggingContext;
+import logging.common.com.jbh.account.application.LoggerFactory;
+import logging.common.com.jbh.account.application.LoggingContext;
 
 @RestController
 public class AccountController {

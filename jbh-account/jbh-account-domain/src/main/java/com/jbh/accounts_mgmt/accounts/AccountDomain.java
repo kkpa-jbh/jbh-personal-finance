@@ -1,7 +1,7 @@
 package com.jbh.accounts_mgmt.accounts;
 
 import com.jbh.accounts_mgmt.exceptions.GenericSpecificationException;
-import com.jbh.accounts_mgmt.movements.AccountMovement;
+import com.jbh.accounts_mgmt.movements.AccountMovementDomain;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import lombok.Data;
@@ -12,15 +12,15 @@ public class AccountDomain {
   private AccountId id;
   private String name;
   private Long userId;
-  private BigDecimal balance;
-  private BigDecimal effectiveBalance;
+  private BigDecimal movementBalance;
+  private BigDecimal currentBalance;
 
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
   private AccountDomain() {
-    this.balance = BigDecimal.ZERO;
-    this.effectiveBalance = BigDecimal.ZERO;
+    this.movementBalance = BigDecimal.ZERO;
+    this.currentBalance = BigDecimal.ZERO;
     this.createdAt = LocalDateTime.now();
     this.updatedAt = LocalDateTime.now();
   }
@@ -31,27 +31,37 @@ public class AccountDomain {
     return account;
   }
 
-  public void syncBalances(AccountMovement txnDomain) {
-    if (txnDomain == null) {
+  public void syncBalances(AccountMovementDomain movement) {
+    if (movement == null) {
       throw new GenericSpecificationException("Movement cannot be null");
     }
-    if (txnDomain.getMovementDate() == null) {
+    if (movement.getMovementDate() == null) {
       throw new GenericSpecificationException("Movement date cannot be null");
     }
-    if (txnDomain.getMovementAmount() == null) {
+    if (movement.getMovementAmount() == null && movement.getBalanceSnapshot() == null) {
       throw new GenericSpecificationException("Movement amount cannot be null");
     }
 
-    if (txnDomain.getMovementAmount().signum() < 0) {
-      if (this.effectiveBalance.add(txnDomain.getMovementAmount()).signum() < 0) {
-        throw new GenericSpecificationException("Insufficient effective balance");
+    if (movement.getMovementAmount() != null) {
+      if (movement.getMovementAmount().signum() < 0) {
+        if (this.currentBalance.add(movement.getMovementAmount()).signum() < 0) {
+          throw new GenericSpecificationException("Insufficient effective balance");
+        }
       }
     }
-    applyMovement(txnDomain);
+
+    applyMovement(movement);
   }
 
-  private void applyMovement(AccountMovement txnDomain) {
-    this.balance = this.balance.add(txnDomain.getMovementAmount());
-    this.effectiveBalance = this.effectiveBalance.add(txnDomain.getMovementAmount());
+  private void applyMovement(AccountMovementDomain newAccountMovement) {
+    if (newAccountMovement.getMovementAmount() != null) {
+      this.movementBalance = this.movementBalance.add(newAccountMovement.getMovementAmount());
+      this.currentBalance = this.currentBalance.add(newAccountMovement.getMovementAmount());
+    }
+
+    if (newAccountMovement.getBalanceSnapshot() != null) {
+      this.currentBalance = newAccountMovement.getBalanceSnapshot();
+    }
+
   }
 }

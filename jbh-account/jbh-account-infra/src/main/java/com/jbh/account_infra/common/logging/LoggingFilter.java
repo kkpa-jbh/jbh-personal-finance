@@ -1,6 +1,6 @@
 package com.jbh.account_infra.common.logging;
 
-import com.jbh.account_app.common.logging.LoggingContext;
+import com.jbh.account.application.common.logging.LoggingContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
@@ -49,7 +49,8 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
   }
 
   @Override
-  public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
+  public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext)
+      throws IOException {
     try {
       String trackingId = (String) requestContext.getProperty("trackingId");
       String requestId = (String) requestContext.getProperty("requestId");
