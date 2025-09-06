@@ -3,24 +3,27 @@ package com.jbh.account.application.accounts.usecases;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.jbh.account.application.accounts.dto.AddBasicMovementResponse;
 import com.jbh.account.application.accounts.ports.input.RegisterSimpleMovementInputPort;
 import com.jbh.account.application.accounts.ports.output.AccountMonthlyBalanceRepository;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import com.jbh.account.application.accounts.usecases.utils.TestDataFactory;
 import com.jbh.account.application.accounts.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
-import com.jbh.account.application.accounts.vo.AddBasicMovementResponse;
+import com.jbh.account.application.accounts.vo.AddMultipleBasicMovementResponse;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.accounts_mgmt.accounts.AccountDomain;
 import com.jbh.accounts_mgmt.accounts.AccountId;
 import com.jbh.accounts_mgmt.accounts.AccountMonthlyBalanceDomain;
+import com.jbh.accounts_mgmt.movements.AccountMovementDomain;
 import com.jbh.accounts_mgmt.movements.MovementType;
+import com.jbh.accounts_mgmt.utils.MoneyUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -71,10 +74,10 @@ public class RegisterSimpleMovementExecutionTest {
     // When & Then
     AtomicReference<AddBasicMovementResponse> mvmtResponse = new AtomicReference<>();
     assertDoesNotThrow(
-        () -> mvmtResponse.set(useCaseInstanceTest.addSimpleMovement(userId, accountId, request)));
+        () -> mvmtResponse.set(useCaseInstanceTest.addBasicMovements(userId, accountId, request)));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save(anyList());
+    verify(accountMovementRepository).save((AccountMovementDomain) any());
     verify(accountRepository).save(accountDomain);
 
     assertEquals(accountDomain.getMovementBalance(), amount);
@@ -102,10 +105,10 @@ public class RegisterSimpleMovementExecutionTest {
     // When & Then
     AtomicReference<AddBasicMovementResponse> mvmtResponse = new AtomicReference<>();
     assertDoesNotThrow(
-        () -> mvmtResponse.set(useCaseInstanceTest.addSimpleMovement(userId, accountId, request)));
+        () -> mvmtResponse.set(useCaseInstanceTest.addBasicMovements(userId, accountId, request)));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save(anyList());
+    verify(accountMovementRepository).save((AccountMovementDomain) any());
     verify(accountRepository).save(accountDomain);
 
     assertEquals(balanceSnashot, mvmtResponse.get().account().getCurrentBalance());
@@ -137,10 +140,10 @@ public class RegisterSimpleMovementExecutionTest {
     // When & Then
     AtomicReference<AddBasicMovementResponse> mvmtResponse = new AtomicReference<>();
     assertDoesNotThrow(() -> mvmtResponse.set(
-        useCaseInstanceTest.addSimpleMovement(userId, accountId, request)));
+        useCaseInstanceTest.addBasicMovements(userId, accountId, request)));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save(anyList());
+    verify(accountMovementRepository).save((AccountMovementDomain) any());
     verify(accountRepository).save(accountDomain);
 
     AccountDomain accountResponse = mvmtResponse.get().account();
@@ -150,8 +153,8 @@ public class RegisterSimpleMovementExecutionTest {
     AccountMonthlyBalanceDomain monthlyBalanceResponse = mvmtResponse.get().monthlyBalance();
     YearMonth expectedYearMonth = YearMonth.of(movementDate.getYear(), movementDate.getMonthValue());
     assertEquals(expectedYearMonth,
-        YearMonth.of(monthlyBalanceResponse.getBalanceYear(), monthlyBalanceResponse.getBalanceMonth()));
-    assertEquals(expectedYearMonth, monthlyBalanceResponse.getBalancePeriod());
+        YearMonth.of(monthlyBalanceResponse.getYear(), monthlyBalanceResponse.getMonth()));
+    assertEquals(expectedYearMonth, monthlyBalanceResponse.getPeriod());
     assertEquals(balanceSnapshot, monthlyBalanceResponse.getClosingBalance());
     assertEquals(amount, monthlyBalanceResponse.getTotalDebits());
     assertEquals(BigDecimal.ZERO, monthlyBalanceResponse.getTotalCredits());
@@ -182,8 +185,8 @@ public class RegisterSimpleMovementExecutionTest {
     AccountMonthlyBalanceDomain existingMonthlyBalance = AccountMonthlyBalanceDomain.builder()
         .id(1L)
         .accountId(accountId)
-        .balanceYear(movementDate.getYear())
-        .balanceMonth(movementDate.getMonthValue())
+        .year(movementDate.getYear())
+        .month(movementDate.getMonthValue())
         .openingBalance(existingOpeningBalance)
         .closingBalance(existingClosingBalance)
         .totalCredits(existingTotalCredits)
@@ -198,12 +201,12 @@ public class RegisterSimpleMovementExecutionTest {
     // When & Then
     AtomicReference<AddBasicMovementResponse> processedResponse = new AtomicReference<>();
     assertDoesNotThrow(() -> processedResponse.set(
-        useCaseInstanceTest.addSimpleMovement(userId, accountId, request)));
+        useCaseInstanceTest.addBasicMovements(userId, accountId, request)));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save(anyList());
+    verify(accountMovementRepository).save((AccountMovementDomain) any());
     verify(accountRepository).save(accountDomain);
-    verify(accountMonthlyBalanceRepository, atMostOnce()).save(anyList());
+    verify(accountMonthlyBalanceRepository, atMostOnce()).save((AccountMonthlyBalanceDomain) any());
 
     assertEquals(accountDomain.getMovementBalance(), amount);
     assertEquals(existingEntries + 1, processedResponse.get().monthlyBalance().getTotalMovements());
@@ -215,7 +218,7 @@ public class RegisterSimpleMovementExecutionTest {
   }
 
   @Test
-  @DisplayName("Should create account movement test data with correct values")
+  @DisplayName("Should sync balances from the account with multiple movements correctly. NU")
   void shouldSyncBalancesWithMultipleMovements() {
     // Given
     UUID userId = UUID.randomUUID();
@@ -242,9 +245,157 @@ public class RegisterSimpleMovementExecutionTest {
     assertTrue(novemberEntry.totalAmount().compareTo(BigDecimal.ZERO) < 0);
     assertEquals(0, new BigDecimal("-673605.00").compareTo(novemberEntry.totalAmount()));
 
-    useCaseInstanceTest.addSimpleMovement(userId, accountId, allSimpleMovements);
+    AccountDomain accountDomain = AccountDomain.withId(accountId);
+    when(accountRepository.findByAccountId(userId, accountId)).thenReturn(Optional.of(accountDomain));
 
+    //Then
+    AtomicReference<AddMultipleBasicMovementResponse> processedResponse = new AtomicReference<>();
+    assertDoesNotThrow(() -> processedResponse.set(
+        useCaseInstanceTest.addBasicMovements(userId, accountId, allSimpleMovements)));
 
+    verify(accountRepository).findByAccountId(userId, accountId);
+    verify(accountMovementRepository).save((List<AccountMovementDomain>) any());
+    verify(accountRepository).save(accountDomain);
+
+    AccountDomain actualAccountResponse = processedResponse.get().account();
+    List<AccountMonthlyBalanceDomain> actualMonthlyBalances = processedResponse.get().monthlyBalances();
+
+    BigDecimal expectedProfitBalance = new BigDecimal("1786605.00");
+    assertEquals(expectedProfitBalance.negate(), actualAccountResponse.getMovementBalance());
+    assertEquals(new BigDecimal("0.00"), actualAccountResponse.getCurrentBalance());
+    assertEquals(expectedProfitBalance, actualAccountResponse.getProfitBalance());
+    assertEquals(9, actualMonthlyBalances.size());
+
+    // Assert per month
+    int expectedYear = 2024;
+    int expectedMonth = 7;
+    int sortedIndex = 0;
+    AccountMonthlyBalanceDomain expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
+    assertEquals(accountId, expectedMonthBalance.getAccountId());
+    assertEquals(1, expectedMonthBalance.getTotalMovements());
+    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
+    assertEquals(expectedYear, expectedMonthBalance.getYear());
+    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
+    assertEquals(numberOf("12689712"), expectedMonthBalance.getClosingBalance());
+    assertEquals(numberOf("12591000"), expectedMonthBalance.getTotalDebits());
+    assertEquals(numberOf("0"), expectedMonthBalance.getTotalCredits());
+
+    // Assert per month
+    expectedYear = 2024;
+    expectedMonth = 8;
+    sortedIndex = 1;
+    expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
+    assertEquals(accountId, expectedMonthBalance.getAccountId());
+    assertEquals(1, expectedMonthBalance.getTotalMovements());
+    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
+    assertEquals(expectedYear, expectedMonthBalance.getYear());
+    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
+    assertEquals(numberOf("22685312"), expectedMonthBalance.getTotalDebits());
+    assertEquals(numberOf("35693653"), expectedMonthBalance.getClosingBalance());
+    assertEquals(numberOf("0"), expectedMonthBalance.getTotalCredits());
+
+    // Assert per month
+    expectedYear = 2024;
+    expectedMonth = 9;
+    sortedIndex++;
+    expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
+    assertEquals(accountId, expectedMonthBalance.getAccountId());
+    assertEquals(0, expectedMonthBalance.getTotalMovements());
+    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
+    assertEquals(expectedYear, expectedMonthBalance.getYear());
+    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
+    assertEquals(numberOf("0"), expectedMonthBalance.getTotalDebits());
+    assertEquals(numberOf("36017457"), expectedMonthBalance.getClosingBalance());
+    assertEquals(numberOf("0"), expectedMonthBalance.getTotalCredits());
+
+    // Assert per month
+    expectedYear = 2024;
+    expectedMonth = 10;
+    sortedIndex++;
+    expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
+    assertEquals(accountId, expectedMonthBalance.getAccountId());
+    assertEquals(0, expectedMonthBalance.getTotalMovements());
+    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
+    assertEquals(expectedYear, expectedMonthBalance.getYear());
+    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
+    assertEquals(numberOf("0"), expectedMonthBalance.getTotalDebits());
+    assertEquals(numberOf("36357576"), expectedMonthBalance.getClosingBalance());
+    assertEquals(numberOf("0"), expectedMonthBalance.getTotalCredits());
+
+    // Assert per month
+    expectedYear = 2024;
+    expectedMonth = 11;
+    sortedIndex++;
+    expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
+    assertEquals(accountId, expectedMonthBalance.getAccountId());
+    assertEquals(1, expectedMonthBalance.getTotalMovements());
+    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
+    assertEquals(expectedYear, expectedMonthBalance.getYear());
+    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
+    assertEquals(numberOf("0"), expectedMonthBalance.getTotalDebits());
+    assertEquals(numberOf("35982309"), expectedMonthBalance.getClosingBalance());
+    assertEquals(numberOf("673605"), expectedMonthBalance.getTotalCredits());
+
+    // Assert per month
+    expectedYear = 2024;
+    expectedMonth = 12;
+    sortedIndex++;
+    expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
+    assertEquals(accountId, expectedMonthBalance.getAccountId());
+    assertEquals(1, expectedMonthBalance.getTotalMovements());
+    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
+    assertEquals(expectedYear, expectedMonthBalance.getYear());
+    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
+    assertEquals(numberOf("0"), expectedMonthBalance.getTotalDebits());
+    assertEquals(numberOf("35000981"), expectedMonthBalance.getClosingBalance());
+    assertEquals(numberOf("1271000"), expectedMonthBalance.getTotalCredits());
+
+    // Assert per month
+    expectedYear = 2025;
+    expectedMonth = 1;
+    sortedIndex++;
+    expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
+    assertEquals(accountId, expectedMonthBalance.getAccountId());
+    assertEquals(1, expectedMonthBalance.getTotalMovements());
+    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
+    assertEquals(expectedYear, expectedMonthBalance.getYear());
+    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
+    assertEquals(numberOf("0"), expectedMonthBalance.getTotalDebits());
+    assertEquals(numberOf("25638626"), expectedMonthBalance.getClosingBalance());
+    assertEquals(numberOf("9590134"), expectedMonthBalance.getTotalCredits());
+
+    // Assert per month
+    expectedYear = 2025;
+    expectedMonth = 2;
+    sortedIndex++;
+    expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
+    assertEquals(accountId, expectedMonthBalance.getAccountId());
+    assertEquals(2, expectedMonthBalance.getTotalMovements());
+    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
+    assertEquals(expectedYear, expectedMonthBalance.getYear());
+    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
+    assertEquals(numberOf("0"), expectedMonthBalance.getTotalDebits());
+    assertEquals(numberOf("3768488"), expectedMonthBalance.getClosingBalance());
+    assertEquals(numberOf("21759690"), expectedMonthBalance.getTotalCredits());
+
+    // Assert per month
+    expectedYear = 2025;
+    expectedMonth = 3;
+    sortedIndex++;
+    expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
+    assertEquals(accountId, expectedMonthBalance.getAccountId());
+    assertEquals(1, expectedMonthBalance.getTotalMovements());
+    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
+    assertEquals(expectedYear, expectedMonthBalance.getYear());
+    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
+    assertEquals(numberOf("0"), expectedMonthBalance.getTotalDebits());
+    assertEquals(numberOf("0"), expectedMonthBalance.getClosingBalance());
+    assertEquals(numberOf("3768488"), expectedMonthBalance.getTotalCredits());
+
+  }
+
+  private BigDecimal numberOf(String val) {
+    return MoneyUtils.withJBHDecimals(new BigDecimal(val));
   }
 
   @Test

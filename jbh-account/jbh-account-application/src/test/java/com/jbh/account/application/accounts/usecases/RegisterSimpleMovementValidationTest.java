@@ -3,22 +3,23 @@ package com.jbh.account.application.accounts.usecases;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.jbh.account.application.accounts.dto.AddBasicMovementResponse;
 import com.jbh.account.application.accounts.ports.input.RegisterSimpleMovementInputPort;
 import com.jbh.account.application.accounts.ports.output.AccountMonthlyBalanceRepository;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import com.jbh.account.application.accounts.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
-import com.jbh.account.application.accounts.vo.AddBasicMovementResponse;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.accounts_mgmt.accounts.AccountDomain;
 import com.jbh.accounts_mgmt.accounts.AccountId;
 import com.jbh.accounts_mgmt.exceptions.GenericSpecificationException;
+import com.jbh.accounts_mgmt.movements.AccountMovementDomain;
 import com.jbh.accounts_mgmt.movements.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -62,7 +63,7 @@ public class RegisterSimpleMovementValidationTest {
 
     // When & Then
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-        () -> registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request));
+        () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
 
     assertEquals("User ID cannot be null", exception.getMessage());
   }
@@ -77,7 +78,7 @@ public class RegisterSimpleMovementValidationTest {
 
     // When & Then
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-        () -> registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request));
+        () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
 
     assertEquals("Entry date cannot be null", exception.getMessage());
   }
@@ -93,7 +94,7 @@ public class RegisterSimpleMovementValidationTest {
 
     // When & Then
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-        () -> registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request));
+        () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
 
     assertEquals("There is not any amount to add", exception.getMessage());
   }
@@ -113,7 +114,7 @@ public class RegisterSimpleMovementValidationTest {
 
     // When & Then
     IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-        () -> registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request));
+        () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
 
     assertEquals("Account not found", exception.getMessage());
     verify(accountRepository).findByAccountId(userId, accountId);
@@ -135,9 +136,9 @@ public class RegisterSimpleMovementValidationTest {
         .thenReturn(Optional.of(accountDomain));
 
     // When & Then
-    assertDoesNotThrow(() -> registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request));
+    assertDoesNotThrow(() -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save(anyList());
+    verify(accountMovementRepository).save((AccountMovementDomain) any());
     verify(accountRepository).save(accountDomain);
     assertEquals(accountDomain.getMovementBalance(), amount);
   }
@@ -161,10 +162,10 @@ public class RegisterSimpleMovementValidationTest {
     // When & Then
     AtomicReference<AddBasicMovementResponse> mvmtResponse = new AtomicReference<>();
     assertDoesNotThrow(
-        () -> mvmtResponse.set(registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request)));
+        () -> mvmtResponse.set(registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request)));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save(anyList());
+    verify(accountMovementRepository).save((AccountMovementDomain) any());
     verify(accountRepository).save(accountDomain);
 
     assertEquals(new BigDecimal("120.00"), mvmtResponse.get().account().getMovementBalance());
@@ -192,10 +193,10 @@ public class RegisterSimpleMovementValidationTest {
         .thenReturn(Optional.of(accountDomain));
 
     // When & Then
-    assertDoesNotThrow(() -> registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request));
+    assertDoesNotThrow(() -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save(anyList());
+    verify(accountMovementRepository).save((AccountMovementDomain) any());
     verify(accountRepository).save(accountDomain);
   }
 
@@ -215,10 +216,10 @@ public class RegisterSimpleMovementValidationTest {
 
     // When & Then
     assertThrows(GenericSpecificationException.class,
-        () -> registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request));
+        () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository, never()).save(anyList());
+    verify(accountMovementRepository, never()).save((AccountMovementDomain) any());
     verify(accountRepository, never()).save(accountDomain);
   }
 
@@ -240,12 +241,12 @@ public class RegisterSimpleMovementValidationTest {
 
     // When & Then
     GenericSpecificationException exception = assertThrows(GenericSpecificationException.class,
-        () -> registerSimpleMovementInputPort.addSimpleMovement(userId, accountId, request));
+        () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
 
     assertEquals("Insufficient effective balance", exception.getMessage());
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository, never()).save(anyList());
+    verify(accountMovementRepository, never()).save((AccountMovementDomain) any());
     verify(accountRepository, never()).save(accountDomain);
   }
 

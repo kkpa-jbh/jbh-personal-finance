@@ -1,10 +1,10 @@
 package com.jbh.account.application.accounts.ports.input;
 
+import com.jbh.account.application.accounts.dto.AddBasicMovementResponse;
 import com.jbh.account.application.accounts.ports.output.AccountMonthlyBalanceRepository;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import com.jbh.account.application.accounts.usecases.RegisterMovementUseCase;
 import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
-import com.jbh.account.application.accounts.vo.AddBasicMovementResponse;
 import com.jbh.account.application.accounts.vo.AddMultipleBasicMovementResponse;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.common.logging.LoggerFactory;
@@ -45,7 +45,7 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
 
 
   @Override
-  public AddBasicMovementResponse addSimpleMovement(UUID userId, AccountId accountId,
+  public AddBasicMovementResponse addBasicMovements(UUID userId, AccountId accountId,
       AddBasicMovementRequest basicMovementRequest) {
     return LoggingContext.builder()
         .accountId(accountId.value())
@@ -129,7 +129,7 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
   }
 
   @Override
-  public AddMultipleBasicMovementResponse addSimpleMovement(UUID userId, AccountId accountId,
+  public AddMultipleBasicMovementResponse addBasicMovements(UUID userId, AccountId accountId,
       List<AddBasicMovementRequest> allSimpleMovements) {
 
     if (allSimpleMovements == null || allSimpleMovements.isEmpty()) {

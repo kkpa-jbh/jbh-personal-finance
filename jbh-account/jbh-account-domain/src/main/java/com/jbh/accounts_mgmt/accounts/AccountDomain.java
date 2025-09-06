@@ -17,6 +17,7 @@ public class AccountDomain {
   private Long userId;
   private BigDecimal movementBalance;
   private BigDecimal currentBalance;
+  private BigDecimal profitBalance;
 
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
@@ -77,6 +78,9 @@ public class AccountDomain {
     if (newAccountMovement.getBalanceSnapshot() != null) {
       this.currentBalance = newAccountMovement.getBalanceSnapshot();
     }
+
+    this.profitBalance = this.currentBalance.subtract(this.movementBalance);
+    this.updatedAt = LocalDateTime.now();
 
   }
 }
