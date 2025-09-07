@@ -8,10 +8,11 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.jbh.account.application.accounts.dto.AddBasicMovementResponse;
+import com.jbh.account.application.accounts.dto.AddBasicMovementDTO;
 import com.jbh.account.application.accounts.ports.input.RegisterSimpleMovementInputPort;
 import com.jbh.account.application.accounts.ports.output.AccountMonthlyBalanceRepository;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
+import com.jbh.account.application.accounts.services.MonthlyBalanceSyncerService;
 import com.jbh.account.application.accounts.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
 import com.jbh.account.application.acid.UnitOfWork;
@@ -21,6 +22,7 @@ import com.jbh.accounts_mgmt.accounts.AccountId;
 import com.jbh.accounts_mgmt.exceptions.GenericSpecificationException;
 import com.jbh.accounts_mgmt.movements.AccountMovementDomain;
 import com.jbh.accounts_mgmt.movements.MovementType;
+import com.jbh.accounts_mgmt.utils.MoneyUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -42,12 +44,15 @@ public class RegisterSimpleMovementValidationTest {
   private AccountMonthlyBalanceRepository accountMonthlyBalanceRepository;
   private RegisterSimpleMovementInputPort registerSimpleMovementInputPort;
 
+
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    registerSimpleMovementInputPort = new RegisterSimpleMovementInputPort(accountRepository, accountMovementRepository,
-        unitOfWork,
+
+    MonthlyBalanceSyncerService monthlyBalanceSyncerService = new MonthlyBalanceSyncerService(
         accountMonthlyBalanceRepository);
+    registerSimpleMovementInputPort = new RegisterSimpleMovementInputPort(accountRepository, accountMovementRepository,
+        unitOfWork, monthlyBalanceSyncerService);
   }
 
 
@@ -160,7 +165,7 @@ public class RegisterSimpleMovementValidationTest {
         .thenReturn(Optional.of(accountDomain));
 
     // When & Then
-    AtomicReference<AddBasicMovementResponse> mvmtResponse = new AtomicReference<>();
+    AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
     assertDoesNotThrow(
         () -> mvmtResponse.set(registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request)));
 
@@ -174,7 +179,7 @@ public class RegisterSimpleMovementValidationTest {
     assertEquals(amount.abs(), mvmtResponse.get().monthlyBalance().getTotalCredits());
     assertEquals(amount, mvmtResponse.get().monthlyBalance().getClosingBalance());
     assertEquals(1, mvmtResponse.get().monthlyBalance().getTotalMovements());
-    assertEquals(BigDecimal.ZERO, mvmtResponse.get().monthlyBalance().getTotalDebits());
+    assertEquals(MoneyUtils.JBH_ZERO, mvmtResponse.get().monthlyBalance().getTotalDebits());
     assertEquals(MovementType.WITHDRAWAL, mvmtResponse.get().movement().getMovementType());
   }
 

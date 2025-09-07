@@ -14,4 +14,8 @@ public class MoneyUtils {
     return amount.setScale(2, RoundingMode.UNNECESSARY);
   }
 
+  public static boolean isZero(BigDecimal amount) {
+    return amount.equals(BigDecimal.ZERO) || withJBHDecimals(amount).equals(JBH_ZERO);
+  }
+
 }

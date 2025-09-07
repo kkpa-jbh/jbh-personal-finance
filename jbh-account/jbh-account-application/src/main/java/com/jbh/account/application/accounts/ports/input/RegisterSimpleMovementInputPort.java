@@ -1,11 +1,11 @@
 package com.jbh.account.application.accounts.ports.input;
 
-import com.jbh.account.application.accounts.dto.AddBasicMovementResponse;
-import com.jbh.account.application.accounts.ports.output.AccountMonthlyBalanceRepository;
+import com.jbh.account.application.accounts.dto.AddBasicMovementDTO;
+import com.jbh.account.application.accounts.dto.AddMultipleBasicMovementDTO;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
+import com.jbh.account.application.accounts.services.MonthlyBalanceSyncerService;
 import com.jbh.account.application.accounts.usecases.RegisterMovementUseCase;
 import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
-import com.jbh.account.application.accounts.vo.AddMultipleBasicMovementResponse;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.common.logging.LoggerFactory;
 import com.jbh.account.application.common.logging.LoggingContext;
@@ -14,38 +14,33 @@ import com.jbh.accounts_mgmt.accounts.AccountDomain;
 import com.jbh.accounts_mgmt.accounts.AccountId;
 import com.jbh.accounts_mgmt.accounts.AccountMonthlyBalanceDomain;
 import com.jbh.accounts_mgmt.movements.AccountMovementDomain;
-import java.time.YearMonth;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
 import org.slf4j.Logger;
 
 public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase {
 
   private static final Logger log = LoggerFactory.getLogger(RegisterSimpleMovementInputPort.class);
-
-  private final AccountRepository accountRepository;
   private final AccountMovementRepository MovementRepository;
-  private final AccountMonthlyBalanceRepository accountMonthlyBalanceRepo;
+  private final AccountRepository accountRepository;
+  private final MonthlyBalanceSyncerService monthlyBalanceSyncerService;
+
+
   private final UnitOfWork unitOfWork;
 
   public RegisterSimpleMovementInputPort(AccountRepository accountRepository,
       AccountMovementRepository MovementRepository,
       UnitOfWork unitOfWork,
-      AccountMonthlyBalanceRepository accountMonthlyBalanceRepo) {
-    this.accountMonthlyBalanceRepo = accountMonthlyBalanceRepo;
-    this.accountRepository = accountRepository;
+      MonthlyBalanceSyncerService monthlyBalanceSyncerService) {
     this.MovementRepository = MovementRepository;
+    this.accountRepository = accountRepository;
     this.unitOfWork = unitOfWork;
+    this.monthlyBalanceSyncerService = monthlyBalanceSyncerService;
   }
 
 
   @Override
-  public AddBasicMovementResponse addBasicMovements(UUID userId, AccountId accountId,
+  public AddBasicMovementDTO addBasicMovements(UUID userId, AccountId accountId,
       AddBasicMovementRequest basicMovementRequest) {
     return LoggingContext.builder()
         .accountId(accountId.value())
@@ -67,19 +62,12 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
           syncAccountBalanceByMovements(accountDomain, newMovement);
 
           // Sync monthly balance
-          log.info("Syncing monthly balance asynchronously");
-          int txnYear = newMovement.getMovementDate().getYear();
-          int txnMonth = newMovement.getMovementDate().getMonthValue();
-          Optional<AccountMonthlyBalanceDomain> accountMonthlyBalanceOpt = accountMonthlyBalanceRepo.findByAccountIdYearAndMonth(
-              accountId, txnYear, txnMonth);
-          AccountMonthlyBalanceDomain accountMonthlyBalance = accountMonthlyBalanceOpt.orElseGet(
-              () -> AccountMonthlyBalanceDomain.of(accountDomain.getId(), txnYear, txnMonth));
-          accountMonthlyBalance.syncMovement(newMovement);
-          log.debug("Monthly balance updated for {}-{}", txnYear, txnMonth);
-          persistMonthlyBalance(Collections.singletonList(accountMonthlyBalance));
+          AccountMonthlyBalanceDomain accountMonthlyBalance = monthlyBalanceSyncerService.syncMonthlyBalance(
+              newMovement);
 
           log.info("Movement addition completed successfully for account: {}", accountId.value());
-          return new AddBasicMovementResponse(accountDomain, accountMonthlyBalance, newMovement);
+
+          return new AddBasicMovementDTO(accountDomain, accountMonthlyBalance, newMovement);
         });
 
   }
@@ -129,7 +117,7 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
   }
 
   @Override
-  public AddMultipleBasicMovementResponse addBasicMovements(UUID userId, AccountId accountId,
+  public AddMultipleBasicMovementDTO addBasicMovements(UUID userId, AccountId accountId,
       List<AddBasicMovementRequest> allSimpleMovements) {
 
     if (allSimpleMovements == null || allSimpleMovements.isEmpty()) {
@@ -149,35 +137,10 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
     List<AccountMovementDomain> multipleMovementsDomain = mapSimpleMovementsToDomain(allSimpleMovements, accountDomain);
     syncAccountBalanceByMovements(accountDomain, multipleMovementsDomain);
 
-    // Group movements by Year-Month based on the movementDate attribute
-    var movementsByYearMonth = multipleMovementsDomain.stream().collect(
-        java.util.stream.Collectors.groupingBy(movement -> {
-          int year = movement.getMovementDate().getYear();
-          int month = movement.getMovementDate().getMonthValue();
-          return YearMonth.of(year, month);
-        }));
+    List<AccountMonthlyBalanceDomain> monthlyBalancesToPersist =
+        monthlyBalanceSyncerService.syncMonthlyBalance(accountId, multipleMovementsDomain);
 
-    Stream<YearMonth> movementsPeriodsSorted = movementsByYearMonth.keySet().stream().sorted();
-
-    List<AccountMonthlyBalanceDomain> monthlyBalancesToPersist = new ArrayList<>();
-
-    movementsPeriodsSorted.forEach(monthlyPeriodKey -> {
-      List<AccountMovementDomain> movementsInPeriod = movementsByYearMonth.get(monthlyPeriodKey);
-      int year = monthlyPeriodKey.getYear();
-      int month = monthlyPeriodKey.getMonthValue();
-      log.debug("Processing {} movements for period {}-{}", movementsInPeriod.size(), year, month);
-
-      AccountMonthlyBalanceDomain accountMonthlyBalance = accountMonthlyBalanceRepo.findByAccountIdYearAndMonth(
-          accountId, year, month).orElseGet(
-          () -> AccountMonthlyBalanceDomain.of(accountDomain.getId(), year, month));
-
-      accountMonthlyBalance.syncMovements(movementsInPeriod);
-      log.debug("Monthly balance updated for {}-{}", year, month);
-      monthlyBalancesToPersist.add(accountMonthlyBalance);
-    });
-    persistMonthlyBalance(monthlyBalancesToPersist);
-
-    return new AddMultipleBasicMovementResponse(accountDomain, monthlyBalancesToPersist);
+    return new AddMultipleBasicMovementDTO(accountDomain, monthlyBalancesToPersist);
 
   }
 
@@ -191,8 +154,5 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
         .toList();
   }
 
-  private void persistMonthlyBalance(List<AccountMonthlyBalanceDomain> accountMonthlyBalance) {
-    CompletableFuture.runAsync(() ->
-        accountMonthlyBalanceRepo.save(accountMonthlyBalance));
-  }
+
 }
