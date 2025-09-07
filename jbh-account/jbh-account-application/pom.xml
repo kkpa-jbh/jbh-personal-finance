@@ -47,6 +47,13 @@
       <groupId>org.slf4j</groupId>
     </dependency>
 
+    <!-- SLF4J Implementation for tests -->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
   <modelVersion>4.0.0</modelVersion>
 
