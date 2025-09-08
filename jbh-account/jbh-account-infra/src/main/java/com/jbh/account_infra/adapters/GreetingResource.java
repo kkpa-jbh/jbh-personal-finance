@@ -16,7 +16,6 @@ public class GreetingResource {
 
   @PostConstruct
   void init() {
-    System.out.println("GreetingResource for jbh-account module initialized.");
     Log.info("Initializing GreetingResource for jbh-account module.");
   }
 

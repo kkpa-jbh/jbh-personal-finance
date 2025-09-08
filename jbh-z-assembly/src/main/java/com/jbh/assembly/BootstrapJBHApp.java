@@ -8,20 +8,19 @@ import org.jboss.logging.Logger;
 @QuarkusMain
 public class BootstrapJBHApp implements QuarkusApplication {
 
-    private static final Logger LOG = Logger.getLogger(BootstrapJBHApp.class);
+  private static final Logger LOG = Logger.getLogger(BootstrapJBHApp.class);
 
-    public static void main(String... args) {
-        LOG.info("Starting JBH Personal Finance Platform...");
-        System.out.println("Hello from AssemblyApplication main method!");
-        Quarkus.run(BootstrapJBHApp.class, args);
-    }
+  public static void main(String... args) {
+    LOG.info("Starting JBH Personal Finance Platform...");
+    Quarkus.run(BootstrapJBHApp.class, args);
+  }
 
-    @Override
-    public int run(String... args) throws Exception {
-        LOG.info("JBH Personal Finance Platform started successfully!");
-        LOG.info("All modules loaded and APIs available");
+  @Override
+  public int run(String... args) throws Exception {
+    LOG.info("JBH Personal Finance Platform started successfully!");
+    LOG.info("All modules loaded and APIs available");
 
-        Quarkus.waitForExit();
-        return 0;
-    }
+    Quarkus.waitForExit();
+    return 0;
+  }
 }

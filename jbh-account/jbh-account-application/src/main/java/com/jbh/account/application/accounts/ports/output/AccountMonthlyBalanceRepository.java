@@ -11,9 +11,10 @@ public interface AccountMonthlyBalanceRepository {
   Optional<AccountMonthlyBalanceDomain> findByAccountIdYearAndMonth(AccountId accountId, Integer balanceYear,
       Integer balanceMonth);
 
-  Optional<AccountMonthlyBalanceDomain> findByPeriod(YearMonth period);
 
   AccountMonthlyBalanceDomain save(AccountMonthlyBalanceDomain accountMonthlyBalance);
 
   List<AccountMonthlyBalanceDomain> save(List<AccountMonthlyBalanceDomain> accountMonthlyBalance);
+
+  List<AccountMonthlyBalanceDomain> findNextBalancesFromPeriodInclusive(AccountId accountId, YearMonth currentPeriod);
 }

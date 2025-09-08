@@ -3,6 +3,7 @@ package com.jbh.account.application.accounts.usecases;
 import static com.jbh.accounts_mgmt.utils.MoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atMostOnce;
@@ -37,12 +38,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RegisterSimpleMovementExecutionTest {
 
@@ -56,6 +60,8 @@ public class RegisterSimpleMovementExecutionTest {
   @Mock
   private AccountMonthlyBalanceRepository accountMonthlyBalanceRepository;
   private RegisterSimpleMovementInputPort useCaseInstanceTest;
+
+  private Logger log = LoggerFactory.getLogger(RegisterSimpleMovementExecutionTest.class);
 
   @BeforeEach
   void setUp() {
@@ -493,7 +499,7 @@ public class RegisterSimpleMovementExecutionTest {
 
   @Test
   @DisplayName("Should create extended account movement test data with correct values")
-  void shouldCreateExtendedAccountMovementTestData() {
+  void shouldCreateExtendedAccountMovementTestData() throws ExecutionException, InterruptedException, TimeoutException {
     // Given
     List<AddBasicMovementRequest> testData = TestDataFactory.createExtendedAccountMovementTestData();
 
@@ -501,6 +507,7 @@ public class RegisterSimpleMovementExecutionTest {
     assertEquals(25, testData.size());
 
     // Verify first entry (October 2023)
+    YearMonth firstEntryYM = YearMonth.of(2023, 10);
     AddBasicMovementRequest firstEntry = testData.get(0);
     assertEquals(LocalDate.of(2023, 10, 31), firstEntry.entryDate());
     assertEquals(0, new BigDecimal("13010000.00").compareTo(firstEntry.totalAmount()));
@@ -538,11 +545,19 @@ public class RegisterSimpleMovementExecutionTest {
     assertEquals(numberOf("29710000"), actualAccount.getMovementBalance());
     assertEquals(numberOf("37074883"), actualAccount.getCurrentBalance());
     assertEquals(numberOf("7364883"), actualAccount.getProfitBalance());
-    List<AccountMonthlyBalanceDomain> actualMonthlyBalances = processedResponse.get().monthlyBalances();
+    List<AccountMonthlyBalanceDomain> savedMonthlyBalances = processedResponse.get().monthlyBalances();
+
+    log.info("Account Tested. Preparing to test the monthly Balances...{} ", savedMonthlyBalances.size());
+    YearMonth expectedPeriod = YearMonth.of(2023, 10);
+    when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(accountId, expectedPeriod)).
+        thenReturn(savedMonthlyBalances);
+
+    CompletableFuture<List<AccountMonthlyBalanceDomain>> futureResponse =
+        monthlyBalanceSyncerService.saveMonthlyBalancesASYNC(accountId, savedMonthlyBalances);
+    List<AccountMonthlyBalanceDomain> actualMonthlyBalances = futureResponse.get();
 
     int index = -1;
     AccountMonthlyBalanceDomain actualResponse = null;
-    YearMonth expectedPeriod = YearMonth.of(2023, 10);
 
     // Row Octubre/23
     actualResponse = actualMonthlyBalances.get(++index);
@@ -684,11 +699,37 @@ public class RegisterSimpleMovementExecutionTest {
     assertEquals(numberOf("36102719"), actualResponse.getClosingBalance());
     assertEquals(numberOf("273704"), actualResponse.getMonthlyProfit());
 
+    // Row Jun/25
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("36102719"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
+
+    // Row Jul/25
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("36102719"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
+
 // Row 25/08/2025
     actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("37074883"), actualResponse.getClosingBalance());
     assertEquals(numberOf("972164"), actualResponse.getMonthlyProfit());
+
+    // Row 25/09/2025 - Last one affected by movement. Only Opening Balance.
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("37074883"), actualResponse.getOpeningBalance());
+    assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
+    assertEquals(numberOf("0"), actualResponse.getClosingBalance());
+
+    AtomicInteger lastIdx = new AtomicInteger(++index);
+    assertThrows(IndexOutOfBoundsException.class, () -> actualMonthlyBalances.get(lastIdx.get()));
 
   }
 }
