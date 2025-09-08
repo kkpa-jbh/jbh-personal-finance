@@ -1,7 +1,3 @@
-# jbh-personal-finance
-
-Modular monolith to handle personal finance
-
 # MAKEFILE
 
 Global commands:
@@ -365,3 +361,19 @@ Key Features Added:
 - ✅ Lombok-friendly: Excludes generated code issues
 - ✅ Quarkus-optimized: Handles framework patterns
 - ✅ Filter files: Include/exclude specific bug patterns
+
+# BUILD
+
+Development:
+
+- mvn verify - Tests + analysis (warnings only)
+- mvn pmd:pmd - Manual PMD report
+- mvn spotbugs:gui - Visual SpotBugs report
+
+# DEPLOYMENT
+
+- Local Development:
+  mvn clean verify # Runs tests + PMD + SpotBugs (non-failing)
+
+- CI/CD Pipeline:
+  mvn clean verify -Dpmd.failOnViolation=true -Dspotbugs.failOnError=true

@@ -49,7 +49,7 @@
         <plugin>
           <artifactId>maven-pmd-plugin</artifactId>
           <configuration>
-            <failOnViolation>false</failOnViolation>
+            <failOnViolation>${pmd.failOnViolation}</failOnViolation>
             <printFailingErrors>true</printFailingErrors>
             <rulesets>
               <ruleset>/pmd-ruleset.xml</ruleset>
@@ -84,6 +84,39 @@
 
       </plugins>
     </pluginManagement>
+
+    <!-- Plugins that run automatically during build lifecycle -->
+    <plugins>
+      <!-- PMD Analysis - runs during verify phase -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>pmd-check</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- SpotBugs Analysis - runs during verify phase -->
+      <plugin>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>spotbugs-check</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 
   <dependencyManagement>
@@ -192,8 +225,12 @@
 
     <maven.jacoco.plugin.version>0.8.12</maven.jacoco.plugin.version>
     <mockito.version>5.10.0</mockito.version>
+    
+    <!-- Static Analysis Configuration -->
+    <pmd.failOnViolation>false</pmd.failOnViolation>
+    <spotbugs.failOnError>false</spotbugs.failOnError>
+    
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.version>3.18.4</quarkus.version>
     <slf4j.version>2.0.13</slf4j.version>
