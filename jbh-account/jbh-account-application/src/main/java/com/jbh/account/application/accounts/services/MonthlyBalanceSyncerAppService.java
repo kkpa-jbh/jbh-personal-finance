@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 
 public class MonthlyBalanceSyncerAppService {
 
-  private static final Logger log = LoggerFactory.getLogger(MonthlyBalanceSyncerAppService.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MonthlyBalanceSyncerAppService.class);
 
   private final AccountMonthlyBalanceRepository accountMonthlyBalanceRepo;
 
@@ -35,7 +35,7 @@ public class MonthlyBalanceSyncerAppService {
   public AccountMonthlyBalanceDomain syncMonthlyBalance(AccountMovementDomain newMovement) {
     // Implementation for syncing monthly balances
     AccountId accountId = newMovement.getAccountId();
-    log.info("Syncing monthly balance  {}", newMovement.getAccountId());
+    LOG.info("Syncing monthly balance  {}", newMovement.getAccountId());
     int txnYear = newMovement.getMovementDate().getYear();
     int txnMonth = newMovement.getMovementDate().getMonthValue();
     Optional<AccountMonthlyBalanceDomain> accountMonthlyBalanceOpt = accountMonthlyBalanceRepo.findByAccountIdYearAndMonth(
@@ -44,8 +44,6 @@ public class MonthlyBalanceSyncerAppService {
         () -> AccountMonthlyBalanceDomain.of(accountId, txnYear, txnMonth));
 
     accountMonthlyBalance.syncMovement(newMovement);
-
-    log.debug("Monthly balance updated for {}-{}", txnYear, txnMonth);
 
     saveMonthlyBalancesASYNC(accountId,
         Collections.singletonList(accountMonthlyBalance));
@@ -69,14 +67,14 @@ public class MonthlyBalanceSyncerAppService {
       List<AccountMovementDomain> movementsInPeriod = movementsByYearMonth.get(monthlyPeriodKey);
       int year = monthlyPeriodKey.getYear();
       int month = monthlyPeriodKey.getMonthValue();
-      log.debug("Processing {} movements for period {}-{}", movementsInPeriod.size(), year, month);
+      LOG.debug("Processing {} movements for period {}-{}", movementsInPeriod.size(), year, month);
 
       AccountMonthlyBalanceDomain accountMonthlyBalance = accountMonthlyBalanceRepo.findByAccountIdYearAndMonth(
           accountId, year, month).orElseGet(
           () -> AccountMonthlyBalanceDomain.of(accountId, year, month));
 
       accountMonthlyBalance.syncMovements(movementsInPeriod);
-      log.debug("Monthly balance updated for {}-{}", year, month);
+      LOG.debug("Monthly balance updated for {}-{}", year, month);
       monthlyBalancesToPersist.add(accountMonthlyBalance);
     });
 
@@ -92,7 +90,7 @@ public class MonthlyBalanceSyncerAppService {
   private List<AccountMonthlyBalanceDomain> syncProfitMonthlyFromPeriod(AccountId accountId,
       YearMonth initPeriod, YearMonth endPeriod) {
 
-    log.info("Adjusting Opening/Profit Balances for account {}"
+    LOG.info("Adjusting Opening/Profit Balances for account {}"
         + " from period {} to period {}", accountId.value(), initPeriod, endPeriod);
 
     List<AccountMonthlyBalanceDomain> profitBalancesSynced = new ArrayList<>();
@@ -100,7 +98,7 @@ public class MonthlyBalanceSyncerAppService {
         accountId, initPeriod);
 
     if (existingBalancesFromPeriod == null || existingBalancesFromPeriod.isEmpty()) {
-      log.warn("No future balances to sync profit were found for account {} and period {}", accountId, initPeriod);
+      LOG.warn("No future balances to sync profit were found for account {} and period {}", accountId, initPeriod);
       return Collections.emptyList();
     }
 
@@ -111,12 +109,12 @@ public class MonthlyBalanceSyncerAppService {
     YearMonth currentPeriod = initPeriod;
     while (isAvailablePeriod(currentPeriod, endPeriod)) {
 
-      log.info("Syncing Monthly Profit for period: {}", currentPeriod);
+      LOG.info("Syncing Monthly Profit for period: {}", currentPeriod);
       AccountMonthlyBalanceDomain currentMonthlyBalance = existingBalancesMap.get(currentPeriod);
       currentMonthlyBalance.refreshProfitMonthly();
 
       YearMonth nextPeriod = currentMonthlyBalance.getPeriod().plusMonths(1);
-      log.info("Syncing Opening Balance for next period: {} ", nextPeriod);
+      LOG.info("Syncing Opening Balance for next period: {} ", nextPeriod);
       // Syncing Next month opening balance with current month closing balance
       AccountMonthlyBalanceDomain nextMonthlyBalanceOfCurrent = existingBalancesFromPeriod.stream()
           .filter(mb -> mb.getPeriod().equals(nextPeriod))
@@ -167,20 +165,20 @@ public class MonthlyBalanceSyncerAppService {
       AccountId accountId,
       List<AccountMonthlyBalanceDomain> monthlyBalances) {
 
-    log.info("Init process to save  monthly balances Asynchronously...");
+    LOG.info("Init process to save  monthly balances Asynchronously...");
 
     if (monthlyBalances == null || monthlyBalances.isEmpty()) {
-      log.warn("No monthly balances available for saving them");
+      LOG.warn("No monthly balances available for saving them");
       return CompletableFuture.completedFuture(Collections.emptyList());
     }
 
-    log.info("Initiating asynchronous save of monthly balances {}", monthlyBalances.size());
+    LOG.info("Initiating asynchronous save of monthly balances {}", monthlyBalances.size());
 
     CompletableFuture<List<AccountMonthlyBalanceDomain>> saveTask =
         CompletableFuture
             .supplyAsync(createSaveSupplier(monthlyBalances))
             .exceptionally(ex -> {
-              log.error("Error saving balances: {}", ex.getMessage(), ex);
+              LOG.error("Error saving balances: {}", ex.getMessage(), ex);
               return Collections.emptyList(); // fallback value
             });
 
@@ -190,7 +188,7 @@ public class MonthlyBalanceSyncerAppService {
         CompletableFuture
             .supplyAsync(syncProfitMonthlyTask(accountId, initPeriod, lastPeriod))
             .exceptionally(ex -> {
-              log.error("Error saving opening balances: {}", ex.getMessage(), ex);
+              LOG.error("Error saving opening balances: {}", ex.getMessage(), ex);
               return Collections.emptyList();
             });
 
@@ -203,7 +201,7 @@ public class MonthlyBalanceSyncerAppService {
   }
 
   private List<AccountMonthlyBalanceDomain> save(List<AccountMonthlyBalanceDomain> monthlyBalanceToPersist) {
-    log.info("Saving Monthly Balances {}", monthlyBalanceToPersist.size());
+    LOG.info("Saving Monthly Balances {}", monthlyBalanceToPersist.size());
     return accountMonthlyBalanceRepo.save(monthlyBalanceToPersist);
   }
 

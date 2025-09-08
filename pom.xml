@@ -47,17 +47,38 @@
 
         <!-- PMD Static Code Analysis -->
         <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-pmd-plugin</artifactId>
-          <version>${maven-pmd-plugin.version}</version>
           <configuration>
-            <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
-            <targetJdk>${java.version}</targetJdk>
+            <failOnViolation>false</failOnViolation>
+            <printFailingErrors>true</printFailingErrors>
             <rulesets>
               <ruleset>/pmd-ruleset.xml</ruleset>
             </rulesets>
-            <failOnViolation>false</failOnViolation>
-            <printFailingErrors>true</printFailingErrors>
+            <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
+            <targetJdk>${java.version}</targetJdk>
+          </configuration>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-pmd-plugin.version}</version>
+        </plugin>
+
+        <!-- SpotBugs Static Bug Analysis -->
+        <plugin>
+          <artifactId>spotbugs-maven-plugin</artifactId>
+          <groupId>com.github.spotbugs</groupId>
+          <version>4.8.6.2</version>
+          <configuration>
+            <effort>Max</effort>
+            <threshold>Low</threshold>
+            <failOnError>false</failOnError>
+            <includeFilterFile>spotbugs-include.xml</includeFilterFile>
+            <excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
+            <plugins>
+              <plugin>
+                <groupId>com.h3xstream.findsecbugs</groupId>
+                <artifactId>findsecbugs-plugin</artifactId>
+                <version>1.13.0</version>
+              </plugin>
+            </plugins>
           </configuration>
         </plugin>
 
@@ -158,10 +179,10 @@
     <logback.version>1.5.6</logback.version>
     <lombok.version>1.18.30</lombok.version>
     <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
-    <maven-pmd-plugin.version>3.25.0</maven-pmd-plugin.version>
+    <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
 
     <!-- Test Maven Plugins -->
-    <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
+    <maven-pmd-plugin.version>3.25.0</maven-pmd-plugin.version>
     <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
     <maven.compiler.release>${java.version}</maven.compiler.release>
 

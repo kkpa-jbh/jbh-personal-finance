@@ -173,6 +173,7 @@ endpoints and CDI beans won't be discovered at runtime.
 Manage plugin versions in root POM, use in infrastructure modules:
 
 ```xml
+
 <!-- Root pom.xml - Version Management -->
 <pluginManagement>
   <plugin>
@@ -240,7 +241,35 @@ other modules will depend on.
 - Your code uses this API for logging calls
 - Acts as an abstraction layer over actual logging implementation
 
-# PMD PLUGIN
+# PLUGINS
+
+The plugins are currently configured in <pluginManagement> only, which means they're available but not automatically
+executed during the build lifecycle.
+
+To make them run automatically, you need to:
+
+1. Add plugins to <plugins> section (not just <pluginManagement>)
+2. Bind them to specific lifecycle phases
+
+Would you like me to configure them to run automatically during mvn verify? I can:
+
+- Bind PMD to verify phase
+- Bind SpotBugs to verify phase
+- Set failOnViolation=true to fail builds on issues
+
+This way, your CI/CD pipeline would automatically catch code quality issues during normal builds.
+
+Current behavior:
+
+- mvn verify = Tests only
+- mvn pmd:pmd = Manual PMD run
+- mvn spotbugs:spotbugs = Manual SpotBugs run
+
+After configuration:
+
+- mvn verify = Tests + PMD + SpotBugs
+
+## PMD
 
 `pmd-ruleset.xml` is the ruleset used by PMD to analyze the codebase.
 
@@ -264,7 +293,7 @@ How PMD Works:
 - Integrates with Maven lifecycle phases
 - Can run via mvn pmd:pmd or mvn pmd:check commands
 
-## Basic PMD Commands
+### Basic PMD Commands
 
 1. Generate PMD Report (recommended)
    mvn pmd:pmd
@@ -298,3 +327,41 @@ mvn clean test pmd:check
 
 Enable build failure on violations (edit pom.xml):
 <failOnViolation>true</failOnViolation>
+
+## SPOTBUGS PLUGIN
+
+### SpotBugs Commands
+
+1. Generate SpotBugs Report
+   mvn spotbugs:spotbugs
+   Creates XML/HTML reports in target/spotbugs.xml and target/site/spotbugs.html
+
+2. Check for Bugs (fail build)
+   mvn spotbugs:check
+
+3. GUI Report (desktop)
+   mvn spotbugs:gui
+
+Multi-Module Usage
+
+All modules:
+mvn clean compile spotbugs:spotbugs
+
+Specific module:
+mvn spotbugs:spotbugs -pl jbh-account
+
+Combined Static Analysis
+
+Run both PMD and SpotBugs:
+mvn clean compile pmd:pmd spotbugs:spotbugs
+
+Add to CI/CD:
+mvn clean test pmd:check spotbugs:check
+
+Key Features Added:
+
+- ✅ FindSecBugs plugin: Security vulnerability detection
+- ✅ Max effort: Most thorough analysis
+- ✅ Lombok-friendly: Excludes generated code issues
+- ✅ Quarkus-optimized: Handles framework patterns
+- ✅ Filter files: Include/exclude specific bug patterns
