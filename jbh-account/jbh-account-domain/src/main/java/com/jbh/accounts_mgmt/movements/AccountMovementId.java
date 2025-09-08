@@ -19,8 +19,10 @@ public record AccountMovementId(UUID value) {
     return new AccountMovementId(UUID.randomUUID());
   }
 
-  private void validateFormat(UUID value) {
-
+  private static void validateFormat(UUID value) {
+    // No specific validation rules needed for UUID format
+    // UUID class itself ensures valid format
+    // Parameter used for potential future validation logic
   }
 
 

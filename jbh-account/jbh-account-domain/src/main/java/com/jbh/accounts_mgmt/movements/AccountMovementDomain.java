@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import lombok.Data;
 
 @Data
-public class AccountMovementDomain {
+public final class AccountMovementDomain {
 
   private AccountMovementId id;
   private AccountId accountId;

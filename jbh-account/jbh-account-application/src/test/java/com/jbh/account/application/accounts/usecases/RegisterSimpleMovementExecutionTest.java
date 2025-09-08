@@ -557,15 +557,16 @@ public class RegisterSimpleMovementExecutionTest {
     assertEquals(numberOf("7364883"), actualAccount.getProfitBalance());
     List<AccountMonthlyBalanceDomain> savedMonthlyBalances = processedResponse.get().monthlyBalances();
 
-    log.info("Account Tested. Preparing to test the monthly Balances...{} ", savedMonthlyBalances.size());
+    // THEN
     YearMonth expectedPeriod = YearMonth.of(2023, 10);
+    log.info("Account Tested. Preparing to test the monthly Balances ...{} ", expectedPeriod);
     when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(accountId, expectedPeriod)).
         thenReturn(savedMonthlyBalances);
-
     CompletableFuture<List<AccountMonthlyBalanceDomain>> futureResponse =
         monthlyBalanceSyncerService.saveMonthlyBalancesASYNC(accountId, savedMonthlyBalances);
     List<AccountMonthlyBalanceDomain> actualMonthlyBalances = futureResponse.get();
 
+    // Response
     int index = -1;
     AccountMonthlyBalanceDomain actualResponse = null;
 
@@ -768,8 +769,8 @@ public class RegisterSimpleMovementExecutionTest {
     assertEquals(numberOf("14521617"), actualAccount.getProfitBalance());
     List<AccountMonthlyBalanceDomain> savedMonthlyBalances = processedResponse.get().monthlyBalances();
 
-    log.info("Account Tested. Preparing to test the monthly Balances...{} ", savedMonthlyBalances.size());
     YearMonth expectedPeriod = YearMonth.of(2023, 7);
+    log.info("Account Tested. Preparing to test the monthly Balances ASYNC...{} ", expectedPeriod);
     when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(accountId, expectedPeriod)).
         thenReturn(savedMonthlyBalances);
 

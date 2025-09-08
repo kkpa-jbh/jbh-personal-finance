@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import lombok.Data;
 
 @Data
-public class AccountDomain {
+public final class AccountDomain {
 
   private AccountId id;
   private String name;
@@ -39,9 +39,9 @@ public class AccountDomain {
     if (multipleMovements == null || multipleMovements.isEmpty()) {
       throw new GenericSpecificationException("Movements cannot be null or empty");
     }
-    multipleMovements = multipleMovements.stream().filter(Objects::nonNull).collect(Collectors.toList());
+    List<AccountMovementDomain> filteredMovements = multipleMovements.stream().filter(Objects::nonNull).collect(Collectors.toList());
 
-    for (AccountMovementDomain movement : multipleMovements) {
+    for (AccountMovementDomain movement : filteredMovements) {
       syncBalances(movement);
     }
   }
@@ -57,12 +57,9 @@ public class AccountDomain {
       throw new GenericSpecificationException("Movement amount cannot be null");
     }
 
-    if (movement.getMovementAmount() != null) {
-      if (movement.getMovementAmount().signum() < 0) {
-        if (this.currentBalance.add(movement.getMovementAmount()).signum() < 0) {
-          throw new GenericSpecificationException("Insufficient effective balance");
-        }
-      }
+    if (movement.getMovementAmount() != null && movement.getMovementAmount().signum() < 0 
+        && this.currentBalance.add(movement.getMovementAmount()).signum() < 0) {
+      throw new GenericSpecificationException("Insufficient effective balance");
     }
 
     applyMovement(movement);

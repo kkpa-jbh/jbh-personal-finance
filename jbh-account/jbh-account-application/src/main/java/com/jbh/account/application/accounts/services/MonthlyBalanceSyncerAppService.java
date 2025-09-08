@@ -87,6 +87,68 @@ public class MonthlyBalanceSyncerAppService {
     return currentPeriod.isBefore(getEdgePeriod()) && currentPeriod.isBefore(endPeriod.plusMonths(1));
   }
 
+
+  private YearMonth getEdgePeriod() {
+    return YearMonth.now().plusMonths(1);
+  }
+
+
+  public CompletableFuture<List<AccountMonthlyBalanceDomain>> saveMonthlyBalancesASYNC(
+      AccountId accountId,
+      List<AccountMonthlyBalanceDomain> monthlyBalances) {
+
+    if (monthlyBalances == null || monthlyBalances.isEmpty()) {
+      LOG.warn("No monthly balances available for saving them ASYNC");
+      return CompletableFuture.completedFuture(Collections.emptyList());
+    }
+
+    YearMonth initPeriod = monthlyBalances.getFirst().getPeriod();
+    YearMonth lastPeriod = monthlyBalances.getLast().getPeriod();
+    LOG.info("Creating tasks to sync balances Asynchronously from {} to {}.", initPeriod, lastPeriod);
+
+    return CompletableFuture
+        // Step 1: Execute save task
+        .supplyAsync(saveBalancesTask(monthlyBalances))
+        .exceptionally(ex -> {
+          LOG.error("Error saving balances: {}", ex.getMessage(), ex);
+          return Collections.emptyList();
+        })
+        // Step 2: Chain profit task - runs AFTER save completes, same thread
+        .thenCompose(savedBalances ->
+            CompletableFuture
+                .supplyAsync(syncProfitMonthlyTask(accountId, initPeriod, lastPeriod))
+                .exceptionally(ex -> {
+                  LOG.error("Error refreshing monthly/opening balances: {}", ex.getMessage(), ex);
+                  return Collections.emptyList();
+                })
+                // Step 3: Combine results
+                .thenApply(profitBalances -> combineResults().apply(savedBalances, profitBalances))
+        );
+  }
+
+
+  private BiFunction<List<AccountMonthlyBalanceDomain>, List<AccountMonthlyBalanceDomain>, List<AccountMonthlyBalanceDomain>> combineResults() {
+    return (savedBalances, openingBalancesSynced) -> openingBalancesSynced;
+  }
+
+
+  private Supplier<List<AccountMonthlyBalanceDomain>> saveBalancesTask(
+      List<AccountMonthlyBalanceDomain> monthlyBalance) {
+    return () -> save(monthlyBalance);
+  }
+
+  private List<AccountMonthlyBalanceDomain> save(List<AccountMonthlyBalanceDomain> monthlyBalanceToPersist) {
+    LOG.info("[REPO] Saving Monthly Balances {}", monthlyBalanceToPersist.size());
+    return accountMonthlyBalanceRepo.save(monthlyBalanceToPersist);
+  }
+
+  private Supplier<List<AccountMonthlyBalanceDomain>> syncProfitMonthlyTask(
+      AccountId accountId,
+      YearMonth fromPeriod,
+      YearMonth toPeriod) {
+    return () -> syncProfitMonthlyFromPeriod(accountId, fromPeriod, toPeriod);
+  }
+
   private List<AccountMonthlyBalanceDomain> syncProfitMonthlyFromPeriod(AccountId accountId,
       YearMonth initPeriod, YearMonth endPeriod) {
 
@@ -154,67 +216,6 @@ public class MonthlyBalanceSyncerAppService {
 
     return profitBalancesSynced;
 
-  }
-
-  private YearMonth getEdgePeriod() {
-    return YearMonth.now().plusMonths(1);
-  }
-
-
-  public CompletableFuture<List<AccountMonthlyBalanceDomain>> saveMonthlyBalancesASYNC(
-      AccountId accountId,
-      List<AccountMonthlyBalanceDomain> monthlyBalances) {
-
-    LOG.info("Init process to save  monthly balances Asynchronously...");
-
-    if (monthlyBalances == null || monthlyBalances.isEmpty()) {
-      LOG.warn("No monthly balances available for saving them");
-      return CompletableFuture.completedFuture(Collections.emptyList());
-    }
-
-    LOG.info("Initiating asynchronous save of monthly balances {}", monthlyBalances.size());
-
-    CompletableFuture<List<AccountMonthlyBalanceDomain>> saveTask =
-        CompletableFuture
-            .supplyAsync(createSaveSupplier(monthlyBalances))
-            .exceptionally(ex -> {
-              LOG.error("Error saving balances: {}", ex.getMessage(), ex);
-              return Collections.emptyList(); // fallback value
-            });
-
-    YearMonth initPeriod = monthlyBalances.getFirst().getPeriod();
-    YearMonth lastPeriod = monthlyBalances.getLast().getPeriod();
-    CompletableFuture<List<AccountMonthlyBalanceDomain>> openingTask =
-        CompletableFuture
-            .supplyAsync(syncProfitMonthlyTask(accountId, initPeriod, lastPeriod))
-            .exceptionally(ex -> {
-              LOG.error("Error saving opening balances: {}", ex.getMessage(), ex);
-              return Collections.emptyList();
-            });
-
-    return saveTask.thenCombine(openingTask, combineResults());
-  }
-
-
-  private BiFunction<List<AccountMonthlyBalanceDomain>, List<AccountMonthlyBalanceDomain>, List<AccountMonthlyBalanceDomain>> combineResults() {
-    return (savedBalances, openingBalancesSynced) -> openingBalancesSynced;
-  }
-
-  private List<AccountMonthlyBalanceDomain> save(List<AccountMonthlyBalanceDomain> monthlyBalanceToPersist) {
-    LOG.info("Saving Monthly Balances {}", monthlyBalanceToPersist.size());
-    return accountMonthlyBalanceRepo.save(monthlyBalanceToPersist);
-  }
-
-  private Supplier<List<AccountMonthlyBalanceDomain>> createSaveSupplier(
-      List<AccountMonthlyBalanceDomain> monthlyBalance) {
-    return () -> save(monthlyBalance);
-  }
-
-  private Supplier<List<AccountMonthlyBalanceDomain>> syncProfitMonthlyTask(
-      AccountId accountId,
-      YearMonth fromPeriod,
-      YearMonth toPeriod) {
-    return () -> syncProfitMonthlyFromPeriod(accountId, fromPeriod, toPeriod);
   }
 
 }

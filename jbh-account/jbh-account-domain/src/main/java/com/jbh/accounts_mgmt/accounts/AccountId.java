@@ -19,7 +19,9 @@ public record AccountId(UUID value) {
   }
 
   private static void validateFormat(UUID value) {
-    // rules if needed
+    // No specific validation rules needed for UUID format
+    // UUID class itself ensures valid format  
+    // Parameter used for potential future validation logic
   }
 }
 

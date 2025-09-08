@@ -25,6 +25,10 @@
     <exclude name="LongVariable"/>
     <!-- Allow ternary operators -->
     <exclude name="TooManyStaticImports"/>
+    <!-- Allow factory method names like "of" -->
+    <exclude name="ShortMethodName"/>
+    <!-- Allow single return style -->
+    <exclude name="OnlyOneReturn"/>
   </rule>
 
   <!-- Design -->
