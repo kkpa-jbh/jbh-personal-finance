@@ -3,7 +3,7 @@ package com.jbh.account.application.accounts.ports.input;
 import com.jbh.account.application.accounts.dto.AddBasicMovementDTO;
 import com.jbh.account.application.accounts.dto.AddMultipleBasicMovementDTO;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
-import com.jbh.account.application.accounts.services.MonthlyBalanceSyncerService;
+import com.jbh.account.application.accounts.services.MonthlyBalanceSyncerAppService;
 import com.jbh.account.application.accounts.usecases.RegisterMovementUseCase;
 import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
 import com.jbh.account.application.acid.UnitOfWork;
@@ -23,7 +23,7 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
   private static final Logger log = LoggerFactory.getLogger(RegisterSimpleMovementInputPort.class);
   private final AccountMovementRepository MovementRepository;
   private final AccountRepository accountRepository;
-  private final MonthlyBalanceSyncerService monthlyBalanceSyncerService;
+  private final MonthlyBalanceSyncerAppService monthlyBalanceSyncerService;
 
 
   private final UnitOfWork unitOfWork;
@@ -31,7 +31,7 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
   public RegisterSimpleMovementInputPort(AccountRepository accountRepository,
       AccountMovementRepository MovementRepository,
       UnitOfWork unitOfWork,
-      MonthlyBalanceSyncerService monthlyBalanceSyncerService) {
+      MonthlyBalanceSyncerAppService monthlyBalanceSyncerService) {
     this.MovementRepository = MovementRepository;
     this.accountRepository = accountRepository;
     this.unitOfWork = unitOfWork;

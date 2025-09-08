@@ -12,7 +12,7 @@ import com.jbh.account.application.accounts.dto.AddBasicMovementDTO;
 import com.jbh.account.application.accounts.ports.input.RegisterSimpleMovementInputPort;
 import com.jbh.account.application.accounts.ports.output.AccountMonthlyBalanceRepository;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
-import com.jbh.account.application.accounts.services.MonthlyBalanceSyncerService;
+import com.jbh.account.application.accounts.services.MonthlyBalanceSyncerAppService;
 import com.jbh.account.application.accounts.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
 import com.jbh.account.application.acid.UnitOfWork;
@@ -49,7 +49,7 @@ public class RegisterSimpleMovementValidationTest {
   void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    MonthlyBalanceSyncerService monthlyBalanceSyncerService = new MonthlyBalanceSyncerService(
+    MonthlyBalanceSyncerAppService monthlyBalanceSyncerService = new MonthlyBalanceSyncerAppService(
         accountMonthlyBalanceRepository);
     registerSimpleMovementInputPort = new RegisterSimpleMovementInputPort(accountRepository, accountMovementRepository,
         unitOfWork, monthlyBalanceSyncerService);

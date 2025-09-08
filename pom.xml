@@ -25,17 +25,13 @@
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
-            <!--
-            <systemPropertyVariables>
-              <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
-            </systemPropertyVariables>
-            -->
             <useModulePath>true</useModulePath> <!-- Ensures compatibility with Java 9+ JPMS / module-info.java-->
           </configuration>
           <groupId>org.apache.maven.plugins</groupId>
           <version>${maven-surefire-plugin.version}</version>
         </plugin>
 
+        <!-- Integration Tests *IT Classes -->
         <plugin>
           <artifactId>maven-failsafe-plugin</artifactId>
           <groupId>org.apache.maven.plugins</groupId>

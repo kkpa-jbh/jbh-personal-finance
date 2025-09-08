@@ -22,13 +22,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 
-public class MonthlyBalanceSyncerService {
+public class MonthlyBalanceSyncerAppService {
 
-  private static final Logger log = LoggerFactory.getLogger(MonthlyBalanceSyncerService.class);
+  private static final Logger log = LoggerFactory.getLogger(MonthlyBalanceSyncerAppService.class);
 
   private final AccountMonthlyBalanceRepository accountMonthlyBalanceRepo;
 
-  public MonthlyBalanceSyncerService(AccountMonthlyBalanceRepository accountMonthlyBalanceRepo) {
+  public MonthlyBalanceSyncerAppService(AccountMonthlyBalanceRepository accountMonthlyBalanceRepo) {
     this.accountMonthlyBalanceRepo = accountMonthlyBalanceRepo;
   }
 

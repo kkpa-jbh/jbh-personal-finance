@@ -94,10 +94,10 @@ public class TestDataFactory {
   }
 
   /**
-   * Creates extended test data for AddEntryWithDateAmount covering the period from 2023 to 2025. Data represents a
+   * Creates extended test data for AddBasicMovementRequest covering the period from 2023 to 2025. Data represents a
    * longer account movement history with various deposits, withdrawals, and interest accruals. PI BI
    */
-  public static List<AddBasicMovementRequest> createExtendedAccountMovementTestData() {
+  public static List<AddBasicMovementRequest> movementsForPIBI() {
     return List.of(
         new AddBasicMovementRequest(
             parseDate("31/10/2023"),
@@ -223,6 +223,241 @@ public class TestDataFactory {
             parseDate("30/08/2025"),
             BigDecimal.ZERO, // No total amount visible in the image
             parseEuropeanAmount("37.074.883,00")
+        )
+    );
+  }
+
+  public static List<AddBasicMovementRequest> movementsForPIKMI() {
+    return List.of(
+        new AddBasicMovementRequest(
+            parseDate("31/07/2023"),
+            parseEuropeanAmount("15.000.000,00"),
+            parseEuropeanAmount("15.074.686,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("01/08/2023"),
+            parseEuropeanAmount("30.000.000,00"),
+            parseEuropeanAmount("45.194.686,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("02/08/2023"),
+            parseEuropeanAmount("25.000.000,00"),
+            parseEuropeanAmount("70.294.686,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("07/08/2023"),
+            parseEuropeanAmount("-45.000.000,00"),
+            parseEuropeanAmount("25.354.686,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("09/08/2023"),
+            parseEuropeanAmount("-11.000.000,00"),
+            parseEuropeanAmount("14.354.686,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("09/08/2023"),
+            parseEuropeanAmount("10.857.000,00"),
+            parseEuropeanAmount("25.211.686,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("10/08/2023"),
+            parseEuropeanAmount("24.200.000,00"),
+            parseEuropeanAmount("49.411.686,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("20/08/2023"),
+            parseEuropeanAmount("-4.000.000,00"),
+            parseEuropeanAmount("45.411.686,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("22/08/2023"),
+            parseEuropeanAmount("-400.000,00"),
+            parseEuropeanAmount("45.525.753,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("01/09/2023"),
+            parseEuropeanAmount("-10.010.000,00"),
+            parseEuropeanAmount("35.515.753,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("27/09/2023"),
+            parseEuropeanAmount("35.349.382,00"),
+            parseEuropeanAmount("71.073.909,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("29/09/2023"),
+            parseEuropeanAmount("-16.221.968,00"),
+            parseEuropeanAmount("54.787.054,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("30/09/2023"),
+            parseEuropeanAmount("0,00"),
+            parseEuropeanAmount("54.787.054,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("01/10/2023"),
+            parseEuropeanAmount("-22.000.000,00"),
+            parseEuropeanAmount("33.146.628,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("06/10/2023"),
+            parseEuropeanAmount("9.900.000,00"),
+            parseEuropeanAmount("43.086.228,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("30/10/2023"),
+            parseEuropeanAmount("6.549.382,00"),
+            parseEuropeanAmount("49.661.808,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("31/10/2023"),
+            parseEuropeanAmount("0,00"),
+            parseEuropeanAmount("50.069.218,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("01/11/2023"),
+            parseEuropeanAmount("-22.000.000,00"),
+            parseEuropeanAmount("28.069.218,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("07/11/2023"),
+            parseEuropeanAmount("24.000.000,00"),
+            parseEuropeanAmount("54.104.823,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("09/11/2023"),
+            parseEuropeanAmount("-1.000.000,00"),
+            parseEuropeanAmount("53.100.826,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("17/11/2023"),
+            parseEuropeanAmount("-400.000,00"),
+            parseEuropeanAmount("52.699.223,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("20/11/2023"),
+            parseEuropeanAmount("-13.000.000,00"),
+            parseEuropeanAmount("39.647.223,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("30/11/2023"),
+            parseEuropeanAmount("671.155,00"),
+            parseEuropeanAmount("40.726.167,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("06/12/2023"),
+            parseEuropeanAmount("-14.500.000,00"),
+            parseEuropeanAmount("26.227.544,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("14/12/2023"),
+            parseEuropeanAmount("-400.000,00"),
+            parseEuropeanAmount("25.825.944,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("31/12/2023"),
+            parseEuropeanAmount("-2.346.355,00"),
+            parseEuropeanAmount("23.720.010,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("01/01/2024"),
+            parseEuropeanAmount("-13.000.000,00"),
+            parseEuropeanAmount("10.720.010,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("12/01/2024"),
+            parseEuropeanAmount("0,00"),
+            parseEuropeanAmount("10.720.010,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("31/01/2024"),
+            parseEuropeanAmount("653.045,00"),
+            parseEuropeanAmount("11.480.093,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("04/02/2024"),
+            parseEuropeanAmount("-10.000.000,00"),
+            parseEuropeanAmount("1.440.093,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("29/02/2024"),
+            parseEuropeanAmount("2.653.045,00"),
+            parseEuropeanAmount("4.105.556,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("31/03/2024"),
+            parseEuropeanAmount("653.645,00"),
+            parseEuropeanAmount("4.839.561,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("30/04/2024"),
+            parseEuropeanAmount("653.645,00"),
+            parseEuropeanAmount("5.542.958,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("30/05/2024"),
+            parseEuropeanAmount("2.401.286,00"),
+            parseEuropeanAmount("8.016.341,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("30/06/2024"),
+            parseEuropeanAmount("520.531,00"),
+            parseEuropeanAmount("8.613.715,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("31/07/2024"),
+            parseEuropeanAmount("520.531,00"),
+            parseEuropeanAmount("9.136.328,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("31/08/2024"),
+            parseEuropeanAmount("60.520.531,00"),
+            parseEuropeanAmount("72.058.459,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("30/09/2024"),
+            parseEuropeanAmount("520.531,00"),
+            parseEuropeanAmount("73.257.353,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("31/10/2024"),
+            parseEuropeanAmount("520.531,00"),
+            parseEuropeanAmount("74.490.431,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("21/11/2024"),
+            parseEuropeanAmount("520.531,00"),
+            parseEuropeanAmount("75.711.997,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("31/12/2024"),
+            parseEuropeanAmount("0,00"),
+            parseEuropeanAmount("76.398.664,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("31/01/2025"),
+            parseEuropeanAmount("0,00"),
+            parseEuropeanAmount("76.976.067,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("25/02/2025"),
+            parseEuropeanAmount("0,00"),
+            parseEuropeanAmount("77.501.534,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("31/03/2025"),
+            parseEuropeanAmount("0,00"),
+            parseEuropeanAmount("78.053.700,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("30/04/2025"),
+            parseEuropeanAmount("-10.000.000,00"),
+            parseEuropeanAmount("68.053.700,00")
+        ),
+        new AddBasicMovementRequest(
+            parseDate("30/08/2025"),
+            parseEuropeanAmount("0,00"),
+            parseEuropeanAmount("70.908.065,00")
         )
     );
   }
