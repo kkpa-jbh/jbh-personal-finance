@@ -20,20 +20,20 @@ import org.slf4j.Logger;
 
 public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase {
 
-  private static final Logger log = LoggerFactory.getLogger(RegisterSimpleMovementInputPort.class);
-  private final AccountMovementRepository MovementRepository;
-  private final AccountRepository accountRepository;
+  private static final Logger LOG = LoggerFactory.getLogger(RegisterSimpleMovementInputPort.class);
+  private final AccountMovementRepository movementRepo;
+  private final AccountRepository accountRepo;
   private final MonthlyBalanceSyncerAppService monthlyBalanceSyncerService;
 
 
   private final UnitOfWork unitOfWork;
 
-  public RegisterSimpleMovementInputPort(AccountRepository accountRepository,
-      AccountMovementRepository MovementRepository,
+  public RegisterSimpleMovementInputPort(AccountRepository accountRepo,
+      AccountMovementRepository movementRepo,
       UnitOfWork unitOfWork,
       MonthlyBalanceSyncerAppService monthlyBalanceSyncerService) {
-    this.MovementRepository = MovementRepository;
-    this.accountRepository = accountRepository;
+    this.movementRepo = movementRepo;
+    this.accountRepo = accountRepo;
     this.unitOfWork = unitOfWork;
     this.monthlyBalanceSyncerService = monthlyBalanceSyncerService;
   }
@@ -48,7 +48,7 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
         .module("account-application")
         .execute(() -> {
 
-          log.info("Starting Movement addition for account: {}, amount: {} snapshot: {}",
+          LOG.info("Starting Movement addition for account: {}, amount: {} snapshot: {}",
               accountId.value(), basicMovementRequest.totalAmount(), basicMovementRequest.balanceSnapshot());
 
           // Input validations
@@ -65,7 +65,7 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
           AccountMonthlyBalanceDomain accountMonthlyBalance = monthlyBalanceSyncerService.syncMonthlyBalance(
               newMovement);
 
-          log.info("Movement addition completed successfully for account: {}", accountId.value());
+          LOG.info("Movement addition completed successfully for account: {}", accountId.value());
 
           return new AddBasicMovementDTO(accountDomain, accountMonthlyBalance, newMovement);
         });
@@ -75,42 +75,42 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
   private void syncAccountBalanceByMovements(AccountDomain accountDomain,
       AccountMovementDomain newMovement) {
     accountDomain.syncBalances(newMovement);
-    log.debug("Account balance updated to: {}", accountDomain.getMovementBalance());
+    LOG.debug("Account balance updated to: {}", accountDomain.getMovementBalance());
     persistMovements(newMovement, accountDomain);
   }
 
   private void syncAccountBalanceByMovements(AccountDomain accountDomain,
       List<AccountMovementDomain> newMovements) {
     accountDomain.syncBalances(newMovements);
-    log.debug("Account balance updated to: {}", accountDomain.getMovementBalance());
+    LOG.debug("Account balance updated to: {}", accountDomain.getMovementBalance());
     persistMovements(newMovements, accountDomain);
   }
 
   private void persistMovements(AccountMovementDomain newMovement, AccountDomain accountDomain) {
     unitOfWork.execute(() -> {
-      log.info("Persisting Movement and account changes");
-      MovementRepository.save(newMovement);
-      accountRepository.save(accountDomain);
+      LOG.info("Persisting Movement and account changes");
+      movementRepo.save(newMovement);
+      accountRepo.save(accountDomain);
     });
   }
 
   private void persistMovements(List<AccountMovementDomain> newMovements, AccountDomain accountDomain) {
     unitOfWork.execute(() -> {
-      log.info("Persisting Movement and account changes");
-      MovementRepository.save(newMovements);
-      accountRepository.save(accountDomain);
+      LOG.info("Persisting Movement and account changes");
+      movementRepo.save(newMovements);
+      accountRepo.save(accountDomain);
     });
   }
 
   private AccountDomain findAccount(UUID userId, AccountId accountId) {
     if (userId == null) {
-      log.error("User ID cannot be null");
+      LOG.error("User ID cannot be null");
       throw new IllegalArgumentException("User ID cannot be null");
     }
 
-    return accountRepository.findByAccountId(userId, accountId)
+    return accountRepo.findByAccountId(userId, accountId)
         .orElseThrow(() -> {
-          log.error("Account not found for user: {} and account: {}",
+          LOG.error("Account not found for user: {} and account: {}",
               userId, accountId.value());
           return new IllegalArgumentException("Account not found");
         });

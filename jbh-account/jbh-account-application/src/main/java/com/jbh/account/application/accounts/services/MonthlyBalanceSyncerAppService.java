@@ -125,7 +125,7 @@ public class MonthlyBalanceSyncerAppService {
       // If not found in database, let's create new one with the same balance snapshot from previous month.
       if (nextMonthlyBalanceOfCurrent == null) {
         boolean isEndPeriod = currentPeriod.equals(endPeriod);
-        // If its the last period, just set the opening balance (Next Future Month)
+        // If it is the last period, just set the opening balance (Next Future Month)
         BigDecimal closingBalance = isEndPeriod ? JBH_ZERO : currentMonthlyBalance.getClosingBalance();
         nextMonthlyBalanceOfCurrent = AccountMonthlyBalanceDomain.of(
             accountId,
@@ -199,9 +199,7 @@ public class MonthlyBalanceSyncerAppService {
 
 
   private BiFunction<List<AccountMonthlyBalanceDomain>, List<AccountMonthlyBalanceDomain>, List<AccountMonthlyBalanceDomain>> combineResults() {
-    return (savedBalances, openingBalancesSynced) -> {
-      return openingBalancesSynced;
-    };
+    return (savedBalances, openingBalancesSynced) -> openingBalancesSynced;
   }
 
   private List<AccountMonthlyBalanceDomain> save(List<AccountMonthlyBalanceDomain> monthlyBalanceToPersist) {

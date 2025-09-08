@@ -239,3 +239,62 @@ other modules will depend on.
 - Provides the logging interface/contract (Logger, LoggerFactory, etc.)
 - Your code uses this API for logging calls
 - Acts as an abstraction layer over actual logging implementation
+
+# PMD PLUGIN
+
+`pmd-ruleset.xml` is the ruleset used by PMD to analyze the codebase.
+
+The ruleset is located in the root directory of the project and is referenced in the root pom.xml.
+
+PMD is a static code analysis tool that helps identify potential issues in your codebase.
+
+PMD Benefits:
+
+- Static Code Analysis: Detects potential bugs, dead code, suboptimal code, overcomplicated expressions
+- Code Quality: Enforces coding standards and best practices
+- Early Detection: Catches issues before they reach production
+- Team Consistency: Ensures consistent coding patterns across your multi-module project
+- CI/CD Integration: Can fail builds on violations, maintaining code quality standards
+
+How PMD Works:
+
+- Analyzes Java source code without compiling it
+- Uses rulesets to identify violations (unused variables, empty catch blocks, etc.)
+- Generates reports in various formats (HTML, XML, CSV)
+- Integrates with Maven lifecycle phases
+- Can run via mvn pmd:pmd or mvn pmd:check commands
+
+## Basic PMD Commands
+
+1. Generate PMD Report (recommended)
+   mvn pmd:pmd
+   Creates HTML reports in target/site/pmd.html for each module.
+
+2. Check for Violations (fail build on issues)
+   mvn pmd:check
+   Analyzes code and fails build if violations found.
+
+3. Run PMD with verify phase
+   mvn verify
+   Includes PMD analysis in standard build lifecycle.
+
+Multi-Module Specific
+
+Run on all modules:
+mvn clean compile pmd:pmd
+
+Run on specific module:
+mvn pmd:pmd -pl jbh-account
+
+Report Locations
+
+- Root: target/site/pmd.html
+- Per module: jbh-account/target/site/pmd.html, jbh-notification/target/site/pmd.html
+
+Integration Options
+
+Add to your CI/CD pipeline:
+mvn clean test pmd:check
+
+Enable build failure on violations (edit pom.xml):
+<failOnViolation>true</failOnViolation>
