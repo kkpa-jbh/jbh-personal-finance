@@ -100,6 +100,7 @@ public class MonthlyBalanceSyncerService {
         accountId, initPeriod);
 
     if (existingBalancesFromPeriod == null || existingBalancesFromPeriod.isEmpty()) {
+      log.warn("No future balances to sync profit were found for account {} and period {}", accountId, initPeriod);
       return Collections.emptyList();
     }
 
@@ -111,17 +112,16 @@ public class MonthlyBalanceSyncerService {
     while (isAvailablePeriod(currentPeriod, endPeriod)) {
 
       log.info("Syncing Monthly Profit for period: {}", currentPeriod);
-
       AccountMonthlyBalanceDomain currentMonthlyBalance = existingBalancesMap.get(currentPeriod);
       currentMonthlyBalance.refreshProfitMonthly();
 
       YearMonth nextPeriod = currentMonthlyBalance.getPeriod().plusMonths(1);
+      log.info("Syncing Opening Balance for next period: {} ", nextPeriod);
       // Syncing Next month opening balance with current month closing balance
       AccountMonthlyBalanceDomain nextMonthlyBalanceOfCurrent = existingBalancesFromPeriod.stream()
           .filter(mb -> mb.getPeriod().equals(nextPeriod))
           .findFirst()
           .orElse(null);
-
       // If not found in database, let's create new one with the same balance snapshot from previous month.
       if (nextMonthlyBalanceOfCurrent == null) {
         boolean isEndPeriod = currentPeriod.equals(endPeriod);
@@ -136,6 +136,7 @@ public class MonthlyBalanceSyncerService {
       }
       nextMonthlyBalanceOfCurrent.setOpeningBalance(currentMonthlyBalance.getClosingBalance());
 
+      // Preparing to persist
       if (!profitBalancesSynced.contains(currentMonthlyBalance)) {
         profitBalancesSynced.add(currentMonthlyBalance);
       }
@@ -143,12 +144,14 @@ public class MonthlyBalanceSyncerService {
         profitBalancesSynced.add(nextMonthlyBalanceOfCurrent);
       }
 
+      // Increasing the while index
       currentPeriod = currentPeriod.plusMonths(1);
     }
 
     // Sort using natural ordering (period ASC)
     Collections.sort(profitBalancesSynced);
 
+    // persist monthly balances with profit and opening balances synced.
     save(profitBalancesSynced);
 
     return profitBalancesSynced;
@@ -156,7 +159,7 @@ public class MonthlyBalanceSyncerService {
   }
 
   private YearMonth getEdgePeriod() {
-    return YearMonth.now();
+    return YearMonth.now().plusMonths(1);
   }
 
 
@@ -164,7 +167,10 @@ public class MonthlyBalanceSyncerService {
       AccountId accountId,
       List<AccountMonthlyBalanceDomain> monthlyBalances) {
 
+    log.info("Init process to save  monthly balances Asynchronously...");
+
     if (monthlyBalances == null || monthlyBalances.isEmpty()) {
+      log.warn("No monthly balances available for saving them");
       return CompletableFuture.completedFuture(Collections.emptyList());
     }
 

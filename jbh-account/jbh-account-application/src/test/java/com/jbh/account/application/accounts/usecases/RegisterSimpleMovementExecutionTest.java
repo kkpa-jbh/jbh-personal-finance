@@ -99,13 +99,20 @@ public class RegisterSimpleMovementExecutionTest {
     verify(accountRepository).save(accountDomain);
 
     assertEquals(accountDomain.getMovementBalance(), amount);
-    assertEquals(amount, mvmtResponse.get().monthlyBalance().getTotalDebits());
-    assertEquals(amount, mvmtResponse.get().monthlyBalance().getClosingBalance());
-    assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().getOpeningBalance());
-    assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().getMonthlyProfit());
+    AccountMonthlyBalanceDomain actualMonthlyBalances = mvmtResponse.get().monthlyBalance();
+    assertEquals(amount, actualMonthlyBalances.getTotalDebits());
+    assertEquals(amount, actualMonthlyBalances.getClosingBalance());
+    assertEquals(JBH_ZERO, actualMonthlyBalances.getOpeningBalance());
+    assertEquals(JBH_ZERO, actualMonthlyBalances.getMonthlyProfit());
 
-    List<AccountMonthlyBalanceDomain> futureResponse = monthlyBalanceSyncerService.saveMonthlyBalancesASYNC(accountId,
-        Collections.singletonList(mvmtResponse.get().monthlyBalance())).get();
+    when(
+        accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(accountId,
+            YearMonth.of(movementDate.getYear(), movementDate.getMonthValue()))
+    ).thenReturn(Collections.singletonList(actualMonthlyBalances));
+
+    List<AccountMonthlyBalanceDomain> futureResponse =
+        monthlyBalanceSyncerService.saveMonthlyBalancesASYNC(accountId,
+            Collections.singletonList(actualMonthlyBalances)).get();
 
     assertEquals(2, futureResponse.size());
 
@@ -427,6 +434,9 @@ public class RegisterSimpleMovementExecutionTest {
     assertEquals(numberOf("0"), expectedMonthBalance.getClosingBalance());
     assertEquals(numberOf("3768488"), expectedMonthBalance.getTotalCredits());
 
+    YearMonth initPeriod = YearMonth.of(firstEntry.entryDate().getYear(), firstEntry.entryDate().getMonthValue());
+    when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(accountId, initPeriod))
+        .thenReturn(actualMonthlyBalances);
     CompletableFuture<List<AccountMonthlyBalanceDomain>> futureResponse =
         monthlyBalanceSyncerService.saveMonthlyBalancesASYNC(accountId, actualMonthlyBalances);
 
