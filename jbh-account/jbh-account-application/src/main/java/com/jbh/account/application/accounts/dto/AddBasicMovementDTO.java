@@ -1,8 +1,8 @@
 package com.jbh.account.application.accounts.dto;
 
-import com.jbh.accounts_mgmt.accounts.AccountDomain;
-import com.jbh.accounts_mgmt.accounts.AccountMonthlyBalanceDomain;
-import com.jbh.accounts_mgmt.movements.AccountMovementDomain;
+import com.jbh.account.domain.accounts.AccountDomain;
+import com.jbh.account.domain.accounts.AccountMonthlyBalanceDomain;
+import com.jbh.account.domain.movements.AccountMovementDomain;
 
 public record AddBasicMovementDTO(AccountDomain account,
                                   AccountMonthlyBalanceDomain monthlyBalance,

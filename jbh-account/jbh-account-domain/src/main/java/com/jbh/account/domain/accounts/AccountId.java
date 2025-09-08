@@ -1,4 +1,4 @@
-package com.jbh.accounts_mgmt.accounts;
+package com.jbh.account.domain.accounts;
 
 import java.util.Objects;
 import java.util.UUID;

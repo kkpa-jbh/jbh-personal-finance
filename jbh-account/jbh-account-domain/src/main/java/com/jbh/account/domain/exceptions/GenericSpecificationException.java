@@ -1,4 +1,4 @@
-package com.jbh.accounts_mgmt.exceptions;
+package com.jbh.account.domain.exceptions;
 
 public class GenericSpecificationException extends RuntimeException {
 

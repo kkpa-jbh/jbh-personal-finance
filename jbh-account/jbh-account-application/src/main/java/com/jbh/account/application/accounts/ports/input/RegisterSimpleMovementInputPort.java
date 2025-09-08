@@ -10,10 +10,10 @@ import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.common.logging.LoggerFactory;
 import com.jbh.account.application.common.logging.LoggingContext;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
-import com.jbh.accounts_mgmt.accounts.AccountDomain;
-import com.jbh.accounts_mgmt.accounts.AccountId;
-import com.jbh.accounts_mgmt.accounts.AccountMonthlyBalanceDomain;
-import com.jbh.accounts_mgmt.movements.AccountMovementDomain;
+import com.jbh.account.domain.accounts.AccountDomain;
+import com.jbh.account.domain.accounts.AccountId;
+import com.jbh.account.domain.accounts.AccountMonthlyBalanceDomain;
+import com.jbh.account.domain.movements.AccountMovementDomain;
 import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -24,9 +24,8 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
   private final AccountMovementRepository movementRepo;
   private final AccountRepository accountRepo;
   private final MonthlyBalanceSyncerAppService monthlyBalanceSyncerService;
-
-
   private final UnitOfWork unitOfWork;
+
 
   public RegisterSimpleMovementInputPort(AccountRepository accountRepo,
       AccountMovementRepository movementRepo,
@@ -38,6 +37,11 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
     this.monthlyBalanceSyncerService = monthlyBalanceSyncerService;
   }
 
+
+  @Override
+  public void healthCheck() {
+    LOG.info("Health check");
+  }
 
   @Override
   public AddBasicMovementDTO addBasicMovements(UUID userId, AccountId accountId,

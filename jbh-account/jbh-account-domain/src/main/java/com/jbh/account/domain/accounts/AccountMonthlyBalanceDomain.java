@@ -1,9 +1,9 @@
-package com.jbh.accounts_mgmt.accounts;
+package com.jbh.account.domain.accounts;
 
-import static com.jbh.accounts_mgmt.utils.MoneyUtils.JBH_ZERO;
-import static com.jbh.accounts_mgmt.utils.MoneyUtils.isZero;
+import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.MoneyUtils.isZero;
 
-import com.jbh.accounts_mgmt.movements.AccountMovementDomain;
+import com.jbh.account.domain.movements.AccountMovementDomain;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.List;

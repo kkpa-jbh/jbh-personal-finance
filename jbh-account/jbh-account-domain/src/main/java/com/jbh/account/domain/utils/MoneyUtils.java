@@ -1,4 +1,4 @@
-package com.jbh.accounts_mgmt.utils;
+package com.jbh.account.domain.utils;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

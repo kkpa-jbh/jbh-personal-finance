@@ -158,7 +158,7 @@ private static final StructuredLogger structuredLogger =
 
 **Purpose**: Automatically set up logging context for HTTP requests
 
-**Location**: `com.jbh.account_infra.common.logging.LoggingFilter`
+**Location**: `logging.common.com.jbh.account.infra.LoggingFilter`
 
 **Features:**
 

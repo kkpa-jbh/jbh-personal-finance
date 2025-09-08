@@ -1,7 +1,7 @@
 package com.jbh.account.application.accounts.ports.output;
 
-import com.jbh.accounts_mgmt.accounts.AccountId;
-import com.jbh.accounts_mgmt.accounts.AccountMonthlyBalanceDomain;
+import com.jbh.account.domain.accounts.AccountId;
+import com.jbh.account.domain.accounts.AccountMonthlyBalanceDomain;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;

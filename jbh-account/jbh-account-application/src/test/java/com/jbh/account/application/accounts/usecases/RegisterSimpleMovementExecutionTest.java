@@ -1,6 +1,6 @@
 package com.jbh.account.application.accounts.usecases;
 
-import static com.jbh.accounts_mgmt.utils.MoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -21,12 +21,12 @@ import com.jbh.account.application.accounts.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
-import com.jbh.accounts_mgmt.accounts.AccountDomain;
-import com.jbh.accounts_mgmt.accounts.AccountId;
-import com.jbh.accounts_mgmt.accounts.AccountMonthlyBalanceDomain;
-import com.jbh.accounts_mgmt.movements.AccountMovementDomain;
-import com.jbh.accounts_mgmt.movements.MovementType;
-import com.jbh.accounts_mgmt.utils.MoneyUtils;
+import com.jbh.account.domain.accounts.AccountDomain;
+import com.jbh.account.domain.accounts.AccountId;
+import com.jbh.account.domain.accounts.AccountMonthlyBalanceDomain;
+import com.jbh.account.domain.movements.AccountMovementDomain;
+import com.jbh.account.domain.movements.MovementType;
+import com.jbh.account.domain.utils.MoneyUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;

@@ -1,7 +1,7 @@
-package com.jbh.accounts_mgmt.accounts;
+package com.jbh.account.domain.accounts;
 
-import com.jbh.accounts_mgmt.exceptions.GenericSpecificationException;
-import com.jbh.accounts_mgmt.movements.AccountMovementDomain;
+import com.jbh.account.domain.exceptions.GenericSpecificationException;
+import com.jbh.account.domain.movements.AccountMovementDomain;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,7 +39,8 @@ public final class AccountDomain {
     if (multipleMovements == null || multipleMovements.isEmpty()) {
       throw new GenericSpecificationException("Movements cannot be null or empty");
     }
-    List<AccountMovementDomain> filteredMovements = multipleMovements.stream().filter(Objects::nonNull).collect(Collectors.toList());
+    List<AccountMovementDomain> filteredMovements = multipleMovements.stream().filter(Objects::nonNull)
+        .collect(Collectors.toList());
 
     for (AccountMovementDomain movement : filteredMovements) {
       syncBalances(movement);
@@ -57,7 +58,7 @@ public final class AccountDomain {
       throw new GenericSpecificationException("Movement amount cannot be null");
     }
 
-    if (movement.getMovementAmount() != null && movement.getMovementAmount().signum() < 0 
+    if (movement.getMovementAmount() != null && movement.getMovementAmount().signum() < 0
         && this.currentBalance.add(movement.getMovementAmount()).signum() < 0) {
       throw new GenericSpecificationException("Insufficient effective balance");
     }

@@ -1,4 +1,4 @@
-package com.jbh.account_infra.common.logging;
+package com.jbh.account.infra.common.logging;
 
 import com.jbh.account.application.common.logging.LoggingContext;
 import jakarta.enterprise.context.ApplicationScoped;

@@ -1,4 +1,4 @@
-package com.jbh.account_infra;
+package com.jbh.account.infra;
 
 import com.jbh.account.application.acid.UnitOfWork;
 import jakarta.enterprise.context.ApplicationScoped;

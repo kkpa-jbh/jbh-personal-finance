@@ -1,7 +1,7 @@
-package com.jbh.accounts_mgmt.movements;
+package com.jbh.account.domain.movements;
 
-import com.jbh.accounts_mgmt.accounts.AccountId;
-import com.jbh.accounts_mgmt.exceptions.GenericSpecificationException;
+import com.jbh.account.domain.accounts.AccountId;
+import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import lombok.Data;

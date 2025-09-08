@@ -1,6 +1,6 @@
-package com.jbh.account_infra.adapters;
+package com.jbh.account.infra.adapters;
 
-import com.jbh.account_infra.ApiConstants;
+import com.jbh.account.infra.ApiConstants;
 import io.quarkus.logging.Log;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -11,7 +11,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
 @ApplicationScoped
-@Path(ApiConstants.BASE_PATH + "/hello")
+@Path(ApiConstants.BASE_API_PATH + "/hello")
 public class GreetingResource {
 
   @PostConstruct

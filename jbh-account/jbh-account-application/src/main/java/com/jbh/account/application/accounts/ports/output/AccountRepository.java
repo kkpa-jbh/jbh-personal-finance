@@ -1,7 +1,7 @@
 package com.jbh.account.application.accounts.ports.output;
 
-import com.jbh.accounts_mgmt.accounts.AccountDomain;
-import com.jbh.accounts_mgmt.accounts.AccountId;
+import com.jbh.account.domain.accounts.AccountDomain;
+import com.jbh.account.domain.accounts.AccountId;
 import java.util.Optional;
 import java.util.UUID;
 

@@ -56,6 +56,10 @@
       <groupId>com.jbh</groupId>
     </dependency>
 
+    <!-- Essential for file upload -->
+ 
+
+    <!-- Essential for CDI/dependency injection -->
     <dependency>
       <artifactId>quarkus-arc</artifactId>
       <groupId>io.quarkus</groupId>

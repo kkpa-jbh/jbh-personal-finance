@@ -39,6 +39,11 @@
         <groupId>org.apache.maven.plugins</groupId>
       </plugin>
 
+      <plugin>
+        <artifactId>quarkus-maven-plugin</artifactId>
+        <groupId>io.quarkus.platform</groupId>
+      </plugin>
+
 
       <!-- Surefire Plugin for Unit Tests -->
       <plugin>
