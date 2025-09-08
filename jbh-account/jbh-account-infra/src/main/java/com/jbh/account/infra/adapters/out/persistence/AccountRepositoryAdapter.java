@@ -12,6 +12,8 @@ public class AccountRepositoryAdapter implements AccountRepository {
 
   @Override
   public Optional<AccountDomain> findByAccountId(UUID userId, AccountId accountId) {
+    String input = String.format("AccountRepositoryAdapter.findByAccountId called %s - %s", userId, accountId);
+    System.out.println(input);
     return Optional.empty();
   }
 

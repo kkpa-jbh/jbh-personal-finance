@@ -27,12 +27,12 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @ApplicationScoped
 @Path(ApiConstants.BASE_API_PATH + "/accounts")
 @Tag(name = "Account Operations", description = "Account management operations")
-public class AccountResource {
+public class AccountRestAdapter {
 
   private final TestingUseCase testingUseCase;
 
   @Inject
-  public AccountResource(TestingUseCase testingUseCase) {
+  public AccountRestAdapter(TestingUseCase testingUseCase) {
     this.testingUseCase = testingUseCase;
   }
 

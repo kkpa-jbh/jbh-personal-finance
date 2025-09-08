@@ -1,11 +1,8 @@
 package com.jbh.assembly;
 
 import com.jbh.account.application.accounts.ports.input.TestingInputPort;
-import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Produces;
-import jakarta.inject.Inject;
 
 @ApplicationScoped
 @RegisterForReflection(targets = {
@@ -13,13 +10,5 @@ import jakarta.inject.Inject;
 })
 public class BeanConfiguration {
 
-  @Inject
-  AccountRepository accountRepository;
 
-
-  @Produces
-  @ApplicationScoped
-  public TestingInputPort registeringTestingUseCase() {
-    return new TestingInputPort(accountRepository);
-  }
 }
