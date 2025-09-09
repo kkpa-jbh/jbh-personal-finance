@@ -2,7 +2,6 @@ package com.jbh.account.infra.adapters.in.rest;
 
 import com.jbh.account.application.accounts.usecases.NoOperationUseCase;
 import com.jbh.account.infra.ApiConstants;
-import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -23,6 +22,8 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("PMD.UnnecessaryAnnotationValueElement")
 @ApplicationScoped
@@ -30,6 +31,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Tag(name = "Account Operations", description = "Account management operations")
 public class AccountRestAdapter {
 
+  private final Logger log = LoggerFactory.getLogger(AccountRestAdapter.class);
   private final NoOperationUseCase testingUseCase;
 
   @Inject
@@ -86,7 +88,7 @@ public class AccountRestAdapter {
       @HeaderParam("Authorization")
       @Parameter(description = "JWT Bearer token", required = true) final String authorizationHeader
   ) {
-    Log.info("Uploading excel file " + authorizationHeader);
+    log.info("Uploading excel file {}", authorizationHeader);
 
     testingUseCase.healthCheck();
 
