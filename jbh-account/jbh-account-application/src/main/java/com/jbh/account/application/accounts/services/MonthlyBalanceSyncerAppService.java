@@ -206,39 +206,33 @@ public class MonthlyBalanceSyncerAppService {
         initPeriod, lastPeriod));
 
     // Create a CompletableFuture that will be completed by a virtual thread
-    CompletableFuture<List<AccountMonthlyBalanceDomain>> future = new CompletableFuture<>();
+    final CompletableFuture<List<AccountMonthlyBalanceDomain>> future = new CompletableFuture<>();
 
     // Start a virtual thread to do the work
     Thread.startVirtualThread(() -> {
-      try {
-        String threadName = Thread.currentThread().getName();
-        LOG.info("Starting balance processing on virtual thread: " + threadName);
+      final String threadName = Thread.currentThread().getName();
+      LOG.info("Starting balance processing on virtual thread: " + threadName);
 
-        // Step 1: Save balances (executes first)
-        List<AccountMonthlyBalanceDomain> savedBalances =
-            saveBalancesTask(monthlyBalances).get();
+      // Step 1: Save balances (executes first)
+      final List<AccountMonthlyBalanceDomain> savedBalances =
+          saveBalancesTask(monthlyBalances).get();
 
-        LOG.info("Balances saved on thread: " + Thread.currentThread().getName());
+      LOG.info("Balances saved on thread: " + Thread.currentThread().getName());
 
-        // Step 2: Sync profit data (executes IMMEDIATELY after step 1 completes)
-        List<AccountMonthlyBalanceDomain> profitBalances =
-            syncProfitMonthlyTask(accountId, initPeriod, lastPeriod).get();
+      // Step 2: Sync profit data (executes IMMEDIATELY after step 1 completes)
+      final List<AccountMonthlyBalanceDomain> profitBalances =
+          syncProfitMonthlyTask(accountId, initPeriod, lastPeriod).get();
 
-        LOG.info("Profit sync completed on thread: " + Thread.currentThread().getName());
+      LOG.info("Profit sync completed on thread: " + Thread.currentThread().getName());
 
-        // Step 3: Combine results
-        List<AccountMonthlyBalanceDomain> combined = combineResults().apply(savedBalances, profitBalances);
+      // Step 3: Combine results
+      final List<AccountMonthlyBalanceDomain> combined = combineResults().apply(savedBalances, profitBalances);
 
-        LOG.info("Task completed successfully, virtual thread will be garbage collected");
+      LOG.info("Task completed successfully, virtual thread will be garbage collected");
 
-        // Complete the future with success
-        future.complete(combined);
+      // Complete the future with success
+      future.complete(combined);
 
-      } catch (Exception ex) {
-        LOG.error("Error in sequential balance processing: " + ex.getMessage(), ex);
-        // Complete the future with empty list on error
-        future.complete(Collections.emptyList());
-      }
     });
 
     return future;
