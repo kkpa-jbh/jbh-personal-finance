@@ -198,6 +198,12 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    
+    <!-- JaCoCo Coverage Thresholds -->
+    <jacoco.line.coverage.minimum>0.60</jacoco.line.coverage.minimum>
+    <jacoco.branch.coverage.minimum>0.50</jacoco.branch.coverage.minimum>
+    <jacoco.bundle.line.minimum>0.65</jacoco.bundle.line.minimum>
+    <jacoco.bundle.branch.minimum>0.50</jacoco.bundle.branch.minimum>
   </properties>
 
 </project>
