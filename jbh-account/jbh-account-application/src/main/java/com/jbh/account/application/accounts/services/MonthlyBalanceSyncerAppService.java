@@ -98,40 +98,6 @@ public class MonthlyBalanceSyncerAppService {
   }
 
 
-  public CompletableFuture<List<AccountMonthlyBalanceDomain>> saveMonthlyBalancesASYNC(
-      final AccountId accountId,
-      final List<AccountMonthlyBalanceDomain> monthlyBalances) {
-
-    if (monthlyBalances == null || monthlyBalances.isEmpty()) {
-      LOG.warn("No monthly balances available for saving them ASYNC");
-      return CompletableFuture.completedFuture(Collections.emptyList());
-    }
-
-    final YearMonth initPeriod = monthlyBalances.getFirst().getPeriod();
-    final YearMonth lastPeriod = monthlyBalances.getLast().getPeriod();
-    LOG.info("Creating tasks to sync balances Asynchronously from {} to {}.", initPeriod, lastPeriod);
-
-    return CompletableFuture
-        // Step 1: Execute save task
-        .supplyAsync(saveBalancesTask(monthlyBalances))
-        .exceptionally(ex -> {
-          LOG.error("Error saving balances: {}", ex.getMessage(), ex);
-          return Collections.emptyList();
-        })
-        // Step 2: Chain profit task - runs AFTER save completes, same thread
-        .thenCompose(savedBalances ->
-            CompletableFuture
-                .supplyAsync(syncProfitMonthlyTask(accountId, initPeriod, lastPeriod))
-                .exceptionally(ex -> {
-                  LOG.error("Error refreshing monthly/opening balances: {}", ex.getMessage(), ex);
-                  return Collections.emptyList();
-                })
-                // Step 3: Combine results
-                .thenApply(profitBalances -> combineResults().apply(savedBalances, profitBalances))
-        );
-  }
-
-
   private BiFunction<List<AccountMonthlyBalanceDomain>, List<AccountMonthlyBalanceDomain>, List<AccountMonthlyBalanceDomain>> combineResults() {
     return (savedBalances, openingBalancesSynced) -> openingBalancesSynced;
   }
@@ -223,6 +189,59 @@ public class MonthlyBalanceSyncerAppService {
 
     return profitBalancesSynced;
 
+  }
+
+  public CompletableFuture<List<AccountMonthlyBalanceDomain>> saveMonthlyBalancesASYNC(
+      final AccountId accountId,
+      final List<AccountMonthlyBalanceDomain> monthlyBalances) {
+
+    if (monthlyBalances == null || monthlyBalances.isEmpty()) {
+      LOG.warn("No monthly balances available for saving them ASYNC");
+      return CompletableFuture.completedFuture(Collections.emptyList());
+    }
+
+    final YearMonth initPeriod = monthlyBalances.getFirst().getPeriod();
+    final YearMonth lastPeriod = monthlyBalances.getLast().getPeriod();
+    LOG.info(String.format("Starting virtual thread to sync balances from %s to %s",
+        initPeriod, lastPeriod));
+
+    // Create a CompletableFuture that will be completed by a virtual thread
+    CompletableFuture<List<AccountMonthlyBalanceDomain>> future = new CompletableFuture<>();
+
+    // Start a virtual thread to do the work
+    Thread.startVirtualThread(() -> {
+      try {
+        String threadName = Thread.currentThread().getName();
+        LOG.info("Starting balance processing on virtual thread: " + threadName);
+
+        // Step 1: Save balances (executes first)
+        List<AccountMonthlyBalanceDomain> savedBalances =
+            saveBalancesTask(monthlyBalances).get();
+
+        LOG.info("Balances saved on thread: " + Thread.currentThread().getName());
+
+        // Step 2: Sync profit data (executes IMMEDIATELY after step 1 completes)
+        List<AccountMonthlyBalanceDomain> profitBalances =
+            syncProfitMonthlyTask(accountId, initPeriod, lastPeriod).get();
+
+        LOG.info("Profit sync completed on thread: " + Thread.currentThread().getName());
+
+        // Step 3: Combine results
+        List<AccountMonthlyBalanceDomain> combined = combineResults().apply(savedBalances, profitBalances);
+
+        LOG.info("Task completed successfully, virtual thread will be garbage collected");
+
+        // Complete the future with success
+        future.complete(combined);
+
+      } catch (Exception ex) {
+        LOG.error("Error in sequential balance processing: " + ex.getMessage(), ex);
+        // Complete the future with empty list on error
+        future.complete(Collections.emptyList());
+      }
+    });
+
+    return future;
   }
 
 }
