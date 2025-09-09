@@ -22,6 +22,56 @@
             <id>report</id>
             <phase>verify</phase>
           </execution>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <id>jacoco-check</id>
+            <phase>verify</phase>
+            <configuration>
+              <rules>
+                <rule>
+                  <element>CLASS</element>
+                  <limits>
+                    <limit>
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>${jacoco.line.coverage.minimum}</minimum>
+                    </limit>
+                    <limit>
+                      <counter>BRANCH</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>${jacoco.branch.coverage.minimum}</minimum>
+                    </limit>
+                  </limits>
+                  <excludes>
+                    <exclude>com.jbh.account.application.common.logging.*</exclude>
+                    <exclude>**/dto/**</exclude>
+                    <exclude>**/vo/**</exclude>
+                    <exclude>com.jbh.account.application.accounts.ports.input.NoOperationInputPort</exclude>
+                  </excludes>
+                </rule>
+                <rule>
+                  <element>BUNDLE</element>
+                  <limits>
+                    <limit>
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>${jacoco.bundle.line.minimum}</minimum>
+                    </limit>
+                    <limit>
+                      <counter>BRANCH</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>${jacoco.bundle.branch.minimum}</minimum>
+                    </limit>
+                  </limits>
+                  <excludes>
+                    <exclude>com.jbh.account.application.common.logging.*</exclude>
+                  </excludes>
+                </rule>
+              </rules>
+            </configuration>
+          </execution>
         </executions>
         <groupId>org.jacoco</groupId>
       </plugin>

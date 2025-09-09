@@ -198,6 +198,22 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    
+    <!-- JaCoCo Coverage Thresholds -->
+    <!-- Line Coverage: Percentage of code lines executed during tests -->
+    <!-- Higher = more code paths tested, but doesn't guarantee quality -->
+    <jacoco.line.coverage.minimum>0.60</jacoco.line.coverage.minimum>
+    
+    <!-- Branch Coverage: Percentage of decision branches (if/else) tested -->  
+    <!-- More important than line coverage - ensures edge cases are tested -->
+    <!-- Example: if(x>0) return "pos"; else return "neg" - both paths must be tested -->
+    <jacoco.branch.coverage.minimum>0.50</jacoco.branch.coverage.minimum>
+    
+    <!-- Bundle Coverage: Overall module coverage (all classes combined) -->
+    <!-- Prevents having few well-tested classes hide many untested ones -->
+    <!-- Set slightly higher than class minimum to encourage broad coverage -->
+    <jacoco.bundle.line.minimum>0.63</jacoco.bundle.line.minimum>
+    <jacoco.bundle.branch.minimum>0.50</jacoco.bundle.branch.minimum>
   </properties>
 
 </project>
