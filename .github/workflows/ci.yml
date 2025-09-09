@@ -9,6 +9,13 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+# Set permissions for GITHUB_TOKEN to enable test reporting and security uploads
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+  security-events: write
+
 jobs:
   # Job 1: Run tests and static analysis (PMD, SpotBugs)
   test-and-analyze:
