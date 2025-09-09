@@ -11,12 +11,12 @@ public class QuarkusUnitOfWork implements UnitOfWork {
 
 
   @Override
-  public void execute(Runnable action) {
+  public void execute(final Runnable action) {
     action.run();
   }
 
   @Override
-  public <T> T executeWithResult(Supplier<T> action) {
+  public <T> T executeWithResult(final Supplier<T> action) {
     return action.get();
   }
 }

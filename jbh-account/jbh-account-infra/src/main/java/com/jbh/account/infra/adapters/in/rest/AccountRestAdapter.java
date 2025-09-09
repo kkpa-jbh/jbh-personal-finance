@@ -24,6 +24,7 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
+@SuppressWarnings("PMD.UnnecessaryAnnotationValueElement")
 @ApplicationScoped
 @Path(ApiConstants.BASE_API_PATH + "/accounts")
 @Tag(name = "Account Operations", description = "Account management operations")
@@ -32,7 +33,7 @@ public class AccountRestAdapter {
   private final NoOperationUseCase testingUseCase;
 
   @Inject
-  public AccountRestAdapter(NoOperationUseCase testingUseCase) {
+  public AccountRestAdapter(final NoOperationUseCase testingUseCase) {
     this.testingUseCase = testingUseCase;
   }
 
@@ -74,20 +75,16 @@ public class AccountRestAdapter {
   @SecurityRequirement(name = "JWT")
   public Response uploadExcelMovements(
       @FormParam("file")
-      @Parameter(description = "Excel file containing account movements", required = true)
-      InputStream fileInputStream,
+      @Parameter(description = "Excel file containing account movements", required = true) final InputStream fileInputStream,
 
       @FormParam("sheetName")
-      @Parameter(description = "Name of the Excel sheet to process", required = true)
-      String sheetName,
+      @Parameter(description = "Name of the Excel sheet to process", required = true) final String sheetName,
 
       @FormParam("accountId")
-      @Parameter(description = "UUID of the target account", required = true)
-      UUID accountId,
+      @Parameter(description = "UUID of the target account", required = true) final UUID accountId,
 
       @HeaderParam("Authorization")
-      @Parameter(description = "JWT Bearer token", required = true)
-      String authorizationHeader
+      @Parameter(description = "JWT Bearer token", required = true) final String authorizationHeader
   ) {
     Log.info("Uploading excel file " + authorizationHeader);
 

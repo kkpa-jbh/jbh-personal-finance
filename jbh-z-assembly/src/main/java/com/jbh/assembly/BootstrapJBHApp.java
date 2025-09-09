@@ -10,13 +10,13 @@ public class BootstrapJBHApp implements QuarkusApplication {
 
   private static final Logger LOG = Logger.getLogger(BootstrapJBHApp.class);
 
-  public static void main(String... args) {
+  public static void main(final String... args) {
     LOG.info("Starting JBH Personal Finance Platform...");
     Quarkus.run(BootstrapJBHApp.class, args);
   }
 
   @Override
-  public int run(String... args) throws Exception {
+  public int run(final String... args) throws Exception {
     LOG.info("JBH Personal Finance Platform started successfully!");
     LOG.info("All modules loaded and APIs available");
 

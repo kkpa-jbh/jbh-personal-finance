@@ -11,7 +11,7 @@ import java.util.Optional;
 @PersistenceUnit(name = "acctmgmt")
 public class AccountJPARepository implements PanacheRepository<AccountJPAEntity> {
 
-  public Optional<AccountJPAEntity> findByAccountNumber(String accountNumber) {
+  public Optional<AccountJPAEntity> findByAccountNumber(final String accountNumber) {
     return find("accountNumber", accountNumber).firstResultOptional();
   }
 
@@ -19,7 +19,7 @@ public class AccountJPARepository implements PanacheRepository<AccountJPAEntity>
     return find("isActive", true).list();
   }
 
-  public List<AccountJPAEntity> findByAccountType(String accountType) {
+  public List<AccountJPAEntity> findByAccountType(final String accountType) {
     return find("accountType = :type and isActive = :active",
         Parameters.with("type", accountType)
             .and("active", true)).list();

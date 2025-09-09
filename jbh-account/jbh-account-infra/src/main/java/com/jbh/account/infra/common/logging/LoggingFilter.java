@@ -1,5 +1,7 @@
 package com.jbh.account.infra.common.logging;
 
+import static com.jbh.account.infra.LogSanitizer.sanitize;
+
 import com.jbh.account.application.common.logging.LoggingContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.container.ContainerRequestContext;
@@ -43,9 +45,10 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
     requestContext.setProperty(START_TIME_PROPERTY, System.currentTimeMillis());
 
     logger.info("Incoming request: {} {} from IP: {}",
-        requestContext.getMethod(),
-        requestContext.getUriInfo().getRequestUri().getPath(),
-        getClientIP(requestContext));
+        sanitize(requestContext.getMethod()),
+        sanitize(requestContext.getUriInfo().getRequestUri().getPath()),
+        sanitize(getClientIP(requestContext))
+    );
   }
 
   @Override
@@ -68,10 +71,11 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
       long executionTime = startTime != null ? System.currentTimeMillis() - startTime : 0;
 
       logger.info("Request completed: {} {} - Status: {} - Duration: {}ms",
-          requestContext.getMethod(),
-          requestContext.getUriInfo().getRequestUri().getPath(),
-          responseContext.getStatus(),
-          executionTime);
+          sanitize(requestContext.getMethod()),
+          sanitize(requestContext.getUriInfo().getRequestUri().getPath()),
+          sanitize(responseContext.getStatus()),
+          sanitize(executionTime)
+      );
 
     } finally {
       // Clean up logging context
