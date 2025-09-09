@@ -29,6 +29,13 @@
           <version>${maven.jacoco.plugin.version}</version>
         </plugin>
 
+        <!-- Maven Enforcer Plugin for dependency management -->
+        <plugin>
+          <artifactId>maven-enforcer-plugin</artifactId>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-enforcer-plugin.version}</version>
+        </plugin>
+
       </plugins>
 
     </pluginManagement>
@@ -63,6 +70,51 @@
           </execution>
         </executions>
         <groupId>org.jacoco</groupId>
+      </plugin>
+
+      <!-- Maven Enforcer Plugin - runs during validate phase -->
+      <plugin>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <executions>
+          <execution>
+            <configuration>
+              <rules>
+                <!-- Ensure minimum Maven version -->
+                <banDuplicatePomDependencyVersions/>
+
+                <!-- Ensure minimum Java version -->
+                <bannedDependencies>
+                  <excludes>
+                    <exclude>log4j:log4j:*:jar:compile</exclude>
+                    <exclude>commons-logging:commons-logging:*:jar:compile</exclude>
+                  </excludes>
+                  <message>These dependencies are banned due to security vulnerabilities or conflicts</message>
+                </bannedDependencies>
+
+                <!-- Prevent dependency convergence issues -->
+                <dependencyConvergence/>
+
+                <!-- Ensure no duplicate dependencies -->
+                <requireJavaVersion>
+                  <message>Java 21 or higher is required for this project</message>
+                  <version>[21,)</version>
+                </requireJavaVersion>
+
+                <!-- Ban specific vulnerable dependencies (example) -->
+                <requireMavenVersion>
+                  <message>Maven 3.8.1 or higher is required for this project</message>
+                  <version>[3.8.1,)</version>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <id>enforce-rules</id>
+            <phase>validate</phase>
+          </execution>
+        </executions>
+        <groupId>org.apache.maven.plugins</groupId>
       </plugin>
 
     </plugins>
