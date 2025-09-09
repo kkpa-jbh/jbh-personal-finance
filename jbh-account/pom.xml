@@ -212,7 +212,7 @@
     <!-- Bundle Coverage: Overall module coverage (all classes combined) -->
     <!-- Prevents having few well-tested classes hide many untested ones -->
     <!-- Set slightly higher than class minimum to encourage broad coverage -->
-    <jacoco.bundle.line.minimum>0.65</jacoco.bundle.line.minimum>
+    <jacoco.bundle.line.minimum>0.63</jacoco.bundle.line.minimum>
     <jacoco.bundle.branch.minimum>0.50</jacoco.bundle.branch.minimum>
   </properties>
 

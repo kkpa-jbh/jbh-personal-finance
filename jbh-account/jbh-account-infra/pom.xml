@@ -45,7 +45,7 @@
                     </limit>
                   </limits>
                   <excludes>
-                    <exclude>**/common/logging/**</exclude>
+                    <exclude>com.jbh.account.infra.common.logging.*</exclude>
                     <exclude>**/config/**</exclude>
                     <exclude>**/dto/**</exclude>
                   </excludes>
@@ -65,7 +65,7 @@
                     </limit>
                   </limits>
                   <excludes>
-                    <exclude>**/common/logging/**</exclude>
+                    <exclude>com.jbh.account.infra.common.logging.*</exclude>
                     <exclude>**/config/**</exclude>
                   </excludes>
                 </rule>

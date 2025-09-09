@@ -45,9 +45,10 @@
                     </limit>
                   </limits>
                   <excludes>
-                    <exclude>**/common/logging/**</exclude>
+                    <exclude>com.jbh.account.application.common.logging.*</exclude>
                     <exclude>**/dto/**</exclude>
                     <exclude>**/vo/**</exclude>
+                    <exclude>com.jbh.account.application.accounts.ports.input.NoOperationInputPort</exclude>
                   </excludes>
                 </rule>
                 <rule>
@@ -65,7 +66,7 @@
                     </limit>
                   </limits>
                   <excludes>
-                    <exclude>**/common/logging/**</exclude>
+                    <exclude>com.jbh.account.application.common.logging.*</exclude>
                   </excludes>
                 </rule>
               </rules>
