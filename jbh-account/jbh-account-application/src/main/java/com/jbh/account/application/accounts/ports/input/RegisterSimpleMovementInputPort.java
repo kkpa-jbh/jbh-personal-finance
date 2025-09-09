@@ -27,10 +27,10 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
   private final UnitOfWork unitOfWork;
 
 
-  public RegisterSimpleMovementInputPort(AccountRepository accountRepo,
-      AccountMovementRepository movementRepo,
-      UnitOfWork unitOfWork,
-      MonthlyBalanceSyncerAppService monthlyBalanceSyncerService) {
+  public RegisterSimpleMovementInputPort(final AccountRepository accountRepo,
+      final AccountMovementRepository movementRepo,
+      final UnitOfWork unitOfWork,
+      final MonthlyBalanceSyncerAppService monthlyBalanceSyncerService) {
     this.movementRepo = movementRepo;
     this.accountRepo = accountRepo;
     this.unitOfWork = unitOfWork;
@@ -44,8 +44,8 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
   }
 
   @Override
-  public AddBasicMovementDTO addBasicMovements(UUID userId, AccountId accountId,
-      AddBasicMovementRequest basicMovementRequest) {
+  public AddBasicMovementDTO addBasicMovements(final UUID userId, final AccountId accountId,
+      final AddBasicMovementRequest basicMovementRequest) {
     return LoggingContext.builder()
         .accountId(accountId.value())
         .userId(userId)
@@ -59,14 +59,14 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
           basicMovementRequest.validate();
 
           // Sync account balance
-          AccountDomain accountDomain = findAccount(userId, accountId);
-          AccountMovementDomain newMovement = AccountMovementDomain.of(accountDomain.getId(),
+          final AccountDomain accountDomain = findAccount(userId, accountId);
+          final AccountMovementDomain newMovement = AccountMovementDomain.of(accountDomain.getId(),
               basicMovementRequest.entryDate(),
               basicMovementRequest.totalAmount(), basicMovementRequest.balanceSnapshot());
           syncAccountBalanceByMovements(accountDomain, newMovement);
 
           // Sync monthly balance
-          AccountMonthlyBalanceDomain accountMonthlyBalance = monthlyBalanceSyncerService.syncMonthlyBalance(
+          final AccountMonthlyBalanceDomain accountMonthlyBalance = monthlyBalanceSyncerService.syncMonthlyBalance(
               newMovement);
 
           LOG.info("Movement addition completed successfully for account: {}", accountId.value());
@@ -76,37 +76,37 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
 
   }
 
-  private void syncAccountBalanceByMovements(AccountDomain accountDomain,
-      AccountMovementDomain newMovement) {
+  private void syncAccountBalanceByMovements(
+      final AccountDomain accountDomain,
+      final AccountMovementDomain newMovement) {
     accountDomain.syncBalances(newMovement);
-    LOG.debug("Account balance updated to: {}", accountDomain.getMovementBalance());
     persistMovements(newMovement, accountDomain);
   }
 
-  private void syncAccountBalanceByMovements(AccountDomain accountDomain,
-      List<AccountMovementDomain> newMovements) {
+  private void syncAccountBalanceByMovements(final AccountDomain accountDomain,
+      final List<AccountMovementDomain> newMovements) {
     accountDomain.syncBalances(newMovements);
     LOG.debug("Account balance updated to: {}", accountDomain.getMovementBalance());
     persistMovements(newMovements, accountDomain);
   }
 
-  private void persistMovements(AccountMovementDomain newMovement, AccountDomain accountDomain) {
+  private void persistMovements(final AccountMovementDomain newMovement, final AccountDomain accountDomain) {
     unitOfWork.execute(() -> {
-      LOG.info("Persisting Movement and account changes");
+      LOG.info("Persisting 1 Movement and account changes");
       movementRepo.save(newMovement);
       accountRepo.save(accountDomain);
     });
   }
 
-  private void persistMovements(List<AccountMovementDomain> newMovements, AccountDomain accountDomain) {
+  private void persistMovements(final List<AccountMovementDomain> newMovements, final AccountDomain accountDomain) {
     unitOfWork.execute(() -> {
-      LOG.info("Persisting Movement and account changes");
+      LOG.info("Persisting Movements and account changes");
       movementRepo.save(newMovements);
       accountRepo.save(accountDomain);
     });
   }
 
-  private AccountDomain findAccount(UUID userId, AccountId accountId) {
+  private AccountDomain findAccount(final UUID userId, final AccountId accountId) {
     if (userId == null) {
       LOG.error("User ID cannot be null");
       throw new IllegalArgumentException("User ID cannot be null");
@@ -121,8 +121,10 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
   }
 
   @Override
-  public AddMultipleBasicMovementDTO addBasicMovements(UUID userId, AccountId accountId,
-      List<AddBasicMovementRequest> allSimpleMovements) {
+  public AddMultipleBasicMovementDTO addBasicMovements(
+      final UUID userId,
+      final AccountId accountId,
+      final List<AddBasicMovementRequest> allSimpleMovements) {
 
     if (allSimpleMovements == null || allSimpleMovements.isEmpty()) {
       throw new IllegalArgumentException("Movement list cannot be null or empty");
@@ -132,24 +134,26 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
     for (int i = 0; i < allSimpleMovements.size(); i++) {
       try {
         allSimpleMovements.get(i).validate();
-      } catch (Exception e) {
-        throw new IllegalArgumentException("Validation failed for movement at index " + i + ": " + e.getMessage());
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException("Validation failed for movement at index " + i + ": " + e.getMessage(), e);
       }
     }
 
-    AccountDomain accountDomain = findAccount(userId, accountId);
-    List<AccountMovementDomain> multipleMovementsDomain = mapSimpleMovementsToDomain(allSimpleMovements, accountDomain);
+    final AccountDomain accountDomain = findAccount(userId, accountId);
+    final List<AccountMovementDomain> multipleMovementsDomain = mapSimpleMovementsToDomain(allSimpleMovements,
+        accountDomain);
     syncAccountBalanceByMovements(accountDomain, multipleMovementsDomain);
 
-    List<AccountMonthlyBalanceDomain> monthlyBalancesToPersist =
+    final List<AccountMonthlyBalanceDomain> monthlyBalancesToPersist =
         monthlyBalanceSyncerService.syncMonthlyBalance(accountId, multipleMovementsDomain);
 
     return new AddMultipleBasicMovementDTO(accountDomain, monthlyBalancesToPersist);
 
   }
 
-  private List<AccountMovementDomain> mapSimpleMovementsToDomain(List<AddBasicMovementRequest> allSimpleMovements,
-      AccountDomain accountDomain) {
+  private List<AccountMovementDomain> mapSimpleMovementsToDomain(
+      final List<AddBasicMovementRequest> allSimpleMovements,
+      final AccountDomain accountDomain) {
     return allSimpleMovements.stream().map(movementRequest -> AccountMovementDomain.of(
             accountDomain.getId(),
             movementRequest.entryDate(),

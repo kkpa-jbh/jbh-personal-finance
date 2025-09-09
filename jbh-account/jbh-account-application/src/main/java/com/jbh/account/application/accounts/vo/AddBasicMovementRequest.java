@@ -15,7 +15,7 @@ public record AddBasicMovementRequest(
     BigDecimal totalAmount,
     BigDecimal balanceSnapshot) {
 
-  public AddBasicMovementRequest(LocalDate entryDate, BigDecimal totalAmount) {
+  public AddBasicMovementRequest(final LocalDate entryDate, final BigDecimal totalAmount) {
     this(entryDate, totalAmount, null);
   }
 

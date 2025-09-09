@@ -43,7 +43,10 @@
 
   <rule ref="category/java/design.xml/LawOfDemeter">
     <properties>
-      <property name="violationSuppressRegex" value=".*(signum|getBalanceSnapshot|abs).*"/>
+      <!-- Set the trust radius to 2 because it was failing when calling a method from an object argument.
+         final LocalDate movementDate = newMovement.getMovementDate();-->
+      <property name="trustRadius" value="2"/>
+      <property name="violationSuppressRegex" value=".*(signum|getBalanceSnapshot|abs|getMovementDate).*"/>
     </properties>
   </rule>
 

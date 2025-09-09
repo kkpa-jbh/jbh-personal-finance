@@ -8,10 +8,12 @@ import com.jbh.account.domain.accounts.AccountId;
 import com.jbh.account.domain.accounts.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.movements.AccountMovementDomain;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentMap;
@@ -28,19 +30,20 @@ public class MonthlyBalanceSyncerAppService {
 
   private final AccountMonthlyBalanceRepository accountMonthlyBalanceRepo;
 
-  public MonthlyBalanceSyncerAppService(AccountMonthlyBalanceRepository accountMonthlyBalanceRepo) {
+  public MonthlyBalanceSyncerAppService(final AccountMonthlyBalanceRepository accountMonthlyBalanceRepo) {
     this.accountMonthlyBalanceRepo = accountMonthlyBalanceRepo;
   }
 
-  public AccountMonthlyBalanceDomain syncMonthlyBalance(AccountMovementDomain newMovement) {
+  public AccountMonthlyBalanceDomain syncMonthlyBalance(final AccountMovementDomain newMovement) {
     // Implementation for syncing monthly balances
-    AccountId accountId = newMovement.getAccountId();
+    final AccountId accountId = newMovement.getAccountId();
     LOG.info("Syncing monthly balance  {}", newMovement.getAccountId());
-    int txnYear = newMovement.getMovementDate().getYear();
-    int txnMonth = newMovement.getMovementDate().getMonthValue();
-    Optional<AccountMonthlyBalanceDomain> accountMonthlyBalanceOpt = accountMonthlyBalanceRepo.findByAccountIdYearAndMonth(
+    final LocalDate movementDate = newMovement.getMovementDate();
+    final int txnYear = movementDate.getYear();
+    final int txnMonth = movementDate.getMonthValue();
+    final Optional<AccountMonthlyBalanceDomain> accountMonthlyBalanceOpt = accountMonthlyBalanceRepo.findByAccountIdYearAndMonth(
         accountId, txnYear, txnMonth);
-    AccountMonthlyBalanceDomain accountMonthlyBalance = accountMonthlyBalanceOpt.orElseGet(
+    final AccountMonthlyBalanceDomain accountMonthlyBalance = accountMonthlyBalanceOpt.orElseGet(
         () -> AccountMonthlyBalanceDomain.of(accountId, txnYear, txnMonth));
 
     accountMonthlyBalance.syncMovement(newMovement);
@@ -51,25 +54,27 @@ public class MonthlyBalanceSyncerAppService {
     return accountMonthlyBalance;
   }
 
-  public List<AccountMonthlyBalanceDomain> syncMonthlyBalance(AccountId accountId,
-      List<AccountMovementDomain> multipleMovementsDomain) {
+  public List<AccountMonthlyBalanceDomain> syncMonthlyBalance(final AccountId accountId,
+      final List<AccountMovementDomain> multipleMovementsDomain) {
     // Group movements by Year-Month based on the movementDate attribute
-    var movementsByYearMonth = multipleMovementsDomain.stream().collect(
-        java.util.stream.Collectors.groupingBy(movement -> {
-          int year = movement.getMovementDate().getYear();
-          int month = movement.getMovementDate().getMonthValue();
-          return YearMonth.of(year, month);
-        }));
-    Stream<YearMonth> movementsPeriodsSorted = movementsByYearMonth.keySet().stream().sorted();
+    final Map<YearMonth, List<AccountMovementDomain>> movementsByYearMonth = multipleMovementsDomain.stream()
+        .collect(
+            Collectors.groupingBy(movement -> {
+              final int year = movement.getMovementDate().getYear();
+              final int month = movement.getMovementDate().getMonthValue();
+              return YearMonth.of(year, month);
+            }));
+    final Stream<YearMonth> movementsPeriodsSorted = movementsByYearMonth.keySet().stream().sorted();
 
-    List<AccountMonthlyBalanceDomain> monthlyBalancesToPersist = new ArrayList<>();
+    final List<AccountMonthlyBalanceDomain> monthlyBalancesToPersist = new ArrayList<>();
     movementsPeriodsSorted.forEach(monthlyPeriodKey -> {
-      List<AccountMovementDomain> movementsInPeriod = movementsByYearMonth.get(monthlyPeriodKey);
-      int year = monthlyPeriodKey.getYear();
-      int month = monthlyPeriodKey.getMonthValue();
+      final List<AccountMovementDomain> movementsInPeriod = movementsByYearMonth.get(monthlyPeriodKey);
+      final int year = monthlyPeriodKey.getYear();
+      final int month = monthlyPeriodKey.getMonthValue();
+
       LOG.debug("Processing {} movements for period {}-{}", movementsInPeriod.size(), year, month);
 
-      AccountMonthlyBalanceDomain accountMonthlyBalance = accountMonthlyBalanceRepo.findByAccountIdYearAndMonth(
+      final AccountMonthlyBalanceDomain accountMonthlyBalance = accountMonthlyBalanceRepo.findByAccountIdYearAndMonth(
           accountId, year, month).orElseGet(
           () -> AccountMonthlyBalanceDomain.of(accountId, year, month));
 
@@ -83,7 +88,7 @@ public class MonthlyBalanceSyncerAppService {
     return monthlyBalancesToPersist;
   }
 
-  private boolean isAvailablePeriod(YearMonth currentPeriod, YearMonth endPeriod) {
+  private boolean isAvailablePeriod(final YearMonth currentPeriod, final YearMonth endPeriod) {
     return currentPeriod.isBefore(getEdgePeriod()) && currentPeriod.isBefore(endPeriod.plusMonths(1));
   }
 
@@ -94,16 +99,16 @@ public class MonthlyBalanceSyncerAppService {
 
 
   public CompletableFuture<List<AccountMonthlyBalanceDomain>> saveMonthlyBalancesASYNC(
-      AccountId accountId,
-      List<AccountMonthlyBalanceDomain> monthlyBalances) {
+      final AccountId accountId,
+      final List<AccountMonthlyBalanceDomain> monthlyBalances) {
 
     if (monthlyBalances == null || monthlyBalances.isEmpty()) {
       LOG.warn("No monthly balances available for saving them ASYNC");
       return CompletableFuture.completedFuture(Collections.emptyList());
     }
 
-    YearMonth initPeriod = monthlyBalances.getFirst().getPeriod();
-    YearMonth lastPeriod = monthlyBalances.getLast().getPeriod();
+    final YearMonth initPeriod = monthlyBalances.getFirst().getPeriod();
+    final YearMonth lastPeriod = monthlyBalances.getLast().getPeriod();
     LOG.info("Creating tasks to sync balances Asynchronously from {} to {}.", initPeriod, lastPeriod);
 
     return CompletableFuture
@@ -133,30 +138,32 @@ public class MonthlyBalanceSyncerAppService {
 
 
   private Supplier<List<AccountMonthlyBalanceDomain>> saveBalancesTask(
-      List<AccountMonthlyBalanceDomain> monthlyBalance) {
+      final List<AccountMonthlyBalanceDomain> monthlyBalance) {
     return () -> save(monthlyBalance);
   }
 
-  private List<AccountMonthlyBalanceDomain> save(List<AccountMonthlyBalanceDomain> monthlyBalanceToPersist) {
+  private List<AccountMonthlyBalanceDomain> save(final List<AccountMonthlyBalanceDomain> monthlyBalanceToPersist) {
     LOG.info("[REPO] Saving Monthly Balances {}", monthlyBalanceToPersist.size());
     return accountMonthlyBalanceRepo.save(monthlyBalanceToPersist);
   }
 
   private Supplier<List<AccountMonthlyBalanceDomain>> syncProfitMonthlyTask(
-      AccountId accountId,
-      YearMonth fromPeriod,
-      YearMonth toPeriod) {
+      final AccountId accountId,
+      final YearMonth fromPeriod,
+      final YearMonth toPeriod) {
     return () -> syncProfitMonthlyFromPeriod(accountId, fromPeriod, toPeriod);
   }
 
-  private List<AccountMonthlyBalanceDomain> syncProfitMonthlyFromPeriod(AccountId accountId,
-      YearMonth initPeriod, YearMonth endPeriod) {
+  private List<AccountMonthlyBalanceDomain> syncProfitMonthlyFromPeriod(
+      final AccountId accountId,
+      final YearMonth initPeriod,
+      final YearMonth endPeriod) {
 
     LOG.info("Adjusting Opening/Profit Balances for account {}"
         + " from period {} to period {}", accountId.value(), initPeriod, endPeriod);
 
-    List<AccountMonthlyBalanceDomain> profitBalancesSynced = new ArrayList<>();
-    List<AccountMonthlyBalanceDomain> existingBalancesFromPeriod = accountMonthlyBalanceRepo.findNextBalancesFromPeriodInclusive(
+    final List<AccountMonthlyBalanceDomain> profitBalancesSynced = new ArrayList<>();
+    final List<AccountMonthlyBalanceDomain> existingBalancesFromPeriod = accountMonthlyBalanceRepo.findNextBalancesFromPeriodInclusive(
         accountId, initPeriod);
 
     if (existingBalancesFromPeriod == null || existingBalancesFromPeriod.isEmpty()) {
@@ -164,7 +171,7 @@ public class MonthlyBalanceSyncerAppService {
       return Collections.emptyList();
     }
 
-    ConcurrentMap<YearMonth, AccountMonthlyBalanceDomain> existingBalancesMap = existingBalancesFromPeriod
+    final ConcurrentMap<YearMonth, AccountMonthlyBalanceDomain> existingBalancesMap = existingBalancesFromPeriod
         .stream()
         .collect(Collectors.toConcurrentMap(AccountMonthlyBalanceDomain::getPeriod, Function.identity()));
 
@@ -172,10 +179,10 @@ public class MonthlyBalanceSyncerAppService {
     while (isAvailablePeriod(currentPeriod, endPeriod)) {
 
       LOG.info("Syncing Monthly Profit for period: {}", currentPeriod);
-      AccountMonthlyBalanceDomain currentMonthlyBalance = existingBalancesMap.get(currentPeriod);
+      final AccountMonthlyBalanceDomain currentMonthlyBalance = existingBalancesMap.get(currentPeriod);
       currentMonthlyBalance.refreshProfitMonthly();
 
-      YearMonth nextPeriod = currentMonthlyBalance.getPeriod().plusMonths(1);
+      final YearMonth nextPeriod = currentMonthlyBalance.getPeriod().plusMonths(1);
       LOG.info("Syncing Opening Balance for next period: {} ", nextPeriod);
       // Syncing Next month opening balance with current month closing balance
       AccountMonthlyBalanceDomain nextMonthlyBalanceOfCurrent = existingBalancesFromPeriod.stream()
@@ -184,9 +191,9 @@ public class MonthlyBalanceSyncerAppService {
           .orElse(null);
       // If not found in database, let's create new one with the same balance snapshot from previous month.
       if (nextMonthlyBalanceOfCurrent == null) {
-        boolean isEndPeriod = currentPeriod.equals(endPeriod);
+        final boolean isEndPeriod = currentPeriod.equals(endPeriod);
         // If it is the last period, just set the opening balance (Next Future Month)
-        BigDecimal closingBalance = isEndPeriod ? JBH_ZERO : currentMonthlyBalance.getClosingBalance();
+        final BigDecimal closingBalance = isEndPeriod ? JBH_ZERO : currentMonthlyBalance.getClosingBalance();
         nextMonthlyBalanceOfCurrent = AccountMonthlyBalanceDomain.of(
             accountId,
             nextPeriod,
