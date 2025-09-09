@@ -54,7 +54,6 @@
             <rulesets>
               <ruleset>/pmd-ruleset.xml</ruleset>
             </rulesets>
-            <sourceEncoding>${project.build.sourceEncoding}</sourceEncoding>
             <targetJdk>${java.version}</targetJdk>
           </configuration>
           <groupId>org.apache.maven.plugins</groupId>
@@ -64,22 +63,22 @@
         <!-- SpotBugs Static Bug Analysis -->
         <plugin>
           <artifactId>spotbugs-maven-plugin</artifactId>
-          <groupId>com.github.spotbugs</groupId>
-          <version>4.8.6.2</version>
           <configuration>
             <effort>Max</effort>
-            <threshold>Low</threshold>
+            <excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
             <failOnError>false</failOnError>
             <includeFilterFile>spotbugs-include.xml</includeFilterFile>
-            <excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
             <plugins>
               <plugin>
-                <groupId>com.h3xstream.findsecbugs</groupId>
                 <artifactId>findsecbugs-plugin</artifactId>
+                <groupId>com.h3xstream.findsecbugs</groupId>
                 <version>1.13.0</version>
               </plugin>
             </plugins>
+            <threshold>Low</threshold>
           </configuration>
+          <groupId>com.github.spotbugs</groupId>
+          <version>4.8.6.2</version>
         </plugin>
 
       </plugins>
@@ -89,32 +88,32 @@
     <plugins>
       <!-- PMD Analysis - runs during verify phase -->
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
         <executions>
           <execution>
-            <id>pmd-check</id>
-            <phase>verify</phase>
             <goals>
               <goal>check</goal>
             </goals>
+            <id>pmd-check</id>
+            <phase>verify</phase>
           </execution>
         </executions>
+        <groupId>org.apache.maven.plugins</groupId>
       </plugin>
 
       <!-- SpotBugs Analysis - runs during verify phase -->
       <plugin>
-        <groupId>com.github.spotbugs</groupId>
         <artifactId>spotbugs-maven-plugin</artifactId>
         <executions>
           <execution>
-            <id>spotbugs-check</id>
-            <phase>verify</phase>
             <goals>
               <goal>check</goal>
             </goals>
+            <id>spotbugs-check</id>
+            <phase>verify</phase>
           </execution>
         </executions>
+        <groupId>com.github.spotbugs</groupId>
       </plugin>
     </plugins>
   </build>
@@ -225,15 +224,15 @@
 
     <maven.jacoco.plugin.version>0.8.12</maven.jacoco.plugin.version>
     <mockito.version>5.10.0</mockito.version>
-    
+
     <!-- Static Analysis Configuration -->
-    <pmd.failOnViolation>false</pmd.failOnViolation>
-    <spotbugs.failOnError>false</spotbugs.failOnError>
-    
+    <pmd.failOnViolation>true</pmd.failOnViolation>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.version>3.18.4</quarkus.version>
     <slf4j.version>2.0.13</slf4j.version>
+    <spotbugs.failOnError>false</spotbugs.failOnError>
     <testcontainers.version>1.19.5</testcontainers.version>
   </properties>
 

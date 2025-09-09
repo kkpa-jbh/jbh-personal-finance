@@ -1,6 +1,7 @@
 package com.jbh.account.domain.accounts;
 
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.MoneyUtils.isNotZero;
 import static com.jbh.account.domain.utils.MoneyUtils.isZero;
 
 import com.jbh.account.domain.movements.AccountMovementDomain;
@@ -36,7 +37,7 @@ public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBal
   private boolean gapPeriod; // Month Balance was not registered in the past.
 
 
-  public static AccountMonthlyBalanceDomain of(AccountId accountId, int year, int month) {
+  public static AccountMonthlyBalanceDomain of(final AccountId accountId, final int year, final int month) {
     return new AccountMonthlyBalanceDomain(null, accountId, year, month,
         YearMonth.of(year, month),
         JBH_ZERO, // Total debits starts at 0
@@ -49,7 +50,7 @@ public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBal
         false);
   }
 
-  public static AccountMonthlyBalanceDomain of(AccountId accountId, YearMonth period) {
+  public static AccountMonthlyBalanceDomain of(final AccountId accountId, final YearMonth period) {
     return new AccountMonthlyBalanceDomain(null, accountId, period.getYear(), period.getMonthValue(),
         period,
         JBH_ZERO, // Total debits starts at 0
@@ -62,8 +63,9 @@ public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBal
         false);
   }
 
-  public static AccountMonthlyBalanceDomain of(AccountId accountId, YearMonth period, BigDecimal closingBalance,
-      boolean gapPeriod) {
+  public static AccountMonthlyBalanceDomain of(final AccountId accountId, final YearMonth period,
+      final BigDecimal closingBalance,
+      final boolean gapPeriod) {
     return new AccountMonthlyBalanceDomain(null, accountId, period.getYear(), period.getMonthValue(),
         period,
         JBH_ZERO, // Total debits starts at 0
@@ -77,10 +79,10 @@ public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBal
   }
 
 
-  public void syncMovement(AccountMovementDomain mvmt) {
-    BigDecimal amount = mvmt.getMovementAmount();
+  public void syncMovement(final AccountMovementDomain mvmt) {
+    final BigDecimal amount = mvmt.getMovementAmount();
 
-    if (amount != null && amount.intValue() != BigDecimal.ZERO.intValue()) {
+    if (amount != null && isNotZero(amount)) {
       this.totalMovements++;
       if (amount.signum() < 0) {
         this.totalCredits = this.totalCredits.add(amount.abs());
@@ -91,13 +93,12 @@ public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBal
     }
 
     if (mvmt.getBalanceSnapshot() != null) {
-      amount = amount == null ? JBH_ZERO : amount;
       this.closingBalance = mvmt.getBalanceSnapshot();
     }
 
   }
 
-  public void syncMovements(List<AccountMovementDomain> movementsInPeriod) {
+  public void syncMovements(final List<AccountMovementDomain> movementsInPeriod) {
     movementsInPeriod.forEach(this::syncMovement);
   }
 
@@ -110,7 +111,7 @@ public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBal
     }
     movementBalance = totalDebits.subtract(totalCredits);
 
-    BigDecimal result = totalDebits.subtract(totalCredits);
+    final BigDecimal result = totalDebits.subtract(totalCredits);
     this.monthlyProfit = closingBalance.subtract(openingBalance).subtract(result);
   }
 
@@ -125,7 +126,7 @@ public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBal
    * @throws IllegalStateException if either this object's or the other object's period is null
    */
   @Override
-  public int compareTo(AccountMonthlyBalanceDomain other) {
+  public int compareTo(final AccountMonthlyBalanceDomain other) {
     Objects.requireNonNull(other, "Cannot compare with null AccountMonthlyBalanceDomain");
 
     if (this.period == null) {
@@ -152,7 +153,7 @@ public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBal
    * equal if they have the same period.
    */
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -160,7 +161,7 @@ public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBal
       return false;
     }
 
-    AccountMonthlyBalanceDomain that = (AccountMonthlyBalanceDomain) obj;
+    final AccountMonthlyBalanceDomain that = (AccountMonthlyBalanceDomain) obj;
     return Objects.equals(period, that.period) &&
         Objects.equals(accountId, that.accountId);
   }

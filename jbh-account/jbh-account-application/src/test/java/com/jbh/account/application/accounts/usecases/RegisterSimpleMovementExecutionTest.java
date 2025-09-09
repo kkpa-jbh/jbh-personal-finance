@@ -211,9 +211,7 @@ public class RegisterSimpleMovementExecutionTest {
     UUID userId = UUID.randomUUID();
     AccountId accountId = AccountId.generate();
     LocalDate movementDate = LocalDate.now();
-    BigDecimal amount = new BigDecimal("100.00");
 
-    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
     AccountDomain accountDomain = AccountDomain.withId(accountId);
 
     when(accountRepository.findByAccountId(userId, accountId))
@@ -241,6 +239,8 @@ public class RegisterSimpleMovementExecutionTest {
         .thenReturn(Optional.of(existingMonthlyBalance));
 
     // When & Then
+    BigDecimal amount = new BigDecimal("100.00");
+    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
     AtomicReference<AddBasicMovementDTO> processedResponse = new AtomicReference<>();
     assertDoesNotThrow(() -> processedResponse.set(
         useCaseInstanceTest.addBasicMovements(userId, accountId, request)));

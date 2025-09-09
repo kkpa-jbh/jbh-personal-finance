@@ -1,6 +1,6 @@
 package com.jbh.account.infra.adapters.in.rest;
 
-import com.jbh.account.application.accounts.usecases.TestingUseCase;
+import com.jbh.account.application.accounts.usecases.NoOperationUseCase;
 import com.jbh.account.infra.ApiConstants;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -29,10 +29,10 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Tag(name = "Account Operations", description = "Account management operations")
 public class AccountRestAdapter {
 
-  private final TestingUseCase testingUseCase;
+  private final NoOperationUseCase testingUseCase;
 
   @Inject
-  public AccountRestAdapter(TestingUseCase testingUseCase) {
+  public AccountRestAdapter(NoOperationUseCase testingUseCase) {
     this.testingUseCase = testingUseCase;
   }
 

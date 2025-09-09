@@ -1,12 +1,12 @@
 package com.jbh.assembly;
 
-import com.jbh.account.application.accounts.ports.input.TestingInputPort;
+import com.jbh.account.application.accounts.ports.input.NoOperationInputPort;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 @RegisterForReflection(targets = {
-    TestingInputPort.class
+    NoOperationInputPort.class
 })
 public class BeanConfiguration {
 

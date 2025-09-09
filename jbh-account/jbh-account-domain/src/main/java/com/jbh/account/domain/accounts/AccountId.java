@@ -7,21 +7,15 @@ public record AccountId(UUID value) {
 
   public AccountId {
     Objects.requireNonNull(value, "AccountId cannot be null");
-    validateFormat(value);
   }
 
-  public static AccountId of(UUID value) {
+  public static AccountId of(final UUID value) {
     return new AccountId(value);
   }
 
   public static AccountId generate() {
     return new AccountId(UUID.randomUUID());
   }
-
-  private static void validateFormat(UUID value) {
-    // No specific validation rules needed for UUID format
-    // UUID class itself ensures valid format  
-    // Parameter used for potential future validation logic
-  }
+  
 }
 

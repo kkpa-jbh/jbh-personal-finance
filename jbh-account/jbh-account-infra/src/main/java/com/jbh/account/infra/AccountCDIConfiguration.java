@@ -1,6 +1,6 @@
 package com.jbh.account.infra;
 
-import com.jbh.account.application.accounts.ports.input.TestingInputPort;
+import com.jbh.account.application.accounts.ports.input.NoOperationInputPort;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -9,7 +9,7 @@ import jakarta.inject.Inject;
 
 @ApplicationScoped
 @RegisterForReflection(targets = {
-    TestingInputPort.class
+    NoOperationInputPort.class
 })
 public class AccountCDIConfiguration {
 
@@ -19,7 +19,7 @@ public class AccountCDIConfiguration {
 
   @Produces
   @ApplicationScoped
-  public TestingInputPort registeringTestingUseCase() {
-    return new TestingInputPort(accountRepository);
+  public NoOperationInputPort registeringTestingUseCase() {
+    return new NoOperationInputPort(accountRepository);
   }
 }

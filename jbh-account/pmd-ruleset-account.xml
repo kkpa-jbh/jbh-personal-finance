@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  name="JBH Personal Finance PMD Ruleset"
+  xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+  xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+
+  <description>Custom PMD ruleset for JBH Personal Finance multi-module project</description>
+
+  <!-- Best Practices -->
+  <rule ref="category/java/bestpractices.xml">
+    <!-- Exclude rules that conflict with Lombok -->
+    <exclude name="AccessorMethodGeneration"/>
+    <exclude name="AccessorClassGeneration"/>
+    <exclude name="GuardLogStatement"/>
+  </rule>
+
+  <!-- Code Style -->
+  <rule ref="category/java/codestyle.xml">
+    <!-- Exclude rules that conflict with Lombok -->
+    <exclude name="AtLeastOneConstructor"/>
+    <exclude name="CommentDefaultAccessModifier"/>
+    <!-- Allow short variable names for common cases -->
+    <exclude name="ShortVariable"/>
+    <exclude name="LongVariable"/>
+    <!-- Allow ternary operators -->
+    <exclude name="TooManyStaticImports"/>
+    <!-- Allow factory method names like "of" -->
+    <exclude name="ShortMethodName"/>
+    <!-- Allow single return style -->
+    <exclude name="OnlyOneReturn"/>
+  </rule>
+
+  <!-- Design -->
+  <rule ref="category/java/design.xml">
+    <!-- Adjust complexity limits for business logic -->
+    <exclude name="CyclomaticComplexity"/>
+    <exclude name="NPathComplexity"/>
+    <!-- Allow data classes -->
+    <exclude name="DataClass"/>
+    <!-- Allow builder pattern classes -->
+    <exclude name="TooManyMethods"/>
+  </rule>
+
+  <rule ref="category/java/design.xml/LawOfDemeter">
+    <properties>
+      <property name="violationSuppressRegex" value=".*(signum|getBalanceSnapshot|abs).*"/>
+    </properties>
+  </rule>
+
+  <!-- Documentation -->
+  <rule ref="category/java/documentation.xml">
+    <!-- Don't require comments on every method -->
+    <exclude name="CommentRequired"/>
+    <exclude name="CommentSize"/>
+  </rule>
+
+  <!-- Error Prone -->
+  <rule ref="category/java/errorprone.xml">
+    <!-- Allow empty catch blocks with comments -->
+    <exclude name="EmptyCatchBlock"/>
+    <!-- Allow bean member naming -->
+    <exclude name="BeanMembersShouldSerialize"/>
+  </rule>
+
+  <!-- Performance -->
+  <rule ref="category/java/performance.xml"/>
+
+  <!-- Security -->
+  <rule ref="category/java/security.xml"/>
+
+  <!-- Custom rules for complexity -->
+  <rule ref="category/java/design.xml/CyclomaticComplexity">
+    <properties>
+      <property name="classReportLevel" value="80"/>
+      <property name="methodReportLevel" value="10"/>
+    </properties>
+  </rule>
+
+  <rule ref="category/java/design.xml/NPathComplexity">
+    <properties>
+      <property name="reportLevel" value="200"/>
+    </properties>
+  </rule>
+
+  <!-- Allow longer method names for descriptive test methods -->
+  <rule ref="category/java/codestyle.xml/LongVariable">
+    <properties>
+      <property name="minimum" value="30"/>
+    </properties>
+  </rule>
+
+</ruleset>

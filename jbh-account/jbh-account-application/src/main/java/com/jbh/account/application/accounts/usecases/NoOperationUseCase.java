@@ -1,6 +1,6 @@
 package com.jbh.account.application.accounts.usecases;
 
-public interface TestingUseCase {
+public interface NoOperationUseCase {
 
   void healthCheck();
 }

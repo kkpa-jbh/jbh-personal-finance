@@ -11,15 +11,19 @@ public final class MoneyUtils {
     // Utility class
   }
 
-  public static BigDecimal withJBHDecimals(BigDecimal amount) {
+  public static BigDecimal withJBHDecimals(final BigDecimal amount) {
     if (amount == null) {
       return null;
     }
     return amount.setScale(2, RoundingMode.UNNECESSARY);
   }
 
-  public static boolean isZero(BigDecimal amount) {
+  public static boolean isZero(final BigDecimal amount) {
     return amount.equals(BigDecimal.ZERO) || withJBHDecimals(amount).equals(JBH_ZERO);
+  }
+
+  public static boolean isNotZero(final BigDecimal amount) {
+    return !isZero(amount);
   }
 
 }
