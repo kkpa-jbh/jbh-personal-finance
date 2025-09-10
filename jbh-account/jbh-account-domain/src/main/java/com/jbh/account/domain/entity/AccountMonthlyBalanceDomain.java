@@ -1,10 +1,10 @@
-package com.jbh.account.domain.accounts;
+package com.jbh.account.domain.entity;
 
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.MoneyUtils.isNotZero;
 import static com.jbh.account.domain.utils.MoneyUtils.isZero;
 
-import com.jbh.account.domain.movements.AccountMovementDomain;
+import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.List;

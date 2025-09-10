@@ -1,9 +1,14 @@
-package com.jbh.account.domain.movements;
+package com.jbh.account.domain.entity;
 
-import com.jbh.account.domain.accounts.AccountId;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
+import com.jbh.account.domain.utils.MoneyUtils;
+import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountMovementId;
+import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.Data;
 
 @Data
@@ -15,12 +20,14 @@ public final class AccountMovementDomain {
   private final BigDecimal movementAmount;
   private final LocalDate movementDate;
   private final BigDecimal balanceSnapshot;
+  private final Map<String, Object> metadata;
 
   private AccountMovementDomain(final AccountId accountId,
       final MovementType movementType,
       final LocalDate movementDate,
       final BigDecimal movementAmount,
-      final BigDecimal balanceSnapshot
+      final BigDecimal balanceSnapshot,
+      final Map<String, Object> metadata
   ) {
     this.id = AccountMovementId.generate();
     this.accountId = accountId;
@@ -28,6 +35,7 @@ public final class AccountMovementDomain {
     this.movementAmount = movementAmount;
     this.movementType = movementType;
     this.balanceSnapshot = balanceSnapshot;
+    this.metadata = metadata;
     validate();
   }
 
@@ -47,17 +55,38 @@ public final class AccountMovementDomain {
   public static AccountMovementDomain of(final AccountId accountId,
       final LocalDate movementDate, final
       BigDecimal totalAmount) {
-    final MovementType movementType = findMovementTypeBaseOnAmounts(totalAmount, null);
-    return new AccountMovementDomain(accountId, movementType, movementDate, totalAmount, null);
+    return of(accountId, movementDate, totalAmount, MoneyUtils.JBH_ZERO);
   }
 
   public static AccountMovementDomain of(final AccountId accountId,
       final LocalDate movementDate, final BigDecimal totalAmount,
       final BigDecimal balanceSnapshot) {
     final MovementType movementType = findMovementTypeBaseOnAmounts(totalAmount, balanceSnapshot);
-    return new AccountMovementDomain(accountId, movementType, movementDate, totalAmount, balanceSnapshot);
+    return new AccountMovementDomain(accountId, movementType, movementDate, totalAmount, balanceSnapshot,
+        new HashMap<>());
+  }
+
+  public static AccountMovementDomain withFileImport(final AccountId accountId,
+      final LocalDate movementDate, final BigDecimal totalAmount,
+      final BigDecimal balanceSnapshot) {
+    final AccountMovementDomain movementDomain = of(accountId, movementDate, totalAmount, balanceSnapshot);
+    movementDomain.addMetadata("fileImport", true);
+    return movementDomain;
+  }
+
+  public void addMetadata(final String key, final Object value) {
+    metadata.put(key, value);
+  }
+
+  public Object getMetadata(final String key) {
+    return metadata != null ? metadata.get(key) : null;
+  }
+
+  public boolean hasMetadata(final String key) {
+    return metadata != null && metadata.containsKey(key);
   }
   
+
   public void validate() {
     validateAccountId();
     validateMovementType();

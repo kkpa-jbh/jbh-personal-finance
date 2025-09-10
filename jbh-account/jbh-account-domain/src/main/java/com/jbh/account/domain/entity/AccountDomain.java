@@ -1,36 +1,52 @@
-package com.jbh.account.domain.accounts;
+package com.jbh.account.domain.entity;
 
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.movements.AccountMovementDomain;
+import com.jbh.account.domain.utils.MoneyUtils;
+import com.jbh.account.domain.vo.AccountDomainDTO;
+import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
-import lombok.Data;
+import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-@Data
-public final class AccountDomain {
+@AllArgsConstructor
+@Getter
+@Setter
+@SuperBuilder
+public class AccountDomain {
 
-  private final AccountId id;
-  private String name;
-  private Long userId;
-  private BigDecimal movementBalance;
-  private BigDecimal currentBalance;
-  private BigDecimal profitBalance;
+  protected AccountId id;
+  protected String name;
+  protected AccountType type;
+  protected UUID userId;
+  protected BigDecimal movementBalance = MoneyUtils.JBH_ZERO;
+  protected BigDecimal currentBalance = MoneyUtils.JBH_ZERO;
+  protected BigDecimal profitBalance = MoneyUtils.JBH_ZERO;
+  protected boolean isActive = true;
 
-  private LocalDateTime createdAt;
-  private LocalDateTime updatedAt;
+  protected LocalDateTime createdAt = LocalDateTime.now();
+  protected LocalDateTime updatedAt;
+
+  private AccountDomain() {
+    this.id = AccountId.generate();
+  }
 
   private AccountDomain(final AccountId id) {
     this.id = id;
-    this.movementBalance = BigDecimal.ZERO;
-    this.currentBalance = BigDecimal.ZERO;
-    this.createdAt = LocalDateTime.now();
-    this.updatedAt = LocalDateTime.now();
   }
 
   public static AccountDomain withId(final AccountId id) {
     return new AccountDomain(id);
+  }
+
+  public static AccountDomain withoutId() {
+    return new AccountDomain();
   }
 
   public void syncBalances(final List<AccountMovementDomain> multipleMovements) {
@@ -81,5 +97,23 @@ public final class AccountDomain {
     this.profitBalance = this.currentBalance.subtract(this.movementBalance);
     this.updatedAt = LocalDateTime.now();
 
+  }
+
+  public AccountDomainDTO toDTO() {
+    return clone(this);
+  }
+
+  private AccountDomainDTO clone(final AccountDomain account) {
+    return AccountDomainDTO.builder()
+        .id(account.getId())
+        .name(account.getName())
+        .type(account.getType())
+        .userId(account.getUserId())
+        .movementBalance(account.getMovementBalance())
+        .currentBalance(account.getCurrentBalance())
+        .profitBalance(account.getProfitBalance())
+        .createdAt(account.getCreatedAt())
+        .updatedAt(account.getUpdatedAt())
+        .build();
   }
 }

@@ -3,7 +3,7 @@ package com.jbh.account.application.accounts.usecases;
 import com.jbh.account.application.accounts.dto.AddBasicMovementDTO;
 import com.jbh.account.application.accounts.dto.AddMultipleBasicMovementDTO;
 import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
-import com.jbh.account.domain.accounts.AccountId;
+import com.jbh.account.domain.vo.AccountId;
 import java.util.List;
 import java.util.UUID;
 

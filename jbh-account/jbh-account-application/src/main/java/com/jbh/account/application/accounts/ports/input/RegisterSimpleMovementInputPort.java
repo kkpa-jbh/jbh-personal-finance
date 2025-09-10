@@ -10,10 +10,11 @@ import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.common.logging.LoggerFactory;
 import com.jbh.account.application.common.logging.LoggingContext;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
-import com.jbh.account.domain.accounts.AccountDomain;
-import com.jbh.account.domain.accounts.AccountId;
-import com.jbh.account.domain.accounts.AccountMonthlyBalanceDomain;
-import com.jbh.account.domain.movements.AccountMovementDomain;
+import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
+import com.jbh.account.domain.entity.AccountMovementDomain;
+import com.jbh.account.domain.vo.AccountDomainDTO;
+import com.jbh.account.domain.vo.AccountId;
 import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -63,7 +64,8 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
           final AccountMovementDomain newMovement = AccountMovementDomain.of(accountDomain.getId(),
               basicMovementRequest.entryDate(),
               basicMovementRequest.totalAmount(), basicMovementRequest.balanceSnapshot());
-          syncAccountBalanceByMovements(accountDomain, newMovement);
+          final AccountDomainDTO accountDTO = syncAccountBalanceByMovements(accountDomain, newMovement);
+          persistMovements(newMovement, accountDTO);
 
           // Sync monthly balance
           final AccountMonthlyBalanceDomain accountMonthlyBalance = monthlyBalanceSyncerService.syncMonthlyBalance(
@@ -71,26 +73,25 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
 
           LOG.info("Movement addition completed successfully for account: {}", accountId.value());
 
-          return new AddBasicMovementDTO(accountDomain, accountMonthlyBalance, newMovement);
+          return new AddBasicMovementDTO(accountDTO, accountMonthlyBalance, newMovement);
         });
 
   }
 
-  private void syncAccountBalanceByMovements(
+  private AccountDomainDTO syncAccountBalanceByMovements(
       final AccountDomain accountDomain,
       final AccountMovementDomain newMovement) {
     accountDomain.syncBalances(newMovement);
-    persistMovements(newMovement, accountDomain);
+    return accountDomain.toDTO();
   }
 
-  private void syncAccountBalanceByMovements(final AccountDomain accountDomain,
+  private AccountDomainDTO syncAccountBalanceByMovements(final AccountDomain accountDomain,
       final List<AccountMovementDomain> newMovements) {
     accountDomain.syncBalances(newMovements);
-    LOG.debug("Account balance updated to: {}", accountDomain.getMovementBalance());
-    persistMovements(newMovements, accountDomain);
+    return accountDomain.toDTO();
   }
 
-  private void persistMovements(final AccountMovementDomain newMovement, final AccountDomain accountDomain) {
+  private void persistMovements(final AccountMovementDomain newMovement, final AccountDomainDTO accountDomain) {
     unitOfWork.execute(() -> {
       LOG.info("Persisting 1 Movement and account changes");
       movementRepo.save(newMovement);
@@ -98,7 +99,7 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
     });
   }
 
-  private void persistMovements(final List<AccountMovementDomain> newMovements, final AccountDomain accountDomain) {
+  private void persistMovements(final List<AccountMovementDomain> newMovements, final AccountDomainDTO accountDomain) {
     unitOfWork.execute(() -> {
       LOG.info("Persisting Movements and account changes");
       movementRepo.save(newMovements);
@@ -142,19 +143,20 @@ public class RegisterSimpleMovementInputPort implements RegisterMovementUseCase 
     final AccountDomain accountDomain = findAccount(userId, accountId);
     final List<AccountMovementDomain> multipleMovementsDomain = mapSimpleMovementsToDomain(allSimpleMovements,
         accountDomain);
-    syncAccountBalanceByMovements(accountDomain, multipleMovementsDomain);
+    final AccountDomainDTO accountDTO = syncAccountBalanceByMovements(accountDomain, multipleMovementsDomain);
+    persistMovements(multipleMovementsDomain, accountDTO);
 
     final List<AccountMonthlyBalanceDomain> monthlyBalancesToPersist =
         monthlyBalanceSyncerService.syncMonthlyBalance(accountId, multipleMovementsDomain);
 
-    return new AddMultipleBasicMovementDTO(accountDomain, monthlyBalancesToPersist);
+    return new AddMultipleBasicMovementDTO(accountDTO, monthlyBalancesToPersist);
 
   }
 
   private List<AccountMovementDomain> mapSimpleMovementsToDomain(
       final List<AddBasicMovementRequest> allSimpleMovements,
       final AccountDomain accountDomain) {
-    return allSimpleMovements.stream().map(movementRequest -> AccountMovementDomain.of(
+    return allSimpleMovements.stream().map(movementRequest -> AccountMovementDomain.withFileImport(
             accountDomain.getId(),
             movementRequest.entryDate(),
             movementRequest.totalAmount(),

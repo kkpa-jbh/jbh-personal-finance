@@ -1,10 +1,10 @@
 package com.jbh.account.application.accounts.dto;
 
-import com.jbh.account.domain.accounts.AccountDomain;
-import com.jbh.account.domain.accounts.AccountMonthlyBalanceDomain;
-import com.jbh.account.domain.movements.AccountMovementDomain;
+import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
+import com.jbh.account.domain.entity.AccountMovementDomain;
+import com.jbh.account.domain.vo.AccountDomainDTO;
 
-public record AddBasicMovementDTO(AccountDomain account,
+public record AddBasicMovementDTO(AccountDomainDTO account,
                                   AccountMonthlyBalanceDomain monthlyBalance,
                                   AccountMovementDomain movement) {
 

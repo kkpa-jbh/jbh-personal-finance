@@ -17,12 +17,12 @@ import com.jbh.account.application.accounts.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
-import com.jbh.account.domain.accounts.AccountDomain;
-import com.jbh.account.domain.accounts.AccountId;
+import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.movements.AccountMovementDomain;
-import com.jbh.account.domain.movements.MovementType;
 import com.jbh.account.domain.utils.MoneyUtils;
+import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -138,13 +138,13 @@ public class RegisterSimpleMovementValidationTest {
     AccountDomain accountDomain = AccountDomain.withId(accountId);
 
     when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(accountDomain));
+        .thenReturn(Optional.of(accountDomain.toDTO()));
 
     // When & Then
     assertDoesNotThrow(() -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
     verify(accountRepository).findByAccountId(userId, accountId);
     verify(accountMovementRepository).save((AccountMovementDomain) any());
-    verify(accountRepository).save(accountDomain);
+    verify(accountRepository).save(any());
     assertEquals(accountDomain.getMovementBalance(), amount);
   }
 
@@ -162,7 +162,7 @@ public class RegisterSimpleMovementValidationTest {
     accountDomain.setCurrentBalance(new BigDecimal("180.00"));
 
     when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(accountDomain));
+        .thenReturn(Optional.of(accountDomain.toDTO()));
 
     // When & Then
     AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
@@ -171,7 +171,7 @@ public class RegisterSimpleMovementValidationTest {
 
     verify(accountRepository).findByAccountId(userId, accountId);
     verify(accountMovementRepository).save((AccountMovementDomain) any());
-    verify(accountRepository).save(accountDomain);
+    verify(accountRepository).save(any());
 
     assertEquals(new BigDecimal("120.00"), mvmtResponse.get().account().getMovementBalance());
     assertEquals(new BigDecimal("130.00"), mvmtResponse.get().account().getCurrentBalance());
@@ -195,14 +195,14 @@ public class RegisterSimpleMovementValidationTest {
     AccountDomain accountDomain = AccountDomain.withId(accountId);
 
     when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(accountDomain));
+        .thenReturn(Optional.of(accountDomain.toDTO()));
 
     // When & Then
     assertDoesNotThrow(() -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
 
     verify(accountRepository).findByAccountId(userId, accountId);
     verify(accountMovementRepository).save((AccountMovementDomain) any());
-    verify(accountRepository).save(accountDomain);
+    verify(accountRepository).save(any());
   }
 
   @Test
@@ -217,7 +217,7 @@ public class RegisterSimpleMovementValidationTest {
     AccountDomain accountDomain = AccountDomain.withId(accountId);
 
     when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(accountDomain));
+        .thenReturn(Optional.of(accountDomain.toDTO()));
 
     // When & Then
     assertThrows(GenericSpecificationException.class,
@@ -225,7 +225,7 @@ public class RegisterSimpleMovementValidationTest {
 
     verify(accountRepository).findByAccountId(userId, accountId);
     verify(accountMovementRepository, never()).save((AccountMovementDomain) any());
-    verify(accountRepository, never()).save(accountDomain);
+    verify(accountRepository, never()).save(accountDomain.toDTO());
   }
 
   @Test
@@ -242,7 +242,7 @@ public class RegisterSimpleMovementValidationTest {
     accountDomain.setCurrentBalance(new BigDecimal("30.00"));
 
     when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(accountDomain));
+        .thenReturn(Optional.of(accountDomain.toDTO()));
 
     // When & Then
     GenericSpecificationException exception = assertThrows(GenericSpecificationException.class,
@@ -252,7 +252,7 @@ public class RegisterSimpleMovementValidationTest {
 
     verify(accountRepository).findByAccountId(userId, accountId);
     verify(accountMovementRepository, never()).save((AccountMovementDomain) any());
-    verify(accountRepository, never()).save(accountDomain);
+    verify(accountRepository, never()).save(accountDomain.toDTO());
   }
 
 }

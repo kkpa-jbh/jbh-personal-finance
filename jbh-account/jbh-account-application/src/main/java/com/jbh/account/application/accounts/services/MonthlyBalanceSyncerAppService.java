@@ -4,9 +4,9 @@ import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 
 import com.jbh.account.application.accounts.ports.output.AccountMonthlyBalanceRepository;
 import com.jbh.account.application.common.logging.LoggerFactory;
-import com.jbh.account.domain.accounts.AccountId;
-import com.jbh.account.domain.accounts.AccountMonthlyBalanceDomain;
-import com.jbh.account.domain.movements.AccountMovementDomain;
+import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
+import com.jbh.account.domain.entity.AccountMovementDomain;
+import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -144,12 +146,12 @@ public class MonthlyBalanceSyncerAppService {
     YearMonth currentPeriod = initPeriod;
     while (isAvailablePeriod(currentPeriod, endPeriod)) {
 
-      LOG.info("Syncing Monthly Profit for period: {}", currentPeriod);
+      //LOG.debug("Syncing Monthly Profit for period: {}", currentPeriod);
       final AccountMonthlyBalanceDomain currentMonthlyBalance = existingBalancesMap.get(currentPeriod);
       currentMonthlyBalance.refreshProfitMonthly();
 
       final YearMonth nextPeriod = currentMonthlyBalance.getPeriod().plusMonths(1);
-      LOG.info("Syncing Opening Balance for next period: {} ", nextPeriod);
+      //LOG.debug("Syncing Opening Balance for next period: {} ", nextPeriod);
       // Syncing Next month opening balance with current month closing balance
       AccountMonthlyBalanceDomain nextMonthlyBalanceOfCurrent = existingBalancesFromPeriod.stream()
           .filter(mb -> mb.getPeriod().equals(nextPeriod))
@@ -208,32 +210,34 @@ public class MonthlyBalanceSyncerAppService {
     // Create a CompletableFuture that will be completed by a virtual thread
     final CompletableFuture<List<AccountMonthlyBalanceDomain>> future = new CompletableFuture<>();
 
-    // Start a virtual thread to do the work
-    Thread.startVirtualThread(() -> {
-      final String threadName = Thread.currentThread().getName();
-      LOG.info("Starting balance processing on virtual thread: " + threadName);
+    try (ExecutorService executorService = Executors.newFixedThreadPool(1)) {
+      // Start a virtual thread to do the work
+      executorService.submit(() -> {
+        final String threadName = Thread.currentThread().getName();
+        LOG.info("Starting balance processing on virtual thread: " + threadName);
 
-      // Step 1: Save balances (executes first)
-      final List<AccountMonthlyBalanceDomain> savedBalances =
-          saveBalancesTask(monthlyBalances).get();
+        // Step 1: Save balances (executes first)
+        final List<AccountMonthlyBalanceDomain> savedBalances =
+            saveBalancesTask(monthlyBalances).get();
 
-      LOG.info("Balances saved on thread: " + Thread.currentThread().getName());
+        LOG.info("Balances saved on thread: " + Thread.currentThread().getName());
 
-      // Step 2: Sync profit data (executes IMMEDIATELY after step 1 completes)
-      final List<AccountMonthlyBalanceDomain> profitBalances =
-          syncProfitMonthlyTask(accountId, initPeriod, lastPeriod).get();
+        // Step 2: Sync profit data (executes IMMEDIATELY after step 1 completes)
+        final List<AccountMonthlyBalanceDomain> profitBalances =
+            syncProfitMonthlyTask(accountId, initPeriod, lastPeriod).get();
 
-      LOG.info("Profit sync completed on thread: " + Thread.currentThread().getName());
+        LOG.info("Profit sync completed on thread: " + Thread.currentThread().getName());
 
-      // Step 3: Combine results
-      final List<AccountMonthlyBalanceDomain> combined = combineResults().apply(savedBalances, profitBalances);
+        // Step 3: Combine results
+        final List<AccountMonthlyBalanceDomain> combined = combineResults().apply(savedBalances, profitBalances);
 
-      LOG.info("Task completed successfully, virtual thread will be garbage collected");
+        LOG.info("Task completed successfully, virtual thread will be garbage collected");
 
-      // Complete the future with success
-      future.complete(combined);
+        // Complete the future with success
+        future.complete(combined);
 
-    });
+      });
+    }
 
     return future;
   }

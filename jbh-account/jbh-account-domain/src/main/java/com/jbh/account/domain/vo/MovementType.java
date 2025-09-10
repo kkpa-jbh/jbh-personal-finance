@@ -1,4 +1,4 @@
-package com.jbh.account.domain.movements;
+package com.jbh.account.domain.vo;
 
 public enum MovementType {
   DEPOSIT,

@@ -21,12 +21,13 @@ import com.jbh.account.application.accounts.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
-import com.jbh.account.domain.accounts.AccountDomain;
-import com.jbh.account.domain.accounts.AccountId;
-import com.jbh.account.domain.accounts.AccountMonthlyBalanceDomain;
-import com.jbh.account.domain.movements.AccountMovementDomain;
-import com.jbh.account.domain.movements.MovementType;
+import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
+import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.utils.MoneyUtils;
+import com.jbh.account.domain.vo.AccountDomainDTO;
+import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -87,7 +88,7 @@ public class RegisterSimpleMovementExecutionTest {
     AccountDomain accountDomain = AccountDomain.withId(accountId);
 
     when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(accountDomain));
+        .thenReturn(Optional.of(accountDomain.toDTO()));
 
     // When & Then
     AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
@@ -96,9 +97,9 @@ public class RegisterSimpleMovementExecutionTest {
 
     verify(accountRepository).findByAccountId(userId, accountId);
     verify(accountMovementRepository).save((AccountMovementDomain) any());
-    verify(accountRepository).save(accountDomain);
+    verify(accountRepository).save(any());
 
-    assertEquals(accountDomain.getMovementBalance(), amount);
+    assertEquals(mvmtResponse.get().account().getMovementBalance(), amount);
     AccountMonthlyBalanceDomain actualMonthlyBalances = mvmtResponse.get().monthlyBalance();
     assertEquals(amount, actualMonthlyBalances.getTotalDebits());
     assertEquals(amount, actualMonthlyBalances.getClosingBalance());
@@ -138,7 +139,7 @@ public class RegisterSimpleMovementExecutionTest {
     accountDomain.setCurrentBalance(new BigDecimal("190.00"));
 
     when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(accountDomain));
+        .thenReturn(Optional.of(accountDomain.toDTO()));
 
     // When & Then
     AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
@@ -147,7 +148,7 @@ public class RegisterSimpleMovementExecutionTest {
 
     verify(accountRepository).findByAccountId(userId, accountId);
     verify(accountMovementRepository).save((AccountMovementDomain) any());
-    verify(accountRepository).save(accountDomain);
+    verify(accountRepository).save(any());
 
     assertEquals(balanceSnashot, mvmtResponse.get().account().getCurrentBalance());
     assertEquals(existingAccountPpalBalance, mvmtResponse.get().account().getMovementBalance());
@@ -177,7 +178,7 @@ public class RegisterSimpleMovementExecutionTest {
     accountDomain.setCurrentBalance(new BigDecimal("12689712.00"));
 
     when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(accountDomain));
+        .thenReturn(Optional.of(accountDomain.toDTO()));
 
     // When & Then
     AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
@@ -186,7 +187,7 @@ public class RegisterSimpleMovementExecutionTest {
 
     verify(accountRepository).findByAccountId(userId, accountId);
     verify(accountMovementRepository).save((AccountMovementDomain) any());
-    verify(accountRepository).save(accountDomain);
+    verify(accountRepository).save((AccountDomainDTO) any());
 
     AccountDomain accountResponse = mvmtResponse.get().account();
     assertEquals(amount.add(existingMovBalance), accountResponse.getMovementBalance());
@@ -215,7 +216,7 @@ public class RegisterSimpleMovementExecutionTest {
     AccountDomain accountDomain = AccountDomain.withId(accountId);
 
     when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(accountDomain));
+        .thenReturn(Optional.of(accountDomain.toDTO()));
 
     int existingEntries = 10;
     BigDecimal existingTotalDebits = new BigDecimal("1000.00");
@@ -247,10 +248,10 @@ public class RegisterSimpleMovementExecutionTest {
 
     verify(accountRepository).findByAccountId(userId, accountId);
     verify(accountMovementRepository).save((AccountMovementDomain) any());
-    verify(accountRepository).save(accountDomain);
+    verify(accountRepository).save(any());
     verify(accountMonthlyBalanceRepository, atMostOnce()).save((AccountMonthlyBalanceDomain) any());
 
-    assertEquals(accountDomain.getMovementBalance(), amount);
+    assertEquals(amount, processedResponse.get().account().getMovementBalance());
     assertEquals(existingEntries + 1, processedResponse.get().monthlyBalance().getTotalMovements());
     assertEquals(existingTotalDebits.add(amount), processedResponse.get().monthlyBalance().getTotalDebits());
     assertEquals(existingOpeningBalance, processedResponse.get().monthlyBalance().getOpeningBalance());
@@ -288,7 +289,7 @@ public class RegisterSimpleMovementExecutionTest {
     assertEquals(0, new BigDecimal("-673605.00").compareTo(novemberEntry.totalAmount()));
 
     AccountDomain accountDomain = AccountDomain.withId(accountId);
-    when(accountRepository.findByAccountId(userId, accountId)).thenReturn(Optional.of(accountDomain));
+    when(accountRepository.findByAccountId(userId, accountId)).thenReturn(Optional.of(accountDomain.toDTO()));
 
     //Then
     AtomicReference<AddMultipleBasicMovementDTO> processedResponse = new AtomicReference<>();
@@ -297,9 +298,9 @@ public class RegisterSimpleMovementExecutionTest {
 
     verify(accountRepository).findByAccountId(userId, accountId);
     verify(accountMovementRepository).save((List<AccountMovementDomain>) any());
-    verify(accountRepository).save(accountDomain);
+    verify(accountRepository).save(any());
 
-    AccountDomain actualAccountResponse = processedResponse.get().account();
+    AccountDomainDTO actualAccountResponse = processedResponse.get().account();
     List<AccountMonthlyBalanceDomain> actualMonthlyBalances = processedResponse.get().monthlyBalances();
 
     BigDecimal expectedProfitBalance = new BigDecimal("1786605.00");
@@ -544,7 +545,7 @@ public class RegisterSimpleMovementExecutionTest {
     UUID userId = UUID.randomUUID();
     AccountId accountId = AccountId.generate();
     AccountDomain account = AccountDomain.withId(accountId);
-    when(accountRepository.findByAccountId(userId, accountId)).thenReturn(Optional.of(account));
+    when(accountRepository.findByAccountId(userId, accountId)).thenReturn(Optional.of(account.toDTO()));
 
     AtomicReference<AddMultipleBasicMovementDTO> processedResponse = new AtomicReference<>();
     assertDoesNotThrow(() ->
@@ -756,7 +757,7 @@ public class RegisterSimpleMovementExecutionTest {
     UUID userId = UUID.randomUUID();
     AccountId accountId = AccountId.generate();
     AccountDomain account = AccountDomain.withId(accountId);
-    when(accountRepository.findByAccountId(userId, accountId)).thenReturn(Optional.of(account));
+    when(accountRepository.findByAccountId(userId, accountId)).thenReturn(Optional.of(account.toDTO()));
 
     AtomicReference<AddMultipleBasicMovementDTO> processedResponse = new AtomicReference<>();
     assertDoesNotThrow(() ->

@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.PersistenceUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @ApplicationScoped
 @PersistenceUnit(name = "acctmgmt")
@@ -23,5 +24,11 @@ public class AccountJPARepository implements PanacheRepository<AccountJPAEntity>
     return find("accountType = :type and isActive = :active",
         Parameters.with("type", accountType)
             .and("active", true)).list();
+  }
+
+  public Optional<AccountJPAEntity> findByAccountId(final UUID userId, final UUID accountID) {
+    return find("userId = :userId and id = :accountId",
+        Parameters.with("userId", userId)
+            .and("accountId", accountID)).firstResultOptional();
   }
 }

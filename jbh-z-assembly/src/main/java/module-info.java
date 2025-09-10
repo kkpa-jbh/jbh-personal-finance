@@ -4,7 +4,5 @@ module jbh.z.assembly {
   requires jakarta.cdi;   // ✅ If assembly has any CDI annotations
   requires jakarta.inject;   // ✅ Basic injection (@Inject)
   requires quarkus.core; // ✅ Quarkus runtime + CDI container
-
-  requires jbh.account.application;
-  requires jbh.account.domain;
+  
 }

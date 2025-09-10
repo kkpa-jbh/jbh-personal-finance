@@ -1,4 +1,4 @@
-package com.jbh.account.domain.accounts;
+package com.jbh.account.domain.vo;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -16,6 +16,6 @@ public record AccountId(UUID value) {
   public static AccountId generate() {
     return new AccountId(UUID.randomUUID());
   }
-  
+
 }
 

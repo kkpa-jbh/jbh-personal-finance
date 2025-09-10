@@ -9,5 +9,9 @@ module jbh.account.application {
   exports com.jbh.account.application.accounts.usecases to jbh.account.infra;
   exports com.jbh.account.application.accounts.ports.input to jbh.account.infra, jbh.z.assembly;
   exports com.jbh.account.application.accounts.ports.output to jbh.account.infra, jbh.z.assembly;
+  exports com.jbh.account.application.accounts.dto to jbh.account.infra;
+  exports com.jbh.account.application.accounts.vo to jbh.account.infra;
+  exports com.jbh.account.application.accounts.vo.commands to jbh.account.infra;
+  exports com.jbh.account.application.accounts.services;
 
 }

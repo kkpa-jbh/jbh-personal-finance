@@ -1,4 +1,4 @@
-package com.jbh.account.domain.movements;
+package com.jbh.account.domain.vo;
 
 import static java.util.Objects.requireNonNull;
 

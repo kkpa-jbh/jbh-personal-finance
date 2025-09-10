@@ -18,6 +18,11 @@
     <Class name="~com\.jbh\.infra\.common\.logging\..*"/>
   </Match>
 
+  <Match>
+    <Bug pattern="CRLF_INJECTION_LOGS"/>
+    <Class name="~com\.jbh\..*"/>
+  </Match>
+
   <!-- Exclude Lombok generated code -->
   <Match>
     <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>

@@ -2,7 +2,7 @@ package com.jbh.account.application.accounts.ports.input;
 
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import com.jbh.account.application.accounts.usecases.NoOperationUseCase;
-import com.jbh.account.domain.accounts.AccountId;
+import com.jbh.account.domain.vo.AccountId;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
