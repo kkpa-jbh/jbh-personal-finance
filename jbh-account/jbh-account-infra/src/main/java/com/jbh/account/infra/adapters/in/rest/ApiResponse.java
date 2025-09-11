@@ -1,0 +1,32 @@
+package com.jbh.account.infra.adapters.in.rest;
+
+import java.util.List;
+
+/**
+ * Standard API response wrapper for consistent response format.
+ *
+ * @param <T> The type of data being returned
+ */
+record ApiResponse<T>(
+    boolean success,
+    T data,
+    String message,
+    List<String> errors
+) {
+
+  public static <T> ApiResponse<T> success(final T data, final String message) {
+    return new ApiResponse<>(true, data, message, null);
+  }
+
+  public static <T> ApiResponse<T> success(final T data) {
+    return new ApiResponse<>(true, data, "Operation completed successfully", null);
+  }
+
+  public static <T> ApiResponse<T> error(final String message) {
+    return new ApiResponse<>(false, null, message, null);
+  }
+
+  public static <T> ApiResponse<T> error(final String message, final List<String> errors) {
+    return new ApiResponse<>(false, null, message, errors);
+  }
+}

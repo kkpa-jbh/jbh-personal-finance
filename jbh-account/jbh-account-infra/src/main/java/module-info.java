@@ -13,6 +13,8 @@ module jbh.account.infra {
   requires io.hypersistence.utils.hibernate.type;
   requires org.hibernate.orm.core;
   requires static lombok;
+  requires org.apache.poi.ooxml;
+  requires resteasy.reactive.common;
 
   uses com.jbh.account.application.accounts.ports.input.RegisterSimpleMovementInputPort;
 }

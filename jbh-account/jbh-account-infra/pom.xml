@@ -168,6 +168,33 @@
       <groupId>io.quarkus</groupId>
     </dependency>
 
+    <!-- Excel -->
+    <dependency>
+      <artifactId>poi</artifactId>
+      <groupId>org.apache.poi</groupId>
+      <version>${poi.version}</version>
+    </dependency>
+
+    <dependency>
+      <artifactId>poi-ooxml</artifactId>
+      <groupId>org.apache.poi</groupId>
+      <version>${poi.version}</version>
+    </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml-schemas -->
+    <dependency>
+      <artifactId>poi-ooxml-schemas</artifactId>
+      <exclusions>
+        <exclusion>
+          <artifactId>xmlbeans</artifactId>
+          <groupId>org.apache.xmlbeans</groupId>
+        </exclusion>
+      </exclusions>
+      <groupId>org.apache.poi</groupId>
+      <version>4.1.2</version>
+    </dependency>
+
+
   </dependencies>
   <modelVersion>4.0.0</modelVersion>
 
@@ -182,6 +209,7 @@
   <properties>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
+    <poi.version>5.4.1</poi.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
