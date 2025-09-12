@@ -119,10 +119,18 @@
 
   <dependencies>
 
+    <!-- JBH Dependencies -->
     <dependency>
       <artifactId>jbh-account-application</artifactId>
       <groupId>com.jbh</groupId>
     </dependency>
+
+    <dependency>
+      <artifactId>jbh-api-client</artifactId>
+      <groupId>com.jbh</groupId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+    <!-- JBH Dependencies -->
 
     <!-- Essential for file upload -->
 

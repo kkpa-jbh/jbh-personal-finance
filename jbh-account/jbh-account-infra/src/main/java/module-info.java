@@ -1,6 +1,7 @@
 module jbh.account.infra {
   requires jakarta.persistence;
   requires jakarta.transaction;
+
   requires jakarta.ws.rs;
   requires quarkus.hibernate.orm.panache;
   requires quarkus.panache.common;
@@ -15,6 +16,9 @@ module jbh.account.infra {
   requires static lombok;
   requires org.apache.poi.ooxml;
   requires resteasy.reactive.common;
+  requires jakarta.resource;
+  requires smallrye.config.core;
+  requires com.jbh.gateway;
 
   uses com.jbh.account.application.accounts.ports.input.RegisterSimpleMovementInputPort;
 }

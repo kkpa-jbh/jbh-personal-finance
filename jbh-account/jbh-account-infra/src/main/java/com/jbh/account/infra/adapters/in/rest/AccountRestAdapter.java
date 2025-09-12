@@ -7,6 +7,10 @@ import com.jbh.account.application.accounts.vo.commands.CreateBasicAccountComman
 import com.jbh.account.domain.vo.AccountDomainDTO;
 import com.jbh.account.infra.ApiConstants;
 import com.jbh.account.infra.adapters.in.service.ExcelMovementReaderService;
+import com.jbh.account.infra.gateway.JbhGatewayClients;
+import com.jbh.api.client.api.JbhApiException;
+import com.jbh.api.client.api.JbhHttpHeaderNames;
+import com.jbh.api.client.core.http.model.JbhHttpResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -21,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -47,6 +52,9 @@ public class AccountRestAdapter {
 
   @Inject
   ExcelMovementReaderService excelMovementReaderService;
+
+  @Inject
+  JbhGatewayClients jbhGatewayClients;
 
   @Inject
   public AccountRestAdapter(final NoOperationUseCase testingUseCase, final CreateAccountUseCase createAccountUseCase) {
@@ -106,6 +114,18 @@ public class AccountRestAdapter {
     log.info("Uploading excel file {}", authorizationHeader);
 
     testingUseCase.healthCheck();
+
+    try {
+      JbhHttpResponse response = jbhGatewayClients.getUserClient().findUserId(
+          Map.of(JbhHttpHeaderNames.REQ_JBH_TOKEN, authorizationHeader, JbhHttpHeaderNames.REQ_SOURCE_HEADER,
+              "JBH-ACCOUNT-API")
+      );
+
+      log.info("UserId {}", response.getBody());
+
+    } catch (JbhApiException e) {
+      throw new RuntimeException(e);
+    }
 
     try {
       // Validate file type

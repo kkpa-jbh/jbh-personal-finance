@@ -32,29 +32,12 @@
         <!-- Maven Enforcer Plugin for dependency management -->
         <plugin>
           <artifactId>maven-enforcer-plugin</artifactId>
-          <groupId>org.apache.maven.plugins</groupId>
-          <version>${maven-enforcer-plugin.version}</version>
           <configuration>
             <rules>
               <!-- Ensure minimum Maven version -->
-              <requireMavenVersion>
-                <version>[3.8.1,)</version>
-                <message>Maven 3.8.1 or higher is required for this project</message>
-              </requireMavenVersion>
-              
+              <banDuplicatePomDependencyVersions/>
+
               <!-- Ensure minimum Java version -->
-              <requireJavaVersion>
-                <version>[21,)</version>
-                <message>Java 21 or higher is required for this project</message>
-              </requireJavaVersion>
-              
-              <!-- Prevent dependency convergence issues -->
-              <dependencyConvergence />
-              
-              <!-- Ensure no duplicate dependencies -->
-              <banDuplicatePomDependencyVersions />
-              
-              <!-- Ban specific vulnerable dependencies (example) -->
               <bannedDependencies>
                 <excludes>
                   <exclude>log4j:log4j:*:jar:compile</exclude>
@@ -62,8 +45,25 @@
                 </excludes>
                 <message>These dependencies are banned due to security vulnerabilities or conflicts</message>
               </bannedDependencies>
+
+              <!-- Prevent dependency convergence issues -->
+              <dependencyConvergence/>
+
+              <!-- Ensure no duplicate dependencies -->
+              <requireJavaVersion>
+                <message>Java 21 or higher is required for this project</message>
+                <version>[21,)</version>
+              </requireJavaVersion>
+
+              <!-- Ban specific vulnerable dependencies (example) -->
+              <requireMavenVersion>
+                <message>Maven 3.8.1 or higher is required for this project</message>
+                <version>[3.8.1,)</version>
+              </requireMavenVersion>
             </rules>
           </configuration>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-enforcer-plugin.version}</version>
         </plugin>
 
       </plugins>
@@ -105,16 +105,16 @@
       <!-- Maven Enforcer Plugin - runs during validate phase -->
       <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <groupId>org.apache.maven.plugins</groupId>
         <executions>
           <execution>
-            <id>enforce-rules</id>
             <goals>
               <goal>enforce</goal>
             </goals>
+            <id>enforce-rules</id>
             <phase>validate</phase>
           </execution>
         </executions>
+        <groupId>org.apache.maven.plugins</groupId>
       </plugin>
 
     </plugins>
@@ -195,25 +195,25 @@
   </parent>
 
   <properties>
-    <maven.compiler.source>${java.version}</maven.compiler.source>
-    <maven.compiler.target>${java.version}</maven.compiler.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    
+    <jacoco.branch.coverage.minimum>0.50</jacoco.branch.coverage.minimum>
+    <jacoco.bundle.branch.minimum>0.50</jacoco.bundle.branch.minimum>
+    <jacoco.bundle.line.minimum>0.63</jacoco.bundle.line.minimum>
+
     <!-- JaCoCo Coverage Thresholds -->
     <!-- Line Coverage: Percentage of code lines executed during tests -->
     <!-- Higher = more code paths tested, but doesn't guarantee quality -->
     <jacoco.line.coverage.minimum>0.60</jacoco.line.coverage.minimum>
-    
-    <!-- Branch Coverage: Percentage of decision branches (if/else) tested -->  
+
+    <!-- Branch Coverage: Percentage of decision branches (if/else) tested -->
     <!-- More important than line coverage - ensures edge cases are tested -->
     <!-- Example: if(x>0) return "pos"; else return "neg" - both paths must be tested -->
-    <jacoco.branch.coverage.minimum>0.50</jacoco.branch.coverage.minimum>
-    
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+
     <!-- Bundle Coverage: Overall module coverage (all classes combined) -->
     <!-- Prevents having few well-tested classes hide many untested ones -->
     <!-- Set slightly higher than class minimum to encourage broad coverage -->
-    <jacoco.bundle.line.minimum>0.63</jacoco.bundle.line.minimum>
-    <jacoco.bundle.branch.minimum>0.50</jacoco.bundle.branch.minimum>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
 </project>
