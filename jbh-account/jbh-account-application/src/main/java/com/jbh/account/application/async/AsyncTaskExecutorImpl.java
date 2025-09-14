@@ -45,17 +45,6 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
             LOG.error("Task was interrupted: {}", asyncTask.type(), exception);
             registerToDLQ(asyncTask, exception);
             future.completeExceptionally(exception);
-          } catch (final RuntimeException exception) {
-            LOG.error(
-                "Runtime error executing async task {}: {}",
-                asyncTask.type(),
-                exception.getMessage(),
-                exception);
-            if (asyncTask.metadata() != null) {
-              asyncTask.metadata().put("exceptionMsg", exception.getMessage());
-            }
-            registerToDLQ(asyncTask, exception);
-            future.completeExceptionally(exception);
           } catch (final Exception exception) {
             LOG.error(
                 "Checked exception executing async task {}: {}",
