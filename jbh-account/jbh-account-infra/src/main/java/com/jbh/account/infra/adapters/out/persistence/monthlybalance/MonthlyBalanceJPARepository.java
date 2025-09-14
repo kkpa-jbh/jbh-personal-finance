@@ -27,7 +27,7 @@ public class MonthlyBalanceJPARepository
   public List<AccountMonthlyBalanceJPAEntity> findNextBalancesFromPeriodInclusive(
       final AccountId accountId, final YearMonth currentPeriod) {
     return find(
-            "accountId = :accountId and period > :period",
+            "accountId = :accountId and period >= :period",
             Parameters.with("accountId", accountId.value()).and("period", currentPeriod))
         .list();
   }

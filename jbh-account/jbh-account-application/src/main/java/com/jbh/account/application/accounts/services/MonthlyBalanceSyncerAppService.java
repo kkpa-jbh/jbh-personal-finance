@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -56,11 +57,12 @@ public class MonthlyBalanceSyncerAppService {
 
     // Create AsyncTask metadata
     final Map<String, Object> metadata =
-        Map.of(
-            "accountId", accountId.value().toString(),
-            "initPeriod", initPeriod.toString(),
-            "lastPeriod", lastPeriod.toString(),
-            "balancesCount", monthlyBalances.size());
+        new HashMap<>(
+            Map.of(
+                "accountId", accountId.value().toString(),
+                "initPeriod", initPeriod.toString(),
+                "lastPeriod", lastPeriod.toString(),
+                "balancesCount", monthlyBalances.size()));
 
     final AsyncTask asyncTask = new AsyncTask(AsyncTaskType.MONTHLY_BALANCES_SYNC, metadata);
 
@@ -69,7 +71,7 @@ public class MonthlyBalanceSyncerAppService {
         asyncTask,
         () -> {
           // Step 1: Save balances (executes first)
-          save(monthlyBalances);
+          saveMultiMovements(monthlyBalances);
 
           LOG.info("Monthly Balances saved async on thread: {}", Thread.currentThread().getName());
 
@@ -84,10 +86,10 @@ public class MonthlyBalanceSyncerAppService {
         });
   }
 
-  private List<AccountMonthlyBalanceDTO> save(
+  private List<AccountMonthlyBalanceDTO> saveMultiMovements(
       final List<AccountMonthlyBalanceDTO> monthlyBalanceToPersist) {
     LOG.info("[REPO] Saving Monthly Balances {}", monthlyBalanceToPersist.size());
-    return accountMonthlyBalanceRepo.save(
+    return accountMonthlyBalanceRepo.saveMultiMovements(
         monthlyBalanceToPersist.stream().map(AccountMonthlyBalanceDomain::toDTO).toList());
   }
 
@@ -165,7 +167,7 @@ public class MonthlyBalanceSyncerAppService {
     // persist monthly balances with profit and opening balances synced.
     final List<AccountMonthlyBalanceDTO> profitBalancesSyncedDto =
         profitBalancesSynced.stream().map(AccountMonthlyBalanceDomain::toDTO).toList();
-    save(profitBalancesSyncedDto);
+    saveMultiMovements(profitBalancesSyncedDto);
 
     return profitBalancesSyncedDto;
   }

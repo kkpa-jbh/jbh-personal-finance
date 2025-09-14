@@ -9,10 +9,16 @@ import jakarta.transaction.Transactional;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
+import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
+@Transactional
 public class MonthlyBalanceRepositoryAdapter implements AccountMonthlyBalanceRepository {
 
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(MonthlyBalanceRepositoryAdapter.class);
   @Inject MonthlyBalanceJPARepository jpaRepo;
 
   @Override
@@ -25,29 +31,47 @@ public class MonthlyBalanceRepositoryAdapter implements AccountMonthlyBalanceRep
 
   @Override
   @Transactional
-  public AccountMonthlyBalanceDTO save(final AccountMonthlyBalanceDTO accountMonthlyBalance) {
+  public void saveSingleMovement(final AccountMonthlyBalanceDTO accountMonthlyBalance) {
     final AccountMonthlyBalanceJPAEntity entity =
         AccountMonthlyBalanceJPAEntity.of(accountMonthlyBalance);
 
     if (entity.getId() == null) {
       jpaRepo.persist(entity);
     } else {
+      // Use saveAndFlush for existing entities
       jpaRepo.getEntityManager().merge(entity);
+      jpaRepo.getEntityManager().flush();
     }
 
-    return entity.toDTO();
+    entity.toDTO();
   }
 
   @Override
   @Transactional
-  // FIXME: This is not working when an exception is thrown (It's background transaction)
-  public List<AccountMonthlyBalanceDTO> save(
+  // FIXME: Improve it to save all at once
+  public List<AccountMonthlyBalanceDTO> saveMultiMovements(
       final List<AccountMonthlyBalanceDTO> accountMonthlyBalance) {
     try {
-      jpaRepo.persist(
-          accountMonthlyBalance.stream().map(AccountMonthlyBalanceJPAEntity::of).toList());
+      final List<AccountMonthlyBalanceJPAEntity> movementsToPersist =
+          accountMonthlyBalance.stream().map(AccountMonthlyBalanceJPAEntity::of).toList();
+
+      if (CollectionUtils.isNotEmpty(movementsToPersist)) {
+        final List<AccountMonthlyBalanceJPAEntity> newMovementsToPersist =
+            movementsToPersist.stream().filter(m -> m.getId() == null).toList();
+        final List<AccountMonthlyBalanceJPAEntity> existingMovementsToPersist =
+            movementsToPersist.stream().filter(m -> m.getId() != null).toList();
+        if (CollectionUtils.isNotEmpty(newMovementsToPersist)) {
+          LOGGER.info("Saving new monthly balances {}", newMovementsToPersist.size());
+          jpaRepo.persist(newMovementsToPersist);
+        }
+        if (CollectionUtils.isNotEmpty(existingMovementsToPersist)) {
+          LOGGER.info("Updating existing monthly balances {}", existingMovementsToPersist.size());
+          existingMovementsToPersist.forEach(m -> saveSingleMovement(m.toDTO()));
+        }
+      }
+
     } catch (final Exception e) {
-      throw new IllegalStateException("Error persisting monthly balance", e);
+      throw new IllegalStateException("Error persisting monthly balance " + e.getMessage(), e);
     }
 
     return accountMonthlyBalance;

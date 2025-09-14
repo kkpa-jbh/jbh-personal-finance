@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import com.jbh.account.application.async.vo.AsyncTask;
 import com.jbh.account.application.async.vo.AsyncTaskType;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -27,7 +28,8 @@ public class AsyncTaskExecutorImplTest {
   void setUp() {
     asyncTaskExecutor = new AsyncTaskExecutorImpl();
     testAsyncTask =
-        new AsyncTask(AsyncTaskType.MONTHLY_BALANCES_SYNC, Map.of("testKey", "testValue"));
+        new AsyncTask(
+            AsyncTaskType.MONTHLY_BALANCES_SYNC, new HashMap<>(Map.of("testKey", "testValue")));
   }
 
   @Test
@@ -197,7 +199,9 @@ public class AsyncTaskExecutorImplTest {
       final int taskNumber = i;
       final CompletableFuture<Integer> future =
           asyncTaskExecutor.submitTask(
-              new AsyncTask(AsyncTaskType.MONTHLY_BALANCES_SYNC, Map.of("taskNumber", taskNumber)),
+              new AsyncTask(
+                  AsyncTaskType.MONTHLY_BALANCES_SYNC,
+                  new HashMap<>(Map.of("taskNumber", taskNumber))),
               () -> {
                 Thread.sleep(50); // Simulate work
                 return taskNumber * 2;

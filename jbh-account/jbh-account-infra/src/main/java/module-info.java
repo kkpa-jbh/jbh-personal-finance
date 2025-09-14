@@ -21,6 +21,7 @@ module jbh.account.infra {
   requires com.jbh.gateway;
   requires org.apache.commons.lang3;
   requires com.opencsv;
+  requires org.apache.commons.collections4;
 
   uses AddBasicMovementInputPort;
 }

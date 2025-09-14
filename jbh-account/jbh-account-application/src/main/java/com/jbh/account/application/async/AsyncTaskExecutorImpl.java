@@ -1,6 +1,7 @@
 package com.jbh.account.application.async;
 
 import com.jbh.account.application.async.vo.AsyncTask;
+import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -18,6 +19,11 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
 
   @Override
   public <T> CompletableFuture<T> submitTask(final AsyncTask asyncTask, final Callable<T> task) {
+
+    if (asyncTask.metadata() != null
+        && !(asyncTask.metadata() instanceof HashMap<String, Object>)) {
+      throw new IllegalArgumentException("Metadata must be a HashMap");
+    }
 
     final CompletableFuture<T> future = new CompletableFuture<>();
     final ExecutorService executorService = Executors.newSingleThreadExecutor();

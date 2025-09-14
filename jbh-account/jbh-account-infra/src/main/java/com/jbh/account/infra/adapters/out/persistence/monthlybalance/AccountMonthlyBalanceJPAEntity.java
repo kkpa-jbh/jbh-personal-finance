@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,7 +27,8 @@ import lombok.Setter;
 public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "monthly_balance_seq")
+  @SequenceGenerator(name = "monthly_balance_seq", sequenceName = "account_monthly_balances_id_seq", allocationSize = 1)
   @Column(name = "id")
   public Long id;
 

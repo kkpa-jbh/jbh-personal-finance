@@ -11,9 +11,10 @@ public interface AccountMonthlyBalanceRepository {
   Optional<AccountMonthlyBalanceDTO> findByAccountIdYearAndMonth(
       AccountId accountId, Integer balanceYear, Integer balanceMonth);
 
-  AccountMonthlyBalanceDTO save(AccountMonthlyBalanceDTO accountMonthlyBalance);
+  void saveSingleMovement(AccountMonthlyBalanceDTO accountMonthlyBalance);
 
-  List<AccountMonthlyBalanceDTO> save(List<AccountMonthlyBalanceDTO> accountMonthlyBalance);
+  List<AccountMonthlyBalanceDTO> saveMultiMovements(
+      List<AccountMonthlyBalanceDTO> accountMonthlyBalance);
 
   List<AccountMonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
       AccountId accountId, YearMonth currentPeriod);

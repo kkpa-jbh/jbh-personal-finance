@@ -254,7 +254,8 @@ public class RegisterSimpleMovementExecutionTest {
     verify(accountRepository).findByAccountId(userId, accountId);
     verify(accountMovementRepository).save((AccountMovementDTO) any());
     verify(accountRepository).save(any());
-    verify(accountMonthlyBalanceRepository, atMostOnce()).save((AccountMonthlyBalanceDTO) any());
+    verify(accountMonthlyBalanceRepository, atMostOnce())
+        .saveSingleMovement((AccountMonthlyBalanceDTO) any());
 
     assertEquals(amount, processedResponse.get().account().getMovementBalance());
     assertEquals(existingEntries + 1, processedResponse.get().monthlyBalance().getTotalMovements());
