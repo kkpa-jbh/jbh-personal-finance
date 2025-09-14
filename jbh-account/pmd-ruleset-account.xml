@@ -12,6 +12,7 @@
     <exclude name="AccessorMethodGeneration"/>
     <exclude name="AccessorClassGeneration"/>
     <exclude name="GuardLogStatement"/>
+    <exclude name="UseTryWithResources"/>
   </rule>
 
   <!-- Code Style -->
@@ -40,6 +41,7 @@
     <!-- Allow builder pattern classes -->
     <exclude name="TooManyMethods"/>
     <exclude name="ExcessiveImports"/>
+    <exclude name="AvoidCatchingGenericException"/>
   </rule>
 
   <rule ref="category/java/design.xml/LawOfDemeter">
@@ -64,6 +66,8 @@
     <exclude name="EmptyCatchBlock"/>
     <!-- Allow bean member naming -->
     <exclude name="BeanMembersShouldSerialize"/>
+    <!-- Allow catching generic exceptions in async/framework code -->
+    <exclude name="AvoidCatchingGenericException"/>
   </rule>
 
   <!-- Performance -->

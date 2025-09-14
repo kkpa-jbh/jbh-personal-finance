@@ -12,8 +12,8 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
 
   private static final Logger LOG = LoggerFactory.getLogger(AsyncTaskExecutorImpl.class);
 
-  private void registerToDLQ(final AsyncTask asyncTask, final Exception exception) {
-    LOG.warn("Registering async task {} to DLQ {}", asyncTask.type(), exception.getMessage());
+  private void registerToDLQ(final AsyncTask asyncTask, final Throwable throwable) {
+    LOG.warn("Registering async task {} to DLQ {}", asyncTask.type(), throwable.getMessage());
   }
 
   @Override
@@ -34,9 +34,25 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
             future.complete(result);
 
             LOG.info("Async task {} completed successfully", asyncTask.type());
+          } catch (final InterruptedException exception) {
+            Thread.currentThread().interrupt();
+            LOG.error("Task was interrupted: {}", asyncTask.type(), exception);
+            registerToDLQ(asyncTask, exception);
+            future.completeExceptionally(exception);
+          } catch (final RuntimeException exception) {
+            LOG.error(
+                "Runtime error executing async task {}: {}",
+                asyncTask.type(),
+                exception.getMessage(),
+                exception);
+            if (asyncTask.metadata() != null) {
+              asyncTask.metadata().put("exceptionMsg", exception.getMessage());
+            }
+            registerToDLQ(asyncTask, exception);
+            future.completeExceptionally(exception);
           } catch (final Exception exception) {
             LOG.error(
-                "Error executing async task {}: {}",
+                "Checked exception executing async task {}: {}",
                 asyncTask.type(),
                 exception.getMessage(),
                 exception);
@@ -47,10 +63,9 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
             future.completeExceptionally(exception);
           } finally {
             executorService.shutdown();
+            executorService.close();
           }
         });
-
-    executorService.close();
 
     return future;
   }

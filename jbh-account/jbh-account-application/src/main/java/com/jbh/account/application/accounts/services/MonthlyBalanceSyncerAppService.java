@@ -21,9 +21,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
@@ -71,38 +69,19 @@ public class MonthlyBalanceSyncerAppService {
         asyncTask,
         () -> {
           // Step 1: Save balances (executes first)
-          final List<AccountMonthlyBalanceDTO> savedBalances =
-              saveBalancesTask(monthlyBalances).get();
+          save(monthlyBalances);
 
           LOG.info("Monthly Balances saved async on thread: {}", Thread.currentThread().getName());
 
           // Step 2: Sync profit data (executes IMMEDIATELY after step 1 completes)
           final List<AccountMonthlyBalanceDTO> profitBalances =
-              syncProfitMonthlyTask(accountId, initPeriod, lastPeriod).get();
+              syncProfitMonthlyFromPeriod(accountId, initPeriod, lastPeriod);
 
           LOG.info("Profit sync completed on thread: {}", Thread.currentThread().getName());
 
-          // Step 3: Combine results
-          return combineResults().apply(savedBalances, profitBalances);
+          // Step 3: Return profit balances (they contain the combined results)
+          return profitBalances;
         });
-  }
-
-  private Supplier<List<AccountMonthlyBalanceDTO>> saveBalancesTask(
-      final List<AccountMonthlyBalanceDTO> monthlyBalance) {
-    return () -> save(monthlyBalance);
-  }
-
-  private Supplier<List<AccountMonthlyBalanceDTO>> syncProfitMonthlyTask(
-      final AccountId accountId, final YearMonth fromPeriod, final YearMonth toPeriod) {
-    return () -> syncProfitMonthlyFromPeriod(accountId, fromPeriod, toPeriod);
-  }
-
-  private BiFunction<
-          List<AccountMonthlyBalanceDTO>,
-          List<AccountMonthlyBalanceDTO>,
-          List<AccountMonthlyBalanceDTO>>
-      combineResults() {
-    return (savedBalances, openingBalancesSynced) -> openingBalancesSynced;
   }
 
   private List<AccountMonthlyBalanceDTO> save(

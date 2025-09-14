@@ -9,12 +9,12 @@ import java.time.YearMonth;
 public class YearMonthConverter implements AttributeConverter<YearMonth, LocalDate> {
 
   @Override
-  public LocalDate convertToDatabaseColumn(YearMonth yearMonth) {
+  public LocalDate convertToDatabaseColumn(final YearMonth yearMonth) {
     return yearMonth != null ? yearMonth.atDay(1) : null;
   }
 
   @Override
-  public YearMonth convertToEntityAttribute(LocalDate localDate) {
+  public YearMonth convertToEntityAttribute(final LocalDate localDate) {
     return localDate != null ? YearMonth.from(localDate) : null;
   }
 }
