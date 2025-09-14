@@ -1,0 +1,118 @@
+package com.jbh.account.infra.adapters.out.persistence.monthlybalance;
+
+import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.YearMonth;
+import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
+
+@Entity
+@Getter
+@Setter
+@Table(name = "account_monthly_balances", schema = "acctmgmt")
+public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
+
+  @Id
+  @Column(name = "id")
+  public Long id;
+
+  @Column(name = "account_id")
+  public UUID accountId;
+
+  @Column(name = "year")
+  public Integer year;
+
+  @Column(name = "month")
+  public Integer month;
+
+  @Column(name = "period")
+  public YearMonth period;
+
+  @Column(name = "total_debits")
+  public BigDecimal totalDebits;
+
+  @Column(name = "total_credits")
+  public BigDecimal totalCredits;
+
+  @Column(name = "movement_balance")
+  public BigDecimal movementBalance;
+
+  @Column(name = "opening_balance")
+  public BigDecimal openingBalance;
+
+  @Column(name = "closing_balance")
+  public BigDecimal closingBalance;
+
+  @Column(name = "monthly_profit")
+  public BigDecimal monthlyProfit;
+
+  @Column(name = "total_movements")
+  public Integer totalMovements;
+
+  @Column(name = "gap_period")
+  public boolean gapPeriod;
+
+  @Column(name = "created_at", nullable = false, updatable = false)
+  public LocalDateTime createdAt;
+
+  @Column(name = "updated_at", nullable = false)
+  public LocalDateTime updatedAt;
+
+  public static AccountMonthlyBalanceJPAEntity of(final AccountMonthlyBalanceDTO monthlyBalance) {
+    final AccountMonthlyBalanceJPAEntity entity = new AccountMonthlyBalanceJPAEntity();
+    entity.setId(monthlyBalance.getId());
+    entity.setAccountId(
+        monthlyBalance.getAccountId() != null ? monthlyBalance.getAccountId().value() : null);
+    entity.setYear(monthlyBalance.getYear());
+    entity.setMonth(monthlyBalance.getMonth());
+    entity.setPeriod(monthlyBalance.getPeriod());
+    entity.setTotalDebits(monthlyBalance.getTotalDebits());
+    entity.setTotalCredits(monthlyBalance.getTotalCredits());
+    entity.setMovementBalance(monthlyBalance.getMovementBalance());
+    entity.setOpeningBalance(monthlyBalance.getOpeningBalance());
+    entity.setClosingBalance(monthlyBalance.getClosingBalance());
+    entity.setMonthlyProfit(monthlyBalance.getMonthlyProfit());
+    entity.setTotalMovements(monthlyBalance.getTotalMovements());
+    entity.setGapPeriod(monthlyBalance.isGapPeriod());
+    return entity;
+  }
+
+  @PrePersist
+  protected void onCreate() {
+    createdAt = LocalDateTime.now();
+    updatedAt = LocalDateTime.now();
+  }
+
+  @PreUpdate
+  protected void onUpdate() {
+    updatedAt = LocalDateTime.now();
+  }
+
+  public AccountMonthlyBalanceDTO toDTO() {
+    return AccountMonthlyBalanceDTO.builder()
+        .id(id)
+        .accountId(AccountId.of(accountId))
+        .year(year)
+        .month(month)
+        .period(period)
+        .totalDebits(totalDebits)
+        .totalCredits(totalCredits)
+        .movementBalance(movementBalance)
+        .openingBalance(openingBalance)
+        .closingBalance(closingBalance)
+        .monthlyProfit(monthlyProfit)
+        .totalMovements(totalMovements)
+        .gapPeriod(gapPeriod)
+        .build();
+  }
+}

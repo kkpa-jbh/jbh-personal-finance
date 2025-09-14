@@ -1,11 +1,11 @@
 package com.jbh.account.application.movements.ports.output;
 
-import com.jbh.account.domain.entity.AccountMovementDomain;
+import com.jbh.account.domain.vo.AccountMovementDTO;
 import java.util.List;
 
 public interface AccountMovementRepository {
 
-  AccountMovementDomain save(AccountMovementDomain accountMovement);
+  void save(AccountMovementDTO accountMovement);
 
-  void save(List<AccountMovementDomain> newMovements);
+  void save(List<AccountMovementDTO> newMovements);
 }

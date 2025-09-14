@@ -1,4 +1,4 @@
-package com.jbh.account.infra.adapters.out.persistence;
+package com.jbh.account.infra.adapters.out.persistence.account;
 
 import static com.jbh.account.infra.LogSanitizer.sanitize;
 
@@ -17,19 +17,20 @@ import org.slf4j.LoggerFactory;
 public class AccountRepositoryAdapter implements AccountRepository {
 
   private static final Logger LOG = LoggerFactory.getLogger(AccountRepositoryAdapter.class);
-  @Inject
-  AccountJPARepository jpaRepo;
+  @Inject AccountJPARepository jpaRepo;
 
   @Override
   public Optional<AccountDomainDTO> findByAccountId(final UUID userId, final AccountId accountId) {
-    final String input = String.format("AccountRepositoryAdapter.findByAccountId called %s - %s", userId, accountId);
+    final String input =
+        String.format("AccountRepositoryAdapter.findByAccountId called %s - %s", userId, accountId);
     LOG.info(sanitize(input));
 
     if (userId == null || accountId == null || accountId.value() == null) {
       throw new IllegalArgumentException("User ID or Account ID cannot be null");
     }
 
-    final Optional<AccountJPAEntity> foundAccount = jpaRepo.findByAccountId(userId, accountId.value());
+    final Optional<AccountJPAEntity> foundAccount =
+        jpaRepo.findByAccountId(userId, accountId.value());
     return foundAccount.map(AccountJPAEntity::toDTO);
   }
 
@@ -48,8 +49,6 @@ public class AccountRepositoryAdapter implements AccountRepository {
 
     return entity.toDTO();
   }
-
-
 
   /*
   public List<Account> findByUserId(UUID userId) {

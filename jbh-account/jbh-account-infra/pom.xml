@@ -126,7 +126,7 @@
     </dependency>
 
     <dependency>
-      <artifactId>jbh-api-client</artifactId>
+      <artifactId>jbh-gateway-client</artifactId>
       <groupId>com.jbh</groupId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>

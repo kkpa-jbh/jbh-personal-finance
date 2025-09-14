@@ -1,9 +1,14 @@
 package com.jbh.account.infra.adapters.in.service;
 
+import static com.jbh.account.infra.common.utils.JbhStringUtils.isBlank;
+
 import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
+import com.jbh.account.infra.common.utils.JbhStringUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serial;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -20,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Service responsible for reading financial movement data from Excel files. Follows hexagonal architecture principles
- * with clear separation of concerns.
+ * Service responsible for reading financial movement data from Excel files. Follows hexagonal
+ * architecture principles with clear separation of concerns.
  */
 @ApplicationScoped
 public final class ExcelMovementReaderService {
@@ -35,23 +40,23 @@ public final class ExcelMovementReaderService {
   private static final int CONSECUTIVE_EMPTY_ROWS_LIMIT = 2;
 
   private static final DateTimeFormatter[] DATE_FORMATTERS = {
-      DateTimeFormatter.ofPattern("dd/MM/yyyy"),
-      DateTimeFormatter.ofPattern("dd-MM-yyyy"),
-      DateTimeFormatter.ofPattern("yyyy-MM-dd"),
-      DateTimeFormatter.ofPattern("MM/dd/yyyy")
+    DateTimeFormatter.ofPattern("dd/MM/yyyy"),
+    DateTimeFormatter.ofPattern("dd-MM-yyyy"),
+    DateTimeFormatter.ofPattern("yyyy-MM-dd"),
+    DateTimeFormatter.ofPattern("MM/dd/yyyy")
   };
   private FormulaEvaluator evaluator;
 
   /**
-   * Parses European number format to BigDecimal. European format uses: - Period (.) as thousands separator - Comma (,)
-   * as decimal separator
+   * Parses European number format to BigDecimal. European format uses: - Period (.) as thousands
+   * separator - Comma (,) as decimal separator
    *
    * @param amountStr The amount string in European format
    * @return BigDecimal representation of the amount
    * @throws NumberFormatException if the format is invalid
    */
   private static BigDecimal parseEuropeanAmount(final String amountStr) {
-    if (amountStr == null || amountStr.trim().isEmpty()) {
+    if (isBlank(amountStr)) {
       return BigDecimal.ZERO;
     }
 
@@ -60,9 +65,10 @@ public final class ExcelMovementReaderService {
     final String absoluteAmountStr = isNegative ? amountStr.substring(1) : amountStr;
 
     // Remove thousands separators (periods) and replace decimal separator (comma) with dot
-    final String normalizedAmount = absoluteAmountStr
-        .replace(".", "")           // Remove thousands separators
-        .replace(",", ".");         // Replace decimal separator
+    final String normalizedAmount =
+        absoluteAmountStr
+            .replace(".", "") // Remove thousands separators
+            .replace(",", "."); // Replace decimal separator
 
     final BigDecimal result = new BigDecimal(normalizedAmount);
     return isNegative ? result.negate() : result;
@@ -72,13 +78,12 @@ public final class ExcelMovementReaderService {
    * Main method that reads Excel data and transforms it to AddBasicMovementRequest objects.
    *
    * @param fileInputStream The Excel file input stream
-   * @param sheetName       The name of the sheet to read from
+   * @param sheetName The name of the sheet to read from
    * @return List of AddBasicMovementRequest objects in the same order as Excel rows
    * @throws ExcelReadingException if there's an error reading or parsing the Excel file
    */
   public List<AddBasicMovementRequest> readMovementsFromExcel(
-      final InputStream fileInputStream,
-      final String sheetName) throws ExcelReadingException {
+      final InputStream fileInputStream, final String sheetName) throws ExcelReadingException {
 
     LOGGER.info("Starting to read movements from Excel sheet: {}", sheetName);
 
@@ -90,20 +95,20 @@ public final class ExcelMovementReaderService {
   }
 
   /**
-   * Reads raw string data from the specified Excel sheet. Stops reading when encountering 2 consecutive empty rows.
+   * Reads raw string data from the specified Excel sheet. Stops reading when encountering 2
+   * consecutive empty rows.
    *
    * @param fileInputStream The Excel file input stream
-   * @param sheetName       The name of the sheet to read from
+   * @param sheetName The name of the sheet to read from
    * @return List of string arrays representing each row (excluding headers)
    * @throws ExcelReadingException if there's an error accessing the Excel file or sheet
    */
   private List<List<String>> readRawDataFromExcel(
-      final InputStream fileInputStream,
-      final String sheetName) throws ExcelReadingException {
+      final InputStream fileInputStream, final String sheetName) throws ExcelReadingException {
 
     final List<List<String>> rawData = new ArrayList<>();
 
-    try (final Workbook workbook = new XSSFWorkbook(fileInputStream)) {
+    try (Workbook workbook = new XSSFWorkbook(fileInputStream)) {
       final Sheet sheet = workbook.getSheet(sheetName);
       evaluator = workbook.getCreationHelper().createFormulaEvaluator();
 
@@ -118,13 +123,15 @@ public final class ExcelMovementReaderService {
       // Start from row 1 to skip headers (row 0)
       for (int rowIndex = HEADER_ROW_INDEX + 1; rowIndex <= lastRowNum; rowIndex++) {
         final Row row = sheet.getRow(rowIndex);
-        final List<String> rowData = extractRowData(row, rowIndex);
+        final List<String> rowData = extractRowData(row);
 
         if (isRowEmpty(rowData)) {
           consecutiveEmptyRows++;
           if (consecutiveEmptyRows >= CONSECUTIVE_EMPTY_ROWS_LIMIT) {
-            LOGGER.debug("Found {} consecutive empty rows at row {}. Stopping reading.",
-                CONSECUTIVE_EMPTY_ROWS_LIMIT, rowIndex);
+            LOGGER.debug(
+                "Found {} consecutive empty rows at row {}. Stopping reading.",
+                CONSECUTIVE_EMPTY_ROWS_LIMIT,
+                rowIndex);
             break;
           }
         } else {
@@ -143,11 +150,10 @@ public final class ExcelMovementReaderService {
   /**
    * Extracts data from the first three columns of a row.
    *
-   * @param row      The Excel row to extract data from
-   * @param rowIndex The index of the row (for error reporting)
+   * @param row The Excel row to extract data from
    * @return List containing the string values of the first three columns
    */
-  private List<String> extractRowData(final Row row, final int rowIndex) {
+  private List<String> extractRowData(final Row row) {
     final List<String> rowData = new ArrayList<>();
 
     if (row == null) {
@@ -204,8 +210,7 @@ public final class ExcelMovementReaderService {
    * @return true if the row is empty, false otherwise
    */
   private boolean isRowEmpty(final List<String> rowData) {
-    return rowData.stream()
-        .allMatch(cellValue -> cellValue == null || cellValue.trim().isEmpty());
+    return rowData.stream().allMatch(JbhStringUtils::isBlank);
   }
 
   /**
@@ -224,37 +229,27 @@ public final class ExcelMovementReaderService {
       final List<String> rowData = rawData.get(i);
       final int excelRowNumber = i + 2; // +1 for 0-based index, +1 for skipped header
 
-      try {
-        final LocalDate entryDate = parseEntryDate(rowData.get(ENTRY_DATE_COLUMN), excelRowNumber);
-        final BigDecimal totalAmount = parseAmount(rowData.get(TOTAL_AMOUNT_COLUMN));
-        final BigDecimal balanceSnapshot = parseAmount(rowData.get(BALANCE_SNAPSHOT_COLUMN));
-
-        final AddBasicMovementRequest movement = new AddBasicMovementRequest(
-            entryDate, totalAmount, balanceSnapshot);
-
-        movements.add(movement);
-
-      } catch (final ExcelReadingException e) {
-        throw e; // Re-throw Excel-specific exceptions
-      } catch (final Exception e) {
-        throw new ExcelReadingException(
-            String.format("Error processing row %d: %s", excelRowNumber, e.getMessage()), e);
-      }
+      final LocalDate entryDate = parseEntryDate(rowData.get(ENTRY_DATE_COLUMN), excelRowNumber);
+      final BigDecimal totalAmount = parseAmount(rowData.get(TOTAL_AMOUNT_COLUMN));
+      final BigDecimal balanceSnapshot = parseAmount(rowData.get(BALANCE_SNAPSHOT_COLUMN));
+      movements.add(new AddBasicMovementRequest(entryDate, totalAmount, balanceSnapshot));
     }
 
     return movements;
   }
 
   /**
-   * Parses an entry date string to LocalDate. Throws an exception if the date is null, empty, or in an invalid format.
+   * Parses an entry date string to LocalDate. Throws an exception if the date is null, empty, or in
+   * an invalid format.
    *
-   * @param dateStr   The date string to parse
+   * @param dateStr The date string to parse
    * @param rowNumber The Excel row number (for error reporting)
    * @return LocalDate object
    * @throws ExcelReadingException if the date cannot be parsed
    */
-  private LocalDate parseEntryDate(final String dateStr, final int rowNumber) throws ExcelReadingException {
-    if (dateStr == null || dateStr.trim().isEmpty()) {
+  private LocalDate parseEntryDate(final String dateStr, final int rowNumber)
+      throws ExcelReadingException {
+    if (isBlank(dateStr)) {
       throw new ExcelReadingException(
           String.format("Entry date is null or empty in row %d", rowNumber));
     }
@@ -282,8 +277,9 @@ public final class ExcelMovementReaderService {
    * @return BigDecimal representation of the amount
    * @throws ExcelReadingException if the amount cannot be parsed
    */
+  @SuppressWarnings("PMD.PreserveStackTrace")
   private BigDecimal parseAmount(final String amountStr) throws ExcelReadingException {
-    if (amountStr == null || amountStr.trim().isEmpty()) {
+    if (isBlank(amountStr)) {
       return BigDecimal.ZERO;
     }
 
@@ -297,17 +293,18 @@ public final class ExcelMovementReaderService {
         // Fallback to plain number format
         return new BigDecimal(trimmedAmountStr);
       } catch (final NumberFormatException fallbackException) {
-        throw new ExcelReadingException(
-            String.format("Invalid number format '%s'. Expected European format (1.234,56) or plain format (1234.56)",
-                trimmedAmountStr), fallbackException);
+        final String message =
+            String.format(
+                "Invalid number format '%s'. Expected European format (1.234,56) or plain format (1234.56)",
+                trimmedAmountStr);
+        throw new ExcelReadingException(message, fallbackException);
       }
     }
   }
 
-  /**
-   * Custom exception for Excel reading operations.
-   */
-  public static final class ExcelReadingException extends Exception {
+  /** Custom exception for Excel reading operations. */
+  public static final class ExcelReadingException extends Exception implements Serializable {
+    @Serial private static final long serialVersionUID = -7904385600828409187L;
 
     public ExcelReadingException(final String message) {
       super(message);

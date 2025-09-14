@@ -7,9 +7,8 @@ import com.jbh.account.domain.vo.AccountId;
 import java.util.List;
 import java.util.UUID;
 
-public interface RegisterMovementUseCase {
+public interface AddMovementUseCase {
 
-  void healthCheck();
 
   AddBasicMovementDTO addBasicMovements(UUID userId, AccountId accountId,
       AddBasicMovementRequest basicMovementRequest);

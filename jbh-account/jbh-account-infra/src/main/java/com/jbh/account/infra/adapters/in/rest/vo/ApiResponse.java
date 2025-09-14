@@ -1,4 +1,4 @@
-package com.jbh.account.infra.adapters.in.rest;
+package com.jbh.account.infra.adapters.in.rest.vo;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import java.util.List;
  *
  * @param <T> The type of data being returned
  */
-record ApiResponse<T>(
+public record ApiResponse<T>(
     boolean success,
     T data,
     String message,

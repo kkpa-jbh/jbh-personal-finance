@@ -39,6 +39,7 @@
     <exclude name="DataClass"/>
     <!-- Allow builder pattern classes -->
     <exclude name="TooManyMethods"/>
+    <exclude name="ExcessiveImports"/>
   </rule>
 
   <rule ref="category/java/design.xml/LawOfDemeter">

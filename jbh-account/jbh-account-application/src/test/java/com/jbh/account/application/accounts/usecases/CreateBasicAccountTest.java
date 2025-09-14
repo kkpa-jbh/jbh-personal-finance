@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import com.jbh.account.application.accounts.ports.input.CreateAccountInputPort;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import com.jbh.account.application.accounts.services.AccountService;
+import com.jbh.account.application.accounts.services.AccountServiceImpl;
 import com.jbh.account.application.accounts.vo.commands.CreateBasicAccountCommand;
 import com.jbh.account.domain.vo.AccountDomainDTO;
 import com.jbh.account.domain.vo.AccountId;
@@ -18,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 public class CreateBasicAccountTest {
@@ -34,7 +34,7 @@ public class CreateBasicAccountTest {
   public void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    accountService = Mockito.mock(AccountService.class);
+    accountService = new AccountServiceImpl(accountRepository);
 
     useCase = new CreateAccountInputPort(accountService);
   }
@@ -53,7 +53,7 @@ public class CreateBasicAccountTest {
         .userId(userId)
         .build();
 
-    when(accountService.save(any())).thenReturn(mockedAccount);
+    when(accountRepository.save(any())).thenReturn(mockedAccount);
 
     CreateBasicAccountCommand command = new CreateBasicAccountCommand(userId, testAccountName, type);
     AccountDomainDTO accountDTO = useCase.execute(command);
@@ -67,7 +67,7 @@ public class CreateBasicAccountTest {
 
     // Capture the argument passed to accountService.save()
     ArgumentCaptor<AccountDomainDTO> captor = ArgumentCaptor.forClass(AccountDomainDTO.class);
-    verify(accountService).save(captor.capture());
+    verify(accountRepository).save(captor.capture());
 
     AccountDomainDTO captured = captor.getValue();
 

@@ -1,4 +1,4 @@
-package com.jbh.account.infra.adapters.out.persistence;
+package com.jbh.account.infra.adapters.out.persistence.account;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
@@ -21,14 +21,16 @@ public class AccountJPARepository implements PanacheRepository<AccountJPAEntity>
   }
 
   public List<AccountJPAEntity> findByAccountType(final String accountType) {
-    return find("accountType = :type and isActive = :active",
-        Parameters.with("type", accountType)
-            .and("active", true)).list();
+    return find(
+            "accountType = :type and isActive = :active",
+            Parameters.with("type", accountType).and("active", true))
+        .list();
   }
 
   public Optional<AccountJPAEntity> findByAccountId(final UUID userId, final UUID accountID) {
-    return find("userId = :userId and id = :accountId",
-        Parameters.with("userId", userId)
-            .and("accountId", accountID)).firstResultOptional();
+    return find(
+            "userId = :userId and id = :accountId",
+            Parameters.with("userId", userId).and("accountId", accountID))
+        .firstResultOptional();
   }
 }

@@ -1,11 +1,11 @@
+import com.jbh.account.application.accounts.ports.input.AddBasicMovementInputPort;
+
 module jbh.account.infra {
   requires jakarta.persistence;
   requires jakarta.transaction;
-
   requires jakarta.ws.rs;
   requires quarkus.hibernate.orm.panache;
   requires quarkus.panache.common;
-
   requires jbh.account.application;
   requires org.slf4j;
   requires org.eclipse.microprofile.openapi;
@@ -19,6 +19,8 @@ module jbh.account.infra {
   requires jakarta.resource;
   requires smallrye.config.core;
   requires com.jbh.gateway;
+  requires org.apache.commons.lang3;
+  requires com.opencsv;
 
-  uses com.jbh.account.application.accounts.ports.input.RegisterSimpleMovementInputPort;
+  uses AddBasicMovementInputPort;
 }

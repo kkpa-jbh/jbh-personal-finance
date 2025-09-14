@@ -1,4 +1,4 @@
-package com.jbh.account.infra.adapters.out.persistence;
+package com.jbh.account.infra.adapters.out.persistence.account;
 
 import com.jbh.account.domain.vo.AccountDomainDTO;
 import com.jbh.account.domain.vo.AccountId;

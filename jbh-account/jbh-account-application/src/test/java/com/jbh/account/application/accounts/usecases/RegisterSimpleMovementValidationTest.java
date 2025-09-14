@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.jbh.account.application.accounts.dto.AddBasicMovementDTO;
-import com.jbh.account.application.accounts.ports.input.RegisterSimpleMovementInputPort;
+import com.jbh.account.application.accounts.ports.input.AddBasicMovementInputPort;
 import com.jbh.account.application.accounts.ports.output.AccountMonthlyBalanceRepository;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import com.jbh.account.application.accounts.services.MonthlyBalanceSyncerAppService;
@@ -18,10 +18,10 @@ import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountDomain;
-import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.utils.MoneyUtils;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountMovementDTO;
 import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -36,39 +36,37 @@ import org.mockito.MockitoAnnotations;
 public class RegisterSimpleMovementValidationTest {
 
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
-  @Mock
-  private AccountRepository accountRepository;
-  @Mock
-  private AccountMovementRepository accountMovementRepository;
-  @Mock
-  private AccountMonthlyBalanceRepository accountMonthlyBalanceRepository;
-  private RegisterSimpleMovementInputPort registerSimpleMovementInputPort;
-
+  @Mock private AccountRepository accountRepository;
+  @Mock private AccountMovementRepository accountMovementRepository;
+  @Mock private AccountMonthlyBalanceRepository accountMonthlyBalanceRepository;
+  private AddBasicMovementInputPort registerSimpleMovementInputPort;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    MonthlyBalanceSyncerAppService monthlyBalanceSyncerService = new MonthlyBalanceSyncerAppService(
-        accountMonthlyBalanceRepository);
-    registerSimpleMovementInputPort = new RegisterSimpleMovementInputPort(accountRepository, accountMovementRepository,
-        unitOfWork, monthlyBalanceSyncerService);
+    final MonthlyBalanceSyncerAppService monthlyBalanceSyncerService =
+        new MonthlyBalanceSyncerAppService(accountMonthlyBalanceRepository);
+    registerSimpleMovementInputPort =
+        new AddBasicMovementInputPort(
+            accountRepository, accountMovementRepository, unitOfWork, monthlyBalanceSyncerService);
   }
-
 
   @Test
   void shouldThrowException_WhenUserIdIsNull() {
     // Given
-    UUID userId = null;
-    AccountId accountId = AccountId.generate();
-    LocalDate movementDate = LocalDate.now();
-    BigDecimal amount = new BigDecimal("100.00");
+    final UUID userId = null;
+    final AccountId accountId = AccountId.generate();
+    final LocalDate movementDate = LocalDate.now();
+    final BigDecimal amount = new BigDecimal("100.00");
 
-    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
+    final AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
 
     // When & Then
-    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-        () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
+    final IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
 
     assertEquals("User ID cannot be null", exception.getMessage());
   }
@@ -76,14 +74,16 @@ public class RegisterSimpleMovementValidationTest {
   @Test
   void shouldThrowException_WhenmovemenDateIsNull() {
     // Given
-    UUID userId = UUID.randomUUID();
-    AccountId accountId = AccountId.generate();
-    BigDecimal amount = new BigDecimal("100.00");
-    AddBasicMovementRequest request = new AddBasicMovementRequest(null, amount);
+    final UUID userId = UUID.randomUUID();
+    final AccountId accountId = AccountId.generate();
+    final BigDecimal amount = new BigDecimal("100.00");
+    final AddBasicMovementRequest request = new AddBasicMovementRequest(null, amount);
 
     // When & Then
-    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-        () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
+    final IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
 
     assertEquals("Entry date cannot be null", exception.getMessage());
   }
@@ -91,15 +91,17 @@ public class RegisterSimpleMovementValidationTest {
   @Test
   void shouldThrowException_WhenAmountIsNull() {
     // Given
-    UUID userId = UUID.randomUUID();
-    AccountId accountId = AccountId.generate();
-    LocalDate movementDate = LocalDate.now();
+    final UUID userId = UUID.randomUUID();
+    final AccountId accountId = AccountId.generate();
+    final LocalDate movementDate = LocalDate.now();
 
-    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, null);
+    final AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, null);
 
     // When & Then
-    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-        () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
+    final IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
 
     assertEquals("There is not any amount to add", exception.getMessage());
   }
@@ -107,57 +109,58 @@ public class RegisterSimpleMovementValidationTest {
   @Test
   void shouldThrowException_WhenAccountNotFound() {
     // Given
-    UUID userId = UUID.randomUUID();
-    AccountId accountId = AccountId.generate();
-    LocalDate movementDate = LocalDate.now();
-    BigDecimal amount = new BigDecimal("100.00");
+    final UUID userId = UUID.randomUUID();
+    final AccountId accountId = AccountId.generate();
+    final LocalDate movementDate = LocalDate.now();
+    final BigDecimal amount = new BigDecimal("100.00");
 
-    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
+    final AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
 
-    when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.empty());
+    when(accountRepository.findByAccountId(userId, accountId)).thenReturn(Optional.empty());
 
     // When & Then
-    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-        () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
+    final IllegalArgumentException exception =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
 
     assertEquals("Account not found", exception.getMessage());
     verify(accountRepository).findByAccountId(userId, accountId);
   }
 
-
   @Test
   void shouldHandleZeroAmount() {
     // Given
-    UUID userId = UUID.randomUUID();
-    AccountId accountId = AccountId.generate();
-    LocalDate movementDate = LocalDate.now();
-    BigDecimal amount = BigDecimal.ZERO;
+    final UUID userId = UUID.randomUUID();
+    final AccountId accountId = AccountId.generate();
+    final LocalDate movementDate = LocalDate.now();
+    final BigDecimal amount = BigDecimal.ZERO;
 
-    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
-    AccountDomain accountDomain = AccountDomain.withId(accountId);
+    final AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
+    final AccountDomain accountDomain = AccountDomain.withId(accountId);
 
     when(accountRepository.findByAccountId(userId, accountId))
         .thenReturn(Optional.of(accountDomain.toDTO()));
 
     // When & Then
-    assertDoesNotThrow(() -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
+    assertDoesNotThrow(
+        () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save((AccountMovementDomain) any());
+    verify(accountMovementRepository).save((AccountMovementDTO) any());
     verify(accountRepository).save(any());
-    assertEquals(accountDomain.getMovementBalance(), amount);
+    assertEquals(MoneyUtils.withJBHDecimals(amount), accountDomain.getMovementBalance());
   }
 
   @Test
   void shouldHandleNegativeAmount() {
     // Given
-    UUID userId = UUID.randomUUID();
-    AccountId accountId = AccountId.generate();
-    LocalDate movementDate = LocalDate.now();
-    BigDecimal amount = new BigDecimal("-50.00");
+    final UUID userId = UUID.randomUUID();
+    final AccountId accountId = AccountId.generate();
+    final LocalDate movementDate = LocalDate.now();
+    final BigDecimal amount = new BigDecimal("-50.00");
 
-    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
-    AccountDomain accountDomain = AccountDomain.withId(accountId);
+    final AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
+    final AccountDomain accountDomain = AccountDomain.withId(accountId);
     accountDomain.setMovementBalance(new BigDecimal("170.00"));
     accountDomain.setCurrentBalance(new BigDecimal("180.00"));
 
@@ -165,12 +168,14 @@ public class RegisterSimpleMovementValidationTest {
         .thenReturn(Optional.of(accountDomain.toDTO()));
 
     // When & Then
-    AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
+    final AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
     assertDoesNotThrow(
-        () -> mvmtResponse.set(registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request)));
+        () ->
+            mvmtResponse.set(
+                registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request)));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save((AccountMovementDomain) any());
+    verify(accountMovementRepository).save((AccountMovementDTO) any());
     verify(accountRepository).save(any());
 
     assertEquals(new BigDecimal("120.00"), mvmtResponse.get().account().getMovementBalance());
@@ -186,58 +191,60 @@ public class RegisterSimpleMovementValidationTest {
   @Test
   void shouldHandlePastDate() {
     // Given
-    UUID userId = UUID.randomUUID();
-    AccountId accountId = AccountId.generate();
-    LocalDate movementDate = LocalDate.now().minusDays(30);
-    BigDecimal amount = new BigDecimal("100.00");
+    final UUID userId = UUID.randomUUID();
+    final AccountId accountId = AccountId.generate();
+    final LocalDate movementDate = LocalDate.now().minusDays(30);
+    final BigDecimal amount = new BigDecimal("100.00");
 
-    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
-    AccountDomain accountDomain = AccountDomain.withId(accountId);
+    final AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
+    final AccountDomain accountDomain = AccountDomain.withId(accountId);
 
     when(accountRepository.findByAccountId(userId, accountId))
         .thenReturn(Optional.of(accountDomain.toDTO()));
 
     // When & Then
-    assertDoesNotThrow(() -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
+    assertDoesNotThrow(
+        () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save((AccountMovementDomain) any());
+    verify(accountMovementRepository).save((AccountMovementDTO) any());
     verify(accountRepository).save(any());
   }
 
   @Test
   void shouldNotHandleFutureDate() {
     // Given
-    UUID userId = UUID.randomUUID();
-    AccountId accountId = AccountId.generate();
-    LocalDate movementDate = LocalDate.now().plusDays(30);
-    BigDecimal amount = new BigDecimal("100.00");
+    final UUID userId = UUID.randomUUID();
+    final AccountId accountId = AccountId.generate();
+    final LocalDate movementDate = LocalDate.now().plusDays(30);
+    final BigDecimal amount = new BigDecimal("100.00");
 
-    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
-    AccountDomain accountDomain = AccountDomain.withId(accountId);
+    final AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
+    final AccountDomain accountDomain = AccountDomain.withId(accountId);
 
     when(accountRepository.findByAccountId(userId, accountId))
         .thenReturn(Optional.of(accountDomain.toDTO()));
 
     // When & Then
-    assertThrows(GenericSpecificationException.class,
+    assertThrows(
+        GenericSpecificationException.class,
         () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository, never()).save((AccountMovementDomain) any());
+    verify(accountMovementRepository, never()).save((AccountMovementDTO) any());
     verify(accountRepository, never()).save(accountDomain.toDTO());
   }
 
   @Test
   void shouldThrowErrorWithInsufficientEffectiveBalance() {
     // Given
-    UUID userId = UUID.randomUUID();
-    AccountId accountId = AccountId.generate();
-    LocalDate movementDate = LocalDate.now();
-    BigDecimal amount = new BigDecimal("-50.00");
+    final UUID userId = UUID.randomUUID();
+    final AccountId accountId = AccountId.generate();
+    final LocalDate movementDate = LocalDate.now();
+    final BigDecimal amount = new BigDecimal("-50.00");
 
-    AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
-    AccountDomain accountDomain = AccountDomain.withId(accountId);
+    final AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
+    final AccountDomain accountDomain = AccountDomain.withId(accountId);
     accountDomain.setMovementBalance(new BigDecimal("30.00"));
     accountDomain.setCurrentBalance(new BigDecimal("30.00"));
 
@@ -245,14 +252,15 @@ public class RegisterSimpleMovementValidationTest {
         .thenReturn(Optional.of(accountDomain.toDTO()));
 
     // When & Then
-    GenericSpecificationException exception = assertThrows(GenericSpecificationException.class,
-        () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
+    final GenericSpecificationException exception =
+        assertThrows(
+            GenericSpecificationException.class,
+            () -> registerSimpleMovementInputPort.addBasicMovements(userId, accountId, request));
 
     assertEquals("Insufficient effective balance", exception.getMessage());
 
     verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository, never()).save((AccountMovementDomain) any());
+    verify(accountMovementRepository, never()).save((AccountMovementDTO) any());
     verify(accountRepository, never()).save(accountDomain.toDTO());
   }
-
 }
