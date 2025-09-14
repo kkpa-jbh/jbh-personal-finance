@@ -12,13 +12,12 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
 
   private static final Logger LOG = LoggerFactory.getLogger(AsyncTaskExecutorImpl.class);
 
-  private void registerToDLQ(final AsyncTask asyncTask, final Exception e) {
-    LOG.warn("Registering async task {} to DLQ", asyncTask.type() );
+  private void registerToDLQ(final AsyncTask asyncTask, final Exception exception) {
+    LOG.warn("Registering async task {} to DLQ {}", asyncTask.type(), exception.getMessage());
   }
 
   @Override
-  public <T> CompletableFuture<T> submitTask(
-      final AsyncTask asyncTask, final Callable<T> task) {
+  public <T> CompletableFuture<T> submitTask(final AsyncTask asyncTask, final Callable<T> task) {
 
     final CompletableFuture<T> future = new CompletableFuture<>();
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -35,17 +34,23 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
             future.complete(result);
 
             LOG.info("Async task {} completed successfully", asyncTask.type());
-          } catch (final Exception e) {
-            LOG.error("Error executing async task {}: {}", asyncTask.type(), e.getMessage(), e);
+          } catch (final Exception exception) {
+            LOG.error(
+                "Error executing async task {}: {}",
+                asyncTask.type(),
+                exception.getMessage(),
+                exception);
             if (asyncTask.metadata() != null) {
-              asyncTask.metadata().put("exceptionMsg", e.getMessage());
+              asyncTask.metadata().put("exceptionMsg", exception.getMessage());
             }
-            registerToDLQ(asyncTask, e);
-            future.completeExceptionally(e);
+            registerToDLQ(asyncTask, exception);
+            future.completeExceptionally(exception);
           } finally {
             executorService.shutdown();
           }
         });
+
+    executorService.close();
 
     return future;
   }

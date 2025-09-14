@@ -9,6 +9,7 @@ import com.jbh.account.application.accounts.services.AccountService;
 import com.jbh.account.application.accounts.services.AccountServiceImpl;
 import com.jbh.account.application.accounts.services.MonthlyBalanceSyncerAppService;
 import com.jbh.account.application.acid.UnitOfWork;
+import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -49,7 +50,8 @@ public class AccountUseCasesCDIConfig {
   @Produces
   @ApplicationScoped
   public MonthlyBalanceSyncerAppService monthlyBalanceSyncerAppService() {
-    return new MonthlyBalanceSyncerAppService(accountMonthlyBalanceRepo);
+    return new MonthlyBalanceSyncerAppService(
+        accountMonthlyBalanceRepo, new AsyncTaskExecutorImpl());
   }
 
   @Produces

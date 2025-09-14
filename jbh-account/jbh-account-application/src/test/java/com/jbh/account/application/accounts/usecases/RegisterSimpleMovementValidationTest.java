@@ -16,6 +16,7 @@ import com.jbh.account.application.accounts.services.MonthlyBalanceSyncerAppServ
 import com.jbh.account.application.accounts.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
 import com.jbh.account.application.acid.UnitOfWork;
+import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
@@ -46,7 +47,8 @@ public class RegisterSimpleMovementValidationTest {
     MockitoAnnotations.openMocks(this);
 
     final MonthlyBalanceSyncerAppService monthlyBalanceSyncerService =
-        new MonthlyBalanceSyncerAppService(accountMonthlyBalanceRepository);
+        new MonthlyBalanceSyncerAppService(
+            accountMonthlyBalanceRepository, new AsyncTaskExecutorImpl());
     registerSimpleMovementInputPort =
         new AddBasicMovementInputPort(
             accountRepository, accountMovementRepository, unitOfWork, monthlyBalanceSyncerService);

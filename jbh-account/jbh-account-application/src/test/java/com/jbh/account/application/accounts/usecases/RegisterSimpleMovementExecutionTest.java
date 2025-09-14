@@ -21,6 +21,7 @@ import com.jbh.account.application.accounts.usecases.utils.TestDataFactory;
 import com.jbh.account.application.accounts.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
 import com.jbh.account.application.acid.UnitOfWork;
+import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
@@ -68,7 +69,8 @@ public class RegisterSimpleMovementExecutionTest {
     MockitoAnnotations.openMocks(this);
 
     monthlyBalanceSyncerService =
-        new MonthlyBalanceSyncerAppService(accountMonthlyBalanceRepository);
+        new MonthlyBalanceSyncerAppService(
+            accountMonthlyBalanceRepository, new AsyncTaskExecutorImpl());
     useCaseInstanceTest =
         new AddBasicMovementInputPort(
             accountRepository, accountMovementRepository, unitOfWork, monthlyBalanceSyncerService);
@@ -228,6 +230,7 @@ public class RegisterSimpleMovementExecutionTest {
             .accountId(accountId)
             .year(movementDate.getYear())
             .month(movementDate.getMonthValue())
+            .period(YearMonth.of(movementDate.getYear(), movementDate.getMonthValue()))
             .openingBalance(existingOpeningBalance)
             .closingBalance(existingClosingBalance)
             .totalCredits(existingTotalCredits)

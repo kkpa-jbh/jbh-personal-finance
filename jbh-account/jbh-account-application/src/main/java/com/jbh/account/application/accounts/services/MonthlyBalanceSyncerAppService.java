@@ -3,6 +3,9 @@ package com.jbh.account.application.accounts.services;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 
 import com.jbh.account.application.accounts.ports.output.AccountMonthlyBalanceRepository;
+import com.jbh.account.application.async.AsyncTaskExecutor;
+import com.jbh.account.application.async.vo.AsyncTask;
+import com.jbh.account.application.async.vo.AsyncTaskType;
 import com.jbh.account.application.common.logging.LoggerFactory;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.entity.AccountMovementDomain;
@@ -18,8 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -32,10 +33,13 @@ public class MonthlyBalanceSyncerAppService {
   private static final Logger LOG = LoggerFactory.getLogger(MonthlyBalanceSyncerAppService.class);
 
   private final AccountMonthlyBalanceRepository accountMonthlyBalanceRepo;
+  private final AsyncTaskExecutor asyncTaskExecutor;
 
   public MonthlyBalanceSyncerAppService(
-      final AccountMonthlyBalanceRepository accountMonthlyBalanceRepo) {
+      final AccountMonthlyBalanceRepository accountMonthlyBalanceRepo,
+      final AsyncTaskExecutor asyncTaskExecutor) {
     this.accountMonthlyBalanceRepo = accountMonthlyBalanceRepo;
+    this.asyncTaskExecutor = asyncTaskExecutor;
   }
 
   public CompletableFuture<List<AccountMonthlyBalanceDTO>> saveMonthlyBalancesASYNC(
@@ -50,48 +54,37 @@ public class MonthlyBalanceSyncerAppService {
     final YearMonth lastPeriod = monthlyBalances.getLast().getPeriod();
     LOG.info(
         String.format(
-            "Starting virtual thread to sync balances from %s to %s", initPeriod, lastPeriod));
+            "Starting async task to sync balances from %s to %s", initPeriod, lastPeriod));
 
-    // Create a CompletableFuture that will be completed by a virtual thread
-    final CompletableFuture<List<AccountMonthlyBalanceDTO>> future = new CompletableFuture<>();
+    // Create AsyncTask metadata
+    final Map<String, Object> metadata =
+        Map.of(
+            "accountId", accountId.value().toString(),
+            "initPeriod", initPeriod.toString(),
+            "lastPeriod", lastPeriod.toString(),
+            "balancesCount", monthlyBalances.size());
 
-    try (ExecutorService executorService = Executors.newFixedThreadPool(1)) {
-      // Start a virtual thread to do the work
-      executorService.submit(
-          () -> {
-            try {
-              final String threadName = Thread.currentThread().getName();
-              LOG.info("Starting balance processing on virtual thread: " + threadName);
+    final AsyncTask asyncTask = new AsyncTask(AsyncTaskType.MONTHLY_BALANCES_SYNC, metadata);
 
-              // Step 1: Save balances (executes first)
-              final List<AccountMonthlyBalanceDTO> savedBalances =
-                  saveBalancesTask(monthlyBalances).get();
+    // Create Callable that contains the entire business logic
+    return asyncTaskExecutor.submitTask(
+        asyncTask,
+        () -> {
+          // Step 1: Save balances (executes first)
+          final List<AccountMonthlyBalanceDTO> savedBalances =
+              saveBalancesTask(monthlyBalances).get();
 
-              LOG.info(
-                  "Monthly Balances saved async on thread: " + Thread.currentThread().getName());
+          LOG.info("Monthly Balances saved async on thread: {}", Thread.currentThread().getName());
 
-              // Step 2: Sync profit data (executes IMMEDIATELY after step 1 completes)
-              final List<AccountMonthlyBalanceDTO> profitBalances =
-                  syncProfitMonthlyTask(accountId, initPeriod, lastPeriod).get();
+          // Step 2: Sync profit data (executes IMMEDIATELY after step 1 completes)
+          final List<AccountMonthlyBalanceDTO> profitBalances =
+              syncProfitMonthlyTask(accountId, initPeriod, lastPeriod).get();
 
-              LOG.info("Profit sync completed on thread: " + Thread.currentThread().getName());
+          LOG.info("Profit sync completed on thread: {}", Thread.currentThread().getName());
 
-              // Step 3: Combine results
-              final List<AccountMonthlyBalanceDTO> combined =
-                  combineResults().apply(savedBalances, profitBalances);
-
-              LOG.info("Task completed successfully, virtual thread will be garbage collected");
-
-              // Complete the future with success
-              future.complete(combined);
-            } catch (final Exception e) {
-              LOG.error("Error during balance processing: " + e.getMessage(), e);
-              future.completeExceptionally(e);
-            }
-          });
-    }
-
-    return future;
+          // Step 3: Combine results
+          return combineResults().apply(savedBalances, profitBalances);
+        });
   }
 
   private Supplier<List<AccountMonthlyBalanceDTO>> saveBalancesTask(

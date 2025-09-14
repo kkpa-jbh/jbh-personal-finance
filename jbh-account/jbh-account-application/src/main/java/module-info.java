@@ -27,4 +27,5 @@ module jbh.account.application {
   exports com.jbh.account.application.movements.ports.output to
       jbh.account.infra,
       jbh.z.assembly;
+  exports com.jbh.account.application.async;
 }
