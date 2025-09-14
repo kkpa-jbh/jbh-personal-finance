@@ -38,26 +38,6 @@ public class MonthlyBalanceSyncerAppService {
     this.accountMonthlyBalanceRepo = accountMonthlyBalanceRepo;
   }
 
-  public AccountMonthlyBalanceDomain syncMonthlyBalance(final AccountMovementDomain newMovement) {
-    // Implementation for syncing monthly balances
-    final AccountId accountId = newMovement.getAccountId();
-    LOG.info("Syncing monthly balance  {}", newMovement.getAccountId());
-    final LocalDate movementDate = newMovement.getMovementDate();
-    final int txnYear = movementDate.getYear();
-    final int txnMonth = movementDate.getMonthValue();
-    final Optional<AccountMonthlyBalanceDTO> accountMonthlyBalanceOpt =
-        accountMonthlyBalanceRepo.findByAccountIdYearAndMonth(accountId, txnYear, txnMonth);
-    final AccountMonthlyBalanceDTO accountMonthlyBalance =
-        accountMonthlyBalanceOpt.orElseGet(
-            () -> AccountMonthlyBalanceDomain.of(accountId, txnYear, txnMonth).toDTO());
-
-    accountMonthlyBalance.syncMovement(newMovement);
-
-    saveMonthlyBalancesASYNC(accountId, Collections.singletonList(accountMonthlyBalance));
-
-    return accountMonthlyBalance;
-  }
-
   public CompletableFuture<List<AccountMonthlyBalanceDTO>> saveMonthlyBalancesASYNC(
       final AccountId accountId, final List<AccountMonthlyBalanceDTO> monthlyBalances) {
 
@@ -79,29 +59,35 @@ public class MonthlyBalanceSyncerAppService {
       // Start a virtual thread to do the work
       executorService.submit(
           () -> {
-            final String threadName = Thread.currentThread().getName();
-            LOG.info("Starting balance processing on virtual thread: " + threadName);
+            try {
+              final String threadName = Thread.currentThread().getName();
+              LOG.info("Starting balance processing on virtual thread: " + threadName);
 
-            // Step 1: Save balances (executes first)
-            final List<AccountMonthlyBalanceDTO> savedBalances =
-                saveBalancesTask(monthlyBalances).get();
+              // Step 1: Save balances (executes first)
+              final List<AccountMonthlyBalanceDTO> savedBalances =
+                  saveBalancesTask(monthlyBalances).get();
 
-            LOG.info("Balances saved on thread: " + Thread.currentThread().getName());
+              LOG.info(
+                  "Monthly Balances saved async on thread: " + Thread.currentThread().getName());
 
-            // Step 2: Sync profit data (executes IMMEDIATELY after step 1 completes)
-            final List<AccountMonthlyBalanceDTO> profitBalances =
-                syncProfitMonthlyTask(accountId, initPeriod, lastPeriod).get();
+              // Step 2: Sync profit data (executes IMMEDIATELY after step 1 completes)
+              final List<AccountMonthlyBalanceDTO> profitBalances =
+                  syncProfitMonthlyTask(accountId, initPeriod, lastPeriod).get();
 
-            LOG.info("Profit sync completed on thread: " + Thread.currentThread().getName());
+              LOG.info("Profit sync completed on thread: " + Thread.currentThread().getName());
 
-            // Step 3: Combine results
-            final List<AccountMonthlyBalanceDTO> combined =
-                combineResults().apply(savedBalances, profitBalances);
+              // Step 3: Combine results
+              final List<AccountMonthlyBalanceDTO> combined =
+                  combineResults().apply(savedBalances, profitBalances);
 
-            LOG.info("Task completed successfully, virtual thread will be garbage collected");
+              LOG.info("Task completed successfully, virtual thread will be garbage collected");
 
-            // Complete the future with success
-            future.complete(combined);
+              // Complete the future with success
+              future.complete(combined);
+            } catch (final Exception e) {
+              LOG.error("Error during balance processing: " + e.getMessage(), e);
+              future.completeExceptionally(e);
+            }
           });
     }
 
@@ -221,7 +207,7 @@ public class MonthlyBalanceSyncerAppService {
     return YearMonth.now().plusMonths(1);
   }
 
-  public List<AccountMonthlyBalanceDomain> syncMonthlyBalance(
+  public List<AccountMonthlyBalanceDomain> syncMonthlyBalanceAsync(
       final AccountId accountId, final List<AccountMovementDomain> multipleMovementsDomain) {
     // Group movements by Year-Month based on the movementDate attribute
     final Map<YearMonth, List<AccountMovementDomain>> movementsByYearMonth =
@@ -262,5 +248,26 @@ public class MonthlyBalanceSyncerAppService {
         monthlyBalancesToPersist.stream().map(AccountMonthlyBalanceDomain::toDTO).toList());
 
     return monthlyBalancesToPersist;
+  }
+
+  public AccountMonthlyBalanceDomain syncMonthlyBalanceAsync(
+      final AccountMovementDomain newMovement) {
+    // Implementation for syncing monthly balances
+    final AccountId accountId = newMovement.getAccountId();
+    LOG.info("Syncing monthly balance  {}", newMovement.getAccountId());
+    final LocalDate movementDate = newMovement.getMovementDate();
+    final int txnYear = movementDate.getYear();
+    final int txnMonth = movementDate.getMonthValue();
+    final Optional<AccountMonthlyBalanceDTO> accountMonthlyBalanceOpt =
+        accountMonthlyBalanceRepo.findByAccountIdYearAndMonth(accountId, txnYear, txnMonth);
+    final AccountMonthlyBalanceDTO accountMonthlyBalance =
+        accountMonthlyBalanceOpt.orElseGet(
+            () -> AccountMonthlyBalanceDomain.of(accountId, txnYear, txnMonth).toDTO());
+
+    accountMonthlyBalance.syncMovement(newMovement);
+
+    saveMonthlyBalancesASYNC(accountId, Collections.singletonList(accountMonthlyBalance));
+
+    return accountMonthlyBalance;
   }
 }

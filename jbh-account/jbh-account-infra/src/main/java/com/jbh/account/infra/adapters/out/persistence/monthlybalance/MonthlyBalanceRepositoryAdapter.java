@@ -39,6 +39,8 @@ public class MonthlyBalanceRepositoryAdapter implements AccountMonthlyBalanceRep
   }
 
   @Override
+  @Transactional
+  // FIXME: This is not working when an exception is thrown (It's background transaction)
   public List<AccountMonthlyBalanceDTO> save(
       final List<AccountMonthlyBalanceDTO> accountMonthlyBalance) {
     try {

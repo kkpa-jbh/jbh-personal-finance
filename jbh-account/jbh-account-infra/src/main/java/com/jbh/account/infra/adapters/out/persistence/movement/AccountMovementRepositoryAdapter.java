@@ -16,14 +16,11 @@ public class AccountMovementRepositoryAdapter implements AccountMovementReposito
   @Transactional
   public void save(final AccountMovementDTO accountMovement) {
     final AccountMovementJPAEntity entity = AccountMovementJPAEntity.of(accountMovement);
-
-    // If ID is null, it's a new entity - use persist
-    // If ID is set, it's an existing entity - use merge
     if (entity.getId() == null) {
-      jpaRepo.persist(entity);
-    } else {
-      jpaRepo.getEntityManager().merge(entity);
+      throw new IllegalStateException("Account movement ID cannot be null");
     }
+
+    jpaRepo.getEntityManager().persist(entity);
   }
 
   @Override

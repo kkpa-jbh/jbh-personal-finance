@@ -4,7 +4,10 @@ import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
@@ -23,6 +26,7 @@ import lombok.Setter;
 public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "id")
   public Long id;
 
@@ -36,6 +40,7 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
   public Integer month;
 
   @Column(name = "period")
+  @Convert(converter = YearMonthConverter.class)
   public YearMonth period;
 
   @Column(name = "total_debits")

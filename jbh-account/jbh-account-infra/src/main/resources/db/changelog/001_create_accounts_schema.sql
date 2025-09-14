@@ -52,6 +52,14 @@ CREATE INDEX idx_account_movements_account_date_type ON acctmgmt.account_movemen
 
 
 -- Monthly balances table
+-- Create sequence for monthly balance ID
+DROP SEQUENCE IF EXISTS acctmgmt.account_monthly_balances_seq;
+CREATE SEQUENCE acctmgmt.account_monthly_balances_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 CREATE TABLE acctmgmt.account_monthly_balances
 (
     id               BIGSERIAL PRIMARY KEY,
