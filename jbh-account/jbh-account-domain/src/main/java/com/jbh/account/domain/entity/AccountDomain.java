@@ -12,12 +12,10 @@ import java.util.Objects;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @AllArgsConstructor
 @Getter
-@Setter
 @SuperBuilder
 public class AccountDomain {
 
@@ -49,12 +47,31 @@ public class AccountDomain {
     return new AccountDomain();
   }
 
+  public static AccountDomain withCommand(
+      final String name, final AccountType type, final UUID userId) {
+    final AccountDomain accountDomain = withoutId();
+    accountDomain.name = name;
+    accountDomain.type = type;
+    accountDomain.userId = userId;
+    return accountDomain;
+  }
+
+  public static AccountDomain with(
+      final AccountId accountId,
+      final BigDecimal movementBalance,
+      final BigDecimal currentBalance) {
+    final AccountDomain accountDomain = withId(accountId);
+    accountDomain.movementBalance = movementBalance;
+    accountDomain.currentBalance = currentBalance;
+    return accountDomain;
+  }
+
   public void syncBalances(final List<AccountMovementDomain> multipleMovements) {
     if (multipleMovements == null || multipleMovements.isEmpty()) {
       throw new GenericSpecificationException("Movements cannot be null or empty");
     }
-    final List<AccountMovementDomain> filteredMovements = multipleMovements.stream().filter(Objects::nonNull)
-        .toList();
+    final List<AccountMovementDomain> filteredMovements =
+        multipleMovements.stream().filter(Objects::nonNull).toList();
 
     for (final AccountMovementDomain movement : filteredMovements) {
       syncBalances(movement);
@@ -81,7 +98,6 @@ public class AccountDomain {
     applyMovement(movement);
   }
 
-
   private void applyMovement(final AccountMovementDomain newAccountMovement) {
     final BigDecimal movementAmount = newAccountMovement.getMovementAmount();
     if (movementAmount != null) {
@@ -96,7 +112,6 @@ public class AccountDomain {
 
     this.profitBalance = this.currentBalance.subtract(this.movementBalance);
     this.updatedAt = LocalDateTime.now();
-
   }
 
   public AccountDomainDTO toDTO() {

@@ -10,10 +10,10 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.Data;
+import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 
-@Data
+@Getter
 @SuperBuilder
 public class AccountMovementDomain {
 
@@ -83,6 +83,17 @@ public class AccountMovementDomain {
     return movementType;
   }
 
+  public static AccountMovementDomain withFileImport(
+      final AccountId accountId,
+      final LocalDate movementDate,
+      final BigDecimal totalAmount,
+      final BigDecimal balanceSnapshot) {
+    final AccountMovementDomain movementDomain =
+        of(accountId, movementDate, totalAmount, balanceSnapshot);
+    movementDomain.addMetadata("fileImport", true);
+    return movementDomain;
+  }
+
   public void validate() {
     validateAccountId();
     validateMovementType();
@@ -119,17 +130,6 @@ public class AccountMovementDomain {
     if (movementAmount == null && balanceSnapshot == null) {
       throw new GenericSpecificationException("Total amount cannot be null");
     }
-  }
-
-  public static AccountMovementDomain withFileImport(
-      final AccountId accountId,
-      final LocalDate movementDate,
-      final BigDecimal totalAmount,
-      final BigDecimal balanceSnapshot) {
-    final AccountMovementDomain movementDomain =
-        of(accountId, movementDate, totalAmount, balanceSnapshot);
-    movementDomain.addMetadata("fileImport", true);
-    return movementDomain;
   }
 
   public void addMetadata(final String key, final Object value) {

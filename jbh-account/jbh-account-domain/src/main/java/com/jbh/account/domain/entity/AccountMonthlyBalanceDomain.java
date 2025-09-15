@@ -3,6 +3,7 @@ package com.jbh.account.domain.entity;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.MoneyUtils.isNotZero;
 import static com.jbh.account.domain.utils.MoneyUtils.isZero;
+import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
@@ -12,11 +13,9 @@ import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Getter
-@Setter
 @SuperBuilder
 @AllArgsConstructor
 public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBalanceDomain> {
@@ -194,5 +193,13 @@ public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBal
         .totalMovements(totalMovements)
         .gapPeriod(gapPeriod)
         .build();
+  }
+
+  public void withOpeningBalance(final BigDecimal inputOpeningBalance) {
+    if (inputOpeningBalance != null) {
+      this.openingBalance = withJBHDecimals(inputOpeningBalance);
+    } else {
+      this.openingBalance = JBH_ZERO;
+    }
   }
 }

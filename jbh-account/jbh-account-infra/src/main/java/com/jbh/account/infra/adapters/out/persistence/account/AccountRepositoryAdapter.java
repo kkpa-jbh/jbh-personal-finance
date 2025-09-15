@@ -1,7 +1,5 @@
 package com.jbh.account.infra.adapters.out.persistence.account;
 
-import static com.jbh.account.infra.LogSanitizer.sanitize;
-
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import com.jbh.account.domain.vo.AccountDomainDTO;
 import com.jbh.account.domain.vo.AccountId;
@@ -21,10 +19,6 @@ public class AccountRepositoryAdapter implements AccountRepository {
 
   @Override
   public Optional<AccountDomainDTO> findByAccountId(final UUID userId, final AccountId accountId) {
-    final String input =
-        String.format("AccountRepositoryAdapter.findByAccountId called %s - %s", userId, accountId);
-    LOG.info(sanitize(input));
-
     if (userId == null || accountId == null || accountId.value() == null) {
       throw new IllegalArgumentException("User ID or Account ID cannot be null");
     }

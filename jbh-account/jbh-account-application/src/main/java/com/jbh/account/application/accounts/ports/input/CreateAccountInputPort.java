@@ -17,7 +17,6 @@ public class CreateAccountInputPort implements CreateAccountUseCase {
 
   public CreateAccountInputPort(final AccountService accountService) {
     this.accountService = accountService;
-
   }
 
   @Override
@@ -30,10 +29,8 @@ public class CreateAccountInputPort implements CreateAccountUseCase {
     command.validate();
 
     final UUID userId = command.userId();
-    final AccountDomain accountDomain = AccountDomain.withoutId();
-    accountDomain.setName(command.name());
-    accountDomain.setType(command.type());
-    accountDomain.setUserId(userId);
+    final AccountDomain accountDomain =
+        AccountDomain.withCommand(command.name(), command.type(), userId);
 
     final AccountDomainDTO accountDTO = accountService.save(accountDomain.toDTO());
     LOG.info("Account for user {} created successfully ", userId);

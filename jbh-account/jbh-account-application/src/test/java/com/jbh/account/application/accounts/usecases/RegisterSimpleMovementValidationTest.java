@@ -162,9 +162,9 @@ public class RegisterSimpleMovementValidationTest {
     final BigDecimal amount = new BigDecimal("-50.00");
 
     final AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
-    final AccountDomain accountDomain = AccountDomain.withId(accountId);
-    accountDomain.setMovementBalance(new BigDecimal("170.00"));
-    accountDomain.setCurrentBalance(new BigDecimal("180.00"));
+
+    final AccountDomain accountDomain =
+        AccountDomain.with(accountId, new BigDecimal("170.00"), new BigDecimal("180.00"));
 
     when(accountRepository.findByAccountId(userId, accountId))
         .thenReturn(Optional.of(accountDomain.toDTO()));
@@ -246,9 +246,8 @@ public class RegisterSimpleMovementValidationTest {
     final BigDecimal amount = new BigDecimal("-50.00");
 
     final AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
-    final AccountDomain accountDomain = AccountDomain.withId(accountId);
-    accountDomain.setMovementBalance(new BigDecimal("30.00"));
-    accountDomain.setCurrentBalance(new BigDecimal("30.00"));
+    final AccountDomain accountDomain =
+        AccountDomain.with(accountId, new BigDecimal("30.00"), new BigDecimal("30.00"));
 
     when(accountRepository.findByAccountId(userId, accountId))
         .thenReturn(Optional.of(accountDomain.toDTO()));

@@ -25,9 +25,9 @@ CREATE TABLE acctmgmt.account_movements
     id               UUID PRIMARY KEY                  DEFAULT gen_random_uuid(),
     account_id       UUID                     NOT NULL,
     movement_type    TEXT                     NOT NULL,
-    movement_amount  DECIMAL(20, 2)           NOT NULL,
+    movement_amount  DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
     movement_date    DATE                     NOT NULL,
-    balance_snapshot DECIMAL(20, 2)           NOT NULL,
+    balance_snapshot DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
 
     -- Additional useful columns
     created_at       TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -68,12 +68,12 @@ CREATE TABLE acctmgmt.account_monthly_balances
     month            INTEGER                  NOT NULL,
     period           DATE                     NOT NULL, -- First day of the month (YYYY-MM-01)
 
-    total_debits     DECIMAL(20, 0)           NOT NULL DEFAULT 0,
-    total_credits    DECIMAL(20, 0)           NOT NULL DEFAULT 0,
-    movement_balance DECIMAL(20, 0)           NOT NULL DEFAULT 0,
-    opening_balance  DECIMAL(20, 0)           NOT NULL DEFAULT 0,
-    closing_balance  DECIMAL(20, 0)           NOT NULL DEFAULT 0,
-    monthly_profit   DECIMAL(20, 0)           NOT NULL DEFAULT 0,
+    total_debits     DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
+    total_credits    DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
+    movement_balance DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
+    opening_balance  DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
+    closing_balance  DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
+    monthly_profit   DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
 
     total_movements  INTEGER                  NOT NULL DEFAULT 0,
     gap_period       BOOLEAN                  NOT NULL DEFAULT FALSE,

@@ -32,7 +32,6 @@
                     <exclude>com.jbh.account.application.async.*</exclude>
                     <exclude>**/dto/**</exclude>
                     <exclude>**/vo/**</exclude>
-                    <exclude>com.jbh.account.application.accounts.ports.input.NoOperationInputPort</exclude>
                   </excludes>
                   <limits>
                     <limit>

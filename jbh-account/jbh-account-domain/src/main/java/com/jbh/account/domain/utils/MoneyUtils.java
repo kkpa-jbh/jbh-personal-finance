@@ -19,11 +19,14 @@ public final class MoneyUtils {
   }
 
   public static boolean isZero(final BigDecimal amount) {
+    if (amount == null) {
+      return true;
+    }
+
     return amount.equals(BigDecimal.ZERO) || withJBHDecimals(amount).equals(JBH_ZERO);
   }
 
   public static boolean isNotZero(final BigDecimal amount) {
     return !isZero(amount);
   }
-
 }

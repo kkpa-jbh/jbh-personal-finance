@@ -135,9 +135,8 @@ public class RegisterSimpleMovementExecutionTest {
     final AddBasicMovementRequest request =
         new AddBasicMovementRequest(movementDate, null, balanceSnashot);
 
-    final AccountDomain accountDomain = AccountDomain.withId(accountId);
-    accountDomain.setMovementBalance(existingAccountPpalBalance);
-    accountDomain.setCurrentBalance(new BigDecimal("190.00"));
+    final AccountDomain accountDomain =
+        AccountDomain.with(accountId, existingAccountPpalBalance, new BigDecimal("190.00"));
 
     when(accountRepository.findByAccountId(userId, accountId))
         .thenReturn(Optional.of(accountDomain.toDTO()));
@@ -172,10 +171,11 @@ public class RegisterSimpleMovementExecutionTest {
 
     final AddBasicMovementRequest request =
         new AddBasicMovementRequest(movementDate, amount, balanceSnapshot);
-    final AccountDomain accountDomain = AccountDomain.withId(accountId);
+
     final BigDecimal existingMovBalance = new BigDecimal("12591000.00");
-    accountDomain.setMovementBalance(existingMovBalance);
-    accountDomain.setCurrentBalance(new BigDecimal("12689712.00"));
+
+    final AccountDomain accountDomain =
+        AccountDomain.with(accountId, existingMovBalance, new BigDecimal("12689712.00"));
 
     when(accountRepository.findByAccountId(userId, accountId))
         .thenReturn(Optional.of(accountDomain.toDTO()));

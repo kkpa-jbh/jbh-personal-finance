@@ -147,7 +147,7 @@ public class MonthlyBalanceSyncerAppService {
             AccountMonthlyBalanceDomain.of(accountId, nextPeriod, closingBalance, !isEndPeriod);
         existingBalancesMap.putIfAbsent(nextPeriod, nextMonthlyBalanceOfCurrent);
       }
-      nextMonthlyBalanceOfCurrent.setOpeningBalance(currentMonthlyBalance.getClosingBalance());
+      nextMonthlyBalanceOfCurrent.withOpeningBalance(currentMonthlyBalance.getClosingBalance());
 
       // Preparing to persist
       if (!profitBalancesSynced.contains(currentMonthlyBalance)) {

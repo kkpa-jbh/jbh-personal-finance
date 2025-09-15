@@ -2,7 +2,6 @@ package com.jbh.account.infra;
 
 import com.jbh.account.application.accounts.ports.input.AddBasicMovementInputPort;
 import com.jbh.account.application.accounts.ports.input.CreateAccountInputPort;
-import com.jbh.account.application.accounts.ports.input.NoOperationInputPort;
 import com.jbh.account.application.accounts.ports.output.AccountMonthlyBalanceRepository;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import com.jbh.account.application.accounts.services.AccountService;

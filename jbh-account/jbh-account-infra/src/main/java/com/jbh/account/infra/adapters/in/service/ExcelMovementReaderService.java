@@ -225,11 +225,21 @@ public final class ExcelMovementReaderService {
 
     final List<AddBasicMovementRequest> movements = new ArrayList<>();
 
+    LocalDate lastMovementDate = null;
     for (int i = 0; i < rawData.size(); i++) {
       final List<String> rowData = rawData.get(i);
       final int excelRowNumber = i + 2; // +1 for 0-based index, +1 for skipped header
 
       final LocalDate entryDate = parseEntryDate(rowData.get(ENTRY_DATE_COLUMN), excelRowNumber);
+      if (lastMovementDate == null) {
+        lastMovementDate = entryDate;
+      } else if (lastMovementDate.isAfter(entryDate)) {
+        throw new ExcelReadingException(
+            String.format("Invalid date order in row %d", excelRowNumber));
+      } else {
+        lastMovementDate = entryDate;
+      }
+
       final BigDecimal totalAmount = parseAmount(rowData.get(TOTAL_AMOUNT_COLUMN));
       final BigDecimal balanceSnapshot = parseAmount(rowData.get(BALANCE_SNAPSHOT_COLUMN));
       movements.add(new AddBasicMovementRequest(entryDate, totalAmount, balanceSnapshot));
@@ -278,7 +288,7 @@ public final class ExcelMovementReaderService {
    * @throws ExcelReadingException if the amount cannot be parsed
    */
   @SuppressWarnings("PMD.PreserveStackTrace")
-  private BigDecimal parseAmount(final String amountStr) throws ExcelReadingException {
+  public BigDecimal parseAmount(final String amountStr) throws ExcelReadingException {
     if (isBlank(amountStr)) {
       return BigDecimal.ZERO;
     }
@@ -286,12 +296,12 @@ public final class ExcelMovementReaderService {
     final String trimmedAmountStr = amountStr.trim();
 
     try {
-      // First, try European format
-      return parseEuropeanAmount(trimmedAmountStr);
+      // First, try regular format
+      return new BigDecimal(trimmedAmountStr);
     } catch (final NumberFormatException e) {
       try {
         // Fallback to plain number format
-        return new BigDecimal(trimmedAmountStr);
+        return parseEuropeanAmount(trimmedAmountStr);
       } catch (final NumberFormatException fallbackException) {
         final String message =
             String.format(
