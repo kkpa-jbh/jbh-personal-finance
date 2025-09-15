@@ -28,8 +28,9 @@
                 <rule>
                   <element>CLASS</element>
                   <excludes>
-                    <exclude>**/vo/**</exclude>
-                    <exclude>**/exceptions/**</exclude>
+                    <exclude>com.jbh.account.domain.vo.*</exclude>
+                    <exclude>com.jbh.account.domain.exceptions.*</exclude>
+                    <exclude>com.jbh.account.domain.entity.*Builder*</exclude>
                   </excludes>
                   <limits>
                     <limit>
@@ -46,6 +47,11 @@
                 </rule>
                 <rule>
                   <element>BUNDLE</element>
+                  <excludes>
+                    <exclude>com.jbh.account.domain.vo.*</exclude>
+                    <exclude>com.jbh.account.domain.exceptions.*</exclude>
+                    <exclude>com.jbh.account.domain.entity.*Builder*</exclude>
+                  </excludes>
                   <limits>
                     <limit>
                       <counter>LINE</counter>

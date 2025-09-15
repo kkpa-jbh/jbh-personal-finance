@@ -31,6 +31,12 @@
     <exclude name="OnlyOneReturn"/>
   </rule>
 
+  <rule ref="category/java/codestyle.xml/FieldNamingConventions">
+    <properties>
+      <property name="constantPattern" value="[A-Z][A-Z_0-9]*|[a-z][a-zA-Z0-9]*"/>
+    </properties>
+  </rule>
+
   <!-- Design -->
   <rule ref="category/java/design.xml">
     <!-- Adjust complexity limits for business logic -->

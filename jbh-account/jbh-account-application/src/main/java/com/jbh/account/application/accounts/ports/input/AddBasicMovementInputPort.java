@@ -15,6 +15,8 @@ import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.vo.AccountDomainDTO;
 import com.jbh.account.domain.vo.AccountId;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -61,7 +63,7 @@ public class AddBasicMovementInputPort implements AddMovementUseCase {
               // Sync account balance
               final AccountDomain accountDomain = findAccount(userId, accountId);
               final AccountMovementDomain newMovement =
-                  AccountMovementDomain.of(
+                  AccountMovementDomain.withBalances(
                       accountDomain.getId(),
                       basicMovementRequest.entryDate(),
                       basicMovementRequest.totalAmount(),
@@ -117,6 +119,36 @@ public class AddBasicMovementInputPort implements AddMovementUseCase {
         monthlyBalancesPersisted.stream().map(AccountMonthlyBalanceDomain::toDTO).toList());
   }
 
+  private List<AccountMovementDomain> mapSimpleMovementsToDomain(
+      final List<AddBasicMovementRequest> allSimpleMovements, final AccountDomain accountDomain) {
+    return allSimpleMovements.stream()
+        .map(
+            movementRequest ->
+                AccountMovementDomain.withFileImport(
+                    accountDomain.getId(),
+                    movementRequest.entryDate(),
+                    movementRequest.totalAmount(),
+                    movementRequest.balanceSnapshot(),
+                    LocalDateTime.now()))
+        .toList();
+  }
+
+  private AccountDomainDTO syncAccountBalanceByMovements(
+      final AccountDomain accountDomain, final List<AccountMovementDomain> newMovements) {
+    accountDomain.syncBalances(newMovements);
+    return accountDomain.toDTO();
+  }
+
+  private void persistMovement(
+      final List<AccountMovementDomain> newMovements, final AccountDomainDTO accountDomain) {
+    unitOfWork.execute(
+        () -> {
+          LOG.info("Persisting Movements and account changes");
+          movementRepo.save(newMovements.stream().map(AccountMovementDomain::toDTO).toList());
+          accountRepo.save(accountDomain);
+        });
+  }
+
   private AccountDomain findAccount(final UUID userId, final AccountId accountId) {
     if (userId == null) {
       LOG.error("User ID cannot be null");
@@ -135,7 +167,7 @@ public class AddBasicMovementInputPort implements AddMovementUseCase {
 
   private AccountDomainDTO syncAccountBalanceByMovements(
       final AccountDomain accountDomain, final AccountMovementDomain newMovement) {
-    accountDomain.syncBalances(newMovement);
+    accountDomain.syncBalances(Collections.singletonList(newMovement));
     return accountDomain.toDTO();
   }
 
@@ -145,35 +177,6 @@ public class AddBasicMovementInputPort implements AddMovementUseCase {
         () -> {
           LOG.info("Persisting 1 Movement and account changes");
           movementRepo.save(newMovement.toDTO());
-          accountRepo.save(accountDomain);
-        });
-  }
-
-  private List<AccountMovementDomain> mapSimpleMovementsToDomain(
-      final List<AddBasicMovementRequest> allSimpleMovements, final AccountDomain accountDomain) {
-    return allSimpleMovements.stream()
-        .map(
-            movementRequest ->
-                AccountMovementDomain.withFileImport(
-                    accountDomain.getId(),
-                    movementRequest.entryDate(),
-                    movementRequest.totalAmount(),
-                    movementRequest.balanceSnapshot()))
-        .toList();
-  }
-
-  private AccountDomainDTO syncAccountBalanceByMovements(
-      final AccountDomain accountDomain, final List<AccountMovementDomain> newMovements) {
-    accountDomain.syncBalances(newMovements);
-    return accountDomain.toDTO();
-  }
-
-  private void persistMovement(
-      final List<AccountMovementDomain> newMovements, final AccountDomainDTO accountDomain) {
-    unitOfWork.execute(
-        () -> {
-          LOG.info("Persisting Movements and account changes");
-          movementRepo.save(newMovements.stream().map(AccountMovementDomain::toDTO).toList());
           accountRepo.save(accountDomain);
         });
   }

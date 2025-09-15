@@ -27,8 +27,8 @@ public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBal
   private YearMonth period;
 
   private BigDecimal totalDebits;
-  private BigDecimal totalCredits;
-  private BigDecimal movementBalance;
+  private BigDecimal totalCredits; // Positive value;
+  private BigDecimal movementBalance; // Total Debits minus Total Credits;
   private BigDecimal openingBalance; // Saldo inicial del mes
   private BigDecimal closingBalance; // Saldo final del mes
   private BigDecimal monthlyProfit; // Ganancia/perdida del mes
@@ -37,7 +37,7 @@ public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBal
 
   private boolean gapPeriod; // Month Balance was not registered in the past.
 
-  public static AccountMonthlyBalanceDomain of(
+  public static AccountMonthlyBalanceDomain withPeriod(
       final AccountId accountId, final int year, final int month) {
     return new AccountMonthlyBalanceDomain(
         null,
@@ -47,7 +47,7 @@ public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBal
         YearMonth.of(year, month),
         JBH_ZERO, // Total debits starts at 0
         JBH_ZERO, // Total credits starts at 0
-        JBH_ZERO, // Total movmeents starts at 0
+        JBH_ZERO, // Total movements starts at 0
         JBH_ZERO, // Opening balance starts at 0
         JBH_ZERO, // Closing balance starts at 0
         JBH_ZERO, // Monthly profit starts at 0
@@ -55,24 +55,7 @@ public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBal
         false);
   }
 
-  public static AccountMonthlyBalanceDomain of(final AccountId accountId, final YearMonth period) {
-    return new AccountMonthlyBalanceDomain(
-        null,
-        accountId,
-        period.getYear(),
-        period.getMonthValue(),
-        period,
-        JBH_ZERO, // Total debits starts at 0
-        JBH_ZERO, // Total credits starts at 0
-        JBH_ZERO, // Total movs starts at 0
-        JBH_ZERO, // Opening balance starts at 0
-        JBH_ZERO, // Closing balance starts at 0
-        JBH_ZERO, // Monthly profit starts at 0
-        0,
-        false);
-  }
-
-  public static AccountMonthlyBalanceDomain of(
+  public static AccountMonthlyBalanceDomain withClosingBalance(
       final AccountId accountId,
       final YearMonth period,
       final BigDecimal closingBalance,
@@ -113,6 +96,8 @@ public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBal
     if (mvmt.getBalanceSnapshot() != null) {
       this.closingBalance = mvmt.getBalanceSnapshot();
     }
+
+    refreshProfitMonthly();
   }
 
   public void refreshProfitMonthly() {
@@ -124,9 +109,7 @@ public class AccountMonthlyBalanceDomain implements Comparable<AccountMonthlyBal
       return;
     }
     movementBalance = totalDebits.subtract(totalCredits);
-
-    final BigDecimal result = totalDebits.subtract(totalCredits);
-    this.monthlyProfit = closingBalance.subtract(openingBalance).subtract(result);
+    this.monthlyProfit = closingBalance.subtract(openingBalance).subtract(movementBalance);
   }
 
   /**

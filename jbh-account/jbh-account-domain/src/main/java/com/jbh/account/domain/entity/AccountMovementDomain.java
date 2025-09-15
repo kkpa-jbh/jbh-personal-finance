@@ -1,13 +1,13 @@
 package com.jbh.account.domain.entity;
 
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.utils.MoneyUtils;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountMovementDTO;
 import com.jbh.account.domain.vo.AccountMovementId;
 import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
@@ -15,8 +15,11 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
+@SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
 public class AccountMovementDomain {
 
+  public static final String FILE_IMPORT_TAG = "fileImport";
+  public static final String FILE_IMPORTED_AT_TAG = "fileImportedAt";
   private final AccountMovementId id;
   private final AccountId accountId;
   private final MovementType movementType;
@@ -26,7 +29,7 @@ public class AccountMovementDomain {
   private final Map<String, Object> metadata;
   private final String description;
 
-  public AccountMovementDomain(
+  private AccountMovementDomain(
       final AccountId accountId,
       final MovementType movementType,
       final LocalDate movementDate,
@@ -44,12 +47,21 @@ public class AccountMovementDomain {
     this.description = description;
   }
 
-  public static AccountMovementDomain of(
-      final AccountId accountId, final LocalDate movementDate, final BigDecimal totalAmount) {
-    return of(accountId, movementDate, totalAmount, MoneyUtils.JBH_ZERO);
+  public static AccountMovementDomain withFileImport(
+      final AccountId accountId,
+      final LocalDate movementDate,
+      final BigDecimal totalAmount,
+      final BigDecimal balanceSnapshot,
+      final LocalDateTime importedAt) {
+    final AccountMovementDomain movementDomain =
+        withBalances(accountId, movementDate, totalAmount, balanceSnapshot);
+
+    movementDomain.addMetadata(FILE_IMPORT_TAG, true);
+    movementDomain.addMetadata(FILE_IMPORTED_AT_TAG, importedAt);
+    return movementDomain;
   }
 
-  public static AccountMovementDomain of(
+  public static AccountMovementDomain withBalances(
       final AccountId accountId,
       final LocalDate movementDate,
       final BigDecimal totalAmount,
@@ -68,6 +80,10 @@ public class AccountMovementDomain {
     return movDomain;
   }
 
+  private void addMetadata(final String key, final Object value) {
+    metadata.put(key, value);
+  }
+
   private static MovementType findMovementTypeBaseOnAmounts(
       final BigDecimal totalAmount, final BigDecimal balanceSnapshot) {
     MovementType movementType = null;
@@ -81,17 +97,6 @@ public class AccountMovementDomain {
       movementType = MovementType.BALANCE_SNAPSHOT;
     }
     return movementType;
-  }
-
-  public static AccountMovementDomain withFileImport(
-      final AccountId accountId,
-      final LocalDate movementDate,
-      final BigDecimal totalAmount,
-      final BigDecimal balanceSnapshot) {
-    final AccountMovementDomain movementDomain =
-        of(accountId, movementDate, totalAmount, balanceSnapshot);
-    movementDomain.addMetadata("fileImport", true);
-    return movementDomain;
   }
 
   public void validate() {
@@ -132,18 +137,6 @@ public class AccountMovementDomain {
     }
   }
 
-  public void addMetadata(final String key, final Object value) {
-    metadata.put(key, value);
-  }
-
-  public Object getMetadata(final String key) {
-    return metadata != null ? metadata.get(key) : null;
-  }
-
-  public boolean hasMetadata(final String key) {
-    return metadata != null && metadata.containsKey(key);
-  }
-
   public AccountMovementDTO toDTO() {
     return AccountMovementDTO.builder()
         .id(id)
@@ -155,5 +148,13 @@ public class AccountMovementDomain {
         .metadata(metadata)
         .description(description)
         .build();
+  }
+
+  public boolean hasMetadata(final String fieldName) {
+    return metadata != null && metadata.containsKey(fieldName);
+  }
+
+  public Object getMetadataField(final String key) {
+    return metadata != null ? metadata.get(key) : null;
   }
 }

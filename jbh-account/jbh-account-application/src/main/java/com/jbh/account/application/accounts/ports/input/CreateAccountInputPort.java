@@ -30,7 +30,7 @@ public class CreateAccountInputPort implements CreateAccountUseCase {
 
     final UUID userId = command.userId();
     final AccountDomain accountDomain =
-        AccountDomain.withCommand(command.name(), command.type(), userId);
+        AccountDomain.withMinimumDataForCreation(command.name(), command.type(), userId);
 
     final AccountDomainDTO accountDTO = accountService.save(accountDomain.toDTO());
     LOG.info("Account for user {} created successfully ", userId);

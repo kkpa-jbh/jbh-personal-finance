@@ -16,12 +16,7 @@ import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
-@RegisterForReflection(
-    targets = {
-      NoOperationInputPort.class,
-      CreateAccountInputPort.class,
-      AddBasicMovementInputPort.class
-    })
+@RegisterForReflection(targets = {CreateAccountInputPort.class, AddBasicMovementInputPort.class})
 public class AccountUseCasesCDIConfig {
 
   @Inject AccountRepository accountRepository;
@@ -51,11 +46,5 @@ public class AccountUseCasesCDIConfig {
   public MonthlyBalanceSyncerAppService monthlyBalanceSyncerAppService() {
     return new MonthlyBalanceSyncerAppService(
         accountMonthlyBalanceRepo, new AsyncTaskExecutorImpl());
-  }
-
-  @Produces
-  @ApplicationScoped
-  public NoOperationInputPort registeringTestingUseCase() {
-    return new NoOperationInputPort(accountRepository);
   }
 }

@@ -85,7 +85,7 @@ public class RegisterSimpleMovementExecutionTest {
     final BigDecimal amount = new BigDecimal("100.00");
 
     final AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
-    final AccountDomain accountDomain = AccountDomain.withId(accountId);
+    final AccountDomain accountDomain = withId(accountId);
 
     when(accountRepository.findByAccountId(userId, accountId))
         .thenReturn(Optional.of(accountDomain.toDTO()));
@@ -124,6 +124,10 @@ public class RegisterSimpleMovementExecutionTest {
     assertEquals(JBH_ZERO, futureResponse.get(1).getMonthlyProfit());
   }
 
+  private AccountDomain withId(final AccountId accountId) {
+    return AccountDomain.withBasicMovementForExisting(accountId, JBH_ZERO, JBH_ZERO);
+  }
+
   @Test
   void shouldAddMovement_WhenOnlySnapshotProvided() {
     // Given
@@ -136,7 +140,8 @@ public class RegisterSimpleMovementExecutionTest {
         new AddBasicMovementRequest(movementDate, null, balanceSnashot);
 
     final AccountDomain accountDomain =
-        AccountDomain.with(accountId, existingAccountPpalBalance, new BigDecimal("190.00"));
+        AccountDomain.withBasicMovementForExisting(
+            accountId, existingAccountPpalBalance, new BigDecimal("190.00"));
 
     when(accountRepository.findByAccountId(userId, accountId))
         .thenReturn(Optional.of(accountDomain.toDTO()));
@@ -175,7 +180,8 @@ public class RegisterSimpleMovementExecutionTest {
     final BigDecimal existingMovBalance = new BigDecimal("12591000.00");
 
     final AccountDomain accountDomain =
-        AccountDomain.with(accountId, existingMovBalance, new BigDecimal("12689712.00"));
+        AccountDomain.withBasicMovementForExisting(
+            accountId, existingMovBalance, new BigDecimal("12689712.00"));
 
     when(accountRepository.findByAccountId(userId, accountId))
         .thenReturn(Optional.of(accountDomain.toDTO()));
@@ -214,7 +220,7 @@ public class RegisterSimpleMovementExecutionTest {
     final AccountId accountId = AccountId.generate();
     final LocalDate movementDate = LocalDate.now();
 
-    final AccountDomain accountDomain = AccountDomain.withId(accountId);
+    final AccountDomain accountDomain = withId(accountId);
 
     when(accountRepository.findByAccountId(userId, accountId))
         .thenReturn(Optional.of(accountDomain.toDTO()));
@@ -300,7 +306,7 @@ public class RegisterSimpleMovementExecutionTest {
     assertTrue(novemberEntry.totalAmount().compareTo(JBH_ZERO) < 0);
     assertEquals(0, new BigDecimal("-673605.00").compareTo(novemberEntry.totalAmount()));
 
-    final AccountDomain accountDomain = AccountDomain.withId(accountId);
+    final AccountDomain accountDomain = withId(accountId);
     when(accountRepository.findByAccountId(userId, accountId))
         .thenReturn(Optional.of(accountDomain.toDTO()));
 
@@ -562,7 +568,7 @@ public class RegisterSimpleMovementExecutionTest {
 
     final UUID userId = UUID.randomUUID();
     final AccountId accountId = AccountId.generate();
-    final AccountDomain account = AccountDomain.withId(accountId);
+    final AccountDomain account = withId(accountId);
     when(accountRepository.findByAccountId(userId, accountId))
         .thenReturn(Optional.of(account.toDTO()));
 
@@ -779,7 +785,7 @@ public class RegisterSimpleMovementExecutionTest {
 
     final UUID userId = UUID.randomUUID();
     final AccountId accountId = AccountId.generate();
-    final AccountDomain account = AccountDomain.withId(accountId);
+    final AccountDomain account = withId(accountId);
     when(accountRepository.findByAccountId(userId, accountId))
         .thenReturn(Optional.of(account.toDTO()));
 

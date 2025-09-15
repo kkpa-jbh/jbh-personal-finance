@@ -39,28 +39,20 @@ public class AccountDomain {
     this.id = id;
   }
 
-  public static AccountDomain withId(final AccountId id) {
-    return new AccountDomain(id);
-  }
-
-  public static AccountDomain withoutId() {
-    return new AccountDomain();
-  }
-
-  public static AccountDomain withCommand(
+  public static AccountDomain withMinimumDataForCreation(
       final String name, final AccountType type, final UUID userId) {
-    final AccountDomain accountDomain = withoutId();
+    final AccountDomain accountDomain = new AccountDomain();
     accountDomain.name = name;
     accountDomain.type = type;
     accountDomain.userId = userId;
     return accountDomain;
   }
 
-  public static AccountDomain with(
+  public static AccountDomain withBasicMovementForExisting(
       final AccountId accountId,
       final BigDecimal movementBalance,
       final BigDecimal currentBalance) {
-    final AccountDomain accountDomain = withId(accountId);
+    final AccountDomain accountDomain = new AccountDomain(accountId);
     accountDomain.movementBalance = movementBalance;
     accountDomain.currentBalance = currentBalance;
     return accountDomain;
@@ -74,11 +66,11 @@ public class AccountDomain {
         multipleMovements.stream().filter(Objects::nonNull).toList();
 
     for (final AccountMovementDomain movement : filteredMovements) {
-      syncBalances(movement);
+      syncSingleBalance(movement);
     }
   }
 
-  public void syncBalances(final AccountMovementDomain movement) {
+  private void syncSingleBalance(final AccountMovementDomain movement) {
     movement.validate();
 
     if (!this.getId().equals(movement.getAccountId())) {
