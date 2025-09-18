@@ -1,5 +1,7 @@
 package com.jbh.account.domain.entity;
 
+import static com.jbh.account.domain.entity.MovementCategoryDomain.OTHER_INCOME_CATEGORY;
+import static com.jbh.account.domain.entity.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -7,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
+import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -81,9 +84,14 @@ public class AccountDomainTest {
     final var totalAmount = new BigDecimal("100.00");
     final var balanceSnapshot = new BigDecimal("210.00");
     final var newMovement =
-        AccountMovementDomain.withBalances(
-            accountDomain.getId(), today, totalAmount, balanceSnapshot);
-    accountDomain.syncBalances(Collections.singletonList(newMovement));
+        AccountMovementDomain.with(
+            accountDomain.getId(),
+            today,
+            totalAmount,
+            balanceSnapshot,
+            MovementType.DEPOSIT,
+            OTHER_INCOME_CATEGORY);
+    accountDomain.syncBalancesWithUploadedMovements(Collections.singletonList(newMovement));
 
     assertEquals(movementBalance.add(totalAmount), accountDomain.getMovementBalance());
     assertEquals(balanceSnapshot, accountDomain.getCurrentBalance());
@@ -93,27 +101,37 @@ public class AccountDomainTest {
   @Test
   public void shouldSyncMultiBalances() {
     int totalMovements = 2;
-    final var movementBalance = new BigDecimal("100.00");
-    final var currentBalance = new BigDecimal("100.00");
+    final var accountMovementBalance = new BigDecimal("100.00");
+    final var accountCurrentBalance = new BigDecimal("100.00");
     final AccountDomain accountDomain =
         AccountDomain.withBasicMovementForExisting(
-            AccountId.generate(), movementBalance, currentBalance);
+            AccountId.generate(), accountMovementBalance, accountCurrentBalance);
 
     final var amount1 = new BigDecimal("100.00");
     final var balance1 = new BigDecimal("205.00");
 
     final var newMovement1 =
-        AccountMovementDomain.withBalances(
-            accountDomain.getId(), today.plusDays(-1 * --totalMovements), amount1, balance1);
+        AccountMovementDomain.with(
+            accountDomain.getId(),
+            today.plusDays(-1 * --totalMovements),
+            amount1,
+            balance1,
+            MovementType.DEPOSIT,
+            OTHER_INCOME_CATEGORY);
 
     final var amount2 = new BigDecimal("-50.00");
     final var balance2 = new BigDecimal("155.00");
 
     final var newMovement2 =
-        AccountMovementDomain.withBalances(
-            accountDomain.getId(), today.plusDays(-1 * --totalMovements), amount2, balance2);
+        AccountMovementDomain.with(
+            accountDomain.getId(),
+            today.plusDays(-1 * --totalMovements),
+            amount2,
+            balance2,
+            MovementType.WITHDRAWAL,
+            PERSONAL_EXPENSE_CATEGORY);
 
-    accountDomain.syncBalances(List.of(newMovement1, newMovement2));
+    accountDomain.syncBalancesWithUploadedMovements(List.of(newMovement1, newMovement2));
 
     assertEquals(new BigDecimal("150.00"), accountDomain.getMovementBalance());
     assertEquals(new BigDecimal("155.00"), accountDomain.getCurrentBalance());

@@ -1,4 +1,4 @@
-import com.jbh.account.application.accounts.ports.input.AddBasicMovementInputPort;
+import com.jbh.account.application.accounts.ports.input.AddMovementInputPort;
 
 module jbh.account.infra {
   requires jakarta.persistence;
@@ -23,5 +23,5 @@ module jbh.account.infra {
   requires com.opencsv;
   requires org.apache.commons.collections4;
 
-  uses AddBasicMovementInputPort;
+  uses AddMovementInputPort;
 }

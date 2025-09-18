@@ -1,6 +1,6 @@
 package com.jbh.account.infra.adapters.out.persistence.movement;
 
-import com.jbh.account.domain.vo.AccountMovementDTO;
+import com.jbh.account.application.accounts.dto.MovementDTO;
 import com.jbh.account.domain.vo.MovementType;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
@@ -56,17 +56,16 @@ public class AccountMovementJPAEntity extends PanacheEntityBase {
   @Column(name = "created_at", nullable = false, updatable = false)
   public LocalDateTime createdAt;
 
-  public static AccountMovementJPAEntity of(final AccountMovementDTO accountMovement) {
+  public static AccountMovementJPAEntity of(final MovementDTO accountMovement) {
     final AccountMovementJPAEntity entity = new AccountMovementJPAEntity();
-    entity.setId(accountMovement.getId() != null ? accountMovement.getId().value() : null);
+    entity.setId(accountMovement.id() != null ? accountMovement.id().value() : null);
     entity.setAccountId(
-        accountMovement.getAccountId() != null ? accountMovement.getAccountId().value() : null);
-    entity.setMovementType(accountMovement.getMovementType());
-    entity.setMovementAmount(accountMovement.getMovementAmount());
-    entity.setMovementDate(accountMovement.getMovementDate());
-    entity.setBalanceSnapshot(accountMovement.getBalanceSnapshot());
-    entity.setDescription(accountMovement.getDescription());
-    entity.setMetadata(accountMovement.getMetadata());
+        accountMovement.accountId() != null ? accountMovement.accountId().value() : null);
+    entity.setMovementType(accountMovement.movementType());
+    entity.setMovementAmount(accountMovement.movementAmount());
+    entity.setMovementDate(accountMovement.movementDate());
+    entity.setBalanceSnapshot(accountMovement.balanceSnapshot());
+    entity.setMetadata(accountMovement.metadata());
     return entity;
   }
 

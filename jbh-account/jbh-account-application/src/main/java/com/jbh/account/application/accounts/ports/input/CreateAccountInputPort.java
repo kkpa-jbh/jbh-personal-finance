@@ -1,11 +1,11 @@
 package com.jbh.account.application.accounts.ports.input;
 
+import com.jbh.account.application.accounts.dto.AccountDTO;
 import com.jbh.account.application.accounts.services.AccountService;
 import com.jbh.account.application.accounts.usecases.CreateAccountUseCase;
 import com.jbh.account.application.accounts.vo.commands.CreateBasicAccountCommand;
 import com.jbh.account.application.common.logging.LoggerFactory;
 import com.jbh.account.domain.entity.AccountDomain;
-import com.jbh.account.domain.vo.AccountDomainDTO;
 import java.util.UUID;
 import org.slf4j.Logger;
 
@@ -20,7 +20,7 @@ public class CreateAccountInputPort implements CreateAccountUseCase {
   }
 
   @Override
-  public AccountDomainDTO execute(final CreateBasicAccountCommand command) {
+  public AccountDTO execute(final CreateBasicAccountCommand command) {
 
     if (command == null) {
       throw new IllegalArgumentException("Command cannot be null");
@@ -32,7 +32,7 @@ public class CreateAccountInputPort implements CreateAccountUseCase {
     final AccountDomain accountDomain =
         AccountDomain.withMinimumDataForCreation(command.name(), command.type(), userId);
 
-    final AccountDomainDTO accountDTO = accountService.save(accountDomain.toDTO());
+    final AccountDTO accountDTO = accountService.save(accountDomain);
     LOG.info("Account for user {} created successfully ", userId);
 
     return accountDTO;

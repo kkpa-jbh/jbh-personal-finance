@@ -1,15 +1,12 @@
 package com.jbh.account.application.accounts.services;
 
+import com.jbh.account.application.accounts.dto.AccountDTO;
 import com.jbh.account.domain.entity.AccountDomain;
-import com.jbh.account.domain.vo.AccountDomainDTO;
 
-/**
- * Account Service Interface for CRUD operations
- */
+/** Account Service Interface for CRUD operations */
 public interface AccountService {
 
-  AccountDomainDTO save(AccountDomain account);
+  AccountDTO save(AccountDomain account);
 
-  AccountDomainDTO save(AccountDomainDTO account);
-
+  AccountDTO save(AccountDTO account);
 }

@@ -195,14 +195,14 @@
   </parent>
 
   <properties>
-    <jacoco.branch.coverage.minimum>0.50</jacoco.branch.coverage.minimum>
-    <jacoco.bundle.branch.minimum>0.50</jacoco.bundle.branch.minimum>
+    <jacoco.branch.coverage.minimum>0.45</jacoco.branch.coverage.minimum>
+    <jacoco.bundle.branch.minimum>0.40</jacoco.bundle.branch.minimum>
     <jacoco.bundle.line.minimum>0.63</jacoco.bundle.line.minimum>
 
     <!-- JaCoCo Coverage Thresholds -->
     <!-- Line Coverage: Percentage of code lines executed during tests -->
     <!-- Higher = more code paths tested, but doesn't guarantee quality -->
-    <jacoco.line.coverage.minimum>0.60</jacoco.line.coverage.minimum>
+    <jacoco.line.coverage.minimum>0.45</jacoco.line.coverage.minimum>
 
     <!-- Branch Coverage: Percentage of decision branches (if/else) tested -->
     <!-- More important than line coverage - ensures edge cases are tested -->

@@ -2,7 +2,6 @@ package com.jbh.account.domain.entity;
 
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.utils.MoneyUtils;
-import com.jbh.account.domain.vo.AccountDomainDTO;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
 import java.math.BigDecimal;
@@ -12,11 +11,9 @@ import java.util.Objects;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 
-@AllArgsConstructor
 @Getter
-@SuperBuilder
+@AllArgsConstructor
 public class AccountDomain {
 
   protected AccountId id;
@@ -27,11 +24,22 @@ public class AccountDomain {
   protected BigDecimal currentBalance = MoneyUtils.JBH_ZERO;
   protected BigDecimal profitBalance = MoneyUtils.JBH_ZERO;
   protected boolean isActive = true;
-
   protected LocalDateTime createdAt = LocalDateTime.now();
   protected LocalDateTime updatedAt;
 
-  private AccountDomain() {
+  /**
+   * Nominal/stated percentage (what the bank advertises) "This account offers 3% annual interest
+   * rate"
+   */
+  private BigDecimal advertisedAnnualRate;
+
+  /**
+   * Yield = Actual return earned (includes compounding effects) Compound Interest = Interest
+   * compuesto. This account yielded 3.15% annually after monthly compounding
+   */
+  private BigDecimal estimatedAnnualYield;
+
+  public AccountDomain() {
     this.id = AccountId.generate();
   }
 
@@ -58,7 +66,8 @@ public class AccountDomain {
     return accountDomain;
   }
 
-  public void syncBalances(final List<AccountMovementDomain> multipleMovements) {
+  public void syncBalancesWithUploadedMovements(
+      final List<AccountMovementDomain> multipleMovements) {
     if (multipleMovements == null || multipleMovements.isEmpty()) {
       throw new GenericSpecificationException("Movements cannot be null or empty");
     }
@@ -66,11 +75,11 @@ public class AccountDomain {
         multipleMovements.stream().filter(Objects::nonNull).toList();
 
     for (final AccountMovementDomain movement : filteredMovements) {
-      syncSingleBalance(movement);
+      syncBalancesByMovement(movement);
     }
   }
 
-  private void syncSingleBalance(final AccountMovementDomain movement) {
+  public void syncBalancesByMovement(final AccountMovementDomain movement) {
     movement.validate();
 
     if (!this.getId().equals(movement.getAccountId())) {
@@ -104,23 +113,5 @@ public class AccountDomain {
 
     this.profitBalance = this.currentBalance.subtract(this.movementBalance);
     this.updatedAt = LocalDateTime.now();
-  }
-
-  public AccountDomainDTO toDTO() {
-    return clone(this);
-  }
-
-  private AccountDomainDTO clone(final AccountDomain account) {
-    return AccountDomainDTO.builder()
-        .id(account.getId())
-        .name(account.getName())
-        .type(account.getType())
-        .userId(account.getUserId())
-        .movementBalance(account.getMovementBalance())
-        .currentBalance(account.getCurrentBalance())
-        .profitBalance(account.getProfitBalance())
-        .createdAt(account.getCreatedAt())
-        .updatedAt(account.getUpdatedAt())
-        .build();
   }
 }

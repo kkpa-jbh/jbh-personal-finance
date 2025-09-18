@@ -1,0 +1,121 @@
+package com.jbh.account.application.accounts.usecases.mock;
+
+import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import com.jbh.account.application.accounts.ports.input.RegisterMonthlyBalanceInputPort;
+import com.jbh.account.application.accounts.ports.output.AccountRepository;
+import com.jbh.account.application.accounts.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
+import com.jbh.account.application.accounts.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
+import com.jbh.account.application.accounts.services.monthlybalance.MonthlyBalanceService;
+import com.jbh.account.application.accounts.services.monthlybalance.MonthlyBalanceServiceImpl;
+import com.jbh.account.application.accounts.usecases.RegisterMonthlyBalanceUseCase;
+import com.jbh.account.application.accounts.vo.commands.AddMonthlyBalanceCommand;
+import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
+public class RegisterMonthlyBalanceMockTest {
+
+  final UUID userId = UUID.randomUUID();
+  final AccountId accountId = AccountId.generate();
+  final YearMonth august24MonthlyPeriod = YearMonth.of(2024, 8);
+  final LocalDate runningDate = LocalDate.now();
+  RegisterMonthlyBalanceUseCase useCaseInstanceTest;
+
+  MonthlyBalanceService monthlyBalanceService;
+
+  @Mock private AccountRepository accountRepository;
+  @Mock private AccountMovementRepository accountMovementRepository;
+  @Mock private AccountMonthlyBalanceQueryRepo monthlyBalanceQueryRepoMock;
+  @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
+
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.openMocks(this);
+
+    final MonthlyBalanceServiceImpl realMonthlyBalanceService =
+        new MonthlyBalanceServiceImpl(monthlyBalanceQueryRepoMock, monthlyBalanceWriterRepoMock);
+
+    monthlyBalanceService = spy(realMonthlyBalanceService);
+
+    useCaseInstanceTest =
+        new RegisterMonthlyBalanceInputPort(
+            accountRepository, monthlyBalanceService, accountMovementRepository);
+  }
+
+  @Test
+  void shouldRegisterMonthlyBalanceWhenItDoesNotExist() {
+    // Given
+    final BigDecimal movementsBalance = BigDecimal.ZERO;
+    final BigDecimal closingBalance = BigDecimal.valueOf(2105192.00);
+    final AddMonthlyBalanceCommand command =
+        new AddMonthlyBalanceCommand(august24MonthlyPeriod, closingBalance, null);
+
+    when(monthlyBalanceQueryRepoMock.findByAccountIdYearAndMonth(accountId, 2024, 8))
+        .thenReturn(Optional.empty());
+
+    // Spy on the specific method to capture its return value
+    final AtomicReference<AccountMonthlyBalanceDTO> capturedNextMonthlyBalance =
+        new AtomicReference<>();
+    doAnswer(
+            invocation -> {
+              // Call the real method
+              final AccountMonthlyBalanceDTO result =
+                  (AccountMonthlyBalanceDTO) invocation.callRealMethod();
+              // Capture the result
+              capturedNextMonthlyBalance.set(result);
+              return result;
+            })
+        .when(monthlyBalanceService)
+        .updateOpeningBalanceNextMonth(any(AccountMonthlyBalanceDTO.class));
+
+    // When
+    final AtomicReference<AccountMonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
+    Assertions.assertDoesNotThrow(
+        () ->
+            savedMonthlyBalance.set(
+                useCaseInstanceTest.registerMonthlyBalance(
+                    runningDate, userId, accountId, command)));
+
+    // Then
+    final var actualMonthlyBalance = savedMonthlyBalance.get();
+    assertEquals(august24MonthlyPeriod, actualMonthlyBalance.getPeriod());
+    assertEquals(withJBHDecimals(closingBalance), actualMonthlyBalance.getClosingBalance());
+    assertEquals(withJBHDecimals(movementsBalance), actualMonthlyBalance.getMovementBalance());
+    assertEquals(JBH_ZERO, actualMonthlyBalance.getTotalDebits());
+    assertEquals(JBH_ZERO, actualMonthlyBalance.getTotalCredits());
+    assertEquals(JBH_ZERO, actualMonthlyBalance.getMonthlyProfit());
+    assertEquals(0, actualMonthlyBalance.getTotalMovements());
+    assertFalse(actualMonthlyBalance.isGapPeriod());
+
+    // Verify the captured nextMonthlyBalance
+    assertNotNull(capturedNextMonthlyBalance);
+    assertEquals(
+        capturedNextMonthlyBalance.get().getOpeningBalance(), withJBHDecimals(closingBalance));
+    // ... other assertions on nextMonthlyBalance
+
+    // Verify the method was called
+    verify(monthlyBalanceService)
+        .updateOpeningBalanceNextMonth(any(AccountMonthlyBalanceDTO.class));
+  }
+}

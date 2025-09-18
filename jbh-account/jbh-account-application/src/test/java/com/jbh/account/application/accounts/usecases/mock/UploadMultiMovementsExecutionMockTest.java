@@ -1,4 +1,4 @@
-package com.jbh.account.application.accounts.usecases;
+package com.jbh.account.application.accounts.usecases.mock;
 
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -7,34 +7,33 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.atMostOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.jbh.account.application.accounts.dto.AddBasicMovementDTO;
+import com.jbh.account.application.accounts.dto.AccountDTO;
 import com.jbh.account.application.accounts.dto.AddMultipleBasicMovementDTO;
-import com.jbh.account.application.accounts.ports.input.AddBasicMovementInputPort;
-import com.jbh.account.application.accounts.ports.output.AccountMonthlyBalanceRepository;
+import com.jbh.account.application.accounts.mappers.AccountMapper;
+import com.jbh.account.application.accounts.ports.input.AddMovementsUploadedFileInputPort;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
+import com.jbh.account.application.accounts.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
+import com.jbh.account.application.accounts.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.account.application.accounts.services.MonthlyBalanceSyncerAppService;
+import com.jbh.account.application.accounts.services.monthlybalance.MonthlyBalanceServiceImpl;
+import com.jbh.account.application.accounts.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.account.application.accounts.usecases.utils.TestDataFactory;
 import com.jbh.account.application.accounts.usecases.utils.UnitOfWorkTest;
-import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
+import com.jbh.account.application.accounts.vo.commands.AddMovementUploadedFileCommand;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.utils.MoneyUtils;
-import com.jbh.account.domain.vo.AccountDomainDTO;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
-import com.jbh.account.domain.vo.AccountMovementDTO;
-import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -52,283 +51,90 @@ import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RegisterSimpleMovementExecutionTest {
+public class UploadMultiMovementsExecutionMockTest {
+  static AccountId accountId = AccountId.generate();
+  static UUID userId = UUID.randomUUID();
+  static AccountDomain accountDomain =
+      AccountDomain.withBasicMovementForExisting(accountId, JBH_ZERO, JBH_ZERO);
 
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
-  private final Logger log = LoggerFactory.getLogger(RegisterSimpleMovementExecutionTest.class);
+  private final Logger log = LoggerFactory.getLogger(RegisterMovementExecutionMockTest.class);
   MonthlyBalanceSyncerAppService monthlyBalanceSyncerService;
   LocalDate movementDate = LocalDate.now();
   @Mock private AccountRepository accountRepository;
   @Mock private AccountMovementRepository accountMovementRepository;
-  @Mock private AccountMonthlyBalanceRepository accountMonthlyBalanceRepository;
-  private AddBasicMovementInputPort useCaseInstanceTest;
+  @Mock private AccountMonthlyBalanceQueryRepo accountMonthlyBalanceRepository;
+  @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
+  private AddMovementsUploadedFileUseCase useCaseInstanceTest;
+  private MonthlyBalanceServiceImpl monthlyBalanceService;
 
   @BeforeEach
   void setUp() {
 
     MockitoAnnotations.openMocks(this);
-
+    monthlyBalanceService =
+        new MonthlyBalanceServiceImpl(
+            accountMonthlyBalanceRepository, monthlyBalanceWriterRepoMock);
     monthlyBalanceSyncerService =
-        new MonthlyBalanceSyncerAppService(
-            accountMonthlyBalanceRepository, new AsyncTaskExecutorImpl());
+        new MonthlyBalanceSyncerAppService(monthlyBalanceService, new AsyncTaskExecutorImpl());
     useCaseInstanceTest =
-        new AddBasicMovementInputPort(
+        new AddMovementsUploadedFileInputPort(
             accountRepository, accountMovementRepository, unitOfWork, monthlyBalanceSyncerService);
   }
 
   @Test
-  void shouldAddMovement_WhenNotSnapshotProvided() throws ExecutionException, InterruptedException {
-    // Given
-    final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
-
-    final BigDecimal amount = new BigDecimal("100.00");
-
-    final AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
-    final AccountDomain accountDomain = withId(accountId);
-
-    when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(accountDomain.toDTO()));
-
-    // When & Then
-    final AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
-    assertDoesNotThrow(
-        () -> mvmtResponse.set(useCaseInstanceTest.addBasicMovements(userId, accountId, request)));
-
-    verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save((AccountMovementDTO) any());
-    verify(accountRepository).save(any());
-
-    assertEquals(mvmtResponse.get().account().getMovementBalance(), amount);
-    final AccountMonthlyBalanceDTO actualMonthlyBalances =
-        mvmtResponse.get().monthlyBalance().toDTO();
-    assertEquals(amount, actualMonthlyBalances.getTotalDebits());
-    assertEquals(amount, actualMonthlyBalances.getClosingBalance());
-    assertEquals(JBH_ZERO, actualMonthlyBalances.getOpeningBalance());
-    assertEquals(JBH_ZERO, actualMonthlyBalances.getMonthlyProfit());
-
-    when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(
-            accountId, YearMonth.of(movementDate.getYear(), movementDate.getMonthValue())))
-        .thenReturn(Collections.singletonList(actualMonthlyBalances));
-
-    final List<AccountMonthlyBalanceDTO> futureResponse =
-        monthlyBalanceSyncerService
-            .saveMonthlyBalancesASYNC(accountId, Collections.singletonList(actualMonthlyBalances))
-            .get();
-
-    assertEquals(2, futureResponse.size());
-
-    assertEquals(movementDate.plusMonths(1).getMonthValue(), futureResponse.get(1).getMonth());
-    assertEquals(amount, futureResponse.get(1).getOpeningBalance());
-    assertEquals(JBH_ZERO, futureResponse.get(0).getMonthlyProfit());
-    assertEquals(JBH_ZERO, futureResponse.get(1).getMonthlyProfit());
-  }
-
-  private AccountDomain withId(final AccountId accountId) {
-    return AccountDomain.withBasicMovementForExisting(accountId, JBH_ZERO, JBH_ZERO);
-  }
-
-  @Test
-  void shouldAddMovement_WhenOnlySnapshotProvided() {
-    // Given
-    final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
-    final LocalDate movementDate = LocalDate.now();
-    final BigDecimal balanceSnashot = new BigDecimal("200.00");
-    final BigDecimal existingAccountPpalBalance = new BigDecimal("100.00");
-    final AddBasicMovementRequest request =
-        new AddBasicMovementRequest(movementDate, null, balanceSnashot);
-
-    final AccountDomain accountDomain =
-        AccountDomain.withBasicMovementForExisting(
-            accountId, existingAccountPpalBalance, new BigDecimal("190.00"));
-
-    when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(accountDomain.toDTO()));
-
-    // When & Then
-    final AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
-    assertDoesNotThrow(
-        () -> mvmtResponse.set(useCaseInstanceTest.addBasicMovements(userId, accountId, request)));
-
-    verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save((AccountMovementDTO) any());
-    verify(accountRepository).save(any());
-
-    assertEquals(balanceSnashot, mvmtResponse.get().account().getCurrentBalance());
-    assertEquals(existingAccountPpalBalance, mvmtResponse.get().account().getMovementBalance());
-    assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().getTotalDebits());
-    assertEquals(0, mvmtResponse.get().monthlyBalance().getTotalMovements());
-    assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().getTotalCredits());
-    assertEquals(balanceSnashot, mvmtResponse.get().monthlyBalance().getClosingBalance());
-    assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().getMonthlyProfit());
-    assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().getOpeningBalance());
-  }
-
-  @Test
-  void shouldAddMovement_WhenAmountAndSnapshotProvided() {
-    // Given
-    final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
-    final LocalDate movementDate = LocalDate.now();
-    final BigDecimal amount = new BigDecimal("22685312.00");
-    final BigDecimal balanceSnapshot = new BigDecimal("35693653.00");
-
-    final AddBasicMovementRequest request =
-        new AddBasicMovementRequest(movementDate, amount, balanceSnapshot);
-
-    final BigDecimal existingMovBalance = new BigDecimal("12591000.00");
-
-    final AccountDomain accountDomain =
-        AccountDomain.withBasicMovementForExisting(
-            accountId, existingMovBalance, new BigDecimal("12689712.00"));
-
-    when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(accountDomain.toDTO()));
-
-    // When & Then
-    final AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
-    assertDoesNotThrow(
-        () -> mvmtResponse.set(useCaseInstanceTest.addBasicMovements(userId, accountId, request)));
-
-    verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save((AccountMovementDTO) any());
-    verify(accountRepository).save((AccountDomainDTO) any());
-
-    final AccountDomain accountResponse = mvmtResponse.get().account();
-    assertEquals(amount.add(existingMovBalance), accountResponse.getMovementBalance());
-    assertEquals(balanceSnapshot, accountResponse.getCurrentBalance());
-
-    final AccountMonthlyBalanceDomain monthlyBalanceResponse = mvmtResponse.get().monthlyBalance();
-    final YearMonth expectedYearMonth =
-        YearMonth.of(movementDate.getYear(), movementDate.getMonthValue());
-    assertEquals(
-        expectedYearMonth,
-        YearMonth.of(monthlyBalanceResponse.getYear(), monthlyBalanceResponse.getMonth()));
-    assertEquals(expectedYearMonth, monthlyBalanceResponse.getPeriod());
-    assertEquals(balanceSnapshot, monthlyBalanceResponse.getClosingBalance());
-    assertEquals(amount, monthlyBalanceResponse.getTotalDebits());
-    assertEquals(JBH_ZERO, monthlyBalanceResponse.getTotalCredits());
-    assertEquals(1, monthlyBalanceResponse.getTotalMovements());
-    assertEquals(MovementType.DEPOSIT, mvmtResponse.get().movement().getMovementType());
-  }
-
-  @Test
-  void shouldAddMvmtWithExistingMonthlyEntries() {
-    // Given
-    final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
-    final LocalDate movementDate = LocalDate.now();
-
-    final AccountDomain accountDomain = withId(accountId);
-
-    when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(accountDomain.toDTO()));
-
-    final int existingEntries = 10;
-    final BigDecimal existingTotalDebits = new BigDecimal("1000.00");
-    final BigDecimal existingClosingBalance = new BigDecimal("600.00");
-    final BigDecimal existingTotalCredits = new BigDecimal("200.00");
-    final BigDecimal existingOpeningBalance = new BigDecimal("500.00");
-    final AccountMonthlyBalanceDomain existingMonthlyBalance =
-        AccountMonthlyBalanceDomain.builder()
-            .id(1L)
-            .accountId(accountId)
-            .year(movementDate.getYear())
-            .month(movementDate.getMonthValue())
-            .period(YearMonth.of(movementDate.getYear(), movementDate.getMonthValue()))
-            .openingBalance(existingOpeningBalance)
-            .closingBalance(existingClosingBalance)
-            .totalCredits(existingTotalCredits)
-            .totalDebits(existingTotalDebits)
-            .totalMovements(existingEntries)
-            .build();
-
-    when(accountMonthlyBalanceRepository.findByAccountIdYearAndMonth(
-            accountId, movementDate.getYear(), movementDate.getMonthValue()))
-        .thenReturn(Optional.of(existingMonthlyBalance.toDTO()));
-
-    // When & Then
-    final BigDecimal amount = new BigDecimal("100.00");
-    final AddBasicMovementRequest request = new AddBasicMovementRequest(movementDate, amount);
-    final AtomicReference<AddBasicMovementDTO> processedResponse = new AtomicReference<>();
-    assertDoesNotThrow(
-        () ->
-            processedResponse.set(
-                useCaseInstanceTest.addBasicMovements(userId, accountId, request)));
-
-    verify(accountRepository).findByAccountId(userId, accountId);
-    verify(accountMovementRepository).save((AccountMovementDTO) any());
-    verify(accountRepository).save(any());
-    verify(accountMonthlyBalanceRepository, atMostOnce())
-        .saveSingleMovement((AccountMonthlyBalanceDTO) any());
-
-    assertEquals(amount, processedResponse.get().account().getMovementBalance());
-    assertEquals(existingEntries + 1, processedResponse.get().monthlyBalance().getTotalMovements());
-    assertEquals(
-        existingTotalDebits.add(amount), processedResponse.get().monthlyBalance().getTotalDebits());
-    assertEquals(
-        existingOpeningBalance, processedResponse.get().monthlyBalance().getOpeningBalance());
-    assertEquals(
-        existingClosingBalance.add(amount),
-        processedResponse.get().monthlyBalance().getClosingBalance());
-    assertEquals(existingTotalCredits, processedResponse.get().monthlyBalance().getTotalCredits());
-    assertEquals(MovementType.DEPOSIT, processedResponse.get().movement().getMovementType());
-  }
-
-  @Test
-  @DisplayName("Should sync balances from the account with multiple movements correctly. NU")
-  void shouldSyncBalancesWithMultipleMovements()
+  @DisplayName("Should create movements for NU")
+  void shouldCreateMovementsForNU()
       throws ExecutionException, InterruptedException, TimeoutException {
     // Given
     final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
-    final List<AddBasicMovementRequest> allSimpleMovements =
+
+    final List<AddMovementUploadedFileCommand> allSimpleMovements =
         TestDataFactory.createAccountMovementTestData();
 
     // Then
     assertEquals(10, allSimpleMovements.size());
 
     // Verify first entry
-    final AddBasicMovementRequest firstEntry = allSimpleMovements.get(0);
+    final AddMovementUploadedFileCommand firstEntry = allSimpleMovements.get(0);
     assertEquals(LocalDate.of(2024, 7, 30), firstEntry.entryDate());
     assertEquals(0, new BigDecimal("12591000.00").compareTo(firstEntry.totalAmount()));
     assertEquals(0, new BigDecimal("12689712.00").compareTo(firstEntry.balanceSnapshot()));
 
     // Verify last entry (account reaches zero)
-    final AddBasicMovementRequest lastEntry = allSimpleMovements.get(9);
+    final AddMovementUploadedFileCommand lastEntry = allSimpleMovements.get(9);
     assertEquals(LocalDate.of(2025, 3, 31), lastEntry.entryDate());
     assertEquals(0, new BigDecimal("-3768488.00").compareTo(lastEntry.totalAmount()));
     assertEquals(0, JBH_ZERO.compareTo(lastEntry.balanceSnapshot()));
 
     // Verify some negative amounts
-    final AddBasicMovementRequest novemberEntry = allSimpleMovements.get(4); // 30/11/2024
+    final AddMovementUploadedFileCommand novemberEntry = allSimpleMovements.get(4); // 30/11/2024
     assertTrue(novemberEntry.totalAmount().compareTo(JBH_ZERO) < 0);
     assertEquals(0, new BigDecimal("-673605.00").compareTo(novemberEntry.totalAmount()));
 
-    final AccountDomain accountDomain = withId(accountId);
     when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(accountDomain.toDTO()));
+        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
 
     // Then
     final AtomicReference<AddMultipleBasicMovementDTO> processedResponse = new AtomicReference<>();
     assertDoesNotThrow(
         () ->
             processedResponse.set(
-                useCaseInstanceTest.addBasicMovements(userId, accountId, allSimpleMovements)));
+                useCaseInstanceTest.uploadMovementsFromFile(
+                    userId, accountId, allSimpleMovements)));
 
     verify(accountRepository).findByAccountId(userId, accountId);
     verify(accountMovementRepository).save(anyList());
     verify(accountRepository).save(any());
 
-    final AccountDomainDTO actualAccountResponse = processedResponse.get().account();
+    final AccountDTO actualAccountResponse = processedResponse.get().account();
     final List<AccountMonthlyBalanceDTO> actualMonthlyBalances =
         processedResponse.get().monthlyBalances();
 
     final BigDecimal expectedProfitBalance = new BigDecimal("1786605.00");
-    assertEquals(expectedProfitBalance.negate(), actualAccountResponse.getMovementBalance());
-    assertEquals(new BigDecimal("0.00"), actualAccountResponse.getCurrentBalance());
-    assertEquals(expectedProfitBalance, actualAccountResponse.getProfitBalance());
+    assertEquals(expectedProfitBalance.negate(), actualAccountResponse.movementBalance());
+    assertEquals(new BigDecimal("0.00"), actualAccountResponse.currentBalance());
+    assertEquals(expectedProfitBalance, actualAccountResponse.profitBalance());
     assertEquals(9, actualMonthlyBalances.size());
 
     // Assert per month
@@ -532,274 +338,30 @@ public class RegisterSimpleMovementExecutionTest {
   }
 
   @Test
-  @DisplayName("Should create movements for PIBI")
-  void shouldCreatedMovementsForPIBI()
-      throws ExecutionException, InterruptedException, TimeoutException {
-    // Given
-    final List<AddBasicMovementRequest> testData = TestDataFactory.movementsForPIBI();
-
-    // Then
-    assertEquals(25, testData.size());
-
-    // Verify first entry (October 2023)
-    final YearMonth firstEntryYM = YearMonth.of(2023, 10);
-    final AddBasicMovementRequest firstEntry = testData.get(0);
-    assertEquals(LocalDate.of(2023, 10, 31), firstEntry.entryDate());
-    assertEquals(0, new BigDecimal("13010000.00").compareTo(firstEntry.totalAmount()));
-    assertEquals(0, new BigDecimal("13062118.00").compareTo(firstEntry.balanceSnapshot()));
-
-    // Verify large deposit in May 2024
-    final AddBasicMovementRequest mayDeposit = testData.get(8); // 03/05/2024
-    assertEquals(LocalDate.of(2024, 5, 3), mayDeposit.entryDate());
-    assertEquals(0, new BigDecimal("24100000.00").compareTo(mayDeposit.totalAmount()));
-    assertEquals(0, new BigDecimal("65394365.00").compareTo(mayDeposit.balanceSnapshot()));
-
-    // Verify large withdrawal in July 2024
-    final AddBasicMovementRequest julyWithdrawal = testData.get(13); // 31/07/2024
-    assertEquals(LocalDate.of(2024, 7, 31), julyWithdrawal.entryDate());
-    assertEquals(0, new BigDecimal("-20000000.00").compareTo(julyWithdrawal.totalAmount()));
-    assertEquals(0, new BigDecimal("32809397.00").compareTo(julyWithdrawal.balanceSnapshot()));
-
-    // Verify final entry (August 2025)
-    final AddBasicMovementRequest lastEntry = testData.get(24);
-    assertEquals(LocalDate.of(2025, 8, 30), lastEntry.entryDate());
-    assertEquals(0, JBH_ZERO.compareTo(lastEntry.totalAmount()));
-    assertEquals(0, new BigDecimal("37074883.00").compareTo(lastEntry.balanceSnapshot()));
-
-    final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
-    final AccountDomain account = withId(accountId);
-    when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(account.toDTO()));
-
-    final AtomicReference<AddMultipleBasicMovementDTO> processedResponse = new AtomicReference<>();
-    assertDoesNotThrow(
-        () ->
-            processedResponse.set(
-                useCaseInstanceTest.addBasicMovements(userId, accountId, testData)));
-
-    final AccountDomain actualAccount = processedResponse.get().account();
-
-    assertEquals(numberOf("29710000"), actualAccount.getMovementBalance());
-    assertEquals(numberOf("37074883"), actualAccount.getCurrentBalance());
-    assertEquals(numberOf("7364883"), actualAccount.getProfitBalance());
-    final List<AccountMonthlyBalanceDTO> savedMonthlyBalances =
-        processedResponse.get().monthlyBalances();
-
-    // THEN
-    final YearMonth expectedPeriod = YearMonth.of(2023, 10);
-    log.info("Account Tested. Preparing to test the monthly Balances ...{} ", expectedPeriod);
-    when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(
-            accountId, expectedPeriod))
-        .thenReturn(savedMonthlyBalances);
-    final CompletableFuture<List<AccountMonthlyBalanceDTO>> futureResponse =
-        monthlyBalanceSyncerService.saveMonthlyBalancesASYNC(accountId, savedMonthlyBalances);
-    final List<AccountMonthlyBalanceDTO> actualMonthlyBalances = futureResponse.get();
-
-    // Response
-    int index = -1;
-    AccountMonthlyBalanceDomain actualResponse = null;
-
-    // Row Octubre/23
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("13010000"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("13062118"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("52118"), actualResponse.getMonthlyProfit());
-
-    // Row Noviembre/23
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("13000000"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("26309995"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("247877"), actualResponse.getMonthlyProfit());
-
-    // Row Diciembre/23
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("13000000"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("39645174"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("335179"), actualResponse.getMonthlyProfit());
-
-    // Row Enero/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("40001713"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("356539"), actualResponse.getMonthlyProfit());
-
-    // Row Febrero/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("40001713"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
-
-    // Row Marzo/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("40701019"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("699306"), actualResponse.getMonthlyProfit());
-
-    // Row Abril/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("41197965"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("496946"), actualResponse.getMonthlyProfit());
-
-    // Row Mayo/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("-5900000"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("35762219"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("464254"), actualResponse.getMonthlyProfit());
-
-    // Row Junio/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("16600000"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("52889397"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("527178"), actualResponse.getMonthlyProfit());
-
-    // Row Julio/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("-20000000"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("32809397"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("-80000"), actualResponse.getMonthlyProfit());
-
-    // Row Agosto/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("33560000"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("750603"), actualResponse.getMonthlyProfit());
-
-    // Row Septiembre/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("33876037"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("316037"), actualResponse.getMonthlyProfit());
-
-    // Row Octubre/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("34204708"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("328671"), actualResponse.getMonthlyProfit());
-
-    // Row Noviembre/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("34525863"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("321155"), actualResponse.getMonthlyProfit());
-
-    // Row Diciembre/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("34838994"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("313131"), actualResponse.getMonthlyProfit());
-
-    // Row Enero/25
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("35102299"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("263305"), actualResponse.getMonthlyProfit());
-
-    // Row Febrero/25
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("35341920"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("239621"), actualResponse.getMonthlyProfit());
-
-    // Row Marzo/25
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("35593716"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("251796"), actualResponse.getMonthlyProfit());
-
-    // Row Abril/25
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("35829015"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("235299"), actualResponse.getMonthlyProfit());
-
-    // Row Mayo/25
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("36102719"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("273704"), actualResponse.getMonthlyProfit());
-
-    // Row Jun/25
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("36102719"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
-
-    // Row Jul/25
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("36102719"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
-
-    // Row 25/08/2025
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("37074883"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("972164"), actualResponse.getMonthlyProfit());
-
-    // Row 25/09/2025 - Last one affected by movement. Only Opening Balance.
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
-    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
-    assertEquals(numberOf("37074883"), actualResponse.getOpeningBalance());
-    assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
-    assertEquals(numberOf("0"), actualResponse.getClosingBalance());
-
-    final AtomicInteger lastIdx = new AtomicInteger(++index);
-    assertThrows(IndexOutOfBoundsException.class, () -> actualMonthlyBalances.get(lastIdx.get()));
-  }
-
-  @Test
   @DisplayName("Should create movements for PIKMI")
   void shouldCreatedMovementsForPIKMI()
       throws ExecutionException, InterruptedException, TimeoutException {
     // Given
-    final List<AddBasicMovementRequest> testData = TestDataFactory.movementsForPIKMI();
+    final List<AddMovementUploadedFileCommand> testData = TestDataFactory.movementsForPIKMI();
 
     // Then
     assertEquals(46, testData.size());
 
     final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
-    final AccountDomain account = withId(accountId);
     when(accountRepository.findByAccountId(userId, accountId))
-        .thenReturn(Optional.of(account.toDTO()));
+        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
 
     final AtomicReference<AddMultipleBasicMovementDTO> processedResponse = new AtomicReference<>();
     assertDoesNotThrow(
         () ->
             processedResponse.set(
-                useCaseInstanceTest.addBasicMovements(userId, accountId, testData)));
+                useCaseInstanceTest.uploadMovementsFromFile(userId, accountId, testData)));
 
-    final AccountDomain actualAccount = processedResponse.get().account();
+    final AccountDTO actualAccount = processedResponse.get().account();
 
-    assertEquals(numberOf("56386448"), actualAccount.getMovementBalance());
-    assertEquals(numberOf("70908065"), actualAccount.getCurrentBalance());
-    assertEquals(numberOf("14521617"), actualAccount.getProfitBalance());
+    assertEquals(numberOf("56386448"), actualAccount.movementBalance());
+    assertEquals(numberOf("70908065"), actualAccount.currentBalance());
+    assertEquals(numberOf("14521617"), actualAccount.profitBalance());
     final List<AccountMonthlyBalanceDTO> savedMonthlyBalances =
         processedResponse.get().monthlyBalances();
 
@@ -1003,6 +565,245 @@ public class RegisterSimpleMovementExecutionTest {
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("70908065"), actualResponse.getOpeningBalance());
+    assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
+    assertEquals(numberOf("0"), actualResponse.getClosingBalance());
+
+    final AtomicInteger lastIdx = new AtomicInteger(++index);
+    assertThrows(IndexOutOfBoundsException.class, () -> actualMonthlyBalances.get(lastIdx.get()));
+  }
+
+  @Test
+  @DisplayName("Should create movements for PIBI")
+  void shouldCreatedMovementsForPIBI()
+      throws ExecutionException, InterruptedException, TimeoutException {
+    // Given
+    final List<AddMovementUploadedFileCommand> testData = TestDataFactory.movementsForPIBI();
+
+    // Then
+    assertEquals(25, testData.size());
+
+    // Verify first entry (October 2023)
+    final YearMonth firstEntryYM = YearMonth.of(2023, 10);
+    final AddMovementUploadedFileCommand firstEntry = testData.get(0);
+    assertEquals(LocalDate.of(2023, 10, 31), firstEntry.entryDate());
+    assertEquals(0, new BigDecimal("13010000.00").compareTo(firstEntry.totalAmount()));
+    assertEquals(0, new BigDecimal("13062118.00").compareTo(firstEntry.balanceSnapshot()));
+
+    // Verify large deposit in May 2024
+    final AddMovementUploadedFileCommand mayDeposit = testData.get(8); // 03/05/2024
+    assertEquals(LocalDate.of(2024, 5, 3), mayDeposit.entryDate());
+    assertEquals(0, new BigDecimal("24100000.00").compareTo(mayDeposit.totalAmount()));
+    assertEquals(0, new BigDecimal("65394365.00").compareTo(mayDeposit.balanceSnapshot()));
+
+    // Verify large withdrawal in July 2024
+    final AddMovementUploadedFileCommand julyWithdrawal = testData.get(13); // 31/07/2024
+    assertEquals(LocalDate.of(2024, 7, 31), julyWithdrawal.entryDate());
+    assertEquals(0, new BigDecimal("-20000000.00").compareTo(julyWithdrawal.totalAmount()));
+    assertEquals(0, new BigDecimal("32809397.00").compareTo(julyWithdrawal.balanceSnapshot()));
+
+    // Verify final entry (August 2025)
+    final AddMovementUploadedFileCommand lastEntry = testData.get(24);
+    assertEquals(LocalDate.of(2025, 8, 30), lastEntry.entryDate());
+    assertEquals(0, JBH_ZERO.compareTo(lastEntry.totalAmount()));
+    assertEquals(0, new BigDecimal("37074883.00").compareTo(lastEntry.balanceSnapshot()));
+
+    when(accountRepository.findByAccountId(userId, accountId))
+        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+
+    final AtomicReference<AddMultipleBasicMovementDTO> processedResponse = new AtomicReference<>();
+    assertDoesNotThrow(
+        () ->
+            processedResponse.set(
+                useCaseInstanceTest.uploadMovementsFromFile(userId, accountId, testData)));
+
+    final AccountDTO actualAccount = processedResponse.get().account();
+
+    assertEquals(numberOf("29710000"), actualAccount.movementBalance());
+    assertEquals(numberOf("37074883"), actualAccount.currentBalance());
+    assertEquals(numberOf("7364883"), actualAccount.profitBalance());
+    final List<AccountMonthlyBalanceDTO> savedMonthlyBalances =
+        processedResponse.get().monthlyBalances();
+
+    // THEN
+    final YearMonth expectedPeriod = YearMonth.of(2023, 10);
+    log.info("Account Tested. Preparing to test the monthly Balances ...{} ", expectedPeriod);
+    when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(
+            accountId, expectedPeriod))
+        .thenReturn(savedMonthlyBalances);
+    final CompletableFuture<List<AccountMonthlyBalanceDTO>> futureResponse =
+        monthlyBalanceSyncerService.saveMonthlyBalancesASYNC(accountId, savedMonthlyBalances);
+    final List<AccountMonthlyBalanceDTO> actualMonthlyBalances = futureResponse.get();
+
+    // Response
+    int index = -1;
+    AccountMonthlyBalanceDomain actualResponse = null;
+
+    // Row Octubre/23
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("13010000"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("13062118"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("52118"), actualResponse.getMonthlyProfit());
+
+    // Row Noviembre/23
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("13000000"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("26309995"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("247877"), actualResponse.getMonthlyProfit());
+
+    // Row Diciembre/23
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("13000000"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("39645174"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("335179"), actualResponse.getMonthlyProfit());
+
+    // Row Enero/24
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("40001713"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("356539"), actualResponse.getMonthlyProfit());
+
+    // Row Febrero/24
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("40001713"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
+
+    // Row Marzo/24
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("40701019"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("699306"), actualResponse.getMonthlyProfit());
+
+    // Row Abril/24
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("41197965"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("496946"), actualResponse.getMonthlyProfit());
+
+    // Row Mayo/24
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("-5900000"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("35762219"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("464254"), actualResponse.getMonthlyProfit());
+
+    // Row Junio/24
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("16600000"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("52889397"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("527178"), actualResponse.getMonthlyProfit());
+
+    // Row Julio/24
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("-20000000"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("32809397"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("-80000"), actualResponse.getMonthlyProfit());
+
+    // Row Agosto/24
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("33560000"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("750603"), actualResponse.getMonthlyProfit());
+
+    // Row Septiembre/24
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("33876037"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("316037"), actualResponse.getMonthlyProfit());
+
+    // Row Octubre/24
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("34204708"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("328671"), actualResponse.getMonthlyProfit());
+
+    // Row Noviembre/24
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("34525863"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("321155"), actualResponse.getMonthlyProfit());
+
+    // Row Diciembre/24
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("34838994"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("313131"), actualResponse.getMonthlyProfit());
+
+    // Row Enero/25
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("35102299"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("263305"), actualResponse.getMonthlyProfit());
+
+    // Row Febrero/25
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("35341920"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("239621"), actualResponse.getMonthlyProfit());
+
+    // Row Marzo/25
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("35593716"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("251796"), actualResponse.getMonthlyProfit());
+
+    // Row Abril/25
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("35829015"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("235299"), actualResponse.getMonthlyProfit());
+
+    // Row Mayo/25
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("36102719"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("273704"), actualResponse.getMonthlyProfit());
+
+    // Row Jun/25
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("36102719"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
+
+    // Row Jul/25
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("36102719"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
+
+    // Row 25/08/2025
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("37074883"), actualResponse.getClosingBalance());
+    assertEquals(numberOf("972164"), actualResponse.getMonthlyProfit());
+
+    // Row 25/09/2025 - Last one affected by movement. Only Opening Balance.
+    actualResponse = actualMonthlyBalances.get(++index);
+    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    assertEquals(numberOf("0"), actualResponse.getMovementBalance());
+    assertEquals(numberOf("37074883"), actualResponse.getOpeningBalance());
     assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
     assertEquals(numberOf("0"), actualResponse.getClosingBalance());
 

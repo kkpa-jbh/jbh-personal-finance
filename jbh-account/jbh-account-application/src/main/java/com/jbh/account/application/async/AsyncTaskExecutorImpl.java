@@ -13,10 +13,6 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
 
   private static final Logger LOG = LoggerFactory.getLogger(AsyncTaskExecutorImpl.class);
 
-  private void registerToDLQ(final AsyncTask asyncTask, final Throwable throwable) {
-    LOG.warn("Registering async task {} to DLQ {}", asyncTask.type(), throwable.getMessage());
-  }
-
   @Override
   public <T> CompletableFuture<T> submitTask(final AsyncTask asyncTask, final Callable<T> task) {
 
@@ -38,7 +34,6 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
 
             final T result = task.call();
             future.complete(result);
-
             LOG.info("Async task {} completed successfully", asyncTask.type());
           } catch (final InterruptedException exception) {
             Thread.currentThread().interrupt();
@@ -63,5 +58,9 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
         });
 
     return future;
+  }
+
+  private void registerToDLQ(final AsyncTask asyncTask, final Throwable throwable) {
+    LOG.warn("Registering async task {} to DLQ {}", asyncTask.type(), throwable.getMessage());
   }
 }

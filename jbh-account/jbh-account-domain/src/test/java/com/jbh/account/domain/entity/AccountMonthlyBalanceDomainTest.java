@@ -1,16 +1,22 @@
 package com.jbh.account.domain.entity;
 
+import static com.jbh.account.domain.entity.MovementCategoryDomain.OTHER_INCOME_CATEGORY;
+import static com.jbh.account.domain.entity.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
+import static com.jbh.account.domain.vo.MovementType.DEPOSIT;
+import static com.jbh.account.domain.vo.MovementType.WITHDRAWAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,8 +37,13 @@ public class AccountMonthlyBalanceDomainTest {
     oneHundredMonthlyBalance =
         AccountMonthlyBalanceDomain.withPeriod(accountId, today.getYear(), today.getMonthValue());
     oneHundredMonthlyBalance.syncMovement(
-        AccountMovementDomain.withBalances(
-            accountId, today, new BigDecimal("100.00"), new BigDecimal("100.00")));
+        AccountMovementDomain.with(
+            accountId,
+            today,
+            new BigDecimal("100.00"),
+            new BigDecimal("100.00"),
+            DEPOSIT,
+            OTHER_INCOME_CATEGORY));
   }
 
   @Test
@@ -51,24 +62,26 @@ public class AccountMonthlyBalanceDomainTest {
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getMonthlyProfit());
 
     ceroMonthlyBalance.syncMovement(
-        AccountMovementDomain.withBalances(accountId, today, JBH_ZERO, JBH_ZERO));
+        AccountMovementDomain.with(
+            accountId, today, JBH_ZERO, JBH_ZERO, DEPOSIT, OTHER_INCOME_CATEGORY));
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getMonthlyProfit());
   }
 
   @Test
   public void shouldCreateWithOpeningBalance() {
-    ceroMonthlyBalance.withOpeningBalance(new BigDecimal("350.00"));
+    ceroMonthlyBalance.adjustOpeningBalance(new BigDecimal("350.00"));
     assertEquals(new BigDecimal("350.00"), ceroMonthlyBalance.getOpeningBalance());
 
-    ceroMonthlyBalance.withOpeningBalance(null);
+    ceroMonthlyBalance.adjustOpeningBalance(BigDecimal.ZERO);
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getOpeningBalance());
   }
 
   @Test
-  public void shouldCreateWithClosingBalance() {
+  public void shouldCreateWithInitialDataForNextMonth() {
     final var closingBalance = new BigDecimal("200.00");
     final var newBalance =
-        AccountMonthlyBalanceDomain.withClosingBalance(accountId, todayYM, closingBalance, false);
+        AccountMonthlyBalanceDomain.withInitialDataForNextMonth(
+            accountId, todayYM, closingBalance, false);
 
     assertEquals(closingBalance, newBalance.getClosingBalance());
     assertEquals(JBH_ZERO, newBalance.getTotalDebits());
@@ -85,7 +98,8 @@ public class AccountMonthlyBalanceDomainTest {
     final var totalAmount = new BigDecimal("100.00");
     final var balanceSnapshot = new BigDecimal("120.00");
     final var newMovement =
-        AccountMovementDomain.withBalances(accountId, today, totalAmount, balanceSnapshot);
+        AccountMovementDomain.with(
+            accountId, today, totalAmount, balanceSnapshot, DEPOSIT, OTHER_INCOME_CATEGORY);
 
     ceroMonthlyBalance.syncMovement(newMovement);
 
@@ -103,7 +117,9 @@ public class AccountMonthlyBalanceDomainTest {
   @DisplayName("First deposit to monthly balance should not have profit")
   public void shouldSyncDepositWithoutSnapshotMovement() {
     final var totalAmount = new BigDecimal("100.00");
-    final var newMovement = AccountMovementDomain.withBalances(accountId, today, totalAmount, null);
+    final var newMovement =
+        AccountMovementDomain.with(
+            accountId, today, totalAmount, null, DEPOSIT, OTHER_INCOME_CATEGORY);
 
     ceroMonthlyBalance.syncMovement(newMovement);
 
@@ -122,7 +138,8 @@ public class AccountMonthlyBalanceDomainTest {
     final var totalAmount = new BigDecimal("115.00");
     final var balanceSnapshot = new BigDecimal("230.00");
     final var newMovement =
-        AccountMovementDomain.withBalances(accountId, today, totalAmount, balanceSnapshot);
+        AccountMovementDomain.with(
+            accountId, today, totalAmount, balanceSnapshot, DEPOSIT, OTHER_INCOME_CATEGORY);
 
     final BigDecimal existingTotalDebits = oneHundredMonthlyBalance.getTotalDebits();
 
@@ -142,7 +159,9 @@ public class AccountMonthlyBalanceDomainTest {
   @Test
   public void shouldSyncDepositWithoutSnapshotMovementOneHundred() {
     final var totalAmount = new BigDecimal("50.00");
-    final var newMovement = AccountMovementDomain.withBalances(accountId, today, totalAmount, null);
+    final var newMovement =
+        AccountMovementDomain.with(
+            accountId, today, totalAmount, null, DEPOSIT, OTHER_INCOME_CATEGORY);
     final BigDecimal existingTotalDebits = oneHundredMonthlyBalance.getTotalDebits();
     oneHundredMonthlyBalance.syncMovement(newMovement);
 
@@ -163,7 +182,8 @@ public class AccountMonthlyBalanceDomainTest {
     final var totalAmount = new BigDecimal("-100.00");
     final var balanceSnapshot = new BigDecimal("120.00");
     final var newMovement =
-        AccountMovementDomain.withBalances(accountId, today, totalAmount, balanceSnapshot);
+        AccountMovementDomain.with(
+            accountId, today, totalAmount, balanceSnapshot, WITHDRAWAL, PERSONAL_EXPENSE_CATEGORY);
 
     ceroMonthlyBalance.syncMovement(newMovement);
 
@@ -183,19 +203,27 @@ public class AccountMonthlyBalanceDomainTest {
     final var totalAmount = new BigDecimal("10.00");
     final var balanceSnapshot = new BigDecimal("120.00");
     final var newMovement =
-        AccountMovementDomain.withBalances(accountId, today, totalAmount, balanceSnapshot);
+        AccountMovementDomain.with(
+            accountId, today, totalAmount, balanceSnapshot, DEPOSIT, OTHER_INCOME_CATEGORY);
 
     // Earn 5.00 on 2nd deposit
     final var totalAmount2 = new BigDecimal("30.00");
     final var balanceSnapshot2 = new BigDecimal("170.00");
     final var newMovement2 =
-        AccountMovementDomain.withBalances(accountId, today, totalAmount2, balanceSnapshot2);
+        AccountMovementDomain.with(
+            accountId, today, totalAmount2, balanceSnapshot2, DEPOSIT, OTHER_INCOME_CATEGORY);
 
     // Earn 0 on the withdrawal
     final var totalAmount3 = new BigDecimal("-20.00");
     final var balanceSnapshot3 = new BigDecimal("170.00");
     final var newMovement3 =
-        AccountMovementDomain.withBalances(accountId, today, totalAmount3, balanceSnapshot3);
+        AccountMovementDomain.with(
+            accountId,
+            today,
+            totalAmount3,
+            balanceSnapshot3,
+            WITHDRAWAL,
+            PERSONAL_EXPENSE_CATEGORY);
 
     oneHundredMonthlyBalance.syncMovements(List.of(newMovement, newMovement2, newMovement3));
 
@@ -235,34 +263,87 @@ public class AccountMonthlyBalanceDomainTest {
             accountId, period5.getYear(), period5.getMonthValue());
 
     balance1.syncMovement(
-        AccountMovementDomain.withBalances(
-            accountId, today, new BigDecimal("10"), new BigDecimal("10")));
+        AccountMovementDomain.with(
+            accountId,
+            period1.atDay(1),
+            new BigDecimal("10"),
+            new BigDecimal("10"),
+            DEPOSIT,
+            OTHER_INCOME_CATEGORY));
     balance2.syncMovement(
-        AccountMovementDomain.withBalances(
-            accountId, today, new BigDecimal("20"), new BigDecimal("20")));
+        AccountMovementDomain.with(
+            accountId,
+            period2.atDay(1),
+            new BigDecimal("20"),
+            new BigDecimal("20"),
+            DEPOSIT,
+            OTHER_INCOME_CATEGORY));
     balance3.syncMovement(
-        AccountMovementDomain.withBalances(
-            accountId, today, new BigDecimal("30"), new BigDecimal("30")));
+        AccountMovementDomain.with(
+            accountId,
+            period3.atDay(1),
+            new BigDecimal("30"),
+            new BigDecimal("30"),
+            DEPOSIT,
+            OTHER_INCOME_CATEGORY));
     balance4.syncMovement(
-        AccountMovementDomain.withBalances(
-            accountId, today, new BigDecimal("40"), new BigDecimal("40")));
+        AccountMovementDomain.with(
+            accountId,
+            period4.atDay(1),
+            new BigDecimal("40"),
+            new BigDecimal("40"),
+            DEPOSIT,
+            OTHER_INCOME_CATEGORY));
     balance5.syncMovement(
-        AccountMovementDomain.withBalances(
-            accountId, today, new BigDecimal("50"), new BigDecimal("50")));
+        AccountMovementDomain.with(
+            accountId,
+            period5.atDay(1),
+            new BigDecimal("50"),
+            new BigDecimal("50"),
+            DEPOSIT,
+            OTHER_INCOME_CATEGORY));
 
     assertEquals(period1, balance1.getPeriod());
     assertEquals(period2, balance2.getPeriod());
     assertEquals(period3, balance3.getPeriod());
     assertEquals(period4, balance4.getPeriod());
     assertEquals(period5, balance5.getPeriod());
+  }
 
-    final var allMonthlyBalances =
-        new java.util.ArrayList<>(List.of(balance5, balance3, balance2, balance4, balance1));
-    Collections.sort(allMonthlyBalances);
-    assertEquals(period1, allMonthlyBalances.get(0).getPeriod());
-    assertEquals(period2, allMonthlyBalances.get(1).getPeriod());
-    assertEquals(period3, allMonthlyBalances.get(2).getPeriod());
-    assertEquals(period4, allMonthlyBalances.get(3).getPeriod());
-    assertEquals(period5, allMonthlyBalances.get(4).getPeriod());
+  @Test
+  public void shouldThrowExceptionWhenDifferentPeriod() {
+    final LocalDate initBalanceDate = LocalDate.of(2024, 8, 1);
+    final YearMonth initBalancePeriod = YearMonth.of(2024, 8);
+    final AccountMonthlyBalanceDomain accountMonthlyBalance =
+        AccountMonthlyBalanceDomain.withPeriod(
+            accountId, initBalanceDate.getYear(), initBalanceDate.getMonthValue());
+
+    // Add movement with balance snapshot of 2105192.00
+    final var initBalanceSnapshot = new BigDecimal("2105192.00");
+    accountMonthlyBalance.syncMovement(
+        AccountMovementDomain.with(
+            accountId, initBalanceDate, null, initBalanceSnapshot, BALANCE_SNAPSHOT, null));
+
+    assertEquals(initBalanceSnapshot, accountMonthlyBalance.getClosingBalance());
+    assertEquals(initBalancePeriod, accountMonthlyBalance.getPeriod());
+    assertEquals(JBH_ZERO, accountMonthlyBalance.getTotalDebits());
+    assertEquals(JBH_ZERO, accountMonthlyBalance.getTotalCredits());
+    assertEquals(JBH_ZERO, accountMonthlyBalance.getMovementBalance());
+    assertEquals(JBH_ZERO, accountMonthlyBalance.getOpeningBalance());
+    assertEquals(JBH_ZERO, accountMonthlyBalance.getMonthlyProfit());
+    assertEquals(0, accountMonthlyBalance.getTotalMovements());
+
+    // Add balance snapshot of 223.00 on 2024-09-01
+    final var septBalanceSnapshot = new BigDecimal("223.00");
+    final var septBalancePeriod = YearMonth.of(2024, 9);
+    final var septBalanceDate = septBalancePeriod.atDay(1);
+
+    assertThrows(
+        GenericSpecificationException.class,
+        () -> {
+          accountMonthlyBalance.syncMovement(
+              AccountMovementDomain.with(
+                  accountId, septBalanceDate, null, septBalanceSnapshot, BALANCE_SNAPSHOT, null));
+        });
   }
 }

@@ -1,6 +1,11 @@
 package com.jbh.account.domain.entity;
 
+import static com.jbh.account.domain.entity.MovementCategoryDomain.OTHER_INCOME_CATEGORY;
+import static com.jbh.account.domain.entity.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
+import static com.jbh.account.domain.vo.MovementType.DEPOSIT;
+import static com.jbh.account.domain.vo.MovementType.WITHDRAWAL;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -46,13 +51,18 @@ public class AccountMovementTest {
     final var balanceSnapshot = new BigDecimal("210.00");
     final var newMovement =
         AccountMovementDomain.withFileImport(
-            accountDomain.getId(), today, totalAmount, balanceSnapshot, importedAt);
+            accountDomain.getId(),
+            today,
+            totalAmount,
+            balanceSnapshot,
+            BALANCE_SNAPSHOT,
+            importedAt);
 
     assertTrue(newMovement.hasMetadata(AccountMovementDomain.FILE_IMPORT_TAG));
     assertTrue(newMovement.hasMetadata(AccountMovementDomain.FILE_IMPORTED_AT_TAG));
     assertEquals(
         importedAt, newMovement.getMetadataField(AccountMovementDomain.FILE_IMPORTED_AT_TAG));
-    assertEquals(MovementType.DEPOSIT, newMovement.getMovementType());
+    assertEquals(BALANCE_SNAPSHOT, newMovement.getMovementType());
   }
 
   @Test
@@ -60,10 +70,15 @@ public class AccountMovementTest {
     final var totalAmount = new BigDecimal("-100.00");
     final var balanceSnapshot = new BigDecimal("0.00");
     final var newMovement =
-        AccountMovementDomain.withBalances(
-            accountCeroBalance.getId(), today, totalAmount, balanceSnapshot);
+        AccountMovementDomain.with(
+            accountCeroBalance.getId(),
+            today,
+            totalAmount,
+            balanceSnapshot,
+            WITHDRAWAL,
+            PERSONAL_EXPENSE_CATEGORY);
 
-    assertEquals(MovementType.WITHDRAWAL, newMovement.getMovementType());
+    assertEquals(WITHDRAWAL, newMovement.getMovementType());
     assertEquals(totalAmount, newMovement.getMovementAmount());
     assertEquals(balanceSnapshot, newMovement.getBalanceSnapshot());
     assertEquals(today, newMovement.getMovementDate());
@@ -74,10 +89,10 @@ public class AccountMovementTest {
     final BigDecimal totalAmount = null;
     final var balanceSnapshot = new BigDecimal("200.00");
     final var newMovement =
-        AccountMovementDomain.withBalances(
-            account100Balance.getId(), today, totalAmount, balanceSnapshot);
+        AccountMovementDomain.with(
+            account100Balance.getId(), today, totalAmount, balanceSnapshot, BALANCE_SNAPSHOT, null);
 
-    assertEquals(MovementType.BALANCE_SNAPSHOT, newMovement.getMovementType());
+    assertEquals(BALANCE_SNAPSHOT, newMovement.getMovementType());
 
     assertEquals(balanceSnapshot, newMovement.getBalanceSnapshot());
     assertEquals(today, newMovement.getMovementDate());
@@ -90,21 +105,56 @@ public class AccountMovementTest {
 
     assertThrows(
         GenericSpecificationException.class,
-        () -> AccountMovementDomain.withBalances(null, null, null, null));
+        () -> AccountMovementDomain.with(null, null, null, null, null, null));
 
     assertThrows(
         GenericSpecificationException.class,
-        () -> AccountMovementDomain.withBalances(AccountId.generate(), null, null, null));
+        () -> AccountMovementDomain.with(AccountId.generate(), null, null, null, null, null));
 
     assertThrows(
         GenericSpecificationException.class,
-        () -> AccountMovementDomain.withBalances(accountCeroBalance.getId(), today, null, null));
+        () ->
+            AccountMovementDomain.with(accountCeroBalance.getId(), today, null, null, null, null));
+
+    assertThrows(
+        GenericSpecificationException.class,
+        () ->
+            AccountMovementDomain.with(
+                accountCeroBalance.getId(), today, new BigDecimal("100.00"), null, null, null));
+
+    assertThrows(
+        GenericSpecificationException.class,
+        () ->
+            AccountMovementDomain.with(
+                accountCeroBalance.getId(),
+                today,
+                new BigDecimal("100.00"),
+                null,
+                MovementType.DEPOSIT,
+                null));
 
     assertDoesNotThrow(
         () ->
-            AccountMovementDomain.withBalances(accountCeroBalance.getId(), today, JBH_ZERO, null));
+            AccountMovementDomain.with(
+                accountCeroBalance.getId(), today, JBH_ZERO, null, BALANCE_SNAPSHOT, null));
     assertDoesNotThrow(
         () ->
-            AccountMovementDomain.withBalances(accountCeroBalance.getId(), today, null, JBH_ZERO));
+            AccountMovementDomain.with(
+                accountCeroBalance.getId(),
+                today,
+                new BigDecimal("100"),
+                JBH_ZERO,
+                DEPOSIT,
+                OTHER_INCOME_CATEGORY));
+
+    assertDoesNotThrow(
+        () ->
+            AccountMovementDomain.with(
+                accountCeroBalance.getId(),
+                today,
+                new BigDecimal("-23.00"),
+                JBH_ZERO,
+                WITHDRAWAL,
+                PERSONAL_EXPENSE_CATEGORY));
   }
 }

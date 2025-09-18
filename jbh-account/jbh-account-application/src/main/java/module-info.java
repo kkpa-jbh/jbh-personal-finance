@@ -2,6 +2,7 @@ module jbh.account.application {
   requires jbh.account.domain;
   requires org.slf4j;
   requires java.logging;
+  requires static lombok;
 
   exports com.jbh.account.application.acid;
   exports com.jbh.account.application.common.logging;
@@ -28,4 +29,8 @@ module jbh.account.application {
       jbh.account.infra,
       jbh.z.assembly;
   exports com.jbh.account.application.async;
+  exports com.jbh.account.application.accounts.ports.output.monthlybalance to
+      jbh.account.infra,
+      jbh.z.assembly;
+  exports com.jbh.account.application.accounts.services.monthlybalance;
 }

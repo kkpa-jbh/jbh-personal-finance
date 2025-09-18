@@ -2,7 +2,7 @@ package com.jbh.account.infra.adapters.in.service;
 
 import static com.jbh.account.infra.common.utils.JbhStringUtils.isBlank;
 
-import com.jbh.account.application.accounts.vo.AddBasicMovementRequest;
+import com.jbh.account.infra.adapters.in.rest.vo.AddMovementsUploadedFileRequest;
 import com.jbh.account.infra.common.utils.JbhStringUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.IOException;
@@ -75,20 +75,20 @@ public final class ExcelMovementReaderService {
   }
 
   /**
-   * Main method that reads Excel data and transforms it to AddBasicMovementRequest objects.
+   * Main method that reads Excel data and transforms it to AddMovementsUploadedFileRequest objects.
    *
    * @param fileInputStream The Excel file input stream
    * @param sheetName The name of the sheet to read from
-   * @return List of AddBasicMovementRequest objects in the same order as Excel rows
+   * @return List of AddMovementsUploadedFileRequest objects in the same order as Excel rows
    * @throws ExcelReadingException if there's an error reading or parsing the Excel file
    */
-  public List<AddBasicMovementRequest> readMovementsFromExcel(
+  public List<AddMovementsUploadedFileRequest> readMovementsFromExcel(
       final InputStream fileInputStream, final String sheetName) throws ExcelReadingException {
 
     LOGGER.info("Starting to read movements from Excel sheet: {}", sheetName);
 
     final List<List<String>> rawData = readRawDataFromExcel(fileInputStream, sheetName);
-    final List<AddBasicMovementRequest> movements = transformRawDataToMovements(rawData);
+    final List<AddMovementsUploadedFileRequest> movements = transformRawDataToMovements(rawData);
 
     LOGGER.info("Successfully read {} movements from Excel sheet: {}", movements.size(), sheetName);
     return movements;
@@ -214,16 +214,16 @@ public final class ExcelMovementReaderService {
   }
 
   /**
-   * Transforms raw string data to AddBasicMovementRequest objects.
+   * Transforms raw string data to AddMovementsUploadedFileRequest objects.
    *
    * @param rawData List of string arrays representing Excel rows
-   * @return List of AddBasicMovementRequest objects
+   * @return List of AddMovementsUploadedFileRequest objects
    * @throws ExcelReadingException if there's an error parsing the data
    */
-  private List<AddBasicMovementRequest> transformRawDataToMovements(
+  private List<AddMovementsUploadedFileRequest> transformRawDataToMovements(
       final List<List<String>> rawData) throws ExcelReadingException {
 
-    final List<AddBasicMovementRequest> movements = new ArrayList<>();
+    final List<AddMovementsUploadedFileRequest> movements = new ArrayList<>();
 
     LocalDate lastMovementDate = null;
     for (int i = 0; i < rawData.size(); i++) {
@@ -242,7 +242,7 @@ public final class ExcelMovementReaderService {
 
       final BigDecimal totalAmount = parseAmount(rowData.get(TOTAL_AMOUNT_COLUMN));
       final BigDecimal balanceSnapshot = parseAmount(rowData.get(BALANCE_SNAPSHOT_COLUMN));
-      movements.add(new AddBasicMovementRequest(entryDate, totalAmount, balanceSnapshot));
+      movements.add(new AddMovementsUploadedFileRequest(entryDate, totalAmount, balanceSnapshot));
     }
 
     return movements;

@@ -29,6 +29,7 @@
     <exclude name="ShortMethodName"/>
     <!-- Allow single return style -->
     <exclude name="OnlyOneReturn"/>
+    <exclude name="UseExplicitTypes"/>
   </rule>
 
   <rule ref="category/java/codestyle.xml/FieldNamingConventions">

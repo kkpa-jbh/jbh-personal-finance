@@ -1,7 +1,7 @@
 package com.jbh.account.infra.adapters.out.persistence.account;
 
+import com.jbh.account.application.accounts.dto.AccountDTO;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
-import com.jbh.account.domain.vo.AccountDomainDTO;
 import com.jbh.account.domain.vo.AccountId;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -18,7 +18,7 @@ public class AccountRepositoryAdapter implements AccountRepository {
   @Inject AccountJPARepository jpaRepo;
 
   @Override
-  public Optional<AccountDomainDTO> findByAccountId(final UUID userId, final AccountId accountId) {
+  public Optional<AccountDTO> findByAccountId(final UUID userId, final AccountId accountId) {
     if (userId == null || accountId == null || accountId.value() == null) {
       throw new IllegalArgumentException("User ID or Account ID cannot be null");
     }
@@ -30,7 +30,7 @@ public class AccountRepositoryAdapter implements AccountRepository {
 
   @Override
   @Transactional
-  public AccountDomainDTO save(final AccountDomainDTO account) {
+  public AccountDTO save(final AccountDTO account) {
     AccountJPAEntity entity = AccountJPAEntity.of(account);
 
     // If ID is null, it's a new entity - use persist

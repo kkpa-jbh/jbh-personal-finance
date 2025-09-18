@@ -1,6 +1,6 @@
 package com.jbh.account.infra.adapters.out.persistence.account;
 
-import com.jbh.account.domain.vo.AccountDomainDTO;
+import com.jbh.account.application.accounts.dto.AccountDTO;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
@@ -63,17 +63,17 @@ public class AccountJPAEntity extends PanacheEntityBase {
   @Column(name = "updated_at", nullable = false)
   public LocalDateTime updatedAt;
 
-  public static AccountJPAEntity of(final AccountDomainDTO account) {
+  public static AccountJPAEntity of(final AccountDTO account) {
     final AccountJPAEntity accountJpaEntity = new AccountJPAEntity();
-    accountJpaEntity.setId(account.getId() != null ? account.getId().value() : null);
-    accountJpaEntity.setName(account.getName());
-    accountJpaEntity.setType(account.getType());
-    accountJpaEntity.setUserId(account.getUserId());
-    accountJpaEntity.setMovementBalance(account.getMovementBalance());
-    accountJpaEntity.setCurrentBalance(account.getCurrentBalance());
-    accountJpaEntity.setProfitBalance(account.getProfitBalance());
-    accountJpaEntity.setCreatedAt(account.getCreatedAt());
-    accountJpaEntity.setUpdatedAt(account.getUpdatedAt());
+    accountJpaEntity.setId(account.id() != null ? account.id().value() : null);
+    accountJpaEntity.setName(account.name());
+    accountJpaEntity.setType(account.type());
+    accountJpaEntity.setUserId(account.userId());
+    accountJpaEntity.setMovementBalance(account.movementBalance());
+    accountJpaEntity.setCurrentBalance(account.currentBalance());
+    accountJpaEntity.setProfitBalance(account.profitBalance());
+    accountJpaEntity.setCreatedAt(account.createdAt());
+    accountJpaEntity.setUpdatedAt(account.updatedAt());
     return accountJpaEntity;
   }
 
@@ -88,8 +88,8 @@ public class AccountJPAEntity extends PanacheEntityBase {
     updatedAt = LocalDateTime.now();
   }
 
-  public AccountDomainDTO toDTO() {
-    return AccountDomainDTO.builder()
+  public AccountDTO toDTO() {
+    return AccountDTO.builder()
         .id(AccountId.of(id))
         .name(name)
         .type(type)
