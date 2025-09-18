@@ -56,12 +56,24 @@ public record AddMovementCommand(
   }
 
   public void validate() {
+    validateEntryDate();
+    validateMovementType();
+    validateAmounts();
+  }
+
+  private void validateEntryDate() {
     if (entryDate == null) {
       throw new IllegalArgumentException("Entry date cannot be null");
     }
+  }
+
+  private void validateMovementType() {
     if (movementType == null) {
       throw new IllegalArgumentException("Movement type cannot be null");
     }
+  }
+
+  private void validateAmounts() {
     if (totalAmount == null && balanceSnapshot == null) {
       throw new IllegalArgumentException("There is not any amount to add");
     }

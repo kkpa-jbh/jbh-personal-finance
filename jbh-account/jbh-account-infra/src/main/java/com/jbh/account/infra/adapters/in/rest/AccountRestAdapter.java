@@ -24,7 +24,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("PMD.UnnecessaryAnnotationValueElement")
+@SuppressWarnings({"PMD.UnnecessaryAnnotationValueElement", "PMD.CallSuperInConstructor"})
 @RequestScoped
 @Path(AccountApiRoutes.ACCOUNTS_API_PATH)
 @Tag(name = "Account Operations", description = "Account management operations")

@@ -1,8 +1,10 @@
 package com.jbh.account.application.accounts.ports.input;
 
+import static com.jbh.account.application.accounts.mappers.AccountMapper.toDTO;
+import static com.jbh.account.application.accounts.mappers.AccountMapper.toDomain;
+
 import com.jbh.account.application.accounts.dto.AccountDTO;
 import com.jbh.account.application.accounts.dto.AddMultipleBasicMovementDTO;
-import com.jbh.account.application.accounts.mappers.AccountMapper;
 import com.jbh.account.application.accounts.mappers.MovementMapper;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import com.jbh.account.application.accounts.services.MonthlyBalanceSyncerAppService;
@@ -29,7 +31,6 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
   private final AccountRepository accountRepo;
   private final MonthlyBalanceSyncerAppService monthlyBalanceSyncerService;
   private final UnitOfWork unitOfWork;
-  private final AccountMapper accountMapper;
 
   public AddMovementsUploadedFileInputPort(
       final AccountRepository accountRepo,
@@ -40,7 +41,6 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
     this.accountRepo = accountRepo;
     this.unitOfWork = unitOfWork;
     this.monthlyBalanceSyncerService = monthlyBalanceSyncerService;
-    this.accountMapper = new AccountMapper();
   }
 
   /**
@@ -105,7 +105,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
                   return new IllegalArgumentException("Account not found");
                 });
 
-    return accountMapper.toDomain(accountDTO);
+    return toDomain(accountDTO);
   }
 
   /**
@@ -142,7 +142,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
   private AccountDTO syncAccountBalanceByMovements(
       final AccountDomain accountDomain, final List<AccountMovementDomain> newMovements) {
     accountDomain.syncBalancesWithUploadedMovements(newMovements);
-    return accountMapper.toDTO(accountDomain);
+    return toDTO(accountDomain);
   }
 
   private void persistMovement(

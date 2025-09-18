@@ -119,11 +119,9 @@ public class MonthlyBalanceSyncerAppService {
           saveMultiMovements(monthlyBalances);
 
           // Step 2: Sync profit data (executes IMMEDIATELY after step 1 completes)
-          final List<AccountMonthlyBalanceDTO> profitBalances =
-              syncProfitMonthlyFromPeriod(accountId, initPeriod, lastPeriod);
 
           // Step 3: Return profit balances (they contain the combined results)
-          return profitBalances;
+          return syncProfitMonthlyFromPeriod(accountId, initPeriod, lastPeriod);
         });
   }
 

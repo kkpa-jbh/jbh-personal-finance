@@ -37,21 +37,21 @@ import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("PMD.UnnecessaryAnnotationValueElement")
+@SuppressWarnings({"PMD.UnnecessaryAnnotationValueElement", "PMD.CallSuperInConstructor"})
 @RequestScoped
 @Path(AccountApiRoutes.ACCOUNTS_API_PATH)
 @Tag(name = "Upload movements to an account", description = "Register multiple movements")
 public class AccountUploadFileRestAdapter extends BaseRestAdapter {
 
   private final ExcelMovementReaderService excelMovementReaderService;
-  private final AddMovementsUploadedFileUseCase addMovementsUploadedFileUseCase;
+  private final AddMovementsUploadedFileUseCase addUploadedMvmntsUseCase;
   private final Logger log = LoggerFactory.getLogger(AccountUploadFileRestAdapter.class);
 
   public AccountUploadFileRestAdapter(
-      final AddMovementsUploadedFileUseCase addMovementsUploadedFileUseCase,
+      final AddMovementsUploadedFileUseCase addUploadedMvmntsUseCase,
       final ExcelMovementReaderService excelMovementReaderService) {
     this.excelMovementReaderService = excelMovementReaderService;
-    this.addMovementsUploadedFileUseCase = addMovementsUploadedFileUseCase;
+    this.addUploadedMvmntsUseCase = addUploadedMvmntsUseCase;
   }
 
   @POST
@@ -119,7 +119,7 @@ public class AccountUploadFileRestAdapter extends BaseRestAdapter {
           processExcelFile(fileUpload, sheetName);
       final List<AddMovementUploadedFileCommand> movementsCommandList =
           transformMovementsToCommands(movements);
-      addMovementsUploadedFileUseCase.uploadMovementsFromFile(
+      addUploadedMvmntsUseCase.uploadMovementsFromFile(
           userId, AccountId.of(accountId), movementsCommandList);
 
       log.info("Successfully processed {} movements from Excel file", movements.size());

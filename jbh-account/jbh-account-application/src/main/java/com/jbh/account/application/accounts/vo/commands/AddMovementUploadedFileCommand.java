@@ -32,9 +32,6 @@ public record AddMovementUploadedFileCommand(
     if (entryDate == null) {
       throw new IllegalArgumentException("Entry date cannot be null");
     }
-    if (movementType == null) {
-      throw new IllegalArgumentException("Movement type cannot be null");
-    }
     if (totalAmount == null && balanceSnapshot == null) {
       throw new IllegalArgumentException("There is not any amount to add");
     }

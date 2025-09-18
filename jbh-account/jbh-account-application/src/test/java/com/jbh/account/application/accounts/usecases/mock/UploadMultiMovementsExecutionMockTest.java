@@ -83,6 +83,22 @@ public class UploadMultiMovementsExecutionMockTest {
   }
 
   @Test
+  @DisplayName("Should validate command")
+  void shouldValidateCommand() {
+    // Given
+    final LocalDate entryDate = LocalDate.now();
+    final BigDecimal totalAmount = new BigDecimal("100.00");
+    final BigDecimal balanceSnapshot = new BigDecimal("120.00");
+    final AddMovementUploadedFileCommand commandWithoutDate =
+        new AddMovementUploadedFileCommand(null, totalAmount, balanceSnapshot);
+
+    assertThrows(IllegalArgumentException.class, commandWithoutDate::validate);
+
+    final AddMovementUploadedFileCommand commandWithoutAmount =
+        new AddMovementUploadedFileCommand(entryDate, null, null);
+  }
+
+  @Test
   @DisplayName("Should create movements for NU")
   void shouldCreateMovementsForNU()
       throws ExecutionException, InterruptedException, TimeoutException {

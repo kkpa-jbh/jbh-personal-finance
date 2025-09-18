@@ -3,7 +3,9 @@ package com.jbh.account.application.accounts.mappers;
 import com.jbh.account.application.accounts.dto.AccountDTO;
 import com.jbh.account.domain.entity.AccountDomain;
 
-public class AccountMapper {
+public final class AccountMapper {
+
+  private AccountMapper() {}
 
   public static AccountDTO toDTO(final AccountDomain domain) {
     if (domain == null) {

@@ -90,9 +90,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    useCaseTest =
-        new RegisterMonthlyBalanceInputPort(
-            accountRepository, monthlyBalanceService, accountMovementRepository);
+    useCaseTest = new RegisterMonthlyBalanceInputPort(monthlyBalanceService);
 
     monthlyBalanceSyncer =
         new MonthlyBalanceSyncerAppService(monthlyBalanceService, new AsyncTaskExecutorImpl());

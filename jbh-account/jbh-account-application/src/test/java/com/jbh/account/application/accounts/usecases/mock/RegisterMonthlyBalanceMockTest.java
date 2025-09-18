@@ -58,9 +58,7 @@ public class RegisterMonthlyBalanceMockTest {
 
     monthlyBalanceService = spy(realMonthlyBalanceService);
 
-    useCaseInstanceTest =
-        new RegisterMonthlyBalanceInputPort(
-            accountRepository, monthlyBalanceService, accountMovementRepository);
+    useCaseInstanceTest = new RegisterMonthlyBalanceInputPort(monthlyBalanceService);
   }
 
   @Test

@@ -30,6 +30,7 @@
     <!-- Allow single return style -->
     <exclude name="OnlyOneReturn"/>
     <exclude name="UseExplicitTypes"/>
+    <exclude name="CallSuperInConstructor"/>
   </rule>
 
   <rule ref="category/java/codestyle.xml/FieldNamingConventions">

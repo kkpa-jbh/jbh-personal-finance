@@ -1,11 +1,9 @@
 package com.jbh.account.application.accounts.ports.input;
 
-import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import com.jbh.account.application.accounts.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.accounts.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.accounts.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.exceptions.JbhSpecificationApplication;
-import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
@@ -19,17 +17,10 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
 
   private static final Logger log = LoggerFactory.getLogger(RegisterMonthlyBalanceInputPort.class);
 
-  private final AccountRepository accountRepo;
-  private final AccountMovementRepository accountMovementRepository;
   private final MonthlyBalanceService monthlyBalanceService;
 
-  public RegisterMonthlyBalanceInputPort(
-      final AccountRepository accountRepo,
-      final MonthlyBalanceService monthlyBalanceService,
-      final AccountMovementRepository accountMovementRepository) {
-    this.accountRepo = accountRepo;
+  public RegisterMonthlyBalanceInputPort(final MonthlyBalanceService monthlyBalanceService) {
     this.monthlyBalanceService = monthlyBalanceService;
-    this.accountMovementRepository = accountMovementRepository;
   }
 
   /**

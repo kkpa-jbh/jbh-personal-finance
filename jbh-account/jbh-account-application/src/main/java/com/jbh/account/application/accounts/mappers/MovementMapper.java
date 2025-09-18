@@ -3,7 +3,9 @@ package com.jbh.account.application.accounts.mappers;
 import com.jbh.account.application.accounts.dto.MovementDTO;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 
-public class MovementMapper {
+public final class MovementMapper {
+
+  private MovementMapper() {}
 
   public static MovementDTO toDTO(final AccountMovementDomain domain) {
     if (domain == null) {

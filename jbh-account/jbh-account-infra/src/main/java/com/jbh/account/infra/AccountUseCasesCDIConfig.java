@@ -1,6 +1,7 @@
 package com.jbh.account.infra;
 
 import com.jbh.account.application.accounts.ports.input.AddMovementInputPort;
+import com.jbh.account.application.accounts.ports.input.AddMovementsUploadedFileInputPort;
 import com.jbh.account.application.accounts.ports.input.CreateAccountInputPort;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import com.jbh.account.application.accounts.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
@@ -50,5 +51,12 @@ public class AccountUseCasesCDIConfig {
     return new MonthlyBalanceSyncerAppService(
         new MonthlyBalanceServiceImpl(monthlyBalanceQueryRepo, monthlyBalanceWriterRepo),
         new AsyncTaskExecutorImpl());
+  }
+
+  @Produces
+  @ApplicationScoped
+  public AddMovementsUploadedFileInputPort registeringAddMovementsUploadedFileUseCase() {
+    return new AddMovementsUploadedFileInputPort(
+        accountRepository, accountMovementRepo, unitOfWork, monthlyBalanceSyncerAppService());
   }
 }
