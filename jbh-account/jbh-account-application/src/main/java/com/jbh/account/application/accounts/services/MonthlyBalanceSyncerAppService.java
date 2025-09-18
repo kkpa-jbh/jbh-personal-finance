@@ -116,7 +116,7 @@ public class MonthlyBalanceSyncerAppService {
         asyncTask,
         () -> {
           // Step 1: Save balances (executes first)
-          saveMultiMovements(monthlyBalances);
+          saveMultiBalances(monthlyBalances);
 
           // Step 2: Sync profit data (executes IMMEDIATELY after step 1 completes)
 
@@ -125,7 +125,7 @@ public class MonthlyBalanceSyncerAppService {
         });
   }
 
-  private void saveMultiMovements(final List<AccountMonthlyBalanceDTO> monthlyBalanceToPersist) {
+  private void saveMultiBalances(final List<AccountMonthlyBalanceDTO> monthlyBalanceToPersist) {
     LOG.info(
         "Saving Monthly Balances {}",
         monthlyBalanceToPersist.stream().map(AccountMonthlyBalanceDTO::getPeriod).toList());
@@ -209,7 +209,7 @@ public class MonthlyBalanceSyncerAppService {
     // persist monthly balances with profit and opening balances synced.
     final List<AccountMonthlyBalanceDTO> profitBalancesSyncedDto =
         profitBalancesSynced.stream().map(AccountMonthlyBalanceDomain::toDTO).toList();
-    saveMultiMovements(profitBalancesSyncedDto);
+    saveMultiBalances(profitBalancesSyncedDto);
 
     return profitBalancesSyncedDto;
   }
