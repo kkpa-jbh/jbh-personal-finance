@@ -1,10 +1,11 @@
-package com.jbh.account.application.accounts.usecases.inmemory;
+package com.jbh.account.application.accounts.usecases.integration;
 
+import static com.jbh.account.application.accounts.usecases.integration.monthlybalance.MonthlyBalanceITUtils.assertBalance;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
 import com.jbh.account.application.accounts.ports.output.monthlybalance.inmemory.InMemoryMonthlyBalanceRepositories;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.List;
@@ -45,11 +46,18 @@ class MonthlyBalanceInMemoryRepositoryTest {
     final Optional<AccountMonthlyBalanceDTO> retrieved =
         repositories.getQueryRepo().findByAccountIdYearAndMonth(testAccountId, 2024, 3);
 
+    final AccountMonthlyBalanceDTO expected =
+        AccountMonthlyBalanceDTO.defaultBuilder()
+            .accountId(testAccountId)
+            .year(2024)
+            .month(3)
+            .period(YearMonth.of(2024, 3))
+            .openingBalance(BigDecimal.valueOf(1000))
+            .closingBalance(BigDecimal.valueOf(1200))
+            .build();
+
     assertTrue(retrieved.isPresent());
-    assertEquals(testAccountId, retrieved.get().getAccountId());
-    assertEquals(YearMonth.of(2024, 3), retrieved.get().getPeriod());
-    assertEquals(BigDecimal.valueOf(1000), retrieved.get().getOpeningBalance());
-    assertEquals(BigDecimal.valueOf(1200), retrieved.get().getClosingBalance());
+    assertBalance(expected, retrieved.get());
   }
 
   @Test
@@ -72,9 +80,9 @@ class MonthlyBalanceInMemoryRepositoryTest {
             .findNextBalancesFromPeriodInclusive(testAccountId, YearMonth.of(2024, 2));
 
     assertEquals(3, retrieved.size());
-    assertEquals(YearMonth.of(2024, 2), retrieved.get(0).getPeriod());
-    assertEquals(YearMonth.of(2024, 3), retrieved.get(1).getPeriod());
-    assertEquals(YearMonth.of(2024, 4), retrieved.get(2).getPeriod());
+    assertEquals(YearMonth.of(2024, 2), retrieved.get(0).period());
+    assertEquals(YearMonth.of(2024, 3), retrieved.get(1).period());
+    assertEquals(YearMonth.of(2024, 4), retrieved.get(2).period());
   }
 
   private AccountMonthlyBalanceDTO createBalance(
@@ -112,8 +120,8 @@ class MonthlyBalanceInMemoryRepositoryTest {
 
     assertTrue(account1Balance.isPresent());
     assertTrue(account2Balance.isPresent());
-    assertEquals(BigDecimal.valueOf(1000), account1Balance.get().getClosingBalance());
-    assertEquals(BigDecimal.valueOf(2000), account2Balance.get().getClosingBalance());
+    assertEquals(BigDecimal.valueOf(1000), account1Balance.get().closingBalance());
+    assertEquals(BigDecimal.valueOf(2000), account2Balance.get().closingBalance());
   }
 
   @Test

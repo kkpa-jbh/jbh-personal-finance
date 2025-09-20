@@ -1,15 +1,21 @@
 package com.jbh.account.application.accounts.services.monthlybalance;
 
+import static com.jbh.account.application.accounts.mappers.MonthlyBalanceMapper.toDomain;
+
+import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.accounts.mappers.MonthlyBalanceMapper;
 import com.jbh.account.application.accounts.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.accounts.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
+  private static final Logger LOG = LoggerFactory.getLogger(MonthlyBalanceServiceImpl.class);
   private final AccountMonthlyBalanceQueryRepo queryRepo;
   private final AccountMonthlyBalanceWriterRepository writerRepo;
 
@@ -41,26 +47,27 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   @Override
   public AccountMonthlyBalanceDTO updateOpeningBalanceNextMonth(
       final AccountMonthlyBalanceDTO currentMonthlyBalance) {
-    final YearMonth nextPeriod = currentMonthlyBalance.getPeriod().plusMonths(1);
+    final YearMonth nextPeriod = currentMonthlyBalance.period().plusMonths(1);
 
-    final AccountMonthlyBalanceDTO nextMonthlyBalance =
+    final AccountMonthlyBalanceDomain nextMonthlyBalance =
         queryRepo
             .findByAccountIdYearAndMonth(
-                currentMonthlyBalance.getAccountId(),
-                nextPeriod.getYear(),
-                nextPeriod.getMonthValue())
+                currentMonthlyBalance.accountId(), nextPeriod.getYear(), nextPeriod.getMonthValue())
+            .map(MonthlyBalanceMapper::toDomain)
             .orElseGet(
                 () ->
                     AccountMonthlyBalanceDomain.withPeriod(
-                            currentMonthlyBalance.getAccountId(),
-                            nextPeriod.getYear(),
-                            nextPeriod.getMonthValue())
-                        .toDTO());
+                        currentMonthlyBalance.accountId(),
+                        nextPeriod.getYear(),
+                        nextPeriod.getMonthValue()));
 
-    nextMonthlyBalance.adjustOpeningBalance(currentMonthlyBalance.getClosingBalance());
-    saveBalance(nextMonthlyBalance);
+    nextMonthlyBalance.adjustOpeningBalance(toDomain(currentMonthlyBalance));
 
-    return nextMonthlyBalance;
+    final AccountMonthlyBalanceDTO nextMonthlyBalanceDTO =
+        MonthlyBalanceMapper.toDTO(nextMonthlyBalance);
+    saveBalance(nextMonthlyBalanceDTO);
+
+    return nextMonthlyBalanceDTO;
   }
 
   @Override
@@ -71,6 +78,12 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   @Override
   public List<AccountMonthlyBalanceDTO> saveMultiBalances(
       final List<AccountMonthlyBalanceDTO> accountMonthlyBalance) {
-    return writerRepo.saveMultiBalances(accountMonthlyBalance);
+    LOG.info(
+        "Persisting in database Monthly Balances {}",
+        accountMonthlyBalance.stream().map(AccountMonthlyBalanceDTO::period).toList());
+    final List<AccountMonthlyBalanceDTO> savedBalances =
+        writerRepo.saveMultiBalances(accountMonthlyBalance);
+    LOG.info("Monthly Balances persisted successfully");
+    return savedBalances;
   }
 }

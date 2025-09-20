@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.jbh.account.application.accounts.dto.AccountDTO;
+import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
 import com.jbh.account.application.accounts.dto.AddBasicMovementDTO;
 import com.jbh.account.application.accounts.dto.MovementDTO;
 import com.jbh.account.application.accounts.mappers.AccountMapper;
@@ -26,9 +27,7 @@ import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountDomain;
-import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import java.math.BigDecimal;
@@ -101,12 +100,11 @@ public class RegisterMovementExecutionMockTest {
     verify(accountRepository).save(any());
 
     assertEquals(mvmtResponse.get().account().movementBalance(), amount);
-    final AccountMonthlyBalanceDTO actualMonthlyBalances =
-        mvmtResponse.get().monthlyBalance().toDTO();
-    assertEquals(amount, actualMonthlyBalances.getTotalDebits());
-    assertEquals(amount, actualMonthlyBalances.getClosingBalance());
-    assertEquals(JBH_ZERO, actualMonthlyBalances.getOpeningBalance());
-    assertEquals(JBH_ZERO, actualMonthlyBalances.getMonthlyProfit());
+    final AccountMonthlyBalanceDTO actualMonthlyBalances = mvmtResponse.get().monthlyBalance();
+    assertEquals(amount, actualMonthlyBalances.totalDebits());
+    assertEquals(amount, actualMonthlyBalances.closingBalance());
+    assertEquals(JBH_ZERO, actualMonthlyBalances.openingBalance());
+    assertEquals(JBH_ZERO, actualMonthlyBalances.monthlyProfit());
 
     when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(
             accountId, YearMonth.of(movementDate.getYear(), movementDate.getMonthValue())))
@@ -114,16 +112,17 @@ public class RegisterMovementExecutionMockTest {
 
     final List<AccountMonthlyBalanceDTO> futureResponse =
         monthlyBalanceSyncerService
-            .saveMonthlyBalancesASYNC(accountId, Collections.singletonList(actualMonthlyBalances))
+            .persistBalancesAndSyncThemASYNC(
+                accountId, Collections.singletonList(actualMonthlyBalances))
             .get();
 
     assertEquals(2, futureResponse.size());
 
     // Year and month are not the same
-    assertEquals(movementDate.plusMonths(1).getMonthValue(), futureResponse.get(1).getMonth());
-    assertEquals(amount, futureResponse.get(1).getOpeningBalance());
-    assertEquals(JBH_ZERO, futureResponse.get(0).getMonthlyProfit());
-    assertEquals(JBH_ZERO, futureResponse.get(1).getMonthlyProfit());
+    assertEquals(movementDate.plusMonths(1).getMonthValue(), futureResponse.get(1).month());
+    assertEquals(amount, futureResponse.get(1).openingBalance());
+    assertEquals(JBH_ZERO, futureResponse.get(0).monthlyProfit());
+    assertEquals(JBH_ZERO, futureResponse.get(1).monthlyProfit());
   }
 
   private AccountDomain withId(final AccountId accountId) {
@@ -159,12 +158,12 @@ public class RegisterMovementExecutionMockTest {
 
     assertEquals(balanceSnashot, mvmtResponse.get().account().currentBalance());
     assertEquals(existingAccountPpalBalance, mvmtResponse.get().account().movementBalance());
-    assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().getTotalDebits());
-    assertEquals(0, mvmtResponse.get().monthlyBalance().getTotalMovements());
-    assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().getTotalCredits());
-    assertEquals(balanceSnashot, mvmtResponse.get().monthlyBalance().getClosingBalance());
-    assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().getMonthlyProfit());
-    assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().getOpeningBalance());
+    assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().totalDebits());
+    assertEquals(0, mvmtResponse.get().monthlyBalance().totalMovements());
+    assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().totalCredits());
+    assertEquals(balanceSnashot, mvmtResponse.get().monthlyBalance().closingBalance());
+    assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().monthlyProfit());
+    assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().openingBalance());
   }
 
   @Test
@@ -202,17 +201,17 @@ public class RegisterMovementExecutionMockTest {
     assertEquals(amount.add(existingMovBalance), accountResponse.movementBalance());
     assertEquals(balanceSnapshot, accountResponse.currentBalance());
 
-    final AccountMonthlyBalanceDomain monthlyBalanceResponse = mvmtResponse.get().monthlyBalance();
+    final AccountMonthlyBalanceDTO monthlyBalanceResponse = mvmtResponse.get().monthlyBalance();
     final YearMonth expectedYearMonth =
         YearMonth.of(movementDate.getYear(), movementDate.getMonthValue());
     assertEquals(
         expectedYearMonth,
-        YearMonth.of(monthlyBalanceResponse.getYear(), monthlyBalanceResponse.getMonth()));
-    assertEquals(expectedYearMonth, monthlyBalanceResponse.getPeriod());
-    assertEquals(balanceSnapshot, monthlyBalanceResponse.getClosingBalance());
-    assertEquals(amount, monthlyBalanceResponse.getTotalDebits());
-    assertEquals(JBH_ZERO, monthlyBalanceResponse.getTotalCredits());
-    assertEquals(1, monthlyBalanceResponse.getTotalMovements());
+        YearMonth.of(monthlyBalanceResponse.year(), monthlyBalanceResponse.month()));
+    assertEquals(expectedYearMonth, monthlyBalanceResponse.period());
+    assertEquals(balanceSnapshot, monthlyBalanceResponse.closingBalance());
+    assertEquals(amount, monthlyBalanceResponse.totalDebits());
+    assertEquals(JBH_ZERO, monthlyBalanceResponse.totalCredits());
+    assertEquals(1, monthlyBalanceResponse.totalMovements());
     assertEquals(DEPOSIT, mvmtResponse.get().movement().movementType());
   }
 
@@ -233,8 +232,8 @@ public class RegisterMovementExecutionMockTest {
     final BigDecimal existingClosingBalance = new BigDecimal("600.00");
     final BigDecimal existingTotalCredits = new BigDecimal("200.00");
     final BigDecimal existingOpeningBalance = new BigDecimal("500.00");
-    final AccountMonthlyBalanceDomain existingMonthlyBalance =
-        AccountMonthlyBalanceDomain.builder()
+    final AccountMonthlyBalanceDTO existingMonthlyBalance =
+        AccountMonthlyBalanceDTO.builder()
             .id(1L)
             .accountId(accountId)
             .year(movementDate.getYear())
@@ -249,7 +248,7 @@ public class RegisterMovementExecutionMockTest {
 
     when(accountMonthlyBalanceRepository.findByAccountIdYearAndMonth(
             accountId, movementDate.getYear(), movementDate.getMonthValue()))
-        .thenReturn(Optional.of(existingMonthlyBalance.toDTO()));
+        .thenReturn(Optional.of(existingMonthlyBalance));
 
     // When & Then
     final BigDecimal amount = new BigDecimal("100.00");
@@ -266,15 +265,14 @@ public class RegisterMovementExecutionMockTest {
         .saveBalance((AccountMonthlyBalanceDTO) any());
 
     assertEquals(amount, processedResponse.get().account().movementBalance());
-    assertEquals(existingEntries + 1, processedResponse.get().monthlyBalance().getTotalMovements());
+    assertEquals(existingEntries + 1, processedResponse.get().monthlyBalance().totalMovements());
     assertEquals(
-        existingTotalDebits.add(amount), processedResponse.get().monthlyBalance().getTotalDebits());
-    assertEquals(
-        existingOpeningBalance, processedResponse.get().monthlyBalance().getOpeningBalance());
+        existingTotalDebits.add(amount), processedResponse.get().monthlyBalance().totalDebits());
+    assertEquals(existingOpeningBalance, processedResponse.get().monthlyBalance().openingBalance());
     assertEquals(
         existingClosingBalance.add(amount),
-        processedResponse.get().monthlyBalance().getClosingBalance());
-    assertEquals(existingTotalCredits, processedResponse.get().monthlyBalance().getTotalCredits());
+        processedResponse.get().monthlyBalance().closingBalance());
+    assertEquals(existingTotalCredits, processedResponse.get().monthlyBalance().totalCredits());
     assertEquals(DEPOSIT, processedResponse.get().movement().movementType());
   }
 }

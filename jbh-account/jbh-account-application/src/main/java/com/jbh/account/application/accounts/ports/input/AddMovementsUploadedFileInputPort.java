@@ -4,6 +4,7 @@ import static com.jbh.account.application.accounts.mappers.AccountMapper.toDTO;
 import static com.jbh.account.application.accounts.mappers.AccountMapper.toDomain;
 
 import com.jbh.account.application.accounts.dto.AccountDTO;
+import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
 import com.jbh.account.application.accounts.dto.AddMultipleBasicMovementDTO;
 import com.jbh.account.application.accounts.mappers.MovementMapper;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
@@ -14,7 +15,6 @@ import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.common.logging.LoggerFactory;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountDomain;
-import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;
@@ -45,7 +45,8 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
 
   /**
    * The user adds a list of basic movements to the account by uploading a CSV file. \n The
-   * movements are validated and persisted in the database.
+   * movements are validated and persisted in the database. The monthly balance is also synced
+   * asynchronously.
    *
    * @param userId
    * @param accountId
@@ -58,6 +59,26 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
       final AccountId accountId,
       final List<AddMovementUploadedFileCommand> allUploadedMovCommand) {
 
+    validateUploadedMovements(allUploadedMovCommand);
+
+    final AccountDomain accountDomain = findAccountOrElseThrow(userId, accountId);
+
+    final List<AccountMovementDomain> uploadedMovements =
+        mapCommandToDomain(allUploadedMovCommand, accountDomain);
+
+    // Sync account balance
+    final AccountDTO accountDTO = syncAccountBalanceByMovements(accountDomain, uploadedMovements);
+    persistMovementAndAccountUOW(uploadedMovements, accountDTO);
+
+    // Sync monthly Balance Asynchronously
+    final List<AccountMonthlyBalanceDTO> monthlyBalancesPersisted =
+        monthlyBalanceSyncerService.syncForUploadedMovementsAsync(accountId, uploadedMovements);
+
+    return new AddMultipleBasicMovementDTO(accountDTO, monthlyBalancesPersisted);
+  }
+
+  private static void validateUploadedMovements(
+      final List<AddMovementUploadedFileCommand> allUploadedMovCommand) {
     if (allUploadedMovCommand == null || allUploadedMovCommand.isEmpty()) {
       throw new IllegalArgumentException("Movement list cannot be null or empty");
     }
@@ -71,25 +92,9 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
             "Validation failed for movement at index " + i + ": " + e.getMessage(), e);
       }
     }
-
-    final AccountDomain accountDomain = findAccount(userId, accountId);
-    final List<AccountMovementDomain> multipleMovementsDomain =
-        mapCommandToDomain(allUploadedMovCommand, accountDomain);
-
-    final AccountDTO accountDTO =
-        syncAccountBalanceByMovements(accountDomain, multipleMovementsDomain);
-    persistMovement(multipleMovementsDomain, accountDTO);
-
-    final List<AccountMonthlyBalanceDomain> monthlyBalancesPersisted =
-        monthlyBalanceSyncerService.syncForUploadedMovementsAsync(
-            accountId, multipleMovementsDomain);
-
-    return new AddMultipleBasicMovementDTO(
-        accountDTO,
-        monthlyBalancesPersisted.stream().map(AccountMonthlyBalanceDomain::toDTO).toList());
   }
 
-  private AccountDomain findAccount(final UUID userId, final AccountId accountId) {
+  private AccountDomain findAccountOrElseThrow(final UUID userId, final AccountId accountId) {
     if (userId == null) {
       LOG.error("User ID cannot be null");
       throw new IllegalArgumentException("User ID cannot be null");
@@ -108,24 +113,12 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
     return toDomain(accountDTO);
   }
 
-  /**
-   * Map the command to a domain object.
-   *
-   * <p>Domain object does not accept negative values for totalAmount. We need to make the
-   * transformation here
-   *
-   * @param allSimpleMovements
-   * @param accountDomain
-   * @return
-   */
   private List<AccountMovementDomain> mapCommandToDomain(
       final List<AddMovementUploadedFileCommand> allSimpleMovements,
       final AccountDomain accountDomain) {
     return allSimpleMovements.stream()
         .map(
             mvmntCommand -> {
-              // Transform negative values to positive because the domain object does not accept
-              // negative values
               final BigDecimal totalAmount = mvmntCommand.totalAmount();
 
               return AccountMovementDomain.withFileImport(
@@ -145,13 +138,13 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
     return toDTO(accountDomain);
   }
 
-  private void persistMovement(
-      final List<AccountMovementDomain> newMovements, final AccountDTO accountDomain) {
+  private void persistMovementAndAccountUOW(
+      final List<AccountMovementDomain> newMovements, final AccountDTO accountDTO) {
     unitOfWork.execute(
         () -> {
           LOG.info("Persisting Movements and account changes");
           movementRepo.save(newMovements.stream().map(MovementMapper::toDTO).toList());
-          accountRepo.save(accountDomain);
+          accountRepo.save(accountDTO);
         });
   }
 }

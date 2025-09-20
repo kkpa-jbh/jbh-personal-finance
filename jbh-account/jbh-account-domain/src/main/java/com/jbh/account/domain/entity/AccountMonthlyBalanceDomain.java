@@ -7,18 +7,15 @@ import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 
 /** Domain entity - focus on business logic and state, not sorting */
 @Getter
-@SuperBuilder
 @AllArgsConstructor
 @SuppressWarnings("PMD.ImmutableField")
 public class AccountMonthlyBalanceDomain {
@@ -100,28 +97,12 @@ public class AccountMonthlyBalanceDomain {
     return Objects.equals(period, that.period) && Objects.equals(accountId, that.accountId);
   }
 
-  public AccountMonthlyBalanceDTO toDTO() {
-    return AccountMonthlyBalanceDTO.builder()
-        .id(id)
-        .accountId(accountId)
-        .year(year)
-        .month(month)
-        .period(period)
-        .totalDebits(totalDebits)
-        .totalCredits(totalCredits)
-        .movementBalance(movementBalance)
-        .openingBalance(openingBalance)
-        .closingBalance(closingBalance)
-        .monthlyProfit(monthlyProfit)
-        .monthlyExpenses(monthlyExpenses)
-        .totalMovements(totalMovements)
-        .gapPeriod(gapPeriod)
-        .estimatedAnnualYield(estimatedAnnualYield)
-        .officialMonthlyReport(officialMonthlyReport)
-        .build();
-  }
-
-  public void adjustOpeningBalance(final BigDecimal inputOpeningBalance) {
+  public void adjustOpeningBalance(final AccountMonthlyBalanceDomain previousMonthlyBalance) {
+    if (this.officialMonthlyReport) {
+      throw new GenericSpecificationException(
+          "Cannot adjust opening balance for an official monthly report");
+    }
+    final BigDecimal inputOpeningBalance = previousMonthlyBalance.getClosingBalance();
     validateOpeningBalanceUseCase(inputOpeningBalance);
     this.openingBalance = withJBHDecimals(inputOpeningBalance);
     this.officialMonthlyReport = false;
@@ -148,7 +129,7 @@ public class AccountMonthlyBalanceDomain {
   }
 
   private void syncMonthlyExpenses() {
-    if (this.openingBalance != null) {
+    if (isNotZero(this.openingBalance)) {
       this.monthlyExpenses =
           this.movementBalance.add(this.openingBalance).subtract(this.closingBalance);
     } else {
@@ -175,7 +156,8 @@ public class AccountMonthlyBalanceDomain {
       this.closingBalance = movement.getBalanceSnapshot();
     }
 
-    syncMovementBalanceAndMonthlyProfit();
+    syncMonthlyProfit();
+    syncMovementBalance();
   }
 
   private void validateMovementPeriod(final AccountMovementDomain mvmt) {
@@ -201,7 +183,7 @@ public class AccountMonthlyBalanceDomain {
     }
   }
 
-  public void syncMovementBalanceAndMonthlyProfit() {
+  private void syncMonthlyProfit() {
     if (this.getOpeningBalance() == null) {
       throw new IllegalArgumentException(
           "The opening Balance is not set for " + this.getAccountId());
@@ -209,12 +191,21 @@ public class AccountMonthlyBalanceDomain {
     if (isZero(totalCredits) && isZero(totalDebits) && isZero(openingBalance)) {
       return;
     }
-    // FIXME this is not the right place to do this
-    syncMovementBalance();
+
     this.monthlyProfit = closingBalance.subtract(openingBalance).subtract(movementBalance);
   }
 
   private void syncMovementBalance() {
     this.movementBalance = totalDebits.subtract(totalCredits);
+  }
+
+  /**
+   * Syncs the balances from async tasks. This is called when syncing monthly balances
+   * asynchronously and when syncing the current and next monthly balances. The monthly balances are
+   * already persisted in the database.
+   */
+  public void syncPersistedBalance() {
+    syncMonthlyProfit();
+    syncMovementBalance();
   }
 }

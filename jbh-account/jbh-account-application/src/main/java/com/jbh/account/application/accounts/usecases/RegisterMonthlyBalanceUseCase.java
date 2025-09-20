@@ -1,9 +1,9 @@
 package com.jbh.account.application.accounts.usecases;
 
+import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
 import com.jbh.account.application.accounts.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
 import java.time.LocalDate;
 import java.util.UUID;
 

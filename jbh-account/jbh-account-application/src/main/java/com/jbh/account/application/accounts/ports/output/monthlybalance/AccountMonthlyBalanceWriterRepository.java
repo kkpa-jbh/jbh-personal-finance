@@ -1,6 +1,6 @@
 package com.jbh.account.application.accounts.ports.output.monthlybalance;
 
-import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
 import java.util.List;
 
 public interface AccountMonthlyBalanceWriterRepository {

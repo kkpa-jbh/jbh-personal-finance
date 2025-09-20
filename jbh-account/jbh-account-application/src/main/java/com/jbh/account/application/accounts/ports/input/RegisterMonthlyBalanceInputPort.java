@@ -1,12 +1,13 @@
 package com.jbh.account.application.accounts.ports.input;
 
+import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.accounts.mappers.MonthlyBalanceMapper;
 import com.jbh.account.application.accounts.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.accounts.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.accounts.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.UUID;
@@ -59,20 +60,23 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
           "The monthly balance period is not in the past");
     }
 
-    final AccountMonthlyBalanceDTO monthlyBalanceDTO =
+    AccountMonthlyBalanceDomain monthlyBalanceDomain = null;
+
+    monthlyBalanceDomain =
         monthlyBalanceService
             .findByAccountIdYearAndMonth(
                 accountId, periodToRegister.getYear(), periodToRegister.getMonthValue())
+            .map(MonthlyBalanceMapper::toDomain)
             .orElseGet(
-                () -> {
-                  return AccountMonthlyBalanceDomain.withPeriod(
-                          accountId, periodToRegister.getYear(), periodToRegister.getMonthValue())
-                      .toDTO();
-                });
+                () ->
+                    AccountMonthlyBalanceDomain.withPeriod(
+                        accountId, periodToRegister.getYear(), periodToRegister.getMonthValue()));
 
-    monthlyBalanceDTO.syncOfficialMonthlyReport(
+    monthlyBalanceDomain.syncOfficialMonthlyReport(
         command.closingBalance(), command.monthlyProfitReported());
 
+    final AccountMonthlyBalanceDTO monthlyBalanceDTO =
+        MonthlyBalanceMapper.toDTO(monthlyBalanceDomain);
     monthlyBalanceService.saveBalance(monthlyBalanceDTO);
     monthlyBalanceService.updateOpeningBalanceNextMonth(monthlyBalanceDTO);
 

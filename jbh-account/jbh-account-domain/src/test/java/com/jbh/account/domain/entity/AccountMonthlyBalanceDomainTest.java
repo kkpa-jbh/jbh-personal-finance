@@ -69,10 +69,16 @@ public class AccountMonthlyBalanceDomainTest {
 
   @Test
   public void shouldCreateWithOpeningBalance() {
-    ceroMonthlyBalance.adjustOpeningBalance(new BigDecimal("350.00"));
+    AccountMonthlyBalanceDomain previousMonthlyBalance =
+        AccountMonthlyBalanceDomain.withInitialDataForNextMonth(
+            accountId, todayYM, new BigDecimal("350.00"), false);
+    ceroMonthlyBalance.adjustOpeningBalance(previousMonthlyBalance);
     assertEquals(new BigDecimal("350.00"), ceroMonthlyBalance.getOpeningBalance());
 
-    ceroMonthlyBalance.adjustOpeningBalance(BigDecimal.ZERO);
+    previousMonthlyBalance =
+        AccountMonthlyBalanceDomain.withInitialDataForNextMonth(
+            accountId, todayYM, BigDecimal.ZERO, false);
+    ceroMonthlyBalance.adjustOpeningBalance(previousMonthlyBalance);
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getOpeningBalance());
   }
 

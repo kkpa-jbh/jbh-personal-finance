@@ -1,9 +1,9 @@
 package com.jbh.account.application.accounts.usecases.mock;
 
+import static com.jbh.account.application.accounts.usecases.integration.monthlybalance.MonthlyBalanceITUtils.assertBalance;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -11,6 +11,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
 import com.jbh.account.application.accounts.ports.input.RegisterMonthlyBalanceInputPort;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import com.jbh.account.application.accounts.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
@@ -21,7 +22,6 @@ import com.jbh.account.application.accounts.usecases.RegisterMonthlyBalanceUseCa
 import com.jbh.account.application.accounts.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -97,19 +97,25 @@ public class RegisterMonthlyBalanceMockTest {
 
     // Then
     final var actualMonthlyBalance = savedMonthlyBalance.get();
-    assertEquals(august24MonthlyPeriod, actualMonthlyBalance.getPeriod());
-    assertEquals(withJBHDecimals(closingBalance), actualMonthlyBalance.getClosingBalance());
-    assertEquals(withJBHDecimals(movementsBalance), actualMonthlyBalance.getMovementBalance());
-    assertEquals(JBH_ZERO, actualMonthlyBalance.getTotalDebits());
-    assertEquals(JBH_ZERO, actualMonthlyBalance.getTotalCredits());
-    assertEquals(JBH_ZERO, actualMonthlyBalance.getMonthlyProfit());
-    assertEquals(0, actualMonthlyBalance.getTotalMovements());
-    assertFalse(actualMonthlyBalance.isGapPeriod());
+    final AccountMonthlyBalanceDTO expectedMonthBalance =
+        AccountMonthlyBalanceDTO.defaultBuilder()
+            .accountId(accountId)
+            .totalMovements(0)
+            .period(august24MonthlyPeriod)
+            .month(8)
+            .year(2024)
+            .closingBalance(withJBHDecimals(closingBalance))
+            .movementBalance(withJBHDecimals(movementsBalance))
+            .totalDebits(JBH_ZERO)
+            .totalCredits(JBH_ZERO)
+            .monthlyProfit(JBH_ZERO)
+            .build();
+    assertBalance(expectedMonthBalance, actualMonthlyBalance);
 
     // Verify the captured nextMonthlyBalance
     assertNotNull(capturedNextMonthlyBalance);
     assertEquals(
-        capturedNextMonthlyBalance.get().getOpeningBalance(), withJBHDecimals(closingBalance));
+        capturedNextMonthlyBalance.get().openingBalance(), withJBHDecimals(closingBalance));
     // ... other assertions on nextMonthlyBalance
 
     // Verify the method was called

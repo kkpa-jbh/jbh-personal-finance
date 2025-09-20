@@ -1,7 +1,7 @@
 package com.jbh.account.infra.adapters.out.persistence.monthlybalance;
 
+import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -28,7 +28,10 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "monthly_balance_seq")
-  @SequenceGenerator(name = "monthly_balance_seq", sequenceName = "account_monthly_balances_id_seq", allocationSize = 1)
+  @SequenceGenerator(
+      name = "monthly_balance_seq",
+      sequenceName = "account_monthly_balances_id_seq",
+      allocationSize = 1)
   @Column(name = "id")
   public Long id;
 

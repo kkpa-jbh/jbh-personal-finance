@@ -1,5 +1,7 @@
 package com.jbh.account.application.accounts.ports.input;
 
+import static com.jbh.account.application.accounts.mappers.MonthlyBalanceMapper.toDTO;
+
 import com.jbh.account.application.accounts.dto.AccountDTO;
 import com.jbh.account.application.accounts.dto.AddBasicMovementDTO;
 import com.jbh.account.application.accounts.mappers.AccountMapper;
@@ -89,7 +91,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
                   "Movement addition completed successfully for account: {}", accountId.value());
 
               return new AddBasicMovementDTO(
-                  accountDTO, accountMonthlyBalance, MovementMapper.toDTO(newMovement));
+                  accountDTO, toDTO(accountMonthlyBalance), MovementMapper.toDTO(newMovement));
             });
   }
 

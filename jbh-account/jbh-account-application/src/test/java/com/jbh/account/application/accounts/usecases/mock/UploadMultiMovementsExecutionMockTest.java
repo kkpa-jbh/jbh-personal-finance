@@ -1,6 +1,11 @@
 package com.jbh.account.application.accounts.usecases.mock;
 
+import static com.jbh.account.application.accounts.mappers.MonthlyBalanceMapper.toDomain;
+import static com.jbh.account.application.accounts.usecases.integration.monthlybalance.IgnoreOption.IGNORE_MONTHLY_PROFIT;
+import static com.jbh.account.application.accounts.usecases.integration.monthlybalance.IgnoreOption.IGNORE_OPENING_BALANCE;
+import static com.jbh.account.application.accounts.usecases.integration.monthlybalance.MonthlyBalanceITUtils.assertBalance;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -11,6 +16,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.jbh.account.application.accounts.dto.AccountDTO;
+import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
 import com.jbh.account.application.accounts.dto.AddMultipleBasicMovementDTO;
 import com.jbh.account.application.accounts.mappers.AccountMapper;
 import com.jbh.account.application.accounts.ports.input.AddMovementsUploadedFileInputPort;
@@ -28,9 +34,7 @@ import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
-import com.jbh.account.domain.utils.MoneyUtils;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -144,147 +148,216 @@ public class UploadMultiMovementsExecutionMockTest {
     verify(accountRepository).save(any());
 
     final AccountDTO actualAccountResponse = processedResponse.get().account();
-    final List<AccountMonthlyBalanceDTO> actualMonthlyBalances =
+    final List<AccountMonthlyBalanceDTO> actualBalancesWithoutAsyncOperation =
         processedResponse.get().monthlyBalances();
 
     final BigDecimal expectedProfitBalance = new BigDecimal("1786605.00");
     assertEquals(expectedProfitBalance.negate(), actualAccountResponse.movementBalance());
     assertEquals(new BigDecimal("0.00"), actualAccountResponse.currentBalance());
     assertEquals(expectedProfitBalance, actualAccountResponse.profitBalance());
-    assertEquals(9, actualMonthlyBalances.size());
+    assertEquals(9, actualBalancesWithoutAsyncOperation.size());
+
+    // MONTHLY BALANCES ASSERTS SHOULD NOT INCLUDE
+    // MONTHLY PROFIT AND OPENING BALANCES
+    // BECAUSE THEY ARE NOT SYNCED YET. THEY ARE SYNCED ASYNC
 
     // Assert per month
     int expectedYear = 2024;
     int expectedMonth = 7;
     int sortedIndex = 0;
-    AccountMonthlyBalanceDomain expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
-    assertEquals(accountId, expectedMonthBalance.getAccountId());
-    assertEquals(1, expectedMonthBalance.getTotalMovements());
-    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
-    assertEquals(expectedYear, expectedMonthBalance.getYear());
-    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
-    assertEquals(numberOf("12689712"), expectedMonthBalance.getClosingBalance());
-    assertEquals(numberOf("12591000"), expectedMonthBalance.getTotalDebits());
-    assertEquals(numberOf("0"), expectedMonthBalance.getTotalCredits());
+    final var monthlyProfit20247 = numberOf("98712");
+    AccountMonthlyBalanceDTO actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
+    final var closingBalance20247 = numberOf("12689712");
+    AccountMonthlyBalanceDTO expectedMonthBalance =
+        AccountMonthlyBalanceDTO.defaultBuilder()
+            .accountId(accountId)
+            .totalMovements(1)
+            .period(YearMonth.of(expectedYear, expectedMonth))
+            .month(expectedMonth)
+            .year(expectedYear)
+            .closingBalance(closingBalance20247)
+            .movementBalance(numberOf("12591000"))
+            .totalDebits(numberOf("12591000"))
+            .build();
+    assertBalance(
+        expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     // Assert per month
     expectedYear = 2024;
     expectedMonth = 8;
     sortedIndex = 1;
-    expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
-    assertEquals(accountId, expectedMonthBalance.getAccountId());
-    assertEquals(1, expectedMonthBalance.getTotalMovements());
-    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
-    assertEquals(expectedYear, expectedMonthBalance.getYear());
-    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
-    assertEquals(numberOf("22685312"), expectedMonthBalance.getTotalDebits());
-    assertEquals(numberOf("35693653"), expectedMonthBalance.getClosingBalance());
-    assertEquals(numberOf("0"), expectedMonthBalance.getTotalCredits());
+    final var monthlyProfit20248 = numberOf("318629");
+    actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
+    expectedMonthBalance =
+        AccountMonthlyBalanceDTO.defaultBuilder()
+            .accountId(accountId)
+            .totalMovements(1)
+            .period(YearMonth.of(expectedYear, expectedMonth))
+            .month(expectedMonth)
+            .year(expectedYear)
+            .openingBalance(closingBalance20247)
+            .closingBalance(numberOf("35693653"))
+            .totalDebits(numberOf("22685312"))
+            .movementBalance(numberOf("22685312"))
+            .build();
+    assertBalance(
+        expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     // Assert per month
     expectedYear = 2024;
     expectedMonth = 9;
+    final var monthlyProfit20249 = numberOf("323804");
     sortedIndex++;
-    expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
-    assertEquals(accountId, expectedMonthBalance.getAccountId());
-    assertEquals(0, expectedMonthBalance.getTotalMovements());
-    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
-    assertEquals(expectedYear, expectedMonthBalance.getYear());
-    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
-    assertEquals(numberOf("0"), expectedMonthBalance.getTotalDebits());
-    assertEquals(numberOf("36017457"), expectedMonthBalance.getClosingBalance());
-    assertEquals(numberOf("0"), expectedMonthBalance.getTotalCredits());
+    actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
+    expectedMonthBalance =
+        AccountMonthlyBalanceDTO.defaultBuilder()
+            .accountId(accountId)
+            .totalMovements(0)
+            .period(YearMonth.of(expectedYear, expectedMonth))
+            .month(expectedMonth)
+            .year(expectedYear)
+            .closingBalance(numberOf("36017457"))
+            .totalDebits(numberOf("0"))
+            .monthlyProfit(monthlyProfit20249)
+            .build();
+    assertBalance(
+        expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     // Assert per month
     expectedYear = 2024;
     expectedMonth = 10;
+    final var monthlyProfit202410 = numberOf("340119");
     sortedIndex++;
-    expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
-    assertEquals(accountId, expectedMonthBalance.getAccountId());
-    assertEquals(0, expectedMonthBalance.getTotalMovements());
-    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
-    assertEquals(expectedYear, expectedMonthBalance.getYear());
-    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
-    assertEquals(numberOf("0"), expectedMonthBalance.getTotalDebits());
-    assertEquals(numberOf("36357576"), expectedMonthBalance.getClosingBalance());
-    assertEquals(numberOf("0"), expectedMonthBalance.getTotalCredits());
+    actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
+    expectedMonthBalance =
+        AccountMonthlyBalanceDTO.defaultBuilder()
+            .accountId(accountId)
+            .totalMovements(0)
+            .period(YearMonth.of(expectedYear, expectedMonth))
+            .month(expectedMonth)
+            .year(expectedYear)
+            .closingBalance(numberOf("36357576"))
+            .totalDebits(numberOf("0"))
+            .monthlyProfit(monthlyProfit202410)
+            .build();
+    assertBalance(
+        expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     // Assert per month
     expectedYear = 2024;
     expectedMonth = 11;
+    final var monthlyProfit202411 = numberOf("298338");
     sortedIndex++;
-    expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
-    assertEquals(accountId, expectedMonthBalance.getAccountId());
-    assertEquals(1, expectedMonthBalance.getTotalMovements());
-    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
-    assertEquals(expectedYear, expectedMonthBalance.getYear());
-    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
-    assertEquals(numberOf("0"), expectedMonthBalance.getTotalDebits());
-    assertEquals(numberOf("35982309"), expectedMonthBalance.getClosingBalance());
-    assertEquals(numberOf("673605"), expectedMonthBalance.getTotalCredits());
+    actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
+    expectedMonthBalance =
+        AccountMonthlyBalanceDTO.defaultBuilder()
+            .accountId(accountId)
+            .totalMovements(1)
+            .period(YearMonth.of(expectedYear, expectedMonth))
+            .month(expectedMonth)
+            .year(expectedYear)
+            .closingBalance(numberOf("35982309"))
+            .totalDebits(numberOf("0"))
+            .monthlyProfit(monthlyProfit202411)
+            .totalCredits(numberOf("673605"))
+            .movementBalance(numberOf("-673605"))
+            .build();
+    assertBalance(
+        expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     // Assert per month
     expectedYear = 2024;
     expectedMonth = 12;
+    final var monthlyProfit202412 = numberOf("289672");
     sortedIndex++;
-    expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
-    assertEquals(accountId, expectedMonthBalance.getAccountId());
-    assertEquals(1, expectedMonthBalance.getTotalMovements());
-    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
-    assertEquals(expectedYear, expectedMonthBalance.getYear());
-    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
-    assertEquals(numberOf("0"), expectedMonthBalance.getTotalDebits());
-    assertEquals(numberOf("35000981"), expectedMonthBalance.getClosingBalance());
-    assertEquals(numberOf("1271000"), expectedMonthBalance.getTotalCredits());
+    actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
+    expectedMonthBalance =
+        AccountMonthlyBalanceDTO.defaultBuilder()
+            .accountId(accountId)
+            .totalMovements(1)
+            .period(YearMonth.of(expectedYear, expectedMonth))
+            .month(expectedMonth)
+            .year(expectedYear)
+            .closingBalance(numberOf("35000981"))
+            .totalDebits(numberOf("0"))
+            .totalCredits(numberOf("1271000"))
+            .movementBalance(numberOf("-1271000"))
+            .monthlyProfit(monthlyProfit202412)
+            .build();
+    assertBalance(
+        expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     // Assert per month
     expectedYear = 2025;
     expectedMonth = 1;
+    final var monthlyProfit20251 = numberOf("227779");
     sortedIndex++;
-    expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
-    assertEquals(accountId, expectedMonthBalance.getAccountId());
-    assertEquals(1, expectedMonthBalance.getTotalMovements());
-    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
-    assertEquals(expectedYear, expectedMonthBalance.getYear());
-    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
-    assertEquals(numberOf("0"), expectedMonthBalance.getTotalDebits());
-    assertEquals(numberOf("25638626"), expectedMonthBalance.getClosingBalance());
-    assertEquals(numberOf("9590134"), expectedMonthBalance.getTotalCredits());
+    actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
+    expectedMonthBalance =
+        AccountMonthlyBalanceDTO.defaultBuilder()
+            .accountId(accountId)
+            .totalMovements(1)
+            .period(YearMonth.of(expectedYear, expectedMonth))
+            .month(expectedMonth)
+            .year(expectedYear)
+            .closingBalance(numberOf("25638626"))
+            .totalDebits(numberOf("0"))
+            .monthlyProfit(monthlyProfit20251)
+            .totalCredits(numberOf("9590134"))
+            .movementBalance(numberOf("-9590134"))
+            .build();
+    assertBalance(
+        expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     // Assert per month
     expectedYear = 2025;
     expectedMonth = 2;
+    final var monthlyProfit20252 = numberOf("-110448");
     sortedIndex++;
-    expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
-    assertEquals(accountId, expectedMonthBalance.getAccountId());
-    assertEquals(2, expectedMonthBalance.getTotalMovements());
-    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
-    assertEquals(expectedYear, expectedMonthBalance.getYear());
-    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
-    assertEquals(numberOf("0"), expectedMonthBalance.getTotalDebits());
-    assertEquals(numberOf("3768488"), expectedMonthBalance.getClosingBalance());
-    assertEquals(numberOf("21759690"), expectedMonthBalance.getTotalCredits());
+    actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
+    expectedMonthBalance =
+        AccountMonthlyBalanceDTO.defaultBuilder()
+            .accountId(accountId)
+            .totalMovements(2)
+            .period(YearMonth.of(expectedYear, expectedMonth))
+            .month(expectedMonth)
+            .year(expectedYear)
+            .closingBalance(numberOf("3768488"))
+            .totalDebits(numberOf("0"))
+            .monthlyProfit(monthlyProfit20252)
+            .totalCredits(numberOf("21759690"))
+            .movementBalance(numberOf("-21759690"))
+            .build();
+    assertBalance(
+        expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     // Assert per month
     expectedYear = 2025;
     expectedMonth = 3;
     sortedIndex++;
-    expectedMonthBalance = actualMonthlyBalances.get(sortedIndex);
-    assertEquals(accountId, expectedMonthBalance.getAccountId());
-    assertEquals(1, expectedMonthBalance.getTotalMovements());
-    assertEquals(expectedMonth, expectedMonthBalance.getMonth());
-    assertEquals(expectedYear, expectedMonthBalance.getYear());
-    assertEquals(YearMonth.of(expectedYear, expectedMonth), expectedMonthBalance.getPeriod());
-    assertEquals(numberOf("0"), expectedMonthBalance.getTotalDebits());
-    assertEquals(numberOf("0"), expectedMonthBalance.getClosingBalance());
-    assertEquals(numberOf("3768488"), expectedMonthBalance.getTotalCredits());
+    actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
+    expectedMonthBalance =
+        AccountMonthlyBalanceDTO.defaultBuilder()
+            .accountId(accountId)
+            .totalMovements(1)
+            .period(YearMonth.of(expectedYear, expectedMonth))
+            .month(expectedMonth)
+            .year(expectedYear)
+            .closingBalance(numberOf("0"))
+            .totalDebits(numberOf("0"))
+            .totalCredits(numberOf("3768488"))
+            .movementBalance(numberOf("-3768488"))
+            .build();
+    assertBalance(
+        expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     final YearMonth initPeriod =
         YearMonth.of(firstEntry.entryDate().getYear(), firstEntry.entryDate().getMonthValue());
     when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(accountId, initPeriod))
-        .thenReturn(actualMonthlyBalances);
+        .thenReturn(actualBalancesWithoutAsyncOperation);
     final CompletableFuture<List<AccountMonthlyBalanceDTO>> futureResponse =
-        monthlyBalanceSyncerService.saveMonthlyBalancesASYNC(accountId, actualMonthlyBalances);
+        monthlyBalanceSyncerService.persistBalancesAndSyncThemASYNC(
+            accountId, actualBalancesWithoutAsyncOperation);
 
     final List<AccountMonthlyBalanceDTO> actualProfitBalances =
         futureResponse.get(5, TimeUnit.SECONDS);
@@ -295,62 +368,63 @@ public class UploadMultiMovementsExecutionMockTest {
     final YearMonth expectedPeriod = YearMonth.of(2024, 7);
 
     // Row 1
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(numberOf("12689712"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("98712"), actualResponse.getMonthlyProfit());
+    actualResponse = toDomain(actualProfitBalances.get(++index));
+    assertEquals(closingBalance20247, actualResponse.getClosingBalance());
+
+    assertEquals(monthlyProfit20247, actualResponse.getMonthlyProfit());
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
 
     // Row 2
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualProfitBalances.get(++index));
     assertEquals(numberOf("35693653"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("318629"), actualResponse.getMonthlyProfit());
+    assertEquals(monthlyProfit20248, actualResponse.getMonthlyProfit());
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
 
     // Row 3
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualProfitBalances.get(++index));
     assertEquals(numberOf("36017457"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("323804"), actualResponse.getMonthlyProfit());
+    assertEquals(monthlyProfit20249, actualResponse.getMonthlyProfit());
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
 
     // Row 4
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualProfitBalances.get(++index));
     assertEquals(numberOf("36357576"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("340119"), actualResponse.getMonthlyProfit());
+    assertEquals(monthlyProfit202410, actualResponse.getMonthlyProfit());
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
 
     // Row 5
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualProfitBalances.get(++index));
     assertEquals(numberOf("35982309"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("298338"), actualResponse.getMonthlyProfit());
+    assertEquals(monthlyProfit202411, actualResponse.getMonthlyProfit());
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
 
     // Row 6
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualProfitBalances.get(++index));
     assertEquals(numberOf("35000981"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("289672"), actualResponse.getMonthlyProfit());
+    assertEquals(monthlyProfit202412, actualResponse.getMonthlyProfit());
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
 
     // Row 7
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualProfitBalances.get(++index));
     assertEquals(numberOf("25638626"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("227779"), actualResponse.getMonthlyProfit());
+    assertEquals(monthlyProfit20251, actualResponse.getMonthlyProfit());
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
 
     // Row 8
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualProfitBalances.get(++index));
     assertEquals(numberOf("3768488"), actualResponse.getClosingBalance());
-    assertEquals(numberOf("-110448"), actualResponse.getMonthlyProfit());
+    assertEquals(monthlyProfit20252, actualResponse.getMonthlyProfit());
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
 
     // Row 9
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualProfitBalances.get(++index));
     assertEquals(numberOf("0"), actualResponse.getClosingBalance());
     assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
   }
 
   private BigDecimal numberOf(final String val) {
-    return MoneyUtils.withJBHDecimals(new BigDecimal(val));
+    return withJBHDecimals(new BigDecimal(val));
   }
 
   @Test
@@ -388,196 +462,197 @@ public class UploadMultiMovementsExecutionMockTest {
         .thenReturn(savedMonthlyBalances);
 
     final CompletableFuture<List<AccountMonthlyBalanceDTO>> futureResponse =
-        monthlyBalanceSyncerService.saveMonthlyBalancesASYNC(accountId, savedMonthlyBalances);
+        monthlyBalanceSyncerService.persistBalancesAndSyncThemASYNC(
+            accountId, savedMonthlyBalances);
     final List<AccountMonthlyBalanceDTO> actualMonthlyBalances = futureResponse.get();
 
     int index = -1;
     AccountMonthlyBalanceDomain actualResponse = null;
 
     // Row Julio/23
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("15000000"), actualResponse.getMovementBalance());
     assertEquals(numberOf("15074686"), actualResponse.getClosingBalance());
     assertEquals(numberOf("74686"), actualResponse.getMonthlyProfit());
 
     // Row Agosto/23
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("29657000"), actualResponse.getMovementBalance());
     assertEquals(numberOf("45525753"), actualResponse.getClosingBalance());
     assertEquals(numberOf("794067"), actualResponse.getMonthlyProfit());
 
     // Row Septiembre/23
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("9117414"), actualResponse.getMovementBalance());
     assertEquals(numberOf("54787054"), actualResponse.getClosingBalance());
     assertEquals(numberOf("143887"), actualResponse.getMonthlyProfit());
 
     // Row Octubre/23
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("-5550618"), actualResponse.getMovementBalance());
     assertEquals(numberOf("50069218"), actualResponse.getClosingBalance());
     assertEquals(numberOf("832782"), actualResponse.getMonthlyProfit());
 
     // Row Noviembre/23
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("-11728845"), actualResponse.getMovementBalance());
     assertEquals(numberOf("40726167"), actualResponse.getClosingBalance());
     assertEquals(numberOf("2385794"), actualResponse.getMonthlyProfit());
 
     // Row Diciembre/23
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("-17246355"), actualResponse.getMovementBalance());
     assertEquals(numberOf("23720010"), actualResponse.getClosingBalance());
     assertEquals(numberOf("240198"), actualResponse.getMonthlyProfit());
 
     // Row Enero/24
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("-12346955"), actualResponse.getMovementBalance());
     assertEquals(numberOf("11480093"), actualResponse.getClosingBalance());
     assertEquals(numberOf("107038"), actualResponse.getMonthlyProfit());
 
     // Row Febrero/24
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("-7346955"), actualResponse.getMovementBalance());
     assertEquals(numberOf("4105556"), actualResponse.getClosingBalance());
     assertEquals(numberOf("-27582"), actualResponse.getMonthlyProfit());
 
     // Row Marzo/24
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("653645"), actualResponse.getMovementBalance());
     assertEquals(numberOf("4839561"), actualResponse.getClosingBalance());
     assertEquals(numberOf("80360"), actualResponse.getMonthlyProfit());
 
     // Row Abril/24
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("653645"), actualResponse.getMovementBalance());
     assertEquals(numberOf("5542958"), actualResponse.getClosingBalance());
     assertEquals(numberOf("49752"), actualResponse.getMonthlyProfit());
 
     // Row Mayo/24
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("2401286"), actualResponse.getMovementBalance());
     assertEquals(numberOf("8016341"), actualResponse.getClosingBalance());
     assertEquals(numberOf("72097"), actualResponse.getMonthlyProfit());
 
     // Row Junio/24
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("520531"), actualResponse.getMovementBalance());
     assertEquals(numberOf("8613715"), actualResponse.getClosingBalance());
     assertEquals(numberOf("76843"), actualResponse.getMonthlyProfit());
 
     // Row Julio/24
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("520531"), actualResponse.getMovementBalance());
     assertEquals(numberOf("9136328"), actualResponse.getClosingBalance());
     assertEquals(numberOf("2082"), actualResponse.getMonthlyProfit());
 
     // Row Agosto/24
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("60520531"), actualResponse.getMovementBalance());
     assertEquals(numberOf("72058459"), actualResponse.getClosingBalance());
     assertEquals(numberOf("2401600"), actualResponse.getMonthlyProfit());
 
     // Row Septiembre/24
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("520531"), actualResponse.getMovementBalance());
     assertEquals(numberOf("73257353"), actualResponse.getClosingBalance());
     assertEquals(numberOf("678363"), actualResponse.getMonthlyProfit());
 
     // Row Octubre/24
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("520531"), actualResponse.getMovementBalance());
     assertEquals(numberOf("74490431"), actualResponse.getClosingBalance());
     assertEquals(numberOf("712547"), actualResponse.getMonthlyProfit());
 
     // Row Noviembre/24
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("520531"), actualResponse.getMovementBalance());
     assertEquals(numberOf("75711997"), actualResponse.getClosingBalance());
     assertEquals(numberOf("701035"), actualResponse.getMonthlyProfit());
 
     // Row Diciembre/24
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("76398664"), actualResponse.getClosingBalance());
     assertEquals(numberOf("686667"), actualResponse.getMonthlyProfit());
 
     // Row Enero/25
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("76976067"), actualResponse.getClosingBalance());
     assertEquals(numberOf("577403"), actualResponse.getMonthlyProfit());
 
     // Row Febrero/25
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("77501534"), actualResponse.getClosingBalance());
     assertEquals(numberOf("525467"), actualResponse.getMonthlyProfit());
 
     // Row Marzo/25
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("78053700"), actualResponse.getClosingBalance());
     assertEquals(numberOf("552166"), actualResponse.getMonthlyProfit());
 
     // Row Abril/25
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("-10000000"), actualResponse.getMovementBalance());
     assertEquals(numberOf("68053700"), actualResponse.getClosingBalance());
     assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
 
     // Row May/25
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("68053700"), actualResponse.getClosingBalance());
     assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
 
     // Row June/25
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("68053700"), actualResponse.getClosingBalance());
     assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
 
     // Row July/25
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("68053700"), actualResponse.getClosingBalance());
     assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
 
     // Row Agosto/25
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("70908065"), actualResponse.getClosingBalance());
     assertEquals(numberOf("2854365"), actualResponse.getMonthlyProfit());
 
     // Row 25/09/2025 - Last one affected by movement. Only Opening Balance.
-    actualResponse = actualMonthlyBalances.get(++index);
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("70908065"), actualResponse.getOpeningBalance());
@@ -641,13 +716,14 @@ public class UploadMultiMovementsExecutionMockTest {
         processedResponse.get().monthlyBalances();
 
     // THEN
-    final YearMonth expectedPeriod = YearMonth.of(2023, 10);
-    log.info("Account Tested. Preparing to test the monthly Balances ...{} ", expectedPeriod);
+    final YearMonth monthlyInitiPeriod = YearMonth.of(2023, 10);
+    log.info("Account Tested. Preparing to test the monthly Balances ...{} ", monthlyInitiPeriod);
     when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(
-            accountId, expectedPeriod))
+            accountId, monthlyInitiPeriod))
         .thenReturn(savedMonthlyBalances);
     final CompletableFuture<List<AccountMonthlyBalanceDTO>> futureResponse =
-        monthlyBalanceSyncerService.saveMonthlyBalancesASYNC(accountId, savedMonthlyBalances);
+        monthlyBalanceSyncerService.persistBalancesAndSyncThemASYNC(
+            accountId, savedMonthlyBalances);
     final List<AccountMonthlyBalanceDTO> actualMonthlyBalances = futureResponse.get();
 
     // Response
@@ -655,169 +731,169 @@ public class UploadMultiMovementsExecutionMockTest {
     AccountMonthlyBalanceDomain actualResponse = null;
 
     // Row Octubre/23
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("13010000"), actualResponse.getMovementBalance());
     assertEquals(numberOf("13062118"), actualResponse.getClosingBalance());
     assertEquals(numberOf("52118"), actualResponse.getMonthlyProfit());
 
     // Row Noviembre/23
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("13000000"), actualResponse.getMovementBalance());
     assertEquals(numberOf("26309995"), actualResponse.getClosingBalance());
     assertEquals(numberOf("247877"), actualResponse.getMonthlyProfit());
 
     // Row Diciembre/23
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("13000000"), actualResponse.getMovementBalance());
     assertEquals(numberOf("39645174"), actualResponse.getClosingBalance());
     assertEquals(numberOf("335179"), actualResponse.getMonthlyProfit());
 
     // Row Enero/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("40001713"), actualResponse.getClosingBalance());
     assertEquals(numberOf("356539"), actualResponse.getMonthlyProfit());
 
     // Row Febrero/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("40001713"), actualResponse.getClosingBalance());
     assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
 
     // Row Marzo/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("40701019"), actualResponse.getClosingBalance());
     assertEquals(numberOf("699306"), actualResponse.getMonthlyProfit());
 
     // Row Abril/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("41197965"), actualResponse.getClosingBalance());
     assertEquals(numberOf("496946"), actualResponse.getMonthlyProfit());
 
     // Row Mayo/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("-5900000"), actualResponse.getMovementBalance());
     assertEquals(numberOf("35762219"), actualResponse.getClosingBalance());
     assertEquals(numberOf("464254"), actualResponse.getMonthlyProfit());
 
     // Row Junio/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("16600000"), actualResponse.getMovementBalance());
     assertEquals(numberOf("52889397"), actualResponse.getClosingBalance());
     assertEquals(numberOf("527178"), actualResponse.getMonthlyProfit());
 
     // Row Julio/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("-20000000"), actualResponse.getMovementBalance());
     assertEquals(numberOf("32809397"), actualResponse.getClosingBalance());
     assertEquals(numberOf("-80000"), actualResponse.getMonthlyProfit());
 
     // Row Agosto/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("33560000"), actualResponse.getClosingBalance());
     assertEquals(numberOf("750603"), actualResponse.getMonthlyProfit());
 
     // Row Septiembre/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("33876037"), actualResponse.getClosingBalance());
     assertEquals(numberOf("316037"), actualResponse.getMonthlyProfit());
 
     // Row Octubre/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("34204708"), actualResponse.getClosingBalance());
     assertEquals(numberOf("328671"), actualResponse.getMonthlyProfit());
 
     // Row Noviembre/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("34525863"), actualResponse.getClosingBalance());
     assertEquals(numberOf("321155"), actualResponse.getMonthlyProfit());
 
     // Row Diciembre/24
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("34838994"), actualResponse.getClosingBalance());
     assertEquals(numberOf("313131"), actualResponse.getMonthlyProfit());
 
     // Row Enero/25
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("35102299"), actualResponse.getClosingBalance());
     assertEquals(numberOf("263305"), actualResponse.getMonthlyProfit());
 
     // Row Febrero/25
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("35341920"), actualResponse.getClosingBalance());
     assertEquals(numberOf("239621"), actualResponse.getMonthlyProfit());
 
     // Row Marzo/25
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("35593716"), actualResponse.getClosingBalance());
     assertEquals(numberOf("251796"), actualResponse.getMonthlyProfit());
 
     // Row Abril/25
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("35829015"), actualResponse.getClosingBalance());
     assertEquals(numberOf("235299"), actualResponse.getMonthlyProfit());
 
     // Row Mayo/25
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("36102719"), actualResponse.getClosingBalance());
     assertEquals(numberOf("273704"), actualResponse.getMonthlyProfit());
 
     // Row Jun/25
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("36102719"), actualResponse.getClosingBalance());
     assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
 
     // Row Jul/25
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("36102719"), actualResponse.getClosingBalance());
     assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());
 
     // Row 25/08/2025
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("37074883"), actualResponse.getClosingBalance());
     assertEquals(numberOf("972164"), actualResponse.getMonthlyProfit());
 
     // Row 25/09/2025 - Last one affected by movement. Only Opening Balance.
-    actualResponse = actualMonthlyBalances.get(++index);
-    assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+    actualResponse = toDomain(actualMonthlyBalances.get(++index));
+    assertEquals(monthlyInitiPeriod.plusMonths(index), actualResponse.getPeriod());
     assertEquals(numberOf("0"), actualResponse.getMovementBalance());
     assertEquals(numberOf("37074883"), actualResponse.getOpeningBalance());
     assertEquals(numberOf("0"), actualResponse.getMonthlyProfit());

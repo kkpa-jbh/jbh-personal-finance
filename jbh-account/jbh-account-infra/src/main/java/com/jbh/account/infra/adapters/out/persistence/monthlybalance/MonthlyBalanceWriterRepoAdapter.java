@@ -1,7 +1,7 @@
 package com.jbh.account.infra.adapters.out.persistence.monthlybalance;
 
+import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
 import com.jbh.account.application.accounts.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
-import com.jbh.account.domain.vo.AccountMonthlyBalanceDTO;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
