@@ -1,5 +1,6 @@
-package com.jbh.account.application.accounts.usecases.integration;
+package com.jbh.account.application.accounts.usecases.integration.monthlybalance;
 
+import static com.jbh.account.application.accounts.usecases.integration.monthlybalance.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,13 +20,13 @@ import com.jbh.account.application.accounts.services.MonthlyBalanceSyncerAppServ
 import com.jbh.account.application.accounts.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.accounts.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.account.application.accounts.usecases.AddMovementUseCase;
-import com.jbh.account.application.accounts.usecases.integration.monthlybalance.MonthlyBalanceITUtils;
 import com.jbh.account.application.accounts.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.accounts.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.accounts.vo.commands.AddMovementCommand;
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
@@ -152,7 +153,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             .officialMonthlyReport(true)
             .monthlyProfit(JBH_ZERO)
             .build();
-    MonthlyBalanceITUtils.assertMonthlyBalance(expectedMonthlyBalance, actualMonthlyBalance);
+    assertMonthlyBalance(expectedMonthlyBalance, actualMonthlyBalance);
 
     // Verifying the opening balance for the next month
     final Optional<AccountMonthlyBalanceDTO> nextMonthBalanceOpt =
@@ -164,7 +165,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     expectedNextMonth.period(monthlyPeriod.plusMonths(1));
     expectedNextMonth.openingBalance(withJBHDecimals(closingBalanceNov24));
 
-    MonthlyBalanceITUtils.assertMonthlyBalance(expectedNextMonth.build(), actualNextMonthBalance);
+    assertMonthlyBalance(expectedNextMonth.build(), actualNextMonthBalance);
 
     assertEquals(++totalMonthsCreated, inMemoryMonthlyBalanceRepos.getQueryRepo().size());
   }
@@ -245,8 +246,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     expectedMonthlyBalance.monthlyExpenses(new BigDecimal("-4610597.00"));
     expectedMonthlyBalance.totalMovements(1);
     expectedMonthlyBalance.officialMonthlyReport(true);
-    MonthlyBalanceITUtils.assertMonthlyBalance(
-        expectedMonthlyBalance.build(), actualMonthlyBalance);
+    assertMonthlyBalance(expectedMonthlyBalance.build(), actualMonthlyBalance);
 
     // Verifying the opening balance for the next month
     final Optional<AccountMonthlyBalanceDTO> nextMonthBalanceOpt =
@@ -403,7 +403,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
     // Then
     final var actualMonthlyBalance = savedMonthlyBalance.get();
-    final var expectedMonthlyBalance =
+    final var expectedMonthlyBalance20252 =
         AccountMonthlyBalanceDTO.defaultBuilder()
             .accountId(accountId)
             .period(monthlyPeriod202502)
@@ -418,7 +418,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             .officialMonthlyReport(true)
             .monthlyProfit(JBH_ZERO)
             .build();
-    MonthlyBalanceITUtils.assertMonthlyBalance(expectedMonthlyBalance, actualMonthlyBalance);
+    assertMonthlyBalance(expectedMonthlyBalance20252, actualMonthlyBalance);
 
     // Verifying the opening balance for the next month
     final Optional<AccountMonthlyBalanceDTO> nextMonthBalanceOpt =
@@ -453,5 +453,31 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
     final AccountMonthlyBalanceDTO updatedMonthlyBalance =
         monthlyBalanceInMemoQuery.findByAccountIdAndPeriod(accountId, monthlyPeriod202502).get();
+
+    final var expectedUpdatedMonthlyBalance =
+        AccountMonthlyBalanceDTO.defaultBuilder()
+            .accountId(accountId)
+            .period(expectedMonthlyBalance20252.period())
+            .openingBalance(expectedMonthlyBalance20252.openingBalance())
+            .closingBalance(expectedMonthlyBalance20252.closingBalance())
+            .totalDebits(salaryAmount)
+            .totalCredits(expectedMonthlyBalance20252.totalCredits().add(newAmount))
+            .monthlyExpenses(monthlyExpensesFeb25.subtract(newAmount))
+            .movementBalance(expectedMonthlyBalance20252.movementBalance().subtract(newAmount))
+            .totalMovements(5)
+            .officialMonthlyReport(true)
+            .monthlyProfit(JBH_ZERO)
+            .build();
+
+    assertMonthlyBalance(expectedUpdatedMonthlyBalance, updatedMonthlyBalance);
+
+    final var fiftyMillionsExpenses = new BigDecimal("50000000.00");
+    final AddMovementCommand fiftyMillionsExpensesCommand =
+        new AddMovementCommand(
+            LocalDate.of(2025, 2, 26),
+            withJBHDecimals(fiftyMillionsExpenses),
+            MovementCategoryDTO.withType(ExpenseCategory.PERSONAL));
+    Assertions.assertThrows(
+        GenericSpecificationException.class, () -> addMovement(fiftyMillionsExpensesCommand));
   }
 }

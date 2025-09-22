@@ -259,18 +259,21 @@ public class MonthlyBalanceSyncerAppService {
     final LocalDate movementDate = newMovement.getMovementDate();
     final int txnYear = movementDate.getYear();
     final int txnMonth = movementDate.getMonthValue();
-    final Optional<AccountMonthlyBalanceDomain> accountMonthlyBalanceOpt =
+    final AccountMonthlyBalanceDomain accountMonthlyBalance =
         monthlyBalanceService
             .findByAccountIdYearAndMonth(accountId, txnYear, txnMonth)
-            .map(MonthlyBalanceMapper::toDomain);
-    final AccountMonthlyBalanceDomain accountMonthlyBalance =
-        accountMonthlyBalanceOpt.orElseGet(
-            () -> AccountMonthlyBalanceDomain.withPeriod(accountId, txnYear, txnMonth));
+            .map(MonthlyBalanceMapper::toDomain)
+            .orElseGet(() -> AccountMonthlyBalanceDomain.withPeriod(accountId, txnYear, txnMonth));
 
     accountMonthlyBalance.syncMovement(newMovement);
     persistBalancesAndSyncThemASYNC(
         accountId, Collections.singletonList(toDTO(accountMonthlyBalance)));
 
     return accountMonthlyBalance;
+  }
+
+  public Optional<AccountMonthlyBalanceDTO> findByAccountIdYearAndMonth(
+      final AccountId accountId, final Integer balanceYear, final Integer balanceMonth) {
+    return monthlyBalanceService.findByAccountIdYearAndMonth(accountId, balanceYear, balanceMonth);
   }
 }

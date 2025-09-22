@@ -3,6 +3,7 @@ package com.jbh.account.application.accounts.ports.input;
 import static com.jbh.account.application.accounts.mappers.MonthlyBalanceMapper.toDTO;
 
 import com.jbh.account.application.accounts.dto.AccountDTO;
+import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
 import com.jbh.account.application.accounts.dto.AddBasicMovementDTO;
 import com.jbh.account.application.accounts.mappers.AccountMapper;
 import com.jbh.account.application.accounts.mappers.MovementMapper;
@@ -21,6 +22,7 @@ import com.jbh.account.domain.entity.MovementCategoryDomain;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
+import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 
@@ -70,6 +72,18 @@ public class AddMovementInputPort implements AddMovementUseCase {
               totalAmount =
                   movementType == MovementType.WITHDRAWAL ? totalAmount.negate() : totalAmount;
 
+              boolean wasMonthlyBalanceOfficialReport = false;
+              final Optional<AccountMonthlyBalanceDTO> existingMonthlyBalanceOpt =
+                  monthlyBalanceSyncerService.findByAccountIdYearAndMonth(
+                      accountId,
+                      movementCommand.entryDate().getYear(),
+                      movementCommand.entryDate().getMonthValue());
+              if (existingMonthlyBalanceOpt.isPresent()) {
+                wasMonthlyBalanceOfficialReport =
+                    existingMonthlyBalanceOpt.get().officialMonthlyReport();
+              }
+
+              // Sync account balance
               final AccountDomain accountDomain = findAccount(userId, accountId);
               final AccountMovementDomain newMovement =
                   AccountMovementDomain.with(
@@ -80,7 +94,8 @@ public class AddMovementInputPort implements AddMovementUseCase {
                       movementType,
                       MovementCategoryDomain.withDTO(movementCommand.categoryDTO()));
               final AccountDTO accountDTO =
-                  syncAccountBalanceByMovements(accountDomain, newMovement);
+                  syncAccountBalanceByMovements(
+                      accountDomain, newMovement, wasMonthlyBalanceOfficialReport);
               persistMovement(newMovement, accountDTO);
 
               // Sync monthly balance
@@ -115,8 +130,10 @@ public class AddMovementInputPort implements AddMovementUseCase {
   }
 
   private AccountDTO syncAccountBalanceByMovements(
-      final AccountDomain accountDomain, final AccountMovementDomain newMovement) {
-    accountDomain.syncBalancesByMovement(newMovement);
+      final AccountDomain accountDomain,
+      final AccountMovementDomain newMovement,
+      final boolean wasMonthlyBalanceOfficialReport) {
+    accountDomain.syncBalancesByMovement(newMovement, wasMonthlyBalanceOfficialReport);
     return AccountMapper.toDTO(accountDomain);
   }
 

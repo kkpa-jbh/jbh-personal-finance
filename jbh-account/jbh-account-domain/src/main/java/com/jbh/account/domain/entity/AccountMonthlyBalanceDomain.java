@@ -105,7 +105,6 @@ public class AccountMonthlyBalanceDomain {
     final BigDecimal inputOpeningBalance = previousMonthlyBalance.getClosingBalance();
     validateOpeningBalanceUseCase(inputOpeningBalance);
     this.openingBalance = withJBHDecimals(inputOpeningBalance);
-    this.officialMonthlyReport = false;
   }
 
   public BigDecimal getClosingBalance() {
@@ -118,7 +117,7 @@ public class AccountMonthlyBalanceDomain {
     }
   }
 
-  public void syncOfficialMonthlyReport(
+  public void assignOfficialMonthlyReport(
       final BigDecimal closingBalance, final BigDecimal monthlyProfitReported) {
     setOfficialMonthlyReport(closingBalance, monthlyProfitReported);
     syncMonthlyExpenses();
@@ -182,7 +181,9 @@ public class AccountMonthlyBalanceDomain {
       } else {
         this.totalDebits = this.totalDebits.add(amount.abs());
       }
-      this.closingBalance = this.closingBalance.add(amount);
+      if (!this.officialMonthlyReport) {
+        this.closingBalance = this.closingBalance.add(amount);
+      }
     }
   }
 
@@ -196,6 +197,9 @@ public class AccountMonthlyBalanceDomain {
           "The movement balance is not set for " + this.getAccountId());
     }
     if (isZero(totalCredits) && isZero(totalDebits) && isZero(openingBalance)) {
+      return;
+    }
+    if (officialMonthlyReport) {
       return;
     }
 
@@ -213,5 +217,6 @@ public class AccountMonthlyBalanceDomain {
    */
   public void syncPersistedBalance() {
     syncMonthlyProfit();
+    syncMonthlyExpenses();
   }
 }

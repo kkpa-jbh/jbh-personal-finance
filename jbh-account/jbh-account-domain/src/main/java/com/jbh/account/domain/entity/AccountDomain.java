@@ -75,17 +75,24 @@ public class AccountDomain {
         multipleMovements.stream().filter(Objects::nonNull).toList();
 
     for (final AccountMovementDomain movement : filteredMovements) {
-      syncBalancesByMovement(movement);
+      syncBalancesByMovement(movement, false);
     }
   }
 
-  public void syncBalancesByMovement(final AccountMovementDomain movement) {
+  public void syncBalancesByMovement(
+      final AccountMovementDomain movement, boolean wasMonthlyBalanceOfficialReport) {
     movement.validate();
 
     if (!this.getId().equals(movement.getAccountId())) {
       throw new GenericSpecificationException("Account ID mismatch when applying movement");
     }
 
+    validteInsuficientNetFlow(movement);
+
+    applyMovement(movement, wasMonthlyBalanceOfficialReport);
+  }
+
+  private void validteInsuficientNetFlow(final AccountMovementDomain movement) {
     final BigDecimal mvmtAmount = movement.getMovementAmount();
     final boolean isNegativeAmount = mvmtAmount != null && mvmtAmount.signum() < 0;
     if (isNegativeAmount) {
@@ -95,14 +102,20 @@ public class AccountDomain {
         throw new GenericSpecificationException("Insufficient effective balance");
       }
     }
-
-    applyMovement(movement);
   }
 
-  private void applyMovement(final AccountMovementDomain newAccountMovement) {
+  private void applyMovement(
+      final AccountMovementDomain newAccountMovement, boolean wasMonthlyBalanceOfficialReport) {
     final BigDecimal movementAmount = newAccountMovement.getMovementAmount();
+
+    if (wasMonthlyBalanceOfficialReport) {
+      syncMovementBalance(movementAmount);
+      syncProfitBalance();
+      return;
+    }
+
     if (movementAmount != null) {
-      this.movementBalance = this.movementBalance.add(movementAmount);
+      syncMovementBalance(movementAmount);
       this.currentBalance = this.currentBalance.add(movementAmount);
     }
 
@@ -111,7 +124,15 @@ public class AccountDomain {
       this.currentBalance = balanceSnapshot;
     }
 
-    this.profitBalance = this.currentBalance.subtract(this.movementBalance);
+    syncProfitBalance();
     this.updatedAt = LocalDateTime.now();
+  }
+
+  private void syncMovementBalance(BigDecimal movementAmount) {
+    this.movementBalance = this.movementBalance.add(movementAmount);
+  }
+
+  private void syncProfitBalance() {
+    this.profitBalance = this.currentBalance.subtract(this.movementBalance);
   }
 }

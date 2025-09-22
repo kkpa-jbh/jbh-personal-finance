@@ -70,13 +70,15 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
                     AccountMonthlyBalanceDomain.withPeriod(
                         accountId, periodToRegister.getYear(), periodToRegister.getMonthValue()));
 
-    monthlyBalanceDomain.syncOfficialMonthlyReport(
+    monthlyBalanceDomain.assignOfficialMonthlyReport(
         command.closingBalance(), command.monthlyProfitReported());
 
     final AccountMonthlyBalanceDTO monthlyBalanceDTO =
         MonthlyBalanceMapper.toDTO(monthlyBalanceDomain);
     monthlyBalanceService.saveBalance(monthlyBalanceDTO);
     monthlyBalanceService.updateOpeningBalanceNextMonth(monthlyBalanceDTO);
+
+    // TODO : Add monthly balance to account (SYNC ACCOUNT)
 
     log.info(
         "Monthly Balance registration completed successfully for account:{} and period: {}",

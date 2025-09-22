@@ -1,10 +1,9 @@
-package com.jbh.account.application.accounts.usecases.integration;
+package com.jbh.account.application.accounts.usecases.integration.monthlybalance;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
 import com.jbh.account.application.accounts.ports.output.monthlybalance.inmemory.InMemoryMonthlyBalanceRepositories;
-import com.jbh.account.application.accounts.usecases.integration.monthlybalance.MonthlyBalanceITUtils;
 import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;
 import java.time.YearMonth;

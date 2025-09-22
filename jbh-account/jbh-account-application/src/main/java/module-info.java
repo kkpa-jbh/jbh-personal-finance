@@ -18,8 +18,6 @@ module jbh.account.application {
       jbh.z.assembly;
   exports com.jbh.account.application.accounts.dto to
       jbh.account.infra;
-  exports com.jbh.account.application.accounts.vo to
-      jbh.account.infra;
   exports com.jbh.account.application.accounts.vo.commands to
       jbh.account.infra;
   exports com.jbh.account.application.accounts.services;
