@@ -205,14 +205,14 @@ public class AccountMonthlyBalanceDomainTest {
 
   @Test
   public void shouldSyncMultiMovementsOneHundredBalance() {
-    // Earn 10.00 on 1st deposit
+    // total Earn 10.00 on 1st deposit
     final var totalAmount = new BigDecimal("10.00");
     final var balanceSnapshot = new BigDecimal("120.00");
     final var newMovement =
         AccountMovementDomain.with(
             accountId, today, totalAmount, balanceSnapshot, DEPOSIT, OTHER_INCOME_CATEGORY);
 
-    // Earn 5.00 on 2nd deposit
+    // TOTAL Earn 20.00 on 2nd deposit
     final var totalAmount2 = new BigDecimal("30.00");
     final var balanceSnapshot2 = new BigDecimal("170.00");
     final var newMovement2 =

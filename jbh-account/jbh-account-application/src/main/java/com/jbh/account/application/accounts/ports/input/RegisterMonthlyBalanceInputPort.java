@@ -40,7 +40,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
    * @throws JbhSpecificationApplication
    */
   @Override
-  public AccountMonthlyBalanceDTO registerMonthlyBalance(
+  public AccountMonthlyBalanceDTO registerOfficialMonthlyBalance(
       final LocalDate runningDate,
       final UUID userId,
       final AccountId accountId,
@@ -60,9 +60,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
           "The monthly balance period is not in the past");
     }
 
-    AccountMonthlyBalanceDomain monthlyBalanceDomain = null;
-
-    monthlyBalanceDomain =
+    final AccountMonthlyBalanceDomain monthlyBalanceDomain =
         monthlyBalanceService
             .findByAccountIdYearAndMonth(
                 accountId, periodToRegister.getYear(), periodToRegister.getMonthValue())

@@ -1,10 +1,10 @@
 package com.jbh.account.application.accounts.usecases.integration;
 
-import static com.jbh.account.application.accounts.usecases.integration.monthlybalance.MonthlyBalanceITUtils.assertBalance;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
 import com.jbh.account.application.accounts.ports.output.monthlybalance.inmemory.InMemoryMonthlyBalanceRepositories;
+import com.jbh.account.application.accounts.usecases.integration.monthlybalance.MonthlyBalanceITUtils;
 import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;
 import java.time.YearMonth;
@@ -28,7 +28,7 @@ class MonthlyBalanceInMemoryRepositoryTest {
   void shouldSaveAndRetrieveMonthlyBalance() {
     // Given
     final AccountMonthlyBalanceDTO balance =
-        AccountMonthlyBalanceDTO.builder()
+        AccountMonthlyBalanceDTO.defaultBuilder()
             .accountId(testAccountId)
             .year(2024)
             .month(3)
@@ -46,18 +46,8 @@ class MonthlyBalanceInMemoryRepositoryTest {
     final Optional<AccountMonthlyBalanceDTO> retrieved =
         repositories.getQueryRepo().findByAccountIdYearAndMonth(testAccountId, 2024, 3);
 
-    final AccountMonthlyBalanceDTO expected =
-        AccountMonthlyBalanceDTO.defaultBuilder()
-            .accountId(testAccountId)
-            .year(2024)
-            .month(3)
-            .period(YearMonth.of(2024, 3))
-            .openingBalance(BigDecimal.valueOf(1000))
-            .closingBalance(BigDecimal.valueOf(1200))
-            .build();
-
     assertTrue(retrieved.isPresent());
-    assertBalance(expected, retrieved.get());
+    MonthlyBalanceITUtils.assertMonthlyBalance(balance, retrieved.get());
   }
 
   @Test
@@ -87,7 +77,7 @@ class MonthlyBalanceInMemoryRepositoryTest {
 
   private AccountMonthlyBalanceDTO createBalance(
       final AccountId accountId, final int year, final int month, final BigDecimal closingBalance) {
-    return AccountMonthlyBalanceDTO.builder()
+    return AccountMonthlyBalanceDTO.defaultBuilder()
         .accountId(accountId)
         .year(year)
         .month(month)

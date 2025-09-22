@@ -1,6 +1,5 @@
 package com.jbh.account.application.accounts.usecases.mock;
 
-import static com.jbh.account.application.accounts.usecases.integration.monthlybalance.MonthlyBalanceITUtils.assertBalance;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,6 +18,7 @@ import com.jbh.account.application.accounts.ports.output.monthlybalance.AccountM
 import com.jbh.account.application.accounts.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.accounts.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.account.application.accounts.usecases.RegisterMonthlyBalanceUseCase;
+import com.jbh.account.application.accounts.usecases.integration.monthlybalance.MonthlyBalanceITUtils;
 import com.jbh.account.application.accounts.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.vo.AccountId;
@@ -92,7 +92,7 @@ public class RegisterMonthlyBalanceMockTest {
     Assertions.assertDoesNotThrow(
         () ->
             savedMonthlyBalance.set(
-                useCaseInstanceTest.registerMonthlyBalance(
+                useCaseInstanceTest.registerOfficialMonthlyBalance(
                     runningDate, userId, accountId, command)));
 
     // Then
@@ -109,8 +109,9 @@ public class RegisterMonthlyBalanceMockTest {
             .totalDebits(JBH_ZERO)
             .totalCredits(JBH_ZERO)
             .monthlyProfit(JBH_ZERO)
+            .officialMonthlyReport(true)
             .build();
-    assertBalance(expectedMonthBalance, actualMonthlyBalance);
+    MonthlyBalanceITUtils.assertMonthlyBalance(expectedMonthBalance, actualMonthlyBalance);
 
     // Verify the captured nextMonthlyBalance
     assertNotNull(capturedNextMonthlyBalance);

@@ -9,7 +9,7 @@ import com.jbh.account.application.accounts.mappers.MovementMapper;
 import com.jbh.account.application.accounts.ports.output.AccountRepository;
 import com.jbh.account.application.accounts.services.MonthlyBalanceSyncerAppService;
 import com.jbh.account.application.accounts.usecases.AddMovementUseCase;
-import com.jbh.account.application.accounts.vo.AddMovementCommand;
+import com.jbh.account.application.accounts.vo.commands.AddMovementCommand;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.common.logging.LoggerFactory;
 import com.jbh.account.application.common.logging.LoggingContext;

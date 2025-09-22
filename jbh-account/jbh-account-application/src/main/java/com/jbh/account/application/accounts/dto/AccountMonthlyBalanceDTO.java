@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.time.YearMonth;
 import lombok.Builder;
 
-@Builder
+@Builder(builderMethodName = "notUseThisInternalBuilder")
 public record AccountMonthlyBalanceDTO(
     Long id,
     AccountId accountId,
@@ -27,7 +27,7 @@ public record AccountMonthlyBalanceDTO(
     boolean officialMonthlyReport) {
 
   public static AccountMonthlyBalanceDTO.AccountMonthlyBalanceDTOBuilder defaultBuilder() {
-    return AccountMonthlyBalanceDTO.builder()
+    return AccountMonthlyBalanceDTO.notUseThisInternalBuilder()
         .movementBalance(JBH_ZERO)
         .closingBalance(JBH_ZERO)
         .totalDebits(JBH_ZERO)

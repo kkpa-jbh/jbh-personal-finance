@@ -1,4 +1,4 @@
-package com.jbh.account.application.accounts.vo;
+package com.jbh.account.application.accounts.vo.commands;
 
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.MovementType;

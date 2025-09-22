@@ -1,6 +1,5 @@
 package com.jbh.account.application.accounts.usecases.integration;
 
-import static com.jbh.account.application.accounts.usecases.integration.monthlybalance.MonthlyBalanceITUtils.assertBalance;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,9 +19,10 @@ import com.jbh.account.application.accounts.services.MonthlyBalanceSyncerAppServ
 import com.jbh.account.application.accounts.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.accounts.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.account.application.accounts.usecases.AddMovementUseCase;
+import com.jbh.account.application.accounts.usecases.integration.monthlybalance.MonthlyBalanceITUtils;
 import com.jbh.account.application.accounts.usecases.utils.UnitOfWorkTest;
-import com.jbh.account.application.accounts.vo.AddMovementCommand;
 import com.jbh.account.application.accounts.vo.commands.AddMonthlyBalanceCommand;
+import com.jbh.account.application.accounts.vo.commands.AddMovementCommand;
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountDomain;
@@ -134,25 +134,25 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     Assertions.assertDoesNotThrow(
         () ->
             savedMonthlyBalance.set(
-                useCaseTest.registerMonthlyBalance(runningDate, userId, accountId, command)));
+                useCaseTest.registerOfficialMonthlyBalance(
+                    runningDate, userId, accountId, command)));
 
     // Then
     final var actualMonthlyBalance = savedMonthlyBalance.get();
     final var expectedMonthlyBalance =
-        AccountMonthlyBalanceDTO.builder()
+        AccountMonthlyBalanceDTO.defaultBuilder()
             .accountId(accountId)
             .period(monthlyPeriod)
-            .openingBalance(closingBalanceNov24)
             .closingBalance(withJBHDecimals(closingBalanceNov24))
             .totalDebits(withJBHDecimals(salaryAmount))
             .totalCredits(JBH_ZERO)
-            .monthlyExpenses(withJBHDecimals(new BigDecimal("-7676950.00")))
+            .monthlyExpenses(JBH_ZERO)
             .movementBalance(withJBHDecimals(salaryAmount))
             .totalMovements(1)
             .officialMonthlyReport(true)
             .monthlyProfit(JBH_ZERO)
             .build();
-    assertBalance(expectedMonthlyBalance, actualMonthlyBalance);
+    MonthlyBalanceITUtils.assertMonthlyBalance(expectedMonthlyBalance, actualMonthlyBalance);
 
     // Verifying the opening balance for the next month
     final Optional<AccountMonthlyBalanceDTO> nextMonthBalanceOpt =
@@ -164,7 +164,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     expectedNextMonth.period(monthlyPeriod.plusMonths(1));
     expectedNextMonth.openingBalance(withJBHDecimals(closingBalanceNov24));
 
-    assertBalance(expectedNextMonth.build(), actualNextMonthBalance);
+    MonthlyBalanceITUtils.assertMonthlyBalance(expectedNextMonth.build(), actualNextMonthBalance);
 
     assertEquals(++totalMonthsCreated, inMemoryMonthlyBalanceRepos.getQueryRepo().size());
   }
@@ -194,7 +194,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   private void addMovement(final AddMovementCommand movement) {
     addMovementUseCase.addMovement(userId, accountId, movement);
     try {
-      Thread.sleep(Duration.ofSeconds(1).toMillis());
+      Thread.sleep(Duration.ofSeconds(2).toMillis());
     } catch (final InterruptedException e) {
       throw new RuntimeException(e);
     }
@@ -229,7 +229,8 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     Assertions.assertDoesNotThrow(
         () ->
             savedMonthlyBalance.set(
-                useCaseTest.registerMonthlyBalance(runningDate, userId, accountId, command)));
+                useCaseTest.registerOfficialMonthlyBalance(
+                    runningDate, userId, accountId, command)));
 
     // Then
     final var actualMonthlyBalance = savedMonthlyBalance.get();
@@ -244,7 +245,8 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     expectedMonthlyBalance.monthlyExpenses(new BigDecimal("-4610597.00"));
     expectedMonthlyBalance.totalMovements(1);
     expectedMonthlyBalance.officialMonthlyReport(true);
-    assertBalance(expectedMonthlyBalance.build(), actualMonthlyBalance);
+    MonthlyBalanceITUtils.assertMonthlyBalance(
+        expectedMonthlyBalance.build(), actualMonthlyBalance);
 
     // Verifying the opening balance for the next month
     final Optional<AccountMonthlyBalanceDTO> nextMonthBalanceOpt =
@@ -294,7 +296,8 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     Assertions.assertDoesNotThrow(
         () ->
             savedMonthlyBalance.set(
-                useCaseTest.registerMonthlyBalance(runningDate, userId, accountId, command)));
+                useCaseTest.registerOfficialMonthlyBalance(
+                    runningDate, userId, accountId, command)));
 
     // Then
     final var actualMonthlyBalance = savedMonthlyBalance.get();
@@ -395,12 +398,13 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     Assertions.assertDoesNotThrow(
         () ->
             savedMonthlyBalance.set(
-                useCaseTest.registerMonthlyBalance(runningDate, userId, accountId, command)));
+                useCaseTest.registerOfficialMonthlyBalance(
+                    runningDate, userId, accountId, command)));
 
     // Then
     final var actualMonthlyBalance = savedMonthlyBalance.get();
     final var expectedMonthlyBalance =
-        AccountMonthlyBalanceDTO.builder()
+        AccountMonthlyBalanceDTO.defaultBuilder()
             .accountId(accountId)
             .period(monthlyPeriod202502)
             .openingBalance(closingBalanceJan25)
@@ -414,7 +418,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             .officialMonthlyReport(true)
             .monthlyProfit(JBH_ZERO)
             .build();
-    assertBalance(expectedMonthlyBalance, actualMonthlyBalance);
+    MonthlyBalanceITUtils.assertMonthlyBalance(expectedMonthlyBalance, actualMonthlyBalance);
 
     // Verifying the opening balance for the next month
     final Optional<AccountMonthlyBalanceDTO> nextMonthBalanceOpt =

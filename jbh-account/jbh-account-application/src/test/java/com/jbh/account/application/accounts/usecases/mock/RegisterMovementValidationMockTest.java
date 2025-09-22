@@ -20,7 +20,7 @@ import com.jbh.account.application.accounts.services.MonthlyBalanceSyncerAppServ
 import com.jbh.account.application.accounts.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.accounts.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.account.application.accounts.usecases.utils.UnitOfWorkTest;
-import com.jbh.account.application.accounts.vo.AddMovementCommand;
+import com.jbh.account.application.accounts.vo.commands.AddMovementCommand;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;

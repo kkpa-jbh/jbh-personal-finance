@@ -22,7 +22,7 @@ import com.jbh.account.application.accounts.ports.output.monthlybalance.AccountM
 import com.jbh.account.application.accounts.services.MonthlyBalanceSyncerAppService;
 import com.jbh.account.application.accounts.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.account.application.accounts.usecases.utils.UnitOfWorkTest;
-import com.jbh.account.application.accounts.vo.AddMovementCommand;
+import com.jbh.account.application.accounts.vo.commands.AddMovementCommand;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
@@ -103,6 +103,7 @@ public class RegisterMovementExecutionMockTest {
     final AccountMonthlyBalanceDTO actualMonthlyBalances = mvmtResponse.get().monthlyBalance();
     assertEquals(amount, actualMonthlyBalances.totalDebits());
     assertEquals(amount, actualMonthlyBalances.closingBalance());
+    assertEquals(amount, actualMonthlyBalances.movementBalance());
     assertEquals(JBH_ZERO, actualMonthlyBalances.openingBalance());
     assertEquals(JBH_ZERO, actualMonthlyBalances.monthlyProfit());
 
@@ -118,7 +119,7 @@ public class RegisterMovementExecutionMockTest {
 
     assertEquals(2, futureResponse.size());
 
-    // Year and month are not the same
+    // Next Period
     assertEquals(movementDate.plusMonths(1).getMonthValue(), futureResponse.get(1).month());
     assertEquals(amount, futureResponse.get(1).openingBalance());
     assertEquals(JBH_ZERO, futureResponse.get(0).monthlyProfit());
@@ -233,7 +234,7 @@ public class RegisterMovementExecutionMockTest {
     final BigDecimal existingTotalCredits = new BigDecimal("200.00");
     final BigDecimal existingOpeningBalance = new BigDecimal("500.00");
     final AccountMonthlyBalanceDTO existingMonthlyBalance =
-        AccountMonthlyBalanceDTO.builder()
+        AccountMonthlyBalanceDTO.defaultBuilder()
             .id(1L)
             .accountId(accountId)
             .year(movementDate.getYear())

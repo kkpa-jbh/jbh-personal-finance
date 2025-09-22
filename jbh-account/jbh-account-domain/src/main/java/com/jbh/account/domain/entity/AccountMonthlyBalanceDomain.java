@@ -15,8 +15,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /** Domain entity - focus on business logic and state, not sorting */
-@Getter
 @AllArgsConstructor
+@Getter
 @SuppressWarnings("PMD.ImmutableField")
 public class AccountMonthlyBalanceDomain {
 
@@ -108,6 +108,10 @@ public class AccountMonthlyBalanceDomain {
     this.officialMonthlyReport = false;
   }
 
+  public BigDecimal getClosingBalance() {
+    return closingBalance;
+  }
+
   private static void validateOpeningBalanceUseCase(final BigDecimal inputOpeningBalance) {
     if (inputOpeningBalance == null) {
       throw new GenericSpecificationException("Opening balance cannot be null");
@@ -157,7 +161,6 @@ public class AccountMonthlyBalanceDomain {
     }
 
     syncMonthlyProfit();
-    syncMovementBalance();
   }
 
   private void validateMovementPeriod(final AccountMovementDomain mvmt) {
@@ -188,15 +191,19 @@ public class AccountMonthlyBalanceDomain {
       throw new IllegalArgumentException(
           "The opening Balance is not set for " + this.getAccountId());
     }
+    if (movementBalance == null) {
+      throw new IllegalArgumentException(
+          "The movement balance is not set for " + this.getAccountId());
+    }
     if (isZero(totalCredits) && isZero(totalDebits) && isZero(openingBalance)) {
       return;
     }
 
-    this.monthlyProfit = closingBalance.subtract(openingBalance).subtract(movementBalance);
+    this.monthlyProfit = closingBalance.subtract(openingBalance).subtract(getMovementBalance());
   }
 
-  private void syncMovementBalance() {
-    this.movementBalance = totalDebits.subtract(totalCredits);
+  public BigDecimal getMovementBalance() {
+    return totalDebits.subtract(totalCredits);
   }
 
   /**
@@ -206,6 +213,5 @@ public class AccountMonthlyBalanceDomain {
    */
   public void syncPersistedBalance() {
     syncMonthlyProfit();
-    syncMovementBalance();
   }
 }

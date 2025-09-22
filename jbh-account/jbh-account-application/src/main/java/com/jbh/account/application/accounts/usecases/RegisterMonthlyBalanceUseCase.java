@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface RegisterMonthlyBalanceUseCase {
 
-  AccountMonthlyBalanceDTO registerMonthlyBalance(
+  AccountMonthlyBalanceDTO registerOfficialMonthlyBalance(
       LocalDate runningDate, UUID userId, AccountId accountId, AddMonthlyBalanceCommand command)
       throws JbhSpecificationApplication;
 }

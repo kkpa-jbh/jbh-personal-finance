@@ -12,7 +12,7 @@ public final class MonthlyBalanceMapper {
       return null;
     }
 
-    return AccountMonthlyBalanceDTO.builder()
+    return AccountMonthlyBalanceDTO.defaultBuilder()
         .id(domain.getId())
         .accountId(domain.getAccountId())
         .year(domain.getYear())
@@ -27,6 +27,7 @@ public final class MonthlyBalanceMapper {
         .monthlyExpenses(domain.getMonthlyExpenses())
         .totalMovements(domain.getTotalMovements())
         .gapPeriod(domain.isGapPeriod())
+        .officialMonthlyReport(domain.isOfficialMonthlyReport())
         .build();
   }
 

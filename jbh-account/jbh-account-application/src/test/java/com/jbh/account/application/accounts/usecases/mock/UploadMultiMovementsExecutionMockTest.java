@@ -3,7 +3,7 @@ package com.jbh.account.application.accounts.usecases.mock;
 import static com.jbh.account.application.accounts.mappers.MonthlyBalanceMapper.toDomain;
 import static com.jbh.account.application.accounts.usecases.integration.monthlybalance.IgnoreOption.IGNORE_MONTHLY_PROFIT;
 import static com.jbh.account.application.accounts.usecases.integration.monthlybalance.IgnoreOption.IGNORE_OPENING_BALANCE;
-import static com.jbh.account.application.accounts.usecases.integration.monthlybalance.MonthlyBalanceITUtils.assertBalance;
+import static com.jbh.account.application.accounts.usecases.integration.monthlybalance.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -166,7 +166,8 @@ public class UploadMultiMovementsExecutionMockTest {
     int expectedMonth = 7;
     int sortedIndex = 0;
     final var monthlyProfit20247 = numberOf("98712");
-    AccountMonthlyBalanceDTO actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
+    AccountMonthlyBalanceDTO actualMonthBalance =
+        actualBalancesWithoutAsyncOperation.get(sortedIndex);
     final var closingBalance20247 = numberOf("12689712");
     AccountMonthlyBalanceDTO expectedMonthBalance =
         AccountMonthlyBalanceDTO.defaultBuilder()
@@ -179,7 +180,7 @@ public class UploadMultiMovementsExecutionMockTest {
             .movementBalance(numberOf("12591000"))
             .totalDebits(numberOf("12591000"))
             .build();
-    assertBalance(
+    assertMonthlyBalance(
         expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     // Assert per month
@@ -200,7 +201,7 @@ public class UploadMultiMovementsExecutionMockTest {
             .totalDebits(numberOf("22685312"))
             .movementBalance(numberOf("22685312"))
             .build();
-    assertBalance(
+    assertMonthlyBalance(
         expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     // Assert per month
@@ -220,7 +221,7 @@ public class UploadMultiMovementsExecutionMockTest {
             .totalDebits(numberOf("0"))
             .monthlyProfit(monthlyProfit20249)
             .build();
-    assertBalance(
+    assertMonthlyBalance(
         expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     // Assert per month
@@ -240,7 +241,7 @@ public class UploadMultiMovementsExecutionMockTest {
             .totalDebits(numberOf("0"))
             .monthlyProfit(monthlyProfit202410)
             .build();
-    assertBalance(
+    assertMonthlyBalance(
         expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     // Assert per month
@@ -262,7 +263,7 @@ public class UploadMultiMovementsExecutionMockTest {
             .totalCredits(numberOf("673605"))
             .movementBalance(numberOf("-673605"))
             .build();
-    assertBalance(
+    assertMonthlyBalance(
         expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     // Assert per month
@@ -284,7 +285,7 @@ public class UploadMultiMovementsExecutionMockTest {
             .movementBalance(numberOf("-1271000"))
             .monthlyProfit(monthlyProfit202412)
             .build();
-    assertBalance(
+    assertMonthlyBalance(
         expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     // Assert per month
@@ -306,7 +307,7 @@ public class UploadMultiMovementsExecutionMockTest {
             .totalCredits(numberOf("9590134"))
             .movementBalance(numberOf("-9590134"))
             .build();
-    assertBalance(
+    assertMonthlyBalance(
         expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     // Assert per month
@@ -328,7 +329,7 @@ public class UploadMultiMovementsExecutionMockTest {
             .totalCredits(numberOf("21759690"))
             .movementBalance(numberOf("-21759690"))
             .build();
-    assertBalance(
+    assertMonthlyBalance(
         expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     // Assert per month
@@ -348,7 +349,7 @@ public class UploadMultiMovementsExecutionMockTest {
             .totalCredits(numberOf("3768488"))
             .movementBalance(numberOf("-3768488"))
             .build();
-    assertBalance(
+    assertMonthlyBalance(
         expectedMonthBalance, actualMonthBalance, IGNORE_MONTHLY_PROFIT, IGNORE_OPENING_BALANCE);
 
     final YearMonth initPeriod =

@@ -6,12 +6,12 @@ import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
 
 public class MonthlyBalanceITUtils {
 
-  public static void assertBalance(
+  public static void assertMonthlyBalance(
       final AccountMonthlyBalanceDTO expected, final AccountMonthlyBalanceDTO actual) {
-    assertBalance(expected, actual, null);
+    assertMonthlyBalance(expected, actual, null);
   }
 
-  public static void assertBalance(
+  public static void assertMonthlyBalance(
       final AccountMonthlyBalanceDTO expected,
       final AccountMonthlyBalanceDTO actual,
       final IgnoreOption... ignoreOptions) {

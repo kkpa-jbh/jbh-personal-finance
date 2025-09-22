@@ -80,20 +80,20 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
 
   public static AccountMonthlyBalanceJPAEntity of(final AccountMonthlyBalanceDTO monthlyBalance) {
     final AccountMonthlyBalanceJPAEntity entity = new AccountMonthlyBalanceJPAEntity();
-    entity.setId(monthlyBalance.getId());
+    entity.setId(monthlyBalance.id());
     entity.setAccountId(
-        monthlyBalance.getAccountId() != null ? monthlyBalance.getAccountId().value() : null);
-    entity.setYear(monthlyBalance.getYear());
-    entity.setMonth(monthlyBalance.getMonth());
-    entity.setPeriod(monthlyBalance.getPeriod());
-    entity.setTotalDebits(monthlyBalance.getTotalDebits());
-    entity.setTotalCredits(monthlyBalance.getTotalCredits());
-    entity.setMovementBalance(monthlyBalance.getMovementBalance());
-    entity.setOpeningBalance(monthlyBalance.getOpeningBalance());
-    entity.setClosingBalance(monthlyBalance.getClosingBalance());
-    entity.setMonthlyProfit(monthlyBalance.getMonthlyProfit());
-    entity.setTotalMovements(monthlyBalance.getTotalMovements());
-    entity.setGapPeriod(monthlyBalance.isGapPeriod());
+        monthlyBalance.accountId() != null ? monthlyBalance.accountId().value() : null);
+    entity.setYear(monthlyBalance.year());
+    entity.setMonth(monthlyBalance.month());
+    entity.setPeriod(monthlyBalance.period());
+    entity.setTotalDebits(monthlyBalance.totalDebits());
+    entity.setTotalCredits(monthlyBalance.totalCredits());
+    entity.setMovementBalance(monthlyBalance.movementBalance());
+    entity.setOpeningBalance(monthlyBalance.openingBalance());
+    entity.setClosingBalance(monthlyBalance.closingBalance());
+    entity.setMonthlyProfit(monthlyBalance.monthlyProfit());
+    entity.setTotalMovements(monthlyBalance.totalMovements());
+    entity.setGapPeriod(monthlyBalance.gapPeriod());
     return entity;
   }
 
@@ -109,7 +109,7 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
   }
 
   public AccountMonthlyBalanceDTO toDTO() {
-    return AccountMonthlyBalanceDTO.builder()
+    return AccountMonthlyBalanceDTO.defaultBuilder()
         .id(id)
         .accountId(AccountId.of(accountId))
         .year(year)

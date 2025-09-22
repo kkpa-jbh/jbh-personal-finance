@@ -161,10 +161,10 @@ public class MonthlyBalanceSyncerAppService {
         initPeriod,
         endPeriod);
 
-    final List<AccountMonthlyBalanceDTO> existingNextBalancesFromPeriodDTO =
+    final List<AccountMonthlyBalanceDTO> existingNextPeriodBalanceDTO =
         monthlyBalanceService.findNextBalancesFromPeriodInclusive(accountId, initPeriod);
 
-    if (existingNextBalancesFromPeriodDTO == null || existingNextBalancesFromPeriodDTO.isEmpty()) {
+    if (existingNextPeriodBalanceDTO == null || existingNextPeriodBalanceDTO.isEmpty()) {
       LOG.warn(
           "No future balances to sync profit were found for account {} and period {}",
           accountId,
@@ -173,7 +173,7 @@ public class MonthlyBalanceSyncerAppService {
     }
 
     final List<AccountMonthlyBalanceDomain> existingNextBalancesFromPeriod =
-        existingNextBalancesFromPeriodDTO.stream().map(MonthlyBalanceMapper::toDomain).toList();
+        existingNextPeriodBalanceDTO.stream().map(MonthlyBalanceMapper::toDomain).toList();
     final ConcurrentMap<YearMonth, AccountMonthlyBalanceDomain> existingDomainBalancesMap =
         existingNextBalancesFromPeriod.stream()
             .collect(
