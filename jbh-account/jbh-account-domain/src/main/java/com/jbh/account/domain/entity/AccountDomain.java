@@ -80,19 +80,19 @@ public class AccountDomain {
   }
 
   public void syncBalancesByMovement(
-      final AccountMovementDomain movement, boolean wasMonthlyBalanceOfficialReport) {
+      final AccountMovementDomain movement, final boolean wasMonthlyBalanceOfficialReport) {
     movement.validate();
 
     if (!this.getId().equals(movement.getAccountId())) {
       throw new GenericSpecificationException("Account ID mismatch when applying movement");
     }
 
-    validteInsuficientNetFlow(movement);
+    validateInsufficientNetFlow(movement);
 
     applyMovement(movement, wasMonthlyBalanceOfficialReport);
   }
 
-  private void validteInsuficientNetFlow(final AccountMovementDomain movement) {
+  private void validateInsufficientNetFlow(final AccountMovementDomain movement) {
     final BigDecimal mvmtAmount = movement.getMovementAmount();
     final boolean isNegativeAmount = mvmtAmount != null && mvmtAmount.signum() < 0;
     if (isNegativeAmount) {
@@ -105,7 +105,8 @@ public class AccountDomain {
   }
 
   private void applyMovement(
-      final AccountMovementDomain newAccountMovement, boolean wasMonthlyBalanceOfficialReport) {
+      final AccountMovementDomain newAccountMovement,
+      final boolean wasMonthlyBalanceOfficialReport) {
     final BigDecimal movementAmount = newAccountMovement.getMovementAmount();
 
     if (wasMonthlyBalanceOfficialReport) {
@@ -128,11 +129,15 @@ public class AccountDomain {
     this.updatedAt = LocalDateTime.now();
   }
 
-  private void syncMovementBalance(BigDecimal movementAmount) {
+  private void syncMovementBalance(final BigDecimal movementAmount) {
     this.movementBalance = this.movementBalance.add(movementAmount);
   }
 
   private void syncProfitBalance() {
     this.profitBalance = this.currentBalance.subtract(this.movementBalance);
+  }
+
+  public void syncByMonthlyReport(final BigDecimal closingBalance) {
+    this.currentBalance = closingBalance;
   }
 }

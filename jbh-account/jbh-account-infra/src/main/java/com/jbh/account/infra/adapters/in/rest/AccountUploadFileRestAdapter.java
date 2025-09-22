@@ -3,8 +3,8 @@ package com.jbh.account.infra.adapters.in.rest;
 import static com.jbh.account.infra.adapters.in.rest.vo.AccountApiRoutes.MOVEMENTS_INBULK_API;
 import static com.jbh.account.infra.common.utils.JbhStringUtils.toLowerCase;
 
-import com.jbh.account.application.accounts.usecases.AddMovementsUploadedFileUseCase;
-import com.jbh.account.application.accounts.vo.commands.AddMovementUploadedFileCommand;
+import com.jbh.account.application.core.usecases.AddMovementsUploadedFileUseCase;
+import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.infra.adapters.in.rest.vo.AccountApiRoutes;
 import com.jbh.account.infra.adapters.in.rest.vo.AddMovementsUploadedFileRequest;

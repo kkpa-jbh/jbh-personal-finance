@@ -1,6 +1,6 @@
 package com.jbh.account.application.movements.ports.output;
 
-import com.jbh.account.application.accounts.dto.MovementDTO;
+import com.jbh.account.application.core.dto.MovementDTO;
 import java.util.List;
 
 public interface AccountMovementRepository {

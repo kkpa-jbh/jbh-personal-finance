@@ -1,6 +1,6 @@
 package com.jbh.account.infra.adapters.out.persistence.account;
 
-import com.jbh.account.application.accounts.dto.AccountDTO;
+import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;

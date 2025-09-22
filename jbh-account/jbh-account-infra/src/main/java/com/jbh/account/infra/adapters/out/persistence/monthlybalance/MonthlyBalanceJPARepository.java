@@ -1,7 +1,7 @@
 package com.jbh.account.infra.adapters.out.persistence.monthlybalance;
 
-import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
-import com.jbh.account.application.accounts.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
+import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.domain.vo.AccountId;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;

@@ -1,4 +1,4 @@
-import com.jbh.account.application.accounts.ports.input.AddMovementInputPort;
+import com.jbh.account.application.core.ports.input.AddMovementInputPort;
 
 module jbh.account.infra {
   requires jakarta.persistence;

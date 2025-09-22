@@ -1,6 +1,6 @@
 package com.jbh.account.infra.adapters.out.persistence.monthlybalance;
 
-import com.jbh.account.application.accounts.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
 import com.jbh.account.domain.vo.AccountId;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;

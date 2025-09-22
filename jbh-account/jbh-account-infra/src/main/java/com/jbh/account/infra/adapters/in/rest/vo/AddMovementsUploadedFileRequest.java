@@ -1,6 +1,6 @@
 package com.jbh.account.infra.adapters.in.rest.vo;
 
-import com.jbh.account.application.accounts.vo.commands.AddMovementUploadedFileCommand;
+import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 

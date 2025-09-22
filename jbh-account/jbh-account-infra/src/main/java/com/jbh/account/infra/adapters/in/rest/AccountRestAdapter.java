@@ -1,8 +1,8 @@
 package com.jbh.account.infra.adapters.in.rest;
 
-import com.jbh.account.application.accounts.dto.AccountDTO;
-import com.jbh.account.application.accounts.usecases.CreateAccountUseCase;
-import com.jbh.account.application.accounts.vo.commands.CreateBasicAccountCommand;
+import com.jbh.account.application.core.dto.AccountDTO;
+import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
 import com.jbh.account.infra.adapters.in.rest.vo.AccountApiRoutes;
 import com.jbh.account.infra.adapters.in.rest.vo.CreateAccountRequest;
 import com.jbh.gateway.client.JbhGatewayException;

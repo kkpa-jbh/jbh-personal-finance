@@ -1,6 +1,6 @@
 package com.jbh.account.infra.adapters.out.persistence.movement;
 
-import com.jbh.account.application.accounts.dto.MovementDTO;
+import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.domain.vo.MovementType;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;

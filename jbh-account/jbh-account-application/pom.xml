@@ -31,7 +31,7 @@
                     <exclude>com.jbh.account.application.common.logging.*</exclude>
                     <exclude>com.jbh.account.application.async.*</exclude>
                     <exclude>com.jbh.account.application.exceptions.*</exclude>
-                    <exclude>com.jbh.account.application.accounts.mappers.*</exclude>
+                    <exclude>com.jbh.account.application.core.mappers.*</exclude>
                     <exclude>**/dto/**</exclude>
                     <exclude>**/vo/**</exclude>
                   </excludes>
@@ -54,7 +54,7 @@
                     <exclude>com.jbh.account.application.common.logging.*</exclude>
                     <exclude>com.jbh.account.application.async.*</exclude>
                     <exclude>com.jbh.account.application.exceptions.*</exclude>
-                    <exclude>com.jbh.account.application.accounts.mappers.*</exclude>
+                    <exclude>com.jbh.account.application.core.mappers.*</exclude>
                   </excludes>
                   <limits>
                     <limit>
