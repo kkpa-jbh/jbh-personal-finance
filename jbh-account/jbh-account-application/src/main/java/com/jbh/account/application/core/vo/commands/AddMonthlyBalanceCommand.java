@@ -1,5 +1,7 @@
 package com.jbh.account.application.core.vo.commands;
 
+import static com.jbh.account.domain.utils.MoneyUtils.isZero;
+
 import java.math.BigDecimal;
 import java.time.YearMonth;
 
@@ -16,8 +18,8 @@ public record AddMonthlyBalanceCommand(
 
   @Override
   public void validate() {
-    if (closingBalance == null) {
-      throw new IllegalArgumentException("Closing balance cannot be null");
+    if (isZero(closingBalance)) {
+      throw new IllegalArgumentException("Closing balance cannot be empty");
     }
     if (monthlyPeriod == null) {
       throw new IllegalArgumentException("Entry date cannot be null");

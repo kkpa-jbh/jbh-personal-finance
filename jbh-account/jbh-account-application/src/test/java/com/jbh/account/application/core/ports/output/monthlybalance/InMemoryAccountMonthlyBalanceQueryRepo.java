@@ -74,7 +74,11 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
 
   @Override
   public Optional<AccountMonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
-    return findByAccountId(accountId).stream().map(MonthlyBalanceMapper::toDomain).toList().stream()
+    return findByAccountId(accountId).stream()
+        .filter(AccountMonthlyBalanceDTO::officialMonthlyReport)
+        .map(MonthlyBalanceMapper::toDomain)
+        .toList()
+        .stream()
         .min(AccountMonthlyBalanceComparators.BY_PERIOD_DESC)
         .map(MonthlyBalanceMapper::toDTO);
   }

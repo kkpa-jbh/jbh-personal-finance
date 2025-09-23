@@ -19,14 +19,15 @@ import org.junit.jupiter.api.Test;
 
 public class AccountDomainTest {
 
+  static UUID userId = UUID.randomUUID();
   AccountDomain accountDomain;
-
   LocalDate today = LocalDate.now();
 
   @Test
   public void shouldCreateAccountWithBasicMovementForExistingId() {
     accountDomain =
-        AccountDomain.withBasicMovementForExisting(AccountId.generate(), JBH_ZERO, JBH_ZERO);
+        AccountDomain.withBasicMovementForExisting(
+            AccountId.generate(), userId, JBH_ZERO, JBH_ZERO);
 
     assert accountDomain.getId() != null;
     assertDefaultAccountBalances(accountDomain);
@@ -66,7 +67,7 @@ public class AccountDomainTest {
     final var currentBalance = new BigDecimal("200.00");
     final AccountDomain accountDomain =
         AccountDomain.withBasicMovementForExisting(
-            AccountId.generate(), movementBalance, currentBalance);
+            AccountId.generate(), userId, movementBalance, currentBalance);
 
     assertEquals(movementBalance, accountDomain.getMovementBalance());
     assertEquals(currentBalance, accountDomain.getCurrentBalance());
@@ -79,7 +80,7 @@ public class AccountDomainTest {
     final var currentBalance = new BigDecimal("200.00");
     final AccountDomain accountDomain =
         AccountDomain.withBasicMovementForExisting(
-            AccountId.generate(), movementBalance, currentBalance);
+            AccountId.generate(), userId, movementBalance, currentBalance);
 
     final var totalAmount = new BigDecimal("100.00");
     final var balanceSnapshot = new BigDecimal("210.00");
@@ -105,7 +106,7 @@ public class AccountDomainTest {
     final var accountCurrentBalance = new BigDecimal("100.00");
     final AccountDomain accountDomain =
         AccountDomain.withBasicMovementForExisting(
-            AccountId.generate(), accountMovementBalance, accountCurrentBalance);
+            AccountId.generate(), userId, accountMovementBalance, accountCurrentBalance);
 
     final var amount1 = new BigDecimal("100.00");
     final var balance1 = new BigDecimal("205.00");

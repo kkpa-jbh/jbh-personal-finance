@@ -77,13 +77,18 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
   @Override
   public boolean isLastOfficialReport(final AccountMonthlyBalanceDTO monthlyBalanceDTO) {
-    final Optional<AccountMonthlyBalanceDTO> result =
+    final Optional<AccountMonthlyBalanceDTO> latestOfficialMonthlyReport =
         findLastOfficialReport(monthlyBalanceDTO.accountId());
-    return result
-        .map(
-            accountMonthlyBalanceDTO ->
-                accountMonthlyBalanceDTO.period().equals(monthlyBalanceDTO.period()))
-        .orElse(false);
+    final YearMonth currentPeriod = monthlyBalanceDTO.period();
+
+    final boolean isLastOfficialReport =
+        latestOfficialMonthlyReport
+            .map(
+                accountMonthlyBalanceDTO -> accountMonthlyBalanceDTO.period().equals(currentPeriod))
+            .orElse(false);
+
+    LOG.info("Its period {} the last official report: {}", currentPeriod, isLastOfficialReport);
+    return isLastOfficialReport;
   }
 
   @Override

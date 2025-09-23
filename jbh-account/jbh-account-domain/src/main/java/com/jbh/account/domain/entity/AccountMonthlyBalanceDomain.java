@@ -60,6 +60,11 @@ public class AccountMonthlyBalanceDomain {
     return new AccountMonthlyBalanceDomain(accountId, YearMonth.of(year, month));
   }
 
+  public static AccountMonthlyBalanceDomain withPeriod(
+      final AccountId accountId, final YearMonth period) {
+    return new AccountMonthlyBalanceDomain(accountId, period);
+  }
+
   public static AccountMonthlyBalanceDomain withInitialDataForNextMonth(
       final AccountId accountId,
       final YearMonth period,
@@ -105,10 +110,6 @@ public class AccountMonthlyBalanceDomain {
     final BigDecimal inputOpeningBalance = previousMonthlyBalance.getClosingBalance();
     validateOpeningBalanceUseCase(inputOpeningBalance);
     this.openingBalance = withJBHDecimals(inputOpeningBalance);
-  }
-
-  public BigDecimal getClosingBalance() {
-    return closingBalance;
   }
 
   private static void validateOpeningBalanceUseCase(final BigDecimal inputOpeningBalance) {

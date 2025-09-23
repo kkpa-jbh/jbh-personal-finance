@@ -1,8 +1,9 @@
-package com.jbh.account.application.core.usecases.integration.monthlybalance;
+package com.jbh.account.application.core.usecases.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.usecases.integration.monthlybalance.IgnoreOption;
 
 public class MonthlyBalanceITUtils {
 

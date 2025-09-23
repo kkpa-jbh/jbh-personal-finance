@@ -43,7 +43,8 @@ public class AccountDomain {
     this.id = AccountId.generate();
   }
 
-  private AccountDomain(final AccountId id) {
+  private AccountDomain(final AccountId id, final UUID userId) {
+    this.userId = userId;
     this.id = id;
   }
 
@@ -58,9 +59,10 @@ public class AccountDomain {
 
   public static AccountDomain withBasicMovementForExisting(
       final AccountId accountId,
+      final UUID userId,
       final BigDecimal movementBalance,
       final BigDecimal currentBalance) {
-    final AccountDomain accountDomain = new AccountDomain(accountId);
+    final AccountDomain accountDomain = new AccountDomain(accountId, userId);
     accountDomain.movementBalance = movementBalance;
     accountDomain.currentBalance = currentBalance;
     return accountDomain;
@@ -80,7 +82,7 @@ public class AccountDomain {
   }
 
   public void syncBalancesByMovement(
-      final AccountMovementDomain movement, final boolean wasMonthlyBalanceOfficialReport) {
+      final AccountMovementDomain movement, final boolean wasOfficialReport) {
     movement.validate();
 
     if (!this.getId().equals(movement.getAccountId())) {
@@ -89,7 +91,7 @@ public class AccountDomain {
 
     validateInsufficientNetFlow(movement);
 
-    applyMovement(movement, wasMonthlyBalanceOfficialReport);
+    applyMovement(movement, wasOfficialReport);
   }
 
   private void validateInsufficientNetFlow(final AccountMovementDomain movement) {
@@ -106,10 +108,10 @@ public class AccountDomain {
 
   private void applyMovement(
       final AccountMovementDomain newAccountMovement,
-      final boolean wasMonthlyBalanceOfficialReport) {
+      final boolean wasOfficialReport) {
     final BigDecimal movementAmount = newAccountMovement.getMovementAmount();
 
-    if (wasMonthlyBalanceOfficialReport) {
+    if (wasOfficialReport) {
       syncMovementBalance(movementAmount);
       syncProfitBalance();
       return;

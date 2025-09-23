@@ -46,12 +46,7 @@ public class CreateBasicAccountMockTest {
     final String testAccountName = "Test Account";
 
     final AccountDTO mockedAccount =
-        AccountDTO.builder()
-            .id(AccountId.generate())
-            .name(testAccountName)
-            .type(type)
-            .userId(userId)
-            .build();
+        AccountDTO.defaultBuilder(userId, AccountId.generate(), testAccountName, type).build();
 
     when(accountRepository.save(any())).thenReturn(mockedAccount);
 

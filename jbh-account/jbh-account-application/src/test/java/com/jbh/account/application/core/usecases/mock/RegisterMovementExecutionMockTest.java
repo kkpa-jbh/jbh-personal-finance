@@ -51,6 +51,7 @@ public class RegisterMovementExecutionMockTest {
 
   public static final MovementCategoryDTO OTHER_INCOME_CATEGORY =
       MovementCategoryDTO.withType(IncomeCategory.OTHER);
+  static UUID userId = UUID.randomUUID();
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   private final Logger log = LoggerFactory.getLogger(RegisterMovementExecutionMockTest.class);
   MonthlyBalanceSyncerAppService monthlyBalanceSyncerService;
@@ -131,7 +132,7 @@ public class RegisterMovementExecutionMockTest {
   }
 
   private AccountDomain withId(final AccountId accountId) {
-    return AccountDomain.withBasicMovementForExisting(accountId, JBH_ZERO, JBH_ZERO);
+    return AccountDomain.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
   }
 
   @Test
@@ -147,7 +148,7 @@ public class RegisterMovementExecutionMockTest {
 
     final AccountDomain accountDomain =
         AccountDomain.withBasicMovementForExisting(
-            accountId, existingAccountPpalBalance, new BigDecimal("190.00"));
+            accountId, userId, existingAccountPpalBalance, new BigDecimal("190.00"));
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
@@ -188,7 +189,7 @@ public class RegisterMovementExecutionMockTest {
 
     final AccountDomain accountDomain =
         AccountDomain.withBasicMovementForExisting(
-            accountId, existingMovBalance, new BigDecimal("12689712.00"));
+            accountId, userId, existingMovBalance, new BigDecimal("12689712.00"));
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));

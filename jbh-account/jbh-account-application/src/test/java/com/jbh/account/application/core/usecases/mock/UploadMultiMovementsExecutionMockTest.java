@@ -3,7 +3,7 @@ package com.jbh.account.application.core.usecases.mock;
 import static com.jbh.account.application.core.mappers.MonthlyBalanceMapper.toDomain;
 import static com.jbh.account.application.core.usecases.integration.monthlybalance.IgnoreOption.IGNORE_MONTHLY_PROFIT;
 import static com.jbh.account.application.core.usecases.integration.monthlybalance.IgnoreOption.IGNORE_OPENING_BALANCE;
-import static com.jbh.account.application.core.usecases.integration.monthlybalance.MonthlyBalanceITUtils.assertMonthlyBalance;
+import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -59,7 +59,7 @@ public class UploadMultiMovementsExecutionMockTest {
   static AccountId accountId = AccountId.generate();
   static UUID userId = UUID.randomUUID();
   static AccountDomain accountDomain =
-      AccountDomain.withBasicMovementForExisting(accountId, JBH_ZERO, JBH_ZERO);
+      AccountDomain.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   private final Logger log = LoggerFactory.getLogger(RegisterMovementExecutionMockTest.class);

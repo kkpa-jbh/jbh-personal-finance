@@ -175,7 +175,7 @@ public class RegisterMovementValidationMockTest {
         new AddMovementCommand(
             movementDate, amount, MovementCategoryDTO.withType(IncomeCategory.OTHER));
     final AccountDomain accountDomain =
-        AccountDomain.withBasicMovementForExisting(accountId, JBH_ZERO, JBH_ZERO);
+        AccountDomain.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
@@ -200,7 +200,7 @@ public class RegisterMovementValidationMockTest {
     final AddMovementCommand request =
         new AddMovementCommand(movementDate, amount, OTHER_INCOME_CATEGORY);
     final AccountDomain accountDomain =
-        AccountDomain.withBasicMovementForExisting(accountId, JBH_ZERO, JBH_ZERO);
+        AccountDomain.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
@@ -225,7 +225,7 @@ public class RegisterMovementValidationMockTest {
     final AddMovementCommand request =
         new AddMovementCommand(movementDate, amount, PERSONAL_EXPENSE);
     final AccountDomain accountDomain =
-        AccountDomain.withBasicMovementForExisting(accountId, JBH_ZERO, JBH_ZERO);
+        AccountDomain.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
@@ -252,7 +252,7 @@ public class RegisterMovementValidationMockTest {
         new AddMovementCommand(movementDate, amount, PERSONAL_EXPENSE);
     final AccountDomain accountDomain =
         AccountDomain.withBasicMovementForExisting(
-            accountId, new BigDecimal("30.00"), new BigDecimal("30.00"));
+            accountId, userId, new BigDecimal("30.00"), new BigDecimal("30.00"));
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));

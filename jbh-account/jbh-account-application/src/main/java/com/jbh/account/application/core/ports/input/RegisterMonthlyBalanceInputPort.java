@@ -8,9 +8,11 @@ import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
+import com.jbh.account.domain.utils.JbhStringUtils;
 import com.jbh.account.domain.vo.AccountId;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,28 +53,23 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
       final AddMonthlyBalanceCommand command)
       throws JbhSpecificationApplication {
 
+    // Command validation
     command.validate();
-    final YearMonth periodToRegister = command.monthlyPeriod();
 
+    final YearMonth periodToRegister = command.monthlyPeriod();
     log.info(
         "Registering Official Monthly Balance for account {} on {}", accountId, periodToRegister);
 
-    if (!periodToRegister.isBefore(YearMonth.from(runningDate))) {
-      throw new JbhSpecificationApplication(
-          "The monthly balance period is not in the past",
-          null,
-          "The monthly balance period is not in the past");
-    }
+    validatePeriod(runningDate, periodToRegister);
+
+    validateConsecutiveMonthlyBalances(accountId, periodToRegister);
 
     final AccountMonthlyBalanceDomain monthlyBalanceDomain =
         monthlyBalanceService
             .findByAccountIdYearAndMonth(
                 accountId, periodToRegister.getYear(), periodToRegister.getMonthValue())
             .map(MonthlyBalanceMapper::toDomain)
-            .orElseGet(
-                () ->
-                    AccountMonthlyBalanceDomain.withPeriod(
-                        accountId, periodToRegister.getYear(), periodToRegister.getMonthValue()));
+            .orElseGet(() -> AccountMonthlyBalanceDomain.withPeriod(accountId, periodToRegister));
 
     monthlyBalanceDomain.assignOfficialMonthlyReport(
         command.closingBalance(), command.monthlyProfitReported());
@@ -81,13 +78,12 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
         MonthlyBalanceMapper.toDTO(monthlyBalanceDomain);
     monthlyBalanceService.saveBalance(monthlyBalanceDTO);
 
+    // TODO : Add monthly balance to account (SYNC ACCOUNT)
     if (monthlyBalanceService.isLastOfficialReport(monthlyBalanceDTO)) {
       accountService.syncByMonthlyReport(monthlyBalanceDTO);
     }
 
     monthlyBalanceService.updateOpeningBalanceNextMonth(monthlyBalanceDTO);
-
-    // TODO : Add monthly balance to account (SYNC ACCOUNT)
 
     log.info(
         "Monthly Balance registration completed successfully for account:{} and period: {}",
@@ -95,5 +91,39 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
         periodToRegister);
 
     return monthlyBalanceDTO;
+  }
+
+  private void validatePeriod(final LocalDate runningDate, final YearMonth periodToRegister)
+      throws JbhSpecificationApplication {
+    if (!periodToRegister.isBefore(YearMonth.from(runningDate))) {
+      throw new JbhSpecificationApplication(
+          "The monthly balance period is not in the past",
+          null,
+          "The monthly balance period is not in the past");
+    }
+  }
+
+  private void validateConsecutiveMonthlyBalances(
+      final AccountId accountId, final YearMonth periodToRegister)
+      throws JbhSpecificationApplication {
+
+    log.info("Validating consecutive balances for period {}", periodToRegister);
+
+    final Optional<AccountMonthlyBalanceDTO> lastOfficialReport =
+        monthlyBalanceService.findLastOfficialReport(accountId);
+    if (lastOfficialReport.isPresent()) {
+      final YearMonth lastOfficialReportPeriod = lastOfficialReport.get().period();
+
+      if (!periodToRegister.equals(lastOfficialReportPeriod.plusMonths(1))) {
+        throw new JbhSpecificationApplication(
+            "The monthly balance period is not consecutive. The last period was: "
+                + lastOfficialReportPeriod,
+            null,
+            JbhStringUtils.buildJsonMessage(
+                "The monthly balance period is not consecutive.",
+                "El periodo de la cuenta no es consecutivo. La última periodo fue: "
+                    + lastOfficialReportPeriod));
+      }
+    }
   }
 }

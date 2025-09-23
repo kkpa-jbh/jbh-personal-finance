@@ -20,7 +20,7 @@ import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
-import com.jbh.account.application.core.usecases.integration.monthlybalance.MonthlyBalanceITUtils;
+import com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.vo.AccountId;

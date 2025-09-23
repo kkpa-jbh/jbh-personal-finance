@@ -1,5 +1,6 @@
 package com.jbh.account.domain.entity;
 
+import static com.jbh.account.domain.entity.AccountDomainTest.userId;
 import static com.jbh.account.domain.entity.MovementCategoryDomain.OTHER_INCOME_CATEGORY;
 import static com.jbh.account.domain.entity.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
@@ -31,11 +32,12 @@ public class AccountMovementTest {
   @BeforeEach
   public void setUp() {
     accountCeroBalance =
-        AccountDomain.withBasicMovementForExisting(AccountId.generate(), JBH_ZERO, JBH_ZERO);
+        AccountDomain.withBasicMovementForExisting(
+            AccountId.generate(), userId, JBH_ZERO, JBH_ZERO);
 
     account100Balance =
         AccountDomain.withBasicMovementForExisting(
-            AccountId.generate(), new BigDecimal("100.00"), new BigDecimal("100.00"));
+            AccountId.generate(), userId, new BigDecimal("100.00"), new BigDecimal("100.00"));
   }
 
   @Test
@@ -45,7 +47,7 @@ public class AccountMovementTest {
 
     final AccountDomain accountDomain =
         AccountDomain.withBasicMovementForExisting(
-            AccountId.generate(), movementBalance, currentBalance);
+            AccountId.generate(), userId, movementBalance, currentBalance);
 
     final var totalAmount = new BigDecimal("100.00");
     final var balanceSnapshot = new BigDecimal("210.00");
