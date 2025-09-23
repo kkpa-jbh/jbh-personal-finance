@@ -2,15 +2,20 @@ package com.jbh.account.application.core.services.account;
 
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
-import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.vo.AccountId;
+import java.util.Optional;
+import java.util.UUID;
 
 /** Account Service Interface for CRUD operations */
-public interface AccountService extends AccountRepository {
+public interface AccountService {
+  Optional<AccountDTO> findByUserAndAccountId(UUID userId, AccountId accountId);
 
-  AccountDTO save(AccountDomain account);
+  Optional<AccountDTO> findByAccountId(AccountId accountId);
 
   AccountDTO save(AccountDTO account);
+
+  AccountDTO save(AccountDomain account);
 
   AccountDTO syncByMonthlyReport(AccountMonthlyBalanceDTO monthlyBalance);
 }

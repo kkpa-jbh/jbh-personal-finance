@@ -56,15 +56,11 @@ public class AccountMonthlyBalanceDomain {
   }
 
   public static AccountMonthlyBalanceDomain withPeriod(
-      final AccountId accountId, final int year, final int month) {
-    return new AccountMonthlyBalanceDomain(accountId, YearMonth.of(year, month));
-  }
-
-  public static AccountMonthlyBalanceDomain withPeriod(
       final AccountId accountId, final YearMonth period) {
     return new AccountMonthlyBalanceDomain(accountId, period);
   }
 
+  // TODO: Remove this. It's only used for testing
   public static AccountMonthlyBalanceDomain withInitialDataForNextMonth(
       final AccountId accountId,
       final YearMonth period,
@@ -82,7 +78,7 @@ public class AccountMonthlyBalanceDomain {
   /** Returns a hash code value for the object based on period and accountId. */
   @Override
   public int hashCode() {
-    return Objects.hash(period, accountId);
+    return Objects.hash(accountId, period);
   }
 
   /**
@@ -108,14 +104,10 @@ public class AccountMonthlyBalanceDomain {
           "Cannot adjust opening balance for an official monthly report");
     }
     final BigDecimal inputOpeningBalance = previousMonthlyBalance.getClosingBalance();
-    validateOpeningBalanceUseCase(inputOpeningBalance);
-    this.openingBalance = withJBHDecimals(inputOpeningBalance);
-  }
-
-  private static void validateOpeningBalanceUseCase(final BigDecimal inputOpeningBalance) {
     if (inputOpeningBalance == null) {
       throw new GenericSpecificationException("Opening balance cannot be null");
     }
+    this.openingBalance = withJBHDecimals(inputOpeningBalance);
   }
 
   public void assignOfficialMonthlyReport(

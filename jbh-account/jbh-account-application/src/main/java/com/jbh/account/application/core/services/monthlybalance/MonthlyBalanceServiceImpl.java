@@ -62,9 +62,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
             .orElseGet(
                 () ->
                     AccountMonthlyBalanceDomain.withPeriod(
-                        currentMonthlyBalance.accountId(),
-                        nextPeriod.getYear(),
-                        nextPeriod.getMonthValue()));
+                        currentMonthlyBalance.accountId(), nextPeriod));
 
     nextMonthlyBalance.adjustOpeningBalance(toDomain(currentMonthlyBalance));
 

@@ -51,4 +51,19 @@ public class MonthlyBalanceJPARepository
         .map(AccountMonthlyBalanceJPAEntity::toDTO)
         .toList();
   }
+
+  @Override
+  public Optional<AccountMonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
+    final List<AccountMonthlyBalanceJPAEntity> lastOfficialReportList =
+        find(
+                "accountId = :accountId and officialMonthlyReport = true order by period desc",
+                Parameters.with("accountId", accountId.value()))
+            .list();
+
+    if (lastOfficialReportList.isEmpty()) {
+      return Optional.empty();
+    }
+
+    return Optional.of(lastOfficialReportList.getFirst().toDTO());
+  }
 }

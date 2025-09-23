@@ -26,6 +26,22 @@ public record AccountMonthlyBalanceDTO(
     boolean gapPeriod,
     boolean officialMonthlyReport) {
 
+  public static AccountMonthlyBalanceDTO withInitialDataForNextMonth(
+      final AccountId accountId,
+      final YearMonth period,
+      final BigDecimal closingBalance,
+      final boolean gapPeriod) {
+
+    return defaultBuilder()
+        .accountId(accountId)
+        .period(period)
+        .year(period.getYear())
+        .month(period.getMonthValue())
+        .closingBalance(closingBalance)
+        .gapPeriod(gapPeriod)
+        .build();
+  }
+
   public static AccountMonthlyBalanceDTO.AccountMonthlyBalanceDTOBuilder defaultBuilder() {
     return AccountMonthlyBalanceDTO.notUseThisInternalBuilder()
         .movementBalance(JBH_ZERO)

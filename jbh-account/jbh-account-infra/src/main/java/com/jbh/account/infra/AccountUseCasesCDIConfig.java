@@ -34,8 +34,13 @@ public class AccountUseCasesCDIConfig {
   @Produces
   @ApplicationScoped
   public CreateAccountInputPort registeringCreateAccountUseCase() {
-    final AccountService accountService = new AccountServiceImpl(accountRepository);
-    return new CreateAccountInputPort(accountService);
+    return new CreateAccountInputPort(accountService());
+  }
+
+  @Produces
+  @ApplicationScoped
+  public AccountService accountService() {
+    return new AccountServiceImpl(accountRepository);
   }
 
   @Produces
@@ -43,12 +48,6 @@ public class AccountUseCasesCDIConfig {
   public AddMovementInputPort registeringAddMovementUseCase() {
     return new AddMovementInputPort(
         accountService(), accountMovementRepo, unitOfWork, monthlyBalanceSyncerAppService());
-  }
-
-  @Produces
-  @ApplicationScoped
-  public AccountService accountService() {
-    return new AccountServiceImpl(accountRepository);
   }
 
   @Produces

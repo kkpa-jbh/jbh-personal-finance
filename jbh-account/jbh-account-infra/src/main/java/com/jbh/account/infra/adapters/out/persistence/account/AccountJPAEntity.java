@@ -89,11 +89,7 @@ public class AccountJPAEntity extends PanacheEntityBase {
   }
 
   public AccountDTO toDTO() {
-    return AccountDTO.builder()
-        .id(AccountId.of(id))
-        .name(name)
-        .type(type)
-        .userId(userId)
+    return AccountDTO.defaultBuilder(userId, AccountId.of(id), name, type)
         .movementBalance(movementBalance)
         .currentBalance(currentBalance)
         .profitBalance(profitBalance)

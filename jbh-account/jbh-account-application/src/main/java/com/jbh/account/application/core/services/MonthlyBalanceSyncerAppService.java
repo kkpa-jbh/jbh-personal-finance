@@ -1,6 +1,7 @@
 package com.jbh.account.application.core.services;
 
 import static com.jbh.account.application.core.mappers.MonthlyBalanceMapper.toDTO;
+import static com.jbh.account.application.core.mappers.MonthlyBalanceMapper.toDomain;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 
 import com.jbh.account.application.async.AsyncTaskExecutor;
@@ -66,23 +67,21 @@ public class MonthlyBalanceSyncerAppService {
         monthlyPeriodKey -> {
           final List<AccountMovementDomain> movementsInPeriod =
               movementsByPeriodMap.get(monthlyPeriodKey);
-          final int year = monthlyPeriodKey.getYear();
-          final int month = monthlyPeriodKey.getMonthValue();
 
           LOG.info(
-              "Syncing Monthly Balance of {} movements for period {}-{}",
+              "Syncing Monthly Balance of {} movements for period {}",
               movementsInPeriod.size(),
-              year,
-              month);
+              monthlyPeriodKey);
 
           final AccountMonthlyBalanceDomain accountMonthlyBalance =
               monthlyBalanceService
-                  .findByAccountIdYearAndMonth(accountId, year, month)
+                  .findByAccountIdAndPeriod(accountId, monthlyPeriodKey)
                   .map(MonthlyBalanceMapper::toDomain)
-                  .orElseGet(() -> AccountMonthlyBalanceDomain.withPeriod(accountId, year, month));
+                  .orElseGet(
+                      () -> AccountMonthlyBalanceDomain.withPeriod(accountId, monthlyPeriodKey));
 
           accountMonthlyBalance.syncMovements(movementsInPeriod);
-          LOG.debug("Monthly balance updated for {}-{}", year, month);
+          LOG.debug("Monthly balance updated for {}", monthlyPeriodKey);
           monthlyBalancesToPersist.add(accountMonthlyBalance);
         });
 
@@ -209,8 +208,9 @@ public class MonthlyBalanceSyncerAppService {
         final BigDecimal closingBalance =
             isEndPeriod ? JBH_ZERO : currentMonthlyBalance.getClosingBalance();
         nextMonthlyBalanceOfCurrent =
-            AccountMonthlyBalanceDomain.withInitialDataForNextMonth(
-                accountId, nextPeriod, closingBalance, !isEndPeriod);
+            toDomain(
+                AccountMonthlyBalanceDTO.withInitialDataForNextMonth(
+                    accountId, nextPeriod, closingBalance, !isEndPeriod));
         existingDomainBalancesMap.putIfAbsent(nextPeriod, nextMonthlyBalanceOfCurrent);
       }
       LOG.info("Adjusting Opening Balance for next period: {}", nextPeriod);
@@ -257,13 +257,12 @@ public class MonthlyBalanceSyncerAppService {
         newMovement.getAccountId().value(),
         newMovement.getMovementDate());
     final LocalDate movementDate = newMovement.getMovementDate();
-    final int txnYear = movementDate.getYear();
-    final int txnMonth = movementDate.getMonthValue();
+    final YearMonth movementPeriod = YearMonth.from(movementDate);
     final AccountMonthlyBalanceDomain accountMonthlyBalance =
         monthlyBalanceService
-            .findByAccountIdYearAndMonth(accountId, txnYear, txnMonth)
+            .findByAccountIdAndPeriod(accountId, movementPeriod)
             .map(MonthlyBalanceMapper::toDomain)
-            .orElseGet(() -> AccountMonthlyBalanceDomain.withPeriod(accountId, txnYear, txnMonth));
+            .orElseGet(() -> AccountMonthlyBalanceDomain.withPeriod(accountId, movementPeriod));
 
     accountMonthlyBalance.syncMovement(newMovement);
     persistBalancesAndSyncThemASYNC(

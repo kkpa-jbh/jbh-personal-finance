@@ -29,6 +29,12 @@ public class AccountRepositoryAdapter implements AccountRepository {
   }
 
   @Override
+  public Optional<AccountDTO> findByAccountId(final AccountId accountId) {
+    final Optional<AccountJPAEntity> foundAccount = jpaRepo.findByAccountId(accountId.value());
+    return foundAccount.map(AccountJPAEntity::toDTO);
+  }
+
+  @Override
   @Transactional
   public AccountDTO save(final AccountDTO account) {
     AccountJPAEntity entity = AccountJPAEntity.of(account);

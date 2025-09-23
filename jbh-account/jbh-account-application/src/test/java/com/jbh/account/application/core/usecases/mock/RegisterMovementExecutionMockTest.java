@@ -238,13 +238,14 @@ public class RegisterMovementExecutionMockTest {
     final BigDecimal existingClosingBalance = new BigDecimal("600.00");
     final BigDecimal existingTotalCredits = new BigDecimal("200.00");
     final BigDecimal existingOpeningBalance = new BigDecimal("500.00");
+    final var period = YearMonth.of(movementDate.getYear(), movementDate.getMonthValue());
     final AccountMonthlyBalanceDTO existingMonthlyBalance =
         AccountMonthlyBalanceDTO.defaultBuilder()
             .id(1L)
             .accountId(accountId)
             .year(movementDate.getYear())
             .month(movementDate.getMonthValue())
-            .period(YearMonth.of(movementDate.getYear(), movementDate.getMonthValue()))
+            .period(period)
             .openingBalance(existingOpeningBalance)
             .closingBalance(existingClosingBalance)
             .totalCredits(existingTotalCredits)
@@ -254,6 +255,8 @@ public class RegisterMovementExecutionMockTest {
 
     when(accountMonthlyBalanceRepository.findByAccountIdYearAndMonth(
             accountId, movementDate.getYear(), movementDate.getMonthValue()))
+        .thenReturn(Optional.of(existingMonthlyBalance));
+    when(accountMonthlyBalanceRepository.findByAccountIdAndPeriod(accountId, period))
         .thenReturn(Optional.of(existingMonthlyBalance));
 
     // When & Then

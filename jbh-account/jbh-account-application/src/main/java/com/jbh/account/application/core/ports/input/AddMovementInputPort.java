@@ -72,15 +72,14 @@ public class AddMovementInputPort implements AddMovementUseCase {
               totalAmount =
                   movementType == MovementType.WITHDRAWAL ? totalAmount.negate() : totalAmount;
 
-              boolean wasMonthlyBalanceOfficialReport = false;
+              boolean wasOfficialReport = false;
               final Optional<AccountMonthlyBalanceDTO> existingMonthlyBalanceOpt =
                   monthlyBalanceSyncerService.findByAccountIdYearAndMonth(
                       accountId,
                       movementCommand.entryDate().getYear(),
                       movementCommand.entryDate().getMonthValue());
               if (existingMonthlyBalanceOpt.isPresent()) {
-                wasMonthlyBalanceOfficialReport =
-                    existingMonthlyBalanceOpt.get().officialMonthlyReport();
+                wasOfficialReport = existingMonthlyBalanceOpt.get().officialMonthlyReport();
               }
 
               // Sync account balance
@@ -94,8 +93,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
                       movementType,
                       MovementCategoryDomain.withDTO(movementCommand.categoryDTO()));
               final AccountDTO accountDTO =
-                  syncAccountBalanceByMovements(
-                      accountDomain, newMovement, wasMonthlyBalanceOfficialReport);
+                  syncAccountBalanceByMovements(accountDomain, newMovement, wasOfficialReport);
               persistMovement(newMovement, accountDTO);
 
               // Sync monthly balance
@@ -132,8 +130,8 @@ public class AddMovementInputPort implements AddMovementUseCase {
   private AccountDTO syncAccountBalanceByMovements(
       final AccountDomain accountDomain,
       final AccountMovementDomain newMovement,
-      final boolean wasMonthlyBalanceOfficialReport) {
-    accountDomain.syncBalancesByMovement(newMovement, wasMonthlyBalanceOfficialReport);
+      final boolean wasOfficialReport) {
+    accountDomain.syncBalancesByMovement(newMovement, wasOfficialReport);
     return AccountMapper.toDTO(accountDomain);
   }
 

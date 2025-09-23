@@ -31,11 +31,9 @@ public class AccountMonthlyBalanceDomainTest {
 
   @BeforeEach
   public void setUp() {
-    ceroMonthlyBalance =
-        AccountMonthlyBalanceDomain.withPeriod(accountId, today.getYear(), today.getMonthValue());
+    ceroMonthlyBalance = AccountMonthlyBalanceDomain.withPeriod(accountId, todayYM);
 
-    oneHundredMonthlyBalance =
-        AccountMonthlyBalanceDomain.withPeriod(accountId, today.getYear(), today.getMonthValue());
+    oneHundredMonthlyBalance = AccountMonthlyBalanceDomain.withPeriod(accountId, todayYM);
     oneHundredMonthlyBalance.syncMovement(
         AccountMovementDomain.with(
             accountId,
@@ -252,21 +250,11 @@ public class AccountMonthlyBalanceDomainTest {
     final var period4 = YearMonth.of(2024, 1);
     final var period5 = YearMonth.of(2024, 2);
 
-    final var balance1 =
-        AccountMonthlyBalanceDomain.withPeriod(
-            accountId, period1.getYear(), period1.getMonthValue());
-    final var balance2 =
-        AccountMonthlyBalanceDomain.withPeriod(
-            accountId, period2.getYear(), period2.getMonthValue());
-    final var balance3 =
-        AccountMonthlyBalanceDomain.withPeriod(
-            accountId, period3.getYear(), period3.getMonthValue());
-    final var balance4 =
-        AccountMonthlyBalanceDomain.withPeriod(
-            accountId, period4.getYear(), period4.getMonthValue());
-    final var balance5 =
-        AccountMonthlyBalanceDomain.withPeriod(
-            accountId, period5.getYear(), period5.getMonthValue());
+    final var balance1 = AccountMonthlyBalanceDomain.withPeriod(accountId, period1);
+    final var balance2 = AccountMonthlyBalanceDomain.withPeriod(accountId, period2);
+    final var balance3 = AccountMonthlyBalanceDomain.withPeriod(accountId, period3);
+    final var balance4 = AccountMonthlyBalanceDomain.withPeriod(accountId, period4);
+    final var balance5 = AccountMonthlyBalanceDomain.withPeriod(accountId, period5);
 
     balance1.syncMovement(
         AccountMovementDomain.with(
@@ -321,8 +309,7 @@ public class AccountMonthlyBalanceDomainTest {
     final LocalDate initBalanceDate = LocalDate.of(2024, 8, 1);
     final YearMonth initBalancePeriod = YearMonth.of(2024, 8);
     final AccountMonthlyBalanceDomain accountMonthlyBalance =
-        AccountMonthlyBalanceDomain.withPeriod(
-            accountId, initBalanceDate.getYear(), initBalanceDate.getMonthValue());
+        AccountMonthlyBalanceDomain.withPeriod(accountId, initBalancePeriod);
 
     // Add movement with balance snapshot of 2105192.00
     final var initBalanceSnapshot = new BigDecimal("2105192.00");
