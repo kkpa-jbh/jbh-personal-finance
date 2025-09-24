@@ -1,6 +1,6 @@
 package com.jbh.account.infra.adapters.out.persistence.monthlybalance;
 
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.domain.vo.AccountId;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
@@ -78,7 +78,7 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
   @Column(name = "updated_at", nullable = false)
   public LocalDateTime updatedAt;
 
-  public static AccountMonthlyBalanceJPAEntity of(final AccountMonthlyBalanceDTO monthlyBalance) {
+  public static AccountMonthlyBalanceJPAEntity of(final MonthlyBalanceDTO monthlyBalance) {
     final AccountMonthlyBalanceJPAEntity entity = new AccountMonthlyBalanceJPAEntity();
     entity.setId(monthlyBalance.id());
     entity.setAccountId(
@@ -108,8 +108,8 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
     updatedAt = LocalDateTime.now();
   }
 
-  public AccountMonthlyBalanceDTO toDTO() {
-    return AccountMonthlyBalanceDTO.defaultBuilder()
+  public MonthlyBalanceDTO toDTO() {
+    return MonthlyBalanceDTO.defaultBuilder()
         .id(id)
         .accountId(AccountId.of(accountId))
         .year(year)

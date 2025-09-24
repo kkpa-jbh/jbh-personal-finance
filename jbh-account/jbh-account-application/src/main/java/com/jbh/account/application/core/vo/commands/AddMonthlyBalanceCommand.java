@@ -16,6 +16,14 @@ public record AddMonthlyBalanceCommand(
     YearMonth monthlyPeriod, BigDecimal closingBalance, BigDecimal monthlyProfitReported)
     implements CommandValidator {
 
+  public AddMonthlyBalanceCommand(
+      final YearMonth monthlyPeriod, final MonthlyBalanceCommandVO monthlyBalanceCommandVO) {
+    this(
+        monthlyPeriod,
+        monthlyBalanceCommandVO.closingBalance(),
+        monthlyBalanceCommandVO.monthlyProfitReported());
+  }
+
   @Override
   public void validate() {
     if (isZero(closingBalance)) {

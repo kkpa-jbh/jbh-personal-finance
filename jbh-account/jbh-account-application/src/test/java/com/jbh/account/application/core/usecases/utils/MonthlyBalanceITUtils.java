@@ -2,19 +2,19 @@ package com.jbh.account.application.core.usecases.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.usecases.integration.monthlybalance.IgnoreOption;
 
 public class MonthlyBalanceITUtils {
 
   public static void assertMonthlyBalance(
-      final AccountMonthlyBalanceDTO expected, final AccountMonthlyBalanceDTO actual) {
+      final MonthlyBalanceDTO expected, final MonthlyBalanceDTO actual) {
     assertMonthlyBalance(expected, actual, null);
   }
 
   public static void assertMonthlyBalance(
-      final AccountMonthlyBalanceDTO expected,
-      final AccountMonthlyBalanceDTO actual,
+      final MonthlyBalanceDTO expected,
+      final MonthlyBalanceDTO actual,
       final IgnoreOption... ignoreOptions) {
 
     boolean ignoreMonthlyProfit = false;

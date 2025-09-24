@@ -2,6 +2,7 @@ package com.jbh.account.application.core.usecases.mock;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -24,10 +25,11 @@ import org.mockito.MockitoAnnotations;
 
 public class CreateBasicAccountMockTest {
 
+  final UUID userId = UUID.randomUUID();
+  final AccountType type = AccountType.SAVINGS;
+  final String testAccountName = "Test Account";
   private CreateAccountUseCase useCase;
-
   private AccountService accountService;
-
   @Mock private AccountRepository accountRepository;
 
   @BeforeEach
@@ -41,9 +43,6 @@ public class CreateBasicAccountMockTest {
 
   @Test
   public void shouldCreateAccount() {
-    final UUID userId = UUID.randomUUID();
-    final AccountType type = AccountType.SAVINGS;
-    final String testAccountName = "Test Account";
 
     final AccountDTO mockedAccount =
         AccountDTO.defaultBuilder(userId, AccountId.generate(), testAccountName, type).build();
@@ -72,5 +71,10 @@ public class CreateBasicAccountMockTest {
     assertEquals(type, captured.type());
     assertEquals(userId, captured.userId());
     assertNotNull(captured.currentBalance());
+  }
+
+  @Test
+  public void shouldThrowExceptionWhenInvalidCommand() {
+    assertThrows(IllegalArgumentException.class, () -> useCase.execute(null));
   }
 }

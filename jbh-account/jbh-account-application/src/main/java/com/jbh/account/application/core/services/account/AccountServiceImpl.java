@@ -3,7 +3,7 @@ package com.jbh.account.application.core.services.account;
 import static com.jbh.account.application.core.mappers.AccountMapper.toDTO;
 
 import com.jbh.account.application.core.dto.AccountDTO;
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.domain.entity.AccountDomain;
@@ -30,17 +30,17 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public AccountDTO save(final AccountDomain account) {
-    return accountRepo.save(toDTO(account));
-  }
-
-  @Override
   public AccountDTO save(final AccountDTO account) {
     return accountRepo.save(account);
   }
 
   @Override
-  public AccountDTO syncByMonthlyReport(final AccountMonthlyBalanceDTO monthlyBalance) {
+  public AccountDTO save(final AccountDomain account) {
+    return accountRepo.save(toDTO(account));
+  }
+
+  @Override
+  public AccountDTO syncByMonthlyReport(final MonthlyBalanceDTO monthlyBalance) {
     final AccountId accountId = monthlyBalance.accountId();
     final Optional<AccountDTO> accountDTO = findByAccountId(accountId);
 

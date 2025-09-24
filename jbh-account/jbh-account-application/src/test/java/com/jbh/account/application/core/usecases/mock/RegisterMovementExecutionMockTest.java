@@ -13,8 +13,8 @@ import static org.mockito.Mockito.when;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.core.dto.AccountDTO;
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.AddBasicMovementDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.ports.input.AddMovementInputPort;
@@ -105,7 +105,7 @@ public class RegisterMovementExecutionMockTest {
     verify(accountRepository).save(any());
 
     assertEquals(mvmtResponse.get().account().movementBalance(), amount);
-    final AccountMonthlyBalanceDTO actualMonthlyBalances = mvmtResponse.get().monthlyBalance();
+    final MonthlyBalanceDTO actualMonthlyBalances = mvmtResponse.get().monthlyBalance();
     assertEquals(amount, actualMonthlyBalances.totalDebits());
     assertEquals(amount, actualMonthlyBalances.closingBalance());
     assertEquals(amount, actualMonthlyBalances.movementBalance());
@@ -116,7 +116,7 @@ public class RegisterMovementExecutionMockTest {
             accountId, YearMonth.of(movementDate.getYear(), movementDate.getMonthValue())))
         .thenReturn(Collections.singletonList(actualMonthlyBalances));
 
-    final List<AccountMonthlyBalanceDTO> futureResponse =
+    final List<MonthlyBalanceDTO> futureResponse =
         monthlyBalanceSyncerService
             .persistBalancesAndSyncThemASYNC(
                 accountId, Collections.singletonList(actualMonthlyBalances))
@@ -207,7 +207,7 @@ public class RegisterMovementExecutionMockTest {
     assertEquals(amount.add(existingMovBalance), accountResponse.movementBalance());
     assertEquals(balanceSnapshot, accountResponse.currentBalance());
 
-    final AccountMonthlyBalanceDTO monthlyBalanceResponse = mvmtResponse.get().monthlyBalance();
+    final MonthlyBalanceDTO monthlyBalanceResponse = mvmtResponse.get().monthlyBalance();
     final YearMonth expectedYearMonth =
         YearMonth.of(movementDate.getYear(), movementDate.getMonthValue());
     assertEquals(
@@ -239,8 +239,8 @@ public class RegisterMovementExecutionMockTest {
     final BigDecimal existingTotalCredits = new BigDecimal("200.00");
     final BigDecimal existingOpeningBalance = new BigDecimal("500.00");
     final var period = YearMonth.of(movementDate.getYear(), movementDate.getMonthValue());
-    final AccountMonthlyBalanceDTO existingMonthlyBalance =
-        AccountMonthlyBalanceDTO.defaultBuilder()
+    final MonthlyBalanceDTO existingMonthlyBalance =
+        MonthlyBalanceDTO.defaultBuilder()
             .id(1L)
             .accountId(accountId)
             .year(movementDate.getYear())
@@ -270,8 +270,7 @@ public class RegisterMovementExecutionMockTest {
     verify(accountRepository).findByUserAndAccountId(userId, accountId);
     verify(accountMovementRepository).save((MovementDTO) any());
     verify(accountRepository).save(any());
-    verify(monthlyBalanceWriterRepoMock, atMostOnce())
-        .saveBalance((AccountMonthlyBalanceDTO) any());
+    verify(monthlyBalanceWriterRepoMock, atMostOnce()).saveBalance((MonthlyBalanceDTO) any());
 
     assertEquals(amount, processedResponse.get().account().movementBalance());
     assertEquals(existingEntries + 1, processedResponse.get().monthlyBalance().totalMovements());

@@ -6,8 +6,8 @@ import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.common.logging.LoggerFactory;
 import com.jbh.account.application.common.logging.LoggingContext;
 import com.jbh.account.application.core.dto.AccountDTO;
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.AddBasicMovementDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.services.MonthlyBalanceSyncerAppService;
@@ -73,7 +73,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
                   movementType == MovementType.WITHDRAWAL ? totalAmount.negate() : totalAmount;
 
               boolean wasOfficialReport = false;
-              final Optional<AccountMonthlyBalanceDTO> existingMonthlyBalanceOpt =
+              final Optional<MonthlyBalanceDTO> existingMonthlyBalanceOpt =
                   monthlyBalanceSyncerService.findByAccountIdYearAndMonth(
                       accountId,
                       movementCommand.entryDate().getYear(),

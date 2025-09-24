@@ -9,7 +9,7 @@ import com.jbh.account.application.async.vo.AsyncTask;
 import com.jbh.account.application.async.vo.AsyncTaskType;
 import com.jbh.account.application.common.logging.LoggerFactory;
 import com.jbh.account.application.core.comparator.AccountMonthlyBalanceComparators;
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
@@ -46,7 +46,7 @@ public class MonthlyBalanceSyncerAppService {
     this.asyncTaskExecutor = asyncTaskExecutor;
   }
 
-  public List<AccountMonthlyBalanceDTO> syncForUploadedMovementsAsync(
+  public List<MonthlyBalanceDTO> syncForUploadedMovementsAsync(
       final AccountId accountId, final List<AccountMovementDomain> multipleMovementsDomain) {
     // Group movements by Year-Month based on the movementDate attribute
     final Map<YearMonth, List<AccountMovementDomain>> movementsByPeriodMap =
@@ -85,7 +85,7 @@ public class MonthlyBalanceSyncerAppService {
           monthlyBalancesToPersist.add(accountMonthlyBalance);
         });
 
-    final List<AccountMonthlyBalanceDTO> monthlyBalancesToSyncDTO =
+    final List<MonthlyBalanceDTO> monthlyBalancesToSyncDTO =
         monthlyBalancesToPersist.stream().map(MonthlyBalanceMapper::toDTO).toList();
     persistBalancesAndSyncThemASYNC(accountId, monthlyBalancesToSyncDTO);
 
@@ -101,8 +101,8 @@ public class MonthlyBalanceSyncerAppService {
    * @param monthlyBalances
    * @return
    */
-  public CompletableFuture<List<AccountMonthlyBalanceDTO>> persistBalancesAndSyncThemASYNC(
-      final AccountId accountId, final List<AccountMonthlyBalanceDTO> monthlyBalances) {
+  public CompletableFuture<List<MonthlyBalanceDTO>> persistBalancesAndSyncThemASYNC(
+      final AccountId accountId, final List<MonthlyBalanceDTO> monthlyBalances) {
 
     if (monthlyBalances == null || monthlyBalances.isEmpty()) {
       LOG.warn("No monthly balances available for saving them ASYNC");
@@ -149,7 +149,7 @@ public class MonthlyBalanceSyncerAppService {
    * @param endPeriod
    * @return
    */
-  private List<AccountMonthlyBalanceDTO> adjustCurrentAndNextMonthlyBalancesAsync(
+  private List<MonthlyBalanceDTO> adjustCurrentAndNextMonthlyBalancesAsync(
       final AccountId accountId, final YearMonth initPeriod, final YearMonth endPeriod) {
 
     LOG.info("Monthly balances should be already persisted in the database");
@@ -160,7 +160,7 @@ public class MonthlyBalanceSyncerAppService {
         initPeriod,
         endPeriod);
 
-    final List<AccountMonthlyBalanceDTO> existingNextPeriodBalanceDTO =
+    final List<MonthlyBalanceDTO> existingNextPeriodBalanceDTO =
         monthlyBalanceService.findNextBalancesFromPeriodInclusive(accountId, initPeriod);
 
     if (existingNextPeriodBalanceDTO == null || existingNextPeriodBalanceDTO.isEmpty()) {
@@ -209,7 +209,7 @@ public class MonthlyBalanceSyncerAppService {
             isEndPeriod ? JBH_ZERO : currentMonthlyBalance.getClosingBalance();
         nextMonthlyBalanceOfCurrent =
             toDomain(
-                AccountMonthlyBalanceDTO.withInitialDataForNextMonth(
+                MonthlyBalanceDTO.withInitialDataForNextMonth(
                     accountId, nextPeriod, closingBalance, !isEndPeriod));
         existingDomainBalancesMap.putIfAbsent(nextPeriod, nextMonthlyBalanceOfCurrent);
       }
@@ -232,7 +232,7 @@ public class MonthlyBalanceSyncerAppService {
     profitBalancesSynced.sort(AccountMonthlyBalanceComparators.BY_PERIOD_ASC);
 
     // persist monthly balances with profit and opening balances synced.
-    final List<AccountMonthlyBalanceDTO> profitBalancesSyncedDto =
+    final List<MonthlyBalanceDTO> profitBalancesSyncedDto =
         profitBalancesSynced.stream().map(MonthlyBalanceMapper::toDTO).toList();
     monthlyBalanceService.saveMultiBalances(profitBalancesSyncedDto);
 
@@ -271,7 +271,7 @@ public class MonthlyBalanceSyncerAppService {
     return accountMonthlyBalance;
   }
 
-  public Optional<AccountMonthlyBalanceDTO> findByAccountIdYearAndMonth(
+  public Optional<MonthlyBalanceDTO> findByAccountIdYearAndMonth(
       final AccountId accountId, final Integer balanceYear, final Integer balanceMonth) {
     return monthlyBalanceService.findByAccountIdYearAndMonth(accountId, balanceYear, balanceMonth);
   }

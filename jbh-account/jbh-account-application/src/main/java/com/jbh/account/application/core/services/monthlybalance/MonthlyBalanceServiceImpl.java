@@ -2,7 +2,7 @@ package com.jbh.account.application.core.services.monthlybalance;
 
 import static com.jbh.account.application.core.mappers.MonthlyBalanceMapper.toDomain;
 
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
@@ -27,31 +27,31 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   }
 
   @Override
-  public Optional<AccountMonthlyBalanceDTO> findByAccountIdYearAndMonth(
+  public Optional<MonthlyBalanceDTO> findByAccountIdYearAndMonth(
       final AccountId accountId, final Integer balanceYear, final Integer balanceMonth) {
     return queryRepo.findByAccountIdYearAndMonth(accountId, balanceYear, balanceMonth);
   }
 
   @Override
-  public Optional<AccountMonthlyBalanceDTO> findByAccountIdAndPeriod(
+  public Optional<MonthlyBalanceDTO> findByAccountIdAndPeriod(
       final AccountId accountId, final YearMonth period) {
     return queryRepo.findByAccountIdAndPeriod(accountId, period);
   }
 
   @Override
-  public List<AccountMonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
+  public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
       final AccountId accountId, final YearMonth currentPeriod) {
     return queryRepo.findNextBalancesFromPeriodInclusive(accountId, currentPeriod);
   }
 
   @Override
-  public Optional<AccountMonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
+  public Optional<MonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
     return queryRepo.findLastOfficialReport(accountId);
   }
 
   @Override
-  public AccountMonthlyBalanceDTO updateOpeningBalanceNextMonth(
-      final AccountMonthlyBalanceDTO currentMonthlyBalance) {
+  public MonthlyBalanceDTO updateOpeningBalanceNextMonth(
+      final MonthlyBalanceDTO currentMonthlyBalance) {
     final YearMonth nextPeriod = currentMonthlyBalance.period().plusMonths(1);
 
     final AccountMonthlyBalanceDomain nextMonthlyBalance =
@@ -66,16 +66,15 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
     nextMonthlyBalance.adjustOpeningBalance(toDomain(currentMonthlyBalance));
 
-    final AccountMonthlyBalanceDTO nextMonthlyBalanceDTO =
-        MonthlyBalanceMapper.toDTO(nextMonthlyBalance);
+    final MonthlyBalanceDTO nextMonthlyBalanceDTO = MonthlyBalanceMapper.toDTO(nextMonthlyBalance);
     saveBalance(nextMonthlyBalanceDTO);
 
     return nextMonthlyBalanceDTO;
   }
 
   @Override
-  public boolean isLastOfficialReport(final AccountMonthlyBalanceDTO monthlyBalanceDTO) {
-    final Optional<AccountMonthlyBalanceDTO> latestOfficialMonthlyReport =
+  public boolean isLastOfficialReport(final MonthlyBalanceDTO monthlyBalanceDTO) {
+    final Optional<MonthlyBalanceDTO> latestOfficialMonthlyReport =
         findLastOfficialReport(monthlyBalanceDTO.accountId());
     final YearMonth currentPeriod = monthlyBalanceDTO.period();
 
@@ -90,17 +89,17 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   }
 
   @Override
-  public void saveBalance(final AccountMonthlyBalanceDTO accountMonthlyBalance) {
+  public void saveBalance(final MonthlyBalanceDTO accountMonthlyBalance) {
     writerRepo.saveBalance(accountMonthlyBalance);
   }
 
   @Override
-  public List<AccountMonthlyBalanceDTO> saveMultiBalances(
-      final List<AccountMonthlyBalanceDTO> accountMonthlyBalance) {
+  public List<MonthlyBalanceDTO> saveMultiBalances(
+      final List<MonthlyBalanceDTO> accountMonthlyBalance) {
     LOG.info(
         "Persisting in database Monthly Balances {}",
-        accountMonthlyBalance.stream().map(AccountMonthlyBalanceDTO::period).toList());
-    final List<AccountMonthlyBalanceDTO> savedBalances =
+        accountMonthlyBalance.stream().map(MonthlyBalanceDTO::period).toList());
+    final List<MonthlyBalanceDTO> savedBalances =
         writerRepo.saveMultiBalances(accountMonthlyBalance);
     LOG.info("Monthly Balances persisted successfully");
     return savedBalances;

@@ -1,6 +1,6 @@
 package com.jbh.account.application.core.ports.output.monthlybalance;
 
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import java.util.List;
 
 public class InMemoryAccountMonthlyBalanceWriterRepository
@@ -14,13 +14,13 @@ public class InMemoryAccountMonthlyBalanceWriterRepository
   }
 
   @Override
-  public void saveBalance(final AccountMonthlyBalanceDTO accountMonthlyBalance) {
+  public void saveBalance(final MonthlyBalanceDTO accountMonthlyBalance) {
     queryRepo.save(accountMonthlyBalance);
   }
 
   @Override
-  public List<AccountMonthlyBalanceDTO> saveMultiBalances(
-      final List<AccountMonthlyBalanceDTO> accountMonthlyBalance) {
+  public List<MonthlyBalanceDTO> saveMultiBalances(
+      final List<MonthlyBalanceDTO> accountMonthlyBalance) {
     queryRepo.saveAll(accountMonthlyBalance);
     return accountMonthlyBalance;
   }

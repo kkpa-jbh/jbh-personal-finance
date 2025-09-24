@@ -8,13 +8,13 @@ import java.time.YearMonth;
 import lombok.Builder;
 
 @Builder(builderMethodName = "notUseThisInternalBuilder")
-public record AccountMonthlyBalanceDTO(
+public record MonthlyBalanceDTO(
     Long id,
     AccountId accountId,
     int year,
     int month,
     YearMonth period,
-    BigDecimal estimatedAnnualYield,
+    BigDecimal netGrowthRate,
     BigDecimal totalDebits,
     BigDecimal totalCredits,
     BigDecimal movementBalance,
@@ -24,9 +24,10 @@ public record AccountMonthlyBalanceDTO(
     BigDecimal monthlyExpenses,
     int totalMovements,
     boolean gapPeriod,
-    boolean officialMonthlyReport) {
+    boolean officialMonthlyReport,
+    BigDecimal monthlyProfitReported) {
 
-  public static AccountMonthlyBalanceDTO withInitialDataForNextMonth(
+  public static MonthlyBalanceDTO withInitialDataForNextMonth(
       final AccountId accountId,
       final YearMonth period,
       final BigDecimal closingBalance,
@@ -42,8 +43,8 @@ public record AccountMonthlyBalanceDTO(
         .build();
   }
 
-  public static AccountMonthlyBalanceDTO.AccountMonthlyBalanceDTOBuilder defaultBuilder() {
-    return AccountMonthlyBalanceDTO.notUseThisInternalBuilder()
+  public static MonthlyBalanceDTO.MonthlyBalanceDTOBuilder defaultBuilder() {
+    return MonthlyBalanceDTO.notUseThisInternalBuilder()
         .movementBalance(JBH_ZERO)
         .closingBalance(JBH_ZERO)
         .totalDebits(JBH_ZERO)

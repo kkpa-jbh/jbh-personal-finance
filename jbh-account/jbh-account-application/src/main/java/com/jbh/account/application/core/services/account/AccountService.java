@@ -1,7 +1,7 @@
 package com.jbh.account.application.core.services.account;
 
 import com.jbh.account.application.core.dto.AccountDTO;
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.vo.AccountId;
 import java.util.Optional;
@@ -17,5 +17,5 @@ public interface AccountService {
 
   AccountDTO save(AccountDomain account);
 
-  AccountDTO syncByMonthlyReport(AccountMonthlyBalanceDTO monthlyBalance);
+  AccountDTO syncByMonthlyReport(MonthlyBalanceDTO monthlyBalance);
 }

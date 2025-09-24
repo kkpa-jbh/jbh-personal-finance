@@ -1,18 +1,18 @@
 package com.jbh.account.application.core.mappers;
 
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 
 public final class MonthlyBalanceMapper {
 
   private MonthlyBalanceMapper() {}
 
-  public static AccountMonthlyBalanceDTO toDTO(final AccountMonthlyBalanceDomain domain) {
+  public static MonthlyBalanceDTO toDTO(final AccountMonthlyBalanceDomain domain) {
     if (domain == null) {
       return null;
     }
 
-    return AccountMonthlyBalanceDTO.defaultBuilder()
+    return MonthlyBalanceDTO.defaultBuilder()
         .id(domain.getId())
         .accountId(domain.getAccountId())
         .year(domain.getYear())
@@ -31,7 +31,7 @@ public final class MonthlyBalanceMapper {
         .build();
   }
 
-  public static AccountMonthlyBalanceDomain toDomain(final AccountMonthlyBalanceDTO dto) {
+  public static AccountMonthlyBalanceDomain toDomain(final MonthlyBalanceDTO dto) {
     if (dto == null) {
       return null;
     }
@@ -42,7 +42,7 @@ public final class MonthlyBalanceMapper {
         dto.year(),
         dto.month(),
         dto.period(),
-        dto.estimatedAnnualYield(),
+        dto.netGrowthRate(),
         dto.totalDebits(),
         dto.totalCredits(),
         dto.movementBalance(),
@@ -52,6 +52,7 @@ public final class MonthlyBalanceMapper {
         dto.monthlyExpenses(),
         dto.totalMovements(),
         dto.gapPeriod(),
-        dto.officialMonthlyReport());
+        dto.officialMonthlyReport(),
+        dto.monthlyProfitReported());
   }
 }

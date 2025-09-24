@@ -1,11 +1,10 @@
 package com.jbh.account.application.core.ports.output.monthlybalance;
 
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import java.util.List;
 
 public interface AccountMonthlyBalanceWriterRepository {
-  void saveBalance(AccountMonthlyBalanceDTO accountMonthlyBalance);
+  void saveBalance(MonthlyBalanceDTO accountMonthlyBalance);
 
-  List<AccountMonthlyBalanceDTO> saveMultiBalances(
-      List<AccountMonthlyBalanceDTO> accountMonthlyBalance);
+  List<MonthlyBalanceDTO> saveMultiBalances(List<MonthlyBalanceDTO> accountMonthlyBalance);
 }

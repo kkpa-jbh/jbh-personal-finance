@@ -18,8 +18,8 @@ import static org.mockito.Mockito.when;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.core.dto.AccountDTO;
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.AddMultipleBasicMovementDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.ports.input.AddMovementsUploadedFileInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
@@ -148,7 +148,7 @@ public class UploadMultiMovementsExecutionMockTest {
     verify(accountRepository).save(any());
 
     final AccountDTO actualAccountResponse = processedResponse.get().account();
-    final List<AccountMonthlyBalanceDTO> actualBalancesWithoutAsyncOperation =
+    final List<MonthlyBalanceDTO> actualBalancesWithoutAsyncOperation =
         processedResponse.get().monthlyBalances();
 
     final BigDecimal expectedProfitBalance = new BigDecimal("1786605.00");
@@ -166,11 +166,10 @@ public class UploadMultiMovementsExecutionMockTest {
     int expectedMonth = 7;
     int sortedIndex = 0;
     final var monthlyProfit20247 = numberOf("98712");
-    AccountMonthlyBalanceDTO actualMonthBalance =
-        actualBalancesWithoutAsyncOperation.get(sortedIndex);
+    MonthlyBalanceDTO actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     final var closingBalance20247 = numberOf("12689712");
-    AccountMonthlyBalanceDTO expectedMonthBalance =
-        AccountMonthlyBalanceDTO.defaultBuilder()
+    MonthlyBalanceDTO expectedMonthBalance =
+        MonthlyBalanceDTO.defaultBuilder()
             .accountId(accountId)
             .totalMovements(1)
             .period(YearMonth.of(expectedYear, expectedMonth))
@@ -190,7 +189,7 @@ public class UploadMultiMovementsExecutionMockTest {
     final var monthlyProfit20248 = numberOf("318629");
     actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     expectedMonthBalance =
-        AccountMonthlyBalanceDTO.defaultBuilder()
+        MonthlyBalanceDTO.defaultBuilder()
             .accountId(accountId)
             .totalMovements(1)
             .period(YearMonth.of(expectedYear, expectedMonth))
@@ -211,7 +210,7 @@ public class UploadMultiMovementsExecutionMockTest {
     sortedIndex++;
     actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     expectedMonthBalance =
-        AccountMonthlyBalanceDTO.defaultBuilder()
+        MonthlyBalanceDTO.defaultBuilder()
             .accountId(accountId)
             .totalMovements(0)
             .period(YearMonth.of(expectedYear, expectedMonth))
@@ -231,7 +230,7 @@ public class UploadMultiMovementsExecutionMockTest {
     sortedIndex++;
     actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     expectedMonthBalance =
-        AccountMonthlyBalanceDTO.defaultBuilder()
+        MonthlyBalanceDTO.defaultBuilder()
             .accountId(accountId)
             .totalMovements(0)
             .period(YearMonth.of(expectedYear, expectedMonth))
@@ -251,7 +250,7 @@ public class UploadMultiMovementsExecutionMockTest {
     sortedIndex++;
     actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     expectedMonthBalance =
-        AccountMonthlyBalanceDTO.defaultBuilder()
+        MonthlyBalanceDTO.defaultBuilder()
             .accountId(accountId)
             .totalMovements(1)
             .period(YearMonth.of(expectedYear, expectedMonth))
@@ -273,7 +272,7 @@ public class UploadMultiMovementsExecutionMockTest {
     sortedIndex++;
     actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     expectedMonthBalance =
-        AccountMonthlyBalanceDTO.defaultBuilder()
+        MonthlyBalanceDTO.defaultBuilder()
             .accountId(accountId)
             .totalMovements(1)
             .period(YearMonth.of(expectedYear, expectedMonth))
@@ -295,7 +294,7 @@ public class UploadMultiMovementsExecutionMockTest {
     sortedIndex++;
     actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     expectedMonthBalance =
-        AccountMonthlyBalanceDTO.defaultBuilder()
+        MonthlyBalanceDTO.defaultBuilder()
             .accountId(accountId)
             .totalMovements(1)
             .period(YearMonth.of(expectedYear, expectedMonth))
@@ -317,7 +316,7 @@ public class UploadMultiMovementsExecutionMockTest {
     sortedIndex++;
     actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     expectedMonthBalance =
-        AccountMonthlyBalanceDTO.defaultBuilder()
+        MonthlyBalanceDTO.defaultBuilder()
             .accountId(accountId)
             .totalMovements(2)
             .period(YearMonth.of(expectedYear, expectedMonth))
@@ -338,7 +337,7 @@ public class UploadMultiMovementsExecutionMockTest {
     sortedIndex++;
     actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     expectedMonthBalance =
-        AccountMonthlyBalanceDTO.defaultBuilder()
+        MonthlyBalanceDTO.defaultBuilder()
             .accountId(accountId)
             .totalMovements(1)
             .period(YearMonth.of(expectedYear, expectedMonth))
@@ -356,12 +355,11 @@ public class UploadMultiMovementsExecutionMockTest {
         YearMonth.of(firstEntry.entryDate().getYear(), firstEntry.entryDate().getMonthValue());
     when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(accountId, initPeriod))
         .thenReturn(actualBalancesWithoutAsyncOperation);
-    final CompletableFuture<List<AccountMonthlyBalanceDTO>> futureResponse =
+    final CompletableFuture<List<MonthlyBalanceDTO>> futureResponse =
         monthlyBalanceSyncerService.persistBalancesAndSyncThemASYNC(
             accountId, actualBalancesWithoutAsyncOperation);
 
-    final List<AccountMonthlyBalanceDTO> actualProfitBalances =
-        futureResponse.get(5, TimeUnit.SECONDS);
+    final List<MonthlyBalanceDTO> actualProfitBalances = futureResponse.get(5, TimeUnit.SECONDS);
     assertEquals(10, actualProfitBalances.size());
 
     int index = -1;
@@ -453,8 +451,7 @@ public class UploadMultiMovementsExecutionMockTest {
     assertEquals(numberOf("56386448"), actualAccount.movementBalance());
     assertEquals(numberOf("70908065"), actualAccount.currentBalance());
     assertEquals(numberOf("14521617"), actualAccount.profitBalance());
-    final List<AccountMonthlyBalanceDTO> savedMonthlyBalances =
-        processedResponse.get().monthlyBalances();
+    final List<MonthlyBalanceDTO> savedMonthlyBalances = processedResponse.get().monthlyBalances();
 
     final YearMonth expectedPeriod = YearMonth.of(2023, 7);
     log.info("Account Tested. Preparing to test the monthly Balances ASYNC...{} ", expectedPeriod);
@@ -462,10 +459,10 @@ public class UploadMultiMovementsExecutionMockTest {
             accountId, expectedPeriod))
         .thenReturn(savedMonthlyBalances);
 
-    final CompletableFuture<List<AccountMonthlyBalanceDTO>> futureResponse =
+    final CompletableFuture<List<MonthlyBalanceDTO>> futureResponse =
         monthlyBalanceSyncerService.persistBalancesAndSyncThemASYNC(
             accountId, savedMonthlyBalances);
-    final List<AccountMonthlyBalanceDTO> actualMonthlyBalances = futureResponse.get();
+    final List<MonthlyBalanceDTO> actualMonthlyBalances = futureResponse.get();
 
     int index = -1;
     AccountMonthlyBalanceDomain actualResponse = null;
@@ -713,8 +710,7 @@ public class UploadMultiMovementsExecutionMockTest {
     assertEquals(numberOf("29710000"), actualAccount.movementBalance());
     assertEquals(numberOf("37074883"), actualAccount.currentBalance());
     assertEquals(numberOf("7364883"), actualAccount.profitBalance());
-    final List<AccountMonthlyBalanceDTO> savedMonthlyBalances =
-        processedResponse.get().monthlyBalances();
+    final List<MonthlyBalanceDTO> savedMonthlyBalances = processedResponse.get().monthlyBalances();
 
     // THEN
     final YearMonth monthlyInitiPeriod = YearMonth.of(2023, 10);
@@ -722,10 +718,10 @@ public class UploadMultiMovementsExecutionMockTest {
     when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(
             accountId, monthlyInitiPeriod))
         .thenReturn(savedMonthlyBalances);
-    final CompletableFuture<List<AccountMonthlyBalanceDTO>> futureResponse =
+    final CompletableFuture<List<MonthlyBalanceDTO>> futureResponse =
         monthlyBalanceSyncerService.persistBalancesAndSyncThemASYNC(
             accountId, savedMonthlyBalances);
-    final List<AccountMonthlyBalanceDTO> actualMonthlyBalances = futureResponse.get();
+    final List<MonthlyBalanceDTO> actualMonthlyBalances = futureResponse.get();
 
     // Response
     int index = -1;

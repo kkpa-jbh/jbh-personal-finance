@@ -1,6 +1,6 @@
 package com.jbh.account.application.core.ports.input;
 
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
@@ -34,9 +34,9 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
    * The user registers a monthly balance once the month has ended. \n It isn't associated with any
    * category. \n The monthly balance can already exist with some movements associated. \n The
    * monthly profit is provided by the institution account. \n Based on the monthly profit average
-   * of the year, this method will calculate the estimatedAnnualYield for the month. This method
-   * will also calculate the monthlyExpenses for the month. After syncing the monthly balance, it
-   * should update the opening balance of the next month.
+   * of the year, this method will calculate the netGrowthRate for the month. This method will also
+   * calculate the monthlyExpenses for the month. After syncing the monthly balance, it should
+   * update the opening balance of the next month.
    *
    * @param runningDate
    * @param userId
@@ -46,7 +46,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
    * @throws JbhSpecificationApplication
    */
   @Override
-  public AccountMonthlyBalanceDTO registerOfficialMonthlyBalance(
+  public MonthlyBalanceDTO registerOfficialMonthlyBalance(
       final LocalDate runningDate,
       final UUID userId,
       final AccountId accountId,
@@ -74,8 +74,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
     monthlyBalanceDomain.assignOfficialMonthlyReport(
         command.closingBalance(), command.monthlyProfitReported());
 
-    final AccountMonthlyBalanceDTO monthlyBalanceDTO =
-        MonthlyBalanceMapper.toDTO(monthlyBalanceDomain);
+    final MonthlyBalanceDTO monthlyBalanceDTO = MonthlyBalanceMapper.toDTO(monthlyBalanceDomain);
     monthlyBalanceService.saveBalance(monthlyBalanceDTO);
 
     // TODO : Add monthly balance to account (SYNC ACCOUNT)
@@ -109,7 +108,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
 
     log.info("Validating consecutive balances for period {}", periodToRegister);
 
-    final Optional<AccountMonthlyBalanceDTO> lastOfficialReport =
+    final Optional<MonthlyBalanceDTO> lastOfficialReport =
         monthlyBalanceService.findLastOfficialReport(accountId);
     if (lastOfficialReport.isPresent()) {
       final YearMonth lastOfficialReportPeriod = lastOfficialReport.get().period();

@@ -6,8 +6,8 @@ import static com.jbh.account.application.core.mappers.AccountMapper.toDomain;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.common.logging.LoggerFactory;
 import com.jbh.account.application.core.dto.AccountDTO;
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.AddMultipleBasicMovementDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.services.MonthlyBalanceSyncerAppService;
@@ -71,7 +71,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
     persistMovementAndAccountUOW(uploadedMovements, accountDTO);
 
     // Sync monthly Balance Asynchronously
-    final List<AccountMonthlyBalanceDTO> monthlyBalancesPersisted =
+    final List<MonthlyBalanceDTO> monthlyBalancesPersisted =
         monthlyBalanceSyncerService.syncForUploadedMovementsAsync(accountId, uploadedMovements);
 
     return new AddMultipleBasicMovementDTO(accountDTO, monthlyBalancesPersisted);

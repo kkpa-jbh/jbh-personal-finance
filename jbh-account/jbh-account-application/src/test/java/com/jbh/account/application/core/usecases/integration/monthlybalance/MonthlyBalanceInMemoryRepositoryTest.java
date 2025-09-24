@@ -2,7 +2,7 @@ package com.jbh.account.application.core.usecases.integration.monthlybalance;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
 import com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils;
 import com.jbh.account.domain.vo.AccountId;
@@ -27,8 +27,8 @@ class MonthlyBalanceInMemoryRepositoryTest {
   @Test
   void shouldSaveAndRetrieveMonthlyBalance() {
     // Given
-    final AccountMonthlyBalanceDTO balance =
-        AccountMonthlyBalanceDTO.defaultBuilder()
+    final MonthlyBalanceDTO balance =
+        MonthlyBalanceDTO.defaultBuilder()
             .accountId(testAccountId)
             .year(2024)
             .month(3)
@@ -43,7 +43,7 @@ class MonthlyBalanceInMemoryRepositoryTest {
     repositories.getWriterRepo().saveBalance(balance);
 
     // Then
-    final Optional<AccountMonthlyBalanceDTO> retrieved =
+    final Optional<MonthlyBalanceDTO> retrieved =
         repositories.getQueryRepo().findByAccountIdYearAndMonth(testAccountId, 2024, 3);
 
     assertTrue(retrieved.isPresent());
@@ -53,7 +53,7 @@ class MonthlyBalanceInMemoryRepositoryTest {
   @Test
   void shouldSaveMultipleBalancesAndQueryByPeriodRange() {
     // Given
-    final List<AccountMonthlyBalanceDTO> balances =
+    final List<MonthlyBalanceDTO> balances =
         List.of(
             createBalance(testAccountId, 2024, 1, BigDecimal.valueOf(1000)),
             createBalance(testAccountId, 2024, 2, BigDecimal.valueOf(1100)),
@@ -64,7 +64,7 @@ class MonthlyBalanceInMemoryRepositoryTest {
     repositories.getWriterRepo().saveMultiBalances(balances);
 
     // Then
-    final List<AccountMonthlyBalanceDTO> retrieved =
+    final List<MonthlyBalanceDTO> retrieved =
         repositories
             .getQueryRepo()
             .findNextBalancesFromPeriodInclusive(testAccountId, YearMonth.of(2024, 2));
@@ -75,9 +75,9 @@ class MonthlyBalanceInMemoryRepositoryTest {
     assertEquals(YearMonth.of(2024, 4), retrieved.get(2).period());
   }
 
-  private AccountMonthlyBalanceDTO createBalance(
+  private MonthlyBalanceDTO createBalance(
       final AccountId accountId, final int year, final int month, final BigDecimal closingBalance) {
-    return AccountMonthlyBalanceDTO.defaultBuilder()
+    return MonthlyBalanceDTO.defaultBuilder()
         .accountId(accountId)
         .year(year)
         .month(month)
@@ -103,9 +103,9 @@ class MonthlyBalanceInMemoryRepositoryTest {
         .saveBalance(createBalance(accountId2, 2024, 3, BigDecimal.valueOf(2000)));
 
     // When & Then
-    final Optional<AccountMonthlyBalanceDTO> account1Balance =
+    final Optional<MonthlyBalanceDTO> account1Balance =
         repositories.getQueryRepo().findByAccountIdYearAndMonth(accountId1, 2024, 3);
-    final Optional<AccountMonthlyBalanceDTO> account2Balance =
+    final Optional<MonthlyBalanceDTO> account2Balance =
         repositories.getQueryRepo().findByAccountIdYearAndMonth(accountId2, 2024, 3);
 
     assertTrue(account1Balance.isPresent());
@@ -117,7 +117,7 @@ class MonthlyBalanceInMemoryRepositoryTest {
   @Test
   void shouldReturnEmptyWhenBalanceNotFound() {
     // When
-    final Optional<AccountMonthlyBalanceDTO> result =
+    final Optional<MonthlyBalanceDTO> result =
         repositories.getQueryRepo().findByAccountIdYearAndMonth(testAccountId, 2024, 12);
 
     // Then
@@ -137,7 +137,7 @@ class MonthlyBalanceInMemoryRepositoryTest {
 
     // Then
     assertEquals(0, repositories.getQueryRepo().size());
-    final Optional<AccountMonthlyBalanceDTO> result =
+    final Optional<MonthlyBalanceDTO> result =
         repositories.getQueryRepo().findByAccountIdYearAndMonth(testAccountId, 2024, 3);
     assertFalse(result.isPresent());
   }

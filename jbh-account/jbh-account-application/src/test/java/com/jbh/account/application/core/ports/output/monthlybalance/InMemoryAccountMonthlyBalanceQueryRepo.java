@@ -1,7 +1,7 @@
 package com.jbh.account.application.core.ports.output.monthlybalance;
 
 import com.jbh.account.application.core.comparator.AccountMonthlyBalanceComparators;
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.domain.vo.AccountId;
 import java.time.YearMonth;
@@ -13,13 +13,13 @@ import java.util.Optional;
 
 public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBalanceQueryRepo {
 
-  private final Map<String, AccountMonthlyBalanceDTO> storage = new HashMap<>();
+  private final Map<String, MonthlyBalanceDTO> storage = new HashMap<>();
 
-  public void saveAll(final List<AccountMonthlyBalanceDTO> balances) {
+  public void saveAll(final List<MonthlyBalanceDTO> balances) {
     balances.forEach(this::save);
   }
 
-  public void save(final AccountMonthlyBalanceDTO balance) {
+  public void save(final MonthlyBalanceDTO balance) {
     final String key = generateKey(balance.accountId(), balance.year(), balance.month());
     storage.put(key, balance);
   }
@@ -36,11 +36,11 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
     return storage.size();
   }
 
-  public List<AccountMonthlyBalanceDTO> findAll() {
+  public List<MonthlyBalanceDTO> findAll() {
     return new ArrayList<>(storage.values());
   }
 
-  public List<AccountMonthlyBalanceDTO> findByAccountId(final AccountId accountId) {
+  public List<MonthlyBalanceDTO> findByAccountId(final AccountId accountId) {
     return storage.values().stream()
         .filter(balance -> balance.accountId().equals(accountId))
         .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
@@ -48,7 +48,7 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
   }
 
   @Override
-  public Optional<AccountMonthlyBalanceDTO> findByAccountIdYearAndMonth(
+  public Optional<MonthlyBalanceDTO> findByAccountIdYearAndMonth(
       final AccountId accountId, final Integer balanceYear, final Integer balanceMonth) {
 
     final String key = generateKey(accountId, balanceYear, balanceMonth);
@@ -56,13 +56,13 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
   }
 
   @Override
-  public Optional<AccountMonthlyBalanceDTO> findByAccountIdAndPeriod(
+  public Optional<MonthlyBalanceDTO> findByAccountIdAndPeriod(
       final AccountId accountId, final YearMonth period) {
     return findByAccountIdYearAndMonth(accountId, period.getYear(), period.getMonthValue());
   }
 
   @Override
-  public List<AccountMonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
+  public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
       final AccountId accountId, final YearMonth currentPeriod) {
 
     return storage.values().stream()
@@ -73,9 +73,9 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
   }
 
   @Override
-  public Optional<AccountMonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
+  public Optional<MonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
     return findByAccountId(accountId).stream()
-        .filter(AccountMonthlyBalanceDTO::officialMonthlyReport)
+        .filter(MonthlyBalanceDTO::officialMonthlyReport)
         .map(MonthlyBalanceMapper::toDomain)
         .toList()
         .stream()

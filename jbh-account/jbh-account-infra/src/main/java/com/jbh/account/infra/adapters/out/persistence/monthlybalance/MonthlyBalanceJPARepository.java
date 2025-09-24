@@ -1,6 +1,6 @@
 package com.jbh.account.infra.adapters.out.persistence.monthlybalance;
 
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.domain.vo.AccountId;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
@@ -19,7 +19,7 @@ public class MonthlyBalanceJPARepository
     implements PanacheRepository<AccountMonthlyBalanceJPAEntity>, AccountMonthlyBalanceQueryRepo {
 
   @Override
-  public Optional<AccountMonthlyBalanceDTO> findByAccountIdYearAndMonth(
+  public Optional<MonthlyBalanceDTO> findByAccountIdYearAndMonth(
       final AccountId accountId, final Integer balanceYear, final Integer balanceMonth) {
     return find(
             "accountId = :accountId and year = :balanceYear and month = :balanceMonth",
@@ -31,7 +31,7 @@ public class MonthlyBalanceJPARepository
   }
 
   @Override
-  public Optional<AccountMonthlyBalanceDTO> findByAccountIdAndPeriod(
+  public Optional<MonthlyBalanceDTO> findByAccountIdAndPeriod(
       final AccountId accountId, final YearMonth period) {
     return findByAccountIdYearAndMonth(accountId, period.getYear(), period.getMonthValue());
   }
@@ -45,7 +45,7 @@ public class MonthlyBalanceJPARepository
   }
 
   @Override
-  public List<AccountMonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
+  public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
       final AccountId accountId, final YearMonth currentPeriod) {
     return findNextFromPeriodInclusiveJPA(accountId, currentPeriod).stream()
         .map(AccountMonthlyBalanceJPAEntity::toDTO)
@@ -53,7 +53,7 @@ public class MonthlyBalanceJPARepository
   }
 
   @Override
-  public Optional<AccountMonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
+  public Optional<MonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
     final List<AccountMonthlyBalanceJPAEntity> lastOfficialReportList =
         find(
                 "accountId = :accountId and officialMonthlyReport = true order by period desc",

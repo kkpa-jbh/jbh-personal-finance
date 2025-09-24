@@ -6,11 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.ports.input.RegisterMonthlyBalanceInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
@@ -22,6 +23,7 @@ import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceSe
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
+import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;
@@ -76,22 +78,20 @@ public class RegisterMonthlyBalanceMockTest {
         .thenReturn(Optional.empty());
 
     // Spy on the specific method to capture its return value
-    final AtomicReference<AccountMonthlyBalanceDTO> capturedNextMonthlyBalance =
-        new AtomicReference<>();
+    final AtomicReference<MonthlyBalanceDTO> capturedNextMonthlyBalance = new AtomicReference<>();
     doAnswer(
             invocation -> {
               // Call the real method
-              final AccountMonthlyBalanceDTO result =
-                  (AccountMonthlyBalanceDTO) invocation.callRealMethod();
+              final MonthlyBalanceDTO result = (MonthlyBalanceDTO) invocation.callRealMethod();
               // Capture the result
               capturedNextMonthlyBalance.set(result);
               return result;
             })
         .when(monthlyBalanceService)
-        .updateOpeningBalanceNextMonth(any(AccountMonthlyBalanceDTO.class));
+        .updateOpeningBalanceNextMonth(any(MonthlyBalanceDTO.class));
 
     // When
-    final AtomicReference<AccountMonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
+    final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
     Assertions.assertDoesNotThrow(
         () ->
             savedMonthlyBalance.set(
@@ -100,8 +100,8 @@ public class RegisterMonthlyBalanceMockTest {
 
     // Then
     final var actualMonthlyBalance = savedMonthlyBalance.get();
-    final AccountMonthlyBalanceDTO expectedMonthBalance =
-        AccountMonthlyBalanceDTO.defaultBuilder()
+    final MonthlyBalanceDTO expectedMonthBalance =
+        MonthlyBalanceDTO.defaultBuilder()
             .accountId(accountId)
             .totalMovements(0)
             .period(august24MonthlyPeriod)
@@ -123,7 +123,32 @@ public class RegisterMonthlyBalanceMockTest {
     // ... other assertions on nextMonthlyBalance
 
     // Verify the method was called
-    verify(monthlyBalanceService)
-        .updateOpeningBalanceNextMonth(any(AccountMonthlyBalanceDTO.class));
+    verify(monthlyBalanceService).updateOpeningBalanceNextMonth(any(MonthlyBalanceDTO.class));
+  }
+
+  @Test
+  void shouldThrowExceptionWhenNotValidPeriod() {
+    // Given
+
+    final BigDecimal movementsBalance = BigDecimal.ZERO;
+    final BigDecimal closingBalance = BigDecimal.valueOf(2105192.00);
+    final AddMonthlyBalanceCommand command =
+        new AddMonthlyBalanceCommand(august24MonthlyPeriod, closingBalance, null);
+    final LocalDate runningDatePast = LocalDate.of(august24MonthlyPeriod.getYear() - 1, 8, 1);
+    when(monthlyBalanceQueryRepoMock.findByAccountIdYearAndMonth(
+            accountId, august24MonthlyPeriod.getYear(), august24MonthlyPeriod.getMonthValue()))
+        .thenReturn(Optional.empty());
+
+    // When
+    final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
+    Assertions.assertThrows(
+        JbhSpecificationApplication.class,
+        () ->
+            savedMonthlyBalance.set(
+                useCaseInstanceTest.registerOfficialMonthlyBalance(
+                    runningDatePast, userId, accountId, command)));
+
+    // Then
+    verify(monthlyBalanceService, never()).updateOpeningBalanceNextMonth(any());
   }
 }

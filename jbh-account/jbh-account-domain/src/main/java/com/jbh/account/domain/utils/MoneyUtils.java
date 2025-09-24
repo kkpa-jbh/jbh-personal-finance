@@ -27,6 +27,6 @@ public final class MoneyUtils {
     if (amount == null) {
       return null;
     }
-    return amount.setScale(2, RoundingMode.UNNECESSARY);
+    return amount.setScale(2, RoundingMode.HALF_EVEN);
   }
 }

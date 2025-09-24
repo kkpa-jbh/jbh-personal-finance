@@ -26,24 +26,22 @@ public class AccountMonthlyBalanceDomain {
   private final Integer month;
   private final YearMonth period;
 
-  /**
-   * Yield = Actual return earned (includes compounding effects) Compound Interest = Interest
-   * compuesto YIELD is more appropriate since you're calculating actual returns based on monthly
-   * performance
-   */
-  private BigDecimal estimatedAnnualYield = JBH_ZERO;
+  /** Growth = (Closing - Opening - NetFlows) / (Opening + 0.5 × NetFlows) */
+  private BigDecimal netGrowthRate = JBH_ZERO;
 
   private BigDecimal totalDebits = JBH_ZERO; // Just for INFO purposes;
   private BigDecimal totalCredits = JBH_ZERO; // Just for INFO purposes;
-  private BigDecimal movementBalance = JBH_ZERO; // Total Debits minus Total Credits;
+  private BigDecimal movementBalance = JBH_ZERO; // NetFlow: Total Debits minus Total Credits;
   private BigDecimal openingBalance = JBH_ZERO; // Saldo inicial del mes
   private BigDecimal closingBalance = JBH_ZERO; // Saldo final del mes
-  private BigDecimal monthlyProfit = JBH_ZERO; // Ganancia/perdida del mes
+  private BigDecimal monthlyProfit =
+      JBH_ZERO; // Ganancia/perdida del mes. The contrary of Monthly expenses.
   private BigDecimal monthlyExpenses =
       JBH_ZERO; // This would represent how much you "consumed" from your previous balance
   private Integer totalMovements = 0; // Cantidad de movimientos en el mes.
   private boolean gapPeriod; // Month Balance was not registered in the past.
   private boolean officialMonthlyReport;
+  private BigDecimal monthlyProfitReported;
 
   /** Constructor with required fields. */
   private AccountMonthlyBalanceDomain(final AccountId accountId, final YearMonth period) {
@@ -113,15 +111,37 @@ public class AccountMonthlyBalanceDomain {
   public void assignOfficialMonthlyReport(
       final BigDecimal closingBalance, final BigDecimal monthlyProfitReported) {
     setOfficialMonthlyReport(closingBalance, monthlyProfitReported);
-    syncMonthlyExpenses();
+    syncPersistedBalance();
   }
 
   private void setOfficialMonthlyReport(
       final BigDecimal closingBalance, final BigDecimal monthlyProfitReported) {
     this.closingBalance = closingBalance != null ? withJBHDecimals(closingBalance) : JBH_ZERO;
-    this.monthlyProfit =
+    this.monthlyProfitReported =
         monthlyProfitReported != null ? withJBHDecimals(monthlyProfitReported) : JBH_ZERO;
     this.officialMonthlyReport = true;
+  }
+
+  /**
+   * Syncs the balances from async tasks. This is called when syncing monthly balances
+   * asynchronously and when syncing the current and next monthly balances. The monthly balances are
+   * already persisted in the database.
+   */
+  public void syncPersistedBalance() {
+    syncMonthlyProfit();
+    syncMonthlyExpenses();
+  }
+
+  private void syncMonthlyProfit() {
+    if (openingBalance == null) {
+      throw new IllegalArgumentException(
+          "The opening Balance is not set for " + this.getAccountId());
+    }
+    // I think it's for file upload
+    if (isZero(totalCredits) && isZero(totalDebits) && isZero(openingBalance)) {
+      return;
+    }
+    monthlyProfit = closingBalance.subtract(openingBalance).subtract(getMovementBalance());
   }
 
   private void syncMonthlyExpenses() {
@@ -131,6 +151,10 @@ public class AccountMonthlyBalanceDomain {
     } else {
       this.monthlyExpenses = JBH_ZERO;
     }
+  }
+
+  public BigDecimal getMovementBalance() {
+    return totalDebits.subtract(totalCredits);
   }
 
   public void syncMovements(final List<AccountMovementDomain> movementsInPeriod) {
@@ -152,7 +176,7 @@ public class AccountMonthlyBalanceDomain {
       this.closingBalance = movement.getBalanceSnapshot();
     }
 
-    syncMonthlyProfit();
+    syncPersistedBalance();
   }
 
   private void validateMovementPeriod(final AccountMovementDomain mvmt) {
@@ -178,38 +202,5 @@ public class AccountMonthlyBalanceDomain {
         this.closingBalance = this.closingBalance.add(amount);
       }
     }
-  }
-
-  private void syncMonthlyProfit() {
-    if (this.getOpeningBalance() == null) {
-      throw new IllegalArgumentException(
-          "The opening Balance is not set for " + this.getAccountId());
-    }
-    if (movementBalance == null) {
-      throw new IllegalArgumentException(
-          "The movement balance is not set for " + this.getAccountId());
-    }
-    if (isZero(totalCredits) && isZero(totalDebits) && isZero(openingBalance)) {
-      return;
-    }
-    if (officialMonthlyReport) {
-      return;
-    }
-
-    this.monthlyProfit = closingBalance.subtract(openingBalance).subtract(getMovementBalance());
-  }
-
-  public BigDecimal getMovementBalance() {
-    return totalDebits.subtract(totalCredits);
-  }
-
-  /**
-   * Syncs the balances from async tasks. This is called when syncing monthly balances
-   * asynchronously and when syncing the current and next monthly balances. The monthly balances are
-   * already persisted in the database.
-   */
-  public void syncPersistedBalance() {
-    syncMonthlyProfit();
-    syncMonthlyExpenses();
   }
 }

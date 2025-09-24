@@ -1,6 +1,6 @@
 package com.jbh.account.infra.adapters.out.persistence.monthlybalance;
 
-import com.jbh.account.application.core.dto.AccountMonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -15,8 +15,8 @@ public class MonthlyBalanceWriterRepoAdapter implements AccountMonthlyBalanceWri
 
   @Override
   // FIXME: Improve it to save all at once
-  public List<AccountMonthlyBalanceDTO> saveMultiBalances(
-      final List<AccountMonthlyBalanceDTO> accountMonthlyBalance) {
+  public List<MonthlyBalanceDTO> saveMultiBalances(
+      final List<MonthlyBalanceDTO> accountMonthlyBalance) {
     try {
       final List<AccountMonthlyBalanceJPAEntity> movementsToPersist =
           accountMonthlyBalance.stream().map(AccountMonthlyBalanceJPAEntity::of).toList();
@@ -42,7 +42,7 @@ public class MonthlyBalanceWriterRepoAdapter implements AccountMonthlyBalanceWri
   }
 
   @Override
-  public void saveBalance(final AccountMonthlyBalanceDTO accountMonthlyBalance) {
+  public void saveBalance(final MonthlyBalanceDTO accountMonthlyBalance) {
     final AccountMonthlyBalanceJPAEntity entity =
         AccountMonthlyBalanceJPAEntity.of(accountMonthlyBalance);
 
