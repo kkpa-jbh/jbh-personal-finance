@@ -136,7 +136,7 @@ public class AccountMonthlyBalanceDomain {
     return Objects.equals(period, that.period) && Objects.equals(accountId, that.accountId);
   }
 
-  public void adjustOpeningBalance(final AccountMonthlyBalanceDomain previousMonthlyBalance) {
+  public void assignOpeningBalance(final AccountMonthlyBalanceDomain previousMonthlyBalance) {
     if (this.officialMonthlyReport) {
       throw new GenericSpecificationException(
           "Cannot adjust opening balance for an official monthly report");
@@ -148,21 +148,40 @@ public class AccountMonthlyBalanceDomain {
     this.openingBalance = withJBHDecimals(inputOpeningBalance);
   }
 
-  public void assignOfficialMonthlyReport(
-      final BigDecimal closingBalance, final BigDecimal monthlyProfitReported) {
-    setOfficialMonthlyReport(closingBalance, monthlyProfitReported);
-    syncPersistedBalance();
+  public void assignMovement(final AccountMovementDomain movement) {
+    validateMovementPeriod(movement);
+    syncBalancesByMovement(movement);
+    recalculateBalances();
   }
 
-  private void setOfficialMonthlyReport(
-      final BigDecimal closingBalance, final BigDecimal monthlyProfitReported) {
-    this.closingBalance = closingBalance != null ? withJBHDecimals(closingBalance) : JBH_ZERO;
-    this.monthlyProfitReported =
-        monthlyProfitReported != null ? withJBHDecimals(monthlyProfitReported) : JBH_ZERO;
-    // If it's not reported, it's the same as the monthly net profit calculated
-    this.monthlyNetProfit =
-        monthlyProfitReported != null ? monthlyProfitReported : monthlyNetProfit;
-    this.officialMonthlyReport = true;
+  private void validateMovementPeriod(final AccountMovementDomain mvmt) {
+    if (mvmt.getMovementDate() == null) {
+      throw new GenericSpecificationException(
+          "Movement date cannot be null when syncing monthly balance");
+    }
+    final YearMonth movementPeriod = YearMonth.from(mvmt.getMovementDate());
+    if (this.getPeriod().isBefore(movementPeriod) || this.getPeriod().isAfter(movementPeriod)) {
+      throw new GenericSpecificationException(
+          "Movement date is not in the same period as the monthly balance");
+    }
+  }
+
+  private void syncBalancesByMovement(final AccountMovementDomain movement) {
+    final BigDecimal amount = movement.getMovementAmount();
+    if (isNotZero(amount)) {
+      this.totalMovements++;
+      if (amount.signum() < 0) {
+        this.totalCredits = this.totalCredits.add(amount.abs());
+      } else {
+        this.totalDebits = this.totalDebits.add(amount.abs());
+      }
+      if (!this.officialMonthlyReport) {
+        this.closingBalance = this.closingBalance.add(amount);
+      }
+    }
+    if (movement.getBalanceSnapshot() != null) {
+      this.closingBalance = movement.getBalanceSnapshot();
+    }
   }
 
   /**
@@ -170,12 +189,12 @@ public class AccountMonthlyBalanceDomain {
    * asynchronously and when syncing the current and next monthly balances. The monthly balances are
    * already persisted in the database.
    */
-  public void syncPersistedBalance() {
-    syncMonthlyProfit();
+  public void recalculateBalances() {
+    syncMonthlyNetProfit();
     syncNetGrowthRate();
   }
 
-  private void syncMonthlyProfit() {
+  private void syncMonthlyNetProfit() {
     if (openingBalance == null) {
       throw new IllegalArgumentException(
           "The opening Balance is not set for " + this.getAccountId());
@@ -202,46 +221,20 @@ public class AccountMonthlyBalanceDomain {
     return totalDebits.subtract(totalCredits);
   }
 
-  public void syncMovement(final AccountMovementDomain movement) {
-
-    validateMovementPeriod(movement);
-
-    final BigDecimal amount = movement.getMovementAmount();
-
-    if (isNotZero(amount)) {
-      this.totalMovements++;
-      syncIncomingAmount(amount);
-    }
-
-    if (movement.getBalanceSnapshot() != null) {
-      this.closingBalance = movement.getBalanceSnapshot();
-    }
-
-    syncPersistedBalance();
+  public void assignOfficialMonthlyReport(
+      final BigDecimal closingBalance, final BigDecimal monthlyProfitReported) {
+    setOfficialMonthlyReport(closingBalance, monthlyProfitReported);
+    recalculateBalances();
   }
 
-  private void validateMovementPeriod(final AccountMovementDomain mvmt) {
-    if (mvmt.getMovementDate() == null) {
-      throw new GenericSpecificationException(
-          "Movement date cannot be null when syncing monthly balance");
-    }
-    final YearMonth movementPeriod = YearMonth.from(mvmt.getMovementDate());
-    if (this.getPeriod().isBefore(movementPeriod) || this.getPeriod().isAfter(movementPeriod)) {
-      throw new GenericSpecificationException(
-          "Movement date is not in the same period as the monthly balance");
-    }
-  }
-
-  private void syncIncomingAmount(final BigDecimal amount) {
-    if (isNotZero(amount)) {
-      if (amount.signum() < 0) {
-        this.totalCredits = this.totalCredits.add(amount.abs());
-      } else {
-        this.totalDebits = this.totalDebits.add(amount.abs());
-      }
-      if (!this.officialMonthlyReport) {
-        this.closingBalance = this.closingBalance.add(amount);
-      }
-    }
+  private void setOfficialMonthlyReport(
+      final BigDecimal closingBalance, final BigDecimal monthlyProfitReported) {
+    this.closingBalance = closingBalance != null ? withJBHDecimals(closingBalance) : JBH_ZERO;
+    this.monthlyProfitReported =
+        monthlyProfitReported != null ? withJBHDecimals(monthlyProfitReported) : JBH_ZERO;
+    // If it's not reported, it's the same as the monthly net profit calculated
+    this.monthlyNetProfit =
+        monthlyProfitReported != null ? monthlyProfitReported : monthlyNetProfit;
+    this.officialMonthlyReport = true;
   }
 }

@@ -80,7 +80,7 @@ public class MonthlyBalanceAsyncTask {
                   .orElseGet(
                       () -> AccountMonthlyBalanceDomain.withPeriod(accountId, monthlyPeriodKey));
 
-          movementsInPeriod.forEach(accountMonthlyBalance::syncMovement);
+          movementsInPeriod.forEach(accountMonthlyBalance::assignMovement);
 
           LOG.debug("Monthly balance updated for {}", monthlyPeriodKey);
           monthlyBalancesToPersist.add(accountMonthlyBalance);
@@ -181,7 +181,7 @@ public class MonthlyBalanceAsyncTask {
       LOG.info("Syncing Movement Balance and Monthly Profit for period: {}", currentPeriod);
       final AccountMonthlyBalanceDomain currentMonthlyBalance =
           existingDomainBalancesMap.get(currentPeriod);
-      currentMonthlyBalance.syncPersistedBalance();
+      currentMonthlyBalance.recalculateBalances();
 
       final YearMonth nextPeriod = currentMonthlyBalance.getPeriod().plusMonths(1);
       // LOG.debug("Syncing Opening Balance for next period: {} ", nextPeriod);
@@ -206,7 +206,7 @@ public class MonthlyBalanceAsyncTask {
         existingDomainBalancesMap.putIfAbsent(nextPeriod, nextMonthlyBalanceOfCurrent);
       }
       LOG.info("Adjusting Opening Balance for next period: {}", nextPeriod);
-      nextMonthlyBalanceOfCurrent.adjustOpeningBalance(currentMonthlyBalance);
+      nextMonthlyBalanceOfCurrent.assignOpeningBalance(currentMonthlyBalance);
 
       // Preparing to persist
       if (!profitBalancesSynced.contains(currentMonthlyBalance)) {
@@ -255,7 +255,7 @@ public class MonthlyBalanceAsyncTask {
             .map(MonthlyBalanceMapper::toDomain)
             .orElseGet(() -> AccountMonthlyBalanceDomain.withPeriod(accountId, movementPeriod));
 
-    accountMonthlyBalance.syncMovement(newMovement);
+    accountMonthlyBalance.assignMovement(newMovement);
     persistBalancesAndSyncThemASYNC(
         accountId, Collections.singletonList(toDTO(accountMonthlyBalance)));
 

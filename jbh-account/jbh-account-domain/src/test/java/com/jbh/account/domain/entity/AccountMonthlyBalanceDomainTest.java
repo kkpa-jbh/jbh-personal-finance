@@ -54,7 +54,7 @@ public class AccountMonthlyBalanceDomainTest {
             JBH_ZERO);
 
     oneHundredMonthlyBalance = AccountMonthlyBalanceDomain.withPeriod(accountId, todayYM);
-    oneHundredMonthlyBalance.syncMovement(
+    oneHundredMonthlyBalance.assignMovement(
         AccountMovementDomain.with(
             accountId,
             today,
@@ -106,7 +106,7 @@ public class AccountMonthlyBalanceDomainTest {
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getClosingBalance());
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getMonthlyNetProfit());
 
-    ceroMonthlyBalance.syncMovement(
+    ceroMonthlyBalance.assignMovement(
         AccountMovementDomain.with(
             accountId, today, JBH_ZERO, JBH_ZERO, DEPOSIT, OTHER_INCOME_CATEGORY));
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getMonthlyNetProfit());
@@ -117,13 +117,13 @@ public class AccountMonthlyBalanceDomainTest {
     AccountMonthlyBalanceDomain previousMonthlyBalance =
         AccountMonthlyBalanceDomain.withInitialDataForNextMonth(
             accountId, todayYM, new BigDecimal("350.00"), false);
-    ceroMonthlyBalance.adjustOpeningBalance(previousMonthlyBalance);
+    ceroMonthlyBalance.assignOpeningBalance(previousMonthlyBalance);
     assertEquals(new BigDecimal("350.00"), ceroMonthlyBalance.getOpeningBalance());
 
     previousMonthlyBalance =
         AccountMonthlyBalanceDomain.withInitialDataForNextMonth(
             accountId, todayYM, BigDecimal.ZERO, false);
-    ceroMonthlyBalance.adjustOpeningBalance(previousMonthlyBalance);
+    ceroMonthlyBalance.assignOpeningBalance(previousMonthlyBalance);
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getOpeningBalance());
   }
 
@@ -165,7 +165,7 @@ public class AccountMonthlyBalanceDomainTest {
         AccountMovementDomain.with(
             accountId, today, totalAmount, balanceSnapshot, DEPOSIT, OTHER_INCOME_CATEGORY);
 
-    ceroMonthlyBalance.syncMovement(newMovement);
+    ceroMonthlyBalance.assignMovement(newMovement);
 
     assertEquals(totalAmount, ceroMonthlyBalance.getTotalDebits());
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getTotalCredits());
@@ -185,7 +185,7 @@ public class AccountMonthlyBalanceDomainTest {
         AccountMovementDomain.with(
             accountId, today, totalAmount, null, DEPOSIT, OTHER_INCOME_CATEGORY);
 
-    ceroMonthlyBalance.syncMovement(newMovement);
+    ceroMonthlyBalance.assignMovement(newMovement);
 
     assertEquals(totalAmount, ceroMonthlyBalance.getTotalDebits());
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getTotalCredits());
@@ -207,7 +207,7 @@ public class AccountMonthlyBalanceDomainTest {
 
     final BigDecimal existingTotalDebits = oneHundredMonthlyBalance.getTotalDebits();
 
-    oneHundredMonthlyBalance.syncMovement(newMovement);
+    oneHundredMonthlyBalance.assignMovement(newMovement);
 
     assertEquals(totalAmount.add(existingTotalDebits), oneHundredMonthlyBalance.getTotalDebits());
     assertEquals(JBH_ZERO, oneHundredMonthlyBalance.getTotalCredits());
@@ -227,7 +227,7 @@ public class AccountMonthlyBalanceDomainTest {
         AccountMovementDomain.with(
             accountId, today, totalAmount, null, DEPOSIT, OTHER_INCOME_CATEGORY);
     final BigDecimal existingTotalDebits = oneHundredMonthlyBalance.getTotalDebits();
-    oneHundredMonthlyBalance.syncMovement(newMovement);
+    oneHundredMonthlyBalance.assignMovement(newMovement);
 
     final AccountMonthlyBalanceDomain newBalance = oneHundredMonthlyBalance;
 
@@ -249,7 +249,7 @@ public class AccountMonthlyBalanceDomainTest {
         AccountMovementDomain.with(
             accountId, today, totalAmount, balanceSnapshot, WITHDRAWAL, PERSONAL_EXPENSE_CATEGORY);
 
-    ceroMonthlyBalance.syncMovement(newMovement);
+    ceroMonthlyBalance.assignMovement(newMovement);
 
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getTotalDebits());
     assertEquals(totalAmount.abs(), ceroMonthlyBalance.getTotalCredits());
@@ -291,7 +291,7 @@ public class AccountMonthlyBalanceDomainTest {
 
     // oneHundredMonthlyBalance.syncMovements(List.of(newMovement, newMovement2, newMovement3));
     List.of(newMovement, newMovement2, newMovement3)
-        .forEach(oneHundredMonthlyBalance::syncMovement);
+        .forEach(oneHundredMonthlyBalance::assignMovement);
 
     final AccountMonthlyBalanceDomain newBalance = oneHundredMonthlyBalance;
     assertEquals(4, newBalance.getTotalMovements());
@@ -318,7 +318,7 @@ public class AccountMonthlyBalanceDomainTest {
     final var balance4 = AccountMonthlyBalanceDomain.withPeriod(accountId, period4);
     final var balance5 = AccountMonthlyBalanceDomain.withPeriod(accountId, period5);
 
-    balance1.syncMovement(
+    balance1.assignMovement(
         AccountMovementDomain.with(
             accountId,
             period1.atDay(1),
@@ -326,7 +326,7 @@ public class AccountMonthlyBalanceDomainTest {
             new BigDecimal("10"),
             DEPOSIT,
             OTHER_INCOME_CATEGORY));
-    balance2.syncMovement(
+    balance2.assignMovement(
         AccountMovementDomain.with(
             accountId,
             period2.atDay(1),
@@ -334,7 +334,7 @@ public class AccountMonthlyBalanceDomainTest {
             new BigDecimal("20"),
             DEPOSIT,
             OTHER_INCOME_CATEGORY));
-    balance3.syncMovement(
+    balance3.assignMovement(
         AccountMovementDomain.with(
             accountId,
             period3.atDay(1),
@@ -342,7 +342,7 @@ public class AccountMonthlyBalanceDomainTest {
             new BigDecimal("30"),
             DEPOSIT,
             OTHER_INCOME_CATEGORY));
-    balance4.syncMovement(
+    balance4.assignMovement(
         AccountMovementDomain.with(
             accountId,
             period4.atDay(1),
@@ -350,7 +350,7 @@ public class AccountMonthlyBalanceDomainTest {
             new BigDecimal("40"),
             DEPOSIT,
             OTHER_INCOME_CATEGORY));
-    balance5.syncMovement(
+    balance5.assignMovement(
         AccountMovementDomain.with(
             accountId,
             period5.atDay(1),
@@ -375,7 +375,7 @@ public class AccountMonthlyBalanceDomainTest {
 
     // Add movement with balance snapshot of 2105192.00
     final var initBalanceSnapshot = new BigDecimal("2105192.00");
-    accountMonthlyBalance.syncMovement(
+    accountMonthlyBalance.assignMovement(
         AccountMovementDomain.with(
             accountId, initBalanceDate, null, initBalanceSnapshot, BALANCE_SNAPSHOT, null));
 
@@ -396,7 +396,7 @@ public class AccountMonthlyBalanceDomainTest {
     assertThrows(
         GenericSpecificationException.class,
         () -> {
-          accountMonthlyBalance.syncMovement(
+          accountMonthlyBalance.assignMovement(
               AccountMovementDomain.with(
                   accountId, septBalanceDate, null, septBalanceSnapshot, BALANCE_SNAPSHOT, null));
         });

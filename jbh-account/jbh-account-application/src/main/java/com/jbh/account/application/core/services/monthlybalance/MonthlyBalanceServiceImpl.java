@@ -64,7 +64,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
                     AccountMonthlyBalanceDomain.withPeriod(
                         currentMonthlyBalance.accountId(), nextPeriod));
 
-    nextMonthlyBalance.adjustOpeningBalance(toDomain(currentMonthlyBalance));
+    nextMonthlyBalance.assignOpeningBalance(toDomain(currentMonthlyBalance));
 
     final MonthlyBalanceDTO nextMonthlyBalanceDTO = MonthlyBalanceMapper.toDTO(nextMonthlyBalance);
     saveBalance(nextMonthlyBalanceDTO);
