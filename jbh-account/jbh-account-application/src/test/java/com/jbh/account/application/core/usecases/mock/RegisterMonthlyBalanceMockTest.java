@@ -20,6 +20,7 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
+import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
@@ -46,6 +47,7 @@ public class RegisterMonthlyBalanceMockTest {
   final LocalDate runningDate = LocalDate.now();
   RegisterMonthlyBalanceUseCase useCaseInstanceTest;
 
+  AccountMovementServiceImpl accountMovementService;
   MonthlyBalanceService monthlyBalanceService;
   AccountService accountService;
   @Mock private AccountRepository accountRepository;
@@ -60,10 +62,12 @@ public class RegisterMonthlyBalanceMockTest {
     final MonthlyBalanceServiceImpl realMonthlyBalanceService =
         new MonthlyBalanceServiceImpl(monthlyBalanceQueryRepoMock, monthlyBalanceWriterRepoMock);
 
+    accountMovementService = new AccountMovementServiceImpl(accountMovementRepository);
     monthlyBalanceService = spy(realMonthlyBalanceService);
     accountService = new AccountServiceImpl(accountRepository);
     useCaseInstanceTest =
-        new RegisterMonthlyBalanceInputPort(monthlyBalanceService, accountService);
+        new RegisterMonthlyBalanceInputPort(
+            monthlyBalanceService, accountService, accountMovementService);
   }
 
   @Test

@@ -4,6 +4,7 @@ import static com.jbh.account.application.core.ports.output.account.InMemoryAcco
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.account.application.core.usecases.utils.TestDataFactory.getAddMonthlyBalanceCommandsWithProfit;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
@@ -21,6 +22,7 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
+import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
@@ -77,6 +79,8 @@ public class RegisterMonthlyReportedProfitITTest {
       getAddMonthlyBalanceCommandsWithProfit(initialPeriod, initialBalance);
 
   MonthlyBalanceAsyncTask monthlyBalanceSyncer;
+  AccountMovementServiceImpl accountMovementService;
+
   @Mock private AccountMovementRepository accountMovementRepository;
 
   @BeforeAll
@@ -96,7 +100,11 @@ public class RegisterMonthlyReportedProfitITTest {
     monthlyBalanceService =
         new MonthlyBalanceServiceImpl(monthlyBalanceInMemoQuery, monthlyBalanceInMemoWriter);
     final AccountService accountService = new AccountServiceImpl(inMemoryAccountRepo);
-    useCase = new RegisterMonthlyBalanceInputPort(monthlyBalanceService, accountService);
+
+    accountMovementService = new AccountMovementServiceImpl(accountMovementRepository);
+    useCase =
+        new RegisterMonthlyBalanceInputPort(
+            monthlyBalanceService, accountService, accountMovementService);
 
     createAccountUseCase = new CreateAccountInputPort(accountService);
 
@@ -108,7 +116,7 @@ public class RegisterMonthlyReportedProfitITTest {
   }
 
   @Test
-  @Order(1)
+  @Order(0)
   void settingInitialBalance() throws JbhSpecificationApplication {
     ++commandIndex;
     createdAccount =
@@ -135,10 +143,7 @@ public class RegisterMonthlyReportedProfitITTest {
             .month(initialPeriod.getMonthValue())
             .officialMonthlyReport(true)
             .build();
-    assertMonthlyBalance(
-        expectedInitialBalance,
-        savedInitialMonthlyBalance.get(),
-        IgnoreOption.IGNORE_MONTHLY_PROFIT);
+    assertMonthlyBalance(expectedInitialBalance, savedInitialMonthlyBalance.get());
   }
 
   private AddMonthlyBalanceCommand getCurrentCommand() {
@@ -146,8 +151,8 @@ public class RegisterMonthlyReportedProfitITTest {
   }
 
   @Test
-  @Order(2)
-  public void month1addingNotProfitChanges0movements() {
+  @Order(1)
+  public void month1ProfitReported50() {
     ++commandIndex;
     // Given
     final AddMonthlyBalanceCommand command = getCurrentCommand();
@@ -157,17 +162,25 @@ public class RegisterMonthlyReportedProfitITTest {
             savedMonthlyBalance.set(
                 useCase.registerOfficialMonthlyBalance(runningDate, userId, accountId, command)));
 
-    // Then
+    // Then Current Monthly Balance has closing balance - monthlyProfitReported (50)
     final var actualMonthlyBalance = savedMonthlyBalance.get();
+    final var monthlyProfitReported = command.monthlyProfitReported();
     final var expectedMonthlyBalance =
         MonthlyBalanceDTO.withClosingBalance(
-                accountId, command.monthlyPeriod(), command.closingBalance())
-            .monthlyProfitReported(command.monthlyProfitReported())
-            .monthlyNetProfit(withJBHDecimals(command.monthlyProfitReported()))
+                accountId,
+                command.monthlyPeriod(),
+                command.closingBalance().subtract(monthlyProfitReported))
+            .monthlyProfitReported(monthlyProfitReported)
+            .monthlyNetProfit(withJBHDecimals(monthlyProfitReported))
             .openingBalance(withJBHDecimals(getPreviousCommand().closingBalance()))
             .officialMonthlyReport(true)
             .build();
     assertMonthlyBalance(expectedMonthlyBalance, actualMonthlyBalance);
+    assertEquals(new BigDecimal("5.00"), actualMonthlyBalance.netGrowthRate());
+
+    // Then Account Balance
+    final var accountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
+    assertEquals(command.closingBalance(), accountBalance.currentBalance(), "Account Balance");
   }
 
   private AddMonthlyBalanceCommand getPreviousCommand() {
@@ -175,7 +188,7 @@ public class RegisterMonthlyReportedProfitITTest {
   }
 
   @Test
-  @Order(3)
+  @Order(2)
   public void month2addingDebitsAndProfitReport() {
     ++commandIndex;
     final AddMonthlyBalanceCommand command = getCurrentCommand();
@@ -199,8 +212,7 @@ public class RegisterMonthlyReportedProfitITTest {
             .monthlyNetProfit(withJBHDecimals(new BigDecimal("10")))
             .netGrowthRate(withJBHDecimals(new BigDecimal("0.91")))
             .build();
-    assertMonthlyBalance(
-        expectedMonthlyBalance, currentMonthlyBalance, IgnoreOption.IGNORE_MONTHLY_PROFIT);
+    assertMonthlyBalance(expectedMonthlyBalance, currentMonthlyBalance);
 
     LOG.warn("Testing the registration of the Monthly Balance for period {}", period);
 
@@ -222,11 +234,7 @@ public class RegisterMonthlyReportedProfitITTest {
             .monthlyNetProfit(command.monthlyProfitReported())
             .netGrowthRate(withJBHDecimals(new BigDecimal("4.55")))
             .build();
-    assertMonthlyBalance(
-        expectedReportedBalance,
-        savedMonthlyBalance.get(),
-        IgnoreOption.IGNORE_MONTHLY_EXPENSES,
-        IgnoreOption.IGNORE_MONTHLY_PROFIT);
+    assertMonthlyBalance(expectedReportedBalance, savedMonthlyBalance.get());
   }
 
   private void addMovement(
@@ -247,4 +255,6 @@ public class RegisterMonthlyReportedProfitITTest {
       throw new RuntimeException(e);
     }
   }
+
+  public void shouldAddMovementsBeforeMonthlyReport() {}
 }

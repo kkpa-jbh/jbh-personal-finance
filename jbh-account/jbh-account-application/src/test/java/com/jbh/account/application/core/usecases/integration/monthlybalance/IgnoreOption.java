@@ -2,6 +2,5 @@ package com.jbh.account.application.core.usecases.integration.monthlybalance;
 
 public enum IgnoreOption {
   IGNORE_MONTHLY_PROFIT,
-  IGNORE_MONTHLY_EXPENSES,
   IGNORE_OPENING_BALANCE
 }

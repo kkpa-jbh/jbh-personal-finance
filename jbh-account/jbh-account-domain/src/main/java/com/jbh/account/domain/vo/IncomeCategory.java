@@ -49,6 +49,7 @@ package com.jbh.account.domain.vo;
  */
 public enum IncomeCategory implements CategoryType {
   SALARY,
+  DIVIDENDS,
   FREELANCE,
   INVESTMENT,
   RENTAL,

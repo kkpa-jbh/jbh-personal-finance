@@ -1,9 +1,12 @@
 package com.jbh.account.application.core.ports.input;
 
+import static com.jbh.account.application.core.mappers.MonthlyBalanceMapper.toDTO;
+
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
+import com.jbh.account.application.core.services.movements.AccountMovementService;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.exceptions.JbhSpecificationApplication;
@@ -23,20 +26,25 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
 
   private final MonthlyBalanceService monthlyBalanceService;
   private final AccountService accountService;
+  private final AccountMovementService accountMovementService;
 
   public RegisterMonthlyBalanceInputPort(
-      final MonthlyBalanceService monthlyBalanceService, final AccountService accountService) {
+      final MonthlyBalanceService monthlyBalanceService,
+      final AccountService accountService,
+      final AccountMovementService accountMovementService) {
+    this.accountMovementService = accountMovementService;
     this.accountService = accountService;
     this.monthlyBalanceService = monthlyBalanceService;
   }
 
   /**
-   * The user registers a monthly balance once the month has ended. \n It isn't associated with any
-   * category. \n The monthly balance can already exist with some movements associated. \n The
-   * monthly profit is provided by the institution account. \n Based on the monthly profit average
-   * of the year, this method will calculate the netGrowthRate for the month. This method will also
-   * calculate the monthlyExpenses for the month. After syncing the monthly balance, it should
-   * update the opening balance of the next month.
+   * It worth suggest calling this use case once the next month has started with the profit
+   * reported. The user registers a monthly balance once the month has ended. \n It isn't associated
+   * with any category. \n The monthly balance can already exist with some movements associated. \n
+   * The monthly profit is provided by the institution account. \n Based on the monthly balances,
+   * this method will calculate the netGrowthRate for the month. This method will also calculate the
+   * monthlyExpenses for the month. After syncing the monthly balance, it should update the opening
+   * balance of the next month.
    *
    * @param runningDate
    * @param userId
@@ -64,6 +72,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
 
     validateConsecutiveMonthlyBalances(accountId, periodToRegister);
 
+    // FIXME TODO - Move all this logic to the service itself
     final AccountMonthlyBalanceDomain monthlyBalanceDomain =
         monthlyBalanceService
             .findByAccountIdYearAndMonth(
@@ -74,7 +83,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
     monthlyBalanceDomain.assignOfficialMonthlyReport(
         command.closingBalance(), command.monthlyProfitReported());
 
-    final MonthlyBalanceDTO monthlyBalanceDTO = MonthlyBalanceMapper.toDTO(monthlyBalanceDomain);
+    final MonthlyBalanceDTO monthlyBalanceDTO = toDTO(monthlyBalanceDomain);
     monthlyBalanceService.saveBalance(monthlyBalanceDTO);
 
     if (monthlyBalanceService.isLastOfficialReport(monthlyBalanceDTO)) {
@@ -82,6 +91,8 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
     }
 
     monthlyBalanceService.updateOpeningBalanceNextMonth(monthlyBalanceDTO);
+
+    accountMovementService.addDividendsMovement(monthlyBalanceDTO);
 
     log.info(
         "Monthly Balance registration completed successfully for account:{} and period: {}",

@@ -19,7 +19,6 @@ public class MonthlyBalanceITUtils {
 
     boolean ignoreMonthlyProfit = false;
     boolean ignoreOpeningBalance = false;
-    boolean ignoreMonthlyExpenses = false;
 
     // Process provided ignore options
     if (ignoreOptions != null) {
@@ -27,7 +26,6 @@ public class MonthlyBalanceITUtils {
         switch (option) {
           case IGNORE_MONTHLY_PROFIT -> ignoreMonthlyProfit = true;
           case IGNORE_OPENING_BALANCE -> ignoreOpeningBalance = true;
-          case IGNORE_MONTHLY_EXPENSES -> ignoreMonthlyExpenses = true;
         }
       }
     }

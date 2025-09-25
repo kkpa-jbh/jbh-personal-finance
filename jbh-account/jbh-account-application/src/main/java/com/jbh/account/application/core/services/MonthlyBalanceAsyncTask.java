@@ -130,6 +130,8 @@ public class MonthlyBalanceAsyncTask {
           // Step 1: Save balances (executes first)
           monthlyBalanceService.saveMultiBalances(monthlyBalances);
 
+          // TODO: Remove this
+          // FIXME: This is just for testing
           Thread.sleep(Duration.ofSeconds(1).toMillis());
           // Step 3: Return profit/opening balances (they contain the combined results)
           // The monthly balances are already persisted in the database
@@ -205,7 +207,7 @@ public class MonthlyBalanceAsyncTask {
                     accountId, nextPeriod, closingBalance, !isEndPeriod));
         existingDomainBalancesMap.putIfAbsent(nextPeriod, nextMonthlyBalanceOfCurrent);
       }
-      LOG.info("Adjusting Opening Balance for next period: {}", nextPeriod);
+
       nextMonthlyBalanceOfCurrent.assignOpeningBalance(currentMonthlyBalance);
 
       // Preparing to persist

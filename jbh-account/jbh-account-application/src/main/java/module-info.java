@@ -32,4 +32,5 @@ module jbh.account.application {
       jbh.z.assembly;
   exports com.jbh.account.application.core.services.monthlybalance;
   exports com.jbh.account.application.core.services.account;
+  exports com.jbh.account.application.core.services.movements;
 }

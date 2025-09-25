@@ -25,6 +25,8 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
+import com.jbh.account.application.core.services.movements.AccountMovementService;
+import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.utils.IgnoreAccountOptions;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
@@ -103,6 +105,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   MonthlyBalanceAsyncTask monthlyBalanceSyncer;
   @Mock private AccountMovementRepository accountMovementRepository;
   private AccountService accountService;
+  private AccountMovementService accountMovementService;
 
   @BeforeAll
   static void beforeAll() {
@@ -115,7 +118,10 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     MockitoAnnotations.openMocks(this);
     accountService = new AccountServiceImpl(inMemoryAccountRepo);
 
-    useCaseTest = new RegisterMonthlyBalanceInputPort(monthlyBalanceService, accountService);
+    accountMovementService = new AccountMovementServiceImpl(accountMovementRepository);
+    useCaseTest =
+        new RegisterMonthlyBalanceInputPort(
+            monthlyBalanceService, accountService, accountMovementService);
 
     monthlyBalanceSyncer =
         new MonthlyBalanceAsyncTask(monthlyBalanceService, new AsyncTaskExecutorImpl());

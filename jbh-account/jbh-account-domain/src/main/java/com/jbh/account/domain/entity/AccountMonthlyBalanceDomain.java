@@ -12,6 +12,8 @@ import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.Objects;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** Domain entity - focus on business logic and state, not sorting */
 @Getter
@@ -22,6 +24,8 @@ import lombok.Getter;
   "PMD.NPathComplexity"
 })
 public class AccountMonthlyBalanceDomain {
+
+  private static final Logger LOG = LoggerFactory.getLogger(AccountMonthlyBalanceDomain.class);
 
   private final Long id;
   private final AccountId accountId;
@@ -44,7 +48,9 @@ public class AccountMonthlyBalanceDomain {
   private Integer totalMovements = 0; // Cantidad de movimientos en el mes.
   private boolean gapPeriod; // Month Balance was not registered in the past.
   private boolean officialMonthlyReport;
-  private BigDecimal monthlyProfitReported = JBH_ZERO;
+
+  // NULL if not reported
+  private BigDecimal monthlyProfitReported = null;
 
   @SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.NPathComplexity"})
   public AccountMonthlyBalanceDomain(
@@ -145,7 +151,16 @@ public class AccountMonthlyBalanceDomain {
     if (inputOpeningBalance == null) {
       throw new GenericSpecificationException("Opening balance cannot be null");
     }
-    this.openingBalance = withJBHDecimals(inputOpeningBalance);
+
+    final var previousProfitReported = previousMonthlyBalance.getMonthlyProfitReported();
+    final boolean wasProfitReported =
+        previousMonthlyBalance.isOfficialMonthlyReport() && previousProfitReported != null;
+    this.openingBalance =
+        wasProfitReported
+            ? inputOpeningBalance.subtract(previousProfitReported)
+            : withJBHDecimals(inputOpeningBalance);
+
+    LOG.info("Adjusted Opening Balance {} for next period: {}", this.openingBalance, this.period);
   }
 
   public void assignMovement(final AccountMovementDomain movement) {
@@ -212,9 +227,17 @@ public class AccountMonthlyBalanceDomain {
   }
 
   private void syncNetGrowthRate() {
-    this.netGrowthRate =
-        moneyGrowthCalculator.calculateMonthlyGrowth(
-            openingBalance, closingBalance, getMovementBalance());
+    LOG.info("Syncing Net Growth Rate for account {} and period {}", accountId, period);
+    final var movementBalance = getMovementBalance();
+    if (this.officialMonthlyReport && isNotZero(monthlyProfitReported)) {
+      this.netGrowthRate =
+          moneyGrowthCalculator.calculateMonthlyGrowth(
+              openingBalance, closingBalance.add(monthlyProfitReported), movementBalance);
+    } else {
+      this.netGrowthRate =
+          moneyGrowthCalculator.calculateMonthlyGrowth(
+              openingBalance, closingBalance, movementBalance);
+    }
   }
 
   public BigDecimal getMovementBalance() {
@@ -231,10 +254,17 @@ public class AccountMonthlyBalanceDomain {
       final BigDecimal closingBalance, final BigDecimal monthlyProfitReported) {
     this.closingBalance = closingBalance != null ? withJBHDecimals(closingBalance) : JBH_ZERO;
     this.monthlyProfitReported =
-        monthlyProfitReported != null ? withJBHDecimals(monthlyProfitReported) : JBH_ZERO;
+        monthlyProfitReported != null ? withJBHDecimals(monthlyProfitReported) : null;
+
+    // A deposit will be created with dividends category for next month.
+    if (monthlyProfitReported != null) {
+      this.closingBalance = this.closingBalance.subtract(monthlyProfitReported);
+    }
+
     // If it's not reported, it's the same as the monthly net profit calculated
     this.monthlyNetProfit =
         monthlyProfitReported != null ? monthlyProfitReported : monthlyNetProfit;
+
     this.officialMonthlyReport = true;
   }
 }

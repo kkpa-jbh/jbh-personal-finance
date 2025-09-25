@@ -85,6 +85,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
                       MovementCategoryDomain.withDTO(movementCommand.categoryDTO()));
 
               // Find Existing Monthly Balance and check if it's an official report
+              // Do not sync the balance if it's an official report
               boolean wasOfficialReport = false;
               final Optional<MonthlyBalanceDTO> existingMonthlyBalanceOpt =
                   monthlyBalanceSyncerService.findByAccountIdYearAndMonth(
