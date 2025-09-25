@@ -99,9 +99,12 @@ public class RegisterMonthlyReportedProfitITTest {
         inMemoryMonthlyBalanceRepos.getQueryRepo();
     monthlyBalanceService =
         new MonthlyBalanceServiceImpl(monthlyBalanceInMemoQuery, monthlyBalanceInMemoWriter);
-    final AccountService accountService = new AccountServiceImpl(inMemoryAccountRepo);
 
-    accountMovementService = new AccountMovementServiceImpl(accountMovementRepository);
+    final AccountService accountService = new AccountServiceImpl(inMemoryAccountRepo);
+    accountMovementService =
+        new AccountMovementServiceImpl(
+            accountMovementRepository, accountService, monthlyBalanceService, new UnitOfWorkTest());
+
     useCase =
         new RegisterMonthlyBalanceInputPort(
             monthlyBalanceService, accountService, accountMovementService);
@@ -110,9 +113,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
     monthlyBalanceSyncer =
         new MonthlyBalanceAsyncTask(monthlyBalanceService, new AsyncTaskExecutorImpl());
-    addMovementUseCase =
-        new AddMovementInputPort(
-            accountService, accountMovementRepository, new UnitOfWorkTest(), monthlyBalanceSyncer);
+    addMovementUseCase = new AddMovementInputPort(accountMovementService, monthlyBalanceSyncer);
   }
 
   @Test

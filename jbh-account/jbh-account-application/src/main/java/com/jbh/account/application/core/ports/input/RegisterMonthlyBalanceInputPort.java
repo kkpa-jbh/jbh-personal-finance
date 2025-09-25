@@ -13,6 +13,7 @@ import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.utils.JbhStringUtils;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountPK;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Optional;
@@ -92,7 +93,8 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
 
     monthlyBalanceService.updateOpeningBalanceNextMonth(monthlyBalanceDTO);
 
-    accountMovementService.addDividendsMovement(monthlyBalanceDTO);
+    final AccountPK accountPK = new AccountPK(userId, accountId);
+    accountMovementService.addDividendsMovement(accountPK, monthlyBalanceDTO);
 
     log.info(
         "Monthly Balance registration completed successfully for account:{} and period: {}",

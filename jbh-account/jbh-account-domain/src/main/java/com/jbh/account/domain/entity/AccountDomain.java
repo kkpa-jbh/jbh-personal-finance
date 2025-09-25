@@ -106,11 +106,22 @@ public class AccountDomain {
     }
   }
 
+  /**
+   * If it's a movement for an official monthly reported, the balance is already synced and it must
+   * not change. The balance is updated because the movement was added after the monthly report was
+   * created.
+   *
+   * <p>Otherwise, sync the balance and update the current balance.
+   *
+   * @param newAccountMovement
+   * @param wasOfficialReport
+   */
   private void applyMovement(
-      final AccountMovementDomain newAccountMovement,
-      final boolean wasOfficialReport) {
+      final AccountMovementDomain newAccountMovement, final boolean wasOfficialReport) {
     final BigDecimal movementAmount = newAccountMovement.getMovementAmount();
 
+    // If it's an official report, the balance is already synced.
+    //
     if (wasOfficialReport) {
       syncMovementBalance(movementAmount);
       syncProfitBalance();

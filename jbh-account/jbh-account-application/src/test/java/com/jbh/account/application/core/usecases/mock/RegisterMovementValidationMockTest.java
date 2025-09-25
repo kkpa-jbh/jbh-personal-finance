@@ -19,9 +19,12 @@ import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.account.application.core.services.MonthlyBalanceAsyncTask;
+import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
+import com.jbh.account.application.core.services.movements.AccountMovementService;
+import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
@@ -52,6 +55,7 @@ public class RegisterMovementValidationMockTest {
   @Mock private AccountMonthlyBalanceQueryRepo accountMonthlyBalanceRepository;
   @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
   private AddMovementInputPort registerSimpleMovementInputPort;
+  private AccountMovementService accountMovementService;
 
   @BeforeEach
   void setUp() {
@@ -62,12 +66,15 @@ public class RegisterMovementValidationMockTest {
 
     final MonthlyBalanceAsyncTask monthlyBalanceSyncerService =
         new MonthlyBalanceAsyncTask(monthlyBalanceService, new AsyncTaskExecutorImpl());
+
+    final AccountService accountService = new AccountServiceImpl(accountRepository);
+
+    accountMovementService =
+        new AccountMovementServiceImpl(
+            accountMovementRepository, accountService, monthlyBalanceService, new UnitOfWorkTest());
+
     registerSimpleMovementInputPort =
-        new AddMovementInputPort(
-            new AccountServiceImpl(accountRepository),
-            accountMovementRepository,
-            unitOfWork,
-            monthlyBalanceSyncerService);
+        new AddMovementInputPort(accountMovementService, monthlyBalanceSyncerService);
   }
 
   @Test

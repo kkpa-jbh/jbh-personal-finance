@@ -117,8 +117,10 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   void setUp() {
     MockitoAnnotations.openMocks(this);
     accountService = new AccountServiceImpl(inMemoryAccountRepo);
+    accountMovementService =
+        new AccountMovementServiceImpl(
+            accountMovementRepository, accountService, monthlyBalanceService, new UnitOfWorkTest());
 
-    accountMovementService = new AccountMovementServiceImpl(accountMovementRepository);
     useCaseTest =
         new RegisterMonthlyBalanceInputPort(
             monthlyBalanceService, accountService, accountMovementService);
@@ -126,9 +128,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     monthlyBalanceSyncer =
         new MonthlyBalanceAsyncTask(monthlyBalanceService, new AsyncTaskExecutorImpl());
 
-    addMovementUseCase =
-        new AddMovementInputPort(
-            accountService, accountMovementRepository, new UnitOfWorkTest(), monthlyBalanceSyncer);
+    addMovementUseCase = new AddMovementInputPort(accountMovementService, monthlyBalanceSyncer);
   }
 
   @Test
