@@ -5,19 +5,22 @@ import static com.jbh.account.domain.utils.MoneyUtils.isNotZero;
 import static com.jbh.account.domain.utils.MoneyUtils.isZero;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 
+import com.jbh.account.domain.calculators.MoneyGrowthCalculator;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;
 import java.time.YearMonth;
-import java.util.List;
 import java.util.Objects;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /** Domain entity - focus on business logic and state, not sorting */
-@AllArgsConstructor
 @Getter
-@SuppressWarnings("PMD.ImmutableField")
+@SuppressWarnings({
+  "PMD.ImmutableField",
+  "PMD.GodClass",
+  "PMD.CyclomaticComplexity",
+  "PMD.NPathComplexity"
+})
 public class AccountMonthlyBalanceDomain {
 
   private final Long id;
@@ -25,23 +28,60 @@ public class AccountMonthlyBalanceDomain {
   private final Integer year;
   private final Integer month;
   private final YearMonth period;
+  private final MoneyGrowthCalculator moneyGrowthCalculator = new MoneyGrowthCalculator();
+  private BigDecimal movementBalance = JBH_ZERO; // NetFlow: Total Debits minus Total Credits;
 
   /** Growth = (Closing - Opening - NetFlows) / (Opening + 0.5 × NetFlows) */
   private BigDecimal netGrowthRate = JBH_ZERO;
 
   private BigDecimal totalDebits = JBH_ZERO; // Just for INFO purposes;
   private BigDecimal totalCredits = JBH_ZERO; // Just for INFO purposes;
-  private BigDecimal movementBalance = JBH_ZERO; // NetFlow: Total Debits minus Total Credits;
   private BigDecimal openingBalance = JBH_ZERO; // Saldo inicial del mes
   private BigDecimal closingBalance = JBH_ZERO; // Saldo final del mes
-  private BigDecimal monthlyProfit =
-      JBH_ZERO; // Ganancia/perdida del mes. The contrary of Monthly expenses.
-  private BigDecimal monthlyExpenses =
-      JBH_ZERO; // This would represent how much you "consumed" from your previous balance
+  private BigDecimal monthlyNetProfit =
+      JBH_ZERO; // Ganancia/perdida del mes. Positive for profit, negative for loss.
+
   private Integer totalMovements = 0; // Cantidad de movimientos en el mes.
   private boolean gapPeriod; // Month Balance was not registered in the past.
   private boolean officialMonthlyReport;
-  private BigDecimal monthlyProfitReported;
+  private BigDecimal monthlyProfitReported = JBH_ZERO;
+
+  @SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.NPathComplexity"})
+  public AccountMonthlyBalanceDomain(
+      final Long id,
+      final AccountId accountId,
+      final Integer year,
+      final Integer month,
+      final YearMonth period,
+      final BigDecimal movementBalance,
+      final BigDecimal netGrowthRate,
+      final BigDecimal totalDebits,
+      final BigDecimal totalCredits,
+      final BigDecimal openingBalance,
+      final BigDecimal closingBalance,
+      final BigDecimal monthlyNetProfit,
+      final Integer totalMovements,
+      final boolean gapPeriod,
+      final boolean officialMonthlyReport,
+      final BigDecimal monthlyProfitReported) {
+
+    this.id = id;
+    this.accountId = accountId;
+    this.year = year;
+    this.month = month;
+    this.period = period;
+    this.movementBalance = movementBalance != null ? movementBalance : JBH_ZERO;
+    this.netGrowthRate = netGrowthRate != null ? netGrowthRate : JBH_ZERO;
+    this.totalDebits = totalDebits != null ? totalDebits : JBH_ZERO;
+    this.totalCredits = totalCredits != null ? totalCredits : JBH_ZERO;
+    this.openingBalance = openingBalance != null ? openingBalance : JBH_ZERO;
+    this.closingBalance = closingBalance != null ? closingBalance : JBH_ZERO;
+    this.monthlyNetProfit = monthlyNetProfit != null ? monthlyNetProfit : JBH_ZERO;
+    this.totalMovements = totalMovements != null ? totalMovements : 0;
+    this.gapPeriod = gapPeriod;
+    this.officialMonthlyReport = officialMonthlyReport;
+    this.monthlyProfitReported = monthlyProfitReported;
+  }
 
   /** Constructor with required fields. */
   private AccountMonthlyBalanceDomain(final AccountId accountId, final YearMonth period) {
@@ -119,6 +159,9 @@ public class AccountMonthlyBalanceDomain {
     this.closingBalance = closingBalance != null ? withJBHDecimals(closingBalance) : JBH_ZERO;
     this.monthlyProfitReported =
         monthlyProfitReported != null ? withJBHDecimals(monthlyProfitReported) : JBH_ZERO;
+    // If it's not reported, it's the same as the monthly net profit calculated
+    this.monthlyNetProfit =
+        monthlyProfitReported != null ? monthlyProfitReported : monthlyNetProfit;
     this.officialMonthlyReport = true;
   }
 
@@ -129,7 +172,7 @@ public class AccountMonthlyBalanceDomain {
    */
   public void syncPersistedBalance() {
     syncMonthlyProfit();
-    syncMonthlyExpenses();
+    syncNetGrowthRate();
   }
 
   private void syncMonthlyProfit() {
@@ -141,24 +184,22 @@ public class AccountMonthlyBalanceDomain {
     if (isZero(totalCredits) && isZero(totalDebits) && isZero(openingBalance)) {
       return;
     }
-    monthlyProfit = closingBalance.subtract(openingBalance).subtract(getMovementBalance());
+
+    // if it's not reported, or it was reported without a profit, calculate the monthly net profit
+    if (!this.officialMonthlyReport || isZero(monthlyProfitReported)) {
+      final var movementBalance = getMovementBalance();
+      monthlyNetProfit = closingBalance.subtract(openingBalance).subtract(movementBalance);
+    }
   }
 
-  private void syncMonthlyExpenses() {
-    if (isNotZero(this.openingBalance)) {
-      this.monthlyExpenses =
-          this.movementBalance.add(this.openingBalance).subtract(this.closingBalance);
-    } else {
-      this.monthlyExpenses = JBH_ZERO;
-    }
+  private void syncNetGrowthRate() {
+    this.netGrowthRate =
+        moneyGrowthCalculator.calculateMonthlyGrowth(
+            openingBalance, closingBalance, getMovementBalance());
   }
 
   public BigDecimal getMovementBalance() {
     return totalDebits.subtract(totalCredits);
-  }
-
-  public void syncMovements(final List<AccountMovementDomain> movementsInPeriod) {
-    movementsInPeriod.forEach(this::syncMovement);
   }
 
   public void syncMovement(final AccountMovementDomain movement) {

@@ -28,8 +28,9 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
         () -> {
           try {
             LOG.info(
-                "Starting async task: {} on thread: {}",
+                "Starting async task: {} with metadata {} on thread: {}",
                 asyncTask.type(),
+                asyncTask.metadata(),
                 Thread.currentThread().getName());
 
             final T result = task.call();

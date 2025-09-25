@@ -35,7 +35,7 @@ class MonthlyBalanceInMemoryRepositoryTest {
             .period(YearMonth.of(2024, 3))
             .openingBalance(BigDecimal.valueOf(1000))
             .closingBalance(BigDecimal.valueOf(1200))
-            .monthlyProfit(BigDecimal.valueOf(200))
+            .monthlyNetProfit(BigDecimal.valueOf(200))
             .totalMovements(5)
             .build();
 
@@ -84,7 +84,7 @@ class MonthlyBalanceInMemoryRepositoryTest {
         .period(YearMonth.of(year, month))
         .openingBalance(BigDecimal.ZERO)
         .closingBalance(closingBalance)
-        .monthlyProfit(BigDecimal.ZERO)
+        .monthlyNetProfit(BigDecimal.ZERO)
         .totalMovements(0)
         .build();
   }

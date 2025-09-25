@@ -1,7 +1,14 @@
 module jbh.account.domain {
   requires static lombok;
-  exports com.jbh.account.domain.utils to jbh.account.application;
-  exports com.jbh.account.domain.entity to jbh.account.application;
-  exports com.jbh.account.domain.exceptions to jbh.account.application;
-  exports com.jbh.account.domain.vo to jbh.account.application, jbh.account.infra;
+  requires org.slf4j;
+
+  exports com.jbh.account.domain.utils to
+      jbh.account.application;
+  exports com.jbh.account.domain.entity to
+      jbh.account.application;
+  exports com.jbh.account.domain.exceptions to
+      jbh.account.application;
+  exports com.jbh.account.domain.vo to
+      jbh.account.application,
+      jbh.account.infra;
 }

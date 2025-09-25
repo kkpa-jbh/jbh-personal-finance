@@ -1,15 +1,18 @@
 package com.jbh.account.domain.calculators;
 
-import com.jbh.account.domain.utils.MoneyUtils;
+import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MoneyGrowthCalculator {
-
   public static final BigDecimal HALF_RATE = BigDecimal.valueOf(0.5);
   // Recommended: define a MathContext for precision & rounding
   private static final MathContext MC = new MathContext(12, RoundingMode.HALF_UP);
+  private static final Logger log = LoggerFactory.getLogger(MoneyGrowthCalculator.class);
 
   /**
    * Calculates the monthly growth percentage (as a decimal, e.g. 0.025 = 2.5%)
@@ -30,9 +33,21 @@ public class MoneyGrowthCalculator {
     final BigDecimal numerator =
         closingBalance.subtract(openingBalance, MC).subtract(movementBalance, MC);
 
+    if (denominator.compareTo(BigDecimal.ZERO) <= 0) {
+      return withJBHDecimals(BigDecimal.ZERO);
+    }
+
     final BigDecimal growthDec = numerator.divide(denominator, MC);
 
-    return MoneyUtils.withJBHDecimals(growthDec.multiply(BigDecimal.valueOf(100)));
+    final BigDecimal growthRate = withJBHDecimals(growthDec.multiply(BigDecimal.valueOf(100)));
+
+    log.info(
+        "Opening {} Closing {} Movement {} = Growth {}",
+        openingBalance,
+        closingBalance,
+        movementBalance,
+        growthRate);
+    return growthRate;
   }
 
   private BigDecimal getDenominator(
@@ -48,7 +63,7 @@ public class MoneyGrowthCalculator {
     final BigDecimal denominator = openingBalance.add(halfFlows, MC);
 
     if (denominator.compareTo(BigDecimal.ZERO) <= 0) {
-      throw new ArithmeticException("Invalid denominator: opening balance + half flows <= 0");
+      log.error("Invalid denominator: opening balance + half flows <= 0");
     }
     return denominator;
   }

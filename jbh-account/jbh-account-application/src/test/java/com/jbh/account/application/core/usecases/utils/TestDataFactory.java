@@ -1,8 +1,13 @@
 package com.jbh.account.application.core.usecases.utils;
 
+import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+
+import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
+import com.jbh.account.application.core.vo.commands.MonthlyBalanceCommandVO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -376,5 +381,21 @@ public class TestDataFactory {
             parseDate("30/08/2025"),
             parseEuropeanAmount("0,00"),
             parseEuropeanAmount("70.908.065,00")));
+  }
+
+  public static List<AddMonthlyBalanceCommand> getAddMonthlyBalanceCommandsWithProfit(
+      final YearMonth initialPeriod, final BigDecimal initialBalance) {
+    return List.of(
+        new AddMonthlyBalanceCommand(
+            initialPeriod, new MonthlyBalanceCommandVO(initialBalance, null)),
+        new AddMonthlyBalanceCommand(initialPeriod.plusMonths(1), getCommandVO("1050", "50")),
+        new AddMonthlyBalanceCommand(initialPeriod.plusMonths(2), getCommandVO("1200", "30"))
+        // To separate the tests
+        );
+  }
+
+  private static MonthlyBalanceCommandVO getCommandVO(final String balance, final String profit) {
+    return new MonthlyBalanceCommandVO(
+        withJBHDecimals(new BigDecimal(balance)), withJBHDecimals(new BigDecimal(profit)));
   }
 }

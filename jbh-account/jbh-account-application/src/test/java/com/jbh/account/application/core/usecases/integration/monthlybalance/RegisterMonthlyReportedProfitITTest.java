@@ -2,42 +2,59 @@ package com.jbh.account.application.core.usecases.integration.monthlybalance;
 
 import static com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository.DEFAULT_ACCOUNT_NAME;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
+import static com.jbh.account.application.core.usecases.utils.TestDataFactory.getAddMonthlyBalanceCommandsWithProfit;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.account.application.core.ports.input.AddMovementInputPort;
 import com.jbh.account.application.core.ports.input.CreateAccountInputPort;
 import com.jbh.account.application.core.ports.input.RegisterMonthlyBalanceInputPort;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
+import com.jbh.account.application.core.services.MonthlyBalanceAsyncTask;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
+import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
+import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
+import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
-import com.jbh.account.application.core.vo.commands.MonthlyBalanceCommandVO;
 import com.jbh.account.application.exceptions.JbhSpecificationApplication;
+import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
+import com.jbh.account.domain.vo.CategoryType;
+import com.jbh.account.domain.vo.IncomeCategory;
+import com.jbh.account.domain.vo.MovementCategoryDTO;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@TestMethodOrder(OrderAnnotation.class)
 public class RegisterMonthlyReportedProfitITTest {
   static final UUID userId = UUID.randomUUID();
   private static final Logger LOG =
@@ -50,17 +67,17 @@ public class RegisterMonthlyReportedProfitITTest {
   static AccountDTO createdAccount;
   static AccountId accountId;
   static int commandIndex = -1;
+  static MonthlyBalanceService monthlyBalanceService;
+  AddMovementUseCase addMovementUseCase;
   RegisterMonthlyBalanceUseCase useCase;
-  YearMonth initialPeriod = YearMonth.of(2024, 10);
+  YearMonth initialPeriod = YearMonth.of(2024, 7);
   LocalDate runningDate = LocalDate.now();
   BigDecimal initialBalance = withJBHDecimals(new BigDecimal("1000"));
-  List<AddMonthlyBalanceCommand> accountCommands =
-      List.of(
-          new AddMonthlyBalanceCommand(
-              initialPeriod, new MonthlyBalanceCommandVO(new BigDecimal("1000"), null)),
-          new AddMonthlyBalanceCommand(
-              initialPeriod.plusMonths(1),
-              new MonthlyBalanceCommandVO(new BigDecimal("1009"), new BigDecimal("9"))));
+  List<AddMonthlyBalanceCommand> monthlyCommands =
+      getAddMonthlyBalanceCommandsWithProfit(initialPeriod, initialBalance);
+
+  MonthlyBalanceAsyncTask monthlyBalanceSyncer;
+  @Mock private AccountMovementRepository accountMovementRepository;
 
   @BeforeAll
   static void beforeAll() {
@@ -70,21 +87,30 @@ public class RegisterMonthlyReportedProfitITTest {
 
   @BeforeEach
   public void setUp() {
+    MockitoAnnotations.openMocks(this);
+
     final AccountMonthlyBalanceWriterRepository monthlyBalanceInMemoWriter =
         inMemoryMonthlyBalanceRepos.getWriterRepo();
     final AccountMonthlyBalanceQueryRepo monthlyBalanceInMemoQuery =
         inMemoryMonthlyBalanceRepos.getQueryRepo();
-    final MonthlyBalanceService monthlyBalanceService =
+    monthlyBalanceService =
         new MonthlyBalanceServiceImpl(monthlyBalanceInMemoQuery, monthlyBalanceInMemoWriter);
     final AccountService accountService = new AccountServiceImpl(inMemoryAccountRepo);
     useCase = new RegisterMonthlyBalanceInputPort(monthlyBalanceService, accountService);
 
     createAccountUseCase = new CreateAccountInputPort(accountService);
+
+    monthlyBalanceSyncer =
+        new MonthlyBalanceAsyncTask(monthlyBalanceService, new AsyncTaskExecutorImpl());
+    addMovementUseCase =
+        new AddMovementInputPort(
+            accountService, accountMovementRepository, new UnitOfWorkTest(), monthlyBalanceSyncer);
   }
 
   @Test
   @Order(1)
   void settingInitialBalance() throws JbhSpecificationApplication {
+    ++commandIndex;
     createdAccount =
         createAccountUseCase.execute(
             new CreateBasicAccountCommand(userId, DEFAULT_ACCOUNT_NAME, AccountType.SAVINGS));
@@ -93,7 +119,7 @@ public class RegisterMonthlyReportedProfitITTest {
     assertNotNull(accountId);
 
     // Creating Initial Balance
-    final AddMonthlyBalanceCommand command = accountCommands.get(++commandIndex);
+    final AddMonthlyBalanceCommand command = getCurrentCommand();
     final AtomicReference<MonthlyBalanceDTO> savedInitialMonthlyBalance = new AtomicReference<>();
 
     savedInitialMonthlyBalance.set(
@@ -109,6 +135,116 @@ public class RegisterMonthlyReportedProfitITTest {
             .month(initialPeriod.getMonthValue())
             .officialMonthlyReport(true)
             .build();
-    assertMonthlyBalance(expectedInitialBalance, savedInitialMonthlyBalance.get());
+    assertMonthlyBalance(
+        expectedInitialBalance,
+        savedInitialMonthlyBalance.get(),
+        IgnoreOption.IGNORE_MONTHLY_PROFIT);
+  }
+
+  private AddMonthlyBalanceCommand getCurrentCommand() {
+    return monthlyCommands.get(commandIndex);
+  }
+
+  @Test
+  @Order(2)
+  public void month1addingNotProfitChanges0movements() {
+    ++commandIndex;
+    // Given
+    final AddMonthlyBalanceCommand command = getCurrentCommand();
+    final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
+    Assertions.assertDoesNotThrow(
+        () ->
+            savedMonthlyBalance.set(
+                useCase.registerOfficialMonthlyBalance(runningDate, userId, accountId, command)));
+
+    // Then
+    final var actualMonthlyBalance = savedMonthlyBalance.get();
+    final var expectedMonthlyBalance =
+        MonthlyBalanceDTO.withClosingBalance(
+                accountId, command.monthlyPeriod(), command.closingBalance())
+            .monthlyProfitReported(command.monthlyProfitReported())
+            .monthlyNetProfit(withJBHDecimals(command.monthlyProfitReported()))
+            .openingBalance(withJBHDecimals(getPreviousCommand().closingBalance()))
+            .officialMonthlyReport(true)
+            .build();
+    assertMonthlyBalance(expectedMonthlyBalance, actualMonthlyBalance);
+  }
+
+  private AddMonthlyBalanceCommand getPreviousCommand() {
+    return monthlyCommands.get(commandIndex - 1);
+  }
+
+  @Test
+  @Order(3)
+  public void month2addingDebitsAndProfitReport() {
+    ++commandIndex;
+    final AddMonthlyBalanceCommand command = getCurrentCommand();
+    final AddMonthlyBalanceCommand previousCommand = getPreviousCommand();
+
+    final BigDecimal deposit2 = withJBHDecimals(new BigDecimal("100"));
+    final BigDecimal snapshot2 = withJBHDecimals(new BigDecimal("1160"));
+    final var period = command.monthlyPeriod();
+    addMovement(period, IncomeCategory.SALARY, deposit2, snapshot2);
+
+    LOG.info("Checking Current Balance Month2 after adding movement");
+    final MonthlyBalanceDTO currentMonthlyBalance =
+        monthlyBalanceService.findByAccountIdAndPeriod(accountId, period).get();
+
+    final MonthlyBalanceDTO expectedMonthlyBalance =
+        MonthlyBalanceDTO.withClosingBalance(accountId, period, snapshot2)
+            .totalDebits((deposit2))
+            .openingBalance(previousCommand.closingBalance())
+            .movementBalance(deposit2)
+            .totalMovements(1)
+            .monthlyNetProfit(withJBHDecimals(new BigDecimal("10")))
+            .netGrowthRate(withJBHDecimals(new BigDecimal("0.91")))
+            .build();
+    assertMonthlyBalance(
+        expectedMonthlyBalance, currentMonthlyBalance, IgnoreOption.IGNORE_MONTHLY_PROFIT);
+
+    LOG.warn("Testing the registration of the Monthly Balance for period {}", period);
+
+    final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
+    Assertions.assertDoesNotThrow(
+        () ->
+            savedMonthlyBalance.set(
+                useCase.registerOfficialMonthlyBalance(runningDate, userId, accountId, command)));
+
+    final MonthlyBalanceDTO expectedReportedBalance =
+        MonthlyBalanceDTO.withClosingBalance(
+                accountId, period, getCurrentCommand().closingBalance())
+            .officialMonthlyReport(true)
+            .monthlyProfitReported(command.monthlyProfitReported())
+            .totalDebits((deposit2))
+            .openingBalance(previousCommand.closingBalance())
+            .movementBalance(deposit2)
+            .totalMovements(1)
+            .monthlyNetProfit(command.monthlyProfitReported())
+            .netGrowthRate(withJBHDecimals(new BigDecimal("4.55")))
+            .build();
+    assertMonthlyBalance(
+        expectedReportedBalance,
+        savedMonthlyBalance.get(),
+        IgnoreOption.IGNORE_MONTHLY_EXPENSES,
+        IgnoreOption.IGNORE_MONTHLY_PROFIT);
+  }
+
+  private void addMovement(
+      final YearMonth period,
+      final CategoryType categoryType,
+      final BigDecimal amount,
+      final BigDecimal balanceSnapshot) {
+    final AddMovementCommand movement =
+        new AddMovementCommand(
+            LocalDate.of(period.getYear(), period.getMonthValue(), 15),
+            amount,
+            balanceSnapshot,
+            MovementCategoryDTO.withType(categoryType));
+    addMovementUseCase.addMovement(userId, accountId, movement);
+    try {
+      Thread.sleep(Duration.ofSeconds(2).toMillis());
+    } catch (final InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

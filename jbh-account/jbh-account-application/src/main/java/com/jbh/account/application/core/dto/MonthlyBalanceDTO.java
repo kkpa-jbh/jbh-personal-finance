@@ -1,6 +1,7 @@
 package com.jbh.account.application.core.dto;
 
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;
@@ -20,8 +21,7 @@ public record MonthlyBalanceDTO(
     BigDecimal movementBalance,
     BigDecimal openingBalance,
     BigDecimal closingBalance,
-    BigDecimal monthlyProfit,
-    BigDecimal monthlyExpenses,
+    BigDecimal monthlyNetProfit,
     int totalMovements,
     boolean gapPeriod,
     boolean officialMonthlyReport,
@@ -44,14 +44,23 @@ public record MonthlyBalanceDTO(
   }
 
   public static MonthlyBalanceDTO.MonthlyBalanceDTOBuilder defaultBuilder() {
-    return MonthlyBalanceDTO.notUseThisInternalBuilder()
+    return notUseThisInternalBuilder()
         .movementBalance(JBH_ZERO)
         .closingBalance(JBH_ZERO)
         .totalDebits(JBH_ZERO)
         .totalCredits(JBH_ZERO)
-        .monthlyProfit(JBH_ZERO)
-        .monthlyExpenses(JBH_ZERO)
+        .monthlyNetProfit(JBH_ZERO)
         .totalMovements(0)
         .openingBalance(JBH_ZERO);
+  }
+
+  public static MonthlyBalanceDTO.MonthlyBalanceDTOBuilder withClosingBalance(
+      final AccountId accountId, final YearMonth period, final BigDecimal closingBalance) {
+    return defaultBuilder()
+        .accountId(accountId)
+        .period(period)
+        .year(period.getYear())
+        .month(period.getMonthValue())
+        .closingBalance(withJBHDecimals(closingBalance));
   }
 }

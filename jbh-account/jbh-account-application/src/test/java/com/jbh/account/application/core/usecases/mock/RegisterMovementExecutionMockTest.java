@@ -21,7 +21,7 @@ import com.jbh.account.application.core.ports.input.AddMovementInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
-import com.jbh.account.application.core.services.MonthlyBalanceSyncerAppService;
+import com.jbh.account.application.core.services.MonthlyBalanceAsyncTask;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
@@ -54,7 +54,7 @@ public class RegisterMovementExecutionMockTest {
   static UUID userId = UUID.randomUUID();
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   private final Logger log = LoggerFactory.getLogger(RegisterMovementExecutionMockTest.class);
-  MonthlyBalanceSyncerAppService monthlyBalanceSyncerService;
+  MonthlyBalanceAsyncTask monthlyBalanceSyncerService;
   LocalDate movementDate = LocalDate.now();
   @Mock private AccountRepository accountRepository;
   @Mock private AccountMovementRepository accountMovementRepository;
@@ -71,7 +71,7 @@ public class RegisterMovementExecutionMockTest {
         new MonthlyBalanceServiceImpl(
             accountMonthlyBalanceRepository, monthlyBalanceWriterRepoMock);
     monthlyBalanceSyncerService =
-        new MonthlyBalanceSyncerAppService(monthlyBalanceService, new AsyncTaskExecutorImpl());
+        new MonthlyBalanceAsyncTask(monthlyBalanceService, new AsyncTaskExecutorImpl());
     useCaseInstanceTest =
         new AddMovementInputPort(
             new AccountServiceImpl(accountRepository),
@@ -110,7 +110,7 @@ public class RegisterMovementExecutionMockTest {
     assertEquals(amount, actualMonthlyBalances.closingBalance());
     assertEquals(amount, actualMonthlyBalances.movementBalance());
     assertEquals(JBH_ZERO, actualMonthlyBalances.openingBalance());
-    assertEquals(JBH_ZERO, actualMonthlyBalances.monthlyProfit());
+    assertEquals(JBH_ZERO, actualMonthlyBalances.monthlyNetProfit());
 
     when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(
             accountId, YearMonth.of(movementDate.getYear(), movementDate.getMonthValue())))
@@ -127,8 +127,8 @@ public class RegisterMovementExecutionMockTest {
     // Next Period
     assertEquals(movementDate.plusMonths(1).getMonthValue(), futureResponse.get(1).month());
     assertEquals(amount, futureResponse.get(1).openingBalance());
-    assertEquals(JBH_ZERO, futureResponse.get(0).monthlyProfit());
-    assertEquals(JBH_ZERO, futureResponse.get(1).monthlyProfit());
+    assertEquals(JBH_ZERO, futureResponse.get(0).monthlyNetProfit());
+    assertEquals(JBH_ZERO, futureResponse.get(1).monthlyNetProfit());
   }
 
   private AccountDomain withId(final AccountId accountId) {
@@ -168,7 +168,7 @@ public class RegisterMovementExecutionMockTest {
     assertEquals(0, mvmtResponse.get().monthlyBalance().totalMovements());
     assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().totalCredits());
     assertEquals(balanceSnashot, mvmtResponse.get().monthlyBalance().closingBalance());
-    assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().monthlyProfit());
+    assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().monthlyNetProfit());
     assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().openingBalance());
   }
 

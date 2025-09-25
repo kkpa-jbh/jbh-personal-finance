@@ -3,6 +3,7 @@ package com.jbh.account.domain.entity;
 import static com.jbh.account.domain.entity.MovementCategoryDomain.OTHER_INCOME_CATEGORY;
 import static com.jbh.account.domain.entity.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.account.domain.vo.MovementType.DEPOSIT;
 import static com.jbh.account.domain.vo.MovementType.WITHDRAWAL;
@@ -11,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
@@ -32,6 +34,24 @@ public class AccountMonthlyBalanceDomainTest {
   @BeforeEach
   public void setUp() {
     ceroMonthlyBalance = AccountMonthlyBalanceDomain.withPeriod(accountId, todayYM);
+    ceroMonthlyBalance =
+        new AccountMonthlyBalanceDomain(
+            null,
+            accountId,
+            todayYM.getYear(),
+            todayYM.getMonthValue(),
+            todayYM,
+            JBH_ZERO,
+            JBH_ZERO,
+            JBH_ZERO,
+            JBH_ZERO,
+            JBH_ZERO,
+            JBH_ZERO,
+            JBH_ZERO,
+            0,
+            false,
+            false,
+            JBH_ZERO);
 
     oneHundredMonthlyBalance = AccountMonthlyBalanceDomain.withPeriod(accountId, todayYM);
     oneHundredMonthlyBalance.syncMovement(
@@ -42,6 +62,33 @@ public class AccountMonthlyBalanceDomainTest {
             new BigDecimal("100.00"),
             DEPOSIT,
             OTHER_INCOME_CATEGORY));
+  }
+
+  @Test
+  public void shouldCreateWithConstructor() {
+    final AccountMonthlyBalanceDomain expected =
+        new AccountMonthlyBalanceDomain(
+            null,
+            accountId,
+            todayYM.getYear(),
+            todayYM.getMonthValue(),
+            todayYM,
+            JBH_ZERO,
+            JBH_ZERO,
+            JBH_ZERO,
+            JBH_ZERO,
+            JBH_ZERO,
+            JBH_ZERO,
+            JBH_ZERO,
+            0,
+            false,
+            false,
+            JBH_ZERO);
+
+    assertEquals(expected, ceroMonthlyBalance);
+    assertTrue(expected.equals(ceroMonthlyBalance));
+
+    assertNotNull(ceroMonthlyBalance.hashCode());
   }
 
   @Test
@@ -57,12 +104,12 @@ public class AccountMonthlyBalanceDomainTest {
     assertEquals(0, ceroMonthlyBalance.getTotalMovements());
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getOpeningBalance());
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getClosingBalance());
-    assertEquals(JBH_ZERO, ceroMonthlyBalance.getMonthlyProfit());
+    assertEquals(JBH_ZERO, ceroMonthlyBalance.getMonthlyNetProfit());
 
     ceroMonthlyBalance.syncMovement(
         AccountMovementDomain.with(
             accountId, today, JBH_ZERO, JBH_ZERO, DEPOSIT, OTHER_INCOME_CATEGORY));
-    assertEquals(JBH_ZERO, ceroMonthlyBalance.getMonthlyProfit());
+    assertEquals(JBH_ZERO, ceroMonthlyBalance.getMonthlyNetProfit());
   }
 
   @Test
@@ -81,6 +128,19 @@ public class AccountMonthlyBalanceDomainTest {
   }
 
   @Test
+  public void shouldSetOfficialReport() {
+
+    final var closingBalance = withJBHDecimals(new BigDecimal("150.00"));
+    final var monthlyProfitReported = withJBHDecimals(new BigDecimal("20.00"));
+    oneHundredMonthlyBalance.assignOfficialMonthlyReport(closingBalance, monthlyProfitReported);
+
+    assertEquals(closingBalance, oneHundredMonthlyBalance.getClosingBalance());
+    assertEquals(monthlyProfitReported, oneHundredMonthlyBalance.getMonthlyProfitReported());
+    assertTrue(oneHundredMonthlyBalance.isOfficialMonthlyReport());
+    assertEquals(monthlyProfitReported, oneHundredMonthlyBalance.getMonthlyNetProfit());
+  }
+
+  @Test
   public void shouldCreateWithInitialDataForNextMonth() {
     final var closingBalance = new BigDecimal("200.00");
     final var newBalance =
@@ -93,7 +153,7 @@ public class AccountMonthlyBalanceDomainTest {
     assertEquals(0, newBalance.getTotalMovements());
     assertEquals(JBH_ZERO, newBalance.getOpeningBalance());
     assertEquals(closingBalance, newBalance.getClosingBalance());
-    assertEquals(JBH_ZERO, newBalance.getMonthlyProfit());
+    assertEquals(JBH_ZERO, newBalance.getMonthlyNetProfit());
     assertFalse(newBalance.isGapPeriod());
   }
 
@@ -113,7 +173,7 @@ public class AccountMonthlyBalanceDomainTest {
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getOpeningBalance());
     assertEquals(balanceSnapshot, ceroMonthlyBalance.getClosingBalance());
     assertEquals(1, ceroMonthlyBalance.getTotalMovements());
-    assertEquals(new BigDecimal("20.00"), ceroMonthlyBalance.getMonthlyProfit());
+    assertEquals(new BigDecimal("20.00"), ceroMonthlyBalance.getMonthlyNetProfit());
     assertFalse(ceroMonthlyBalance.isGapPeriod());
   }
 
@@ -133,7 +193,7 @@ public class AccountMonthlyBalanceDomainTest {
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getOpeningBalance());
     assertEquals(totalAmount, ceroMonthlyBalance.getClosingBalance());
     assertEquals(1, ceroMonthlyBalance.getTotalMovements());
-    assertEquals(JBH_ZERO, ceroMonthlyBalance.getMonthlyProfit());
+    assertEquals(JBH_ZERO, ceroMonthlyBalance.getMonthlyNetProfit());
     assertFalse(ceroMonthlyBalance.isGapPeriod());
   }
 
@@ -156,7 +216,7 @@ public class AccountMonthlyBalanceDomainTest {
     assertEquals(JBH_ZERO, oneHundredMonthlyBalance.getOpeningBalance());
     assertEquals(balanceSnapshot, oneHundredMonthlyBalance.getClosingBalance());
     assertEquals(2, oneHundredMonthlyBalance.getTotalMovements());
-    assertEquals(new BigDecimal("15.00"), oneHundredMonthlyBalance.getMonthlyProfit());
+    assertEquals(new BigDecimal("15.00"), oneHundredMonthlyBalance.getMonthlyNetProfit());
     assertFalse(oneHundredMonthlyBalance.isGapPeriod());
   }
 
@@ -177,7 +237,7 @@ public class AccountMonthlyBalanceDomainTest {
     assertEquals(JBH_ZERO, newBalance.getOpeningBalance());
     assertEquals(totalAmount.add(existingTotalDebits), newBalance.getClosingBalance());
     assertEquals(2, newBalance.getTotalMovements());
-    assertEquals(JBH_ZERO, newBalance.getMonthlyProfit());
+    assertEquals(JBH_ZERO, newBalance.getMonthlyNetProfit());
     assertFalse(newBalance.isGapPeriod());
   }
 
@@ -197,7 +257,7 @@ public class AccountMonthlyBalanceDomainTest {
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getOpeningBalance());
     assertEquals(balanceSnapshot, ceroMonthlyBalance.getClosingBalance());
     assertEquals(1, ceroMonthlyBalance.getTotalMovements());
-    assertEquals(new BigDecimal("220.00"), ceroMonthlyBalance.getMonthlyProfit());
+    assertEquals(new BigDecimal("220.00"), ceroMonthlyBalance.getMonthlyNetProfit());
     assertFalse(ceroMonthlyBalance.isGapPeriod());
   }
 
@@ -229,7 +289,9 @@ public class AccountMonthlyBalanceDomainTest {
             WITHDRAWAL,
             PERSONAL_EXPENSE_CATEGORY);
 
-    oneHundredMonthlyBalance.syncMovements(List.of(newMovement, newMovement2, newMovement3));
+    // oneHundredMonthlyBalance.syncMovements(List.of(newMovement, newMovement2, newMovement3));
+    List.of(newMovement, newMovement2, newMovement3)
+        .forEach(oneHundredMonthlyBalance::syncMovement);
 
     final AccountMonthlyBalanceDomain newBalance = oneHundredMonthlyBalance;
     assertEquals(4, newBalance.getTotalMovements());
@@ -238,7 +300,7 @@ public class AccountMonthlyBalanceDomainTest {
     assertEquals(new BigDecimal("120.00"), newBalance.getMovementBalance());
     assertEquals(new BigDecimal("170.00"), newBalance.getClosingBalance());
     assertEquals(new BigDecimal("0.00"), newBalance.getOpeningBalance());
-    assertEquals(new BigDecimal("50.00"), newBalance.getMonthlyProfit());
+    assertEquals(new BigDecimal("50.00"), newBalance.getMonthlyNetProfit());
     assertFalse(newBalance.isGapPeriod());
   }
 
@@ -323,7 +385,7 @@ public class AccountMonthlyBalanceDomainTest {
     assertEquals(JBH_ZERO, accountMonthlyBalance.getTotalCredits());
     assertEquals(JBH_ZERO, accountMonthlyBalance.getMovementBalance());
     assertEquals(JBH_ZERO, accountMonthlyBalance.getOpeningBalance());
-    assertEquals(JBH_ZERO, accountMonthlyBalance.getMonthlyProfit());
+    assertEquals(JBH_ZERO, accountMonthlyBalance.getMonthlyNetProfit());
     assertEquals(0, accountMonthlyBalance.getTotalMovements());
 
     // Add balance snapshot of 223.00 on 2024-09-01

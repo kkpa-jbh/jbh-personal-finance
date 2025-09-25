@@ -11,4 +11,9 @@ public class MovementCategoryDTO extends MovementCategoryDomain {
   public static MovementCategoryDTO withType(final CategoryType categoryType) {
     return new MovementCategoryDTO(categoryType);
   }
+
+  @Override
+  public String toString() {
+    return "[Source: " + getSource() + ", Type: " + getType() + "]";
+  }
 }

@@ -111,7 +111,7 @@ public class RegisterMonthlyBalanceMockTest {
             .movementBalance(withJBHDecimals(movementsBalance))
             .totalDebits(JBH_ZERO)
             .totalCredits(JBH_ZERO)
-            .monthlyProfit(JBH_ZERO)
+            .monthlyNetProfit(JBH_ZERO)
             .officialMonthlyReport(true)
             .build();
     MonthlyBalanceITUtils.assertMonthlyBalance(expectedMonthBalance, actualMonthlyBalance);

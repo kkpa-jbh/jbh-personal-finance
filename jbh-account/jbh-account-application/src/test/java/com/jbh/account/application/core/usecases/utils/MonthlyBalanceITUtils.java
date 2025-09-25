@@ -19,6 +19,7 @@ public class MonthlyBalanceITUtils {
 
     boolean ignoreMonthlyProfit = false;
     boolean ignoreOpeningBalance = false;
+    boolean ignoreMonthlyExpenses = false;
 
     // Process provided ignore options
     if (ignoreOptions != null) {
@@ -26,6 +27,7 @@ public class MonthlyBalanceITUtils {
         switch (option) {
           case IGNORE_MONTHLY_PROFIT -> ignoreMonthlyProfit = true;
           case IGNORE_OPENING_BALANCE -> ignoreOpeningBalance = true;
+          case IGNORE_MONTHLY_EXPENSES -> ignoreMonthlyExpenses = true;
         }
       }
     }
@@ -39,7 +41,6 @@ public class MonthlyBalanceITUtils {
     assertEquals(expected.totalDebits(), actual.totalDebits(), "Total Debits");
     assertEquals(expected.totalCredits(), actual.totalCredits(), "Total Credits");
 
-    assertEquals(expected.monthlyExpenses(), actual.monthlyExpenses(), "Monthly Expenses");
     assertEquals(expected.totalMovements(), actual.totalMovements(), "Total Movements");
     assertEquals(
         Boolean.valueOf(expected.gapPeriod()), Boolean.valueOf(actual.gapPeriod()), "Gap Period");
@@ -57,9 +58,9 @@ public class MonthlyBalanceITUtils {
     }
     if (!ignoreMonthlyProfit) {
       assertEquals(
-          expected.monthlyProfit(),
-          actual.monthlyProfit(),
-          "Monthly Profit for period " + actual.period());
+          expected.monthlyNetProfit(),
+          actual.monthlyNetProfit(),
+          "Monthly Profit Calculated for period " + actual.period());
     }
   }
 }

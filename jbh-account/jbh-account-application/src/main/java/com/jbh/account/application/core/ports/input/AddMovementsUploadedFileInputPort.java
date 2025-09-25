@@ -10,7 +10,7 @@ import com.jbh.account.application.core.dto.AddMultipleBasicMovementDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.ports.output.AccountRepository;
-import com.jbh.account.application.core.services.MonthlyBalanceSyncerAppService;
+import com.jbh.account.application.core.services.MonthlyBalanceAsyncTask;
 import com.jbh.account.application.core.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
@@ -29,14 +29,14 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
 
   private final AccountMovementRepository movementRepo;
   private final AccountRepository accountRepo;
-  private final MonthlyBalanceSyncerAppService monthlyBalanceSyncerService;
+  private final MonthlyBalanceAsyncTask monthlyBalanceSyncerService;
   private final UnitOfWork unitOfWork;
 
   public AddMovementsUploadedFileInputPort(
       final AccountRepository accountRepo,
       final AccountMovementRepository movementRepo,
       final UnitOfWork unitOfWork,
-      final MonthlyBalanceSyncerAppService monthlyBalanceSyncerService) {
+      final MonthlyBalanceAsyncTask monthlyBalanceSyncerService) {
     this.movementRepo = movementRepo;
     this.accountRepo = accountRepo;
     this.unitOfWork = unitOfWork;

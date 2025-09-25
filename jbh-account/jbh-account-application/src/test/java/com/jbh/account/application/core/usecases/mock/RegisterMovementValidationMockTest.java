@@ -18,7 +18,7 @@ import com.jbh.account.application.core.ports.input.AddMovementInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
-import com.jbh.account.application.core.services.MonthlyBalanceSyncerAppService;
+import com.jbh.account.application.core.services.MonthlyBalanceAsyncTask;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
@@ -60,8 +60,8 @@ public class RegisterMovementValidationMockTest {
         new MonthlyBalanceServiceImpl(
             accountMonthlyBalanceRepository, monthlyBalanceWriterRepoMock);
 
-    final MonthlyBalanceSyncerAppService monthlyBalanceSyncerService =
-        new MonthlyBalanceSyncerAppService(monthlyBalanceService, new AsyncTaskExecutorImpl());
+    final MonthlyBalanceAsyncTask monthlyBalanceSyncerService =
+        new MonthlyBalanceAsyncTask(monthlyBalanceService, new AsyncTaskExecutorImpl());
     registerSimpleMovementInputPort =
         new AddMovementInputPort(
             new AccountServiceImpl(accountRepository),

@@ -8,7 +8,7 @@ import com.jbh.account.application.core.ports.input.CreateAccountInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
-import com.jbh.account.application.core.services.MonthlyBalanceSyncerAppService;
+import com.jbh.account.application.core.services.MonthlyBalanceAsyncTask;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
@@ -52,8 +52,8 @@ public class AccountUseCasesCDIConfig {
 
   @Produces
   @ApplicationScoped
-  public MonthlyBalanceSyncerAppService monthlyBalanceSyncerAppService() {
-    return new MonthlyBalanceSyncerAppService(
+  public MonthlyBalanceAsyncTask monthlyBalanceSyncerAppService() {
+    return new MonthlyBalanceAsyncTask(
         new MonthlyBalanceServiceImpl(monthlyBalanceQueryRepo, monthlyBalanceWriterRepo),
         new AsyncTaskExecutorImpl());
   }

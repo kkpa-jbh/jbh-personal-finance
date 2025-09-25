@@ -77,7 +77,6 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
     final MonthlyBalanceDTO monthlyBalanceDTO = MonthlyBalanceMapper.toDTO(monthlyBalanceDomain);
     monthlyBalanceService.saveBalance(monthlyBalanceDTO);
 
-    // TODO : Add monthly balance to account (SYNC ACCOUNT)
     if (monthlyBalanceService.isLastOfficialReport(monthlyBalanceDTO)) {
       accountService.syncByMonthlyReport(monthlyBalanceDTO);
     }

@@ -10,6 +10,16 @@ public class MoneyGrowthCalculatorTest {
   MoneyGrowthCalculator calculator = new MoneyGrowthCalculator();
 
   @Test
+  public void justForPrinting() {
+    final BigDecimal opening = new BigDecimal("1050");
+    final BigDecimal closing = new BigDecimal("1160");
+    final BigDecimal movement = new BigDecimal("100");
+
+    final BigDecimal growth = calculator.calculateMonthlyGrowth(opening, closing, movement);
+    System.out.println("Growth: " + growth);
+  }
+
+  @Test
   public void test1() {
     final BigDecimal opening = new BigDecimal("10000");
     final BigDecimal closing = new BigDecimal("10200");

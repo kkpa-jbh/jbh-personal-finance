@@ -91,7 +91,7 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
     entity.setMovementBalance(monthlyBalance.movementBalance());
     entity.setOpeningBalance(monthlyBalance.openingBalance());
     entity.setClosingBalance(monthlyBalance.closingBalance());
-    entity.setMonthlyProfit(monthlyBalance.monthlyProfit());
+    entity.setMonthlyProfit(monthlyBalance.monthlyNetProfit());
     entity.setTotalMovements(monthlyBalance.totalMovements());
     entity.setGapPeriod(monthlyBalance.gapPeriod());
     return entity;
@@ -120,7 +120,7 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
         .movementBalance(movementBalance)
         .openingBalance(openingBalance)
         .closingBalance(closingBalance)
-        .monthlyProfit(monthlyProfit)
+        .monthlyNetProfit(monthlyProfit)
         .totalMovements(totalMovements)
         .gapPeriod(gapPeriod)
         .build();

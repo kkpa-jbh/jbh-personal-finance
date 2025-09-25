@@ -20,7 +20,7 @@ import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepo
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
-import com.jbh.account.application.core.services.MonthlyBalanceSyncerAppService;
+import com.jbh.account.application.core.services.MonthlyBalanceAsyncTask;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
@@ -100,7 +100,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   ;
   RegisterMonthlyBalanceInputPort useCaseTest;
   AddMovementUseCase addMovementUseCase;
-  MonthlyBalanceSyncerAppService monthlyBalanceSyncer;
+  MonthlyBalanceAsyncTask monthlyBalanceSyncer;
   @Mock private AccountMovementRepository accountMovementRepository;
   private AccountService accountService;
 
@@ -118,7 +118,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     useCaseTest = new RegisterMonthlyBalanceInputPort(monthlyBalanceService, accountService);
 
     monthlyBalanceSyncer =
-        new MonthlyBalanceSyncerAppService(monthlyBalanceService, new AsyncTaskExecutorImpl());
+        new MonthlyBalanceAsyncTask(monthlyBalanceService, new AsyncTaskExecutorImpl());
 
     addMovementUseCase =
         new AddMovementInputPort(
@@ -162,11 +162,10 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             .closingBalance(withJBHDecimals(closingBalanceNov24))
             .totalDebits(withJBHDecimals(salaryAmountNov24))
             .totalCredits(JBH_ZERO)
-            .monthlyExpenses(JBH_ZERO)
             .movementBalance(withJBHDecimals(salaryAmountNov24))
             .totalMovements(1)
             .officialMonthlyReport(true)
-            .monthlyProfit(new BigDecimal("7676950.00"))
+            .monthlyNetProfit(new BigDecimal("7676950.00"))
             .build();
     assertMonthlyBalance(expectedMonthlyBalance, actualMonthlyBalance);
 
@@ -266,8 +265,8 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     expectedMonthlyBalance.closingBalance(withJBHDecimals(closingBalanceDec24));
     expectedMonthlyBalance.movementBalance(withJBHDecimals(salaryAmountDec24));
     expectedMonthlyBalance.totalDebits(salaryAmountDec24);
-    expectedMonthlyBalance.monthlyExpenses(new BigDecimal("-4610597.00"));
-    expectedMonthlyBalance.monthlyProfit(
+    expectedMonthlyBalance.monthlyNetProfit(new BigDecimal("-4610597.00"));
+    expectedMonthlyBalance.monthlyNetProfit(
         withJBHDecimals(
             closingBalanceDec24.subtract(closingBalanceNov24).subtract(salaryAmountDec24)));
     expectedMonthlyBalance.totalMovements(1);
@@ -286,8 +285,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     assertEquals(JBH_ZERO, nextMonthBalance.closingBalance());
     assertEquals(JBH_ZERO, nextMonthBalance.totalDebits());
     assertEquals(JBH_ZERO, nextMonthBalance.totalCredits());
-    assertEquals(JBH_ZERO, nextMonthBalance.monthlyProfit());
-    assertEquals(JBH_ZERO, nextMonthBalance.monthlyExpenses());
+    assertEquals(JBH_ZERO, nextMonthBalance.monthlyNetProfit());
     assertEquals(0, nextMonthBalance.totalMovements());
     assertFalse(nextMonthBalance.gapPeriod());
 
@@ -336,8 +334,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     assertEquals(withJBHDecimals(salaryAmountJan25), actualMonthlyBalance.movementBalance());
     assertEquals(salaryAmountJan25, actualMonthlyBalance.totalDebits());
     assertEquals(JBH_ZERO, actualMonthlyBalance.totalCredits());
-    assertEquals(new BigDecimal("-6777637.00"), actualMonthlyBalance.monthlyProfit());
-    assertEquals(new BigDecimal("6777637.00"), actualMonthlyBalance.monthlyExpenses());
+    assertEquals(new BigDecimal("-6777637.00"), actualMonthlyBalance.monthlyNetProfit());
     assertEquals(1, actualMonthlyBalance.totalMovements());
     assertFalse(actualMonthlyBalance.gapPeriod());
     assertTrue(actualMonthlyBalance.officialMonthlyReport());
@@ -354,8 +351,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     assertEquals(JBH_ZERO, nextMonthBalance.closingBalance());
     assertEquals(JBH_ZERO, nextMonthBalance.totalDebits());
     assertEquals(JBH_ZERO, nextMonthBalance.totalCredits());
-    assertEquals(JBH_ZERO, nextMonthBalance.monthlyProfit());
-    assertEquals(JBH_ZERO, nextMonthBalance.monthlyExpenses());
+    assertEquals(JBH_ZERO, nextMonthBalance.monthlyNetProfit());
     assertEquals(0, nextMonthBalance.totalMovements());
     assertFalse(nextMonthBalance.gapPeriod());
 
@@ -438,11 +434,10 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             .closingBalance(closingBalanceFeb25)
             .totalDebits(salaryAmountFeb25)
             .totalCredits(expensesFeb25)
-            .monthlyExpenses(monthlyExpensesFeb25)
             .movementBalance(salaryAmountFeb25.subtract(expensesFeb25))
             .totalMovements(4)
             .officialMonthlyReport(true)
-            .monthlyProfit(monthlyExpensesFeb25.negate())
+            .monthlyNetProfit(monthlyExpensesFeb25.negate())
             .build();
     assertMonthlyBalance(expectedMonthlyBalance20252, actualMonthlyBalance);
 
@@ -459,8 +454,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     assertEquals(JBH_ZERO, nextMonthBalance.closingBalance());
     assertEquals(JBH_ZERO, nextMonthBalance.totalDebits());
     assertEquals(JBH_ZERO, nextMonthBalance.totalCredits());
-    assertEquals(JBH_ZERO, nextMonthBalance.monthlyProfit());
-    assertEquals(JBH_ZERO, nextMonthBalance.monthlyExpenses());
+    assertEquals(JBH_ZERO, nextMonthBalance.monthlyNetProfit());
     assertEquals(0, nextMonthBalance.totalMovements());
     assertFalse(nextMonthBalance.gapPeriod());
 
@@ -489,11 +483,10 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             .closingBalance(expectedMonthlyBalance20252.closingBalance())
             .totalDebits(salaryAmountFeb25)
             .totalCredits(expectedMonthlyBalance20252.totalCredits().add(newAmount))
-            .monthlyExpenses(monthlyExpensesFeb25.subtract(newAmount))
             .movementBalance(expectedMonthlyBalance20252.movementBalance().subtract(newAmount))
             .totalMovements(5)
             .officialMonthlyReport(true)
-            .monthlyProfit(monthlyExpensesFeb25.subtract(newAmount).negate())
+            .monthlyNetProfit(monthlyExpensesFeb25.subtract(newAmount).negate())
             .build();
 
     assertMonthlyBalance(expectedUpdatedMonthlyBalance, updatedMonthlyBalance);
@@ -542,8 +535,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     assertEquals(JBH_ZERO, actualMonthlyBalance.totalCredits());
 
     final BigDecimal monthlyExp = withJBHDecimals(new BigDecimal("16093287.00"));
-    assertEquals(monthlyExp, actualMonthlyBalance.monthlyExpenses());
-    assertEquals(monthlyExp.negate(), actualMonthlyBalance.monthlyProfit());
+    assertEquals(monthlyExp.negate(), actualMonthlyBalance.monthlyNetProfit());
     assertEquals(1, actualMonthlyBalance.totalMovements());
     assertFalse(actualMonthlyBalance.gapPeriod());
     assertTrue(actualMonthlyBalance.officialMonthlyReport());
@@ -560,8 +552,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     assertEquals(JBH_ZERO, nextMonthBalance.closingBalance());
     assertEquals(JBH_ZERO, nextMonthBalance.totalDebits());
     assertEquals(JBH_ZERO, nextMonthBalance.totalCredits());
-    assertEquals(JBH_ZERO, nextMonthBalance.monthlyProfit());
-    assertEquals(JBH_ZERO, nextMonthBalance.monthlyExpenses());
+    assertEquals(JBH_ZERO, nextMonthBalance.monthlyNetProfit());
     assertEquals(0, nextMonthBalance.totalMovements());
     assertFalse(nextMonthBalance.gapPeriod());
 

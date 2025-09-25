@@ -1,6 +1,7 @@
 package com.jbh.account.application.core.ports.input;
 
 import static com.jbh.account.application.core.mappers.MonthlyBalanceMapper.toDTO;
+import static com.jbh.account.domain.vo.MovementType.WITHDRAWAL;
 
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.common.logging.LoggerFactory;
@@ -10,7 +11,7 @@ import com.jbh.account.application.core.dto.AddBasicMovementDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.mappers.MovementMapper;
-import com.jbh.account.application.core.services.MonthlyBalanceSyncerAppService;
+import com.jbh.account.application.core.services.MonthlyBalanceAsyncTask;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
@@ -31,14 +32,14 @@ public class AddMovementInputPort implements AddMovementUseCase {
   private static final Logger LOG = LoggerFactory.getLogger(AddMovementInputPort.class);
   private final AccountMovementRepository movementRepo;
   private final AccountService accountService;
-  private final MonthlyBalanceSyncerAppService monthlyBalanceSyncerService;
+  private final MonthlyBalanceAsyncTask monthlyBalanceSyncerService;
   private final UnitOfWork unitOfWork;
 
   public AddMovementInputPort(
       final AccountService accountService,
       final AccountMovementRepository movementRepo,
       final UnitOfWork unitOfWork,
-      final MonthlyBalanceSyncerAppService monthlyBalanceSyncerService) {
+      final MonthlyBalanceAsyncTask monthlyBalanceSyncerService) {
     this.movementRepo = movementRepo;
     this.accountService = accountService;
     this.unitOfWork = unitOfWork;
@@ -59,19 +60,31 @@ public class AddMovementInputPort implements AddMovementUseCase {
               movementCommand.validate();
 
               LOG.info(
-                  "Analyzing Movement {} for account: {}, date:{} amount: {} snapshot: {}",
+                  "Analyzing Movement {} for account: {}, date:{} category:{} amount: {} snapshot: {}",
                   movementCommand.movementType(),
                   accountId.value(),
                   movementCommand.entryDate(),
+                  movementCommand.categoryDTO(),
                   movementCommand.totalAmount(),
                   movementCommand.balanceSnapshot());
 
-              // Sync account balance
+              // Get Account Domain
+              final AccountDomain accountDomain = findOrThrow(userId, accountId);
+
+              // Get Movement Type and Movement Amount
               BigDecimal totalAmount = movementCommand.totalAmount();
               final MovementType movementType = movementCommand.movementType();
-              totalAmount =
-                  movementType == MovementType.WITHDRAWAL ? totalAmount.negate() : totalAmount;
+              totalAmount = movementType == WITHDRAWAL ? totalAmount.negate() : totalAmount;
+              final AccountMovementDomain newMovement =
+                  AccountMovementDomain.with(
+                      accountDomain.getId(),
+                      movementCommand.entryDate(),
+                      totalAmount,
+                      movementCommand.balanceSnapshot(),
+                      movementType,
+                      MovementCategoryDomain.withDTO(movementCommand.categoryDTO()));
 
+              // Find Existing Monthly Balance and check if it's an official report
               boolean wasOfficialReport = false;
               final Optional<MonthlyBalanceDTO> existingMonthlyBalanceOpt =
                   monthlyBalanceSyncerService.findByAccountIdYearAndMonth(
@@ -83,22 +96,13 @@ public class AddMovementInputPort implements AddMovementUseCase {
               }
 
               // Sync account balance
-              final AccountDomain accountDomain = findAccount(userId, accountId);
-              final AccountMovementDomain newMovement =
-                  AccountMovementDomain.with(
-                      accountDomain.getId(),
-                      movementCommand.entryDate(),
-                      totalAmount,
-                      movementCommand.balanceSnapshot(),
-                      movementType,
-                      MovementCategoryDomain.withDTO(movementCommand.categoryDTO()));
               final AccountDTO accountDTO =
                   syncAccountBalanceByMovements(accountDomain, newMovement, wasOfficialReport);
-              persistMovement(newMovement, accountDTO);
+              saveWithAcidOperation(newMovement, accountDTO);
 
               // Sync monthly balance
               final AccountMonthlyBalanceDomain accountMonthlyBalance =
-                  monthlyBalanceSyncerService.syncMonthlyBalanceAsync(newMovement);
+                  monthlyBalanceSyncerService.syncForNewMovement(newMovement);
 
               LOG.info(
                   "Movement addition completed successfully for account: {}", accountId.value());
@@ -108,7 +112,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
             });
   }
 
-  private AccountDomain findAccount(final UUID userId, final AccountId accountId) {
+  private AccountDomain findOrThrow(final UUID userId, final AccountId accountId) {
     if (userId == null) {
       LOG.error("User ID cannot be null");
       throw new IllegalArgumentException("User ID cannot be null");
@@ -135,7 +139,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
     return AccountMapper.toDTO(accountDomain);
   }
 
-  private void persistMovement(
+  private void saveWithAcidOperation(
       final AccountMovementDomain newMovement, final AccountDTO accountDomain) {
     unitOfWork.execute(
         () -> {

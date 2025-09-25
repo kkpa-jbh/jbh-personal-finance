@@ -10,8 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBalanceQueryRepo {
+
+  private final Logger log = LoggerFactory.getLogger(InMemoryAccountMonthlyBalanceQueryRepo.class);
 
   private final Map<String, MonthlyBalanceDTO> storage = new HashMap<>();
 
@@ -21,6 +25,7 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
 
   public void save(final MonthlyBalanceDTO balance) {
     final String key = generateKey(balance.accountId(), balance.year(), balance.month());
+    log.warn("Saving balance " + balance);
     storage.put(key, balance);
   }
 
@@ -52,7 +57,9 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
       final AccountId accountId, final Integer balanceYear, final Integer balanceMonth) {
 
     final String key = generateKey(accountId, balanceYear, balanceMonth);
-    return Optional.ofNullable(storage.get(key));
+    final Optional<MonthlyBalanceDTO> result = Optional.ofNullable(storage.get(key));
+    log.info("Find By Period {} result: {}", YearMonth.of(balanceYear, balanceMonth), result);
+    return result;
   }
 
   @Override

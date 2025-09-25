@@ -32,14 +32,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 
-public class MonthlyBalanceSyncerAppService {
+public class MonthlyBalanceAsyncTask {
 
-  private static final Logger LOG = LoggerFactory.getLogger(MonthlyBalanceSyncerAppService.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MonthlyBalanceAsyncTask.class);
 
   private final MonthlyBalanceService monthlyBalanceService;
   private final AsyncTaskExecutor asyncTaskExecutor;
 
-  public MonthlyBalanceSyncerAppService(
+  public MonthlyBalanceAsyncTask(
       final MonthlyBalanceService monthlyBalanceService,
       final AsyncTaskExecutor asyncTaskExecutor) {
     this.monthlyBalanceService = monthlyBalanceService;
@@ -80,7 +80,8 @@ public class MonthlyBalanceSyncerAppService {
                   .orElseGet(
                       () -> AccountMonthlyBalanceDomain.withPeriod(accountId, monthlyPeriodKey));
 
-          accountMonthlyBalance.syncMovements(movementsInPeriod);
+          movementsInPeriod.forEach(accountMonthlyBalance::syncMovement);
+
           LOG.debug("Monthly balance updated for {}", monthlyPeriodKey);
           monthlyBalancesToPersist.add(accountMonthlyBalance);
         });
@@ -96,10 +97,6 @@ public class MonthlyBalanceSyncerAppService {
   /**
    * Saves the monthly balances in the database and syncs them asynchronously. This is called when
    * uploading movements from file or creating a new movement.
-   *
-   * @param accountId
-   * @param monthlyBalances
-   * @return
    */
   public CompletableFuture<List<MonthlyBalanceDTO>> persistBalancesAndSyncThemASYNC(
       final AccountId accountId, final List<MonthlyBalanceDTO> monthlyBalances) {
@@ -143,11 +140,6 @@ public class MonthlyBalanceSyncerAppService {
   /**
    * Syncs the current and next monthly balances for the given periods. THe monthly balances are
    * already persisted in the database.
-   *
-   * @param accountId
-   * @param initPeriod
-   * @param endPeriod
-   * @return
    */
   private List<MonthlyBalanceDTO> adjustCurrentAndNextMonthlyBalancesAsync(
       final AccountId accountId, final YearMonth initPeriod, final YearMonth endPeriod) {
@@ -248,8 +240,7 @@ public class MonthlyBalanceSyncerAppService {
     return YearMonth.now().plusMonths(1);
   }
 
-  public AccountMonthlyBalanceDomain syncMonthlyBalanceAsync(
-      final AccountMovementDomain newMovement) {
+  public AccountMonthlyBalanceDomain syncForNewMovement(final AccountMovementDomain newMovement) {
     // Implementation for syncing monthly balances
     final AccountId accountId = newMovement.getAccountId();
     LOG.info(
