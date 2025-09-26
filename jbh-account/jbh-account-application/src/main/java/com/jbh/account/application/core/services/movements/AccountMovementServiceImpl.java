@@ -45,7 +45,7 @@ public class AccountMovementServiceImpl implements AccountMovementService {
   }
 
   @Override
-  public void addDividendsMovement(
+  public void addDividendsMovementForNextMonth(
       final AccountPK accountPK, final MonthlyBalanceDTO monthlyBalanceDTO) {
     if (monthlyBalanceDTO == null) {
       log.warn("No monthly balance to add dividends movement");
@@ -53,8 +53,7 @@ public class AccountMovementServiceImpl implements AccountMovementService {
     }
 
     final var accountId = monthlyBalanceDTO.accountId();
-    final var period = monthlyBalanceDTO.period();
-    final var closingBalance = withJBHDecimals(monthlyBalanceDTO.closingBalance());
+    final var period = monthlyBalanceDTO.period().plusMonths(1).atDay(1);
     final var monthlyProfitReported = withJBHDecimals(monthlyBalanceDTO.monthlyProfitReported());
 
     if (monthlyProfitReported != null) {
@@ -64,11 +63,11 @@ public class AccountMovementServiceImpl implements AccountMovementService {
           accountId,
           period);
 
+      // Without balance snapshot
       final AddMovementCommand dividendsMovement =
           new AddMovementCommand(
-              period.plusMonths(1).atDay(1),
+              period,
               monthlyProfitReported,
-              closingBalance,
               MovementType.DEPOSIT,
               MovementCategoryDTO.withType(IncomeCategory.DIVIDENDS));
 
@@ -125,9 +124,13 @@ public class AccountMovementServiceImpl implements AccountMovementService {
               "Persisting Movement {} and Account with ACID operation", movementDTO.movementDate());
           persistMovementDTO(movementDTO);
           accountService.save(accountDTO);
+          log.info("Movement and Account persisted successfully");
         });
 
-    return new AddBasicMovementDTO(accountDTO, movementDTO);
+    final MonthlyBalanceDTO monthlyBalanceDTO =
+        monthlyBalanceService.syncForNewMovement(movementDTO);
+
+    return new AddBasicMovementDTO(accountDTO, movementDTO, monthlyBalanceDTO);
   }
 
   /**

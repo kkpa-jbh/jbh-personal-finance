@@ -18,7 +18,7 @@ import com.jbh.account.application.core.ports.input.AddMovementInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
-import com.jbh.account.application.core.services.MonthlyBalanceAsyncTask;
+import com.jbh.account.application.core.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
@@ -62,10 +62,12 @@ public class RegisterMovementValidationMockTest {
     MockitoAnnotations.openMocks(this);
     monthlyBalanceService =
         new MonthlyBalanceServiceImpl(
-            accountMonthlyBalanceRepository, monthlyBalanceWriterRepoMock);
+            accountMonthlyBalanceRepository,
+            monthlyBalanceWriterRepoMock,
+            new AsyncTaskExecutorImpl());
 
-    final MonthlyBalanceAsyncTask monthlyBalanceSyncerService =
-        new MonthlyBalanceAsyncTask(monthlyBalanceService, new AsyncTaskExecutorImpl());
+    final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService =
+        new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
 
     final AccountService accountService = new AccountServiceImpl(accountRepository);
 
@@ -73,8 +75,7 @@ public class RegisterMovementValidationMockTest {
         new AccountMovementServiceImpl(
             accountMovementRepository, accountService, monthlyBalanceService, new UnitOfWorkTest());
 
-    registerSimpleMovementInputPort =
-        new AddMovementInputPort(accountMovementService, monthlyBalanceSyncerService);
+    registerSimpleMovementInputPort = new AddMovementInputPort(accountMovementService);
   }
 
   @Test
@@ -242,7 +243,6 @@ public class RegisterMovementValidationMockTest {
         GenericSpecificationException.class,
         () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
 
-    verify(accountRepository).findByUserAndAccountId(userId, accountId);
     verify(accountMovementRepository, never()).save((MovementDTO) any());
     verify(accountRepository, never()).save(AccountMapper.toDTO(accountDomain));
   }

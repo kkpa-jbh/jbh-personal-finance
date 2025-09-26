@@ -8,13 +8,15 @@ import com.jbh.account.application.core.ports.input.CreateAccountInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
-import com.jbh.account.application.core.services.MonthlyBalanceAsyncTask;
+import com.jbh.account.application.core.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.account.application.core.services.movements.AccountMovementService;
 import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.infra.adapters.out.persistence.monthlybalance.MonthlyBalanceJPARepository;
+import com.jbh.account.infra.adapters.out.persistence.monthlybalance.MonthlyBalanceWriterRepoAdapter;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
@@ -27,9 +29,6 @@ public class AccountUseCasesCDIConfig {
   @Inject AccountRepository accountRepository;
 
   @Inject AccountMovementRepository accountMovementRepo;
-
-  @Inject AccountMonthlyBalanceQueryRepo monthlyBalanceQueryRepo;
-  @Inject AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepo;
 
   @Inject UnitOfWork unitOfWork;
 
@@ -48,7 +47,7 @@ public class AccountUseCasesCDIConfig {
   @Produces
   @ApplicationScoped
   public AddMovementInputPort registeringAddMovementUseCase() {
-    return new AddMovementInputPort(accountMovementService(), monthlyBalanceSyncerAppService());
+    return new AddMovementInputPort(accountMovementService());
   }
 
   @Produces
@@ -60,22 +59,33 @@ public class AccountUseCasesCDIConfig {
 
   @Produces
   @ApplicationScoped
-  public MonthlyBalanceAsyncTask monthlyBalanceSyncerAppService() {
-    return new MonthlyBalanceAsyncTask(
-        new MonthlyBalanceServiceImpl(monthlyBalanceQueryRepo, monthlyBalanceWriterRepo),
-        new AsyncTaskExecutorImpl());
+  public MonthlyBalanceServiceImpl monthlyBalanceService() {
+    return new MonthlyBalanceServiceImpl(
+        monthlyBalanceQueryRepo(), monthlyBalanceWriterRepo(), new AsyncTaskExecutorImpl());
   }
 
   @Produces
   @ApplicationScoped
-  public MonthlyBalanceServiceImpl monthlyBalanceService() {
-    return new MonthlyBalanceServiceImpl(monthlyBalanceQueryRepo, monthlyBalanceWriterRepo);
+  public AccountMonthlyBalanceQueryRepo monthlyBalanceQueryRepo() {
+    return new MonthlyBalanceJPARepository();
+  }
+
+  @Produces
+  @ApplicationScoped
+  public AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepo() {
+    return new MonthlyBalanceWriterRepoAdapter();
   }
 
   @Produces
   @ApplicationScoped
   public AddMovementsUploadedFileInputPort registeringAddMovementsUploadedFileUseCase() {
     return new AddMovementsUploadedFileInputPort(
-        accountRepository, accountMovementRepo, unitOfWork, monthlyBalanceSyncerAppService());
+        accountRepository, accountMovementRepo, unitOfWork, uploadedMovementsBalanceSynchronizer());
+  }
+
+  @Produces
+  @ApplicationScoped
+  public MonthlyBalanceSyncForUploadedMovements uploadedMovementsBalanceSynchronizer() {
+    return new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService());
   }
 }

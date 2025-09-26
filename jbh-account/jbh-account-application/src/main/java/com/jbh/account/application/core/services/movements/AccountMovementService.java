@@ -7,8 +7,7 @@ import com.jbh.account.domain.vo.AccountPK;
 
 public interface AccountMovementService {
 
-  void addDividendsMovement(final AccountPK accountPK, final MonthlyBalanceDTO monthlyBalanceDTO);
+  void addDividendsMovementForNextMonth(AccountPK accountPK, MonthlyBalanceDTO monthlyBalanceDTO);
 
-  AddBasicMovementDTO addMovement(
-      final AccountPK accountPK, final AddMovementCommand movementCommand);
+  AddBasicMovementDTO addMovement(AccountPK accountPK, AddMovementCommand movementCommand);
 }

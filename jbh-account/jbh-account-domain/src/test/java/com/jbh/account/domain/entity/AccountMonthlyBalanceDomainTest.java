@@ -128,13 +128,13 @@ public class AccountMonthlyBalanceDomainTest {
   }
 
   @Test
-  public void shouldSetOfficialReport() {
+  public void shouldSetOfficialReportAndAdjustClosingBalanceForMonth() {
 
     final var closingBalance = withJBHDecimals(new BigDecimal("150.00"));
     final var monthlyProfitReported = withJBHDecimals(new BigDecimal("20.00"));
     oneHundredMonthlyBalance.assignOfficialMonthlyReport(closingBalance, monthlyProfitReported);
 
-    assertEquals(closingBalance, oneHundredMonthlyBalance.getClosingBalance());
+    assertEquals(closingBalance.subtract(monthlyProfitReported), oneHundredMonthlyBalance.getClosingBalance());
     assertEquals(monthlyProfitReported, oneHundredMonthlyBalance.getMonthlyProfitReported());
     assertTrue(oneHundredMonthlyBalance.isOfficialMonthlyReport());
     assertEquals(monthlyProfitReported, oneHundredMonthlyBalance.getMonthlyNetProfit());

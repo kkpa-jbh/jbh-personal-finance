@@ -21,7 +21,7 @@ import com.jbh.account.application.core.ports.input.AddMovementInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
-import com.jbh.account.application.core.services.MonthlyBalanceAsyncTask;
+import com.jbh.account.application.core.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
@@ -59,7 +59,7 @@ public class RegisterMovementExecutionMockTest {
   private static AccountService accountService;
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   private final Logger log = LoggerFactory.getLogger(RegisterMovementExecutionMockTest.class);
-  MonthlyBalanceAsyncTask monthlyBalanceAsyncTask;
+  MonthlyBalanceSyncForUploadedMovements monthlyBalanceAsyncTask;
   LocalDate movementDate = LocalDate.now();
   @Mock private AccountRepository accountRepository;
   @Mock private AccountMovementRepository accountMovementRepository;
@@ -74,15 +74,16 @@ public class RegisterMovementExecutionMockTest {
     MockitoAnnotations.openMocks(this);
     monthlyBalanceService =
         new MonthlyBalanceServiceImpl(
-            accountMonthlyBalanceRepository, monthlyBalanceWriterRepoMock);
-    monthlyBalanceAsyncTask =
-        new MonthlyBalanceAsyncTask(monthlyBalanceService, new AsyncTaskExecutorImpl());
+            accountMonthlyBalanceRepository,
+            monthlyBalanceWriterRepoMock,
+            new AsyncTaskExecutorImpl());
+    monthlyBalanceAsyncTask = new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
 
     accountService = new AccountServiceImpl(accountRepository);
     accountMovementService =
         new AccountMovementServiceImpl(
             accountMovementRepository, accountService, monthlyBalanceService, unitOfWork);
-    useCaseInstanceTest = new AddMovementInputPort(accountMovementService, monthlyBalanceAsyncTask);
+    useCaseInstanceTest = new AddMovementInputPort(accountMovementService);
   }
 
   @Test
@@ -123,8 +124,7 @@ public class RegisterMovementExecutionMockTest {
 
     final List<MonthlyBalanceDTO> futureResponse =
         monthlyBalanceAsyncTask
-            .persistBalancesAndSyncThemASYNC(
-                accountId, Collections.singletonList(actualMonthlyBalances))
+            .persistBalancesAsync(accountId, Collections.singletonList(actualMonthlyBalances))
             .get();
 
     assertEquals(2, futureResponse.size());

@@ -6,10 +6,14 @@ import static com.jbh.account.application.core.usecases.utils.TestDataFactory.ge
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.ports.input.AddMovementInputPort;
 import com.jbh.account.application.core.ports.input.CreateAccountInputPort;
 import com.jbh.account.application.core.ports.input.RegisterMonthlyBalanceInputPort;
@@ -17,7 +21,7 @@ import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepo
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
-import com.jbh.account.application.core.services.MonthlyBalanceAsyncTask;
+import com.jbh.account.application.core.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
@@ -78,7 +82,7 @@ public class RegisterMonthlyReportedProfitITTest {
   List<AddMonthlyBalanceCommand> monthlyCommands =
       getAddMonthlyBalanceCommandsWithProfit(initialPeriod, initialBalance);
 
-  MonthlyBalanceAsyncTask monthlyBalanceSyncer;
+  MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncer;
   AccountMovementServiceImpl accountMovementService;
 
   @Mock private AccountMovementRepository accountMovementRepository;
@@ -98,7 +102,8 @@ public class RegisterMonthlyReportedProfitITTest {
     final AccountMonthlyBalanceQueryRepo monthlyBalanceInMemoQuery =
         inMemoryMonthlyBalanceRepos.getQueryRepo();
     monthlyBalanceService =
-        new MonthlyBalanceServiceImpl(monthlyBalanceInMemoQuery, monthlyBalanceInMemoWriter);
+        new MonthlyBalanceServiceImpl(
+            monthlyBalanceInMemoQuery, monthlyBalanceInMemoWriter, new AsyncTaskExecutorImpl());
 
     final AccountService accountService = new AccountServiceImpl(inMemoryAccountRepo);
     accountMovementService =
@@ -111,9 +116,8 @@ public class RegisterMonthlyReportedProfitITTest {
 
     createAccountUseCase = new CreateAccountInputPort(accountService);
 
-    monthlyBalanceSyncer =
-        new MonthlyBalanceAsyncTask(monthlyBalanceService, new AsyncTaskExecutorImpl());
-    addMovementUseCase = new AddMovementInputPort(accountMovementService, monthlyBalanceSyncer);
+    monthlyBalanceSyncer = new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
+    addMovementUseCase = new AddMovementInputPort(accountMovementService);
   }
 
   @Test
@@ -153,7 +157,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
   @Test
   @Order(1)
-  public void month1ProfitReported50() {
+  public void month1ProfitReported202408() {
     ++commandIndex;
     // Given
     final AddMonthlyBalanceCommand command = getCurrentCommand();
@@ -179,6 +183,9 @@ public class RegisterMonthlyReportedProfitITTest {
     assertMonthlyBalance(expectedMonthlyBalance, actualMonthlyBalance);
     assertEquals(new BigDecimal("5.00"), actualMonthlyBalance.netGrowthRate());
 
+    // Verify that dividends movement was created
+    verify(accountMovementRepository).save(any(MovementDTO.class));
+
     // Then Account Balance
     final var accountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
     assertEquals(command.closingBalance(), accountBalance.currentBalance(), "Account Balance");
@@ -190,7 +197,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
   @Test
   @Order(2)
-  public void month2addingDebitsAndProfitReport() {
+  public void month2addingDebitsAndProfitReport20249() {
     ++commandIndex;
     final AddMonthlyBalanceCommand command = getCurrentCommand();
     final AddMonthlyBalanceCommand previousCommand = getPreviousCommand();
@@ -204,16 +211,17 @@ public class RegisterMonthlyReportedProfitITTest {
     final MonthlyBalanceDTO currentMonthlyBalance =
         monthlyBalanceService.findByAccountIdAndPeriod(accountId, period).get();
 
-    final MonthlyBalanceDTO expectedMonthlyBalance =
+    final var previousDividends = previousCommand.monthlyProfitReported();
+    final MonthlyBalanceDTO expectedMonthlyBalanceAfterMovement =
         MonthlyBalanceDTO.withClosingBalance(accountId, period, snapshot2)
-            .totalDebits((deposit2))
-            .openingBalance(previousCommand.closingBalance())
-            .movementBalance(deposit2)
-            .totalMovements(1)
+            .totalDebits(deposit2.add(previousDividends))
+            .openingBalance(previousCommand.closingBalance().subtract(previousDividends))
+            .movementBalance(deposit2.add(previousDividends))
+            .totalMovements(1 + 1)
             .monthlyNetProfit(withJBHDecimals(new BigDecimal("10")))
             .netGrowthRate(withJBHDecimals(new BigDecimal("0.91")))
             .build();
-    assertMonthlyBalance(expectedMonthlyBalance, currentMonthlyBalance);
+    assertMonthlyBalance(expectedMonthlyBalanceAfterMovement, currentMonthlyBalance);
 
     LOG.warn("Testing the registration of the Monthly Balance for period {}", period);
 
@@ -222,20 +230,28 @@ public class RegisterMonthlyReportedProfitITTest {
         () ->
             savedMonthlyBalance.set(
                 useCase.registerOfficialMonthlyBalance(runningDate, userId, accountId, command)));
+    final var actualMonthlyBalanceMonth2 = savedMonthlyBalance.get();
+
+    verify(accountMovementRepository, times(2)).save((MovementDTO) any());
+
+    LOG.info("Assertion for Monthly Balance for period {}", period);
 
     final MonthlyBalanceDTO expectedReportedBalance =
         MonthlyBalanceDTO.withClosingBalance(
-                accountId, period, getCurrentCommand().closingBalance())
+                accountId,
+                period,
+                getCurrentCommand().closingBalance().subtract(command.monthlyProfitReported()))
             .officialMonthlyReport(true)
-            .monthlyProfitReported(command.monthlyProfitReported())
-            .totalDebits((deposit2))
-            .openingBalance(previousCommand.closingBalance())
-            .movementBalance(deposit2)
-            .totalMovements(1)
             .monthlyNetProfit(command.monthlyProfitReported())
-            .netGrowthRate(withJBHDecimals(new BigDecimal("4.55")))
+            .monthlyProfitReported(command.monthlyProfitReported())
+            .totalDebits(expectedMonthlyBalanceAfterMovement.totalDebits())
+            .openingBalance(expectedMonthlyBalanceAfterMovement.openingBalance())
+            .movementBalance(expectedMonthlyBalanceAfterMovement.movementBalance())
+            .totalMovements(expectedMonthlyBalanceAfterMovement.totalMovements())
+            .netGrowthRate(withJBHDecimals(new BigDecimal("30.00")))
             .build();
-    assertMonthlyBalance(expectedReportedBalance, savedMonthlyBalance.get());
+
+    assertMonthlyBalance(expectedReportedBalance, actualMonthlyBalanceMonth2);
   }
 
   private void addMovement(
@@ -257,5 +273,5 @@ public class RegisterMonthlyReportedProfitITTest {
     }
   }
 
-  public void shouldAddMovementsBeforeMonthlyReport() {}
+  public void shouldAddMovementsAfterMonthlyReported() {}
 }

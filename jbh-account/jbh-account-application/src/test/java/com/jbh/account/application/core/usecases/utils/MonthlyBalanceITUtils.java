@@ -58,7 +58,7 @@ public class MonthlyBalanceITUtils {
       assertEquals(
           expected.monthlyNetProfit(),
           actual.monthlyNetProfit(),
-          "Monthly Profit Calculated for period " + actual.period());
+          "Monthly Net Profit for period " + actual.period());
     }
   }
 }

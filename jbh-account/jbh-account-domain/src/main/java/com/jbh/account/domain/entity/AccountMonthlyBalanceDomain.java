@@ -50,7 +50,7 @@ public class AccountMonthlyBalanceDomain {
   private boolean officialMonthlyReport;
 
   // NULL if not reported
-  private BigDecimal monthlyProfitReported = null;
+  private BigDecimal monthlyProfitReported;
 
   @SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.NPathComplexity"})
   public AccountMonthlyBalanceDomain(
@@ -152,13 +152,11 @@ public class AccountMonthlyBalanceDomain {
       throw new GenericSpecificationException("Opening balance cannot be null");
     }
 
-    final var previousProfitReported = previousMonthlyBalance.getMonthlyProfitReported();
-    final boolean wasProfitReported =
-        previousMonthlyBalance.isOfficialMonthlyReport() && previousProfitReported != null;
-    this.openingBalance =
-        wasProfitReported
-            ? inputOpeningBalance.subtract(previousProfitReported)
-            : withJBHDecimals(inputOpeningBalance);
+    // final var previousProfitReported = previousMonthlyBalance.getMonthlyProfitReported();
+    // TODO Review if it's correct to adjust the opening balance for a profit report
+    // final boolean wasProfitReported =
+    // previousMonthlyBalance.isOfficialMonthlyReport() && previousProfitReported != null;
+    this.openingBalance = withJBHDecimals(inputOpeningBalance);
 
     LOG.info("Adjusted Opening Balance {} for next period: {}", this.openingBalance, this.period);
   }
@@ -250,6 +248,7 @@ public class AccountMonthlyBalanceDomain {
     recalculateBalances();
   }
 
+  @SuppressWarnings("PMD.NullAssignment")
   private void setOfficialMonthlyReport(
       final BigDecimal closingBalance, final BigDecimal monthlyProfitReported) {
     this.closingBalance = closingBalance != null ? withJBHDecimals(closingBalance) : JBH_ZERO;

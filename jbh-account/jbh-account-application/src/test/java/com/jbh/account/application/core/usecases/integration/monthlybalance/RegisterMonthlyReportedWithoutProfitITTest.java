@@ -20,7 +20,7 @@ import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepo
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
-import com.jbh.account.application.core.services.MonthlyBalanceAsyncTask;
+import com.jbh.account.application.core.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
@@ -98,11 +98,12 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   AccountMonthlyBalanceQueryRepo monthlyBalanceInMemoQuery =
       inMemoryMonthlyBalanceRepos.getQueryRepo();
   MonthlyBalanceService monthlyBalanceService =
-      new MonthlyBalanceServiceImpl(monthlyBalanceInMemoQuery, monthlyBalanceInMemoWriter);
+      new MonthlyBalanceServiceImpl(
+          monthlyBalanceInMemoQuery, monthlyBalanceInMemoWriter, new AsyncTaskExecutorImpl());
   ;
   RegisterMonthlyBalanceInputPort useCaseTest;
   AddMovementUseCase addMovementUseCase;
-  MonthlyBalanceAsyncTask monthlyBalanceSyncer;
+  MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncer;
   @Mock private AccountMovementRepository accountMovementRepository;
   private AccountService accountService;
   private AccountMovementService accountMovementService;
@@ -125,10 +126,9 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
         new RegisterMonthlyBalanceInputPort(
             monthlyBalanceService, accountService, accountMovementService);
 
-    monthlyBalanceSyncer =
-        new MonthlyBalanceAsyncTask(monthlyBalanceService, new AsyncTaskExecutorImpl());
+    monthlyBalanceSyncer = new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
 
-    addMovementUseCase = new AddMovementInputPort(accountMovementService, monthlyBalanceSyncer);
+    addMovementUseCase = new AddMovementInputPort(accountMovementService);
   }
 
   @Test

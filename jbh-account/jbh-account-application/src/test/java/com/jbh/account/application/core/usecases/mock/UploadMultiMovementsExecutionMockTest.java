@@ -25,7 +25,7 @@ import com.jbh.account.application.core.ports.input.AddMovementsUploadedFileInpu
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
-import com.jbh.account.application.core.services.MonthlyBalanceAsyncTask;
+import com.jbh.account.application.core.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.account.application.core.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.account.application.core.usecases.utils.TestDataFactory;
@@ -63,7 +63,7 @@ public class UploadMultiMovementsExecutionMockTest {
 
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   private final Logger log = LoggerFactory.getLogger(RegisterMovementExecutionMockTest.class);
-  MonthlyBalanceAsyncTask monthlyBalanceSyncerService;
+  MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService;
   LocalDate movementDate = LocalDate.now();
   @Mock private AccountRepository accountRepository;
   @Mock private AccountMovementRepository accountMovementRepository;
@@ -78,9 +78,10 @@ public class UploadMultiMovementsExecutionMockTest {
     MockitoAnnotations.openMocks(this);
     monthlyBalanceService =
         new MonthlyBalanceServiceImpl(
-            accountMonthlyBalanceRepository, monthlyBalanceWriterRepoMock);
-    monthlyBalanceSyncerService =
-        new MonthlyBalanceAsyncTask(monthlyBalanceService, new AsyncTaskExecutorImpl());
+            accountMonthlyBalanceRepository,
+            monthlyBalanceWriterRepoMock,
+            new AsyncTaskExecutorImpl());
+    monthlyBalanceSyncerService = new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
     useCaseInstanceTest =
         new AddMovementsUploadedFileInputPort(
             accountRepository, accountMovementRepository, unitOfWork, monthlyBalanceSyncerService);
@@ -356,7 +357,7 @@ public class UploadMultiMovementsExecutionMockTest {
     when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(accountId, initPeriod))
         .thenReturn(actualBalancesWithoutAsyncOperation);
     final CompletableFuture<List<MonthlyBalanceDTO>> futureResponse =
-        monthlyBalanceSyncerService.persistBalancesAndSyncThemASYNC(
+        monthlyBalanceSyncerService.persistBalancesAsync(
             accountId, actualBalancesWithoutAsyncOperation);
 
     final List<MonthlyBalanceDTO> actualProfitBalances = futureResponse.get(5, TimeUnit.SECONDS);
@@ -460,8 +461,7 @@ public class UploadMultiMovementsExecutionMockTest {
         .thenReturn(savedMonthlyBalances);
 
     final CompletableFuture<List<MonthlyBalanceDTO>> futureResponse =
-        monthlyBalanceSyncerService.persistBalancesAndSyncThemASYNC(
-            accountId, savedMonthlyBalances);
+        monthlyBalanceSyncerService.persistBalancesAsync(accountId, savedMonthlyBalances);
     final List<MonthlyBalanceDTO> actualMonthlyBalances = futureResponse.get();
 
     int index = -1;
@@ -719,8 +719,7 @@ public class UploadMultiMovementsExecutionMockTest {
             accountId, monthlyInitiPeriod))
         .thenReturn(savedMonthlyBalances);
     final CompletableFuture<List<MonthlyBalanceDTO>> futureResponse =
-        monthlyBalanceSyncerService.persistBalancesAndSyncThemASYNC(
-            accountId, savedMonthlyBalances);
+        monthlyBalanceSyncerService.persistBalancesAsync(accountId, savedMonthlyBalances);
     final List<MonthlyBalanceDTO> actualMonthlyBalances = futureResponse.get();
 
     // Response

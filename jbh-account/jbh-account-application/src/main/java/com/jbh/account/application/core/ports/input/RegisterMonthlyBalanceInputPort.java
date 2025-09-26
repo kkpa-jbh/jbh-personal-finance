@@ -94,7 +94,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
     monthlyBalanceService.updateOpeningBalanceNextMonth(monthlyBalanceDTO);
 
     final AccountPK accountPK = new AccountPK(userId, accountId);
-    accountMovementService.addDividendsMovement(accountPK, monthlyBalanceDTO);
+    accountMovementService.addDividendsMovementForNextMonth(accountPK, monthlyBalanceDTO);
 
     log.info(
         "Monthly Balance registration completed successfully for account:{} and period: {}",

@@ -11,6 +11,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.ports.input.RegisterMonthlyBalanceInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
@@ -61,7 +62,8 @@ public class RegisterMonthlyBalanceMockTest {
     MockitoAnnotations.openMocks(this);
 
     final MonthlyBalanceServiceImpl realMonthlyBalanceService =
-        new MonthlyBalanceServiceImpl(monthlyBalanceQueryRepoMock, monthlyBalanceWriterRepoMock);
+        new MonthlyBalanceServiceImpl(
+            monthlyBalanceQueryRepoMock, monthlyBalanceWriterRepoMock, new AsyncTaskExecutorImpl());
 
     accountMovementService =
         new AccountMovementServiceImpl(
