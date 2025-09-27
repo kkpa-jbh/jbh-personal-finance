@@ -389,7 +389,12 @@ public class TestDataFactory {
         new AddMonthlyBalanceCommand(
             initialPeriod, new MonthlyBalanceCommandVO(initialBalance, null)),
         new AddMonthlyBalanceCommand(initialPeriod.plusMonths(1), getCommandVO("1050", "50")),
-        new AddMonthlyBalanceCommand(initialPeriod.plusMonths(2), getCommandVO("1200", "30"))
+        new AddMonthlyBalanceCommand(initialPeriod.plusMonths(2), getCommandVO("1200", "30")),
+        new AddMonthlyBalanceCommand(initialPeriod.plusMonths(3), getCommandVO("1000", "50")),
+        new AddMonthlyBalanceCommand(initialPeriod.plusMonths(4), getCommandVO("500", "100")),
+        new AddMonthlyBalanceCommand(initialPeriod.plusMonths(5), getCommandVO("420", "20")),
+        // 2025
+        new AddMonthlyBalanceCommand(initialPeriod.plusMonths(6), getCommandVO("575", "10"))
         // To separate the tests
         );
   }

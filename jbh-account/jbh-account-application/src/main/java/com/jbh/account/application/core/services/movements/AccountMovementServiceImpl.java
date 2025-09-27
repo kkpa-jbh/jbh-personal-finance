@@ -63,11 +63,16 @@ public class AccountMovementServiceImpl implements AccountMovementService {
           accountId,
           period);
 
-      // Without balance snapshot
+      // I decided to put the balance snapshot, to make it real with the current balance of the
+      // month
+      // taking into account the dividends. This balance snapshot should be the same of the account
+      // balance.
+      final var nextMonthBalance = monthlyBalanceDTO.closingBalance().add(monthlyProfitReported);
       final AddMovementCommand dividendsMovement =
           new AddMovementCommand(
               period,
               monthlyProfitReported,
+              nextMonthBalance,
               MovementType.DEPOSIT,
               MovementCategoryDTO.withType(IncomeCategory.DIVIDENDS));
 

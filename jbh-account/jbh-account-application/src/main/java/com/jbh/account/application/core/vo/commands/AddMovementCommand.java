@@ -33,14 +33,13 @@ public record AddMovementCommand(
       final LocalDate entryDate,
       final BigDecimal totalAmount,
       final BigDecimal balanceSnapshot,
-      final MovementCategoryDTO categoryDTO) {
-
+      final MovementCategoryDTO movementCategoryDTO) {
     this(
         entryDate,
         totalAmount,
         balanceSnapshot,
-        MovementType.findByTotalAmountAndBalanceSnapshot(totalAmount, balanceSnapshot),
-        categoryDTO);
+        MovementType.findByCategory(movementCategoryDTO),
+        movementCategoryDTO);
   }
 
   public AddMovementCommand(
