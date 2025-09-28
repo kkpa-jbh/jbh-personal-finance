@@ -33,4 +33,5 @@ module jbh.account.application {
   exports com.jbh.account.application.core.services.monthlybalance;
   exports com.jbh.account.application.core.services.account;
   exports com.jbh.account.application.core.services.movements;
+  exports com.jbh.account.application.exceptions;
 }

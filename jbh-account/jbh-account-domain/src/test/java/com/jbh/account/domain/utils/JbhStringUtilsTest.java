@@ -8,9 +8,10 @@ public class JbhStringUtilsTest {
 
   @Test
   public void shouldBuildJsonMessageWithBasicStrings() {
-    String result = JbhStringUtils.buildJsonMessage("Hello", "Hola");
+    final String result = JbhStringUtils.buildJsonMessage("Hello", "Hola");
 
-    String expected = """
+    final String expected =
+        """
            {
              "en": "Hello",
              "es": "Hola"
@@ -22,9 +23,10 @@ public class JbhStringUtilsTest {
 
   @Test
   public void shouldBuildJsonMessageWithEmptyStrings() {
-    String result = JbhStringUtils.buildJsonMessage("", "");
+    final String result = JbhStringUtils.buildJsonMessage("", "");
 
-    String expected = """
+    final String expected =
+        """
            {
              "en": "",
              "es": ""
@@ -36,9 +38,10 @@ public class JbhStringUtilsTest {
 
   @Test
   public void shouldEscapeQuotesInJsonMessage() {
-    String result = JbhStringUtils.buildJsonMessage("Say \"Hello\"", "Diga \"Hola\"");
+    final String result = JbhStringUtils.buildJsonMessage("Say \"Hello\"", "Diga \"Hola\"");
 
-    String expected = """
+    final String expected =
+        """
            {
              "en": "Say \\"Hello\\"",
              "es": "Diga \\"Hola\\""
@@ -50,9 +53,10 @@ public class JbhStringUtilsTest {
 
   @Test
   public void shouldEscapeBackslashesInJsonMessage() {
-    String result = JbhStringUtils.buildJsonMessage("Path\\to\\file", "Ruta\\al\\archivo");
+    final String result = JbhStringUtils.buildJsonMessage("Path\\to\\file", "Ruta\\al\\archivo");
 
-    String expected = """
+    final String expected =
+        """
            {
              "en": "Path\\\\to\\\\file",
              "es": "Ruta\\\\al\\\\archivo"
@@ -64,9 +68,11 @@ public class JbhStringUtilsTest {
 
   @Test
   public void shouldEscapeBothQuotesAndBackslashesInJsonMessage() {
-    String result = JbhStringUtils.buildJsonMessage("Path\\to\\\"file\"", "Ruta\\al\\\"archivo\"");
+    final String result =
+        JbhStringUtils.buildJsonMessage("Path\\to\\\"file\"", "Ruta\\al\\\"archivo\"");
 
-    String expected = """
+    final String expected =
+        """
            {
              "en": "Path\\\\to\\\\\\"file\\"",
              "es": "Ruta\\\\al\\\\\\"archivo\\""
@@ -78,9 +84,10 @@ public class JbhStringUtilsTest {
 
   @Test
   public void shouldHandleSpecialCharactersInJsonMessage() {
-    String result = JbhStringUtils.buildJsonMessage("Line 1\nLine 2", "Línea 1\nLínea 2");
+    final String result = JbhStringUtils.buildJsonMessage("Line 1\nLine 2", "Línea 1\nLínea 2");
 
-    String expected = """
+    final String expected =
+        """
            {
              "en": "Line 1\nLine 2",
              "es": "Línea 1\nLínea 2"
@@ -92,12 +99,15 @@ public class JbhStringUtilsTest {
 
   @Test
   public void shouldHandleLongStringsInJsonMessage() {
-    String longEnglish = "This is a very long English message that contains multiple words and should be properly formatted in JSON";
-    String longSpanish = "Este es un mensaje muy largo en español que contiene múltiples palabras y debe ser formateado correctamente en JSON";
+    final String longEnglish =
+        "This is a very long English message that contains multiple words and should be properly formatted in JSON";
+    final String longSpanish =
+        "Este es un mensaje muy largo en español que contiene múltiples palabras y debe ser formateado correctamente en JSON";
 
-    String result = JbhStringUtils.buildJsonMessage(longEnglish, longSpanish);
+    final String result = JbhStringUtils.buildJsonMessage(longEnglish, longSpanish);
 
-    String expected = """
+    final String expected =
+        """
            {
              "en": "This is a very long English message that contains multiple words and should be properly formatted in JSON",
              "es": "Este es un mensaje muy largo en español que contiene múltiples palabras y debe ser formateado correctamente en JSON"
@@ -105,5 +115,13 @@ public class JbhStringUtilsTest {
            """;
 
     assertEquals(expected, result);
+  }
+
+  @Test
+  public void shouldHandleIsBlank() {
+    assertEquals(true, JbhStringUtils.isBlank(""));
+    assertEquals(true, JbhStringUtils.isBlank("   "));
+    assertEquals(false, JbhStringUtils.isBlank("Hello"));
+    assertEquals(false, JbhStringUtils.isBlank(" Hello "));
   }
 }

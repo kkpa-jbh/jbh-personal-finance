@@ -18,4 +18,8 @@ public final class JbhStringUtils {
     // Very basic escaping for quotes and backslashes
     return value.replace("\\", "\\\\").replace("\"", "\\\"");
   }
+
+  public static boolean isBlank(final String value) {
+    return value == null || value.isBlank();
+  }
 }

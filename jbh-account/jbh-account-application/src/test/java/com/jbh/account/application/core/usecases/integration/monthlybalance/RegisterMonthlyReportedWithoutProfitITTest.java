@@ -213,7 +213,11 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   }
 
   private void addMovement(final AddMovementCommand movement) {
-    addMovementUseCase.addMovement(userId, accountId, movement);
+    try {
+      addMovementUseCase.addMovement(userId, accountId, movement);
+    } catch (final JbhSpecificationApplication e) {
+      throw new RuntimeException(e);
+    }
     try {
       Thread.sleep(Duration.ofSeconds(2).toMillis());
     } catch (final InterruptedException e) {

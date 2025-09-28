@@ -8,11 +8,11 @@ public class JbhSpecificationApplication extends Exception {
 
   @Serial private static final long serialVersionUID = -7904385600828409999L;
 
-  private final String customMessage;
+  private final JbhExceptionMessage customMessage;
 
   public JbhSpecificationApplication(
-      final String message, final Throwable cause, final String customMessage) {
-    super(message, cause);
+      final String message, final JbhExceptionMessage customMessage) {
+    super(message);
     this.customMessage = customMessage;
   }
 }

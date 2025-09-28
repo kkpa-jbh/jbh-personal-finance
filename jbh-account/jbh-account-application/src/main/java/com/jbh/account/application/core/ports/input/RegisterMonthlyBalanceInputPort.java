@@ -9,9 +9,9 @@ import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceSe
 import com.jbh.account.application.core.services.movements.AccountMovementService;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
+import com.jbh.account.application.exceptions.JbhExceptionMessage;
 import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
-import com.jbh.account.domain.utils.JbhStringUtils;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
 import java.time.LocalDate;
@@ -109,8 +109,9 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
     if (!periodToRegister.isBefore(YearMonth.from(runningDate))) {
       throw new JbhSpecificationApplication(
           "The monthly balance period is not in the past",
-          null,
-          "The monthly balance period is not in the past");
+          new JbhExceptionMessage(
+              "The monthly balance period is not in the past",
+              "El periodo de la cuenta no es en el pasado"));
     }
   }
 
@@ -129,9 +130,9 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
         throw new JbhSpecificationApplication(
             "The monthly balance period is not consecutive. The last period was: "
                 + lastOfficialReportPeriod,
-            null,
-            JbhStringUtils.buildJsonMessage(
-                "The monthly balance period is not consecutive.",
+            new JbhExceptionMessage(
+                "The monthly balance period is not consecutive. The last period was: "
+                    + lastOfficialReportPeriod,
                 "El periodo de la cuenta no es consecutivo. La última periodo fue: "
                     + lastOfficialReportPeriod));
       }

@@ -8,6 +8,7 @@ import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,6 +39,7 @@ import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
 import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.domain.utils.JbhStringUtils;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
 import com.jbh.account.domain.vo.CategoryType;
@@ -77,6 +79,7 @@ public class RegisterMonthlyReportedProfitITTest {
   static AccountId accountId;
   static int commandIndex = -1;
   static MonthlyBalanceService monthlyBalanceService;
+  private static MonthlyBalanceDTO finalReported20249;
   AddMovementUseCase addMovementUseCase;
   RegisterMonthlyBalanceUseCase useCaseTest;
   YearMonth initialPeriod = YearMonth.of(2024, 7);
@@ -84,10 +87,8 @@ public class RegisterMonthlyReportedProfitITTest {
   BigDecimal FIRST_BALANCE_ZERO = withJBHDecimals(new BigDecimal("1000"));
   List<AddMonthlyBalanceCommand> monthlyCommands =
       getAddMonthlyBalanceCommandsWithProfit(initialPeriod, FIRST_BALANCE_ZERO);
-
   MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncer;
   AccountMovementServiceImpl accountMovementService;
-
   @Mock private AccountMovementRepository accountMovementRepository;
 
   @BeforeAll
@@ -235,7 +236,7 @@ public class RegisterMonthlyReportedProfitITTest {
             savedMonthlyBalance.set(
                 useCaseTest.registerOfficialMonthlyBalance(
                     runningDate, userId, accountId, command)));
-    final var actualMonthlyBalanceMonth2 = savedMonthlyBalance.get();
+    finalReported20249 = savedMonthlyBalance.get();
 
     verify(accountMovementRepository, times(2)).save((MovementDTO) any());
 
@@ -255,7 +256,7 @@ public class RegisterMonthlyReportedProfitITTest {
             .netGrowthRate(withJBHDecimals(new BigDecimal("30.00")))
             .build();
 
-    assertMonthlyBalance(expectedReportedBalance, actualMonthlyBalanceMonth2);
+    assertMonthlyBalance(expectedReportedBalance, finalReported20249);
 
     // Verifying the opening balance for the next month
     final MonthlyBalanceDTO nextMonthBalance =
@@ -282,7 +283,11 @@ public class RegisterMonthlyReportedProfitITTest {
             amount,
             balanceSnapshot,
             MovementCategoryDTO.withType(categoryType));
-    addMovementUseCase.addMovement(userId, accountId, movement);
+    try {
+      addMovementUseCase.addMovement(userId, accountId, movement);
+    } catch (final Exception e) {
+      throw new RuntimeException(e);
+    }
     try {
       Thread.sleep(Duration.ofSeconds(2).toMillis());
     } catch (final InterruptedException e) {
@@ -591,5 +596,22 @@ public class RegisterMonthlyReportedProfitITTest {
     assertMonthlyBalance(expectedNextMonthBalance, nextMonthBalance);
   }
 
-  public void shouldAddMovementsAfterMonthlyReported() {}
+  @Test
+  @Order(7)
+  public void shouldThrowExceptionWhenAddingSnapshotAfterMonthlyReported() {
+
+    final var deposit = withJBHDecimals(new BigDecimal("100"));
+    final var snapshot = withJBHDecimals(new BigDecimal("1100"));
+    final String message =
+        "Cannot add a snapshot after the monthly balance was officially reported";
+
+    JbhStringUtils.buildJsonMessage(message, message);
+
+    assertThrows(
+        RuntimeException.class,
+        () -> {
+          addMovement(YearMonth.of(2024, 9), ExpenseCategory.PERSONAL, deposit, snapshot);
+        },
+        message);
+  }
 }

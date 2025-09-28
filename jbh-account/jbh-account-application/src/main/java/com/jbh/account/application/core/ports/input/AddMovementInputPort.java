@@ -1,11 +1,11 @@
 package com.jbh.account.application.core.ports.input;
 
 import com.jbh.account.application.common.logging.LoggerFactory;
-import com.jbh.account.application.common.logging.LoggingContext;
 import com.jbh.account.application.core.dto.AddBasicMovementDTO;
 import com.jbh.account.application.core.services.movements.AccountMovementService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
+import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
 import java.util.UUID;
@@ -22,23 +22,15 @@ public class AddMovementInputPort implements AddMovementUseCase {
 
   @Override
   public AddBasicMovementDTO addMovement(
-      final UUID userId, final AccountId accountId, final AddMovementCommand movementCommand) {
-    return LoggingContext.builder()
-        .accountId(accountId.value())
-        .userId(userId)
-        .module("account-application")
-        .execute(
-            () -> {
+      final UUID userId, final AccountId accountId, final AddMovementCommand movementCommand)
+      throws JbhSpecificationApplication {
+    // Sync account balance and persist movement
+    final AddBasicMovementDTO addBasicMovementDTO;
+    addBasicMovementDTO =
+        accountMovementService.addMovement(new AccountPK(userId, accountId), movementCommand);
 
-              // Sync account balance and persist movement
-              final AddBasicMovementDTO addBasicMovementDTO =
-                  accountMovementService.addMovement(
-                      new AccountPK(userId, accountId), movementCommand);
+    LOG.info("Movement addition completed successfully for account: {}", accountId.value());
 
-              LOG.info(
-                  "Movement addition completed successfully for account: {}", accountId.value());
-
-              return addBasicMovementDTO;
-            });
+    return addBasicMovementDTO;
   }
 }
