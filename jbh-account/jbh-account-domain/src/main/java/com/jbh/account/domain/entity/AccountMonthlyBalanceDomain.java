@@ -143,6 +143,11 @@ public class AccountMonthlyBalanceDomain {
   }
 
   public void assignOpeningBalance(final AccountMonthlyBalanceDomain previousMonthlyBalance) {
+    if (this.officialMonthlyReport && previousMonthlyBalance.officialMonthlyReport) {
+      LOG.info(
+          "Skipping opening balance adjustment for an official monthly report {}", this.period);
+      return;
+    }
     if (this.officialMonthlyReport) {
       throw new GenericSpecificationException(
           "Cannot adjust opening balance for an official monthly report");
@@ -192,7 +197,8 @@ public class AccountMonthlyBalanceDomain {
         this.closingBalance = this.closingBalance.add(amount);
       }
     }
-    if (movement.getBalanceSnapshot() != null) {
+    // Do not update closing balance after adding a movement when it's an official report
+    if (!this.officialMonthlyReport && movement.getBalanceSnapshot() != null) {
       this.closingBalance = movement.getBalanceSnapshot();
     }
   }

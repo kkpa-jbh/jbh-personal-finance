@@ -54,7 +54,8 @@ public enum IncomeCategory implements CategoryType {
   INVESTMENT,
   RENTAL,
   GIFT,
-  OTHER;
+  OTHER,
+  INITIAL_BALANCE;
 
   @Override
   public CategorySource getSource() {

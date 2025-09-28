@@ -1,6 +1,7 @@
 package com.jbh.account.application.async;
 
 import com.jbh.account.application.async.vo.AsyncTask;
+import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -41,9 +42,19 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
             LOG.error("Task was interrupted: {}", asyncTask.type(), exception);
             registerToDLQ(asyncTask, exception);
             future.completeExceptionally(exception);
+          } catch (final GenericSpecificationException gse) {
+            LOG.error(
+                "Generic Specification Exception executing async task {}: {}",
+                asyncTask.type(),
+                gse.getMessage(),
+                gse);
+            if (asyncTask.metadata() != null) {
+              asyncTask.metadata().put("exceptionMsg", gse.getMessage());
+            }
+            future.completeExceptionally(gse);
           } catch (final Exception exception) {
             LOG.error(
-                "Checked exception executing async task {}: {}",
+                "General exception executing async task {}: {}",
                 asyncTask.type(),
                 exception.getMessage(),
                 exception);

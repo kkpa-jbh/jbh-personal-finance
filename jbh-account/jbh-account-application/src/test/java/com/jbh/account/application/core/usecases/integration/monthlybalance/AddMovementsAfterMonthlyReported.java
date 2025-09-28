@@ -1,0 +1,226 @@
+package com.jbh.account.application.core.usecases.integration.monthlybalance;
+
+import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
+import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+
+import com.jbh.account.application.async.AsyncTaskExecutorImpl;
+import com.jbh.account.application.core.dto.AccountDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.MovementDTO;
+import com.jbh.account.application.core.ports.input.AddMovementInputPort;
+import com.jbh.account.application.core.ports.input.CreateAccountInputPort;
+import com.jbh.account.application.core.ports.input.RegisterMonthlyBalanceInputPort;
+import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
+import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
+import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
+import com.jbh.account.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
+import com.jbh.account.application.core.services.MonthlyBalanceSyncForUploadedMovements;
+import com.jbh.account.application.core.services.account.AccountService;
+import com.jbh.account.application.core.services.account.AccountServiceImpl;
+import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
+import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
+import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
+import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
+import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
+import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
+import com.jbh.account.application.core.vo.commands.AddMovementCommand;
+import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
+import com.jbh.account.application.core.vo.commands.MonthlyBalanceCommandVO;
+import com.jbh.account.application.exceptions.JbhSpecificationApplication;
+import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountType;
+import com.jbh.account.domain.vo.CategoryType;
+import com.jbh.account.domain.vo.ExpenseCategory;
+import com.jbh.account.domain.vo.MovementCategoryDTO;
+import java.math.BigDecimal;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@TestMethodOrder(OrderAnnotation.class)
+public class AddMovementsAfterMonthlyReported {
+  static final UUID userId = UUID.randomUUID();
+  private static final Logger LOG = LoggerFactory.getLogger(AddMovementsAfterMonthlyReported.class);
+  private static final InMemoryAccountRepository inMemoryAccountRepo =
+      new InMemoryAccountRepository();
+  private static final String ACCOUNT_REPORTED = "Reported";
+  static InMemoryMonthlyBalanceRepositories inMemoryMonthlyBalanceRepos =
+      new InMemoryMonthlyBalanceRepositories();
+  static CreateAccountUseCase createAccountUseCase;
+  static AccountDTO createdAccount;
+  static AccountId accountId;
+  static MonthlyBalanceService monthlyBalanceService;
+  static YearMonth reportedPeriod = YearMonth.of(2024, 7);
+  static MonthlyBalanceCommandVO reportedPeriodAmounts =
+      new MonthlyBalanceCommandVO(
+          withJBHDecimals(new BigDecimal("1010")), withJBHDecimals(new BigDecimal("10")));
+  private static AccountDTO finalExpectedAccountBalance;
+  private static MonthlyBalanceDTO officialReportedBalance;
+  MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncer;
+  AccountMovementServiceImpl accountMovementService;
+  RegisterMonthlyBalanceUseCase useCaseTest;
+  LocalDate runningDate = LocalDate.now();
+  @Mock private AccountMovementRepository accountMovementRepository;
+  private AddMovementInputPort addMovementUseCase;
+
+  @BeforeEach
+  public void setUp() {
+    MockitoAnnotations.openMocks(this);
+
+    final AccountMonthlyBalanceWriterRepository monthlyBalanceInMemoWriter =
+        inMemoryMonthlyBalanceRepos.getWriterRepo();
+    final AccountMonthlyBalanceQueryRepo monthlyBalanceInMemoQuery =
+        inMemoryMonthlyBalanceRepos.getQueryRepo();
+    monthlyBalanceService =
+        new MonthlyBalanceServiceImpl(
+            monthlyBalanceInMemoQuery, monthlyBalanceInMemoWriter, new AsyncTaskExecutorImpl());
+
+    final AccountService accountService = new AccountServiceImpl(inMemoryAccountRepo);
+    accountMovementService =
+        new AccountMovementServiceImpl(
+            accountMovementRepository, accountService, monthlyBalanceService, new UnitOfWorkTest());
+
+    useCaseTest =
+        new RegisterMonthlyBalanceInputPort(
+            monthlyBalanceService, accountService, accountMovementService);
+
+    createAccountUseCase = new CreateAccountInputPort(accountService);
+
+    monthlyBalanceSyncer = new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
+    addMovementUseCase = new AddMovementInputPort(accountMovementService);
+  }
+
+  @Test
+  @Order(0)
+  void creatingAccount() throws JbhSpecificationApplication {
+    createdAccount =
+        createAccountUseCase.execute(
+            new CreateBasicAccountCommand(userId, ACCOUNT_REPORTED, AccountType.SAVINGS));
+    accountId = createdAccount.id();
+    LOG.info("Account created with id {}", accountId);
+    assert accountId != null;
+
+    // Creating Initial Balance
+    final var initialBalance = withJBHDecimals(new BigDecimal("900"));
+    final AddMonthlyBalanceCommand previousCommand =
+        new AddMonthlyBalanceCommand(
+            reportedPeriod.plusMonths(-1),
+            new MonthlyBalanceCommandVO(withJBHDecimals(initialBalance), null));
+
+    useCaseTest.registerOfficialMonthlyBalance(runningDate, userId, accountId, previousCommand);
+
+    verify(accountMovementRepository).save(any(MovementDTO.class));
+
+    finalExpectedAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
+    assertEquals(initialBalance, finalExpectedAccountBalance.currentBalance(), "Account Balance");
+    assertEquals(initialBalance, finalExpectedAccountBalance.movementBalance(), "Movement Balance");
+
+    final AddMonthlyBalanceCommand command =
+        new AddMonthlyBalanceCommand(reportedPeriod, reportedPeriodAmounts);
+    final AtomicReference<MonthlyBalanceDTO> savedInitialMonthlyBalance = new AtomicReference<>();
+    Assertions.assertDoesNotThrow(
+        () ->
+            savedInitialMonthlyBalance.set(
+                useCaseTest.registerOfficialMonthlyBalance(
+                    runningDate, userId, accountId, command)));
+
+    officialReportedBalance = savedInitialMonthlyBalance.get();
+    assertEquals(new BigDecimal("12.22"), officialReportedBalance.netGrowthRate());
+    assertEquals(initialBalance, officialReportedBalance.openingBalance());
+    assertEquals(
+        command.closingBalance().subtract(command.monthlyProfitReported()),
+        officialReportedBalance.closingBalance());
+    assertEquals(command.monthlyProfitReported(), officialReportedBalance.monthlyProfitReported());
+    assertEquals(command.monthlyProfitReported(), officialReportedBalance.monthlyNetProfit());
+
+    finalExpectedAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
+    assertEquals(
+        command.closingBalance(), finalExpectedAccountBalance.currentBalance(), "Account Balance");
+    assertEquals(
+        command.monthlyProfitReported().add(initialBalance),
+        finalExpectedAccountBalance.movementBalance(),
+        "Account Balance");
+    assertEquals(new BigDecimal("100.00"), finalExpectedAccountBalance.profitBalance());
+  }
+
+  @Test
+  @Order(1)
+  void addingMovements() {
+
+    final BigDecimal withDrawal1 = withJBHDecimals(new BigDecimal("5"));
+
+    addMovement(reportedPeriod, ExpenseCategory.PERSONAL, withDrawal1, null);
+
+    final MonthlyBalanceDTO currentMonthlyBalance =
+        monthlyBalanceService.findByAccountIdAndPeriod(accountId, reportedPeriod).get();
+    final var expectedMonthlyBalance =
+        MonthlyBalanceDTO.withClosingBalance(
+                accountId, reportedPeriod, officialReportedBalance.closingBalance())
+            .totalDebits(officialReportedBalance.totalDebits())
+            .totalCredits(officialReportedBalance.totalCredits().add(withDrawal1))
+            .openingBalance(officialReportedBalance.openingBalance())
+            .monthlyProfitReported(officialReportedBalance.monthlyProfitReported())
+            .monthlyNetProfit(officialReportedBalance.monthlyNetProfit())
+            .movementBalance(withJBHDecimals(new BigDecimal("-5.00")))
+            .totalMovements(1)
+            .officialMonthlyReport(true)
+            .build();
+
+    assertMonthlyBalance(expectedMonthlyBalance, currentMonthlyBalance);
+    assertTrue(
+        currentMonthlyBalance.netGrowthRate().compareTo(officialReportedBalance.netGrowthRate())
+            > 0);
+
+    final AccountDTO currentAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
+    assertEquals(
+        finalExpectedAccountBalance.currentBalance(),
+        currentAccountBalance.currentBalance(),
+        "Account Balance");
+    assertEquals(
+        finalExpectedAccountBalance.profitBalance(), currentAccountBalance.profitBalance());
+    assertEquals(
+        finalExpectedAccountBalance.movementBalance().subtract(withDrawal1),
+        currentAccountBalance.movementBalance());
+  }
+
+  private void addMovement(
+      final YearMonth period,
+      final CategoryType categoryType,
+      final BigDecimal amount,
+      final BigDecimal balanceSnapshot) {
+    final AddMovementCommand movement =
+        new AddMovementCommand(
+            LocalDate.of(period.getYear(), period.getMonthValue(), 15),
+            amount,
+            balanceSnapshot,
+            MovementCategoryDTO.withType(categoryType));
+    try {
+      addMovementUseCase.addMovement(userId, accountId, movement);
+    } catch (final Exception e) {
+      throw new RuntimeException(e);
+    }
+    try {
+      Thread.sleep(Duration.ofSeconds(2).toMillis());
+    } catch (final InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+  }
+}

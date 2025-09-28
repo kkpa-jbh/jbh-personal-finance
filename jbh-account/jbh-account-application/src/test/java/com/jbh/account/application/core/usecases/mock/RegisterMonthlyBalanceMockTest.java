@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
+import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.ports.input.RegisterMonthlyBalanceInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
@@ -29,6 +30,7 @@ import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -61,10 +63,15 @@ public class RegisterMonthlyBalanceMockTest {
   void setUp() {
     MockitoAnnotations.openMocks(this);
 
+    when(accountRepository.findByUserAndAccountId(userId, accountId))
+        .thenReturn(
+            Optional.of(
+                AccountDTO.defaultBuilder(userId, accountId, "DF", AccountType.OTHER).build()));
+
     final MonthlyBalanceServiceImpl realMonthlyBalanceService =
         new MonthlyBalanceServiceImpl(
             monthlyBalanceQueryRepoMock, monthlyBalanceWriterRepoMock, new AsyncTaskExecutorImpl());
-
+    accountService = new AccountServiceImpl(accountRepository);
     accountMovementService =
         new AccountMovementServiceImpl(
             accountMovementRepository,
@@ -72,7 +79,7 @@ public class RegisterMonthlyBalanceMockTest {
             realMonthlyBalanceService,
             new UnitOfWorkTest());
     monthlyBalanceService = spy(realMonthlyBalanceService);
-    accountService = new AccountServiceImpl(accountRepository);
+
     useCaseInstanceTest =
         new RegisterMonthlyBalanceInputPort(
             monthlyBalanceService, accountService, accountMovementService);
@@ -86,8 +93,24 @@ public class RegisterMonthlyBalanceMockTest {
     final AddMonthlyBalanceCommand command =
         new AddMonthlyBalanceCommand(august24MonthlyPeriod, closingBalance, null);
 
-    when(monthlyBalanceQueryRepoMock.findByAccountIdYearAndMonth(accountId, 2024, 8))
-        .thenReturn(Optional.empty());
+    final MonthlyBalanceDTO monthlyBalanceDTO =
+        MonthlyBalanceDTO.defaultBuilder()
+            .accountId(accountId)
+            .period(august24MonthlyPeriod)
+            .month(8)
+            .year(2024)
+            .closingBalance(closingBalance)
+            .movementBalance(closingBalance)
+            .totalDebits(JBH_ZERO)
+            .totalCredits(JBH_ZERO)
+            .monthlyNetProfit(JBH_ZERO)
+            .totalMovements(1)
+            .build();
+
+    when(monthlyBalanceService.findByAccountIdYearAndMonth(accountId, 2024, 8))
+        .thenReturn(Optional.empty())
+        .thenReturn(Optional.of(monthlyBalanceDTO));
+    ;
 
     // Spy on the specific method to capture its return value
     final AtomicReference<MonthlyBalanceDTO> capturedNextMonthlyBalance = new AtomicReference<>();
@@ -115,7 +138,7 @@ public class RegisterMonthlyBalanceMockTest {
     final MonthlyBalanceDTO expectedMonthBalance =
         MonthlyBalanceDTO.defaultBuilder()
             .accountId(accountId)
-            .totalMovements(0)
+            .totalMovements(1)
             .period(august24MonthlyPeriod)
             .month(8)
             .year(2024)

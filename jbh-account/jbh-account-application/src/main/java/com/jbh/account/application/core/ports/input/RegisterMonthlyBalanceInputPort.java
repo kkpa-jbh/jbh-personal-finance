@@ -9,11 +9,15 @@ import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceSe
 import com.jbh.account.application.core.services.movements.AccountMovementService;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
+import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.exceptions.JbhExceptionMessage;
 import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.vo.IncomeCategory;
+import com.jbh.account.domain.vo.MovementCategoryDTO;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Optional;
@@ -50,7 +54,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
    * @param runningDate
    * @param userId
    * @param accountId
-   * @param command
+   * @param addMonthlyBalanceCommand
    * @return
    * @throws JbhSpecificationApplication
    */
@@ -59,13 +63,13 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
       final LocalDate runningDate,
       final UUID userId,
       final AccountId accountId,
-      final AddMonthlyBalanceCommand command)
+      final AddMonthlyBalanceCommand addMonthlyBalanceCommand)
       throws JbhSpecificationApplication {
 
     // Command validation
-    command.validate();
+    addMonthlyBalanceCommand.validate();
 
-    final YearMonth periodToRegister = command.monthlyPeriod();
+    final YearMonth periodToRegister = addMonthlyBalanceCommand.monthlyPeriod();
     log.info(
         "Registering Official Monthly Balance for account {} on {}", accountId, periodToRegister);
 
@@ -74,15 +78,37 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
     validateConsecutiveMonthlyBalances(accountId, periodToRegister);
 
     // FIXME TODO - Move all this logic to the service itself
-    final AccountMonthlyBalanceDomain monthlyBalanceDomain =
-        monthlyBalanceService
-            .findByAccountIdYearAndMonth(
-                accountId, periodToRegister.getYear(), periodToRegister.getMonthValue())
-            .map(MonthlyBalanceMapper::toDomain)
-            .orElseGet(() -> AccountMonthlyBalanceDomain.withPeriod(accountId, periodToRegister));
+    AccountMonthlyBalanceDomain monthlyBalanceDomain =
+        findMonthlyBalanceByPeriod(accountId, periodToRegister);
+
+    // If it's the first monthly balance, create a movement and it will create the monthly balance
+    if (monthlyBalanceDomain == null) {
+      log.info(
+          "The monthly balanced has not been reported before. Creating Initial Balance Movement");
+      accountMovementService.addMovement(
+          new AccountPK(userId, accountId),
+          new AddMovementCommand(
+              addMonthlyBalanceCommand.monthlyPeriod().atDay(1),
+              addMonthlyBalanceCommand.closingBalance(),
+              MovementCategoryDTO.withType(IncomeCategory.INITIAL_BALANCE)));
+
+      try {
+        // FIXME TODO - This is a hack to wait for the async task to be executed
+        Thread.sleep(Duration.ofSeconds(2).toMillis());
+      } catch (final InterruptedException e) {
+        log.error("Error waiting for the async task to be executed", e);
+      }
+      log.info("The monthly balance should be created by the movement. Finding it again");
+      monthlyBalanceDomain = findMonthlyBalanceByPeriod(accountId, periodToRegister);
+    }
+
+    if (monthlyBalanceDomain == null) {
+      throw new IllegalArgumentException("Monthly Balance not found");
+    }
 
     monthlyBalanceDomain.assignOfficialMonthlyReport(
-        command.closingBalance(), command.monthlyProfitReported());
+        addMonthlyBalanceCommand.closingBalance(),
+        addMonthlyBalanceCommand.monthlyProfitReported());
 
     final MonthlyBalanceDTO monthlyBalanceDTO = toDTO(monthlyBalanceDomain);
     monthlyBalanceService.saveBalance(monthlyBalanceDTO);
@@ -137,5 +163,14 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
                     + lastOfficialReportPeriod));
       }
     }
+  }
+
+  private AccountMonthlyBalanceDomain findMonthlyBalanceByPeriod(
+      final AccountId accountId, final YearMonth periodToRegister) {
+    return monthlyBalanceService
+        .findByAccountIdYearAndMonth(
+            accountId, periodToRegister.getYear(), periodToRegister.getMonthValue())
+        .map(MonthlyBalanceMapper::toDomain)
+        .orElse(null);
   }
 }

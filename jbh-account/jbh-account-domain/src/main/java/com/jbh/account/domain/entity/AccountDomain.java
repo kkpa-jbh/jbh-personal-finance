@@ -120,11 +120,10 @@ public class AccountDomain {
       final AccountMovementDomain newAccountMovement, final boolean wasOfficialReport) {
     final BigDecimal movementAmount = newAccountMovement.getMovementAmount();
 
-    // If it's an official report, the balance is already synced.
-    //
+    // If it's an official report, the monthly profit, and closing balance are already synced.
+    // Movement balance will be synced due to a new movement done.
     if (wasOfficialReport) {
       syncMovementBalance(movementAmount);
-      syncProfitBalance();
       return;
     }
 

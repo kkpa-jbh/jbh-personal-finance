@@ -243,13 +243,17 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
         existingDomainBalancesMap.putIfAbsent(nextPeriod, nextMonthlyBalanceOfCurrent);
       }
 
+      final boolean skipNextMonthBalanceAdjustment =
+          currentMonthlyBalance.isOfficialMonthlyReport()
+              && nextMonthlyBalanceOfCurrent.isOfficialMonthlyReport();
       nextMonthlyBalanceOfCurrent.assignOpeningBalance(currentMonthlyBalance);
 
       // Preparing to persist
       if (!profitBalancesSynced.contains(currentMonthlyBalance)) {
         profitBalancesSynced.add(currentMonthlyBalance);
       }
-      if (!profitBalancesSynced.contains(nextMonthlyBalanceOfCurrent)) {
+      if (!profitBalancesSynced.contains(nextMonthlyBalanceOfCurrent)
+          && !skipNextMonthBalanceAdjustment) {
         profitBalancesSynced.add(nextMonthlyBalanceOfCurrent);
       }
 
