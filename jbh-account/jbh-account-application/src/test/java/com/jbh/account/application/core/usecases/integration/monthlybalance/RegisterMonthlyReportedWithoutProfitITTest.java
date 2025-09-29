@@ -10,26 +10,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.AccountDTO.AccountDTOBuilder;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.account.application.core.ports.input.AddMovementInputPort;
-import com.jbh.account.application.core.ports.input.RegisterMonthlyBalanceInputPort;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
-import com.jbh.account.application.core.services.MonthlyBalanceSyncForUploadedMovements;
-import com.jbh.account.application.core.services.account.AccountService;
-import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
-import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
-import com.jbh.account.application.core.services.movements.AccountMovementService;
-import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
+import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
+import com.jbh.account.application.core.usecases.UseCaseBuilder;
 import com.jbh.account.application.core.usecases.utils.IgnoreAccountOptions;
-import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.exceptions.JbhSpecificationApplication;
@@ -82,31 +74,26 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   private static final Logger LOG =
       LoggerFactory.getLogger(RegisterMonthlyReportedWithoutProfitITTest.class);
   private static final InMemoryAccountRepository inMemoryAccountRepo =
-      new InMemoryAccountRepository();
+      UseCaseBuilder.getAccountRepository();
   static BigDecimal expensesFeb25 = withJBHDecimals(BigDecimal.ZERO);
   // Static to be shared between tests
   static AccountId accountId = AccountId.generate();
   static UUID userId = UUID.randomUUID();
   static InMemoryMonthlyBalanceRepositories inMemoryMonthlyBalanceRepos =
-      new InMemoryMonthlyBalanceRepositories();
+      UseCaseBuilder.getInMemoryMonthlyBalanceRepos();
   // Static to be shared between tests
   static int totalMonthsCreated = 1;
+  @Mock private static AccountMovementRepository accountMovementRepository;
+  private static MonthlyBalanceService monthlyBalanceService;
+  private static RegisterMonthlyBalanceUseCase useCaseTest;
+  private static AddMovementUseCase addMovementUseCase;
+  ;
   public final AccountDTOBuilder ACCOUNT_DEFAULT_BUILDER =
       AccountDTO.defaultBuilder(userId, accountId, DEFAULT_ACCOUNT_NAME, DEFAULT_ACCOUNT_TYPE);
   AccountMonthlyBalanceWriterRepository monthlyBalanceInMemoWriter =
       inMemoryMonthlyBalanceRepos.getWriterRepo();
   AccountMonthlyBalanceQueryRepo monthlyBalanceInMemoQuery =
       inMemoryMonthlyBalanceRepos.getQueryRepo();
-  MonthlyBalanceService monthlyBalanceService =
-      new MonthlyBalanceServiceImpl(
-          monthlyBalanceInMemoQuery, monthlyBalanceInMemoWriter, new AsyncTaskExecutorImpl());
-  ;
-  RegisterMonthlyBalanceInputPort useCaseTest;
-  AddMovementUseCase addMovementUseCase;
-  MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncer;
-  @Mock private AccountMovementRepository accountMovementRepository;
-  private AccountService accountService;
-  private AccountMovementService accountMovementService;
 
   @BeforeAll
   static void beforeAll() {
@@ -117,18 +104,11 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    accountService = new AccountServiceImpl(inMemoryAccountRepo);
-    accountMovementService =
-        new AccountMovementServiceImpl(
-            accountMovementRepository, accountService, monthlyBalanceService, new UnitOfWorkTest());
 
-    useCaseTest =
-        new RegisterMonthlyBalanceInputPort(
-            monthlyBalanceService, accountService, accountMovementService);
+    monthlyBalanceService = UseCaseBuilder.buildMonthlyBalanceService();
+    useCaseTest = UseCaseBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
 
-    monthlyBalanceSyncer = new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
-
-    addMovementUseCase = new AddMovementInputPort(accountMovementService);
+    addMovementUseCase = UseCaseBuilder.buildAddMovementUseCase(accountMovementRepository);
   }
 
   @Test
