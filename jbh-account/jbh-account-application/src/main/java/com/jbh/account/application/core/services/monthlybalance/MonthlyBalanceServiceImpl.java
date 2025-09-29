@@ -17,7 +17,6 @@ import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonth
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -72,8 +71,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   }
 
   @Override
-  public MonthlyBalanceDTO updateOpeningBalanceNextMonth(
-      final MonthlyBalanceDTO currentMonthlyBalance) {
+  public void updateOpeningBalanceNextMonth(final MonthlyBalanceDTO currentMonthlyBalance) {
     final YearMonth nextPeriod = currentMonthlyBalance.period().plusMonths(1);
 
     final AccountMonthlyBalanceDomain nextMonthlyBalance =
@@ -90,8 +88,6 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
     final MonthlyBalanceDTO nextMonthlyBalanceDTO = toDTO(nextMonthlyBalance);
     saveBalance(nextMonthlyBalanceDTO);
-
-    return nextMonthlyBalanceDTO;
   }
 
   @Override
@@ -165,9 +161,6 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
           // Step 1: Save balances (executes first)
           saveMultiBalances(monthlyBalances);
 
-          // TODO: Remove this
-          // FIXME: This is just for testing
-          Thread.sleep(Duration.ofSeconds(1).toMillis());
           // Step 3: Return profit/opening balances (they contain the combined results)
           // The monthly balances are already persisted in the database
           return adjustCurrentAndNextMonthlyBalancesAsync(accountId, initPeriod, lastPeriod);

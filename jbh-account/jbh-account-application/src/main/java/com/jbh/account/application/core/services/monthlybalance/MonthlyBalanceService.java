@@ -11,7 +11,7 @@ import java.util.concurrent.CompletableFuture;
 public interface MonthlyBalanceService
     extends AccountMonthlyBalanceQueryRepo, AccountMonthlyBalanceWriterRepository {
 
-  MonthlyBalanceDTO updateOpeningBalanceNextMonth(MonthlyBalanceDTO currentMonthlyBalance);
+  void updateOpeningBalanceNextMonth(MonthlyBalanceDTO currentMonthlyBalance);
 
   boolean isLastOfficialReport(MonthlyBalanceDTO monthlyBalanceDTO);
 

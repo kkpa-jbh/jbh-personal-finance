@@ -115,14 +115,13 @@ public class AccountMonthlyBalanceDomainTest {
   @Test
   public void shouldCreateWithOpeningBalance() {
     AccountMonthlyBalanceDomain previousMonthlyBalance =
-        AccountMonthlyBalanceDomain.withInitialDataForNextMonth(
+        EntityBuilder.withInitialDataForNextMonth(
             accountId, todayYM, new BigDecimal("350.00"), false);
     ceroMonthlyBalance.assignOpeningBalance(previousMonthlyBalance);
     assertEquals(new BigDecimal("350.00"), ceroMonthlyBalance.getOpeningBalance());
 
     previousMonthlyBalance =
-        AccountMonthlyBalanceDomain.withInitialDataForNextMonth(
-            accountId, todayYM, BigDecimal.ZERO, false);
+        EntityBuilder.withInitialDataForNextMonth(accountId, todayYM, BigDecimal.ZERO, false);
     ceroMonthlyBalance.assignOpeningBalance(previousMonthlyBalance);
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getOpeningBalance());
   }
@@ -134,7 +133,9 @@ public class AccountMonthlyBalanceDomainTest {
     final var monthlyProfitReported = withJBHDecimals(new BigDecimal("20.00"));
     oneHundredMonthlyBalance.assignOfficialMonthlyReport(closingBalance, monthlyProfitReported);
 
-    assertEquals(closingBalance.subtract(monthlyProfitReported), oneHundredMonthlyBalance.getClosingBalance());
+    assertEquals(
+        closingBalance.subtract(monthlyProfitReported),
+        oneHundredMonthlyBalance.getClosingBalance());
     assertEquals(monthlyProfitReported, oneHundredMonthlyBalance.getMonthlyProfitReported());
     assertTrue(oneHundredMonthlyBalance.isOfficialMonthlyReport());
     assertEquals(monthlyProfitReported, oneHundredMonthlyBalance.getMonthlyNetProfit());
@@ -144,8 +145,7 @@ public class AccountMonthlyBalanceDomainTest {
   public void shouldCreateWithInitialDataForNextMonth() {
     final var closingBalance = new BigDecimal("200.00");
     final var newBalance =
-        AccountMonthlyBalanceDomain.withInitialDataForNextMonth(
-            accountId, todayYM, closingBalance, false);
+        EntityBuilder.withInitialDataForNextMonth(accountId, todayYM, closingBalance, false);
 
     assertEquals(closingBalance, newBalance.getClosingBalance());
     assertEquals(JBH_ZERO, newBalance.getTotalDebits());

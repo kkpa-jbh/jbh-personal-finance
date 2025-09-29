@@ -104,21 +104,6 @@ public class AccountMonthlyBalanceDomain {
     return new AccountMonthlyBalanceDomain(accountId, period);
   }
 
-  // TODO: Remove this. It's only used for testing
-  public static AccountMonthlyBalanceDomain withInitialDataForNextMonth(
-      final AccountId accountId,
-      final YearMonth period,
-      final BigDecimal closingBalance,
-      final boolean gapPeriod) {
-
-    final AccountMonthlyBalanceDomain accountMonthlyBalance =
-        new AccountMonthlyBalanceDomain(accountId, period);
-    accountMonthlyBalance.closingBalance = closingBalance;
-    accountMonthlyBalance.gapPeriod = gapPeriod;
-
-    return accountMonthlyBalance;
-  }
-
   /** Returns a hash code value for the object based on period and accountId. */
   @Override
   public int hashCode() {
