@@ -32,6 +32,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Assertions;
@@ -52,6 +53,10 @@ public class AddMovementsAfterMonthlyReportedTest {
       LoggerFactory.getLogger(AddMovementsAfterMonthlyReportedTest.class);
 
   private static final String ACCOUNT_REPORTED = "Reported";
+  private static final List<BigDecimal> withdrawalMovements =
+      List.of(withJBHDecimals(new BigDecimal("5")));
+  private static final List<BigDecimal> depositMovements =
+      List.of(withJBHDecimals(new BigDecimal("10")));
 
   static CreateAccountUseCase createAccountUseCase;
   static AccountDTO createdAccount;
@@ -138,10 +143,8 @@ public class AddMovementsAfterMonthlyReportedTest {
 
   @Test
   @Order(1)
-  void addingMovements1() {
-
-    final BigDecimal withDrawal1 = withJBHDecimals(new BigDecimal("5"));
-
+  void addingWithdrawal1() {
+    final BigDecimal withDrawal1 = withdrawalMovements.get(0);
     addMovement(reportedPeriod, ExpenseCategory.PERSONAL, withDrawal1, null);
 
     final MonthlyBalanceDTO currentMonthlyBalance =
@@ -201,10 +204,10 @@ public class AddMovementsAfterMonthlyReportedTest {
 
   @Test
   @Order(2)
-  void addingMovements2() {
+  void addingDeposit1() {
 
-    final BigDecimal deposit = withJBHDecimals(new BigDecimal("20"));
-    final BigDecimal withDrawal1 = withJBHDecimals(new BigDecimal("5"));
+    final BigDecimal deposit = depositMovements.get(0);
+    final BigDecimal withDrawal1 = withdrawalMovements.get(0);
 
     addMovement(reportedPeriod, IncomeCategory.SALARY, deposit, null);
 
@@ -238,5 +241,29 @@ public class AddMovementsAfterMonthlyReportedTest {
     assertEquals(
         finalExpectedAccountBalance.movementBalance().add(deposit).subtract(withDrawal1),
         currentAccountBalance.movementBalance());
+  }
+
+  @Test
+  @Order(2)
+  public void addExcceededDepositsShouldThrowException() {
+    final BigDecimal deposit = new BigDecimal("100");
+
+    Assertions.assertThrows(
+        RuntimeException.class,
+        () -> addMovement(reportedPeriod, IncomeCategory.SALARY, deposit, null));
+  }
+
+  @Test
+  @Order(3)
+  public void addExcceededWithdrawalsShouldThrowException() {
+    final BigDecimal withdrawal1 = new BigDecimal("900");
+    final BigDecimal withdrawal2 = new BigDecimal("10");
+
+    // Nothing happens, the balance has enought still (5 more)
+    addMovement(reportedPeriod, ExpenseCategory.PERSONAL, withdrawal1, null);
+
+    Assertions.assertThrows(
+        RuntimeException.class,
+        () -> addMovement(reportedPeriod, ExpenseCategory.PERSONAL, withdrawal2, null));
   }
 }

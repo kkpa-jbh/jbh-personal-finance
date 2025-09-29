@@ -12,7 +12,6 @@ import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.application.exceptions.JbhExceptionMessage;
 import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountMovementDomain;
@@ -110,14 +109,7 @@ public class AccountMovementServiceImpl implements AccountMovementService {
     final boolean isMonthOfficiallyReported =
         findIfMonthlyBalanceWasOfficialReported(accountId, movementPeriod);
 
-    // Do not allow to add a snapshot after the monthly balance was officially reported
-    if (isMonthOfficiallyReported && movementBalanceSnapshot != null) {
-      throw new JbhSpecificationApplication(
-          "Cannot add a snapshot after the monthly balance was officially reported",
-          new JbhExceptionMessage(
-              "Cannot add a snapshot after the monthly balance was officially reported",
-              "No se puede añadir un snapshot después de que el balance anual fue reportado"));
-    }
+    if (isMonthOfficiallyReported && movementBalanceSnapshot != null) {}
 
     // Get Movement Type and Movement Amount
     BigDecimal totalAmount = movementCommand.totalAmount();
@@ -132,6 +124,11 @@ public class AccountMovementServiceImpl implements AccountMovementService {
             movementType,
             MovementCategoryDomain.withDTO(movementCommand.categoryDTO()));
     final var movementDTO = MovementMapper.toDTO(newMovement);
+
+    // Validations
+    monthlyBalanceService.validateNewMovement(movementDTO);
+
+    // Then
 
     final AccountDTO accountDTO =
         accountService.syncByMovement(

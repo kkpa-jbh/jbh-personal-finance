@@ -4,6 +4,7 @@ import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
+import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.domain.vo.AccountId;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -23,4 +24,6 @@ public interface MonthlyBalanceService
    */
   CompletableFuture<List<MonthlyBalanceDTO>> persistBalancesAsync(
       AccountId accountId, List<MonthlyBalanceDTO> monthlyBalances);
+
+  void validateNewMovement(MovementDTO movementDTO) throws JbhSpecificationApplication;
 }
