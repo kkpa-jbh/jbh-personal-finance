@@ -109,8 +109,6 @@ public class AccountMovementServiceImpl implements AccountMovementService {
     final boolean isMonthOfficiallyReported =
         findIfMonthlyBalanceWasOfficialReported(accountId, movementPeriod);
 
-    if (isMonthOfficiallyReported && movementBalanceSnapshot != null) {}
-
     // Get Movement Type and Movement Amount
     BigDecimal totalAmount = movementCommand.totalAmount();
     final MovementType movementType = movementCommand.movementType();

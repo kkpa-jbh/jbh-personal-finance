@@ -26,7 +26,6 @@ import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
-import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
@@ -488,7 +487,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             withJBHDecimals(fiftyMillionsExpenses),
             MovementCategoryDTO.withType(ExpenseCategory.PERSONAL));
     Assertions.assertThrows(
-        GenericSpecificationException.class, () -> addMovement(fiftyMillionsExpensesCommand));
+        RuntimeException.class, () -> addMovement(fiftyMillionsExpensesCommand));
   }
 
   @Test

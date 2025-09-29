@@ -14,6 +14,8 @@ import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
+import com.jbh.account.application.core.validation.movement.MovementTypeValidationStrategy;
+import com.jbh.account.application.core.validation.movement.MovementValidationStrategyFactory;
 import com.jbh.account.application.exceptions.JbhExceptionMessage;
 import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
@@ -35,11 +37,14 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("PMD.CouplingBetweenObjects")
 public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   private static final Logger LOG = LoggerFactory.getLogger(MonthlyBalanceServiceImpl.class);
   private final AccountMonthlyBalanceQueryRepo queryRepo;
   private final AccountMonthlyBalanceWriterRepository writerRepo;
   private final AsyncTaskExecutor asyncTaskExecutor;
+
+  private final MovementValidationStrategyFactory movValidationStrategyFactory;
 
   public MonthlyBalanceServiceImpl(
       final AccountMonthlyBalanceQueryRepo monthlyBalanceRepo,
@@ -48,6 +53,8 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
     this.writerRepo = monthlyBalanceWriterRepo;
     this.queryRepo = monthlyBalanceRepo;
     this.asyncTaskExecutor = asyncTaskExecutor;
+
+    this.movValidationStrategyFactory = new MovementValidationStrategyFactory();
   }
 
   @Override
@@ -184,40 +191,30 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
     if (monthlyBalanceQuery.isPresent()) {
       // Do not allow to add a snapshot after the monthly balance was officially reported
       final MonthlyBalanceDTO existingMonthlyBalance = monthlyBalanceQuery.get();
-      final boolean isMonthOfficiallyReported = existingMonthlyBalance.officialMonthlyReport();
-      if (isMonthOfficiallyReported && balanceSnapshot != null) {
-        throw new JbhSpecificationApplication(
-            "Cannot add a snapshot after the monthly balance was officially reported",
-            new JbhExceptionMessage(
-                "Cannot add a snapshot after the monthly balance was officially reported",
-                "No se puede añadir un snapshot después de que el balance anual fue reportado"));
-      }
+      final var isMonthOfficiallyReported =
+          isMonthOfficiallyReportedValid(existingMonthlyBalance, balanceSnapshot);
 
       // Validate the new movement does not exceed the monthly balance reported
       if (isMonthOfficiallyReported) {
-        final BigDecimal openingBalance = existingMonthlyBalance.openingBalance();
-        final BigDecimal closingBalance = existingMonthlyBalance.closingBalance();
-        final BigDecimal movementBalance = existingMonthlyBalance.movementBalance();
-        final var futureMovementBalance = openingBalance.add(movementBalance).add(movementAmount);
-        if (movementType == MovementType.DEPOSIT) {
-          if (futureMovementBalance.compareTo(closingBalance) > 0) {
-            throw new JbhSpecificationApplication(
-                "The new deposit exceeds the monthly balance " + closingBalance,
-                new JbhExceptionMessage(
-                    "The new deposit exceeds the monthly balance " + closingBalance,
-                    "El depósito excede el saldo reportado del mes" + closingBalance));
-          }
-        } else if (movementType == MovementType.WITHDRAWAL) {
-          if (futureMovementBalance.compareTo(BigDecimal.ZERO) < 0) {
-            throw new JbhSpecificationApplication(
-                "The new withdrawal exceeds the monthly balance " + openingBalance,
-                new JbhExceptionMessage(
-                    "The new withdrawal exceeds the monthly balance " + openingBalance,
-                    "La retirada excede el saldo reportado del mes" + openingBalance));
-          }
-        }
+        final MovementTypeValidationStrategy strategy =
+            movValidationStrategyFactory.getStrategy(movementType);
+        strategy.validateMovementAgainstOfficialBalance(movementAmount, existingMonthlyBalance);
       }
     }
+  }
+
+  private static boolean isMonthOfficiallyReportedValid(
+      final MonthlyBalanceDTO existingMonthlyBalance, final BigDecimal balanceSnapshot)
+      throws JbhSpecificationApplication {
+    final boolean isMonthOfficiallyReported = existingMonthlyBalance.officialMonthlyReport();
+    if (isMonthOfficiallyReported && balanceSnapshot != null) {
+      throw new JbhSpecificationApplication(
+          "Cannot add a snapshot after the monthly balance was officially reported",
+          new JbhExceptionMessage(
+              "Cannot add a snapshot after the monthly balance was officially reported",
+              "No se puede añadir un snapshot después de que el balance anual fue reportado"));
+    }
+    return isMonthOfficiallyReported;
   }
 
   /**
