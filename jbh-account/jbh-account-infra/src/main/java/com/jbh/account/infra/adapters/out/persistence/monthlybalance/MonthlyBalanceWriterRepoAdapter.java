@@ -4,12 +4,14 @@ import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 
 @Transactional
 @ApplicationScoped
+@Named("monthlyBalanceWriterJPAAdapter")
 public class MonthlyBalanceWriterRepoAdapter implements AccountMonthlyBalanceWriterRepository {
   @Inject MonthlyBalanceJPARepository jpaRepo;
 

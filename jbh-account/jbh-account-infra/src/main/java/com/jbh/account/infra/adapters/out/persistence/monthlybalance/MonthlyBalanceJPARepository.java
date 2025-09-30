@@ -6,6 +6,7 @@ import com.jbh.account.domain.vo.AccountId;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Named;
 import jakarta.persistence.PersistenceUnit;
 import jakarta.transaction.Transactional;
 import java.time.YearMonth;
@@ -15,6 +16,7 @@ import java.util.Optional;
 @ApplicationScoped
 @PersistenceUnit(name = "acctmgmt")
 @Transactional
+@Named("monthlyBalanceJPARepository")
 public class MonthlyBalanceJPARepository
     implements PanacheRepository<AccountMonthlyBalanceJPAEntity>, AccountMonthlyBalanceQueryRepo {
 
