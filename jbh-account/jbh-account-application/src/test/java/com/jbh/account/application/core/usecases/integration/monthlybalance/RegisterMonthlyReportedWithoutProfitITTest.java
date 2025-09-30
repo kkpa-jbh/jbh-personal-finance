@@ -4,6 +4,7 @@ import static com.jbh.account.application.core.ports.output.account.InMemoryAcco
 import static com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository.DEFAULT_ACCOUNT_TYPE;
 import static com.jbh.account.application.core.usecases.utils.AccountITUtils.assertAccount;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
+import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -86,6 +87,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   private static MonthlyBalanceService monthlyBalanceService;
   private static RegisterMonthlyBalanceUseCase useCaseTest;
   private static AddMovementUseCase addMovementUseCase;
+  private static AccountDTO finalAccountBalance;
   ;
   public final AccountDTOBuilder ACCOUNT_DEFAULT_BUILDER =
       AccountDTO.defaultBuilder(userId, accountId, DEFAULT_ACCOUNT_NAME, DEFAULT_ACCOUNT_TYPE);
@@ -98,6 +100,10 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   static void beforeAll() {
     inMemoryMonthlyBalanceRepos.clearStorage();
     inMemoryAccountRepo.clearStorage();
+  }
+
+  private static void refreshActualAccountBalance() {
+    finalAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
   }
 
   @BeforeEach
@@ -129,7 +135,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     addMovement(salaryMovement);
 
     final AddMonthlyBalanceCommand command =
-        new AddMonthlyBalanceCommand(monthlyPeriod, closingBalanceNov24, null);
+        createMonthlyBalanceCommand(monthlyPeriod, closingBalanceNov24, null);
 
     final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
     Assertions.assertDoesNotThrow(
@@ -235,7 +241,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     addMovement(salaryMovement);
 
     final AddMonthlyBalanceCommand command =
-        new AddMonthlyBalanceCommand(monthlyPeriod, closingBalanceDec24, null);
+        createMonthlyBalanceCommand(monthlyPeriod, closingBalanceDec24, null);
 
     final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
     Assertions.assertDoesNotThrow(
@@ -307,7 +313,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             MovementCategoryDTO.withType(IncomeCategory.SALARY)));
 
     final AddMonthlyBalanceCommand command =
-        new AddMonthlyBalanceCommand(monthlyPeriod, closingBalanceJan25, null);
+        createMonthlyBalanceCommand(monthlyPeriod, closingBalanceJan25, null);
 
     final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
     Assertions.assertDoesNotThrow(
@@ -403,7 +409,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     final LocalDate runningDate = monthlyPeriod202502.plusMonths(1).atDay(1);
 
     final AddMonthlyBalanceCommand command =
-        new AddMonthlyBalanceCommand(monthlyPeriod202502, closingBalanceFeb25, null);
+        createMonthlyBalanceCommand(monthlyPeriod202502, closingBalanceFeb25, null);
 
     // When
     final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
@@ -506,7 +512,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             MovementCategoryDTO.withType(IncomeCategory.SALARY)));
 
     final AddMonthlyBalanceCommand command =
-        new AddMonthlyBalanceCommand(monthlyPeriod, closingBalanceMar25, null);
+        createMonthlyBalanceCommand(monthlyPeriod, closingBalanceMar25, null);
 
     final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
     Assertions.assertDoesNotThrow(
@@ -563,8 +569,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             withJBHDecimals(salaryAmountApr25),
             MovementCategoryDTO.withType(IncomeCategory.SALARY)));
 
-    final AddMonthlyBalanceCommand command =
-        new AddMonthlyBalanceCommand(monthlyPeriod, null, null);
+    final AddMonthlyBalanceCommand command = createMonthlyBalanceCommand(monthlyPeriod, null);
 
     final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
     Assertions.assertThrows(
@@ -575,7 +580,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
                     runningDate, userId, accountId, command)));
 
     final AddMonthlyBalanceCommand command2 =
-        new AddMonthlyBalanceCommand(monthlyPeriod, BigDecimal.ZERO, null);
+        createMonthlyBalanceCommand(monthlyPeriod, BigDecimal.ZERO, null);
 
     Assertions.assertThrows(
         IllegalArgumentException.class,
@@ -597,8 +602,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             withJBHDecimals(salaryAmountMay25),
             MovementCategoryDTO.withType(IncomeCategory.SALARY)));
 
-    final AddMonthlyBalanceCommand command =
-        new AddMonthlyBalanceCommand(monthlyPeriod, null, null);
+    final AddMonthlyBalanceCommand command = createMonthlyBalanceCommand(monthlyPeriod, null);
 
     final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
     Assertions.assertThrows(
@@ -619,7 +623,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     logBlockHeader("TESTING " + monthlyPeriod);
 
     final AddMonthlyBalanceCommand command =
-        new AddMonthlyBalanceCommand(monthlyPeriod, closingBalanceAug25, null);
+        createMonthlyBalanceCommand(monthlyPeriod, closingBalanceAug25, null);
 
     final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
     Assertions.assertThrows(

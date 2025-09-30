@@ -1,5 +1,6 @@
 package com.jbh.account.application.core.usecases.utils;
 
+import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
@@ -386,15 +387,17 @@ public class TestDataFactory {
   public static List<AddMonthlyBalanceCommand> getAddMonthlyBalanceCommandsWithProfit(
       final YearMonth initialPeriod, final BigDecimal initialBalance) {
     return List.of(
-        new AddMonthlyBalanceCommand(
+        createMonthlyBalanceCommand(
             initialPeriod, new MonthlyBalanceCommandVO(initialBalance, null)),
-        new AddMonthlyBalanceCommand(initialPeriod.plusMonths(1), getCommandVO("1050", "50")),
-        new AddMonthlyBalanceCommand(initialPeriod.plusMonths(2), getCommandVO("1200", "30")),
-        new AddMonthlyBalanceCommand(initialPeriod.plusMonths(3), getCommandVO("1000", "50")),
-        new AddMonthlyBalanceCommand(initialPeriod.plusMonths(4), getCommandVO("500", "100")),
-        new AddMonthlyBalanceCommand(initialPeriod.plusMonths(5), getCommandVO("420", "20")),
+        createMonthlyBalanceCommand(initialPeriod.plusMonths(1), getCommandVO("1050", "50")),
+        createMonthlyBalanceCommand(initialPeriod.plusMonths(2), getCommandVO("1200", "30")),
+        createMonthlyBalanceCommand(initialPeriod.plusMonths(3), getCommandVO("1000", "50")),
+        createMonthlyBalanceCommand(initialPeriod.plusMonths(4), getCommandVO("500", "100")),
+        createMonthlyBalanceCommand(initialPeriod.plusMonths(5), getCommandVO("420", "20")),
         // 2025
-        new AddMonthlyBalanceCommand(initialPeriod.plusMonths(6), getCommandVO("575", "10"))
+        createMonthlyBalanceCommand(initialPeriod.plusMonths(6), getCommandVO("575", "10")),
+        createMonthlyBalanceCommand(
+            initialPeriod.plusMonths(7), getCommandVO("582", "5"), new BigDecimal("3"))
         // To separate the tests
         );
   }

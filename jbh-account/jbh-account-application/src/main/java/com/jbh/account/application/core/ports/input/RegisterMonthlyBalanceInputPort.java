@@ -108,7 +108,8 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
 
     monthlyBalanceDomain.assignOfficialMonthlyReport(
         addMonthlyBalanceCommand.closingBalance(),
-        addMonthlyBalanceCommand.monthlyProfitReported());
+        addMonthlyBalanceCommand.monthlyProfitReported(),
+        addMonthlyBalanceCommand.incomeWithholdingTaxAmount());
 
     final MonthlyBalanceDTO monthlyBalanceDTO = toDTO(monthlyBalanceDomain);
     monthlyBalanceService.saveBalance(monthlyBalanceDTO);

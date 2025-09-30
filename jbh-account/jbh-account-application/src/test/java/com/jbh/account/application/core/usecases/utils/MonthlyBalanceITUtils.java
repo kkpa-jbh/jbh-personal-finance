@@ -4,6 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.usecases.integration.monthlybalance.IgnoreOption;
+import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
+import com.jbh.account.application.core.vo.commands.MonthlyBalanceCommandVO;
+import java.math.BigDecimal;
+import java.time.YearMonth;
 
 public class MonthlyBalanceITUtils {
 
@@ -62,5 +66,29 @@ public class MonthlyBalanceITUtils {
           actual.monthlyNetProfit(),
           "Monthly Net Profit for period " + actual.period());
     }
+  }
+
+  public static AddMonthlyBalanceCommand createMonthlyBalanceCommand(
+      final YearMonth monthlyPeriod, final MonthlyBalanceCommandVO balanceVO) {
+    if (balanceVO == null) {
+      return new AddMonthlyBalanceCommand(monthlyPeriod, null, null, null);
+    }
+    return new AddMonthlyBalanceCommand(
+        monthlyPeriod, balanceVO.closingBalance(), balanceVO.monthlyProfitReported(), null);
+  }
+
+  public static AddMonthlyBalanceCommand createMonthlyBalanceCommand(
+      final YearMonth monthlyPeriod,
+      final BigDecimal closingBalance,
+      final BigDecimal monthlyProfitReported) {
+    return new AddMonthlyBalanceCommand(monthlyPeriod, closingBalance, monthlyProfitReported, null);
+  }
+
+  public static AddMonthlyBalanceCommand createMonthlyBalanceCommand(
+      final YearMonth monthlyPeriod,
+      final MonthlyBalanceCommandVO balanceVO,
+      final BigDecimal retefuente) {
+    return new AddMonthlyBalanceCommand(
+        monthlyPeriod, balanceVO.closingBalance(), balanceVO.monthlyProfitReported(), retefuente);
   }
 }

@@ -1,5 +1,6 @@
 package com.jbh.account.application.core.usecases.mock;
 
+import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static org.mockito.ArgumentMatchers.any;
@@ -89,7 +90,7 @@ public class RegisterMonthlyBalanceMockTest {
     final BigDecimal movementsBalance = BigDecimal.ZERO;
     final BigDecimal closingBalance = BigDecimal.valueOf(2105192.00);
     final AddMonthlyBalanceCommand command =
-        new AddMonthlyBalanceCommand(august24MonthlyPeriod, closingBalance, null);
+        createMonthlyBalanceCommand(august24MonthlyPeriod, closingBalance, null);
 
     final MonthlyBalanceDTO monthlyBalanceDTO =
         MonthlyBalanceDTO.defaultBuilder()
@@ -166,10 +167,9 @@ public class RegisterMonthlyBalanceMockTest {
   void shouldThrowExceptionWhenNotValidPeriod() {
     // Given
 
-    final BigDecimal movementsBalance = BigDecimal.ZERO;
     final BigDecimal closingBalance = BigDecimal.valueOf(2105192.00);
     final AddMonthlyBalanceCommand command =
-        new AddMonthlyBalanceCommand(august24MonthlyPeriod, closingBalance, null);
+        createMonthlyBalanceCommand(august24MonthlyPeriod, closingBalance, null);
     final LocalDate runningDatePast = LocalDate.of(august24MonthlyPeriod.getYear() - 1, 8, 1);
     when(monthlyBalanceQueryRepoMock.findByAccountIdYearAndMonth(
             accountId, august24MonthlyPeriod.getYear(), august24MonthlyPeriod.getMonthValue()))

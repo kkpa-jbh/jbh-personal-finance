@@ -1,4 +1,4 @@
-package com.jbh.account.application.core.usecases.integration.monthlybalance;
+package com.jbh.account.application.core.usecases.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
 

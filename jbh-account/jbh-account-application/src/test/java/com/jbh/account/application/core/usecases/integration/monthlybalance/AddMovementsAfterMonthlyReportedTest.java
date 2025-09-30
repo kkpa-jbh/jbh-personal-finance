@@ -1,6 +1,7 @@
 package com.jbh.account.application.core.usecases.integration.monthlybalance;
 
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
+import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -101,7 +102,7 @@ public class AddMovementsAfterMonthlyReportedTest {
     // Creating Initial Balance
     final var initialBalance = withJBHDecimals(new BigDecimal("900"));
     final AddMonthlyBalanceCommand previousCommand =
-        new AddMonthlyBalanceCommand(
+        createMonthlyBalanceCommand(
             reportedPeriod.plusMonths(-1),
             new MonthlyBalanceCommandVO(withJBHDecimals(initialBalance), null));
 
@@ -114,7 +115,7 @@ public class AddMovementsAfterMonthlyReportedTest {
     assertEquals(initialBalance, finalExpectedAccountBalance.movementBalance(), "Movement Balance");
 
     final AddMonthlyBalanceCommand command =
-        new AddMonthlyBalanceCommand(reportedPeriod, reportedPeriodAmounts);
+        createMonthlyBalanceCommand(reportedPeriod, reportedPeriodAmounts);
     final AtomicReference<MonthlyBalanceDTO> savedInitialMonthlyBalance = new AtomicReference<>();
     Assertions.assertDoesNotThrow(
         () ->

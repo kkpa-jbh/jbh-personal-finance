@@ -18,6 +18,7 @@ import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.MovementCategoryDomain;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.MovementType;
@@ -57,8 +58,14 @@ public class AccountMovementServiceImpl implements AccountMovementService {
     final var accountId = monthlyBalanceDTO.accountId();
     final var period = monthlyBalanceDTO.period().plusMonths(1).atDay(1);
     final var monthlyProfitReported = withJBHDecimals(monthlyBalanceDTO.monthlyProfitReported());
+    final var incomeWithholdingTaxAmount = monthlyBalanceDTO.incomeWithholdingTaxAmount();
+
+    if (incomeWithholdingTaxAmount != null && monthlyProfitReported == null) {
+      throw new IllegalArgumentException("Monthly profit reported cannot be null");
+    }
 
     if (monthlyProfitReported != null) {
+      final var nextMonthBalance = monthlyBalanceDTO.closingBalance().add(monthlyProfitReported);
       log.info(
           "Adding {} dividends movement for account {} and period {}",
           monthlyProfitReported,
@@ -69,7 +76,7 @@ public class AccountMovementServiceImpl implements AccountMovementService {
       // month
       // taking into account the dividends. This balance snapshot should be the same of the account
       // balance.
-      final var nextMonthBalance = monthlyBalanceDTO.closingBalance().add(monthlyProfitReported);
+
       final AddMovementCommand dividendsMovement =
           new AddMovementCommand(
               period,
@@ -81,7 +88,28 @@ public class AccountMovementServiceImpl implements AccountMovementService {
       addMovement(accountPK, dividendsMovement);
 
       log.info(
-          "Dividends movement added successfully for account {} and period {}", accountId, period);
+          "Dividends movement {} added successfully for account {} and period {}",
+          monthlyProfitReported,
+          accountId,
+          period);
+
+      if (incomeWithholdingTaxAmount != null) {
+        final var incomeWithholdingTaxMovement =
+            new AddMovementCommand(
+                period,
+                incomeWithholdingTaxAmount,
+                nextMonthBalance.subtract(incomeWithholdingTaxAmount),
+                WITHDRAWAL,
+                MovementCategoryDTO.withType(ExpenseCategory.RETEFUENTE));
+
+        addMovement(accountPK, incomeWithholdingTaxMovement);
+
+        log.info(
+            "Income withholding tax movement {} added successfully for account {} and period {}",
+            incomeWithholdingTaxAmount,
+            accountId,
+            period);
+      }
     }
   }
 

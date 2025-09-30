@@ -1,5 +1,6 @@
 package com.jbh.account.application.core.usecases.integration.monthlybalance;
 
+import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 
 import com.jbh.account.application.core.dto.AccountDTO;
@@ -75,7 +76,7 @@ public class RegisterMonthlyReportedValidationITTest {
     // Creating Initial Balance
     final var initialBalance = withJBHDecimals(new BigDecimal("900"));
     final AddMonthlyBalanceCommand previousCommand =
-        new AddMonthlyBalanceCommand(
+        createMonthlyBalanceCommand(
             reportedPeriod, new MonthlyBalanceCommandVO(withJBHDecimals(initialBalance), null));
 
     useCaseTest.registerOfficialMonthlyBalance(runningDate, userId, accountId, previousCommand);
@@ -89,11 +90,11 @@ public class RegisterMonthlyReportedValidationITTest {
     // Existing Official Report
     final var initialBalance = withJBHDecimals(new BigDecimal("92300"));
     final AddMonthlyBalanceCommand nextCommand =
-        new AddMonthlyBalanceCommand(
+        createMonthlyBalanceCommand(
             reportedPeriod.plusMonths(1),
             new MonthlyBalanceCommandVO(withJBHDecimals(initialBalance), null));
     final AddMonthlyBalanceCommand existingMonthlyReportCommand =
-        new AddMonthlyBalanceCommand(
+        createMonthlyBalanceCommand(
             reportedPeriod, new MonthlyBalanceCommandVO(withJBHDecimals(initialBalance), null));
 
     // Should work the consecutive months
