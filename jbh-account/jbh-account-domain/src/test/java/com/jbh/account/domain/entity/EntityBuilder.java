@@ -29,6 +29,7 @@ public class EntityBuilder {
         0, // total movements
         gapPeriod,
         false, // official report
-        JBH_ZERO); // monthly profit reported
+        JBH_ZERO,
+        null); // monthly profit reported
   }
 }

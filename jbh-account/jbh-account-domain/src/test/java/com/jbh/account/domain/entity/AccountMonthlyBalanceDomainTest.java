@@ -51,7 +51,8 @@ public class AccountMonthlyBalanceDomainTest {
             0,
             false,
             false,
-            JBH_ZERO);
+            JBH_ZERO,
+            null);
 
     oneHundredMonthlyBalance = AccountMonthlyBalanceDomain.withPeriod(accountId, todayYM);
     oneHundredMonthlyBalance.assignMovement(
@@ -83,7 +84,8 @@ public class AccountMonthlyBalanceDomainTest {
             0,
             false,
             false,
-            JBH_ZERO);
+            JBH_ZERO,
+            null);
 
     assertEquals(expected, ceroMonthlyBalance);
     assertTrue(expected.equals(ceroMonthlyBalance));
@@ -131,7 +133,8 @@ public class AccountMonthlyBalanceDomainTest {
 
     final var closingBalance = withJBHDecimals(new BigDecimal("150.00"));
     final var monthlyProfitReported = withJBHDecimals(new BigDecimal("20.00"));
-    oneHundredMonthlyBalance.assignOfficialMonthlyReport(closingBalance, monthlyProfitReported);
+    oneHundredMonthlyBalance.assignOfficialMonthlyReport(
+        closingBalance, monthlyProfitReported, null);
 
     assertEquals(
         closingBalance.subtract(monthlyProfitReported),

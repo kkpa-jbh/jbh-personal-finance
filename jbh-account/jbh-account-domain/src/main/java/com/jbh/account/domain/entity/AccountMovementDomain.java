@@ -57,6 +57,7 @@ public class AccountMovementDomain {
     this.category = category;
   }
 
+  // FIXME Use factory movemtn type and see if this method can be removed
   public static AccountMovementDomain withFileImport(
       final AccountId accountId,
       final LocalDate movementDate,

@@ -22,7 +22,13 @@ public class AccountDomain {
   protected UUID userId;
   protected BigDecimal movementBalance = MoneyUtils.JBH_ZERO;
   protected BigDecimal currentBalance = MoneyUtils.JBH_ZERO;
+
+  /**
+   * The profit balance is the difference between the current balance and the movement balance. It
+   * can be negative because the user has not reported some movements
+   */
   protected BigDecimal profitBalance = MoneyUtils.JBH_ZERO;
+
   protected boolean isActive = true;
   protected LocalDateTime createdAt = LocalDateTime.now();
   protected LocalDateTime updatedAt;

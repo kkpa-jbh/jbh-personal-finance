@@ -153,6 +153,7 @@ package com.jbh.account.domain.vo;
  * <p>Gifts - Presents, donations Pets - Food, vet, supplies Misc - Uncategorized items
  */
 public enum ExpenseCategory implements CategoryType {
+  RETEFUENTE(0),
   SOCIAL_SECURITY(1),
   PUBLIC_SERVICES(2),
   PERSONAL(3);

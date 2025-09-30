@@ -51,6 +51,7 @@ public class AccountMonthlyBalanceDomain {
 
   // NULL if not reported
   private BigDecimal monthlyProfitReported;
+  private BigDecimal incomeWithholdingTaxAmount;
 
   @SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.NPathComplexity"})
   public AccountMonthlyBalanceDomain(
@@ -69,7 +70,8 @@ public class AccountMonthlyBalanceDomain {
       final Integer totalMovements,
       final boolean gapPeriod,
       final boolean officialMonthlyReport,
-      final BigDecimal monthlyProfitReported) {
+      final BigDecimal monthlyProfitReported,
+      final BigDecimal incomeWithholdingTaxAmount) {
 
     this.id = id;
     this.accountId = accountId;
@@ -86,7 +88,8 @@ public class AccountMonthlyBalanceDomain {
     this.totalMovements = totalMovements != null ? totalMovements : 0;
     this.gapPeriod = gapPeriod;
     this.officialMonthlyReport = officialMonthlyReport;
-    this.monthlyProfitReported = monthlyProfitReported;
+    this.monthlyProfitReported = withJBHDecimals(monthlyProfitReported);
+    this.incomeWithholdingTaxAmount = withJBHDecimals(incomeWithholdingTaxAmount);
   }
 
   /** Constructor with required fields. */
@@ -234,21 +237,32 @@ public class AccountMonthlyBalanceDomain {
   }
 
   public void assignOfficialMonthlyReport(
-      final BigDecimal closingBalance, final BigDecimal monthlyProfitReported) {
-    setOfficialMonthlyReport(closingBalance, monthlyProfitReported);
+      final BigDecimal closingBalance,
+      final BigDecimal monthlyProfitReported,
+      final BigDecimal incomeWithholdingTaxAmount) {
+    setOfficialMonthlyReport(closingBalance, monthlyProfitReported, incomeWithholdingTaxAmount);
     recalculateBalances();
   }
 
   @SuppressWarnings("PMD.NullAssignment")
   private void setOfficialMonthlyReport(
-      final BigDecimal closingBalance, final BigDecimal monthlyProfitReported) {
+      final BigDecimal closingBalance,
+      final BigDecimal monthlyProfitReported,
+      final BigDecimal incomeWithholdingTaxAmount) {
     this.closingBalance = closingBalance != null ? withJBHDecimals(closingBalance) : JBH_ZERO;
     this.monthlyProfitReported =
         monthlyProfitReported != null ? withJBHDecimals(monthlyProfitReported) : null;
+    this.incomeWithholdingTaxAmount =
+        incomeWithholdingTaxAmount != null ? withJBHDecimals(incomeWithholdingTaxAmount) : null;
 
     // A deposit will be created with dividends category for next month.
     if (monthlyProfitReported != null) {
       this.closingBalance = this.closingBalance.subtract(monthlyProfitReported);
+    }
+
+    // A withdrawal will be created with income withholding tax category for next month.
+    if (incomeWithholdingTaxAmount != null) {
+      this.closingBalance = this.closingBalance.add(incomeWithholdingTaxAmount);
     }
 
     // If it's not reported, it's the same as the monthly net profit calculated
