@@ -10,11 +10,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InMemoryAccountRepository implements AccountRepository {
 
   public static final String DEFAULT_ACCOUNT_NAME = "Account 1";
   public static final AccountType DEFAULT_ACCOUNT_TYPE = AccountType.OTHER;
+  private static final Logger log = LoggerFactory.getLogger(InMemoryAccountRepository.class);
   private final Map<UUID, AccountDTO> storage = new HashMap<>();
 
   @Override
@@ -40,6 +43,7 @@ public class InMemoryAccountRepository implements AccountRepository {
   @Override
   public AccountDTO save(final AccountDTO account) {
     storage.put(account.id().value(), account);
+    log.warn("Updated Account " + account);
     return account;
   }
 

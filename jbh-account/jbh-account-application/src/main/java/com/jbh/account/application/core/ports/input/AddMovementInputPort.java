@@ -27,7 +27,8 @@ public class AddMovementInputPort implements AddMovementUseCase {
     // Sync account balance and persist movement
     final AddBasicMovementDTO addBasicMovementDTO;
     addBasicMovementDTO =
-        accountMovementService.addMovement(new AccountPK(userId, accountId), movementCommand);
+        accountMovementService.addMovementProcessingBalances(
+            new AccountPK(userId, accountId), movementCommand);
 
     LOG.info("Movement addition completed successfully for account: {}", accountId.value());
 

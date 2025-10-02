@@ -17,7 +17,7 @@ public record AccountDTO(
     UUID userId,
     BigDecimal movementBalance,
     BigDecimal currentBalance,
-    BigDecimal profitBalance,
+    BigDecimal netProfitBalance,
     boolean isActive,
     LocalDateTime createdAt,
     LocalDateTime updatedAt,
@@ -33,7 +33,7 @@ public record AccountDTO(
         .type(type)
         .movementBalance(JBH_ZERO)
         .currentBalance(JBH_ZERO)
-        .profitBalance(JBH_ZERO)
+        .netProfitBalance(JBH_ZERO)
         .isActive(true)
         .createdAt(LocalDateTime.now())
         .updatedAt(LocalDateTime.now())

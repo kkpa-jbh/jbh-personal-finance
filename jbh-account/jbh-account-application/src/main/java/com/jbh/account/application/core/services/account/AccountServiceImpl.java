@@ -3,7 +3,6 @@ package com.jbh.account.application.core.services.account;
 import static com.jbh.account.application.core.mappers.AccountMapper.toDTO;
 
 import com.jbh.account.application.core.dto.AccountDTO;
-import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.mappers.MovementMapper;
@@ -11,6 +10,7 @@ import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -47,17 +47,39 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public AccountDTO syncByMonthlyReport(final MonthlyBalanceDTO monthlyBalance) {
-    final AccountId accountId = monthlyBalance.accountId();
+  public void updateClosingProfitBalances(
+      final AccountId accountId,
+      final BigDecimal closingBalance,
+      final BigDecimal calculatedNetProfit) {
+
+    final var accountDomain = findOrThrow(accountId);
+    accountDomain.setCurrentBalance(closingBalance);
+    accountDomain.setCalculatedNetProfit(calculatedNetProfit);
+    log.info(
+        "Setting {} Net Profit and {} current Balance for account {}",
+        calculatedNetProfit,
+        closingBalance,
+        accountId.value());
+    save(accountDomain);
+  }
+
+  private AccountDomain findOrThrow(final AccountId accountId) {
     final Optional<AccountDTO> accountDTO = findByAccountId(accountId);
 
     if (accountDTO.isEmpty()) {
       throw new IllegalArgumentException("Account not found");
     }
 
-    final AccountDomain accountDomain = AccountMapper.toDomain(accountDTO.get());
-    accountDomain.syncByMonthlyReport(monthlyBalance.closingBalance());
-    return save(accountDomain);
+    return AccountMapper.toDomain(accountDTO.get());
+  }
+
+  @Override
+  public void updateClosingBalances(final AccountId accountId, final BigDecimal closingBalance) {
+    final var accountDomain = findOrThrow(accountId);
+    accountDomain.setCurrentBalance(closingBalance);
+
+    log.info("Setting {} current Balance for account {}", closingBalance, accountId.value());
+    save(accountDomain);
   }
 
   @Override

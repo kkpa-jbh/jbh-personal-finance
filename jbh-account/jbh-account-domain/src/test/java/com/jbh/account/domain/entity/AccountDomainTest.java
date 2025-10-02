@@ -37,7 +37,7 @@ public class AccountDomainTest {
     assertNotNull(accountDomain.getId());
     assertEquals(JBH_ZERO, accountDomain.getMovementBalance());
     assertEquals(JBH_ZERO, accountDomain.getCurrentBalance());
-    assertEquals(JBH_ZERO, accountDomain.getProfitBalance());
+    assertEquals(JBH_ZERO, accountDomain.getNetProfitBalance());
     assertTrue(accountDomain.isActive());
   }
 
@@ -58,7 +58,7 @@ public class AccountDomainTest {
     assertNotNull(accountDomain.getCreatedAt());
     assertNotNull(accountDomain.getCurrentBalance());
     assertNotNull(accountDomain.getMovementBalance());
-    assertNotNull(accountDomain.getProfitBalance());
+    assertNotNull(accountDomain.getNetProfitBalance());
   }
 
   @Test
@@ -71,7 +71,7 @@ public class AccountDomainTest {
 
     assertEquals(movementBalance, accountDomain.getMovementBalance());
     assertEquals(currentBalance, accountDomain.getCurrentBalance());
-    assertEquals(JBH_ZERO, accountDomain.getProfitBalance());
+    assertEquals(JBH_ZERO, accountDomain.getNetProfitBalance());
   }
 
   @Test
@@ -96,7 +96,7 @@ public class AccountDomainTest {
 
     assertEquals(movementBalance.add(totalAmount), accountDomain.getMovementBalance());
     assertEquals(balanceSnapshot, accountDomain.getCurrentBalance());
-    assertEquals(new BigDecimal("10.00"), accountDomain.getProfitBalance());
+    assertEquals(new BigDecimal("10.00"), accountDomain.getNetProfitBalance());
   }
 
   @Test
@@ -136,6 +136,6 @@ public class AccountDomainTest {
 
     assertEquals(new BigDecimal("150.00"), accountDomain.getMovementBalance());
     assertEquals(new BigDecimal("155.00"), accountDomain.getCurrentBalance());
-    assertEquals(new BigDecimal("5.00"), accountDomain.getProfitBalance());
+    assertEquals(new BigDecimal("5.00"), accountDomain.getNetProfitBalance());
   }
 }

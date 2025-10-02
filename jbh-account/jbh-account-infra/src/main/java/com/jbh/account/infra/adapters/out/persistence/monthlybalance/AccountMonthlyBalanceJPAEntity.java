@@ -48,14 +48,17 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
   @Convert(converter = YearMonthConverter.class)
   public YearMonth period;
 
+  @Column(name = "movement_balance")
+  public BigDecimal movementBalance;
+
+  @Column(name = "net_growth_rate")
+  public BigDecimal netGrowthRate;
+
   @Column(name = "total_debits")
   public BigDecimal totalDebits;
 
   @Column(name = "total_credits")
   public BigDecimal totalCredits;
-
-  @Column(name = "movement_balance")
-  public BigDecimal movementBalance;
 
   @Column(name = "opening_balance")
   public BigDecimal openingBalance;
@@ -63,14 +66,23 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
   @Column(name = "closing_balance")
   public BigDecimal closingBalance;
 
-  @Column(name = "monthly_profit")
-  public BigDecimal monthlyProfit;
+  @Column(name = "monthly_net_profit")
+  public BigDecimal monthlyNetProfit;
 
   @Column(name = "total_movements")
   public Integer totalMovements;
 
   @Column(name = "gap_period")
   public boolean gapPeriod;
+
+  @Column(name = "official_monthly_report")
+  public boolean officialMonthlyReport;
+
+  @Column(name = "monthly_profit_reported")
+  public BigDecimal monthlyProfitReported;
+
+  @Column(name = "income_withholding_tax_amount")
+  public BigDecimal incomeWithholdingTaxAmount;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   public LocalDateTime createdAt;
@@ -91,7 +103,11 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
     entity.setMovementBalance(monthlyBalance.movementBalance());
     entity.setOpeningBalance(monthlyBalance.openingBalance());
     entity.setClosingBalance(monthlyBalance.closingBalance());
-    entity.setMonthlyProfit(monthlyBalance.monthlyNetProfit());
+    entity.setMonthlyNetProfit(monthlyBalance.monthlyNetProfit());
+    entity.setNetGrowthRate(monthlyBalance.netGrowthRate());
+    entity.setOfficialMonthlyReport(monthlyBalance.officialMonthlyReport());
+    entity.setMonthlyProfitReported(monthlyBalance.monthlyProfitReported());
+    entity.setIncomeWithholdingTaxAmount(monthlyBalance.incomeWithholdingTaxAmount());
     entity.setTotalMovements(monthlyBalance.totalMovements());
     entity.setGapPeriod(monthlyBalance.gapPeriod());
     return entity;
@@ -120,7 +136,11 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
         .movementBalance(movementBalance)
         .openingBalance(openingBalance)
         .closingBalance(closingBalance)
-        .monthlyNetProfit(monthlyProfit)
+        .monthlyNetProfit(monthlyNetProfit)
+        .netGrowthRate(netGrowthRate)
+        .officialMonthlyReport(officialMonthlyReport)
+        .monthlyProfitReported(monthlyProfitReported)
+        .incomeWithholdingTaxAmount(incomeWithholdingTaxAmount)
         .totalMovements(totalMovements)
         .gapPeriod(gapPeriod)
         .build();

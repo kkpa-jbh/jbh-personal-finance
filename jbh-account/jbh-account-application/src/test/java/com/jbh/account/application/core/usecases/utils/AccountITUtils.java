@@ -36,7 +36,7 @@ public class AccountITUtils {
     assertEquals(expected.movementBalance(), actual.movementBalance(), "Movement Balance");
     assertEquals(expected.currentBalance(), actual.currentBalance(), "Current Balance");
     if (!ignoreAccountProfit) {
-      assertEquals(expected.profitBalance(), actual.profitBalance(), "Profit Balance");
+      assertEquals(expected.netProfitBalance(), actual.netProfitBalance(), "Profit Balance");
     }
     assertEquals(expected.isActive(), actual.isActive(), "Is Active");
     assertEquals(
@@ -52,7 +52,7 @@ public class AccountITUtils {
     assertEquals(expected.userId(), actual.userId(), "User ID");
     assertEquals(expected.movementBalance(), actual.movementBalance(), "Account Movement Balance");
     assertEquals(expected.currentBalance(), actual.currentBalance(), "Account Current Balance");
-    assertEquals(expected.profitBalance(), actual.profitBalance(), "Account Profit Balance");
+    assertEquals(expected.netProfitBalance(), actual.netProfitBalance(), "Account Profit Balance");
     assertEquals(expected.isActive(), actual.isActive(), "Is Active");
     assertEquals(
         expected.advertisedAnnualRate(), actual.advertisedAnnualRate(), "Advertised Annual Rate");

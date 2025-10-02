@@ -21,6 +21,14 @@ public record AddMonthlyBalanceCommand(
     BigDecimal incomeWithholdingTaxAmount)
     implements CommandValidator {
 
+  public AddMonthlyBalanceCommand withClosingBalance(final BigDecimal newBalance) {
+    return new AddMonthlyBalanceCommand(
+        this.monthlyPeriod,
+        newBalance,
+        this.monthlyProfitReported,
+        this.incomeWithholdingTaxAmount);
+  }
+
   @Override
   public void validate() {
     if (isZero(closingBalance)) {

@@ -1,11 +1,11 @@
 package com.jbh.account.application.core.services.account;
 
 import com.jbh.account.application.core.dto.AccountDTO;
-import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
+import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,8 +19,29 @@ public interface AccountService {
 
   AccountDTO save(AccountDomain account);
 
-  AccountDTO syncByMonthlyReport(MonthlyBalanceDTO monthlyBalance);
+  /**
+   * @param accountId
+   * @param closingBalance
+   * @param calculatedNetProfit NULL to do nothing
+   */
+  void updateClosingProfitBalances(
+      AccountId accountId, BigDecimal closingBalance, BigDecimal calculatedNetProfit);
 
+  /**
+   * @param accountId
+   * @param closingBalance
+   */
+  void updateClosingBalances(AccountId accountId, BigDecimal closingBalance);
+
+  /**
+   * Syncs the account by the movement. This method will update the account current balance and net
+   * profit.
+   *
+   * @param accountPK
+   * @param movement
+   * @param isMonthOfficiallyReported
+   * @return
+   */
   AccountDTO syncByMovement(
       AccountPK accountPK, MovementDTO movement, boolean isMonthOfficiallyReported);
 }

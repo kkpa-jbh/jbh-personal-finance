@@ -131,17 +131,31 @@ public class AccountMonthlyBalanceDomainTest {
   @Test
   public void shouldSetOfficialReportAndAdjustClosingBalanceForMonth() {
 
-    final var closingBalance = withJBHDecimals(new BigDecimal("150.00"));
-    final var monthlyProfitReported = withJBHDecimals(new BigDecimal("20.00"));
+    final var closingBalance = (new BigDecimal("150.00"));
+    final var monthlyProfitReported = (new BigDecimal("20.00"));
     oneHundredMonthlyBalance.assignOfficialMonthlyReport(
         closingBalance, monthlyProfitReported, null);
 
-    assertEquals(
-        closingBalance.subtract(monthlyProfitReported),
-        oneHundredMonthlyBalance.getClosingBalance());
+    assertEquals(closingBalance, oneHundredMonthlyBalance.getClosingBalance());
     assertEquals(monthlyProfitReported, oneHundredMonthlyBalance.getMonthlyProfitReported());
     assertTrue(oneHundredMonthlyBalance.isOfficialMonthlyReport());
     assertEquals(monthlyProfitReported, oneHundredMonthlyBalance.getMonthlyNetProfit());
+  }
+
+  @Test
+  public void shouldSetOfficialReportWithZeroProfitAndRegularNetProfitFormula() {
+
+    final var closingBalance = (new BigDecimal("150.00"));
+    final var monthlyProfitReported = BigDecimal.ZERO;
+    oneHundredMonthlyBalance.assignOfficialMonthlyReport(
+        closingBalance, monthlyProfitReported, null);
+
+    assertEquals(closingBalance, oneHundredMonthlyBalance.getClosingBalance());
+    assertEquals(
+        withJBHDecimals(monthlyProfitReported),
+        oneHundredMonthlyBalance.getMonthlyProfitReported());
+    assertTrue(oneHundredMonthlyBalance.isOfficialMonthlyReport());
+    assertEquals(new BigDecimal("50.00"), oneHundredMonthlyBalance.getMonthlyNetProfit());
   }
 
   @Test

@@ -1,5 +1,7 @@
 package com.jbh.account.domain.entity;
 
+import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.utils.MoneyUtils;
 import com.jbh.account.domain.vo.AccountId;
@@ -27,7 +29,7 @@ public class AccountDomain {
    * The profit balance is the difference between the current balance and the movement balance. It
    * can be negative because the user has not reported some movements
    */
-  protected BigDecimal profitBalance = MoneyUtils.JBH_ZERO;
+  protected BigDecimal netProfitBalance = MoneyUtils.JBH_ZERO;
 
   protected boolean isActive = true;
   protected LocalDateTime createdAt = LocalDateTime.now();
@@ -152,10 +154,16 @@ public class AccountDomain {
   }
 
   private void syncProfitBalance() {
-    this.profitBalance = this.currentBalance.subtract(this.movementBalance);
+    this.netProfitBalance = this.currentBalance.subtract(this.movementBalance);
   }
 
-  public void syncByMonthlyReport(final BigDecimal closingBalance) {
-    this.currentBalance = closingBalance;
+  public void setCurrentBalance(final BigDecimal closingBalance) {
+    this.currentBalance = withJBHDecimals(closingBalance);
+  }
+
+  public void setCalculatedNetProfit(final BigDecimal inputNetProfit) {
+    if (inputNetProfit != null) {
+      this.netProfitBalance = withJBHDecimals(inputNetProfit);
+    }
   }
 }

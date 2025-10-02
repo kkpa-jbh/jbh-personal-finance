@@ -1,11 +1,12 @@
 package com.jbh.account.application.core.ports.input;
 
-import static com.jbh.account.application.core.mappers.MonthlyBalanceMapper.toDTO;
-
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.application.core.services.account.AccountService;
+import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceProfitStrategy;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
+import com.jbh.account.application.core.services.monthlybalance.ReportedProfitStrategy;
+import com.jbh.account.application.core.services.monthlybalance.UnreportedProfitStrategy;
 import com.jbh.account.application.core.services.movements.AccountMovementService;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
@@ -85,7 +86,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
     if (monthlyBalanceDomain == null) {
       log.info(
           "The monthly balanced has not been reported before. Creating Initial Balance Movement");
-      accountMovementService.addMovement(
+      accountMovementService.addMovementProcessingBalances(
           new AccountPK(userId, accountId),
           new AddMovementCommand(
               addMonthlyBalanceCommand.monthlyPeriod().atDay(1),
@@ -105,23 +106,13 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
     if (monthlyBalanceDomain == null) {
       throw new IllegalArgumentException("Monthly Balance not found");
     }
-
-    monthlyBalanceDomain.assignOfficialMonthlyReport(
-        addMonthlyBalanceCommand.closingBalance(),
-        addMonthlyBalanceCommand.monthlyProfitReported(),
-        addMonthlyBalanceCommand.incomeWithholdingTaxAmount());
-
-    final MonthlyBalanceDTO monthlyBalanceDTO = toDTO(monthlyBalanceDomain);
-    monthlyBalanceService.saveBalance(monthlyBalanceDTO);
-
-    if (monthlyBalanceService.isLastOfficialReport(monthlyBalanceDTO)) {
-      accountService.syncByMonthlyReport(monthlyBalanceDTO);
-    }
-
-    monthlyBalanceService.updateOpeningBalanceNextMonth(monthlyBalanceDTO);
-
     final AccountPK accountPK = new AccountPK(userId, accountId);
-    accountMovementService.addDividendsMovementForNextMonth(accountPK, monthlyBalanceDTO);
+    final MonthlyBalanceDTO monthlyBalanceDTO =
+        findProfitStrategy(addMonthlyBalanceCommand)
+            .registerOfficialMonthlyBalance(
+                accountPK,
+                MonthlyBalanceMapper.toDTO(monthlyBalanceDomain),
+                addMonthlyBalanceCommand);
 
     log.info(
         "Monthly Balance registration completed successfully for account:{} and period: {}",
@@ -173,5 +164,13 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
             accountId, periodToRegister.getYear(), periodToRegister.getMonthValue())
         .map(MonthlyBalanceMapper::toDomain)
         .orElse(null);
+  }
+
+  private MonthlyBalanceProfitStrategy findProfitStrategy(final AddMonthlyBalanceCommand command) {
+    if (command.monthlyProfitReported() != null) {
+      return new ReportedProfitStrategy(
+          monthlyBalanceService, accountService, accountMovementService);
+    }
+    return new UnreportedProfitStrategy(monthlyBalanceService, accountService);
   }
 }

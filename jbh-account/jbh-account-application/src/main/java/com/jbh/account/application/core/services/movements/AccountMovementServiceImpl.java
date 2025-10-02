@@ -11,6 +11,7 @@ import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
+import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
@@ -48,29 +49,31 @@ public class AccountMovementServiceImpl implements AccountMovementService {
 
   @Override
   public void addDividendsMovementForNextMonth(
-      final AccountPK accountPK, final MonthlyBalanceDTO monthlyBalanceDTO)
+      final AccountPK accountPK, final AddMonthlyBalanceCommand nextMonthlyBalanceCommand)
       throws JbhSpecificationApplication {
-    if (monthlyBalanceDTO == null) {
+    if (nextMonthlyBalanceCommand == null) {
       log.warn("No monthly balance to add dividends movement");
       return;
     }
 
-    final var accountId = monthlyBalanceDTO.accountId();
-    final var period = monthlyBalanceDTO.period().plusMonths(1).atDay(1);
-    final var monthlyProfitReported = withJBHDecimals(monthlyBalanceDTO.monthlyProfitReported());
-    final var incomeWithholdingTaxAmount = monthlyBalanceDTO.incomeWithholdingTaxAmount();
+    final var accountId = accountPK.accountId();
+    final var period = nextMonthlyBalanceCommand.monthlyPeriod().plusMonths(1).atDay(1);
+    final var monthlyProfitReported =
+        withJBHDecimals(nextMonthlyBalanceCommand.monthlyProfitReported());
+    final var incomeWithholdingTaxAmount = nextMonthlyBalanceCommand.incomeWithholdingTaxAmount();
+    final var nextMonthBalance = nextMonthlyBalanceCommand.closingBalance();
 
     if (incomeWithholdingTaxAmount != null && monthlyProfitReported == null) {
       throw new IllegalArgumentException("Monthly profit reported cannot be null");
     }
 
     if (monthlyProfitReported != null) {
-      final var nextMonthBalance = monthlyBalanceDTO.closingBalance().add(monthlyProfitReported);
       log.info(
-          "Adding {} dividends movement for account {} and period {}",
+          "Adding {} dividends movement for account {} and period {} with balance snapshot {}",
           monthlyProfitReported,
           accountId,
-          period);
+          period,
+          nextMonthBalance);
 
       // I decided to put the balance snapshot, to make it real with the current balance of the
       // month
@@ -85,7 +88,7 @@ public class AccountMovementServiceImpl implements AccountMovementService {
               MovementType.DEPOSIT,
               MovementCategoryDTO.withType(IncomeCategory.DIVIDENDS));
 
-      addMovement(accountPK, dividendsMovement);
+      addMovementProcessingBalances(accountPK, dividendsMovement);
 
       log.info(
           "Dividends movement {} added successfully for account {} and period {}",
@@ -98,11 +101,11 @@ public class AccountMovementServiceImpl implements AccountMovementService {
             new AddMovementCommand(
                 period,
                 incomeWithholdingTaxAmount,
-                nextMonthBalance.subtract(incomeWithholdingTaxAmount),
+                nextMonthBalance,
                 WITHDRAWAL,
                 MovementCategoryDTO.withType(ExpenseCategory.RETEFUENTE));
 
-        addMovement(accountPK, incomeWithholdingTaxMovement);
+        addMovementProcessingBalances(accountPK, incomeWithholdingTaxMovement);
 
         log.info(
             "Income withholding tax movement {} added successfully for account {} and period {}",
@@ -114,7 +117,7 @@ public class AccountMovementServiceImpl implements AccountMovementService {
   }
 
   @Override
-  public AddBasicMovementDTO addMovement(
+  public AddBasicMovementDTO addMovementProcessingBalances(
       final AccountPK accountPK, final AddMovementCommand movementCommand)
       throws JbhSpecificationApplication {
     // Input validations
@@ -155,16 +158,17 @@ public class AccountMovementServiceImpl implements AccountMovementService {
     monthlyBalanceService.validateNewMovement(movementDTO);
 
     // Then
-
+    log.info("Syncing Account by Movement..");
     final AccountDTO accountDTO =
         accountService.syncByMovement(
             new AccountPK(userId, accountId), movementDTO, isMonthOfficiallyReported);
 
     unitOfWork.execute(
         () -> {
-          log.info(
-              "Persisting Movement {} and Account with ACID operation", movementDTO.movementDate());
+          log.info("ACID operations...");
+          log.info("Persisting Movement {} ", movementDTO.movementDate());
           persistMovementDTO(movementDTO);
+          log.info("Persisting Account {} ", accountDTO);
           accountService.save(accountDTO);
           log.info("Movement and Account persisted successfully");
         });

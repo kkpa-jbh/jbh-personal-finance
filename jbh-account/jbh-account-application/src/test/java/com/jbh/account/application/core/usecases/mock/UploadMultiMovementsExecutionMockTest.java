@@ -155,7 +155,7 @@ public class UploadMultiMovementsExecutionMockTest {
     final BigDecimal expectedProfitBalance = new BigDecimal("1786605.00");
     assertEquals(expectedProfitBalance.negate(), actualAccountResponse.movementBalance());
     assertEquals(new BigDecimal("0.00"), actualAccountResponse.currentBalance());
-    assertEquals(expectedProfitBalance, actualAccountResponse.profitBalance());
+    assertEquals(expectedProfitBalance, actualAccountResponse.netProfitBalance());
     assertEquals(9, actualBalancesWithoutAsyncOperation.size());
 
     // MONTHLY BALANCES ASSERTS SHOULD NOT INCLUDE
@@ -451,7 +451,7 @@ public class UploadMultiMovementsExecutionMockTest {
 
     assertEquals(numberOf("56386448"), actualAccount.movementBalance());
     assertEquals(numberOf("70908065"), actualAccount.currentBalance());
-    assertEquals(numberOf("14521617"), actualAccount.profitBalance());
+    assertEquals(numberOf("14521617"), actualAccount.netProfitBalance());
     final List<MonthlyBalanceDTO> savedMonthlyBalances = processedResponse.get().monthlyBalances();
 
     final YearMonth expectedPeriod = YearMonth.of(2023, 7);
@@ -709,7 +709,7 @@ public class UploadMultiMovementsExecutionMockTest {
 
     assertEquals(numberOf("29710000"), actualAccount.movementBalance());
     assertEquals(numberOf("37074883"), actualAccount.currentBalance());
-    assertEquals(numberOf("7364883"), actualAccount.profitBalance());
+    assertEquals(numberOf("7364883"), actualAccount.netProfitBalance());
     final List<MonthlyBalanceDTO> savedMonthlyBalances = processedResponse.get().monthlyBalances();
 
     // THEN

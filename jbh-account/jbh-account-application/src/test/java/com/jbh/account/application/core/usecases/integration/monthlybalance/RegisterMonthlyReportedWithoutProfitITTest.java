@@ -300,7 +300,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
         ACCOUNT_DEFAULT_BUILDER
             .currentBalance(withJBHDecimals(closingBalanceDec24))
             .movementBalance(withJBHDecimals(salaryAmountDec24).add(salaryAmountNov24))
-            .profitBalance(withJBHDecimals(new BigDecimal("7676950.00")))
+            .netProfitBalance(withJBHDecimals(new BigDecimal("7676950.00")))
             .build();
     final AccountDTO persistedAccount =
         inMemoryAccountRepo.findByUserAndAccountId(userId, accountId).get();

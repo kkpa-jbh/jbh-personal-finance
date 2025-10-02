@@ -16,6 +16,7 @@ import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonth
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.account.application.core.validation.movement.MovementTypeValidationStrategy;
 import com.jbh.account.application.core.validation.movement.MovementValidationStrategyFactory;
+import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.exceptions.JbhExceptionMessage;
 import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
@@ -78,6 +79,11 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   @Override
   public Optional<MonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
     return queryRepo.findLastOfficialReport(accountId);
+  }
+
+  @Override
+  public BigDecimal sumNetProfitOfficialReported(final AccountId accountId) {
+    return queryRepo.sumNetProfitOfficialReported(accountId);
   }
 
   @Override
@@ -203,6 +209,29 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
     }
   }
 
+  @Override
+  public MonthlyBalanceDTO updateOfficialReportedBalance(
+      final MonthlyBalanceDTO reportedMonthlyBalance, final AddMonthlyBalanceCommand command) {
+
+    final AccountMonthlyBalanceDomain monthlyBalanceDomain = toDomain(reportedMonthlyBalance);
+    final var updatedMonthlyBalance = assignOfficialReport(monthlyBalanceDomain, command);
+
+    saveBalance(updatedMonthlyBalance);
+    updateOpeningBalanceNextMonth(updatedMonthlyBalance);
+
+    return updatedMonthlyBalance;
+  }
+
+  private MonthlyBalanceDTO assignOfficialReport(
+      final AccountMonthlyBalanceDomain monthlyBalanceDomain,
+      final AddMonthlyBalanceCommand command) {
+    monthlyBalanceDomain.assignOfficialMonthlyReport(
+        command.closingBalance(),
+        command.monthlyProfitReported(),
+        command.incomeWithholdingTaxAmount());
+    return toDTO(monthlyBalanceDomain);
+  }
+
   private static boolean isMonthOfficiallyReportedValid(
       final MonthlyBalanceDTO existingMonthlyBalance, final BigDecimal balanceSnapshot)
       throws JbhSpecificationApplication {
@@ -224,7 +253,10 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   private List<MonthlyBalanceDTO> adjustCurrentAndNextMonthlyBalancesAsync(
       final AccountId accountId, final YearMonth initPeriod, final YearMonth endPeriod) {
 
-    LOG.info("Monthly balances should be already persisted in the database");
+    LOG.info(
+        "Monthly balances {} to {} should be already persisted in the database",
+        initPeriod,
+        endPeriod);
 
     LOG.info(
         "Adjusting Opening/Profit Balances for account {}" + " from period {} to period {}",

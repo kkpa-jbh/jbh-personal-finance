@@ -71,7 +71,7 @@ public class AccountJPAEntity extends PanacheEntityBase {
     accountJpaEntity.setUserId(account.userId());
     accountJpaEntity.setMovementBalance(account.movementBalance());
     accountJpaEntity.setCurrentBalance(account.currentBalance());
-    accountJpaEntity.setProfitBalance(account.profitBalance());
+    accountJpaEntity.setProfitBalance(account.netProfitBalance());
     accountJpaEntity.setCreatedAt(account.createdAt());
     accountJpaEntity.setUpdatedAt(account.updatedAt());
     return accountJpaEntity;
@@ -92,7 +92,7 @@ public class AccountJPAEntity extends PanacheEntityBase {
     return AccountDTO.defaultBuilder(userId, AccountId.of(id), name, type)
         .movementBalance(movementBalance)
         .currentBalance(currentBalance)
-        .profitBalance(profitBalance)
+        .netProfitBalance(profitBalance)
         .createdAt(createdAt)
         .updatedAt(updatedAt)
         .build();

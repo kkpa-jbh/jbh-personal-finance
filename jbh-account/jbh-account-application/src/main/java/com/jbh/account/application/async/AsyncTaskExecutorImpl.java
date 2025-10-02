@@ -36,7 +36,10 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
 
             final T result = task.call();
             future.complete(result);
-            LOG.info("Async task {} completed successfully", asyncTask.type());
+            LOG.info(
+                "Async task {} with metadata {} completed successfully",
+                asyncTask.metadata(),
+                asyncTask.type());
           } catch (final InterruptedException exception) {
             Thread.currentThread().interrupt();
             LOG.error("Task was interrupted: {}", asyncTask.type(), exception);

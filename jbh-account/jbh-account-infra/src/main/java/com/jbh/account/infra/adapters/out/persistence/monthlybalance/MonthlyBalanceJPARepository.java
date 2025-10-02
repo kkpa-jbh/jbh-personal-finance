@@ -7,8 +7,10 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Named;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceUnit;
 import jakarta.transaction.Transactional;
+import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
@@ -67,5 +69,28 @@ public class MonthlyBalanceJPARepository
     }
 
     return Optional.of(lastOfficialReportList.getFirst().toDTO());
+  }
+
+  @Override
+  public BigDecimal sumNetProfitOfficialReported(final AccountId accountId) {
+    try {
+      final BigDecimal result =
+          getEntityManager()
+              .createQuery(
+                  """
+              SELECT COALESCE(SUM(mb.monthlyNetProfit), 0)
+              FROM AccountMonthlyBalanceJPAEntity mb
+              WHERE mb.accountId = :accountId
+                AND mb.officialMonthlyReport = true
+                AND mb.monthlyNetProfit IS NOT NULL
+              """,
+                  BigDecimal.class)
+              .setParameter("accountId", accountId)
+              .getSingleResult();
+
+      return result != null ? result : BigDecimal.ZERO;
+    } catch (final NoResultException e) {
+      return BigDecimal.ZERO;
+    }
   }
 }

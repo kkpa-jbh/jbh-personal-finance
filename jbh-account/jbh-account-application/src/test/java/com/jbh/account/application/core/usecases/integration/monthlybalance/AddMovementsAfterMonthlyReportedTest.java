@@ -139,7 +139,7 @@ public class AddMovementsAfterMonthlyReportedTest {
         command.monthlyProfitReported().add(initialBalance),
         finalExpectedAccountBalance.movementBalance(),
         "Account Balance");
-    assertEquals(new BigDecimal("100.00"), finalExpectedAccountBalance.profitBalance());
+    assertEquals(new BigDecimal("10.00"), finalExpectedAccountBalance.netProfitBalance());
   }
 
   @Test
@@ -174,7 +174,7 @@ public class AddMovementsAfterMonthlyReportedTest {
         currentAccountBalance.currentBalance(),
         "Account Balance");
     assertEquals(
-        finalExpectedAccountBalance.profitBalance(), currentAccountBalance.profitBalance());
+        finalExpectedAccountBalance.netProfitBalance(), currentAccountBalance.netProfitBalance());
     assertEquals(
         finalExpectedAccountBalance.movementBalance().subtract(withDrawal1),
         currentAccountBalance.movementBalance());
@@ -238,7 +238,7 @@ public class AddMovementsAfterMonthlyReportedTest {
         currentAccountBalance.currentBalance(),
         "Account Balance");
     assertEquals(
-        finalExpectedAccountBalance.profitBalance(), currentAccountBalance.profitBalance());
+        finalExpectedAccountBalance.netProfitBalance(), currentAccountBalance.netProfitBalance());
     assertEquals(
         finalExpectedAccountBalance.movementBalance().add(deposit).subtract(withDrawal1),
         currentAccountBalance.movementBalance());

@@ -4,11 +4,13 @@ import com.jbh.account.application.core.comparator.AccountMonthlyBalanceComparat
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.domain.vo.AccountId;
+import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,5 +90,15 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
         .stream()
         .min(AccountMonthlyBalanceComparators.BY_PERIOD_DESC)
         .map(MonthlyBalanceMapper::toDTO);
+  }
+
+  @Override
+  public BigDecimal sumNetProfitOfficialReported(final AccountId accountId) {
+
+    return findByAccountId(accountId).stream()
+        .filter(MonthlyBalanceDTO::officialMonthlyReport)
+        .map(MonthlyBalanceDTO::monthlyNetProfit)
+        .filter(Objects::nonNull)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 }

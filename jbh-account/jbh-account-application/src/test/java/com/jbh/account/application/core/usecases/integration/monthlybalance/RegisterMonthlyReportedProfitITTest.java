@@ -181,7 +181,10 @@ public class RegisterMonthlyReportedProfitITTest {
     refreshActualAccountBalance();
     assertEquals(command.closingBalance(), finalAccountBalance.currentBalance(), "Account Balance");
     assertEquals(command.closingBalance(), finalAccountBalance.movementBalance());
-    assertEquals(JBH_ZERO, finalAccountBalance.profitBalance());
+    assertEquals(
+        command.monthlyProfitReported(),
+        finalAccountBalance.netProfitBalance(),
+        "Net Profit Balance Account");
   }
 
   private AddMonthlyBalanceCommand getPreviousCommand() {
@@ -192,6 +195,9 @@ public class RegisterMonthlyReportedProfitITTest {
   @Order(2)
   public void month2ProfitReport20249() {
     ++commandIndex;
+    final var previousAccountMovementBalance = finalAccountBalance.movementBalance();
+    final var previousAccountNetProfitBalance = finalAccountBalance.netProfitBalance();
+
     final AddMonthlyBalanceCommand command = getCurrentCommand();
     final AddMonthlyBalanceCommand previousCommand = getPreviousCommand();
 
@@ -256,13 +262,13 @@ public class RegisterMonthlyReportedProfitITTest {
     assertFalse(nextMonthBalance.officialMonthlyReport());
 
     // Then Account Balance
-    final var beforeMovementBalance = finalAccountBalance.movementBalance();
+
     refreshActualAccountBalance();
     assertEquals(command.closingBalance(), finalAccountBalance.currentBalance(), "Account Balance");
     assertEquals(
-        beforeMovementBalance.add(deposit2).add(command.monthlyProfitReported()),
-        finalAccountBalance.movementBalance(),
-        "Movement Balance");
+        previousDividends.add(command.monthlyProfitReported()),
+        finalAccountBalance.netProfitBalance(),
+        "Net Profit Account Balance");
   }
 
   private void addMovement(
@@ -292,6 +298,8 @@ public class RegisterMonthlyReportedProfitITTest {
   @Order(3)
   void month3ProfitReport202410() {
     ++commandIndex;
+    final var previousAccountMovementBalance = finalAccountBalance.movementBalance();
+    final var previousAccountNetProfitBalance = finalAccountBalance.netProfitBalance();
     final AddMonthlyBalanceCommand command = getCurrentCommand();
     final AddMonthlyBalanceCommand previousCommand = getPreviousCommand();
     final var period = command.monthlyPeriod();
@@ -370,6 +378,9 @@ public class RegisterMonthlyReportedProfitITTest {
     // Then Account Balance
     final var beforeMovementBalance = finalAccountBalance.movementBalance();
     refreshActualAccountBalance();
+    assertEquals(
+        previousAccountNetProfitBalance.add(command.monthlyProfitReported()),
+        finalAccountBalance.netProfitBalance());
     assertEquals(command.closingBalance(), finalAccountBalance.currentBalance(), "Account Balance");
     assertEquals(
         beforeMovementBalance
@@ -383,6 +394,7 @@ public class RegisterMonthlyReportedProfitITTest {
   @Order(4)
   void month4ProfitReport202411() throws JbhSpecificationApplication {
     final var beforeMovementBalance = finalAccountBalance.movementBalance();
+    final var beforeNetProfitBalance = finalAccountBalance.netProfitBalance();
     ++commandIndex;
     final var currentCommand = getCurrentCommand();
     final var previousCommand = getPreviousCommand();
@@ -434,6 +446,7 @@ public class RegisterMonthlyReportedProfitITTest {
     // Then Account Balance
     refreshActualAccountBalance();
     assertEquals(snapshot3, finalAccountBalance.currentBalance(), "Account Balance");
+    assertEquals(new BigDecimal("-180.00"), finalAccountBalance.netProfitBalance());
 
     // Final Reported Monthly Balance
     final MonthlyBalanceDTO reportedMonthlyBalance =
@@ -491,6 +504,8 @@ public class RegisterMonthlyReportedProfitITTest {
   @Order(5)
   void month5ProfitReport202412() throws JbhSpecificationApplication {
     ++commandIndex;
+    final var previousAccountMovementBalance = finalAccountBalance.movementBalance();
+    final var previousAccountNetProfitBalance = finalAccountBalance.netProfitBalance();
     final AddMonthlyBalanceCommand command = getCurrentCommand();
     final AddMonthlyBalanceCommand previousCommand = getPreviousCommand();
     final var period = command.monthlyPeriod();
@@ -515,8 +530,6 @@ public class RegisterMonthlyReportedProfitITTest {
     final var withDrawal1 = withJBHDecimals(new BigDecimal("100"));
     final var snapshot1 = withJBHDecimals(new BigDecimal("410"));
     addMovement(period, ExpenseCategory.PERSONAL, withDrawal1, snapshot1);
-
-    final var previousMovementBalance = finalAccountBalance.movementBalance();
 
     // Registering Monthly Balance
     final MonthlyBalanceDTO finalReportedMonthlyBalance =
@@ -543,12 +556,16 @@ public class RegisterMonthlyReportedProfitITTest {
     refreshActualAccountBalance();
     assertEquals(command.closingBalance(), finalAccountBalance.currentBalance(), "Account Balance");
     assertEquals(new BigDecimal("900.00"), finalAccountBalance.movementBalance());
+    assertEquals(
+        previousAccountNetProfitBalance.add(command.monthlyProfitReported()),
+        finalAccountBalance.netProfitBalance());
   }
 
   @Test
   @Order(6)
   void month6ProfitReport202501() throws JbhSpecificationApplication {
     ++commandIndex;
+
     final AddMonthlyBalanceCommand command = getCurrentCommand();
     final AddMonthlyBalanceCommand previousCommand = getPreviousCommand();
     final var period = command.monthlyPeriod();
@@ -656,7 +673,9 @@ public class RegisterMonthlyReportedProfitITTest {
             .totalCredits(withJBHDecimals(expectedOpeningBalance.totalCredits()))
             .movementBalance(withJBHDecimals(expectedOpeningBalance.movementBalance()))
             .totalMovements(expectedOpeningBalance.totalMovements())
-            .monthlyNetProfit(withJBHDecimals(command.monthlyProfitReported()))
+            .monthlyProfitReported(withJBHDecimals(command.monthlyProfitReported()))
+            .incomeWithholdingTaxAmount(withJBHDecimals(command.incomeWithholdingTaxAmount()))
+            .monthlyNetProfit(new BigDecimal("2.00"))
             .netGrowthRate(withJBHDecimals(new BigDecimal("1.75")))
             .officialMonthlyReport(true)
             .build();
@@ -753,6 +772,6 @@ public class RegisterMonthlyReportedProfitITTest {
     assertEquals(
         currentAccountBalance.movementBalance(),
         finalAccountBalance.movementBalance().add(deposit));
-    assertEquals(currentAccountBalance.profitBalance(), finalAccountBalance.profitBalance());
+    assertEquals(currentAccountBalance.netProfitBalance(), finalAccountBalance.netProfitBalance());
   }
 }
