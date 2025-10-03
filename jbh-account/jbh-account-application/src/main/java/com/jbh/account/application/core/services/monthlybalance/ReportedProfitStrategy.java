@@ -41,7 +41,7 @@ public class ReportedProfitStrategy implements MonthlyBalanceProfitStrategy {
 
     // The monthly reported profit is subtracted from the closing balance
     // The withholding tax is added to the closing balance
-    BigDecimal updatedMonthlyClosedBalance = BigDecimal.ZERO;
+    BigDecimal updatedMonthlyClosedBalance;
 
     // A deposit will be created with dividends category for next month.
     updatedMonthlyClosedBalance = currentBalance.subtract(monthlyProfitReported);

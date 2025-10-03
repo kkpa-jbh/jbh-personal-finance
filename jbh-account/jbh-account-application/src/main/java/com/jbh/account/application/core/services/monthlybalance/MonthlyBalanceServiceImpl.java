@@ -287,8 +287,10 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
     final List<AccountMonthlyBalanceDomain> profitBalancesSynced = new ArrayList<>();
 
     // Syncing current and next monthly balances
+    // FIXME: Using now() is not a good idea
+    final YearMonth now = YearMonth.now();
     LOG.info("Syncing current and next monthly balances {} - {} ", currentPeriod, endPeriod);
-    while (isAvailablePeriod(currentPeriod, endPeriod)) {
+    while (isAvailablePeriod(now, currentPeriod, endPeriod)) {
 
       LOG.info("Syncing Movement Balance and Monthly Profit for period: {}", currentPeriod);
       final AccountMonthlyBalanceDomain currentMonthlyBalance =
@@ -347,14 +349,14 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
     return profitBalancesSyncedDto;
   }
 
-  private boolean isAvailablePeriod(final YearMonth currentPeriod, final YearMonth endPeriod) {
-    return currentPeriod.isBefore(getEdgePeriod())
+  private boolean isAvailablePeriod(
+      final YearMonth now, final YearMonth currentPeriod, final YearMonth endPeriod) {
+    return currentPeriod.isBefore(getEdgePeriod(now))
         && currentPeriod.isBefore(endPeriod.plusMonths(1));
   }
 
-  // FIXME: Using now() is not a good idea
-  private YearMonth getEdgePeriod() {
-    return YearMonth.now().plusMonths(1);
+  private YearMonth getEdgePeriod(final YearMonth now) {
+    return now.plusMonths(1);
   }
 
   @Override

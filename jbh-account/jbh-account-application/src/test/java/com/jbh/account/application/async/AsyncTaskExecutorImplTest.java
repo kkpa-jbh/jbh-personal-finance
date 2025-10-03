@@ -28,8 +28,7 @@ public class AsyncTaskExecutorImplTest {
   void setUp() {
     asyncTaskExecutor = new AsyncTaskExecutorImpl();
     testAsyncTask =
-        new AsyncTask(
-            AsyncTaskType.MONTHLY_BALANCES_SYNC, new HashMap<>(Map.of("testKey", "testValue")));
+        new AsyncTask(AsyncTaskType.TEST_TASK, new HashMap<>(Map.of("testKey", "testValue")));
   }
 
   @Test
@@ -109,7 +108,7 @@ public class AsyncTaskExecutorImplTest {
     final Map<String, Object> mutableMetadata = new java.util.HashMap<>();
     mutableMetadata.put("testKey", "testValue");
     final AsyncTask taskWithMutableMetadata =
-        new AsyncTask(AsyncTaskType.MONTHLY_BALANCES_SYNC, mutableMetadata);
+        new AsyncTask(AsyncTaskType.TEST_TASK, mutableMetadata);
     final String exceptionMessage = "Test checked exception";
     final Exception expectedException = new Exception(exceptionMessage);
 
@@ -160,7 +159,7 @@ public class AsyncTaskExecutorImplTest {
     final Map<String, Object> mutableMetadata = new java.util.HashMap<>();
     mutableMetadata.put("testKey", "testValue");
     final AsyncTask taskWithMutableMetadata =
-        new AsyncTask(AsyncTaskType.MONTHLY_BALANCES_SYNC, mutableMetadata);
+        new AsyncTask(AsyncTaskType.TEST_TASK, mutableMetadata);
     final String exceptionMessage = "Test exception for metadata";
     final RuntimeException testException = new RuntimeException(exceptionMessage);
 
@@ -200,8 +199,7 @@ public class AsyncTaskExecutorImplTest {
       final CompletableFuture<Integer> future =
           asyncTaskExecutor.submitTask(
               new AsyncTask(
-                  AsyncTaskType.MONTHLY_BALANCES_SYNC,
-                  new HashMap<>(Map.of("taskNumber", taskNumber))),
+                  AsyncTaskType.TEST_TASK, new HashMap<>(Map.of("taskNumber", taskNumber))),
               () -> {
                 Thread.sleep(50); // Simulate work
                 return taskNumber * 2;
@@ -221,7 +219,7 @@ public class AsyncTaskExecutorImplTest {
   @DisplayName("Should handle task with null metadata")
   void shouldHandleTaskWithNullMetadata() throws Exception {
     // Given
-    final AsyncTask taskWithNullMetadata = new AsyncTask(AsyncTaskType.MONTHLY_BALANCES_SYNC, null);
+    final AsyncTask taskWithNullMetadata = new AsyncTask(AsyncTaskType.TEST_TASK, null);
 
     // When
     final CompletableFuture<String> future =
@@ -236,7 +234,7 @@ public class AsyncTaskExecutorImplTest {
   @DisplayName("Should handle exception with null metadata gracefully")
   void shouldHandleExceptionWithNullMetadata() {
     // Given
-    final AsyncTask taskWithNullMetadata = new AsyncTask(AsyncTaskType.MONTHLY_BALANCES_SYNC, null);
+    final AsyncTask taskWithNullMetadata = new AsyncTask(AsyncTaskType.TEST_TASK, null);
 
     // When
     final CompletableFuture<String> future =

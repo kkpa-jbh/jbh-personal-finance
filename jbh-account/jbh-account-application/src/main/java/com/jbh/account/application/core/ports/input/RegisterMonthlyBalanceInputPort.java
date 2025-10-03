@@ -94,7 +94,8 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
               MovementCategoryDTO.withType(IncomeCategory.INITIAL_BALANCE)));
 
       try {
-        // FIXME TODO - This is a hack to wait for the async task to be executed
+        // FIXME TODO - This is a hack to wait for the async task to be executed and the report is
+        // created
         Thread.sleep(Duration.ofSeconds(2).toMillis());
       } catch (final InterruptedException e) {
         log.error("Error waiting for the async task to be executed", e);

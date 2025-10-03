@@ -710,6 +710,7 @@ public class RegisterMonthlyReportedProfitITTest {
             .add(command.monthlyProfitReported())
             .subtract(command.incomeWithholdingTaxAmount()),
         finalAccountBalance.movementBalance());
+    assertEquals(new BigDecimal("262.00"), finalAccountBalance.netProfitBalance());
   }
 
   @Test

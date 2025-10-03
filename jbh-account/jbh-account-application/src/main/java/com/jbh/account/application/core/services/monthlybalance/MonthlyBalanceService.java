@@ -42,5 +42,5 @@ public interface MonthlyBalanceService
    * @return
    */
   MonthlyBalanceDTO updateOfficialReportedBalance(
-      MonthlyBalanceDTO reportedMonthlyBalance, final AddMonthlyBalanceCommand command);
+      MonthlyBalanceDTO reportedMonthlyBalance, AddMonthlyBalanceCommand command);
 }

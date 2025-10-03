@@ -8,8 +8,6 @@ import com.jbh.account.domain.vo.AccountPK;
 public interface MonthlyBalanceProfitStrategy {
 
   MonthlyBalanceDTO registerOfficialMonthlyBalance(
-      final AccountPK accountPK,
-      MonthlyBalanceDTO monthlyBalanceDomain,
-      AddMonthlyBalanceCommand command)
+      AccountPK accountPK, MonthlyBalanceDTO monthlyBalanceDomain, AddMonthlyBalanceCommand command)
       throws JbhSpecificationApplication;
 }
