@@ -37,7 +37,7 @@ public class AccountRepositoryAdapter implements AccountRepository {
   @Override
   @Transactional
   public AccountDTO save(final AccountDTO account) {
-    AccountJPAEntity entity = AccountJPAEntity.of(account);
+    AccountJPAEntity entity = AccountJPAEntity.toEntity(account);
 
     // If ID is null, it's a new entity - use persist
     // If ID is set, it's an existing entity - use merge

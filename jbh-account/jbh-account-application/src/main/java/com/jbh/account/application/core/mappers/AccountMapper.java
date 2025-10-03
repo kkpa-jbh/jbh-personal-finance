@@ -23,8 +23,8 @@ public final class AccountMapper {
         domain.isActive(),
         domain.getCreatedAt(),
         domain.getUpdatedAt(),
-        domain.getAdvertisedAnnualRate(),
-        domain.getEstimatedAnnualYield());
+        domain.getNetGrowthRate(),
+        domain.getMetadata());
   }
 
   public static AccountDomain toDomain(final AccountDTO dto) {
@@ -45,8 +45,8 @@ public final class AccountMapper {
             dto.isActive(),
             dto.createdAt(),
             dto.updatedAt(),
-            dto.advertisedAnnualRate(),
-            dto.estimatedAnnualYield());
+            dto.netGrowthRate(),
+            dto.metadata());
 
     return domain;
   }

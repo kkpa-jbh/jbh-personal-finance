@@ -22,12 +22,14 @@ import java.util.Optional;
 public class MonthlyBalanceJPARepository
     implements PanacheRepository<AccountMonthlyBalanceJPAEntity>, AccountMonthlyBalanceQueryRepo {
 
+  private static final String ACCOUNT_ID_PARAM = "accountId";
+
   @Override
   public Optional<MonthlyBalanceDTO> findByAccountIdYearAndMonth(
       final AccountId accountId, final Integer balanceYear, final Integer balanceMonth) {
     return find(
             "accountId = :accountId and year = :balanceYear and month = :balanceMonth",
-            Parameters.with("accountId", accountId.value())
+            Parameters.with(ACCOUNT_ID_PARAM, accountId.value())
                 .and("balanceYear", balanceYear)
                 .and("balanceMonth", balanceMonth))
         .firstResultOptional()
@@ -44,7 +46,7 @@ public class MonthlyBalanceJPARepository
       final AccountId accountId, final YearMonth currentPeriod) {
     return find(
             "accountId = :accountId and period >= :period",
-            Parameters.with("accountId", accountId.value()).and("period", currentPeriod))
+            Parameters.with(ACCOUNT_ID_PARAM, accountId.value()).and("period", currentPeriod))
         .list();
   }
 
@@ -61,7 +63,7 @@ public class MonthlyBalanceJPARepository
     final List<AccountMonthlyBalanceJPAEntity> lastOfficialReportList =
         find(
                 "accountId = :accountId and officialMonthlyReport = true order by period desc",
-                Parameters.with("accountId", accountId.value()))
+                Parameters.with(ACCOUNT_ID_PARAM, accountId.value()))
             .list();
 
     if (lastOfficialReportList.isEmpty()) {
@@ -85,7 +87,7 @@ public class MonthlyBalanceJPARepository
                 AND mb.monthlyNetProfit IS NOT NULL
               """,
                   BigDecimal.class)
-              .setParameter("accountId", accountId)
+              .setParameter(ACCOUNT_ID_PARAM, accountId)
               .getSingleResult();
 
       return result != null ? result : BigDecimal.ZERO;

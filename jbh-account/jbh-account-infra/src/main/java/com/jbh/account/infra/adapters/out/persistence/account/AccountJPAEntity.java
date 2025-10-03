@@ -29,41 +29,44 @@ public class AccountJPAEntity extends PanacheEntityBase {
 
   @Id
   @Column(name = "id")
-  public UUID id;
+  private UUID id;
 
   @Column(name = "name", nullable = false)
-  public String name;
+  private String name;
 
   @Column(name = "is_active", nullable = false)
-  public Boolean isActive = true;
+  private Boolean isActive = true;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "type")
-  public AccountType type;
+  private AccountType type;
 
   @Column(name = "user_id", nullable = false)
-  public UUID userId;
+  private UUID userId;
 
   @Column(name = "movement_balance", nullable = false, precision = 20, scale = 2)
-  public BigDecimal movementBalance = BigDecimal.ZERO;
+  private BigDecimal movementBalance = BigDecimal.ZERO;
 
   @Column(name = "current_balance", nullable = false, precision = 20, scale = 2)
-  public BigDecimal currentBalance = BigDecimal.ZERO;
+  private BigDecimal currentBalance = BigDecimal.ZERO;
 
-  @Column(name = "profit_balance", nullable = false, precision = 20, scale = 2)
-  public BigDecimal profitBalance = BigDecimal.ZERO;
+  @Column(name = "net_profit_balance", nullable = false, precision = 20, scale = 2)
+  private BigDecimal netProfitBalance = BigDecimal.ZERO;
+
+  @Column(name = "net_growth_rate", nullable = false, precision = 20, scale = 2)
+  private BigDecimal netGrowthRate = BigDecimal.ZERO;
 
   @Type(JsonBinaryType.class)
   @Column(name = "metadata", columnDefinition = "jsonb")
-  public Map<String, Object> metadata;
+  private Map<String, Object> metadata;
 
   @Column(name = "created_at", nullable = false, updatable = false)
-  public LocalDateTime createdAt;
+  private LocalDateTime createdAt;
 
   @Column(name = "updated_at", nullable = false)
-  public LocalDateTime updatedAt;
+  private LocalDateTime updatedAt;
 
-  public static AccountJPAEntity of(final AccountDTO account) {
+  public static AccountJPAEntity toEntity(final AccountDTO account) {
     final AccountJPAEntity accountJpaEntity = new AccountJPAEntity();
     accountJpaEntity.setId(account.id() != null ? account.id().value() : null);
     accountJpaEntity.setName(account.name());
@@ -71,7 +74,10 @@ public class AccountJPAEntity extends PanacheEntityBase {
     accountJpaEntity.setUserId(account.userId());
     accountJpaEntity.setMovementBalance(account.movementBalance());
     accountJpaEntity.setCurrentBalance(account.currentBalance());
-    accountJpaEntity.setProfitBalance(account.netProfitBalance());
+    accountJpaEntity.setNetProfitBalance(account.netProfitBalance());
+    accountJpaEntity.setIsActive(account.isActive());
+    accountJpaEntity.setNetGrowthRate(account.netGrowthRate());
+    accountJpaEntity.setMetadata(account.metadata());
     accountJpaEntity.setCreatedAt(account.createdAt());
     accountJpaEntity.setUpdatedAt(account.updatedAt());
     return accountJpaEntity;
@@ -92,7 +98,10 @@ public class AccountJPAEntity extends PanacheEntityBase {
     return AccountDTO.defaultBuilder(userId, AccountId.of(id), name, type)
         .movementBalance(movementBalance)
         .currentBalance(currentBalance)
-        .netProfitBalance(profitBalance)
+        .netProfitBalance(netProfitBalance)
+        .isActive(isActive)
+        .netGrowthRate(netGrowthRate)
+        .metadata(metadata)
         .createdAt(createdAt)
         .updatedAt(updatedAt)
         .build();

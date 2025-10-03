@@ -6,6 +6,8 @@ import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import lombok.Builder;
 
@@ -21,8 +23,8 @@ public record AccountDTO(
     boolean isActive,
     LocalDateTime createdAt,
     LocalDateTime updatedAt,
-    BigDecimal advertisedAnnualRate,
-    BigDecimal estimatedAnnualYield) {
+    BigDecimal netGrowthRate,
+    Map<String, Object> metadata) {
 
   public static AccountDTO.AccountDTOBuilder defaultBuilder(
       final UUID userId, final AccountId accountId, final String name, final AccountType type) {
@@ -37,7 +39,7 @@ public record AccountDTO(
         .isActive(true)
         .createdAt(LocalDateTime.now())
         .updatedAt(LocalDateTime.now())
-        .advertisedAnnualRate(JBH_ZERO)
-        .estimatedAnnualYield(JBH_ZERO);
+        .netGrowthRate(JBH_ZERO)
+        .metadata(new HashMap<>());
   }
 }

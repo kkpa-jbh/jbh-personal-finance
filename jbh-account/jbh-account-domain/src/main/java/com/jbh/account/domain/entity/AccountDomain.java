@@ -9,6 +9,7 @@ import com.jbh.account.domain.vo.AccountType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -35,17 +36,10 @@ public class AccountDomain {
   protected LocalDateTime createdAt = LocalDateTime.now();
   protected LocalDateTime updatedAt;
 
-  /**
-   * Nominal/stated percentage (what the bank advertises) "This account offers 3% annual interest
-   * rate"
-   */
-  private BigDecimal advertisedAnnualRate;
+  /** Net growth rate is the rate of change of the net profit balance for the account. */
+  private BigDecimal netGrowthRate;
 
-  /**
-   * Yield = Actual return earned (includes compounding effects) Compound Interest = Interest
-   * compuesto. This account yielded 3.15% annually after monthly compounding
-   */
-  private BigDecimal estimatedAnnualYield;
+  private Map<String, Object> metadata;
 
   public AccountDomain() {
     this.id = AccountId.generate();

@@ -39,10 +39,7 @@ public class AccountITUtils {
       assertEquals(expected.netProfitBalance(), actual.netProfitBalance(), "Profit Balance");
     }
     assertEquals(expected.isActive(), actual.isActive(), "Is Active");
-    assertEquals(
-        expected.advertisedAnnualRate(), actual.advertisedAnnualRate(), "Advertised Annual Rate");
-    assertEquals(
-        expected.estimatedAnnualYield(), actual.estimatedAnnualYield(), "Estimated Annual Yield");
+    assertEquals(expected.netGrowthRate(), actual.netGrowthRate(), "Net Growth Rate");
   }
 
   public static void assertAccount(final AccountDTO expected, final AccountDTO actual) {
@@ -54,9 +51,7 @@ public class AccountITUtils {
     assertEquals(expected.currentBalance(), actual.currentBalance(), "Account Current Balance");
     assertEquals(expected.netProfitBalance(), actual.netProfitBalance(), "Account Profit Balance");
     assertEquals(expected.isActive(), actual.isActive(), "Is Active");
-    assertEquals(
-        expected.advertisedAnnualRate(), actual.advertisedAnnualRate(), "Advertised Annual Rate");
-    assertEquals(
-        expected.estimatedAnnualYield(), actual.estimatedAnnualYield(), "Estimated Annual Yield");
+
+    assertEquals(expected.netGrowthRate(), actual.netGrowthRate(), "Net Growth Rate");
   }
 }

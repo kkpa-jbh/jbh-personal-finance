@@ -1,16 +1,17 @@
 CREATE TABLE acctmgmt.accounts
 (
-    id               UUID PRIMARY KEY                  DEFAULT gen_random_uuid(),
-    name             TEXT                     NOT NULL,
-    is_active        BOOLEAN                  NOT NULL DEFAULT TRUE,
-    type             TEXT,
-    user_id          UUID                     NOT NULL,
-    movement_balance DECIMAL(20, 2)           NOT NULL DEFAULT 0.00, -- Increased precision
-    current_balance  DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
-    profit_balance   DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
-    metadata         JSONB,                                          -- Additional flexible data
-    created_at       TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at       TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id                 UUID PRIMARY KEY                  DEFAULT gen_random_uuid(),
+    created_at         TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at         TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    name               TEXT                     NOT NULL,
+    is_active          BOOLEAN                  NOT NULL DEFAULT TRUE,
+    type               TEXT,
+    user_id            UUID                     NOT NULL,
+    movement_balance   DECIMAL(20, 2)           NOT NULL DEFAULT 0.00, -- Increased precision
+    current_balance    DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
+    net_profit_balance DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
+    net_growth_rate    DECIMAL(5, 2)            NOT NULL DEFAULT 0.00,
+    metadata           JSONB,                                          -- Additional flexible data
 
     -- Add constraints
     CONSTRAINT chk_current_balance_valid CHECK (current_balance >= -999999999.99),

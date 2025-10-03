@@ -24,6 +24,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Table(name = "account_monthly_balances", schema = "acctmgmt")
+@SuppressWarnings("PMD.TooManyFields")
 public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
 
   @Id
@@ -33,62 +34,62 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
       sequenceName = "account_monthly_balances_id_seq",
       allocationSize = 1)
   @Column(name = "id")
-  public Long id;
+  private Long id;
 
   @Column(name = "account_id")
-  public UUID accountId;
+  private UUID accountId;
 
   @Column(name = "year")
-  public Integer year;
+  private Integer year;
 
   @Column(name = "month")
-  public Integer month;
+  private Integer month;
 
   @Column(name = "period")
   @Convert(converter = YearMonthConverter.class)
-  public YearMonth period;
+  private YearMonth period;
 
   @Column(name = "movement_balance")
-  public BigDecimal movementBalance;
+  private BigDecimal movementBalance;
 
   @Column(name = "net_growth_rate")
-  public BigDecimal netGrowthRate;
+  private BigDecimal netGrowthRate;
 
   @Column(name = "total_debits")
-  public BigDecimal totalDebits;
+  private BigDecimal totalDebits;
 
   @Column(name = "total_credits")
-  public BigDecimal totalCredits;
+  private BigDecimal totalCredits;
 
   @Column(name = "opening_balance")
-  public BigDecimal openingBalance;
+  private BigDecimal openingBalance;
 
   @Column(name = "closing_balance")
-  public BigDecimal closingBalance;
+  private BigDecimal closingBalance;
 
   @Column(name = "monthly_net_profit")
-  public BigDecimal monthlyNetProfit;
+  private BigDecimal monthlyNetProfit;
 
   @Column(name = "total_movements")
-  public Integer totalMovements;
+  private Integer totalMovements;
 
   @Column(name = "gap_period")
-  public boolean gapPeriod;
+  private boolean gapPeriod;
 
   @Column(name = "official_monthly_report")
-  public boolean officialMonthlyReport;
+  private boolean officialMonthlyReport;
 
   @Column(name = "monthly_profit_reported")
-  public BigDecimal monthlyProfitReported;
+  private BigDecimal monthlyProfitReported;
 
   @Column(name = "income_withholding_tax_amount")
-  public BigDecimal incomeWithholdingTaxAmount;
+  private BigDecimal incomeWithholdingTaxAmount;
 
   @Column(name = "created_at", nullable = false, updatable = false)
-  public LocalDateTime createdAt;
+  private LocalDateTime createdAt;
 
   @Column(name = "updated_at", nullable = false)
-  public LocalDateTime updatedAt;
+  private LocalDateTime updatedAt;
 
   public static AccountMonthlyBalanceJPAEntity of(final MonthlyBalanceDTO monthlyBalance) {
     final AccountMonthlyBalanceJPAEntity entity = new AccountMonthlyBalanceJPAEntity();
