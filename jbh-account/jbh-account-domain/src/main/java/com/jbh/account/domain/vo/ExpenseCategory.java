@@ -170,6 +170,11 @@ public enum ExpenseCategory implements CategoryType {
   }
 
   @Override
+  public String getTypeName() {
+    return this.name();
+  }
+
+  @Override
   public String toString() {
     return "ExpenseCategory{" + "categoryId=" + categoryId + '}';
   }

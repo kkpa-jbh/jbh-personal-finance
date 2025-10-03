@@ -14,11 +14,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 @SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
 public class AccountMovementDomain {
 
@@ -38,6 +36,25 @@ public class AccountMovementDomain {
   private final LocalDate movementDate;
   private final BigDecimal balanceSnapshot;
   private final Map<String, Object> metadata;
+
+  public AccountMovementDomain(
+      final AccountMovementId id,
+      final AccountId accountId,
+      final MovementType movementType,
+      final MovementCategoryDomain category,
+      final BigDecimal movementAmount,
+      final LocalDate movementDate,
+      final BigDecimal balanceSnapshot,
+      final Map<String, Object> metadata) {
+    this.id = id;
+    this.accountId = accountId;
+    this.movementType = movementType;
+    this.category = category;
+    this.movementAmount = movementAmount;
+    this.movementDate = movementDate;
+    this.balanceSnapshot = balanceSnapshot;
+    this.metadata = metadata;
+  }
 
   private AccountMovementDomain(
       final AccountId accountId,

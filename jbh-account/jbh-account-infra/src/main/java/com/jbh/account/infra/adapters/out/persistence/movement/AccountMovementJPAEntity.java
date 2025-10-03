@@ -37,6 +37,10 @@ public class AccountMovementJPAEntity extends PanacheEntityBase {
   @Column(name = "movement_type")
   public MovementType movementType;
 
+  @Enumerated(EnumType.STRING)
+  @Column(name = "category_type")
+  public String category;
+
   @Column(name = "movement_amount", precision = 20, scale = 2)
   public BigDecimal movementAmount;
 
@@ -56,7 +60,7 @@ public class AccountMovementJPAEntity extends PanacheEntityBase {
   @Column(name = "created_at", nullable = false, updatable = false)
   public LocalDateTime createdAt;
 
-  public static AccountMovementJPAEntity of(final MovementDTO accountMovement) {
+  public static AccountMovementJPAEntity toEntity(final MovementDTO accountMovement) {
     final AccountMovementJPAEntity entity = new AccountMovementJPAEntity();
     entity.setId(accountMovement.id() != null ? accountMovement.id().value() : null);
     entity.setAccountId(
@@ -66,6 +70,9 @@ public class AccountMovementJPAEntity extends PanacheEntityBase {
     entity.setMovementDate(accountMovement.movementDate());
     entity.setBalanceSnapshot(accountMovement.balanceSnapshot());
     entity.setMetadata(accountMovement.metadata());
+    entity.setCategory(accountMovement.category().getType().getTypeName());
+    entity.setDescription(accountMovement.description());
+    entity.setCreatedAt(accountMovement.createdAt());
     return entity;
   }
 

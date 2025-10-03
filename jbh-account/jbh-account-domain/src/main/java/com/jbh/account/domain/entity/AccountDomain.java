@@ -1,45 +1,45 @@
 package com.jbh.account.domain.entity;
 
+import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.utils.MoneyUtils;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
+@SuppressWarnings("PMD.ExcessiveParameterList")
 public class AccountDomain {
 
   protected AccountId id;
   protected String name;
   protected AccountType type;
   protected UUID userId;
-  protected BigDecimal movementBalance = MoneyUtils.JBH_ZERO;
-  protected BigDecimal currentBalance = MoneyUtils.JBH_ZERO;
+  protected BigDecimal movementBalance = JBH_ZERO;
+  protected BigDecimal currentBalance = JBH_ZERO;
 
   /**
    * The profit balance is the difference between the current balance and the movement balance. It
    * can be negative because the user has not reported some movements
    */
-  protected BigDecimal netProfitBalance = MoneyUtils.JBH_ZERO;
+  protected BigDecimal netProfitBalance = JBH_ZERO;
 
   protected boolean isActive = true;
   protected LocalDateTime createdAt = LocalDateTime.now();
   protected LocalDateTime updatedAt;
 
   /** Net growth rate is the rate of change of the net profit balance for the account. */
-  private BigDecimal netGrowthRate;
+  protected BigDecimal netGrowthRate = JBH_ZERO;
 
-  private Map<String, Object> metadata;
+  protected Map<String, Object> metadata = new HashMap<>();
 
   public AccountDomain() {
     this.id = AccountId.generate();
@@ -48,6 +48,33 @@ public class AccountDomain {
   private AccountDomain(final AccountId id, final UUID userId) {
     this.userId = userId;
     this.id = id;
+  }
+
+  public AccountDomain(
+      final AccountId id,
+      final String name,
+      final AccountType type,
+      final UUID userId,
+      final BigDecimal movementBalance,
+      final BigDecimal currentBalance,
+      final BigDecimal netProfitBalance,
+      final boolean isActive,
+      final LocalDateTime createdAt,
+      final LocalDateTime updatedAt,
+      final BigDecimal netGrowthRate,
+      final Map<String, Object> metadata) {
+    this.id = id;
+    this.name = name;
+    this.type = type;
+    this.userId = userId;
+    this.movementBalance = movementBalance;
+    this.currentBalance = currentBalance;
+    this.netProfitBalance = netProfitBalance;
+    this.isActive = isActive;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
+    this.netGrowthRate = netGrowthRate;
+    this.metadata = metadata;
   }
 
   public static AccountDomain withMinimumDataForCreation(

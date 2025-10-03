@@ -16,7 +16,7 @@ public final class MovementMapper {
         .id(domain.getId())
         .accountId(domain.getAccountId())
         .movementType(domain.getMovementType())
-        .category(domain.getCategory())
+        .category(CategoryMapper.toDTO(domain.getCategory()))
         .movementAmount(domain.getMovementAmount())
         .movementDate(domain.getMovementDate())
         .balanceSnapshot(domain.getBalanceSnapshot())
@@ -33,7 +33,7 @@ public final class MovementMapper {
         dto.id(),
         dto.accountId(),
         dto.movementType(),
-        dto.category(),
+        CategoryMapper.toDomain(dto.category()),
         dto.movementAmount(),
         dto.movementDate(),
         dto.balanceSnapshot(),

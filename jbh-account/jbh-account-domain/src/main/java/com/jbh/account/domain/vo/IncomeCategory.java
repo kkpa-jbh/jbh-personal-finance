@@ -61,4 +61,9 @@ public enum IncomeCategory implements CategoryType {
   public CategorySource getSource() {
     return CategorySource.INCOME;
   }
+
+  @Override
+  public String getTypeName() {
+    return this.name();
+  }
 }

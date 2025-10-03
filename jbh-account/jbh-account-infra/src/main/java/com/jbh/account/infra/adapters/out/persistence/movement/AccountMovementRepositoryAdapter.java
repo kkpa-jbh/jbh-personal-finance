@@ -20,7 +20,7 @@ public class AccountMovementRepositoryAdapter implements AccountMovementReposito
   @Override
   @Transactional
   public void save(final MovementDTO accountMovement) {
-    final AccountMovementJPAEntity entity = AccountMovementJPAEntity.of(accountMovement);
+    final AccountMovementJPAEntity entity = AccountMovementJPAEntity.toEntity(accountMovement);
     if (entity.getId() == null) {
       throw new IllegalStateException("Account movement ID cannot be null");
     }

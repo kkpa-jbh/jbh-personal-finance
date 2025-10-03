@@ -5,6 +5,7 @@ import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import lombok.Builder;
 
@@ -26,7 +27,9 @@ public record MonthlyBalanceDTO(
     boolean gapPeriod,
     boolean officialMonthlyReport,
     BigDecimal monthlyProfitReported,
-    BigDecimal incomeWithholdingTaxAmount) {
+    BigDecimal incomeWithholdingTaxAmount,
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt) {
 
   public static MonthlyBalanceDTO withInitialDataForNextMonth(
       final AccountId accountId,
