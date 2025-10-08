@@ -75,7 +75,12 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
     return future;
   }
 
+  // FIXME: Am I getting everything that I need to retry?
   private void registerToDLQ(final AsyncTask asyncTask, final Throwable throwable) {
-    LOG.warn("Registering async task {} to DLQ {}", asyncTask.type(), throwable.getMessage());
+    LOG.warn(
+        "Registering async task {}-{} to DLQ {}",
+        asyncTask.type(),
+        asyncTask.metadata(),
+        throwable.getMessage());
   }
 }

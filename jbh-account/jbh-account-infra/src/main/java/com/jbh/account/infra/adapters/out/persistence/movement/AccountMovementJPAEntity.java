@@ -37,7 +37,6 @@ public class AccountMovementJPAEntity extends PanacheEntityBase {
   @Column(name = "movement_type")
   public MovementType movementType;
 
-  @Enumerated(EnumType.STRING)
   @Column(name = "category_type")
   public String category;
 

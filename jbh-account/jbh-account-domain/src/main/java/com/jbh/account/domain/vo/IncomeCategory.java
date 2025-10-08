@@ -57,6 +57,10 @@ public enum IncomeCategory implements CategoryType {
   OTHER,
   INITIAL_BALANCE;
 
+  public static CategoryType findByName(final String categoryName) {
+    return IncomeCategory.valueOf(categoryName);
+  }
+
   @Override
   public CategorySource getSource() {
     return CategorySource.INCOME;

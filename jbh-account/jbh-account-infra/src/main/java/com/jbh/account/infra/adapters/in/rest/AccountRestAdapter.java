@@ -1,9 +1,16 @@
 package com.jbh.account.infra.adapters.in.rest;
 
 import com.jbh.account.application.core.dto.AccountDTO;
+import com.jbh.account.application.core.dto.AddBasicMovementDTO;
+import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
+import com.jbh.account.application.exceptions.JbhSpecificationApplication;
+import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.infra.adapters.in.rest.vo.AccountApiRoutes;
+import com.jbh.account.infra.adapters.in.rest.vo.AddMovementRequest;
 import com.jbh.account.infra.adapters.in.rest.vo.CreateAccountRequest;
 import com.jbh.gateway.client.JbhGatewayException;
 import jakarta.enterprise.context.RequestScoped;
@@ -32,9 +39,13 @@ public class AccountRestAdapter extends BaseRestAdapter {
 
   private final Logger log = LoggerFactory.getLogger(AccountRestAdapter.class);
   private final CreateAccountUseCase createAccountUseCase;
+  private final AddMovementUseCase addMovementUseCase;
 
   @Inject
-  public AccountRestAdapter(final CreateAccountUseCase createAccountUseCase) {
+  public AccountRestAdapter(
+      final CreateAccountUseCase createAccountUseCase,
+      final AddMovementUseCase addMovementUseCase) {
+    this.addMovementUseCase = addMovementUseCase;
     this.createAccountUseCase = createAccountUseCase;
   }
 
@@ -85,5 +96,67 @@ public class AccountRestAdapter extends BaseRestAdapter {
             new CreateBasicAccountCommand(userId, request.name(), request.type()));
 
     return Response.ok(accountDTO).build();
+  }
+
+  @POST
+  @Path(AccountApiRoutes.ACCOUNTS_MOVEMENTS_API_PATH + "/{accountId}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Add a movement to an account",
+      description = "Adds a movement to an account")
+  @APIResponses(
+      value = {
+        @APIResponse(
+            responseCode = "200",
+            description = "Movement created successfully",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class))),
+        @APIResponse(
+            responseCode = "400",
+            description = "Invalid command",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class))),
+        @APIResponse(
+            responseCode = "401",
+            description = "Unauthorized",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class)))
+      })
+  @Tag(name = "Account Operations", description = "Account management operations")
+  @SecurityRequirement(name = "JWT")
+  public Response addMovementToAccount(
+      @PathParam("accountId") final UUID accountId,
+      @RequestBody final AddMovementRequest request,
+      @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
+          final String authorizationHeader)
+      throws JbhGatewayException, JbhSpecificationApplication {
+
+    if (request == null) {
+      throw new IllegalArgumentException("Command cannot be null");
+    }
+
+    final UUID userId = findUserId(authorizationHeader);
+
+    log.info("Adding movement to account {}", accountId);
+
+    final AddMovementCommand command =
+        new AddMovementCommand(
+            request.entryDate(),
+            request.totalAmount(),
+            request.balanceSnapshot(),
+            request.movementType(),
+            MovementCategoryDTO.withName(request.movementType(), request.categoryName()));
+
+    final AddBasicMovementDTO response =
+        addMovementUseCase.addMovement(userId, AccountId.of(accountId), command);
+
+    return Response.ok(response).build();
   }
 }

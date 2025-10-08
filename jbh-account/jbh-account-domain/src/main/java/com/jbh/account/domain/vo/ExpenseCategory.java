@@ -164,6 +164,10 @@ public enum ExpenseCategory implements CategoryType {
     this.categoryId = value;
   }
 
+  public static CategoryType findByName(final String categoryName) {
+    return ExpenseCategory.valueOf(categoryName);
+  }
+
   @Override
   public CategorySource getSource() {
     return CategorySource.EXPENSE;

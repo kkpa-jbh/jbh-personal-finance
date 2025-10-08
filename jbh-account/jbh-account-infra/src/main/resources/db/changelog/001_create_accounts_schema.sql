@@ -24,14 +24,16 @@ CREATE INDEX idx_accounts_user_id ON acctmgmt.accounts (user_id);
 CREATE TABLE acctmgmt.account_movements
 (
     id               UUID PRIMARY KEY                  DEFAULT gen_random_uuid(),
+    created_at       TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     account_id       UUID                     NOT NULL,
+    category_type    TEXT                     NOT NULL,
     movement_type    TEXT                     NOT NULL,
     movement_amount  DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
     movement_date    DATE                     NOT NULL,
     balance_snapshot DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
 
     -- Additional useful columns
-    created_at       TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
     description      TEXT,  -- Optional description for the movement
     metadata         JSONB, -- Additional flexible data
 
@@ -63,24 +65,28 @@ CREATE SEQUENCE acctmgmt.account_monthly_balances_seq
     CACHE 1;
 CREATE TABLE acctmgmt.account_monthly_balances
 (
-    id               BIGSERIAL PRIMARY KEY,
-    account_id       UUID                     NOT NULL,
-    year             INTEGER                  NOT NULL,
-    month            INTEGER                  NOT NULL,
-    period           DATE                     NOT NULL, -- First day of the month (YYYY-MM-01)
+    id                            BIGSERIAL PRIMARY KEY,
+    created_at                    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at                    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    account_id                    UUID                     NOT NULL,
+    year                          INTEGER                  NOT NULL,
+    month                         INTEGER                  NOT NULL,
+    period                        DATE                     NOT NULL, -- First day of the month (YYYY-MM-01)
 
-    total_debits     DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
-    total_credits    DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
-    movement_balance DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
-    opening_balance  DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
-    closing_balance  DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
-    monthly_profit   DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
+    total_debits                  DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
+    total_credits                 DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
+    movement_balance              DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
+    opening_balance               DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
+    closing_balance               DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
+    monthly_reported_profit       DECIMAL(20, 0),
+    monthly_net_profit            DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
+    income_withholding_tax_amount DECIMAL(20, 0),
+    net_growth_rate               DECIMAL(5, 2)            NOT NULL DEFAULT 0.00,
 
-    total_movements  INTEGER                  NOT NULL DEFAULT 0,
-    gap_period       BOOLEAN                  NOT NULL DEFAULT FALSE,
+    total_movements               INTEGER                  NOT NULL DEFAULT 0,
+    gap_period                    BOOLEAN                  NOT NULL DEFAULT FALSE,
+    official_monthly_report       BOOLEAN                  NOT NULL DEFAULT FALSE,
 
-    created_at       TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at       TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     -- Constraints
     CONSTRAINT chk_month_valid CHECK (month BETWEEN 1 AND 12),
