@@ -17,5 +17,13 @@ public record AccountId(UUID value) {
     return new AccountId(UUID.randomUUID());
   }
 
+  @Override
+  public String toString() {
+    if (value == null) {
+      return null;
+    }
+    final String uuidString = value.toString();
+    final String firstSegment = uuidString.substring(0, uuidString.indexOf('-'));
+    return "AccountId[" + firstSegment + "]";
+  }
 }
-

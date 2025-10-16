@@ -29,4 +29,12 @@ public final class MoneyUtils {
     }
     return amount.setScale(2, RoundingMode.HALF_EVEN);
   }
+
+  public static BigDecimal withJBHDecimals(final String amount) {
+    if (amount == null) {
+      return null;
+    }
+
+    return withJBHDecimals(new BigDecimal(amount));
+  }
 }

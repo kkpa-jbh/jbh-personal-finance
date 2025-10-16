@@ -107,7 +107,7 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
     entity.setMonthlyNetProfit(monthlyBalance.monthlyNetProfit());
     entity.setNetGrowthRate(monthlyBalance.netGrowthRate());
     entity.setOfficialMonthlyReport(monthlyBalance.officialMonthlyReport());
-    entity.setMonthlyReportedProfit(monthlyBalance.monthlyProfitReported());
+    entity.setMonthlyReportedProfit(monthlyBalance.monthlyReportedProfit());
     entity.setIncomeWithholdingTaxAmount(monthlyBalance.incomeWithholdingTaxAmount());
     entity.setTotalMovements(monthlyBalance.totalMovements());
     entity.setGapPeriod(monthlyBalance.gapPeriod());
@@ -140,7 +140,7 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
         .monthlyNetProfit(monthlyNetProfit)
         .netGrowthRate(netGrowthRate)
         .officialMonthlyReport(officialMonthlyReport)
-        .monthlyProfitReported(monthlyReportedProfit)
+        .monthlyReportedProfit(monthlyReportedProfit)
         .incomeWithholdingTaxAmount(incomeWithholdingTaxAmount)
         .totalMovements(totalMovements)
         .gapPeriod(gapPeriod)

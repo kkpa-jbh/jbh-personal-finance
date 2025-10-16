@@ -18,7 +18,7 @@ public class MoneyUtilsTest {
     assertEquals(new BigDecimal("100.00"), MoneyUtils.withJBHDecimals(new BigDecimal("100.0")));
 
     assertEquals(new BigDecimal("100.00"), MoneyUtils.withJBHDecimals(new BigDecimal("100.000")));
-    assertEquals(null, MoneyUtils.withJBHDecimals(null));
+    assertEquals(null, MoneyUtils.withJBHDecimals((String) null));
 
     assertEquals(new BigDecimal("0.00"), MoneyUtils.JBH_ZERO);
   }

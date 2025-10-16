@@ -11,8 +11,8 @@ public class MoneyGrowthCalculatorTest {
 
   @Test
   public void justForPrinting() {
-    final BigDecimal opening = new BigDecimal("50139234");
-    final BigDecimal closing = new BigDecimal("50151898");
+    final BigDecimal opening = new BigDecimal("5000000");
+    final BigDecimal closing = new BigDecimal("5022458.19");
     final BigDecimal movement = new BigDecimal("0");
 
     final BigDecimal growth = calculator.calculateMonthlyGrowth(opening, closing, movement);

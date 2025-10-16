@@ -73,4 +73,12 @@ public class UseCaseBuilder {
   public static InMemoryMonthlyBalanceRepositories getInMemoryMonthlyBalanceRepos() {
     return inMemoryMonthlyBalanceRepos;
   }
+
+  public static void delayTests() {
+    try {
+      Thread.sleep(200);
+    } catch (final InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

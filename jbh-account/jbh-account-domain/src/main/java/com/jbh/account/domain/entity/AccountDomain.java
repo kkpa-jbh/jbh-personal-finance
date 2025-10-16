@@ -3,6 +3,7 @@ package com.jbh.account.domain.entity;
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 
+import com.jbh.account.domain.calculators.MoneyGrowthCalculator;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
@@ -19,6 +20,7 @@ import lombok.Getter;
 @SuppressWarnings("PMD.ExcessiveParameterList")
 public class AccountDomain {
 
+  private final MoneyGrowthCalculator moneyGrowthCalculator = new MoneyGrowthCalculator();
   protected AccountId id;
   protected String name;
   protected AccountType type;
@@ -156,6 +158,8 @@ public class AccountDomain {
       return;
     }
 
+    final BigDecimal openingBalance = this.movementBalance;
+
     if (movementAmount != null) {
       syncMovementBalance(movementAmount);
       this.currentBalance = this.currentBalance.add(movementAmount);
@@ -167,6 +171,7 @@ public class AccountDomain {
     }
 
     syncProfitBalance();
+    syncNetGrowthRate(openingBalance, newAccountMovement);
     this.updatedAt = LocalDateTime.now();
   }
 
@@ -176,6 +181,27 @@ public class AccountDomain {
 
   private void syncProfitBalance() {
     this.netProfitBalance = this.currentBalance.subtract(this.movementBalance);
+  }
+
+  private void syncNetGrowthRate(
+      final BigDecimal openingBalance, final AccountMovementDomain newAccountMovement) {
+    if (this.currentBalance != null
+        && this.movementBalance != null
+        && this.netProfitBalance != null) {
+
+      // Investments
+      final BigDecimal closingBalance =
+          newAccountMovement.getBalanceSnapshot() != null
+              ? newAccountMovement.getBalanceSnapshot()
+              : this.currentBalance;
+      final BigDecimal movementAmount =
+          newAccountMovement.getMovementAmount() != null
+              ? newAccountMovement.getMovementAmount()
+              : JBH_ZERO;
+      this.netGrowthRate =
+          moneyGrowthCalculator.calculateMonthlyGrowth(
+              openingBalance, closingBalance, movementAmount);
+    }
   }
 
   public void setCurrentBalance(final BigDecimal closingBalance) {

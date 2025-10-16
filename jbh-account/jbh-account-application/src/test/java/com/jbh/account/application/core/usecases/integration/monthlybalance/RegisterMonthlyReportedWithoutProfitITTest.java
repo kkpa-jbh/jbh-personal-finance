@@ -114,6 +114,8 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     useCaseTest = UseCaseBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
 
     addMovementUseCase = UseCaseBuilder.buildAddMovementUseCase(accountMovementRepository);
+
+    UseCaseBuilder.delayTests();
   }
 
   @Test
@@ -301,6 +303,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             .currentBalance(withJBHDecimals(closingBalanceDec24))
             .movementBalance(withJBHDecimals(salaryAmountDec24).add(salaryAmountNov24))
             .netProfitBalance(withJBHDecimals(new BigDecimal("7676950.00")))
+            .netGrowthRate(withJBHDecimals(new BigDecimal("59.05")))
             .build();
     final AccountDTO persistedAccount =
         inMemoryAccountRepo.findByUserAndAccountId(userId, accountId).get();
@@ -646,6 +649,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
     final AccountDTO expectedAccount =
         ACCOUNT_DEFAULT_BUILDER
+            .netGrowthRate(withJBHDecimals(new BigDecimal("-18.70")))
             .currentBalance(
                 withJBHDecimals(closingBalanceMar25).add(salaryAmountApr25).add(salaryAmountMay25))
             .movementBalance(

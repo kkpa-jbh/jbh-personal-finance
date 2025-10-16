@@ -26,7 +26,7 @@ public record MonthlyBalanceDTO(
     int totalMovements,
     boolean gapPeriod,
     boolean officialMonthlyReport,
-    BigDecimal monthlyProfitReported,
+    BigDecimal monthlyReportedProfit,
     BigDecimal incomeWithholdingTaxAmount,
     LocalDateTime createdAt,
     LocalDateTime updatedAt) {

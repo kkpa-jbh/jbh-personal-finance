@@ -129,7 +129,7 @@ public class AddMovementsAfterMonthlyReportedTest {
     assertEquals(
         command.closingBalance().subtract(command.monthlyProfitReported()),
         officialReportedBalance.closingBalance());
-    assertEquals(command.monthlyProfitReported(), officialReportedBalance.monthlyProfitReported());
+    assertEquals(command.monthlyProfitReported(), officialReportedBalance.monthlyReportedProfit());
     assertEquals(command.monthlyProfitReported(), officialReportedBalance.monthlyNetProfit());
 
     finalExpectedAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
@@ -156,7 +156,7 @@ public class AddMovementsAfterMonthlyReportedTest {
             .totalDebits(officialReportedBalance.totalDebits())
             .totalCredits(officialReportedBalance.totalCredits().add(withDrawal1))
             .openingBalance(officialReportedBalance.openingBalance())
-            .monthlyProfitReported(officialReportedBalance.monthlyProfitReported())
+            .monthlyReportedProfit(officialReportedBalance.monthlyReportedProfit())
             .monthlyNetProfit(officialReportedBalance.monthlyNetProfit())
             .movementBalance(withJBHDecimals(new BigDecimal("-5.00")))
             .totalMovements(1)
@@ -220,7 +220,7 @@ public class AddMovementsAfterMonthlyReportedTest {
             .totalDebits(officialReportedBalance.totalDebits().add(deposit))
             .totalCredits(officialReportedBalance.totalCredits().add(withDrawal1))
             .openingBalance(officialReportedBalance.openingBalance())
-            .monthlyProfitReported(officialReportedBalance.monthlyProfitReported())
+            .monthlyReportedProfit(officialReportedBalance.monthlyReportedProfit())
             .monthlyNetProfit(officialReportedBalance.monthlyNetProfit())
             .movementBalance(deposit.subtract(withDrawal1))
             .totalMovements(2)

@@ -2,6 +2,8 @@ package com.jbh.account.application.async;
 
 import com.jbh.account.application.async.vo.AsyncTask;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
@@ -24,22 +26,15 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
 
     final CompletableFuture<T> future = new CompletableFuture<>();
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
-
+    LOG.info("Starting async task: " + asyncTask);
+    final Instant start = Instant.now();
     executorService.submit(
         () -> {
           try {
-            LOG.info(
-                "Starting async task: {} with metadata {} on thread: {}",
-                asyncTask.type(),
-                asyncTask.metadata(),
-                Thread.currentThread().getName());
-
             final T result = task.call();
             future.complete(result);
-            LOG.info(
-                "Async task {} with metadata {} completed successfully",
-                asyncTask.metadata(),
-                asyncTask.type());
+            final long durationMs = Duration.between(start, Instant.now()).toMillis();
+            LOG.info("Async task " + asyncTask + " completed in " + durationMs + " ms");
           } catch (final InterruptedException exception) {
             Thread.currentThread().interrupt();
             LOG.error("Task was interrupted: {}", asyncTask.type(), exception);

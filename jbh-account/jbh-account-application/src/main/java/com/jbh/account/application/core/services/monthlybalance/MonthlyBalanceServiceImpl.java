@@ -155,9 +155,6 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
     final YearMonth initPeriod = monthlyBalances.getFirst().period();
     final YearMonth lastPeriod = monthlyBalances.getLast().period();
-    LOG.info(
-        String.format(
-            "Starting async task to sync balances from %s to %s", initPeriod, lastPeriod));
 
     // Create AsyncTask metadata
     final Map<String, Object> metadata =
@@ -170,16 +167,31 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
     final AsyncTask asyncTask = new AsyncTask(AsyncTaskType.MONTHLY_BALANCES_SYNC, metadata);
 
+    LOG.info(
+        "Preparing to submit async task to sync balances from {} to {} for account {}",
+        initPeriod,
+        lastPeriod,
+        accountId.value());
+
     // Create Callable that contains the entire business logic
     return asyncTaskExecutor.submitTask(
         asyncTask,
         () -> {
+          LOG.info(
+              String.format(
+                  "Starting async task to sync balances from %s to %s", initPeriod, lastPeriod));
+
           // Step 1: Save balances (executes first)
           saveMultiBalances(monthlyBalances);
 
           // Step 3: Return profit/opening balances (they contain the combined results)
           // The monthly balances are already persisted in the database
-          return adjustCurrentAndNextMonthlyBalancesAsync(accountId, initPeriod, lastPeriod);
+          final List<MonthlyBalanceDTO> updatedBalances =
+              adjustCurrentAndNextMonthlyBalancesAsync(accountId, initPeriod, lastPeriod);
+
+          LOG.info("Syncing monthly balances completed successfully {} ", updatedBalances.size());
+
+          return updatedBalances;
         });
   }
 

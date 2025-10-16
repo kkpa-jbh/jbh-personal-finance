@@ -27,7 +27,7 @@ public final class MonthlyBalanceMapper {
         .totalMovements(domain.getTotalMovements())
         .gapPeriod(domain.isGapPeriod())
         .officialMonthlyReport(domain.isOfficialMonthlyReport())
-        .monthlyProfitReported(domain.getMonthlyProfitReported())
+        .monthlyReportedProfit(domain.getMonthlyProfitReported())
         .netGrowthRate(domain.getNetGrowthRate())
         .incomeWithholdingTaxAmount(domain.getIncomeWithholdingTaxAmount())
         .build();
@@ -54,7 +54,7 @@ public final class MonthlyBalanceMapper {
         dto.totalMovements(),
         dto.gapPeriod(),
         dto.officialMonthlyReport(),
-        dto.monthlyProfitReported(),
+        dto.monthlyReportedProfit(),
         dto.incomeWithholdingTaxAmount());
   }
 }

@@ -158,7 +158,7 @@ public class RegisterMonthlyReportedProfitITTest {
                 useCaseTest.registerOfficialMonthlyBalance(
                     runningDate, userId, accountId, command)));
 
-    // Then Current Monthly Balance has closing balance - monthlyProfitReported (50)
+    // Then Current Monthly Balance has closing balance - monthlyReportedProfit (50)
     final var actualMonthlyBalance = savedMonthlyBalance.get();
     final var monthlyProfitReported = command.monthlyProfitReported();
     final var expectedMonthlyBalance =
@@ -166,7 +166,7 @@ public class RegisterMonthlyReportedProfitITTest {
                 accountId,
                 command.monthlyPeriod(),
                 command.closingBalance().subtract(monthlyProfitReported))
-            .monthlyProfitReported(monthlyProfitReported)
+            .monthlyReportedProfit(monthlyProfitReported)
             .monthlyNetProfit(withJBHDecimals(monthlyProfitReported))
             .openingBalance(withJBHDecimals(getPreviousCommand().closingBalance()))
             .officialMonthlyReport(true)
@@ -242,7 +242,7 @@ public class RegisterMonthlyReportedProfitITTest {
         MonthlyBalanceDTO.withClosingBalance(accountId, period, closingBalanceWithProfit)
             .officialMonthlyReport(true)
             .monthlyNetProfit(command.monthlyProfitReported())
-            .monthlyProfitReported(command.monthlyProfitReported())
+            .monthlyReportedProfit(command.monthlyProfitReported())
             .totalDebits(expectedMonthlyBalanceAfterMovement.totalDebits())
             .openingBalance(expectedMonthlyBalanceAfterMovement.openingBalance())
             .movementBalance(expectedMonthlyBalanceAfterMovement.movementBalance())
@@ -368,7 +368,7 @@ public class RegisterMonthlyReportedProfitITTest {
             .totalMovements(3)
             .openingBalance(new BigDecimal("1170.00"))
             .officialMonthlyReport(true)
-            .monthlyProfitReported(command.monthlyProfitReported())
+            .monthlyReportedProfit(command.monthlyProfitReported())
             .movementBalance(new BigDecimal("-70.00"))
             .totalCredits(new BigDecimal("300.00"))
             .netGrowthRate(withJBHDecimals(new BigDecimal("0.00")))
@@ -660,6 +660,12 @@ public class RegisterMonthlyReportedProfitITTest {
         useCaseTest.registerOfficialMonthlyBalance(runningDate, userId, accountId, command);
     assertNotNull(finalReportedMonthlyBalance);
 
+    try {
+      Thread.sleep(1000l);
+    } catch (final InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+
     verify(accountMovementRepository, times(2)).save(any(MovementDTO.class));
 
     // Then Monthly Balance Assertions
@@ -673,7 +679,7 @@ public class RegisterMonthlyReportedProfitITTest {
             .totalCredits(withJBHDecimals(expectedOpeningBalance.totalCredits()))
             .movementBalance(withJBHDecimals(expectedOpeningBalance.movementBalance()))
             .totalMovements(expectedOpeningBalance.totalMovements())
-            .monthlyProfitReported(withJBHDecimals(command.monthlyProfitReported()))
+            .monthlyReportedProfit(withJBHDecimals(command.monthlyProfitReported()))
             .incomeWithholdingTaxAmount(withJBHDecimals(command.incomeWithholdingTaxAmount()))
             .monthlyNetProfit(new BigDecimal("2.00"))
             .netGrowthRate(withJBHDecimals(new BigDecimal("1.75")))
