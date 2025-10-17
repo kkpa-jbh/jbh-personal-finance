@@ -8,6 +8,7 @@ import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
 import java.math.BigDecimal;
@@ -86,7 +87,8 @@ public class AccountServiceImpl implements AccountService {
   public AccountDTO syncByMovement(
       final AccountPK accountPK,
       final MovementDTO movement,
-      final boolean isMonthOfficiallyReported) {
+      final boolean isMonthOfficiallyReported)
+      throws AccountBusinessException {
 
     final AccountDomain accountDomain = findOrThrow(accountPK);
     accountDomain.syncBalancesByMovement(

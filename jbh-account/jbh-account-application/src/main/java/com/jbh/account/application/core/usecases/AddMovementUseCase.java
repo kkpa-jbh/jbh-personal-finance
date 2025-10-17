@@ -2,7 +2,7 @@ package com.jbh.account.application.core.usecases;
 
 import com.jbh.account.application.core.dto.AddBasicMovementDTO;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.application.exceptions.JbhSpecificationApplication;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import java.util.UUID;
 
@@ -19,5 +19,5 @@ public interface AddMovementUseCase {
    */
   AddBasicMovementDTO addMovement(
       UUID userId, AccountId accountId, AddMovementCommand movementCommand)
-      throws JbhSpecificationApplication;
+      throws AccountBusinessException;
 }

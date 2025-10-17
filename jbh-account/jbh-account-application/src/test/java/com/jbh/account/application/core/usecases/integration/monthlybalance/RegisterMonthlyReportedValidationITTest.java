@@ -13,8 +13,8 @@ import com.jbh.account.application.core.usecases.UseCaseBuilder;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
 import com.jbh.account.application.core.vo.commands.MonthlyBalanceCommandVO;
-import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
 import java.math.BigDecimal;
@@ -64,7 +64,7 @@ public class RegisterMonthlyReportedValidationITTest {
 
   @Test
   @Order(0)
-  void registeringOfficialMonthlyBalance() throws JbhSpecificationApplication {
+  void registeringOfficialMonthlyBalance() throws AccountBusinessException {
     // Create Account
     final AccountDTO accountDTO =
         createAccountUseCase.execute(
@@ -84,8 +84,7 @@ public class RegisterMonthlyReportedValidationITTest {
 
   @Test
   @Order(1)
-  void shouldThrowExceptionWhenRegisteringExistingOfficialReport()
-      throws JbhSpecificationApplication {
+  void shouldThrowExceptionWhenRegisteringExistingOfficialReport() throws AccountBusinessException {
 
     // Existing Official Report
     final var initialBalance = withJBHDecimals(new BigDecimal("92300"));
@@ -102,7 +101,7 @@ public class RegisterMonthlyReportedValidationITTest {
 
     // Fails when trying to register the existing report (Initial)
     Assertions.assertThrows(
-        JbhSpecificationApplication.class,
+        AccountBusinessException.class,
         () ->
             useCaseTest.registerOfficialMonthlyBalance(
                 runningDate, userId, accountId, existingMonthlyReportCommand));

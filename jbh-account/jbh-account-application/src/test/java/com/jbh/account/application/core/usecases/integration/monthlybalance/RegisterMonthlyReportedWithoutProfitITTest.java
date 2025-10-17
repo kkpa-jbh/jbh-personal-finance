@@ -25,8 +25,8 @@ import com.jbh.account.application.core.usecases.UseCaseBuilder;
 import com.jbh.account.application.core.usecases.utils.IgnoreAccountOptions;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
@@ -202,7 +202,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   private void addMovement(final AddMovementCommand movement) {
     try {
       addMovementUseCase.addMovement(userId, accountId, movement);
-    } catch (final JbhSpecificationApplication e) {
+    } catch (final AccountBusinessException e) {
       throw new RuntimeException(e);
     }
     try {
@@ -630,7 +630,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
     final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
     Assertions.assertThrows(
-        JbhSpecificationApplication.class,
+        AccountBusinessException.class,
         () ->
             savedMonthlyBalance.set(
                 useCaseTest.registerOfficialMonthlyBalance(

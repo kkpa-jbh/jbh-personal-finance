@@ -16,8 +16,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
+@Order(1) // Run first or Integer.MAX_VALUE
 @DisplayName("AsyncTaskExecutorImpl Tests")
 public class AsyncTaskExecutorImplTest {
 
@@ -106,7 +108,7 @@ public class AsyncTaskExecutorImplTest {
   void shouldHandleCheckedExceptions() throws InterruptedException {
     // Given - Create a task with mutable metadata map
     final Map<String, Object> mutableMetadata = new java.util.HashMap<>();
-    mutableMetadata.put("testKey", "testValue");
+    mutableMetadata.put("testKeyCheckedExceptions", "testValue");
     final AsyncTask taskWithMutableMetadata =
         new AsyncTask(AsyncTaskType.TEST_TASK, mutableMetadata);
     final String exceptionMessage = "Test checked exception";
@@ -157,7 +159,7 @@ public class AsyncTaskExecutorImplTest {
   void shouldAddExceptionMessageToMetadata() throws InterruptedException {
     // Given - Create a task with mutable metadata map
     final Map<String, Object> mutableMetadata = new java.util.HashMap<>();
-    mutableMetadata.put("testKey", "testValue");
+    mutableMetadata.put("testKeyExceptionMetadata", "testValue");
     final AsyncTask taskWithMutableMetadata =
         new AsyncTask(AsyncTaskType.TEST_TASK, mutableMetadata);
     final String exceptionMessage = "Test exception for metadata";

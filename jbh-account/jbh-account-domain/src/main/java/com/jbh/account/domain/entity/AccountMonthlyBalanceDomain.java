@@ -6,6 +6,8 @@ import static com.jbh.account.domain.utils.MoneyUtils.isZero;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.calculators.MoneyGrowthCalculator;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;
@@ -34,9 +36,6 @@ public class AccountMonthlyBalanceDomain {
   private final Integer month;
   private final YearMonth period;
 
-  // TODO Remove this field
-  private BigDecimal movementBalance = JBH_ZERO; // NetFlow: Total Debits minus Total Credits;
-
   /** Growth = (Closing - Opening - NetFlows) / (Opening + 0.5 × NetFlows) */
   private BigDecimal netGrowthRate = JBH_ZERO;
 
@@ -63,7 +62,6 @@ public class AccountMonthlyBalanceDomain {
       final Integer year,
       final Integer month,
       final YearMonth period,
-      final BigDecimal movementBalance,
       final BigDecimal netGrowthRate,
       final BigDecimal totalDebits,
       final BigDecimal totalCredits,
@@ -81,7 +79,6 @@ public class AccountMonthlyBalanceDomain {
     this.year = year;
     this.month = month;
     this.period = period;
-    this.movementBalance = movementBalance != null ? movementBalance : JBH_ZERO;
     this.netGrowthRate = netGrowthRate != null ? netGrowthRate : JBH_ZERO;
     this.totalDebits = totalDebits != null ? totalDebits : JBH_ZERO;
     this.totalCredits = totalCredits != null ? totalCredits : JBH_ZERO;
@@ -157,21 +154,21 @@ public class AccountMonthlyBalanceDomain {
     LOG.info("Adjusted Opening Balance {} for next period: {}", this.openingBalance, this.period);
   }
 
-  public void assignMovement(final AccountMovementDomain movement) {
+  public void assignMovement(final AccountMovementDomain movement) throws AccountBusinessException {
     validateMovementPeriod(movement);
     syncBalancesByMovement(movement);
     recalculateBalances();
   }
 
-  private void validateMovementPeriod(final AccountMovementDomain mvmt) {
+  private void validateMovementPeriod(final AccountMovementDomain mvmt)
+      throws AccountBusinessException {
     if (mvmt.getMovementDate() == null) {
-      throw new GenericSpecificationException(
-          "Movement date cannot be null when syncing monthly balance");
+      throw new AccountBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_DATE);
     }
     final YearMonth movementPeriod = YearMonth.from(mvmt.getMovementDate());
     if (this.getPeriod().isBefore(movementPeriod) || this.getPeriod().isAfter(movementPeriod)) {
-      throw new GenericSpecificationException(
-          "Movement date is not in the same period as the monthly balance");
+      throw new AccountBusinessException(
+          BusinessDomainExceptionType.INVALID_MOV_DATE_MONTHLY_PERIOD);
     }
   }
 
@@ -222,7 +219,7 @@ public class AccountMonthlyBalanceDomain {
   }
 
   private void syncNetGrowthRate() {
-    LOG.info("Syncing Net Growth Rate for account {} and period {}", accountId, period);
+    LOG.debug("Syncing Net Growth Rate for account {} and period {}", accountId, period);
     final var movementBalance = getMovementBalance();
     if (this.officialMonthlyReport && isNotZero(monthlyProfitReported)) {
       this.netGrowthRate =
@@ -235,6 +232,11 @@ public class AccountMonthlyBalanceDomain {
     }
   }
 
+  /**
+   * NetFlow: Total Debits minus Total Credits;
+   *
+   * @return
+   */
   public BigDecimal getMovementBalance() {
     return totalDebits.subtract(totalCredits);
   }

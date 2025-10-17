@@ -13,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.MovementType;
@@ -41,7 +42,7 @@ public class AccountMovementTest {
   }
 
   @Test
-  public void shouldCreateMovementWithFileImport() {
+  public void shouldCreateMovementWithFileImport() throws AccountBusinessException {
     final var movementBalance = new BigDecimal("100.00");
     final var currentBalance = new BigDecimal("200.00");
 
@@ -72,7 +73,7 @@ public class AccountMovementTest {
     final var totalAmount = new BigDecimal("-100.00");
     final var balanceSnapshot = new BigDecimal("0.00");
     final var newMovement =
-        AccountMovementDomain.with(
+        EntityBuilder.with(
             accountCeroBalance.getId(),
             today,
             totalAmount,
@@ -91,7 +92,7 @@ public class AccountMovementTest {
     final BigDecimal totalAmount = null;
     final var balanceSnapshot = new BigDecimal("200.00");
     final var newMovement =
-        AccountMovementDomain.with(
+        EntityBuilder.with(
             account100Balance.getId(), today, totalAmount, balanceSnapshot, BALANCE_SNAPSHOT, null);
 
     assertEquals(BALANCE_SNAPSHOT, newMovement.getMovementType());
@@ -107,27 +108,26 @@ public class AccountMovementTest {
 
     assertThrows(
         GenericSpecificationException.class,
-        () -> AccountMovementDomain.with(null, null, null, null, null, null));
+        () -> EntityBuilder.with(null, null, null, null, null, null));
 
     assertThrows(
         GenericSpecificationException.class,
-        () -> AccountMovementDomain.with(AccountId.generate(), null, null, null, null, null));
+        () -> EntityBuilder.with(AccountId.generate(), null, null, null, null, null));
+
+    assertThrows(
+        GenericSpecificationException.class,
+        () -> EntityBuilder.with(accountCeroBalance.getId(), today, null, null, null, null));
 
     assertThrows(
         GenericSpecificationException.class,
         () ->
-            AccountMovementDomain.with(accountCeroBalance.getId(), today, null, null, null, null));
-
-    assertThrows(
-        GenericSpecificationException.class,
-        () ->
-            AccountMovementDomain.with(
+            EntityBuilder.with(
                 accountCeroBalance.getId(), today, new BigDecimal("100.00"), null, null, null));
 
     assertThrows(
         GenericSpecificationException.class,
         () ->
-            AccountMovementDomain.with(
+            EntityBuilder.with(
                 accountCeroBalance.getId(),
                 today,
                 new BigDecimal("100.00"),
@@ -137,11 +137,11 @@ public class AccountMovementTest {
 
     assertDoesNotThrow(
         () ->
-            AccountMovementDomain.with(
+            EntityBuilder.with(
                 accountCeroBalance.getId(), today, JBH_ZERO, null, BALANCE_SNAPSHOT, null));
     assertDoesNotThrow(
         () ->
-            AccountMovementDomain.with(
+            EntityBuilder.with(
                 accountCeroBalance.getId(),
                 today,
                 new BigDecimal("100"),
@@ -151,7 +151,7 @@ public class AccountMovementTest {
 
     assertDoesNotThrow(
         () ->
-            AccountMovementDomain.with(
+            EntityBuilder.with(
                 accountCeroBalance.getId(),
                 today,
                 new BigDecimal("-23.00"),

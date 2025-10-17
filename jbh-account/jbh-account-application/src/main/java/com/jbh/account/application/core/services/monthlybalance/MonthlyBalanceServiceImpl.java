@@ -17,9 +17,9 @@ import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonth
 import com.jbh.account.application.core.validation.movement.MovementTypeValidationStrategy;
 import com.jbh.account.application.core.validation.movement.MovementValidationStrategyFactory;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
-import com.jbh.account.application.exceptions.JbhExceptionMessage;
-import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.JbhExceptionMessage;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
@@ -123,12 +123,13 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   }
 
   @Override
-  public MonthlyBalanceDTO syncForNewMovement(final MovementDTO newMovement) {
+  public MonthlyBalanceDTO syncForNewMovement(final MovementDTO newMovement)
+      throws AccountBusinessException {
     // Implementation for syncing monthly balances
     final AccountId accountId = newMovement.accountId();
     LOG.info(
-        "Syncing monthly balance for account {} and movement date {}",
-        accountId.value(),
+        "Syncing monthly balance for account {} and new movement date {}",
+        accountId,
         newMovement.movementDate());
     final LocalDate movementDate = newMovement.movementDate();
     final YearMonth movementPeriod = YearMonth.from(movementDate);
@@ -168,7 +169,8 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
     final AsyncTask asyncTask = new AsyncTask(AsyncTaskType.MONTHLY_BALANCES_SYNC, metadata);
 
     LOG.info(
-        "Preparing to submit async task to sync balances from {} to {} for account {}",
+        "Preparing to submit async task {} to persist balances from {} to {} for account {}",
+        asyncTask,
         initPeriod,
         lastPeriod,
         accountId.value());
@@ -179,7 +181,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
         () -> {
           LOG.info(
               String.format(
-                  "Starting async task to sync balances from %s to %s", initPeriod, lastPeriod));
+                  "Starting async task to persist balances from %s to %s", initPeriod, lastPeriod));
 
           // Step 1: Save balances (executes first)
           saveMultiBalances(monthlyBalances);
@@ -189,15 +191,14 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
           final List<MonthlyBalanceDTO> updatedBalances =
               adjustCurrentAndNextMonthlyBalancesAsync(accountId, initPeriod, lastPeriod);
 
-          LOG.info("Syncing monthly balances completed successfully {} ", updatedBalances.size());
+          LOG.info("Persisting monthly balances completed successfully {} ", asyncTask);
 
           return updatedBalances;
         });
   }
 
   @Override
-  public void validateNewMovement(final MovementDTO movementDTO)
-      throws JbhSpecificationApplication {
+  public void validateNewMovement(final MovementDTO movementDTO) throws AccountBusinessException {
     final YearMonth movementPeriod = YearMonth.from(movementDTO.movementDate());
     final AccountId accountId = movementDTO.accountId();
     final BigDecimal balanceSnapshot = movementDTO.balanceSnapshot();
@@ -246,10 +247,10 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
   private static boolean isMonthOfficiallyReportedValid(
       final MonthlyBalanceDTO existingMonthlyBalance, final BigDecimal balanceSnapshot)
-      throws JbhSpecificationApplication {
+      throws AccountBusinessException {
     final boolean isMonthOfficiallyReported = existingMonthlyBalance.officialMonthlyReport();
     if (isMonthOfficiallyReported && balanceSnapshot != null) {
-      throw new JbhSpecificationApplication(
+      throw new AccountBusinessException(
           "Cannot add a snapshot after the monthly balance was officially reported",
           new JbhExceptionMessage(
               "Cannot add a snapshot after the monthly balance was officially reported",

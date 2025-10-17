@@ -1,4 +1,4 @@
-package com.jbh.account.application.exceptions;
+package com.jbh.account.domain.exceptions;
 
 import com.jbh.account.domain.utils.JbhStringUtils;
 import java.io.Serial;

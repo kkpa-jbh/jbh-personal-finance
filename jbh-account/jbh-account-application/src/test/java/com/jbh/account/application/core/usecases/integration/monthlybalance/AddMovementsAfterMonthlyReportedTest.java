@@ -21,8 +21,8 @@ import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
 import com.jbh.account.application.core.vo.commands.MonthlyBalanceCommandVO;
-import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
 import com.jbh.account.domain.vo.CategoryType;
@@ -91,7 +91,7 @@ public class AddMovementsAfterMonthlyReportedTest {
 
   @Test
   @Order(0)
-  void creatingAccount() throws JbhSpecificationApplication {
+  void creatingAccount() throws AccountBusinessException {
     createdAccount =
         createAccountUseCase.execute(
             new CreateBasicAccountCommand(userId, ACCOUNT_REPORTED, AccountType.SAVINGS));

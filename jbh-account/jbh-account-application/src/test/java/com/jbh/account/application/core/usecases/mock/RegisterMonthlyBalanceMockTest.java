@@ -26,8 +26,8 @@ import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
-import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
 import java.math.BigDecimal;
@@ -178,7 +178,7 @@ public class RegisterMonthlyBalanceMockTest {
     // When
     final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
     Assertions.assertThrows(
-        JbhSpecificationApplication.class,
+        AccountBusinessException.class,
         () ->
             savedMonthlyBalance.set(
                 useCaseInstanceTest.registerOfficialMonthlyBalance(

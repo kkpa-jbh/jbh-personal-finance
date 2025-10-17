@@ -26,8 +26,8 @@ import com.jbh.account.application.core.usecases.UseCaseBuilder;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
-import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
 import com.jbh.account.domain.vo.CategoryType;
@@ -98,11 +98,13 @@ public class RegisterMonthlyReportedProfitITTest {
     createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
 
     addMovementUseCase = UseCaseBuilder.buildAddMovementUseCase(accountMovementRepository);
+
+    UseCaseBuilder.delayTests();
   }
 
   @Test
   @Order(0)
-  void settingInitialBalance() throws JbhSpecificationApplication {
+  void settingInitialBalance() throws AccountBusinessException {
     ++commandIndex;
     createdAccount =
         createAccountUseCase.execute(
@@ -392,7 +394,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
   @Test
   @Order(4)
-  void month4ProfitReport202411() throws JbhSpecificationApplication {
+  void month4ProfitReport202411() throws AccountBusinessException {
     final var beforeMovementBalance = finalAccountBalance.movementBalance();
     final var beforeNetProfitBalance = finalAccountBalance.netProfitBalance();
     ++commandIndex;
@@ -502,7 +504,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
   @Test
   @Order(5)
-  void month5ProfitReport202412() throws JbhSpecificationApplication {
+  void month5ProfitReport202412() throws AccountBusinessException {
     ++commandIndex;
     final var previousAccountMovementBalance = finalAccountBalance.movementBalance();
     final var previousAccountNetProfitBalance = finalAccountBalance.netProfitBalance();
@@ -563,7 +565,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
   @Test
   @Order(6)
-  void month6ProfitReport202501() throws JbhSpecificationApplication {
+  void month6ProfitReport202501() throws AccountBusinessException {
     ++commandIndex;
 
     final AddMonthlyBalanceCommand command = getCurrentCommand();
@@ -628,11 +630,14 @@ public class RegisterMonthlyReportedProfitITTest {
             .totalMovements(1) // 1 dividend
             .build();
     assertMonthlyBalance(expectedNextMonthBalance, nextMonthBalance);
+
+    LOG.info("month6ProfitReport202501 - END");
   }
 
   @Test
   @Order(7)
-  void registerReportWithRetefuente20252() throws JbhSpecificationApplication {
+  void registerReportWithRetefuente20252() throws AccountBusinessException {
+    LOG.info("registerReportWithRetefuente20252 - START");
     ++commandIndex;
     final AddMonthlyBalanceCommand command = getCurrentCommand();
     final AddMonthlyBalanceCommand previousCommand = getPreviousCommand();
@@ -690,6 +695,7 @@ public class RegisterMonthlyReportedProfitITTest {
         expectedMonthlyBalance.netGrowthRate(), finalReportedMonthlyBalance.netGrowthRate());
 
     // Then Next Monthly Balance Assertions
+    LOG.info("Searching Period Balance {} ", period.plusMonths(1));
     final var nextMonthBalance =
         monthlyBalanceService.findByAccountIdAndPeriod(accountId, period.plusMonths(1)).get();
     final var expectedNextMonthBalance =
@@ -717,11 +723,14 @@ public class RegisterMonthlyReportedProfitITTest {
             .subtract(command.incomeWithholdingTaxAmount()),
         finalAccountBalance.movementBalance());
     assertEquals(new BigDecimal("262.00"), finalAccountBalance.netProfitBalance());
+
+    LOG.info("registerReportWithRetefuente20252 - END");
   }
 
   @Test
   @Order(17)
   void shouldThrowExceptionWhenAddingSnapshotAfterMonthlyReported() {
+    LOG.info("shouldThrowExceptionWhenAddingSnapshotAfterMonthlyReported - START");
 
     final var deposit = withJBHDecimals(new BigDecimal("100"));
     final var snapshot = withJBHDecimals(new BigDecimal("1100"));
@@ -734,11 +743,14 @@ public class RegisterMonthlyReportedProfitITTest {
           addMovement(YearMonth.of(2024, 9), ExpenseCategory.PERSONAL, deposit, snapshot);
         },
         message);
+
+    LOG.info("shouldThrowExceptionWhenAddingSnapshotAfterMonthlyReported - END");
   }
 
   @Test
   @Order(18)
   void shouldAddDebitsToReportedMonthlyBalance() {
+    LOG.info("shouldAddDebitsToReportedMonthlyBalance - START");
     // Given
     final YearMonth monthlyPeriod = YearMonth.of(2024, 9);
     final BigDecimal deposit = withJBHDecimals(new BigDecimal("10"));
@@ -775,10 +787,15 @@ public class RegisterMonthlyReportedProfitITTest {
 
     // Check that account balance is not updated
     final var currentAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
-    assertEquals(currentAccountBalance.currentBalance(), finalAccountBalance.currentBalance());
+    assertEquals(
+        currentAccountBalance.currentBalance(),
+        finalAccountBalance.currentBalance(),
+        "Account Balance");
     assertEquals(
         currentAccountBalance.movementBalance(),
         finalAccountBalance.movementBalance().add(deposit));
     assertEquals(currentAccountBalance.netProfitBalance(), finalAccountBalance.netProfitBalance());
+
+    LOG.info("shouldAddDebitsToReportedMonthlyBalance - END");
   }
 }

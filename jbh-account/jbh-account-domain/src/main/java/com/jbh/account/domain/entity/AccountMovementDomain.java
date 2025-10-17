@@ -2,6 +2,8 @@ package com.jbh.account.domain.entity;
 
 import static com.jbh.account.domain.entity.MovementCategoryDomain.withCategoryType;
 
+import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountMovementId;
@@ -56,7 +58,7 @@ public class AccountMovementDomain {
     this.metadata = metadata;
   }
 
-  private AccountMovementDomain(
+  public AccountMovementDomain(
       final AccountId accountId,
       final MovementType movementType,
       final LocalDate movementDate,
@@ -81,7 +83,8 @@ public class AccountMovementDomain {
       final BigDecimal totalAmount,
       final BigDecimal balanceSnapshot,
       final MovementType movementType,
-      final LocalDateTime importedAt) {
+      final LocalDateTime importedAt)
+      throws AccountBusinessException {
 
     MovementCategoryDomain category = null;
     if (movementType == MovementType.DEPOSIT) {
@@ -91,22 +94,6 @@ public class AccountMovementDomain {
     }
 
     final AccountMovementDomain movementDomain =
-        with(accountId, movementDate, totalAmount, balanceSnapshot, movementType, category);
-
-    movementDomain.addMetadata(FILE_IMPORT_TAG, true);
-    movementDomain.addMetadata(FILE_IMPORTED_AT_TAG, importedAt);
-    return movementDomain;
-  }
-
-  public static AccountMovementDomain with(
-      final AccountId accountId,
-      final LocalDate movementDate,
-      final BigDecimal totalAmount,
-      final BigDecimal balanceSnapshot,
-      final MovementType movementType,
-      final MovementCategoryDomain category) {
-
-    final AccountMovementDomain movDomain =
         new AccountMovementDomain(
             accountId,
             movementType,
@@ -116,16 +103,14 @@ public class AccountMovementDomain {
             new HashMap<>(),
             category);
 
-    movDomain.validate();
+    movementDomain.validate();
 
-    return movDomain;
+    movementDomain.addMetadata(FILE_IMPORT_TAG, true);
+    movementDomain.addMetadata(FILE_IMPORTED_AT_TAG, importedAt);
+    return movementDomain;
   }
 
-  private void addMetadata(final String key, final Object value) {
-    metadata.put(key, value);
-  }
-
-  public void validate() {
+  public void validate() throws AccountBusinessException {
     validateAccountId();
     validateMovementType();
     validateMovementDate();
@@ -134,55 +119,59 @@ public class AccountMovementDomain {
     validateAmountOrSnapshot();
   }
 
+  private void addMetadata(final String key, final Object value) {
+    metadata.put(key, value);
+  }
+
   private void validateAccountId() {
     if (accountId == null || accountId.value() == null) {
       throw new GenericSpecificationException("Account ID cannot be null");
     }
   }
 
-  private void validateMovementType() {
+  private void validateMovementType() throws AccountBusinessException {
     if (movementType == null) {
-      throw new GenericSpecificationException("Movement type cannot be null");
+      throw new AccountBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_TYPE);
     }
     if (movementType == MovementType.BALANCE_SNAPSHOT && category != null) {
-      throw new GenericSpecificationException("Category cannot be provided for balance snapshots");
+      throw new AccountBusinessException(
+          BusinessDomainExceptionType.INVALID_CATEGORY_BALANCE_SNAPSHOT);
     }
   }
 
-  private void validateMovementDate() {
+  private void validateMovementDate() throws AccountBusinessException {
     if (movementDate == null) {
-      throw new GenericSpecificationException("Movement date cannot be null");
+      throw new AccountBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_TYPE);
     }
   }
 
-  private void validateCategory() {
+  private void validateCategory() throws AccountBusinessException {
     validateMovementType();
     validateCategoryRequirement();
     validateCategoryByMovementType();
   }
 
-  private void validateMovementDateNotFuture() {
+  private void validateMovementDateNotFuture() throws AccountBusinessException {
     if (movementDate != null && movementDate.isAfter(LocalDate.now())) {
-      throw new GenericSpecificationException("Movement date cannot be in the future");
+      throw new AccountBusinessException(BusinessDomainExceptionType.FUTURE_MOVEMENT_DATE);
     }
   }
 
-  private void validateAmountOrSnapshot() {
+  private void validateAmountOrSnapshot() throws AccountBusinessException {
     if (movementAmount == null && balanceSnapshot == null) {
-      throw new GenericSpecificationException("Total amount cannot be null");
+      throw new AccountBusinessException(BusinessDomainExceptionType.EMPTY_AMOUNT);
     }
     validateAmountWithCategory();
   }
 
-  private void validateCategoryRequirement() {
+  private void validateCategoryRequirement() throws AccountBusinessException {
     if (MovementCategoryDomain.isEmpty(category) && movementType != MovementType.BALANCE_SNAPSHOT) {
-      final String categoryCannotBeNull =
-          "Category cannot be null for movement type " + movementType;
-      throw new GenericSpecificationException(categoryCannotBeNull);
+
+      throw new AccountBusinessException(BusinessDomainExceptionType.EMPTY_CATEGORY);
     }
   }
 
-  private void validateCategoryByMovementType() {
+  private void validateCategoryByMovementType() throws AccountBusinessException {
     switch (this.movementType) {
       case BALANCE_SNAPSHOT:
         validateBalanceSnapshotCategory();
@@ -196,18 +185,20 @@ public class AccountMovementDomain {
     }
   }
 
-  private void validateAmountWithCategory() {
+  private void validateAmountWithCategory() throws AccountBusinessException {
     if (movementType == MovementType.DEPOSIT && movementAmount.signum() < 0) {
-      throw new GenericSpecificationException("Deposit amount cannot be negative");
+      throw new AccountBusinessException(BusinessDomainExceptionType.DEPOSIT_AMOUNT_NOT_POSITIVE);
     }
     if (movementType == MovementType.WITHDRAWAL && movementAmount.signum() > 0) {
-      throw new GenericSpecificationException("Withdrawal amount cannot be positive");
+      throw new AccountBusinessException(
+          BusinessDomainExceptionType.WITHDRAWAL_AMOUNT_NOT_POSITIVE);
     }
   }
 
-  private void validateBalanceSnapshotCategory() {
+  private void validateBalanceSnapshotCategory() throws AccountBusinessException {
     if (category != null) {
-      throw new GenericSpecificationException("Category cannot be provided for balance snapshots");
+      throw new AccountBusinessException(
+          BusinessDomainExceptionType.INVALID_CATEGORY_BALANCE_SNAPSHOT);
     }
   }
 

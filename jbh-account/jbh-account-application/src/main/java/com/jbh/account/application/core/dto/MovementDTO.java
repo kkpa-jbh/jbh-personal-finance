@@ -21,4 +21,19 @@ public record MovementDTO(
     BigDecimal balanceSnapshot,
     Map<String, Object> metadata,
     LocalDateTime createdAt,
-    String description) {}
+    String description) {
+
+  @Override
+  public String toString() {
+    return "MovementDTO{"
+        + "movementType="
+        + movementType
+        + ", movementAmount="
+        + movementAmount
+        + ", movementDate="
+        + movementDate
+        + ", balanceSnapshot="
+        + balanceSnapshot
+        + '}';
+  }
+}

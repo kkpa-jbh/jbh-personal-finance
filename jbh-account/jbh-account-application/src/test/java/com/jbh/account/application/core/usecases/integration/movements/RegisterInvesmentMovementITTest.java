@@ -17,8 +17,8 @@ import com.jbh.account.application.core.usecases.UseCaseBuilder;
 import com.jbh.account.application.core.usecases.integration.monthlybalance.RegisterMonthlyReportedWithoutProfitITTest;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
-import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
 import com.jbh.account.domain.vo.IncomeCategory;
@@ -98,7 +98,7 @@ public class RegisterInvesmentMovementITTest {
 
   @Test
   @Order(1)
-  void initialBalance() throws JbhSpecificationApplication {
+  void initialBalance() throws AccountBusinessException {
     final AddMovementCommand movement =
         new AddMovementCommand(
             LocalDate.of(2025, 8, 20),
@@ -113,7 +113,7 @@ public class RegisterInvesmentMovementITTest {
 
   @Test
   @Order(2)
-  void registerBalanceSnapshotSept1() throws JbhSpecificationApplication {
+  void registerBalanceSnapshotSept1() throws AccountBusinessException {
     final BigDecimal acciCuentaBalance = withJBHDecimals(new BigDecimal("5022458.19"));
     final var entryDate = LocalDate.of(2025, 9, 22);
 
@@ -150,7 +150,7 @@ public class RegisterInvesmentMovementITTest {
 
   @Test
   @Order(2)
-  void registerBalanceSnapshotSept2() throws JbhSpecificationApplication {
+  void registerBalanceSnapshotSept2() throws AccountBusinessException {
     finalAcciBalanceSept = withJBHDecimals(new BigDecimal("5075628.00"));
     final var entryDate = LocalDate.of(2025, 9, 25);
 
@@ -188,7 +188,7 @@ public class RegisterInvesmentMovementITTest {
 
   @Test
   @Order(4)
-  void registerBalanceSnapshotOct1() throws JbhSpecificationApplication {
+  void registerBalanceSnapshotOct1() throws AccountBusinessException {
     final var entryDate = LocalDate.of(2025, 10, 16);
 
     // Check previous monthly balance

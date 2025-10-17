@@ -3,7 +3,7 @@ package com.jbh.account.application.core.services.movements;
 import com.jbh.account.application.core.dto.AddBasicMovementDTO;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.application.exceptions.JbhSpecificationApplication;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountPK;
 
 public interface AccountMovementService {
@@ -24,12 +24,12 @@ public interface AccountMovementService {
    * @param nextMonthlyBalanceCommand The command with the monthly balance for the next month. The
    *     closing balance should include the monthly profit reported and the income withholding tax
    *     amount.
-   * @throws JbhSpecificationApplication
+   * @throws AccountBusinessException
    */
   void addDividendsMovementForNextMonth(
       AccountPK accountPK, AddMonthlyBalanceCommand nextMonthlyBalanceCommand)
-      throws JbhSpecificationApplication;
+      throws AccountBusinessException;
 
   AddBasicMovementDTO addMovementProcessingBalances(
-      AccountPK accountPK, AddMovementCommand movementCommand) throws JbhSpecificationApplication;
+      AccountPK accountPK, AddMovementCommand movementCommand) throws AccountBusinessException;
 }

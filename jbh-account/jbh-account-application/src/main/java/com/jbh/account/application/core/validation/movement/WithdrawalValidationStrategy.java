@@ -1,8 +1,8 @@
 package com.jbh.account.application.core.validation.movement;
 
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.account.application.exceptions.JbhExceptionMessage;
-import com.jbh.account.application.exceptions.JbhSpecificationApplication;
+import com.jbh.account.domain.exceptions.JbhExceptionMessage;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import java.math.BigDecimal;
 
 public class WithdrawalValidationStrategy implements MovementTypeValidationStrategy {
@@ -10,13 +10,13 @@ public class WithdrawalValidationStrategy implements MovementTypeValidationStrat
   @Override
   public void validateMovementAgainstOfficialBalance(
       final BigDecimal movementAmount, final MonthlyBalanceDTO existingMonthlyBalance)
-      throws JbhSpecificationApplication {
+      throws AccountBusinessException {
     final BigDecimal openingBalance = existingMonthlyBalance.openingBalance();
     final BigDecimal movementBalance = existingMonthlyBalance.movementBalance();
 
     final var futureMovementBalance = openingBalance.add(movementBalance).add(movementAmount);
     if (futureMovementBalance.compareTo(BigDecimal.ZERO) < 0) {
-      throw new JbhSpecificationApplication(
+      throw new AccountBusinessException(
           "The new withdrawal exceeds the monthly balance " + openingBalance,
           new JbhExceptionMessage(
               "The new withdrawal exceeds the monthly balance " + openingBalance,

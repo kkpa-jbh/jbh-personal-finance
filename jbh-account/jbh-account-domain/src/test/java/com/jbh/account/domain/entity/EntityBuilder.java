@@ -2,9 +2,14 @@ package com.jbh.account.domain.entity;
 
 import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 
+import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.HashMap;
 
 public class EntityBuilder {
 
@@ -19,7 +24,6 @@ public class EntityBuilder {
         period.getYear(),
         period.getMonthValue(),
         period,
-        JBH_ZERO, // movement balance
         JBH_ZERO, // net growth rate
         JBH_ZERO, // total debits
         JBH_ZERO, // total credits
@@ -31,5 +35,32 @@ public class EntityBuilder {
         false, // official report
         JBH_ZERO,
         null); // monthly profit reported
+  }
+
+  public static AccountMovementDomain with(
+      final AccountId accountId,
+      final LocalDate movementDate,
+      final BigDecimal totalAmount,
+      final BigDecimal balanceSnapshot,
+      final MovementType movementType,
+      final MovementCategoryDomain category) {
+
+    final AccountMovementDomain movDomain =
+        new AccountMovementDomain(
+            accountId,
+            movementType,
+            movementDate,
+            totalAmount,
+            balanceSnapshot,
+            new HashMap<>(),
+            category);
+
+    try {
+      movDomain.validate();
+    } catch (final AccountBusinessException e) {
+      throw new GenericSpecificationException(e.getMessage());
+    }
+
+    return movDomain;
   }
 }

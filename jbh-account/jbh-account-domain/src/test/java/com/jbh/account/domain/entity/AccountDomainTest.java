@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
 import com.jbh.account.domain.vo.MovementType;
@@ -75,7 +76,7 @@ public class AccountDomainTest {
   }
 
   @Test
-  public void shouldSyncSingleBalance() {
+  public void shouldSyncSingleBalance() throws AccountBusinessException {
     final var movementBalance = new BigDecimal("100.00");
     final var currentBalance = new BigDecimal("200.00");
     final AccountDomain accountDomain =
@@ -85,7 +86,7 @@ public class AccountDomainTest {
     final var totalAmount = new BigDecimal("100.00");
     final var balanceSnapshot = new BigDecimal("210.00");
     final var newMovement =
-        AccountMovementDomain.with(
+        EntityBuilder.with(
             accountDomain.getId(),
             today,
             totalAmount,
@@ -100,7 +101,7 @@ public class AccountDomainTest {
   }
 
   @Test
-  public void shouldSyncMultiBalances() {
+  public void shouldSyncMultiBalances() throws AccountBusinessException {
     int totalMovements = 2;
     final var accountMovementBalance = new BigDecimal("100.00");
     final var accountCurrentBalance = new BigDecimal("100.00");
@@ -112,7 +113,7 @@ public class AccountDomainTest {
     final var balance1 = new BigDecimal("205.00");
 
     final var newMovement1 =
-        AccountMovementDomain.with(
+        EntityBuilder.with(
             accountDomain.getId(),
             today.plusDays(-1 * --totalMovements),
             amount1,
@@ -124,7 +125,7 @@ public class AccountDomainTest {
     final var balance2 = new BigDecimal("155.00");
 
     final var newMovement2 =
-        AccountMovementDomain.with(
+        EntityBuilder.with(
             accountDomain.getId(),
             today.plusDays(-1 * --totalMovements),
             amount2,

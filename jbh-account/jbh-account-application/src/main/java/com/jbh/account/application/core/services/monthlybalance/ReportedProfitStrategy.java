@@ -4,7 +4,7 @@ import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.movements.AccountMovementService;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
-import com.jbh.account.application.exceptions.JbhSpecificationApplication;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
 import java.math.BigDecimal;
@@ -29,7 +29,7 @@ public class ReportedProfitStrategy implements MonthlyBalanceProfitStrategy {
       final AccountPK accountPK,
       final MonthlyBalanceDTO monthlyBalanceDomain,
       final AddMonthlyBalanceCommand command)
-      throws JbhSpecificationApplication {
+      throws AccountBusinessException {
     final BigDecimal currentBalance = command.closingBalance();
     final BigDecimal monthlyProfitReported = command.monthlyProfitReported();
     final BigDecimal incomeWithholdingTaxAmount =

@@ -41,4 +41,18 @@ public record AddMonthlyBalanceCommand(
       throw new IllegalArgumentException("Monthly profit reported cannot be null");
     }
   }
+
+  @Override
+  public String toString() {
+    return "AddMonthlyBalanceCommand{"
+        + "monthlyPeriod="
+        + monthlyPeriod
+        + ", closingBalance="
+        + closingBalance
+        + ", monthlyProfitReported="
+        + monthlyProfitReported
+        + ", incomeWithholdingTaxAmount="
+        + incomeWithholdingTaxAmount
+        + '}';
+  }
 }

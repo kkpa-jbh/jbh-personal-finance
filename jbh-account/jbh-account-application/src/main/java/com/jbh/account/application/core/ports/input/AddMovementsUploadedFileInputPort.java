@@ -16,6 +16,7 @@ import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileComma
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.entity.AccountMovementDomain;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -57,7 +58,8 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
   public AddMultipleBasicMovementDTO uploadMovementsFromFile(
       final UUID userId,
       final AccountId accountId,
-      final List<AddMovementUploadedFileCommand> allUploadedMovCommand) {
+      final List<AddMovementUploadedFileCommand> allUploadedMovCommand)
+      throws AccountBusinessException {
 
     validateUploadedMovements(allUploadedMovCommand);
 
@@ -121,19 +123,24 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
             mvmntCommand -> {
               final BigDecimal totalAmount = mvmntCommand.totalAmount();
 
-              return AccountMovementDomain.withFileImport(
-                  accountDomain.getId(),
-                  mvmntCommand.entryDate(),
-                  totalAmount,
-                  mvmntCommand.balanceSnapshot(),
-                  mvmntCommand.movementType(),
-                  LocalDateTime.now());
+              try {
+                return AccountMovementDomain.withFileImport(
+                    accountDomain.getId(),
+                    mvmntCommand.entryDate(),
+                    totalAmount,
+                    mvmntCommand.balanceSnapshot(),
+                    mvmntCommand.movementType(),
+                    LocalDateTime.now());
+              } catch (final AccountBusinessException e) {
+                throw new RuntimeException(e);
+              }
             })
         .toList();
   }
 
   private AccountDTO syncAccountBalanceByMovements(
-      final AccountDomain accountDomain, final List<AccountMovementDomain> newMovements) {
+      final AccountDomain accountDomain, final List<AccountMovementDomain> newMovements)
+      throws AccountBusinessException {
     accountDomain.syncBalancesWithUploadedMovements(newMovements);
     return toDTO(accountDomain);
   }

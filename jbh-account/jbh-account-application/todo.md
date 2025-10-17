@@ -6,4 +6,4 @@
 # TESTS TO DO
 
 - [] Test the async task executor by running different monthly balance sync tasks in parallel
-- [] Test to check if the mappers have been implemented correctly and they have all attributes mapped
+- [x] Test to check if the mappers have been implemented correctly and they have all attributes mapped

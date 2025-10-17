@@ -3,6 +3,7 @@ package com.jbh.account.application.core.services.account;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
 import java.math.BigDecimal;
@@ -43,5 +44,6 @@ public interface AccountService {
    * @return
    */
   AccountDTO syncByMovement(
-      AccountPK accountPK, MovementDTO movement, boolean isMonthOfficiallyReported);
+      AccountPK accountPK, MovementDTO movement, boolean isMonthOfficiallyReported)
+      throws AccountBusinessException;
 }

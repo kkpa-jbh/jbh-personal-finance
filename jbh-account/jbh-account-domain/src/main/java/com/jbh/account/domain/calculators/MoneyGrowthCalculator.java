@@ -41,7 +41,7 @@ public class MoneyGrowthCalculator {
 
     final BigDecimal growthRate = withJBHDecimals(growthDec.multiply(BigDecimal.valueOf(100)));
 
-    log.info(
+    log.debug(
         "Opening {} Closing {} Movement {} = Growth {}",
         openingBalance,
         closingBalance,

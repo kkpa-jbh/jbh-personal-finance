@@ -5,7 +5,7 @@ import com.jbh.account.application.core.dto.AddBasicMovementDTO;
 import com.jbh.account.application.core.services.movements.AccountMovementService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.application.exceptions.JbhSpecificationApplication;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
 import java.util.UUID;
@@ -23,7 +23,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
   @Override
   public AddBasicMovementDTO addMovement(
       final UUID userId, final AccountId accountId, final AddMovementCommand movementCommand)
-      throws JbhSpecificationApplication {
+      throws AccountBusinessException {
     // Sync account balance and persist movement
     final AddBasicMovementDTO addBasicMovementDTO;
     addBasicMovementDTO =

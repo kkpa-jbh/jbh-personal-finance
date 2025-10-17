@@ -4,7 +4,8 @@ import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.calculators.MoneyGrowthCalculator;
-import com.jbh.account.domain.exceptions.GenericSpecificationException;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
 import java.math.BigDecimal;
@@ -99,10 +100,10 @@ public class AccountDomain {
     return accountDomain;
   }
 
-  public void syncBalancesWithUploadedMovements(
-      final List<AccountMovementDomain> multipleMovements) {
+  public void syncBalancesWithUploadedMovements(final List<AccountMovementDomain> multipleMovements)
+      throws AccountBusinessException {
     if (multipleMovements == null || multipleMovements.isEmpty()) {
-      throw new GenericSpecificationException("Movements cannot be null or empty");
+      throw new AccountBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENTS);
     }
     final List<AccountMovementDomain> filteredMovements =
         multipleMovements.stream().filter(Objects::nonNull).toList();
@@ -113,11 +114,12 @@ public class AccountDomain {
   }
 
   public void syncBalancesByMovement(
-      final AccountMovementDomain movement, final boolean wasOfficialReport) {
+      final AccountMovementDomain movement, final boolean wasOfficialReport)
+      throws AccountBusinessException {
     movement.validate();
 
     if (!this.getId().equals(movement.getAccountId())) {
-      throw new GenericSpecificationException("Account ID mismatch when applying movement");
+      throw new AccountBusinessException(BusinessDomainExceptionType.ACCOUNT_MISMATCH);
     }
 
     validateInsufficientNetFlow(movement);
@@ -125,14 +127,15 @@ public class AccountDomain {
     applyMovement(movement, wasOfficialReport);
   }
 
-  private void validateInsufficientNetFlow(final AccountMovementDomain movement) {
+  private void validateInsufficientNetFlow(final AccountMovementDomain movement)
+      throws AccountBusinessException {
     final BigDecimal mvmtAmount = movement.getMovementAmount();
     final boolean isNegativeAmount = mvmtAmount != null && mvmtAmount.signum() < 0;
     if (isNegativeAmount) {
       final BigDecimal possibleCurrentBalance = this.currentBalance.add(mvmtAmount);
       final boolean isNegativeCurrentBalance = possibleCurrentBalance.signum() < 0;
       if (isNegativeCurrentBalance) {
-        throw new GenericSpecificationException("Insufficient effective balance");
+        throw new AccountBusinessException(BusinessDomainExceptionType.INSUFFICIENT_FUNDS);
       }
     }
   }

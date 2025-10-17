@@ -13,10 +13,10 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.MovementCategoryDomain;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
 import com.jbh.account.domain.vo.ExpenseCategory;
@@ -25,6 +25,7 @@ import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.HashMap;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,7 @@ public class AccountMovementServiceImpl implements AccountMovementService {
   @Override
   public void addDividendsMovementForNextMonth(
       final AccountPK accountPK, final AddMonthlyBalanceCommand nextMonthlyBalanceCommand)
-      throws JbhSpecificationApplication {
+      throws AccountBusinessException {
     if (nextMonthlyBalanceCommand == null) {
       log.warn("No monthly balance to add dividends movement");
       return;
@@ -119,7 +120,7 @@ public class AccountMovementServiceImpl implements AccountMovementService {
   @Override
   public AddBasicMovementDTO addMovementProcessingBalances(
       final AccountPK accountPK, final AddMovementCommand movementCommand)
-      throws JbhSpecificationApplication {
+      throws AccountBusinessException {
     // Input validations
     movementCommand.validate();
 
@@ -145,12 +146,13 @@ public class AccountMovementServiceImpl implements AccountMovementService {
     final MovementType movementType = movementCommand.movementType();
     totalAmount = movementType == WITHDRAWAL ? totalAmount.negate() : totalAmount;
     final AccountMovementDomain newMovement =
-        AccountMovementDomain.with(
+        new AccountMovementDomain(
             accountId,
+            movementType,
             movementCommand.entryDate(),
             totalAmount,
             movementBalanceSnapshot,
-            movementType,
+            new HashMap<>(),
             MovementCategoryDomain.withDTO(movementCommand.categoryDTO()));
     final var movementDTO = MovementMapper.toDTO(newMovement);
 
@@ -158,7 +160,7 @@ public class AccountMovementServiceImpl implements AccountMovementService {
     monthlyBalanceService.validateNewMovement(movementDTO);
 
     // Then
-    log.info("Syncing Account by Movement..");
+    log.info("Syncing Account by Movement.." + movementDTO);
     final AccountDTO accountDTO =
         accountService.syncByMovement(
             new AccountPK(userId, accountId), movementDTO, isMonthOfficiallyReported);
@@ -173,6 +175,7 @@ public class AccountMovementServiceImpl implements AccountMovementService {
           log.info("Movement and Account persisted successfully");
         });
 
+    log.info("Syncing Monthly Balance for new movement {}", movementDTO);
     final MonthlyBalanceDTO monthlyBalanceDTO =
         monthlyBalanceService.syncForNewMovement(movementDTO);
 

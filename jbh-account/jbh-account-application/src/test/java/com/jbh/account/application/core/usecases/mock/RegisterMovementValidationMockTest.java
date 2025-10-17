@@ -29,7 +29,7 @@ import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountDomain;
-import com.jbh.account.domain.exceptions.GenericSpecificationException;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.utils.MoneyUtils;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.ExpenseCategory;
@@ -240,7 +240,7 @@ public class RegisterMovementValidationMockTest {
 
     // When & Then
     assertThrows(
-        GenericSpecificationException.class,
+        AccountBusinessException.class,
         () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
 
     verify(accountMovementRepository, never()).save((MovementDTO) any());
@@ -266,7 +266,7 @@ public class RegisterMovementValidationMockTest {
 
     // When & Then
     assertThrows(
-        GenericSpecificationException.class,
+        AccountBusinessException.class,
         () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
 
     verify(accountRepository).findByUserAndAccountId(userId, accountId);

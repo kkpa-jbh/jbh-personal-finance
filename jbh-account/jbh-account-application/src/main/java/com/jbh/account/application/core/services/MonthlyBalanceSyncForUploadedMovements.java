@@ -6,6 +6,7 @@ import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.entity.AccountMovementDomain;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -61,7 +62,14 @@ public class MonthlyBalanceSyncForUploadedMovements {
                   .orElseGet(
                       () -> AccountMonthlyBalanceDomain.withPeriod(accountId, monthlyPeriodKey));
 
-          movementsInPeriod.forEach(accountMonthlyBalance::assignMovement);
+          // TODO Should It return a AccountBusinessException?
+          for (final AccountMovementDomain movement : movementsInPeriod) {
+            try {
+              accountMonthlyBalance.assignMovement(movement);
+            } catch (final AccountBusinessException e) {
+              throw new RuntimeException(e);
+            }
+          }
 
           LOG.debug("Monthly balance updated for {}", monthlyPeriodKey);
           monthlyBalancesToPersist.add(accountMonthlyBalance);

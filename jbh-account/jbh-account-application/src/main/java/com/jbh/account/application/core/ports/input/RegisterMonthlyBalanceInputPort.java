@@ -11,9 +11,9 @@ import com.jbh.account.application.core.services.movements.AccountMovementServic
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.application.exceptions.JbhExceptionMessage;
-import com.jbh.account.application.exceptions.JbhSpecificationApplication;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.JbhExceptionMessage;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
 import com.jbh.account.domain.vo.IncomeCategory;
@@ -57,7 +57,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
    * @param accountId
    * @param addMonthlyBalanceCommand
    * @return
-   * @throws JbhSpecificationApplication
+   * @throws AccountBusinessException
    */
   @Override
   public MonthlyBalanceDTO registerOfficialMonthlyBalance(
@@ -65,7 +65,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
       final UUID userId,
       final AccountId accountId,
       final AddMonthlyBalanceCommand addMonthlyBalanceCommand)
-      throws JbhSpecificationApplication {
+      throws AccountBusinessException {
 
     // Command validation
     addMonthlyBalanceCommand.validate();
@@ -124,9 +124,9 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
   }
 
   private void validatePeriod(final LocalDate runningDate, final YearMonth periodToRegister)
-      throws JbhSpecificationApplication {
+      throws AccountBusinessException {
     if (!periodToRegister.isBefore(YearMonth.from(runningDate))) {
-      throw new JbhSpecificationApplication(
+      throw new AccountBusinessException(
           "The monthly balance period is not in the past",
           new JbhExceptionMessage(
               "The monthly balance period is not in the past",
@@ -135,10 +135,9 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
   }
 
   private void validateConsecutiveMonthlyBalances(
-      final AccountId accountId, final YearMonth periodToRegister)
-      throws JbhSpecificationApplication {
+      final AccountId accountId, final YearMonth periodToRegister) throws AccountBusinessException {
 
-    log.info("Validating consecutive balances for period {}", periodToRegister);
+    log.debug("Validating consecutive balances for period {}", periodToRegister);
 
     final Optional<MonthlyBalanceDTO> lastOfficialReport =
         monthlyBalanceService.findLastOfficialReport(accountId);
@@ -146,7 +145,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
       final YearMonth lastOfficialReportPeriod = lastOfficialReport.get().period();
 
       if (!periodToRegister.equals(lastOfficialReportPeriod.plusMonths(1))) {
-        throw new JbhSpecificationApplication(
+        throw new AccountBusinessException(
             "The monthly balance period is not consecutive. The last period was: "
                 + lastOfficialReportPeriod,
             new JbhExceptionMessage(

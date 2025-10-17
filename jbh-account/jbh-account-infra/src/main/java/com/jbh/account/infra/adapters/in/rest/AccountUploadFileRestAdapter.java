@@ -5,6 +5,7 @@ import static com.jbh.account.infra.common.utils.JbhStringUtils.toLowerCase;
 
 import com.jbh.account.application.core.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.infra.adapters.in.rest.vo.AccountApiRoutes;
 import com.jbh.account.infra.adapters.in.rest.vo.AddMovementsUploadedFileRequest;
@@ -100,7 +101,7 @@ public class AccountUploadFileRestAdapter extends BaseRestAdapter {
           final UUID accountId,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
-      throws JbhGatewayException {
+      throws JbhGatewayException, AccountBusinessException {
     log.info("Uploading excel file {}", authorizationHeader);
 
     final UUID userId = findUserId(authorizationHeader);

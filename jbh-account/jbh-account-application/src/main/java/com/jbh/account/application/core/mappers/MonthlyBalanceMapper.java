@@ -44,7 +44,6 @@ public final class MonthlyBalanceMapper {
         dto.year(),
         dto.month(),
         dto.period(),
-        dto.movementBalance(),
         dto.netGrowthRate(),
         dto.totalDebits(),
         dto.totalCredits(),
