@@ -3,8 +3,10 @@ package com.jbh.account.application.core.usecases.integration.movements;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
+import static com.jbh.account.domain.vo.MovementType.WITHDRAWAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
@@ -21,6 +23,7 @@ import com.jbh.account.application.movements.ports.output.AccountMovementReposit
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
+import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.MovementType;
@@ -261,5 +264,37 @@ public class RegisterInvesmentMovementITTest {
               assertEquals(withJBHDecimals("72052.00"), updatedFondoAcciones.netProfitBalance());
               assertEquals(withJBHDecimals("1.44"), updatedFondoAcciones.netGrowthRate());
             });
+  }
+
+  @Test
+  @Order(99)
+  void shouldWithDrawalAllMoneySuccessfully() throws AccountBusinessException {
+
+    final AccountDTO account = inMemoryAccountRepo.findByAccountId(acciCuentaId).orElse(null);
+    final BigDecimal currentBalance = account.currentBalance();
+
+    final AddMovementCommand withdrawal =
+        new AddMovementCommand(
+            LocalDate.now(),
+            currentBalance,
+            BigDecimal.ZERO,
+            WITHDRAWAL,
+            MovementCategoryDTO.withType(ExpenseCategory.PERSONAL));
+    addMovementUseCase.addMovement(userId, acciCuentaId, withdrawal);
+
+    UseCaseBuilder.delayTests();
+
+    final AccountDTO updatedAccount =
+        inMemoryAccountRepo.findByAccountId(acciCuentaId).orElse(null);
+    assertNotNull(updatedAccount);
+    assertEquals(new BigDecimal("8.10"), updatedAccount.netGrowthRate());
+    assertTrue(updatedAccount.netProfitBalance().compareTo(BigDecimal.ZERO) > 0);
+    assertEquals(updatedAccount.currentBalance(), BigDecimal.ZERO);
+    assertTrue(updatedAccount.movementBalance().compareTo(BigDecimal.ZERO) < 0);
+
+    final MonthlyBalanceDTO lastMonthBalance =
+        monthlyBalanceService.findAllByAccountIdUntilNow(acciCuentaId).getLast();
+    assertNotNull(lastMonthBalance);
+    assertEquals(1, lastMonthBalance.totalMovements());
   }
 }

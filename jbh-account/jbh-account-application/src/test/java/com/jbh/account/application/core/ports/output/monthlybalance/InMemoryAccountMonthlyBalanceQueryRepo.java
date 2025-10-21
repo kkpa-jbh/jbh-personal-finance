@@ -96,7 +96,10 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
 
   @Override
   public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final AccountId accountId) {
-    return findByAccountId(accountId);
+    return findByAccountId(accountId).stream()
+        .filter(balance -> balance.period().isBefore(YearMonth.now().plusMonths(1)))
+        .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
+        .toList();
   }
 
   @Override

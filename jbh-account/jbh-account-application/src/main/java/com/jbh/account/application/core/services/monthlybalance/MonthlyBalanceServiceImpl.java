@@ -227,7 +227,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
         asyncTask,
         initPeriod,
         lastPeriod,
-        accountId.value());
+        accountId);
 
     // Create Callable that contains the entire business logic
     return asyncTaskExecutor.submitTask(
@@ -235,7 +235,8 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
         () -> {
           LOG.info(
               String.format(
-                  "Starting async task to persist balances from %s to %s", initPeriod, lastPeriod));
+                  "Starting async task for account %s to persist balances from [%s- %s]",
+                  accountId, initPeriod, lastPeriod));
 
           // Step 1: Save balances (executes first)
           saveMultiBalances(monthlyBalances);
@@ -272,7 +273,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
     LOG.info(
         "Adjusting Opening/Profit Balances for account {}" + " from period {} to period {}",
-        accountId.value(),
+        accountId,
         initPeriod,
         endPeriod);
 

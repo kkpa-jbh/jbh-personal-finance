@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -43,5 +44,19 @@ public class MoneyWeightedReturnCalculatorTest {
     System.out.printf("MWRR (Anualizado): %.2f%%\n", annualRate);
     System.out.printf("MWRR (Mensual): %.2f%%\n", monthlyRate);
     // rango lógico
+  }
+
+  @Test
+  void testTrii() {
+    final BigDecimal initialBalance = new BigDecimal("-5000000");
+    final List<BigDecimal> cashFlows = List.of(initialBalance, new BigDecimal("5065484.00"));
+    final List<LocalDate> dates =
+        List.of(YearMonth.of(2025, 8).atEndOfMonth(), YearMonth.of(2025, 10).atEndOfMonth());
+
+    final BigDecimal annualRate = MoneyWeightedReturnCalculator.calculateXIRR(cashFlows, dates);
+    final BigDecimal monthlyRate = MoneyWeightedReturnCalculator.toMonthlyRate(annualRate);
+
+    System.out.printf("MWRR (Anualizado): %.2f%%\n", annualRate);
+    System.out.printf("MWRR (Mensual): %.2f%%\n", monthlyRate);
   }
 }

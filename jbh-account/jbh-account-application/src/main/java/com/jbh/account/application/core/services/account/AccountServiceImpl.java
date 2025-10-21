@@ -104,6 +104,12 @@ public class AccountServiceImpl implements AccountService {
     return accountDomain.isFullyWithdrawn();
   }
 
+  /**
+   * Dates from monthly balances are used at the end of month
+   *
+   * @param accountId Account ID
+   * @param monthlyBalances
+   */
   @Override
   public void updateWhenFullyWithdrawn(
       final AccountId accountId, final List<MonthlyBalanceDTO> monthlyBalances) {

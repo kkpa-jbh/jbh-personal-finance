@@ -160,19 +160,19 @@ public class AccountMovementServiceImpl implements AccountMovementService {
     monthlyBalanceService.validateNewMovement(movementDTO);
 
     // Then
-    log.info("Syncing Account by Movement.." + movementDTO);
+
     final AccountDTO accountDTO =
         accountService.syncByMovement(
             new AccountPK(userId, accountId), movementDTO, isMonthOfficiallyReported);
+    log.info("Account {} was synced by Movement.." + accountDTO.name(), movementDTO);
 
     unitOfWork.execute(
         () -> {
           log.info("ACID operations...");
           log.info("Persisting Movement {} ", movementDTO.movementDate());
           persistMovementDTO(movementDTO);
-          log.info("Persisting Account {} ", accountDTO);
           accountService.save(accountDTO);
-          log.info("Movement and Account persisted successfully");
+          log.info("Movement and Account {} persisted successfully", accountDTO.name());
         });
 
     log.info("Syncing Monthly Balance for new movement {}", movementDTO);
