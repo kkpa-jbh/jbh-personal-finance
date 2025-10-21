@@ -2,6 +2,7 @@ package com.jbh.account.domain.exceptions;
 
 import com.jbh.account.domain.utils.JbhStringUtils;
 
+@SuppressWarnings("PMD.LongVariable")
 public enum BusinessDomainExceptionType implements BusinessExceptionType {
   EMPTY_MOVEMENTS("Movements cannot be empty", "Los movimientos no pueden estar vacíos"),
   ACCOUNT_MISMATCH(
@@ -24,6 +25,9 @@ public enum BusinessDomainExceptionType implements BusinessExceptionType {
       "Deposit amount cannot be negative", "Cantidad de depósito no puede ser negativa"),
   WITHDRAWAL_AMOUNT_NOT_POSITIVE(
       "Withdrawal amount cannot be positive", "Cantidad de retiro no puede ser positiva"),
+  EXCEEDED_MAXIMUM_NET_GROWTH(
+      "There is something wrong with the amounts inputs, They produces an unrealistic growth rate",
+      "Hay algo mal con los cantidades de entrada, produce un tasa de crecimiento no realista"),
   ;
 
   private final String en;

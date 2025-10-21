@@ -3,6 +3,7 @@ package com.jbh.account.infra.adapters.out.persistence.monthlybalance;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountPK;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -54,6 +55,32 @@ public class MonthlyBalanceJPARepository
   public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
       final AccountId accountId, final YearMonth currentPeriod) {
     return findNextFromPeriodInclusiveJPA(accountId, currentPeriod).stream()
+        .map(AccountMonthlyBalanceJPAEntity::toDTO)
+        .toList();
+  }
+
+  @Override
+  public List<MonthlyBalanceDTO> findByAccountAndPeriods(
+      final AccountPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
+    return find(
+            "accountId = :accountId and period >= :startPeriod and period <= :endPeriod order by period asc",
+            Parameters.with(ACCOUNT_ID_PARAM, accountPK.accountId().value())
+                .and("startPeriod", startPeriod)
+                .and("endPeriod", endPeriod))
+        .list()
+        .stream()
+        .map(AccountMonthlyBalanceJPAEntity::toDTO)
+        .toList();
+  }
+
+  @Override
+  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final AccountId accountId) {
+    final YearMonth endPeriod = YearMonth.now();
+    return find(
+            "accountId = :accountId  and period <= :endPeriod order by period asc",
+            Parameters.with(ACCOUNT_ID_PARAM, accountId).and("endPeriod", endPeriod))
+        .list()
+        .stream()
         .map(AccountMonthlyBalanceJPAEntity::toDTO)
         .toList();
   }

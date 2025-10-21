@@ -37,4 +37,8 @@ public final class MoneyUtils {
 
     return withJBHDecimals(new BigDecimal(amount));
   }
+
+  public static BigDecimal divide(final BigDecimal amount, final BigDecimal divisor) {
+    return amount.divide(divisor, 2, RoundingMode.HALF_EVEN);
+  }
 }

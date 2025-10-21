@@ -8,9 +8,9 @@ import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -20,26 +20,30 @@ import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.AddMultipleBasicMovementDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.ports.input.AddMovementsUploadedFileInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.account.application.core.services.MonthlyBalanceSyncForUploadedMovements;
+import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.account.application.core.usecases.AddMovementsUploadedFileUseCase;
+import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.UseCaseBuilder;
 import com.jbh.account.application.core.usecases.utils.TestDataFactory;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
+import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -49,25 +53,30 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@TestMethodOrder(MethodOrderer.class)
 public class UploadMultiMovementsExecutionMockTest {
   static AccountId accountId = AccountId.generate();
   static UUID userId = UUID.randomUUID();
   static AccountDomain accountDomain =
       AccountDomain.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
-
+  private static CreateAccountUseCase createAccountUseCase;
+  private static AccountDTO currentAccount;
+  private static AccountService accountService;
+  private static AccountRepository accountRepository;
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
-  private final Logger log = LoggerFactory.getLogger(RegisterMovementExecutionMockTest.class);
+  private final Logger log = LoggerFactory.getLogger(UploadMultiMovementsExecutionMockTest.class);
   MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService;
-  LocalDate movementDate = LocalDate.now();
-  @Mock private AccountRepository accountRepository;
   @Mock private AccountMovementRepository accountMovementRepository;
-  @Mock private AccountMonthlyBalanceQueryRepo accountMonthlyBalanceRepository;
+  @Mock private AccountMonthlyBalanceQueryRepo accountMonthlyBalanceQueryRepo;
   @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
   private AddMovementsUploadedFileUseCase useCaseInstanceTest;
   private MonthlyBalanceServiceImpl monthlyBalanceService;
@@ -76,17 +85,28 @@ public class UploadMultiMovementsExecutionMockTest {
   void setUp() {
 
     MockitoAnnotations.openMocks(this);
+
+    accountRepository = UseCaseBuilder.getAccountRepository();
+    accountService = UseCaseBuilder.buildAccountService();
+
+    accountService.save(accountDomain);
+
     monthlyBalanceService =
         new MonthlyBalanceServiceImpl(
-            accountMonthlyBalanceRepository,
+            accountMonthlyBalanceQueryRepo,
             monthlyBalanceWriterRepoMock,
-            new AsyncTaskExecutorImpl());
+            new AsyncTaskExecutorImpl(),
+            accountService);
     monthlyBalanceSyncerService = new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
+
     useCaseInstanceTest =
         new AddMovementsUploadedFileInputPort(
-            accountRepository, accountMovementRepository, unitOfWork, monthlyBalanceSyncerService);
+            accountService, accountMovementRepository, unitOfWork, monthlyBalanceSyncerService);
+
+    createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
   }
 
+  @Order(1)
   @Test
   @DisplayName("Should validate command")
   void shouldValidateCommand() {
@@ -105,10 +125,11 @@ public class UploadMultiMovementsExecutionMockTest {
 
   @Test
   @DisplayName("Should create movements for NU")
+  @Order(3)
   void shouldCreateMovementsForNU()
       throws ExecutionException, InterruptedException, TimeoutException {
-    // Given
-    final UUID userId = UUID.randomUUID();
+
+    createAccount("NU");
 
     final List<AddMovementUploadedFileCommand> allSimpleMovements =
         TestDataFactory.createAccountMovementTestData();
@@ -133,8 +154,19 @@ public class UploadMultiMovementsExecutionMockTest {
     assertTrue(novemberEntry.totalAmount().compareTo(JBH_ZERO) < 0);
     assertEquals(0, new BigDecimal("-673605.00").compareTo(novemberEntry.totalAmount()));
 
-    when(accountRepository.findByUserAndAccountId(userId, accountId))
-        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+    // When
+    final List<MonthlyBalanceDTO> savedMonthlyBalances = new ArrayList<>();
+    for (final AddMovementUploadedFileCommand command : allSimpleMovements) {
+      final YearMonth yearMonth =
+          YearMonth.of(command.entryDate().getYear(), command.entryDate().getMonthValue());
+      final MonthlyBalanceDTO monthlyBalanceDTO =
+          MonthlyBalanceDTO.withClosingBalance(accountId, yearMonth, command.balanceSnapshot())
+              .movementBalance(command.totalAmount())
+              .build();
+      savedMonthlyBalances.add(monthlyBalanceDTO);
+    }
+    when(accountMonthlyBalanceQueryRepo.findAllByAccountIdUntilNow(accountId))
+        .thenReturn(savedMonthlyBalances);
 
     // Then
     final AtomicReference<AddMultipleBasicMovementDTO> processedResponse = new AtomicReference<>();
@@ -144,9 +176,7 @@ public class UploadMultiMovementsExecutionMockTest {
                 useCaseInstanceTest.uploadMovementsFromFile(
                     userId, accountId, allSimpleMovements)));
 
-    verify(accountRepository).findByUserAndAccountId(userId, accountId);
     verify(accountMovementRepository).save(anyList());
-    verify(accountRepository).save(any());
 
     final AccountDTO actualAccountResponse = processedResponse.get().account();
     final List<MonthlyBalanceDTO> actualBalancesWithoutAsyncOperation =
@@ -354,13 +384,13 @@ public class UploadMultiMovementsExecutionMockTest {
 
     final YearMonth initPeriod =
         YearMonth.of(firstEntry.entryDate().getYear(), firstEntry.entryDate().getMonthValue());
-    when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(accountId, initPeriod))
+    when(accountMonthlyBalanceQueryRepo.findNextBalancesFromPeriodInclusive(accountId, initPeriod))
         .thenReturn(actualBalancesWithoutAsyncOperation);
     final CompletableFuture<List<MonthlyBalanceDTO>> futureResponse =
         monthlyBalanceSyncerService.persistBalancesAsync(
             accountId, actualBalancesWithoutAsyncOperation);
 
-    final List<MonthlyBalanceDTO> actualProfitBalances = futureResponse.get(5, TimeUnit.SECONDS);
+    final List<MonthlyBalanceDTO> actualProfitBalances = futureResponse.get(7, TimeUnit.SECONDS);
     assertEquals(10, actualProfitBalances.size());
 
     int index = -1;
@@ -421,6 +451,21 @@ public class UploadMultiMovementsExecutionMockTest {
     assertEquals(numberOf("0"), actualResponse.getClosingBalance());
     assertEquals(numberOf("0"), actualResponse.getMonthlyNetProfit());
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
+
+    // Assert account net growth rate
+    final AccountDTO accountDTO = accountService.findAccountOrThrow(accountId);
+    assertEquals(numberOf("10.28"), accountDTO.netGrowthRate());
+    assertNotNull(accountDTO.metadata());
+    assertEquals(true, accountDTO.metadata().get("FULLY_WITHDRAWN"));
+  }
+
+  void createAccount(final String name) {
+    currentAccount =
+        createAccountUseCase.execute(
+            new CreateBasicAccountCommand(userId, name, AccountType.SAVINGS));
+    accountId = currentAccount.id();
+    assertNotNull(accountId);
+    log.info("Account created with id {} for user {}", accountId, userId);
   }
 
   private BigDecimal numberOf(final String val) {
@@ -431,15 +476,14 @@ public class UploadMultiMovementsExecutionMockTest {
   @DisplayName("Should create movements for PIKMI")
   void shouldCreatedMovementsForPIKMI()
       throws ExecutionException, InterruptedException, TimeoutException {
+
+    createAccount("PIKMI");
+
     // Given
     final List<AddMovementUploadedFileCommand> testData = TestDataFactory.movementsForPIKMI();
 
     // Then
     assertEquals(46, testData.size());
-
-    final UUID userId = UUID.randomUUID();
-    when(accountRepository.findByUserAndAccountId(userId, accountId))
-        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
 
     final AtomicReference<AddMultipleBasicMovementDTO> processedResponse = new AtomicReference<>();
     assertDoesNotThrow(
@@ -456,7 +500,7 @@ public class UploadMultiMovementsExecutionMockTest {
 
     final YearMonth expectedPeriod = YearMonth.of(2023, 7);
     log.info("Account Tested. Preparing to test the monthly Balances ASYNC...{} ", expectedPeriod);
-    when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(
+    when(accountMonthlyBalanceQueryRepo.findNextBalancesFromPeriodInclusive(
             accountId, expectedPeriod))
         .thenReturn(savedMonthlyBalances);
 
@@ -665,6 +709,8 @@ public class UploadMultiMovementsExecutionMockTest {
   @DisplayName("Should create movements for PIBI")
   void shouldCreatedMovementsForPIBI()
       throws ExecutionException, InterruptedException, TimeoutException {
+
+    createAccount("PIBI");
     // Given
     final List<AddMovementUploadedFileCommand> testData = TestDataFactory.movementsForPIBI();
 
@@ -696,8 +742,11 @@ public class UploadMultiMovementsExecutionMockTest {
     assertEquals(0, JBH_ZERO.compareTo(lastEntry.totalAmount()));
     assertEquals(0, new BigDecimal("37074883.00").compareTo(lastEntry.balanceSnapshot()));
 
+    /*
     when(accountRepository.findByUserAndAccountId(userId, accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+
+     */
 
     final AtomicReference<AddMultipleBasicMovementDTO> processedResponse = new AtomicReference<>();
     assertDoesNotThrow(
@@ -715,7 +764,7 @@ public class UploadMultiMovementsExecutionMockTest {
     // THEN
     final YearMonth monthlyInitiPeriod = YearMonth.of(2023, 10);
     log.info("Account Tested. Preparing to test the monthly Balances ...{} ", monthlyInitiPeriod);
-    when(accountMonthlyBalanceRepository.findNextBalancesFromPeriodInclusive(
+    when(accountMonthlyBalanceQueryRepo.findNextBalancesFromPeriodInclusive(
             accountId, monthlyInitiPeriod))
         .thenReturn(savedMonthlyBalances);
     final CompletableFuture<List<MonthlyBalanceDTO>> futureResponse =

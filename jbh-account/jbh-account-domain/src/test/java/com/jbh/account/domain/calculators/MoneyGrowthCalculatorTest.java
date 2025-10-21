@@ -1,7 +1,9 @@
 package com.jbh.account.domain.calculators;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 
@@ -11,12 +13,32 @@ public class MoneyGrowthCalculatorTest {
 
   @Test
   public void justForPrinting() {
-    final BigDecimal opening = new BigDecimal("5000000");
-    final BigDecimal closing = new BigDecimal("5022458.19");
+    final BigDecimal opening = new BigDecimal("1000");
+    final BigDecimal closing = new BigDecimal("1010");
     final BigDecimal movement = new BigDecimal("0");
 
-    final BigDecimal growth = calculator.calculateMonthlyGrowth(opening, closing, movement);
+    final BigDecimal growth = getCalculateGrowth(opening, closing, movement);
     System.out.println("Growth: " + growth);
+  }
+
+  private BigDecimal getCalculateGrowth(
+      final BigDecimal opening, final BigDecimal closing, final BigDecimal movement) {
+    try {
+      return calculator.calculateGrowth(opening, closing, movement);
+    } catch (final AccountBusinessException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Test
+  public void testCompletWithDrawal() {
+    final BigDecimal opening = new BigDecimal("1981883");
+    final BigDecimal closing = new BigDecimal("0");
+    final BigDecimal movement = new BigDecimal("-3768488");
+
+    assertThrows(
+        AccountBusinessException.class,
+        () -> calculator.calculateGrowth(opening, closing, movement));
   }
 
   @Test
@@ -25,7 +47,7 @@ public class MoneyGrowthCalculatorTest {
     final BigDecimal closing = new BigDecimal("10200");
     final BigDecimal movement = new BigDecimal("0");
 
-    final BigDecimal growth = calculator.calculateMonthlyGrowth(opening, closing, movement);
+    final BigDecimal growth = getCalculateGrowth(opening, closing, movement);
     assertEquals(new BigDecimal("2.00"), growth);
   }
 
@@ -35,7 +57,7 @@ public class MoneyGrowthCalculatorTest {
     final BigDecimal closing = new BigDecimal("110");
     final BigDecimal movement = new BigDecimal("0");
 
-    final BigDecimal growth = calculator.calculateMonthlyGrowth(opening, closing, movement);
+    final BigDecimal growth = getCalculateGrowth(opening, closing, movement);
     assertEquals(new BigDecimal("10.00"), growth);
   }
 
@@ -45,7 +67,7 @@ public class MoneyGrowthCalculatorTest {
     final BigDecimal closing = new BigDecimal("5022458.19");
     final BigDecimal movement = new BigDecimal("0");
 
-    final BigDecimal growth = calculator.calculateMonthlyGrowth(opening, closing, movement);
+    final BigDecimal growth = getCalculateGrowth(opening, closing, movement);
     assertEquals(new BigDecimal("0.45"), growth);
   }
 
@@ -55,7 +77,7 @@ public class MoneyGrowthCalculatorTest {
     final BigDecimal closing = new BigDecimal("4978356.37");
     final BigDecimal movement = new BigDecimal("0");
 
-    final BigDecimal growth = calculator.calculateMonthlyGrowth(opening, closing, movement);
+    final BigDecimal growth = getCalculateGrowth(opening, closing, movement);
     assertEquals(new BigDecimal("-0.43"), growth);
   }
 
@@ -65,7 +87,7 @@ public class MoneyGrowthCalculatorTest {
     final BigDecimal closing = new BigDecimal("20100");
     final BigDecimal movement = new BigDecimal("10000");
 
-    final BigDecimal growth = calculator.calculateMonthlyGrowth(opening, closing, movement);
+    final BigDecimal growth = getCalculateGrowth(opening, closing, movement);
     assertEquals(new BigDecimal("0.67"), growth);
   }
 
@@ -75,7 +97,7 @@ public class MoneyGrowthCalculatorTest {
     final BigDecimal closing = new BigDecimal("8150");
     final BigDecimal movement = new BigDecimal("-2000");
 
-    final BigDecimal growth = calculator.calculateMonthlyGrowth(opening, closing, movement);
+    final BigDecimal growth = getCalculateGrowth(opening, closing, movement);
     assertEquals(new BigDecimal("1.67"), growth);
   }
 
@@ -85,7 +107,7 @@ public class MoneyGrowthCalculatorTest {
     final BigDecimal closing = new BigDecimal("9500");
     final BigDecimal movement = new BigDecimal("0");
 
-    final BigDecimal growth = calculator.calculateMonthlyGrowth(opening, closing, movement);
+    final BigDecimal growth = getCalculateGrowth(opening, closing, movement);
     assertEquals(new BigDecimal("-5.00"), growth);
   }
 
@@ -95,7 +117,7 @@ public class MoneyGrowthCalculatorTest {
     final BigDecimal closing = new BigDecimal("8060");
     final BigDecimal movement = new BigDecimal("3000");
 
-    final BigDecimal growth = calculator.calculateMonthlyGrowth(opening, closing, movement);
+    final BigDecimal growth = getCalculateGrowth(opening, closing, movement);
     assertEquals(new BigDecimal("0.92"), growth);
   }
 }

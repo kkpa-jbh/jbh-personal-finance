@@ -4,6 +4,7 @@ import com.jbh.account.application.core.comparator.AccountMonthlyBalanceComparat
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountPK;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -47,7 +48,7 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
     return new ArrayList<>(storage.values());
   }
 
-  public List<MonthlyBalanceDTO> findByAccountId(final AccountId accountId) {
+  private List<MonthlyBalanceDTO> findByAccountId(final AccountId accountId) {
     return storage.values().stream()
         .filter(balance -> balance.accountId().equals(accountId))
         .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
@@ -79,6 +80,23 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
         .filter(balance -> !balance.period().isBefore(currentPeriod))
         .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
         .toList();
+  }
+
+  @Override
+  public List<MonthlyBalanceDTO> findByAccountAndPeriods(
+      final AccountPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
+    return storage.values().stream()
+        .filter(balance -> balance.accountId().equals(accountPK.accountId()))
+        .filter(
+            balance ->
+                balance.period().isAfter(startPeriod) && balance.period().isBefore(endPeriod))
+        .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
+        .toList();
+  }
+
+  @Override
+  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final AccountId accountId) {
+    return findByAccountId(accountId);
   }
 
   @Override

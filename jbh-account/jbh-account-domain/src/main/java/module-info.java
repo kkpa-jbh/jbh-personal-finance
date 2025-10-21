@@ -3,7 +3,8 @@ module jbh.account.domain {
   requires org.slf4j;
 
   exports com.jbh.account.domain.utils to
-      jbh.account.application;
+      jbh.account.application,
+      jbh.account.infra;
   exports com.jbh.account.domain.entity to
       jbh.account.application;
   exports com.jbh.account.domain.exceptions to

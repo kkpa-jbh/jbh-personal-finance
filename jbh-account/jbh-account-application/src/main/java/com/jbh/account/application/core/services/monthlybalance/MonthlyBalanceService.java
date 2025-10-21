@@ -13,19 +13,6 @@ import java.util.concurrent.CompletableFuture;
 public interface MonthlyBalanceService
     extends AccountMonthlyBalanceQueryRepo, AccountMonthlyBalanceWriterRepository {
 
-  void updateOpeningBalanceNextMonth(MonthlyBalanceDTO currentMonthlyBalance);
-
-  boolean isLastOfficialReport(MonthlyBalanceDTO monthlyBalanceDTO);
-
-  MonthlyBalanceDTO syncForNewMovement(MovementDTO newMovement) throws AccountBusinessException;
-
-  /**
-   * Saves the monthly balances in the database and syncs them asynchronously. This is called when
-   * uploading movements from file or creating a new movement.
-   */
-  CompletableFuture<List<MonthlyBalanceDTO>> persistBalancesAsync(
-      AccountId accountId, List<MonthlyBalanceDTO> monthlyBalances);
-
   void validateNewMovement(MovementDTO movementDTO) throws AccountBusinessException;
 
   /**
@@ -42,5 +29,19 @@ public interface MonthlyBalanceService
    * @return
    */
   MonthlyBalanceDTO updateOfficialReportedBalance(
-      MonthlyBalanceDTO reportedMonthlyBalance, AddMonthlyBalanceCommand command);
+      MonthlyBalanceDTO reportedMonthlyBalance, AddMonthlyBalanceCommand command)
+      throws AccountBusinessException;
+
+  void updateOpeningBalanceNextMonth(MonthlyBalanceDTO currentMonthlyBalance);
+
+  boolean isLastOfficialReport(MonthlyBalanceDTO monthlyBalanceDTO);
+
+  MonthlyBalanceDTO syncForNewMovement(MovementDTO newMovement) throws AccountBusinessException;
+
+  /**
+   * Saves the monthly balances in the database and syncs them asynchronously. This is called when
+   * uploading movements from file or creating a new movement.
+   */
+  CompletableFuture<List<MonthlyBalanceDTO>> persistBalancesAsync(
+      AccountId accountId, List<MonthlyBalanceDTO> monthlyBalances);
 }

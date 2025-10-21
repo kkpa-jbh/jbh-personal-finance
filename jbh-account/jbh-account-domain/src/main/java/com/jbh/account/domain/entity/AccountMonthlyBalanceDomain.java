@@ -196,7 +196,7 @@ public class AccountMonthlyBalanceDomain {
    * asynchronously and when syncing the current and next monthly balances. The monthly balances are
    * already persisted in the database.
    */
-  public void recalculateBalances() {
+  public void recalculateBalances() throws AccountBusinessException {
     syncMonthlyNetProfit();
     syncNetGrowthRate();
   }
@@ -218,17 +218,16 @@ public class AccountMonthlyBalanceDomain {
     }
   }
 
-  private void syncNetGrowthRate() {
+  private void syncNetGrowthRate() throws AccountBusinessException {
     LOG.debug("Syncing Net Growth Rate for account {} and period {}", accountId, period);
     final var movementBalance = getMovementBalance();
     if (this.officialMonthlyReport && isNotZero(monthlyProfitReported)) {
       this.netGrowthRate =
-          moneyGrowthCalculator.calculateMonthlyGrowth(
+          moneyGrowthCalculator.calculateGrowth(
               openingBalance, closingBalance.add(monthlyProfitReported), movementBalance);
     } else {
       this.netGrowthRate =
-          moneyGrowthCalculator.calculateMonthlyGrowth(
-              openingBalance, closingBalance, movementBalance);
+          moneyGrowthCalculator.calculateGrowth(openingBalance, closingBalance, movementBalance);
     }
   }
 
@@ -244,7 +243,8 @@ public class AccountMonthlyBalanceDomain {
   public void assignOfficialMonthlyReport(
       final BigDecimal closingBalance,
       final BigDecimal monthlyProfitReported,
-      final BigDecimal incomeWithholdingTaxAmount) {
+      final BigDecimal incomeWithholdingTaxAmount)
+      throws AccountBusinessException {
     setOfficialMonthlyReport(closingBalance, monthlyProfitReported, incomeWithholdingTaxAmount);
     recalculateBalances();
   }

@@ -87,7 +87,7 @@ public class RegisterMonthlyReportedValidationITTest {
   void shouldThrowExceptionWhenRegisteringExistingOfficialReport() throws AccountBusinessException {
 
     // Existing Official Report
-    final var initialBalance = withJBHDecimals(new BigDecimal("92300"));
+    final var initialBalance = withJBHDecimals(new BigDecimal("923"));
     final AddMonthlyBalanceCommand nextCommand =
         createMonthlyBalanceCommand(
             reportedPeriod.plusMonths(1),

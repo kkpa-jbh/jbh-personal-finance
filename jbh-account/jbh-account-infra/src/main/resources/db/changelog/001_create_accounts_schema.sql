@@ -10,7 +10,7 @@ CREATE TABLE acctmgmt.accounts
     movement_balance   DECIMAL(20, 2)           NOT NULL DEFAULT 0.00, -- Increased precision
     current_balance    DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
     net_profit_balance DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
-    net_growth_rate    DECIMAL(5, 2)            NOT NULL DEFAULT 0.00,
+    net_growth_rate    DECIMAL(10, 2)           NOT NULL DEFAULT 0.00,
     metadata           JSONB,                                          -- Additional flexible data
 
     -- Add constraints
@@ -81,7 +81,7 @@ CREATE TABLE acctmgmt.account_monthly_balances
     monthly_reported_profit       DECIMAL(20, 0),
     monthly_net_profit            DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
     income_withholding_tax_amount DECIMAL(20, 0),
-    net_growth_rate               DECIMAL(5, 2)            NOT NULL DEFAULT 0.00,
+    net_growth_rate               DECIMAL(10, 2)           NOT NULL DEFAULT 0.00,
 
     total_movements               INTEGER                  NOT NULL DEFAULT 0,
     gap_period                    BOOLEAN                  NOT NULL DEFAULT FALSE,

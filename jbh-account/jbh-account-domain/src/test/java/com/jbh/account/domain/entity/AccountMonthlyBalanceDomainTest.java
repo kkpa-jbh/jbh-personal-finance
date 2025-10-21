@@ -126,7 +126,8 @@ public class AccountMonthlyBalanceDomainTest {
   }
 
   @Test
-  public void shouldSetOfficialReportAndAdjustClosingBalanceForMonth() {
+  public void shouldSetOfficialReportAndAdjustClosingBalanceForMonth()
+      throws AccountBusinessException {
 
     final var closingBalance = (new BigDecimal("150.00"));
     final var monthlyProfitReported = (new BigDecimal("20.00"));
@@ -140,7 +141,8 @@ public class AccountMonthlyBalanceDomainTest {
   }
 
   @Test
-  public void shouldSetOfficialReportWithZeroProfitAndRegularNetProfitFormula() {
+  public void shouldSetOfficialReportWithZeroProfitAndRegularNetProfitFormula()
+      throws AccountBusinessException {
 
     final var closingBalance = (new BigDecimal("150.00"));
     final var monthlyProfitReported = BigDecimal.ZERO;

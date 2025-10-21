@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 
+@SuppressWarnings("PMD.AvoidThrowingRawExceptionTypes")
 public class MonthlyBalanceSyncForUploadedMovements {
 
   private static final Logger LOG =
@@ -77,6 +78,7 @@ public class MonthlyBalanceSyncForUploadedMovements {
 
     final List<MonthlyBalanceDTO> monthlyBalancesToSyncDTO =
         monthlyBalancesToPersist.stream().map(MonthlyBalanceMapper::toDTO).toList();
+
     persistBalancesAsync(accountId, monthlyBalancesToSyncDTO);
 
     return monthlyBalancesToSyncDTO;

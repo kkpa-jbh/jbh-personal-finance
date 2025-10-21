@@ -67,10 +67,15 @@ public class RegisterMonthlyBalanceMockTest {
             Optional.of(
                 AccountDTO.defaultBuilder(userId, accountId, "DF", AccountType.OTHER).build()));
 
+    accountService = new AccountServiceImpl(accountRepository);
+
     final MonthlyBalanceServiceImpl realMonthlyBalanceService =
         new MonthlyBalanceServiceImpl(
-            monthlyBalanceQueryRepoMock, monthlyBalanceWriterRepoMock, new AsyncTaskExecutorImpl());
-    accountService = new AccountServiceImpl(accountRepository);
+            monthlyBalanceQueryRepoMock,
+            monthlyBalanceWriterRepoMock,
+            new AsyncTaskExecutorImpl(),
+            accountService);
+
     accountMovementService =
         new AccountMovementServiceImpl(
             accountMovementRepository,

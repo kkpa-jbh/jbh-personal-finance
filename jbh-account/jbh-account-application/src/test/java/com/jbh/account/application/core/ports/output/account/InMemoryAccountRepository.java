@@ -1,7 +1,5 @@
 package com.jbh.account.application.core.ports.output.account;
 
-import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
-
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.domain.vo.AccountId;
@@ -22,17 +20,20 @@ public class InMemoryAccountRepository implements AccountRepository {
 
   @Override
   public Optional<AccountDTO> findByUserAndAccountId(final UUID userId, final AccountId accountId) {
-    AccountDTO account = storage.get(accountId.value());
+    final AccountDTO account = storage.get(accountId.value());
     if (account != null && account.userId().equals(userId)) {
       return Optional.of(account);
     }
+    /*
     account =
         AccountDTO.defaultBuilder(userId, accountId, DEFAULT_ACCOUNT_NAME, DEFAULT_ACCOUNT_TYPE)
             .currentBalance(JBH_ZERO)
             .movementBalance(JBH_ZERO)
             .build();
     storage.put(accountId.value(), account);
-    return Optional.of(account);
+
+     */
+    return Optional.empty();
   }
 
   @Override

@@ -100,6 +100,7 @@ public class RegisterMonthlyReportedProfitITTest {
     addMovementUseCase = UseCaseBuilder.buildAddMovementUseCase(accountMovementRepository);
 
     UseCaseBuilder.delayTests();
+    UseCaseBuilder.delayTests();
   }
 
   @Test

@@ -2,22 +2,27 @@ package com.jbh.account.infra.adapters.in.rest;
 
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.AddBasicMovementDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountPK;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.infra.adapters.in.rest.vo.AccountApiRoutes;
 import com.jbh.account.infra.adapters.in.rest.vo.AddMovementRequest;
 import com.jbh.account.infra.adapters.in.rest.vo.CreateAccountRequest;
+import com.jbh.account.infra.adapters.in.rest.vo.MonthlyBalanceRequest;
 import com.jbh.gateway.client.JbhGatewayException;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.List;
 import java.util.UUID;
 import org.eclipse.microprofile.openapi.annotations.*;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -40,13 +45,16 @@ public class AccountRestAdapter extends BaseRestAdapter {
   private final Logger log = LoggerFactory.getLogger(AccountRestAdapter.class);
   private final CreateAccountUseCase createAccountUseCase;
   private final AddMovementUseCase addMovementUseCase;
+  private final FindMonthlyBalanceUseCase findMonthlyBalanceUseCase;
 
   @Inject
   public AccountRestAdapter(
       final CreateAccountUseCase createAccountUseCase,
-      final AddMovementUseCase addMovementUseCase) {
+      final AddMovementUseCase addMovementUseCase,
+      final FindMonthlyBalanceUseCase findMonthlyBalanceUseCase) {
     this.addMovementUseCase = addMovementUseCase;
     this.createAccountUseCase = createAccountUseCase;
+    this.findMonthlyBalanceUseCase = findMonthlyBalanceUseCase;
   }
 
   @POST
@@ -80,7 +88,6 @@ public class AccountRestAdapter extends BaseRestAdapter {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = String.class)))
       })
-  @Tag(name = "Account Operations", description = "Account management operations")
   @SecurityRequirement(name = "JWT")
   public Response createAccount(
       @RequestBody final CreateAccountRequest request,
@@ -129,7 +136,6 @@ public class AccountRestAdapter extends BaseRestAdapter {
                     mediaType = MediaType.APPLICATION_JSON,
                     schema = @Schema(implementation = String.class)))
       })
-  @Tag(name = "Account Operations", description = "Account management operations")
   @SecurityRequirement(name = "JWT")
   public Response addMovementToAccount(
       @PathParam("accountId") final UUID accountId,
@@ -158,5 +164,55 @@ public class AccountRestAdapter extends BaseRestAdapter {
         addMovementUseCase.addMovement(userId, AccountId.of(accountId), command);
 
     return Response.ok(response).build();
+  }
+
+  @POST
+  @Path(AccountApiRoutes.ACCOUNTS_MONTHLY_BALANCES_API_PATH + "/{accountId}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Find monthly balances for an account")
+  @APIResponses(
+      value = {
+        @APIResponse(
+            responseCode = "200",
+            description = "Monthly Balances found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class))),
+        @APIResponse(
+            responseCode = "400",
+            description = "Invalid command",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class))),
+        @APIResponse(
+            responseCode = "401",
+            description = "Unauthorized",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class)))
+      })
+  @SecurityRequirement(name = "JWT")
+  public Response findMonthlyBalances(
+      @PathParam("accountId") final UUID accountId,
+      @RequestBody final MonthlyBalanceRequest request,
+      @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
+          final String authorizationHeader)
+      throws JbhGatewayException, AccountBusinessException {
+
+    request.validate();
+
+    final UUID userId = findUserId(authorizationHeader);
+
+    final List<MonthlyBalanceDTO> monthlyBalances =
+        findMonthlyBalanceUseCase.findByAccountAndPeriods(
+            new AccountPK(userId, AccountId.of(accountId)),
+            request.startPeriod(),
+            request.endPeriod());
+
+    return Response.ok(monthlyBalances).build();
   }
 }

@@ -1,5 +1,11 @@
 # USECASES TO DO
 
+- [] DLQ
+- [] Make transfers between accounts
+- [] Add TC movements and deposits
+- [] CDT cash flows
+- [] Adjust API responses to return ApiResponse wrapper
+- [] Check the net growth rate calculation for NU KMI Test. It's 1829.81 when executing the API
 - [] API to fetch the monthly balances for a given account and period
 - [] API to fetch the movements for a given account and period categorized by income or expense
 

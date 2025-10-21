@@ -4,16 +4,19 @@ import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.calculators.MoneyGrowthCalculator;
+import com.jbh.account.domain.calculators.MoneyWeightedReturnCalculator;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
+import com.jbh.account.domain.utils.JbhBooleanUtils;
+import com.jbh.account.domain.utils.MoneyUtils;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import lombok.Getter;
 
@@ -100,19 +103,6 @@ public class AccountDomain {
     return accountDomain;
   }
 
-  public void syncBalancesWithUploadedMovements(final List<AccountMovementDomain> multipleMovements)
-      throws AccountBusinessException {
-    if (multipleMovements == null || multipleMovements.isEmpty()) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENTS);
-    }
-    final List<AccountMovementDomain> filteredMovements =
-        multipleMovements.stream().filter(Objects::nonNull).toList();
-
-    for (final AccountMovementDomain movement : filteredMovements) {
-      syncBalancesByMovement(movement, false);
-    }
-  }
-
   public void syncBalancesByMovement(
       final AccountMovementDomain movement, final boolean wasOfficialReport)
       throws AccountBusinessException {
@@ -151,20 +141,21 @@ public class AccountDomain {
    * @param wasOfficialReport
    */
   private void applyMovement(
-      final AccountMovementDomain newAccountMovement, final boolean wasOfficialReport) {
+      final AccountMovementDomain newAccountMovement, final boolean wasOfficialReport)
+      throws AccountBusinessException {
     final BigDecimal movementAmount = newAccountMovement.getMovementAmount();
 
     // If it's an official report, the monthly profit, and closing balance are already synced.
     // Movement balance will be synced due to a new movement done.
     if (wasOfficialReport) {
-      syncMovementBalance(movementAmount);
+      addAmountToMovementBalance(movementAmount);
       return;
     }
 
     final BigDecimal openingBalance = this.movementBalance;
 
     if (movementAmount != null) {
-      syncMovementBalance(movementAmount);
+      addAmountToMovementBalance(movementAmount);
       this.currentBalance = this.currentBalance.add(movementAmount);
     }
 
@@ -178,7 +169,7 @@ public class AccountDomain {
     this.updatedAt = LocalDateTime.now();
   }
 
-  private void syncMovementBalance(final BigDecimal movementAmount) {
+  private void addAmountToMovementBalance(final BigDecimal movementAmount) {
     this.movementBalance = this.movementBalance.add(movementAmount);
   }
 
@@ -187,7 +178,8 @@ public class AccountDomain {
   }
 
   private void syncNetGrowthRate(
-      final BigDecimal openingBalance, final AccountMovementDomain newAccountMovement) {
+      final BigDecimal openingBalance, final AccountMovementDomain newAccountMovement)
+      throws AccountBusinessException {
     if (this.currentBalance != null
         && this.movementBalance != null
         && this.netProfitBalance != null) {
@@ -201,10 +193,46 @@ public class AccountDomain {
           newAccountMovement.getMovementAmount() != null
               ? newAccountMovement.getMovementAmount()
               : JBH_ZERO;
+
+      if (checkIfFullyWithdrawn(closingBalance, movementAmount)) {
+        addMetadata(AccountMetadataKey.FULLY_WITHDRAWN, true);
+        addMetadata(AccountMetadataKey.FULLY_WITHDRAWN_DATE, newAccountMovement.getMovementDate());
+        addMetadata(AccountMetadataKey.FULLY_WITHDRAWN_AT, LocalDateTime.now());
+        return;
+      }
+
+      // Regular net growth rate calculation
       this.netGrowthRate =
-          moneyGrowthCalculator.calculateMonthlyGrowth(
-              openingBalance, closingBalance, movementAmount);
+          moneyGrowthCalculator.calculateGrowth(openingBalance, closingBalance, movementAmount);
     }
+  }
+
+  public boolean checkIfFullyWithdrawn(
+      final BigDecimal closingBalance, final BigDecimal movementAmount) {
+    return MoneyUtils.isZero(closingBalance) && movementAmount.signum() < 0;
+  }
+
+  private void addMetadata(final AccountMetadataKey key, final Object value) {
+    metadata.put(key.name(), value);
+  }
+
+  public void setCalculatedMoneyGrowthRate(
+      final List<BigDecimal> cashFlows, final List<LocalDate> dates) {
+
+    this.netGrowthRate = MoneyWeightedReturnCalculator.calculateXIRR(cashFlows, dates);
+  }
+
+  public boolean isFullyWithdrawn() {
+    return hasMetadata(AccountMetadataKey.FULLY_WITHDRAWN)
+        && JbhBooleanUtils.isTrue(getMetadataField(AccountMetadataKey.FULLY_WITHDRAWN));
+  }
+
+  public boolean hasMetadata(final AccountMetadataKey key) {
+    return metadata != null && metadata.containsKey(key.name());
+  }
+
+  public Object getMetadataField(final AccountMetadataKey key) {
+    return metadata != null ? metadata.get(key.name()) : null;
   }
 
   public void setCurrentBalance(final BigDecimal closingBalance) {
@@ -215,5 +243,11 @@ public class AccountDomain {
     if (inputNetProfit != null) {
       this.netProfitBalance = withJBHDecimals(inputNetProfit);
     }
+  }
+
+  enum AccountMetadataKey {
+    FULLY_WITHDRAWN,
+    FULLY_WITHDRAWN_DATE,
+    FULLY_WITHDRAWN_AT,
   }
 }

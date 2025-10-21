@@ -1,6 +1,5 @@
 package com.jbh.account.application.core.ports.input;
 
-import static com.jbh.account.application.core.mappers.AccountMapper.toDTO;
 import static com.jbh.account.application.core.mappers.AccountMapper.toDomain;
 
 import com.jbh.account.application.acid.UnitOfWork;
@@ -9,8 +8,8 @@ import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.AddMultipleBasicMovementDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.MovementMapper;
-import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.services.MonthlyBalanceSyncForUploadedMovements;
+import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
@@ -24,22 +23,23 @@ import java.util.List;
 import java.util.UUID;
 import org.slf4j.Logger;
 
+@SuppressWarnings("PMD.AvoidThrowingRawExceptionTypes")
 public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFileUseCase {
   private static final Logger LOG =
       LoggerFactory.getLogger(AddMovementsUploadedFileInputPort.class);
 
   private final AccountMovementRepository movementRepo;
-  private final AccountRepository accountRepo;
+  private final AccountService accountService;
   private final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService;
   private final UnitOfWork unitOfWork;
 
   public AddMovementsUploadedFileInputPort(
-      final AccountRepository accountRepo,
+      final AccountService accountService,
       final AccountMovementRepository movementRepo,
       final UnitOfWork unitOfWork,
       final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService) {
     this.movementRepo = movementRepo;
-    this.accountRepo = accountRepo;
+    this.accountService = accountService;
     this.unitOfWork = unitOfWork;
     this.monthlyBalanceSyncerService = monthlyBalanceSyncerService;
   }
@@ -69,7 +69,10 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
         mapCommandToDomain(allUploadedMovCommand, accountDomain);
 
     // Sync account balance
-    final AccountDTO accountDTO = syncAccountBalanceByMovements(accountDomain, uploadedMovements);
+    final AccountDTO accountDTO =
+        accountService.syncByUploadedMovements(accountDomain, uploadedMovements);
+
+    // Persist Movements and Account UOW
     persistMovementAndAccountUOW(uploadedMovements, accountDTO);
 
     // Sync monthly Balance Asynchronously
@@ -103,7 +106,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
     }
 
     final AccountDTO accountDTO =
-        accountRepo
+        accountService
             .findByUserAndAccountId(userId, accountId)
             .orElseThrow(
                 () -> {
@@ -138,20 +141,14 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
         .toList();
   }
 
-  private AccountDTO syncAccountBalanceByMovements(
-      final AccountDomain accountDomain, final List<AccountMovementDomain> newMovements)
-      throws AccountBusinessException {
-    accountDomain.syncBalancesWithUploadedMovements(newMovements);
-    return toDTO(accountDomain);
-  }
-
   private void persistMovementAndAccountUOW(
       final List<AccountMovementDomain> newMovements, final AccountDTO accountDTO) {
     unitOfWork.execute(
         () -> {
-          LOG.info("Persisting Movements and account changes");
+          LOG.info("Persisting Movements changes");
           movementRepo.save(newMovements.stream().map(MovementMapper::toDTO).toList());
-          accountRepo.save(accountDTO);
+          LOG.info("Saving account changes");
+          accountService.save(accountDTO);
         });
   }
 }

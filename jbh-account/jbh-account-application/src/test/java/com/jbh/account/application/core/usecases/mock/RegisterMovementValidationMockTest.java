@@ -60,16 +60,17 @@ public class RegisterMovementValidationMockTest {
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
+    final AccountService accountService = new AccountServiceImpl(accountRepository);
+
     monthlyBalanceService =
         new MonthlyBalanceServiceImpl(
             accountMonthlyBalanceRepository,
             monthlyBalanceWriterRepoMock,
-            new AsyncTaskExecutorImpl());
+            new AsyncTaskExecutorImpl(),
+            accountService);
 
     final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService =
         new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
-
-    final AccountService accountService = new AccountServiceImpl(accountRepository);
 
     accountMovementService =
         new AccountMovementServiceImpl(

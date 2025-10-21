@@ -3,6 +3,7 @@ package com.jbh.account.application.core.usecases;
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.core.ports.input.AddMovementInputPort;
 import com.jbh.account.application.core.ports.input.CreateAccountInputPort;
+import com.jbh.account.application.core.ports.input.FindMonthlyBalanceInputPort;
 import com.jbh.account.application.core.ports.input.RegisterMonthlyBalanceInputPort;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
@@ -51,9 +52,9 @@ public class UseCaseBuilder {
         buildAccountMovementService(accountMovementRepository));
   }
 
-  public static MonthlyBalanceService buildMonthlyBalanceService() {
-    return new MonthlyBalanceServiceImpl(
-        monthlyBalanceInMemoQuery, monthlyBalanceInMemoWriter, new AsyncTaskExecutorImpl());
+  public static AddMovementUseCase buildAddMovementUseCase(
+      final AccountMovementRepository accountMovementRepository) {
+    return new AddMovementInputPort(buildAccountMovementService(accountMovementRepository));
   }
 
   public static AccountMovementServiceImpl buildAccountMovementService(
@@ -65,9 +66,16 @@ public class UseCaseBuilder {
         new UnitOfWorkTest());
   }
 
-  public static AddMovementUseCase buildAddMovementUseCase(
-      final AccountMovementRepository accountMovementRepository) {
-    return new AddMovementInputPort(buildAccountMovementService(accountMovementRepository));
+  public static MonthlyBalanceService buildMonthlyBalanceService() {
+    return new MonthlyBalanceServiceImpl(
+        monthlyBalanceInMemoQuery,
+        monthlyBalanceInMemoWriter,
+        new AsyncTaskExecutorImpl(),
+        buildAccountService());
+  }
+
+  public static FindMonthlyBalanceUseCase buildFindMonthlyBalanceUseCase() {
+    return new FindMonthlyBalanceInputPort(buildMonthlyBalanceService(), buildAccountService());
   }
 
   public static InMemoryMonthlyBalanceRepositories getInMemoryMonthlyBalanceRepos() {

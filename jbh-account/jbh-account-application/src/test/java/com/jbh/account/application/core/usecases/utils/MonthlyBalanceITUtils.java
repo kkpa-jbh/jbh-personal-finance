@@ -40,18 +40,33 @@ public class MonthlyBalanceITUtils {
     assertEquals(expected.period().getYear(), actual.year(), "Year");
     assertEquals(expected.period().getMonthValue(), actual.month(), "Month");
 
-    assertEquals(expected.closingBalance(), actual.closingBalance(), "Closing Balance");
-    assertEquals(expected.movementBalance(), actual.movementBalance(), "Movement Balance");
-    assertEquals(expected.totalDebits(), actual.totalDebits(), "Total Debits");
-    assertEquals(expected.totalCredits(), actual.totalCredits(), "Total Credits");
-
-    assertEquals(expected.totalMovements(), actual.totalMovements(), "Total Movements");
     assertEquals(
-        Boolean.valueOf(expected.gapPeriod()), Boolean.valueOf(actual.gapPeriod()), "Gap Period");
+        expected.closingBalance(),
+        actual.closingBalance(),
+        "Closing Balance for period " + actual.period());
+    assertEquals(
+        expected.movementBalance(),
+        actual.movementBalance(),
+        "Movement Balance " + actual.period());
+    assertEquals(
+        expected.totalDebits(), actual.totalDebits(), "Total Debits for period " + actual.period());
+    assertEquals(
+        expected.totalCredits(),
+        actual.totalCredits(),
+        "Total Credits for period " + actual.period());
+
+    assertEquals(
+        expected.totalMovements(),
+        actual.totalMovements(),
+        "Total Movements for period " + actual.period());
+    assertEquals(
+        Boolean.valueOf(expected.gapPeriod()),
+        Boolean.valueOf(actual.gapPeriod()),
+        "Gap Period for period " + actual.period());
     assertEquals(
         Boolean.valueOf(expected.officialMonthlyReport()),
         Boolean.valueOf(actual.officialMonthlyReport()),
-        "Official Monthly Report");
+        "Official Monthly Report for period " + actual.period());
 
     // Async attributes
     if (!ignoreOpeningBalance) {

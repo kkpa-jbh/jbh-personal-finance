@@ -14,6 +14,7 @@ import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
+import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.validation.movement.MovementTypeValidationStrategy;
 import com.jbh.account.application.core.validation.movement.MovementValidationStrategyFactory;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
@@ -21,6 +22,7 @@ import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.JbhExceptionMessage;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountPK;
 import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -44,17 +46,18 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   private final AccountMonthlyBalanceQueryRepo queryRepo;
   private final AccountMonthlyBalanceWriterRepository writerRepo;
   private final AsyncTaskExecutor asyncTaskExecutor;
-
+  private final AccountService accountService;
   private final MovementValidationStrategyFactory movValidationStrategyFactory;
 
   public MonthlyBalanceServiceImpl(
       final AccountMonthlyBalanceQueryRepo monthlyBalanceRepo,
       final AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepo,
-      final AsyncTaskExecutor asyncTaskExecutor) {
+      final AsyncTaskExecutor asyncTaskExecutor,
+      final AccountService accountService) {
     this.writerRepo = monthlyBalanceWriterRepo;
     this.queryRepo = monthlyBalanceRepo;
     this.asyncTaskExecutor = asyncTaskExecutor;
-
+    this.accountService = accountService;
     this.movValidationStrategyFactory = new MovementValidationStrategyFactory();
   }
 
@@ -71,12 +74,6 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   }
 
   @Override
-  public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
-      final AccountId accountId, final YearMonth currentPeriod) {
-    return queryRepo.findNextBalancesFromPeriodInclusive(accountId, currentPeriod);
-  }
-
-  @Override
   public Optional<MonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
     return queryRepo.findLastOfficialReport(accountId);
   }
@@ -84,6 +81,63 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   @Override
   public BigDecimal sumNetProfitOfficialReported(final AccountId accountId) {
     return queryRepo.sumNetProfitOfficialReported(accountId);
+  }
+
+  @Override
+  public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
+      final AccountId accountId, final YearMonth currentPeriod) {
+    return queryRepo.findNextBalancesFromPeriodInclusive(accountId, currentPeriod);
+  }
+
+  @Override
+  public List<MonthlyBalanceDTO> findByAccountAndPeriods(
+      final AccountPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
+    return queryRepo.findByAccountAndPeriods(accountPK, startPeriod, endPeriod);
+  }
+
+  @Override
+  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final AccountId accountId) {
+    // TODO: Check if it's necessary to return until the current period
+    return queryRepo.findAllByAccountIdUntilNow(accountId);
+  }
+
+  @Override
+  public void validateNewMovement(final MovementDTO movementDTO) throws AccountBusinessException {
+    final YearMonth movementPeriod = YearMonth.from(movementDTO.movementDate());
+    final AccountId accountId = movementDTO.accountId();
+    final BigDecimal balanceSnapshot = movementDTO.balanceSnapshot();
+    final BigDecimal movementAmount = movementDTO.movementAmount();
+    final MovementType movementType = movementDTO.movementType();
+
+    final Optional<MonthlyBalanceDTO> monthlyBalanceQuery =
+        findByAccountIdAndPeriod(accountId, movementPeriod);
+    if (monthlyBalanceQuery.isPresent()) {
+      // Do not allow to add a snapshot after the monthly balance was officially reported
+      final MonthlyBalanceDTO existingMonthlyBalance = monthlyBalanceQuery.get();
+      final var isMonthOfficiallyReported =
+          isMonthOfficiallyReportedValid(existingMonthlyBalance, balanceSnapshot);
+
+      // Validate the new movement does not exceed the monthly balance reported
+      if (isMonthOfficiallyReported) {
+        final MovementTypeValidationStrategy strategy =
+            movValidationStrategyFactory.getStrategy(movementType);
+        strategy.validateMovementAgainstOfficialBalance(movementAmount, existingMonthlyBalance);
+      }
+    }
+  }
+
+  @Override
+  public MonthlyBalanceDTO updateOfficialReportedBalance(
+      final MonthlyBalanceDTO reportedMonthlyBalance, final AddMonthlyBalanceCommand command)
+      throws AccountBusinessException {
+
+    final AccountMonthlyBalanceDomain monthlyBalanceDomain = toDomain(reportedMonthlyBalance);
+    final var updatedMonthlyBalance = assignOfficialReport(monthlyBalanceDomain, command);
+
+    saveBalance(updatedMonthlyBalance);
+    updateOpeningBalanceNextMonth(updatedMonthlyBalance);
+
+    return updatedMonthlyBalance;
   }
 
   @Override
@@ -186,77 +240,21 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
           // Step 1: Save balances (executes first)
           saveMultiBalances(monthlyBalances);
 
-          // Step 3: Return profit/opening balances (they contain the combined results)
+          // Step 2: Return profit/opening balances (they contain the combined results)
           // The monthly balances are already persisted in the database
           final List<MonthlyBalanceDTO> updatedBalances =
               adjustCurrentAndNextMonthlyBalancesAsync(accountId, initPeriod, lastPeriod);
 
           LOG.info("Persisting monthly balances completed successfully {} ", asyncTask);
 
+          // Step 3: Update Account Net Growth Rate when is fully withdrawl
+          if (accountService.isFullyWithdrawn(accountId)) {
+            accountService.updateWhenFullyWithdrawn(
+                accountId, findAllByAccountIdUntilNow(accountId));
+          }
+
           return updatedBalances;
         });
-  }
-
-  @Override
-  public void validateNewMovement(final MovementDTO movementDTO) throws AccountBusinessException {
-    final YearMonth movementPeriod = YearMonth.from(movementDTO.movementDate());
-    final AccountId accountId = movementDTO.accountId();
-    final BigDecimal balanceSnapshot = movementDTO.balanceSnapshot();
-    final BigDecimal movementAmount = movementDTO.movementAmount();
-    final MovementType movementType = movementDTO.movementType();
-
-    final Optional<MonthlyBalanceDTO> monthlyBalanceQuery =
-        findByAccountIdAndPeriod(accountId, movementPeriod);
-    if (monthlyBalanceQuery.isPresent()) {
-      // Do not allow to add a snapshot after the monthly balance was officially reported
-      final MonthlyBalanceDTO existingMonthlyBalance = monthlyBalanceQuery.get();
-      final var isMonthOfficiallyReported =
-          isMonthOfficiallyReportedValid(existingMonthlyBalance, balanceSnapshot);
-
-      // Validate the new movement does not exceed the monthly balance reported
-      if (isMonthOfficiallyReported) {
-        final MovementTypeValidationStrategy strategy =
-            movValidationStrategyFactory.getStrategy(movementType);
-        strategy.validateMovementAgainstOfficialBalance(movementAmount, existingMonthlyBalance);
-      }
-    }
-  }
-
-  @Override
-  public MonthlyBalanceDTO updateOfficialReportedBalance(
-      final MonthlyBalanceDTO reportedMonthlyBalance, final AddMonthlyBalanceCommand command) {
-
-    final AccountMonthlyBalanceDomain monthlyBalanceDomain = toDomain(reportedMonthlyBalance);
-    final var updatedMonthlyBalance = assignOfficialReport(monthlyBalanceDomain, command);
-
-    saveBalance(updatedMonthlyBalance);
-    updateOpeningBalanceNextMonth(updatedMonthlyBalance);
-
-    return updatedMonthlyBalance;
-  }
-
-  private MonthlyBalanceDTO assignOfficialReport(
-      final AccountMonthlyBalanceDomain monthlyBalanceDomain,
-      final AddMonthlyBalanceCommand command) {
-    monthlyBalanceDomain.assignOfficialMonthlyReport(
-        command.closingBalance(),
-        command.monthlyProfitReported(),
-        command.incomeWithholdingTaxAmount());
-    return toDTO(monthlyBalanceDomain);
-  }
-
-  private static boolean isMonthOfficiallyReportedValid(
-      final MonthlyBalanceDTO existingMonthlyBalance, final BigDecimal balanceSnapshot)
-      throws AccountBusinessException {
-    final boolean isMonthOfficiallyReported = existingMonthlyBalance.officialMonthlyReport();
-    if (isMonthOfficiallyReported && balanceSnapshot != null) {
-      throw new AccountBusinessException(
-          "Cannot add a snapshot after the monthly balance was officially reported",
-          new JbhExceptionMessage(
-              "Cannot add a snapshot after the monthly balance was officially reported",
-              "No se puede añadir un snapshot después de que el balance anual fue reportado"));
-    }
-    return isMonthOfficiallyReported;
   }
 
   /**
@@ -264,7 +262,8 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
    * already persisted in the database.
    */
   private List<MonthlyBalanceDTO> adjustCurrentAndNextMonthlyBalancesAsync(
-      final AccountId accountId, final YearMonth initPeriod, final YearMonth endPeriod) {
+      final AccountId accountId, final YearMonth initPeriod, final YearMonth endPeriod)
+      throws AccountBusinessException {
 
     LOG.info(
         "Monthly balances {} to {} should be already persisted in the database",
@@ -372,6 +371,17 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
     return now.plusMonths(1);
   }
 
+  private MonthlyBalanceDTO assignOfficialReport(
+      final AccountMonthlyBalanceDomain monthlyBalanceDomain,
+      final AddMonthlyBalanceCommand command)
+      throws AccountBusinessException {
+    monthlyBalanceDomain.assignOfficialMonthlyReport(
+        command.closingBalance(),
+        command.monthlyProfitReported(),
+        command.incomeWithholdingTaxAmount());
+    return toDTO(monthlyBalanceDomain);
+  }
+
   @Override
   public void saveBalance(final MonthlyBalanceDTO accountMonthlyBalance) {
     writerRepo.saveBalance(accountMonthlyBalance);
@@ -387,5 +397,19 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
         writerRepo.saveMultiBalances(accountMonthlyBalance);
     LOG.info("Monthly Balances persisted successfully");
     return savedBalances;
+  }
+
+  private static boolean isMonthOfficiallyReportedValid(
+      final MonthlyBalanceDTO existingMonthlyBalance, final BigDecimal balanceSnapshot)
+      throws AccountBusinessException {
+    final boolean isMonthOfficiallyReported = existingMonthlyBalance.officialMonthlyReport();
+    if (isMonthOfficiallyReported && balanceSnapshot != null) {
+      throw new AccountBusinessException(
+          "Cannot add a snapshot after the monthly balance was officially reported",
+          new JbhExceptionMessage(
+              "Cannot add a snapshot after the monthly balance was officially reported",
+              "No se puede añadir un snapshot después de que el balance anual fue reportado"));
+    }
+    return isMonthOfficiallyReported;
   }
 }

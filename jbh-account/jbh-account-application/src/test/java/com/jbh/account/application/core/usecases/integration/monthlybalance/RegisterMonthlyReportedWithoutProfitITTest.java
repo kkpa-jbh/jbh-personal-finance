@@ -9,6 +9,8 @@ import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.account.application.core.dto.AccountDTO;
@@ -20,14 +22,18 @@ import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonth
 import com.jbh.account.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
+import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.usecases.UseCaseBuilder;
 import com.jbh.account.application.core.usecases.utils.IgnoreAccountOptions;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
+import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountPK;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
@@ -36,6 +42,7 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
@@ -77,24 +84,27 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
       UseCaseBuilder.getAccountRepository();
   static BigDecimal expensesFeb25 = withJBHDecimals(BigDecimal.ZERO);
   // Static to be shared between tests
-  static AccountId accountId = AccountId.generate();
   static UUID userId = UUID.randomUUID();
   static InMemoryMonthlyBalanceRepositories inMemoryMonthlyBalanceRepos =
       UseCaseBuilder.getInMemoryMonthlyBalanceRepos();
   // Static to be shared between tests
   static int totalMonthsCreated = 1;
+  static AccountDTO createdAccount;
+  static AccountId accountId;
   @Mock private static AccountMovementRepository accountMovementRepository;
   private static MonthlyBalanceService monthlyBalanceService;
   private static RegisterMonthlyBalanceUseCase useCaseTest;
+  ;
   private static AddMovementUseCase addMovementUseCase;
   private static AccountDTO finalAccountBalance;
-  ;
   public final AccountDTOBuilder ACCOUNT_DEFAULT_BUILDER =
       AccountDTO.defaultBuilder(userId, accountId, DEFAULT_ACCOUNT_NAME, DEFAULT_ACCOUNT_TYPE);
   AccountMonthlyBalanceWriterRepository monthlyBalanceInMemoWriter =
       inMemoryMonthlyBalanceRepos.getWriterRepo();
   AccountMonthlyBalanceQueryRepo monthlyBalanceInMemoQuery =
       inMemoryMonthlyBalanceRepos.getQueryRepo();
+  private FindMonthlyBalanceUseCase findMonthlyBalanceUseCase;
+  private CreateAccountUseCase createAccountUseCase;
 
   @BeforeAll
   static void beforeAll() {
@@ -114,6 +124,8 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     useCaseTest = UseCaseBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
 
     addMovementUseCase = UseCaseBuilder.buildAddMovementUseCase(accountMovementRepository);
+    createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
+    findMonthlyBalanceUseCase = UseCaseBuilder.buildFindMonthlyBalanceUseCase();
 
     UseCaseBuilder.delayTests();
   }
@@ -123,6 +135,12 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   void settingInitialReportedBalanceNov24() {
 
     // Given
+    createdAccount =
+        createAccountUseCase.execute(
+            new CreateBasicAccountCommand(userId, DEFAULT_ACCOUNT_NAME, DEFAULT_ACCOUNT_TYPE));
+    accountId = createdAccount.id();
+    LOG.info("Account created with id {}", accountId);
+    assertNotNull(accountId);
 
     final YearMonth monthlyPeriod = YearMonth.of(2024, 11);
     final LocalDate runningDate = monthlyPeriod.plusMonths(1).atDay(1);
@@ -666,5 +684,35 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     final AccountDTO persistedAccount =
         inMemoryAccountRepo.findByUserAndAccountId(userId, accountId).get();
     assertAccount(expectedAccount, persistedAccount, IgnoreAccountOptions.IGNORE_ACCOUNT_PROFIT);
+  }
+
+  @Test
+  @Order(99)
+  void verifyAllMonthlyBalances() throws AccountBusinessException {
+    final YearMonth startPeriod = YearMonth.of(2024, 11);
+    final YearMonth endPeriod = YearMonth.now();
+    final List<MonthlyBalanceDTO> monthlyBalances =
+        findMonthlyBalanceUseCase.findByAccountAndPeriods(
+            new AccountPK(userId, accountId), startPeriod, endPeriod);
+
+    assertNotNull(monthlyBalances);
+    monthlyBalances.forEach(
+        monthlyBalanceDTO -> {
+          LOG.info("Monthly Balance {}", monthlyBalanceDTO);
+          assertNotNull(monthlyBalanceDTO);
+        });
+  }
+
+  @Test
+  @Order(99)
+  void shouldThrowExceptionWhenAccountPKMistMatch() {
+    final YearMonth startPeriod = YearMonth.of(2024, 11);
+    final YearMonth endPeriod = YearMonth.now();
+
+    assertThrows(
+        AccountBusinessException.class,
+        () ->
+            findMonthlyBalanceUseCase.findByAccountAndPeriods(
+                new AccountPK(UUID.randomUUID(), accountId), startPeriod, endPeriod));
   }
 }

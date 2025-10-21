@@ -72,14 +72,17 @@ public class RegisterMovementExecutionMockTest {
   void setUp() {
 
     MockitoAnnotations.openMocks(this);
+
+    accountService = new AccountServiceImpl(accountRepository);
+
     monthlyBalanceService =
         new MonthlyBalanceServiceImpl(
             accountMonthlyBalanceRepository,
             monthlyBalanceWriterRepoMock,
-            new AsyncTaskExecutorImpl());
+            new AsyncTaskExecutorImpl(),
+            accountService);
     monthlyBalanceAsyncTask = new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
 
-    accountService = new AccountServiceImpl(accountRepository);
     accountMovementService =
         new AccountMovementServiceImpl(
             accountMovementRepository, accountService, monthlyBalanceService, unitOfWork);
@@ -98,8 +101,10 @@ public class RegisterMovementExecutionMockTest {
         new AddMovementCommand(movementDate, amount, DEPOSIT, OTHER_INCOME_CATEGORY);
     final AccountDomain accountDomain = withId(accountId);
 
-    when(accountRepository.findByUserAndAccountId(userId, accountId))
-        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+    final var dto = Optional.of(AccountMapper.toDTO(accountDomain));
+    when(accountRepository.findByUserAndAccountId(userId, accountId)).thenReturn(dto);
+
+    when(accountRepository.findByAccountId(accountId)).thenReturn(dto);
 
     // When & Then
     final AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
