@@ -1,7 +1,7 @@
 package com.jbh.account.application.core.usecases.mock;
 
 import static com.jbh.account.application.core.usecases.mock.RegisterMovementExecutionMockTest.OTHER_INCOME_CATEGORY;
-import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -30,7 +30,7 @@ import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.utils.MoneyUtils;
+import com.jbh.account.domain.utils.JbhMoneyUtils;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
@@ -195,7 +195,7 @@ public class RegisterMovementValidationMockTest {
     verify(accountRepository).findByUserAndAccountId(userId, accountId);
     verify(accountMovementRepository).save((MovementDTO) any());
     verify(accountRepository).save(any());
-    assertEquals(MoneyUtils.withJBHDecimals(amount), accountDomain.getMovementBalance());
+    assertEquals(JbhMoneyUtils.withJBHDecimals(amount), accountDomain.getMovementBalance());
   }
 
   @Test

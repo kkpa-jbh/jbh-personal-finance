@@ -3,7 +3,6 @@ package com.jbh.account.application.core.ports.output.account;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountType;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -13,8 +12,6 @@ import org.slf4j.LoggerFactory;
 
 public class InMemoryAccountRepository implements AccountRepository {
 
-  public static final String DEFAULT_ACCOUNT_NAME = "Account 1";
-  public static final AccountType DEFAULT_ACCOUNT_TYPE = AccountType.OTHER;
   private static final Logger log = LoggerFactory.getLogger(InMemoryAccountRepository.class);
   private final Map<UUID, AccountDTO> storage = new HashMap<>();
 

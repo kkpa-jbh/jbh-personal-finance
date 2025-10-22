@@ -2,7 +2,7 @@ package com.jbh.account.application.core.services.monthlybalance;
 
 import static com.jbh.account.application.core.mappers.MonthlyBalanceMapper.toDTO;
 import static com.jbh.account.application.core.mappers.MonthlyBalanceMapper.toDomain;
-import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.account.application.async.AsyncTaskExecutor;
 import com.jbh.account.application.async.vo.AsyncTask;
@@ -267,9 +267,10 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
       throws AccountBusinessException {
 
     LOG.info(
-        "Monthly balances {} to {} should be already persisted in the database",
+        "Monthly balances from{} to {} for the account {} should be already persisted in the database",
         initPeriod,
-        endPeriod);
+        endPeriod,
+        accountId);
 
     LOG.info(
         "Adjusting Opening/Profit Balances for account {}" + " from period {} to period {}",

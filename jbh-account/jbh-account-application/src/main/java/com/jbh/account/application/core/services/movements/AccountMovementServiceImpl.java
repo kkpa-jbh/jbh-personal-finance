@@ -1,6 +1,6 @@
 package com.jbh.account.application.core.services.movements;
 
-import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.account.domain.vo.MovementType.WITHDRAWAL;
 
 import com.jbh.account.application.acid.UnitOfWork;

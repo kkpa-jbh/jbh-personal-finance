@@ -1,7 +1,8 @@
 package com.jbh.account.application.core.usecases.integration.movements;
 
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
-import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.account.domain.vo.MovementType.WITHDRAWAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -88,14 +89,14 @@ public class RegisterInvesmentMovementITTest {
   void createInvestmentAccount() {
     acciCuenta =
         createAccountUseCase.execute(
-            new CreateBasicAccountCommand(userId, "ACCICUENTA", AccountType.INVESTMENT));
+            createBasicAccountCommand(userId, "ACCICUENTA", AccountType.INVESTMENT));
     acciCuentaId = acciCuenta.id();
     LOG.info("Account created with id {}", acciCuentaId);
     assertNotNull(acciCuentaId);
 
     fondoAcciones =
         createAccountUseCase.execute(
-            new CreateBasicAccountCommand(userId, "FONDOACCIONES", AccountType.INVESTMENT));
+            createBasicAccountCommand(userId, "FONDOACCIONES", AccountType.INVESTMENT));
     fondoAccionesId = fondoAcciones.id();
   }
 

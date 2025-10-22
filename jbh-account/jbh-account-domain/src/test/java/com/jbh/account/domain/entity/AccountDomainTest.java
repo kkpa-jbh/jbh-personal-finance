@@ -1,15 +1,15 @@
 package com.jbh.account.domain.entity;
 
-import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jbh.account.domain.entity.AccountDomain.AccountMetadataKey;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountMetadataKey;
 import com.jbh.account.domain.vo.AccountMovementId;
 import com.jbh.account.domain.vo.AccountType;
 import com.jbh.account.domain.vo.ExpenseCategory;
@@ -114,7 +114,8 @@ public class AccountDomainTest {
 
     assertNotNull(accountDomain.getId());
     assertFalse(accountDomain.isFullyWithdrawn());
-    assertFalse(accountDomain.hasMetadata(AccountMetadataKey.FULLY_WITHDRAWN));
+    assertFalse(
+        accountDomain.hasMetadata(com.jbh.account.domain.vo.AccountMetadataKey.FULLY_WITHDRAWN));
 
     final AccountMovementDomain withdrawalMovement =
         new AccountMovementDomain(

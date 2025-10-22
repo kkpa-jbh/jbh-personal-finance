@@ -1,8 +1,9 @@
 package com.jbh.account.application.core.usecases.mock;
 
+import static com.jbh.account.application.core.usecases.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
-import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
-import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
@@ -29,7 +30,6 @@ import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -65,7 +65,7 @@ public class RegisterMonthlyBalanceMockTest {
     when(accountRepository.findByUserAndAccountId(userId, accountId))
         .thenReturn(
             Optional.of(
-                AccountDTO.defaultBuilder(userId, accountId, "DF", AccountType.OTHER).build()));
+                AccountDTO.defaultBuilder(userId, accountId, "DF", DEFAULT_ACCOUNT_TYPE).build()));
 
     accountService = new AccountServiceImpl(accountRepository);
 

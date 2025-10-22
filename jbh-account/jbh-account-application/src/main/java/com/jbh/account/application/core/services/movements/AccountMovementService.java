@@ -30,6 +30,15 @@ public interface AccountMovementService {
       AccountPK accountPK, AddMonthlyBalanceCommand nextMonthlyBalanceCommand)
       throws AccountBusinessException;
 
+  /**
+   * It registers the movement in the database. It will update the account and the monthly balances
+   * for the month of the movement date. It will update the account current balance and net profit.
+   *
+   * @param accountPK
+   * @param movementCommand
+   * @return
+   * @throws AccountBusinessException
+   */
   AddBasicMovementDTO addMovementProcessingBalances(
       AccountPK accountPK, AddMovementCommand movementCommand) throws AccountBusinessException;
 }

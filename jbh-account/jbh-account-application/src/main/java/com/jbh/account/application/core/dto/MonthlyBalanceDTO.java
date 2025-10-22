@@ -1,7 +1,7 @@
 package com.jbh.account.application.core.dto;
 
-import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
-import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;

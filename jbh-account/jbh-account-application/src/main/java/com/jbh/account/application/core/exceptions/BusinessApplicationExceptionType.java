@@ -11,6 +11,11 @@ public enum BusinessApplicationExceptionType implements BusinessExceptionType {
   ACCOUNTPK_MISMATCH(
       "What are you trying to do? The account id does not match the user id",
       "¿Qué estás intentando hacer? El ID de la cuenta no coincide con el ID de usuario"),
+  INVALID_TRANSFER_RECIPIENT(
+      "The transfer recipient is invalid", "El destinatario de la transferencia no es válido"),
+  INVALID_TRANSFER_AMOUNT(
+      "The amount to transfer is invalid", "El importe a transferir no es válido"),
+  INVALID_TRANSFER_DATE("The transfer date is invalid", "La fecha de transferencia no es válida"),
   ;
 
   private final String en;

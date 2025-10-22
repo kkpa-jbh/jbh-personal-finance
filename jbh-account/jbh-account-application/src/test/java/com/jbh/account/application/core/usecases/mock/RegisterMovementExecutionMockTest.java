@@ -1,6 +1,6 @@
 package com.jbh.account.application.core.usecases.mock;
 
-import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.account.domain.vo.MovementType.DEPOSIT;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

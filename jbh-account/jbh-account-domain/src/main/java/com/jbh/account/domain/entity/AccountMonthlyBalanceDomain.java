@@ -1,9 +1,9 @@
 package com.jbh.account.domain.entity;
 
-import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
-import static com.jbh.account.domain.utils.MoneyUtils.isNotZero;
-import static com.jbh.account.domain.utils.MoneyUtils.isZero;
-import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.isNotZero;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.isZero;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.calculators.MoneyGrowthCalculator;
 import com.jbh.account.domain.exceptions.AccountBusinessException;

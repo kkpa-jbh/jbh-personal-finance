@@ -1,12 +1,13 @@
 package com.jbh.account.application.core.usecases.integration.monthlybalance;
 
-import static com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository.DEFAULT_ACCOUNT_NAME;
-import static com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository.DEFAULT_ACCOUNT_TYPE;
+import static com.jbh.account.application.core.usecases.UseCaseBuilder.DEFAULT_ACCOUNT_NAME;
+import static com.jbh.account.application.core.usecases.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
 import static com.jbh.account.application.core.usecases.utils.AccountITUtils.assertAccount;
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
-import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
-import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -137,7 +138,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     // Given
     createdAccount =
         createAccountUseCase.execute(
-            new CreateBasicAccountCommand(userId, DEFAULT_ACCOUNT_NAME, DEFAULT_ACCOUNT_TYPE));
+            createBasicAccountCommand(userId, DEFAULT_ACCOUNT_NAME, DEFAULT_ACCOUNT_TYPE));
     accountId = createdAccount.id();
     LOG.info("Account created with id {}", accountId);
     assertNotNull(accountId);

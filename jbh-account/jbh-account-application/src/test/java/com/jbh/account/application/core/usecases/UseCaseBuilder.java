@@ -2,6 +2,7 @@ package com.jbh.account.application.core.usecases;
 
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.core.ports.input.AddMovementInputPort;
+import com.jbh.account.application.core.ports.input.AddTransferJbhAccountsInputPort;
 import com.jbh.account.application.core.ports.input.CreateAccountInputPort;
 import com.jbh.account.application.core.ports.input.FindMonthlyBalanceInputPort;
 import com.jbh.account.application.core.ports.input.RegisterMonthlyBalanceInputPort;
@@ -16,8 +17,12 @@ import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceSe
 import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.domain.vo.AccountType;
 
 public class UseCaseBuilder {
+
+  public static final String DEFAULT_ACCOUNT_NAME = "Account 1";
+  public static final AccountType DEFAULT_ACCOUNT_TYPE = AccountType.SAVINGS;
 
   // Account
   private static final InMemoryAccountRepository inMemoryAccountRepo =
@@ -88,5 +93,11 @@ public class UseCaseBuilder {
     } catch (final InterruptedException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static AddTransferJbhAccountsUseCase buildAddTransferUseCase(
+      final AccountMovementRepository accountMovementRepository) {
+    return new AddTransferJbhAccountsInputPort(
+        buildAccountService(), buildAccountMovementService(accountMovementRepository));
   }
 }

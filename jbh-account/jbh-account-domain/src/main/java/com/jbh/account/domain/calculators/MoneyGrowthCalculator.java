@@ -1,7 +1,7 @@
 package com.jbh.account.domain.calculators;
 
-import static com.jbh.account.domain.utils.MoneyUtils.isNotZero;
-import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.isNotZero;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;

@@ -156,7 +156,8 @@ public enum ExpenseCategory implements CategoryType {
   RETEFUENTE(0),
   SOCIAL_SECURITY(1),
   PUBLIC_SERVICES(2),
-  PERSONAL(3);
+  PERSONAL(3),
+  TRANSFER(4);
 
   private final int categoryId;
 

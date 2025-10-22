@@ -1,6 +1,6 @@
 package com.jbh.account.domain.calculators;
 
-import com.jbh.account.domain.utils.MoneyUtils;
+import com.jbh.account.domain.utils.JbhMoneyUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -21,9 +21,9 @@ import java.util.List;
  * @see <a href="https://en.wikipedia.org/wiki/Internal_rate_of_return">Internal Rate of Return</a>
  */
 @SuppressWarnings({
-    "PMD.CyclomaticComplexity",
-    "PMD.AvoidDecimalLiteralsInBigDecimalConstructor",
-    "PMD.AvoidInstantiatingObjectsInLoops"
+  "PMD.CyclomaticComplexity",
+  "PMD.AvoidDecimalLiteralsInBigDecimalConstructor",
+  "PMD.AvoidInstantiatingObjectsInLoops"
 })
 public final class MoneyWeightedReturnCalculator {
 
@@ -107,7 +107,7 @@ public final class MoneyWeightedReturnCalculator {
 
       // Check for convergence
       if (Math.abs(newGuess - guess) <= EPSILON) {
-        return MoneyUtils.withJBHDecimals(
+        return JbhMoneyUtils.withJBHDecimals(
             new BigDecimal(newGuess * 100)); // Converged: return annualized IRR
       }
 
@@ -131,8 +131,8 @@ public final class MoneyWeightedReturnCalculator {
    * @return The equivalent monthly rate as a decimal (e.g., 0.0117 for ~1.17% monthly)
    */
   public static BigDecimal toMonthlyRate(final BigDecimal annualPercentageRate) {
-    final BigDecimal annualRate = MoneyUtils.divide(annualPercentageRate, new BigDecimal(100));
+    final BigDecimal annualRate = JbhMoneyUtils.divide(annualPercentageRate, new BigDecimal(100));
     final double result = Math.pow(1 + annualRate.doubleValue(), 1.0 / 12) - 1;
-    return MoneyUtils.withJBHDecimals(new BigDecimal(result * 100));
+    return JbhMoneyUtils.withJBHDecimals(new BigDecimal(result * 100));
   }
 }

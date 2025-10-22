@@ -1,7 +1,7 @@
 package com.jbh.account.application.core.services.account;
 
 import static com.jbh.account.application.core.mappers.AccountMapper.toDTO;
-import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;

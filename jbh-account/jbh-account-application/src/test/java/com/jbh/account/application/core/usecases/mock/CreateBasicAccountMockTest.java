@@ -1,5 +1,6 @@
 package com.jbh.account.application.core.usecases.mock;
 
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createBasicAccountCommand;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -50,7 +51,7 @@ public class CreateBasicAccountMockTest {
     when(accountRepository.save(any())).thenReturn(mockedAccount);
 
     final CreateBasicAccountCommand command =
-        new CreateBasicAccountCommand(userId, testAccountName, type);
+        createBasicAccountCommand(userId, testAccountName, type);
     final AccountDTO accountDTO = useCase.execute(command);
 
     // Verify output

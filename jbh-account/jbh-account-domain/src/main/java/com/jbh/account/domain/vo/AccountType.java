@@ -5,5 +5,5 @@ public enum AccountType {
   CREDIT_CARD,
   INVESTMENT,
   CDT,
-  OTHER
+  ;
 }

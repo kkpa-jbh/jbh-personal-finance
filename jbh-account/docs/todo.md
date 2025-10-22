@@ -1,7 +1,7 @@
 # USECASES TO DO
 
 - [] DLQ
-- [] Make transfers between accounts
+- [X] Make transfers between existing accounts
 - [] Add TC movements and deposits
 - [] CDT cash flows
 - [] Adjust API responses to return ApiResponse wrapper

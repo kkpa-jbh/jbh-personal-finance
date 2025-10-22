@@ -1,8 +1,9 @@
 package com.jbh.account.application.core.usecases.integration.monthlybalance;
 
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
-import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -94,7 +95,7 @@ public class AddMovementsAfterMonthlyReportedTest {
   void creatingAccount() throws AccountBusinessException {
     createdAccount =
         createAccountUseCase.execute(
-            new CreateBasicAccountCommand(userId, ACCOUNT_REPORTED, AccountType.SAVINGS));
+            createBasicAccountCommand(userId, ACCOUNT_REPORTED, AccountType.SAVINGS));
     accountId = createdAccount.id();
     LOG.info("Account created with id {}", accountId);
     assert accountId != null;

@@ -1,15 +1,16 @@
 package com.jbh.account.domain.entity;
 
-import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
-import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.calculators.MoneyGrowthCalculator;
 import com.jbh.account.domain.calculators.MoneyWeightedReturnCalculator;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.utils.JbhBooleanUtils;
-import com.jbh.account.domain.utils.MoneyUtils;
+import com.jbh.account.domain.utils.JbhMoneyUtils;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountMetadataKey;
 import com.jbh.account.domain.vo.AccountType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -209,7 +210,7 @@ public class AccountDomain {
 
   public boolean checkIfFullyWithdrawn(
       final BigDecimal closingBalance, final BigDecimal movementAmount) {
-    return MoneyUtils.isZero(closingBalance) && movementAmount.signum() < 0;
+    return JbhMoneyUtils.isZero(closingBalance) && movementAmount.signum() < 0;
   }
 
   private void addMetadata(final AccountMetadataKey key, final Object value) {
@@ -243,11 +244,5 @@ public class AccountDomain {
     if (inputNetProfit != null) {
       this.netProfitBalance = withJBHDecimals(inputNetProfit);
     }
-  }
-
-  enum AccountMetadataKey {
-    FULLY_WITHDRAWN,
-    FULLY_WITHDRAWN_DATE,
-    FULLY_WITHDRAWN_AT,
   }
 }

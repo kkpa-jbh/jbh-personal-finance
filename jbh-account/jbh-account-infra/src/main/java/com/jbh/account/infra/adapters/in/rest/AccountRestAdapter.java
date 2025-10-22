@@ -23,6 +23,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import org.eclipse.microprofile.openapi.annotations.*;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -100,7 +101,7 @@ public class AccountRestAdapter extends BaseRestAdapter {
 
     final AccountDTO accountDTO =
         createAccountUseCase.execute(
-            new CreateBasicAccountCommand(userId, request.name(), request.type()));
+            new CreateBasicAccountCommand(userId, request.name(), request.type(), Map.of()));
 
     return Response.ok(accountDTO).build();
   }

@@ -48,6 +48,7 @@ package com.jbh.account.domain.vo;
  * <p>Reimbursements (Work Expenses, Health Insurance)
  */
 public enum IncomeCategory implements CategoryType {
+  TRANSFER,
   SALARY,
   DIVIDENDS,
   FREELANCE,

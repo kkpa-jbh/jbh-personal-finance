@@ -1,6 +1,6 @@
 package com.jbh.account.application.core.vo.commands;
 
-import static com.jbh.account.domain.utils.MoneyUtils.isZero;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.isZero;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;

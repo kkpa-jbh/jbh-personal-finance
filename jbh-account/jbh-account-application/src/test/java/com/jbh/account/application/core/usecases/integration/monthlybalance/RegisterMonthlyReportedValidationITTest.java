@@ -1,7 +1,8 @@
 package com.jbh.account.application.core.usecases.integration.monthlybalance;
 
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
-import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
@@ -68,7 +69,7 @@ public class RegisterMonthlyReportedValidationITTest {
     // Create Account
     final AccountDTO accountDTO =
         createAccountUseCase.execute(
-            new CreateBasicAccountCommand(userId, ACCOUNT_REPORTED, AccountType.SAVINGS));
+            createBasicAccountCommand(userId, ACCOUNT_REPORTED, AccountType.SAVINGS));
     accountId = accountDTO.id();
     LOG.info("Account created with id {}", accountId);
     assert accountId != null;

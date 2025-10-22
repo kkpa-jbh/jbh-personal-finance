@@ -3,11 +3,11 @@ package com.jbh.account.domain.utils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public final class MoneyUtils {
+public final class JbhMoneyUtils {
 
   public static final BigDecimal JBH_ZERO = withJBHDecimals(BigDecimal.ZERO);
 
-  private MoneyUtils() {
+  private JbhMoneyUtils() {
     // Utility class
   }
 
@@ -40,5 +40,9 @@ public final class MoneyUtils {
 
   public static BigDecimal divide(final BigDecimal amount, final BigDecimal divisor) {
     return amount.divide(divisor, 2, RoundingMode.HALF_EVEN);
+  }
+
+  public static boolean isNegative(final BigDecimal totalAmount) {
+    return totalAmount != null && totalAmount.signum() < 0;
   }
 }

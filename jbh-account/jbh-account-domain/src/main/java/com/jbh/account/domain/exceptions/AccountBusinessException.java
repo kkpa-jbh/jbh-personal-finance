@@ -1,12 +1,12 @@
 package com.jbh.account.domain.exceptions;
 
-import java.io.Serial;
 import lombok.Getter;
 
 @Getter
 public class AccountBusinessException extends Exception {
 
-  @Serial private static final long serialVersionUID = -7904385600828409999L;
+  // Generate serialVersionUID
+  private static final long serialVersionUID = 132234234234L;
 
   private JbhExceptionMessage customMessage;
   private BusinessExceptionType businessExceptionType;

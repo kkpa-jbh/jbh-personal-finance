@@ -3,9 +3,10 @@ package com.jbh.account.application.core.usecases.mock;
 import static com.jbh.account.application.core.mappers.MonthlyBalanceMapper.toDomain;
 import static com.jbh.account.application.core.usecases.integration.monthlybalance.IgnoreOption.IGNORE_MONTHLY_PROFIT;
 import static com.jbh.account.application.core.usecases.integration.monthlybalance.IgnoreOption.IGNORE_OPENING_BALANCE;
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
-import static com.jbh.account.domain.utils.MoneyUtils.JBH_ZERO;
-import static com.jbh.account.domain.utils.MoneyUtils.withJBHDecimals;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -461,8 +462,7 @@ public class UploadMultiMovementsExecutionMockTest {
 
   void createAccount(final String name) {
     currentAccount =
-        createAccountUseCase.execute(
-            new CreateBasicAccountCommand(userId, name, AccountType.SAVINGS));
+        createAccountUseCase.execute(createBasicAccountCommand(userId, name, AccountType.SAVINGS));
     accountId = currentAccount.id();
     assertNotNull(accountId);
     log.info("Account created with id {} for user {}", accountId, userId);
