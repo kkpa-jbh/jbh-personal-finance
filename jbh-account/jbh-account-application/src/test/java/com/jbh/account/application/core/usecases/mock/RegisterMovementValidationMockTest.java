@@ -29,6 +29,7 @@ import com.jbh.account.application.core.services.movements.AccountMovementServic
 import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
+import com.jbh.account.application.builders.AccountEntityBuilder;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
@@ -183,7 +184,7 @@ public class RegisterMovementValidationMockTest {
         new AddMovementCommand(
             movementDate, amount, MovementCategoryDTO.withType(IncomeCategory.OTHER));
     final AccountDomain accountDomain =
-        AccountDomain.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
+        AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
@@ -207,7 +208,7 @@ public class RegisterMovementValidationMockTest {
 
     final AddMovementCommand request = createMovement(movementDate, amount, OTHER_INCOME_CATEGORY);
     final AccountDomain accountDomain =
-        AccountDomain.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
+        AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
@@ -232,7 +233,7 @@ public class RegisterMovementValidationMockTest {
     final AddMovementCommand request =
         createExpense(movementDate, amount, ExpenseCategory.PERSONAL);
     final AccountDomain accountDomain =
-        AccountDomain.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
+        AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
@@ -257,7 +258,7 @@ public class RegisterMovementValidationMockTest {
     final AddMovementCommand request =
         createExpense(movementDate, amount, ExpenseCategory.PERSONAL);
     final AccountDomain accountDomain =
-        AccountDomain.withBasicMovementForExisting(
+        AccountEntityBuilder.withBasicMovementForExisting(
             accountId, userId, new BigDecimal("30.00"), new BigDecimal("30.00"));
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))

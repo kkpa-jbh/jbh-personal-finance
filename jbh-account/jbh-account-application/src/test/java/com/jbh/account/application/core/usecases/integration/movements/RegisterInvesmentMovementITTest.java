@@ -1,6 +1,6 @@
 package com.jbh.account.application.core.usecases.integration.movements;
 
-import static com.jbh.account.application.builders.CommandTestBuilder.createBasicAccountCommand;
+import static com.jbh.account.application.builders.CommandTestBuilder.createInvestmentCommand;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
@@ -22,7 +22,6 @@ import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountType;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
@@ -87,15 +86,13 @@ public class RegisterInvesmentMovementITTest {
   @Order(0)
   void createInvestmentAccount() {
     acciCuenta =
-        createAccountUseCase.execute(
-            createBasicAccountCommand(userId, "ACCICUENTA", AccountType.INVESTMENT));
+        createAccountUseCase.execute(createInvestmentCommand(userId, "ACCICUENTA", "TRII"));
     acciCuentaId = acciCuenta.id();
     LOG.info("Account created with id {}", acciCuentaId);
     assertNotNull(acciCuentaId);
 
     fondoAcciones =
-        createAccountUseCase.execute(
-            createBasicAccountCommand(userId, "FONDOACCIONES", AccountType.INVESTMENT));
+        createAccountUseCase.execute(createInvestmentCommand(userId, "FONDOACCIONES", "TRII"));
     fondoAccionesId = fondoAcciones.id();
   }
 

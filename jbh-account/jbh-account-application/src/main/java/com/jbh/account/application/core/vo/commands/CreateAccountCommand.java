@@ -1,5 +1,6 @@
 package com.jbh.account.application.core.vo.commands;
 
+import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountMetadataKey;
 import com.jbh.account.domain.vo.AccountType;
 import java.util.Collections;
@@ -28,15 +29,15 @@ public record CreateAccountCommand(
   @SuppressWarnings("PMD.UnusedAssignment")
   public CreateAccountCommand {
     if (userId == null) {
-      throw new IllegalArgumentException("User ID cannot be null");
+      throw new GenericSpecificationException("User ID cannot be null");
     }
 
     if (name == null || name.isBlank()) {
-      throw new IllegalArgumentException("Account name cannot be null or blank");
+      throw new GenericSpecificationException("Account name cannot be null or blank");
     }
 
     if (type == null) {
-      throw new IllegalArgumentException("Account type cannot be null");
+      throw new GenericSpecificationException("Account type cannot be null");
     }
 
     // Reassign parameters before they're assigned to fields
@@ -50,15 +51,15 @@ public record CreateAccountCommand(
   @Override
   public void validate() {
     if (userId == null) {
-      throw new IllegalArgumentException("User ID cannot be null");
+      throw new GenericSpecificationException("User ID cannot be null");
     }
 
     if (name == null || name.isBlank()) {
-      throw new IllegalArgumentException("Account name cannot be null or blank");
+      throw new GenericSpecificationException("Account name cannot be null or blank");
     }
 
     if (type == null) {
-      throw new IllegalArgumentException("Account type cannot be null");
+      throw new GenericSpecificationException("Account type cannot be null");
     }
   }
 }

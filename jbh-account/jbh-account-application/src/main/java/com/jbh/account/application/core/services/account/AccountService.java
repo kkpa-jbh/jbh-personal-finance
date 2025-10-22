@@ -13,7 +13,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-/** Account Service Interface for CRUD operations */
+/**
+ * Account Service Interface for CRUD operations
+ *
+ * <p>Like a Repository abstraction.
+ */
 public interface AccountService {
   Optional<AccountDTO> findByUserAndAccountId(UUID userId, AccountId accountId);
 

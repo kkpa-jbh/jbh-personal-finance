@@ -33,11 +33,11 @@ public class AccountMovementTest {
   @BeforeEach
   public void setUp() {
     accountCeroBalance =
-        AccountDomain.withBasicMovementForExisting(
+        AccountDomainTestBuilder.withBasicMovementForExisting(
             AccountId.generate(), userId, JBH_ZERO, JBH_ZERO);
 
     account100Balance =
-        AccountDomain.withBasicMovementForExisting(
+        AccountDomainTestBuilder.withBasicMovementForExisting(
             AccountId.generate(), userId, new BigDecimal("100.00"), new BigDecimal("100.00"));
   }
 
@@ -47,7 +47,7 @@ public class AccountMovementTest {
     final var currentBalance = new BigDecimal("200.00");
 
     final AccountDomain accountDomain =
-        AccountDomain.withBasicMovementForExisting(
+        AccountDomainTestBuilder.withBasicMovementForExisting(
             AccountId.generate(), userId, movementBalance, currentBalance);
 
     final var totalAmount = new BigDecimal("100.00");

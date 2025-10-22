@@ -4,6 +4,7 @@ import static com.jbh.account.domain.entity.MovementCategoryDomain.OTHER_INCOME_
 import static com.jbh.account.domain.entity.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.jbh.account.application.builders.AccountEntityBuilder;
 import com.jbh.account.application.builders.UseCaseBuilder;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.domain.entity.AccountDomain;
@@ -40,7 +41,7 @@ public class AccountServiceTest {
     final var accountMovementBalance = new BigDecimal("100.00");
     final var accountCurrentBalance = new BigDecimal("100.00");
     final AccountDomain accountDomain =
-        AccountDomain.withBasicMovementForExisting(
+        AccountEntityBuilder.withBasicMovementForExisting(
             AccountId.generate(), userId, accountMovementBalance, accountCurrentBalance);
 
     final var amount1 = new BigDecimal("100.00");
@@ -106,7 +107,7 @@ public class AccountServiceTest {
     final var movementBalance = new BigDecimal("100.00");
     final var currentBalance = new BigDecimal("200.00");
     final AccountDomain accountDomain =
-        AccountDomain.withBasicMovementForExisting(
+        AccountEntityBuilder.withBasicMovementForExisting(
             AccountId.generate(), userId, movementBalance, currentBalance);
 
     final var totalAmount = new BigDecimal("100.00");

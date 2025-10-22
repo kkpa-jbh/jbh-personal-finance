@@ -31,6 +31,7 @@ import com.jbh.account.application.core.services.movements.AccountMovementServic
 import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
+import com.jbh.account.application.builders.AccountEntityBuilder;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.vo.AccountId;
@@ -144,7 +145,7 @@ public class RegisterMovementExecutionMockTest {
   }
 
   private AccountDomain withId(final AccountId accountId) {
-    return AccountDomain.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
+    return AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
   }
 
   @Test
@@ -159,7 +160,7 @@ public class RegisterMovementExecutionMockTest {
         createMovement(movementDate, null, balanceSnashot, BALANCE_SNAPSHOT, null);
 
     final AccountDomain accountDomain =
-        AccountDomain.withBasicMovementForExisting(
+        AccountEntityBuilder.withBasicMovementForExisting(
             accountId, userId, existingAccountPpalBalance, new BigDecimal("190.00"));
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
@@ -199,7 +200,7 @@ public class RegisterMovementExecutionMockTest {
     final BigDecimal existingMovBalance = new BigDecimal("12591000.00");
 
     final AccountDomain accountDomain =
-        AccountDomain.withBasicMovementForExisting(
+        AccountEntityBuilder.withBasicMovementForExisting(
             accountId, userId, existingMovBalance, new BigDecimal("12689712.00"));
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))

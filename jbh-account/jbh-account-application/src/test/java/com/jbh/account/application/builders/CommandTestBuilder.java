@@ -84,6 +84,11 @@ public class CommandTestBuilder {
     return new CreateAccountCommand(userId, name, AccountType.CREDIT_CARD, metadata);
   }
 
+  public static CreateAccountCommand createCreditCardCommand(
+      final UUID userId, final String name, final Map<AccountMetadataKey, Object> metadata) {
+    return new CreateAccountCommand(userId, name, AccountType.CREDIT_CARD, metadata);
+  }
+
   /**
    * Creates a CreateBasicAccountCommand for an investment account with typical metadata.
    *

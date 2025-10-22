@@ -3,7 +3,7 @@ package com.jbh.account.domain.vo;
 public enum AccountMetadataKey {
   // Credit Card Input Metadata
   CREDIT_LIMIT,
-  PAYMENT_DUE_DAY,
+  PAYMENT_DUE_DAY, // Fecha de Vencimiento del Pago.
 
   // Investment Input Metadata
   BROKER_NAME,

@@ -15,6 +15,7 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.vo.commands.CreateAccountCommand;
+import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
 import java.util.UUID;
@@ -75,6 +76,6 @@ public class CreateBasicAccountMockTest {
 
   @Test
   public void shouldThrowExceptionWhenInvalidCommand() {
-    assertThrows(IllegalArgumentException.class, () -> useCase.execute(null));
+    assertThrows(GenericSpecificationException.class, () -> useCase.execute(null));
   }
 }

@@ -31,7 +31,7 @@ public class AccountDomainTest {
   @Test
   public void shouldCreateAccountWithBasicMovementForExistingId() {
     accountDomain =
-        AccountDomain.withBasicMovementForExisting(
+        AccountDomainTestBuilder.withBasicMovementForExisting(
             AccountId.generate(), userId, JBH_ZERO, JBH_ZERO);
 
     assert accountDomain.getId() != null;
@@ -47,10 +47,11 @@ public class AccountDomainTest {
   }
 
   @Test
-  public void shouldCreateWithMinimumDataForCreation() {
+  public void shouldCreateWithMinimumDataForCreation() throws Exception {
     final String name = "Test Account";
     accountDomain =
-        AccountDomain.withMinimumDataForCreation(name, AccountType.SAVINGS, UUID.randomUUID());
+        AccountDomain.withMinimumDataForCreation(
+            name, AccountType.SAVINGS, UUID.randomUUID(), new HashMap<>());
     assert accountDomain.getId() != null;
     assertRequiredAccount(accountDomain);
   }
@@ -71,7 +72,7 @@ public class AccountDomainTest {
     final var movementBalance = new BigDecimal("100.00");
     final var currentBalance = new BigDecimal("200.00");
     final AccountDomain accountDomain =
-        AccountDomain.withBasicMovementForExisting(
+        AccountDomainTestBuilder.withBasicMovementForExisting(
             AccountId.generate(), userId, movementBalance, currentBalance);
 
     assertEquals(movementBalance, accountDomain.getMovementBalance());

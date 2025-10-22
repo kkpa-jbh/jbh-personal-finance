@@ -9,6 +9,8 @@ import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.utils.JbhBooleanUtils;
 import com.jbh.account.domain.utils.JbhMoneyUtils;
+import com.jbh.account.domain.validation.AccountCreationValidator;
+import com.jbh.account.domain.validation.AccountValidatorFactory;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountMetadataKey;
 import com.jbh.account.domain.vo.AccountType;
@@ -48,13 +50,13 @@ public class AccountDomain {
 
   protected Map<String, Object> metadata = new HashMap<>();
 
-  public AccountDomain() {
-    this.id = AccountId.generate();
-  }
-
   private AccountDomain(final AccountId id, final UUID userId) {
     this.userId = userId;
     this.id = id;
+  }
+
+  public AccountDomain() {
+    this.id = AccountId.generate();
   }
 
   public AccountDomain(
@@ -84,23 +86,39 @@ public class AccountDomain {
     this.metadata = metadata;
   }
 
+  /**
+   * Factory method to create an account with minimum required data for creation. Validates the
+   * account based on type-specific requirements using the Strategy Pattern.
+   *
+   * @param name Account name
+   * @param type Account type
+   * @param userId User ID
+   * @param metadata Account metadata (can be empty but not null)
+   * @return AccountDomain instance
+   * @throws AccountBusinessException if validation fails based on account type requirements
+   */
   public static AccountDomain withMinimumDataForCreation(
-      final String name, final AccountType type, final UUID userId) {
+      final String name,
+      final AccountType type,
+      final UUID userId,
+      final Map<String, Object> metadata)
+      throws AccountBusinessException {
+
+    // Validate metadata based on account type BEFORE creating the domain object
+    final AccountCreationValidator validator = AccountValidatorFactory.getValidator(type);
+    validator.validate(metadata != null ? metadata : new HashMap<>());
+
+    // Only create the object if validation passes
     final AccountDomain accountDomain = new AccountDomain();
     accountDomain.name = name;
     accountDomain.type = type;
     accountDomain.userId = userId;
-    return accountDomain;
-  }
 
-  public static AccountDomain withBasicMovementForExisting(
-      final AccountId accountId,
-      final UUID userId,
-      final BigDecimal movementBalance,
-      final BigDecimal currentBalance) {
-    final AccountDomain accountDomain = new AccountDomain(accountId, userId);
-    accountDomain.movementBalance = movementBalance;
-    accountDomain.currentBalance = currentBalance;
+    // Set metadata if provided
+    if (metadata != null && !metadata.isEmpty()) {
+      accountDomain.metadata = new HashMap<>(metadata);
+    }
+
     return accountDomain;
   }
 

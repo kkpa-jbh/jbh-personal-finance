@@ -28,6 +28,29 @@ public enum BusinessDomainExceptionType implements BusinessExceptionType {
   EXCEEDED_MAXIMUM_NET_GROWTH(
       "There is something wrong with the amounts inputs, They produces an unrealistic growth rate",
       "Hay algo mal con los cantidades de entrada, produce un tasa de crecimiento no realista"),
+
+  // Account Creation Validation Errors
+  MISSING_CREDIT_LIMIT(
+      "CREDIT_LIMIT is required for CREDIT_CARD accounts",
+      "CREDIT_LIMIT es requerido para cuentas CREDIT_CARD"),
+  INVALID_CREDIT_LIMIT_TYPE(
+      "CREDIT_LIMIT must be a BigDecimal",
+      "CREDIT_LIMIT debe ser un BigDecimal"),
+  INVALID_CREDIT_LIMIT_VALUE(
+      "CREDIT_LIMIT must be greater than zero",
+      "CREDIT_LIMIT debe ser mayor que cero"),
+  MISSING_PAYMENT_DUE_DAY(
+      "PAYMENT_DUE_DAY is required for CREDIT_CARD accounts",
+      "PAYMENT_DUE_DAY es requerido para cuentas CREDIT_CARD"),
+  INVALID_PAYMENT_DUE_DAY_TYPE(
+      "PAYMENT_DUE_DAY must be an Integer",
+      "PAYMENT_DUE_DAY debe ser un Integer"),
+  INVALID_PAYMENT_DUE_DAY_RANGE(
+      "PAYMENT_DUE_DAY must be between 1 and 31",
+      "PAYMENT_DUE_DAY debe estar entre 1 y 31"),
+  MISSING_BROKER_NAME(
+      "BROKER_NAME is required for INVESTMENT accounts",
+      "BROKER_NAME es requerido para cuentas INVESTMENT"),
   ;
 
   private final String en;

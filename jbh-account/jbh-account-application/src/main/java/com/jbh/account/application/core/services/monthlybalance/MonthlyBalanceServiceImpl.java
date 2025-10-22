@@ -68,37 +68,14 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   }
 
   @Override
-  public Optional<MonthlyBalanceDTO> findByAccountIdAndPeriod(
-      final AccountId accountId, final YearMonth period) {
-    return queryRepo.findByAccountIdAndPeriod(accountId, period);
-  }
-
-  @Override
-  public Optional<MonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
-    return queryRepo.findLastOfficialReport(accountId);
-  }
-
-  @Override
   public BigDecimal sumNetProfitOfficialReported(final AccountId accountId) {
     return queryRepo.sumNetProfitOfficialReported(accountId);
-  }
-
-  @Override
-  public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
-      final AccountId accountId, final YearMonth currentPeriod) {
-    return queryRepo.findNextBalancesFromPeriodInclusive(accountId, currentPeriod);
   }
 
   @Override
   public List<MonthlyBalanceDTO> findByAccountAndPeriods(
       final AccountPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
     return queryRepo.findByAccountAndPeriods(accountPK, startPeriod, endPeriod);
-  }
-
-  @Override
-  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final AccountId accountId) {
-    // TODO: Check if it's necessary to return until the current period
-    return queryRepo.findAllByAccountIdUntilNow(accountId);
   }
 
   @Override
@@ -127,6 +104,26 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   }
 
   @Override
+  public Optional<MonthlyBalanceDTO> findByAccountIdAndPeriod(
+      final AccountId accountId, final YearMonth period) {
+    return queryRepo.findByAccountIdAndPeriod(accountId, period);
+  }
+
+  private static boolean isMonthOfficiallyReportedValid(
+      final MonthlyBalanceDTO existingMonthlyBalance, final BigDecimal balanceSnapshot)
+      throws AccountBusinessException {
+    final boolean isMonthOfficiallyReported = existingMonthlyBalance.officialMonthlyReport();
+    if (isMonthOfficiallyReported && balanceSnapshot != null) {
+      throw new AccountBusinessException(
+          "Cannot add a snapshot after the monthly balance was officially reported",
+          new JbhExceptionMessage(
+              "Cannot add a snapshot after the monthly balance was officially reported",
+              "No se puede añadir un snapshot después de que el balance anual fue reportado"));
+    }
+    return isMonthOfficiallyReported;
+  }
+
+  @Override
   public MonthlyBalanceDTO updateOfficialReportedBalance(
       final MonthlyBalanceDTO reportedMonthlyBalance, final AddMonthlyBalanceCommand command)
       throws AccountBusinessException {
@@ -138,6 +135,22 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
     updateOpeningBalanceNextMonth(updatedMonthlyBalance);
 
     return updatedMonthlyBalance;
+  }
+
+  private MonthlyBalanceDTO assignOfficialReport(
+      final AccountMonthlyBalanceDomain monthlyBalanceDomain,
+      final AddMonthlyBalanceCommand command)
+      throws AccountBusinessException {
+    monthlyBalanceDomain.assignOfficialMonthlyReport(
+        command.closingBalance(),
+        command.monthlyProfitReported(),
+        command.incomeWithholdingTaxAmount());
+    return toDTO(monthlyBalanceDomain);
+  }
+
+  @Override
+  public void saveBalance(final MonthlyBalanceDTO accountMonthlyBalance) {
+    writerRepo.saveBalance(accountMonthlyBalance);
   }
 
   @Override
@@ -174,6 +187,11 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
     LOG.info("Its period {} the last official report: {}", currentPeriod, isLastOfficialReport);
     return isLastOfficialReport;
+  }
+
+  @Override
+  public Optional<MonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
+    return queryRepo.findLastOfficialReport(accountId);
   }
 
   @Override
@@ -256,6 +274,18 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
           return updatedBalances;
         });
+  }
+
+  @Override
+  public List<MonthlyBalanceDTO> saveMultiBalances(
+      final List<MonthlyBalanceDTO> accountMonthlyBalance) {
+    LOG.info(
+        "Persisting in database Monthly Balances {}",
+        accountMonthlyBalance.stream().map(MonthlyBalanceDTO::period).toList());
+    final List<MonthlyBalanceDTO> savedBalances =
+        writerRepo.saveMultiBalances(accountMonthlyBalance);
+    LOG.info("Monthly Balances persisted successfully");
+    return savedBalances;
   }
 
   /**
@@ -363,6 +393,18 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
     return profitBalancesSyncedDto;
   }
 
+  @Override
+  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final AccountId accountId) {
+    // TODO: Check if it's necessary to return until the current period
+    return queryRepo.findAllByAccountIdUntilNow(accountId);
+  }
+
+  @Override
+  public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
+      final AccountId accountId, final YearMonth currentPeriod) {
+    return queryRepo.findNextBalancesFromPeriodInclusive(accountId, currentPeriod);
+  }
+
   private boolean isAvailablePeriod(
       final YearMonth now, final YearMonth currentPeriod, final YearMonth endPeriod) {
     return currentPeriod.isBefore(getEdgePeriod(now))
@@ -371,47 +413,5 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
   private YearMonth getEdgePeriod(final YearMonth now) {
     return now.plusMonths(1);
-  }
-
-  private MonthlyBalanceDTO assignOfficialReport(
-      final AccountMonthlyBalanceDomain monthlyBalanceDomain,
-      final AddMonthlyBalanceCommand command)
-      throws AccountBusinessException {
-    monthlyBalanceDomain.assignOfficialMonthlyReport(
-        command.closingBalance(),
-        command.monthlyProfitReported(),
-        command.incomeWithholdingTaxAmount());
-    return toDTO(monthlyBalanceDomain);
-  }
-
-  @Override
-  public void saveBalance(final MonthlyBalanceDTO accountMonthlyBalance) {
-    writerRepo.saveBalance(accountMonthlyBalance);
-  }
-
-  @Override
-  public List<MonthlyBalanceDTO> saveMultiBalances(
-      final List<MonthlyBalanceDTO> accountMonthlyBalance) {
-    LOG.info(
-        "Persisting in database Monthly Balances {}",
-        accountMonthlyBalance.stream().map(MonthlyBalanceDTO::period).toList());
-    final List<MonthlyBalanceDTO> savedBalances =
-        writerRepo.saveMultiBalances(accountMonthlyBalance);
-    LOG.info("Monthly Balances persisted successfully");
-    return savedBalances;
-  }
-
-  private static boolean isMonthOfficiallyReportedValid(
-      final MonthlyBalanceDTO existingMonthlyBalance, final BigDecimal balanceSnapshot)
-      throws AccountBusinessException {
-    final boolean isMonthOfficiallyReported = existingMonthlyBalance.officialMonthlyReport();
-    if (isMonthOfficiallyReported && balanceSnapshot != null) {
-      throw new AccountBusinessException(
-          "Cannot add a snapshot after the monthly balance was officially reported",
-          new JbhExceptionMessage(
-              "Cannot add a snapshot after the monthly balance was officially reported",
-              "No se puede añadir un snapshot después de que el balance anual fue reportado"));
-    }
-    return isMonthOfficiallyReported;
   }
 }
