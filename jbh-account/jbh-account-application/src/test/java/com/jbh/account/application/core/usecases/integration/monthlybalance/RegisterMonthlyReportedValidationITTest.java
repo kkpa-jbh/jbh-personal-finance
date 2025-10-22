@@ -1,18 +1,17 @@
 package com.jbh.account.application.core.usecases.integration.monthlybalance;
 
-import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createBasicAccountCommand;
+import static com.jbh.account.application.builders.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 
+import com.jbh.account.application.builders.UseCaseBuilder;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
-import com.jbh.account.application.core.usecases.UseCaseBuilder;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
-import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
 import com.jbh.account.application.core.vo.commands.MonthlyBalanceCommandVO;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;

@@ -1,9 +1,6 @@
 package com.jbh.account.application.core.usecases.integration.movements;
 
-import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createBasicAccountCommand;
-import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createInitialBalance;
-import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createMovementWithSnapshot;
-import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createMovement;
+import static com.jbh.account.application.builders.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
@@ -12,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jbh.account.application.builders.UseCaseBuilder;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
@@ -19,10 +17,8 @@ import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceSe
 import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
-import com.jbh.account.application.core.usecases.UseCaseBuilder;
 import com.jbh.account.application.core.usecases.integration.monthlybalance.RegisterMonthlyReportedWithoutProfitITTest;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;

@@ -1,7 +1,7 @@
-package com.jbh.account.application.core.usecases.utils;
+package com.jbh.account.application.builders;
 
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
+import com.jbh.account.application.core.vo.commands.CreateAccountCommand;
 import com.jbh.account.domain.vo.AccountMetadataKey;
 import com.jbh.account.domain.vo.AccountType;
 import com.jbh.account.domain.vo.ExpenseCategory;
@@ -30,9 +30,9 @@ public class CommandTestBuilder {
    * @param type the account type
    * @return a CreateBasicAccountCommand
    */
-  public static CreateBasicAccountCommand createBasicAccountCommand(
+  public static CreateAccountCommand createBasicAccountCommand(
       final UUID userId, final String name, final AccountType type) {
-    return new CreateBasicAccountCommand(userId, name, type, Map.of());
+    return new CreateAccountCommand(userId, name, type, Map.of());
   }
 
   /**
@@ -44,12 +44,12 @@ public class CommandTestBuilder {
    * @param metadata the account metadata
    * @return a CreateBasicAccountCommand
    */
-  public static CreateBasicAccountCommand createBasicAccountCommand(
+  public static CreateAccountCommand createBasicAccountCommand(
       final UUID userId,
       final String name,
       final AccountType type,
       final Map<AccountMetadataKey, Object> metadata) {
-    return new CreateBasicAccountCommand(userId, name, type, metadata);
+    return new CreateAccountCommand(userId, name, type, metadata);
   }
 
   /**
@@ -59,9 +59,9 @@ public class CommandTestBuilder {
    * @param type the account type
    * @return a CreateBasicAccountCommand
    */
-  public static CreateBasicAccountCommand createBasicAccountCommand(
+  public static CreateAccountCommand createBasicAccountCommand(
       final UUID userId, final AccountType type) {
-    return new CreateBasicAccountCommand(userId, DEFAULT_ACCOUNT_NAME, type, Map.of());
+    return new CreateAccountCommand(userId, DEFAULT_ACCOUNT_NAME, type, Map.of());
   }
 
   /**
@@ -73,7 +73,7 @@ public class CommandTestBuilder {
    * @param paymentDueDay the payment due day
    * @return a CreateBasicAccountCommand configured for credit card
    */
-  public static CreateBasicAccountCommand createCreditCardCommand(
+  public static CreateAccountCommand createCreditCardCommand(
       final UUID userId,
       final String name,
       final BigDecimal creditLimit,
@@ -81,7 +81,7 @@ public class CommandTestBuilder {
     final Map<AccountMetadataKey, Object> metadata = new HashMap<>();
     metadata.put(AccountMetadataKey.CREDIT_LIMIT, creditLimit);
     metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY, paymentDueDay);
-    return new CreateBasicAccountCommand(userId, name, AccountType.CREDIT_CARD, metadata);
+    return new CreateAccountCommand(userId, name, AccountType.CREDIT_CARD, metadata);
   }
 
   /**
@@ -92,11 +92,11 @@ public class CommandTestBuilder {
    * @param brokerName the broker name
    * @return a CreateBasicAccountCommand configured for investment
    */
-  public static CreateBasicAccountCommand createInvestmentCommand(
+  public static CreateAccountCommand createInvestmentCommand(
       final UUID userId, final String name, final String brokerName) {
     final Map<AccountMetadataKey, Object> metadata = new HashMap<>();
     metadata.put(AccountMetadataKey.BROKER_NAME, brokerName);
-    return new CreateBasicAccountCommand(userId, name, AccountType.INVESTMENT, metadata);
+    return new CreateAccountCommand(userId, name, AccountType.INVESTMENT, metadata);
   }
 
   // ==================== AddMovementCommand Factory Methods ====================
@@ -117,7 +117,8 @@ public class CommandTestBuilder {
       final BigDecimal balanceSnapshot,
       final MovementType movementType,
       final MovementCategoryDTO categoryDTO) {
-    return new AddMovementCommand(entryDate, totalAmount, balanceSnapshot, movementType, categoryDTO);
+    return new AddMovementCommand(
+        entryDate, totalAmount, balanceSnapshot, movementType, categoryDTO);
   }
 
   /**
@@ -242,8 +243,7 @@ public class CommandTestBuilder {
    * @param amount the transfer amount
    * @return an AddMovementCommand for transfer in
    */
-  public static AddMovementCommand createTransferIn(
-      final LocalDate date, final BigDecimal amount) {
+  public static AddMovementCommand createTransferIn(final LocalDate date, final BigDecimal amount) {
     return new AddMovementCommand(
         date, amount, MovementCategoryDTO.withType(IncomeCategory.TRANSFER));
   }

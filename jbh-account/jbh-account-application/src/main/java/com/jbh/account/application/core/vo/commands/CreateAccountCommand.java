@@ -6,12 +6,12 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
-public record CreateBasicAccountCommand(
+public record CreateAccountCommand(
     UUID userId, String name, AccountType type, Map<AccountMetadataKey, Object> metadata)
     implements CommandValidator {
 
   // Convenience constructor for backward compatibility
-  public CreateBasicAccountCommand(final UUID userId, final String name, final AccountType type) {
+  public CreateAccountCommand(final UUID userId, final String name, final AccountType type) {
     this(userId, name, type, Collections.emptyMap());
   }
 
@@ -26,7 +26,7 @@ public record CreateBasicAccountCommand(
   metadata.put(CREDIT_LIMIT, 10000);  // ⚠️ Modifies the command's internal state!
    */
   @SuppressWarnings("PMD.UnusedAssignment")
-  public CreateBasicAccountCommand {
+  public CreateAccountCommand {
     if (userId == null) {
       throw new IllegalArgumentException("User ID cannot be null");
     }

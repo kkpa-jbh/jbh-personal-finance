@@ -7,7 +7,6 @@ public enum AccountMetadataKey {
 
   // Investment Input Metadata
   BROKER_NAME,
-  ACCOUNT_NUMBER,
 
   // System Calculated Metadata (all types)
   FULLY_WITHDRAWN,

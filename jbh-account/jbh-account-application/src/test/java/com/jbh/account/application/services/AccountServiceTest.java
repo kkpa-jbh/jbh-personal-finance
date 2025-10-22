@@ -4,8 +4,8 @@ import static com.jbh.account.domain.entity.MovementCategoryDomain.OTHER_INCOME_
 import static com.jbh.account.domain.entity.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.jbh.account.application.builders.UseCaseBuilder;
 import com.jbh.account.application.core.services.account.AccountService;
-import com.jbh.account.application.core.usecases.UseCaseBuilder;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.MovementCategoryDomain;

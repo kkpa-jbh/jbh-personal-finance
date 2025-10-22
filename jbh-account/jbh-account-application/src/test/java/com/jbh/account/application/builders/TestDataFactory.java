@@ -1,4 +1,4 @@
-package com.jbh.account.application.core.usecases.utils;
+package com.jbh.account.application.builders;
 
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;

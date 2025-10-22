@@ -1,6 +1,6 @@
 package com.jbh.account.application.core.usecases.mock;
 
-import static com.jbh.account.application.core.usecases.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
+import static com.jbh.account.application.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;

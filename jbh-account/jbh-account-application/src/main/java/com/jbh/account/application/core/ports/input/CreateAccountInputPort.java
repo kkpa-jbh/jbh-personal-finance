@@ -4,7 +4,7 @@ import com.jbh.account.application.common.logging.LoggerFactory;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
-import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
+import com.jbh.account.application.core.vo.commands.CreateAccountCommand;
 import com.jbh.account.domain.entity.AccountDomain;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -20,7 +20,7 @@ public class CreateAccountInputPort implements CreateAccountUseCase {
   }
 
   @Override
-  public AccountDTO execute(final CreateBasicAccountCommand command) {
+  public AccountDTO execute(final CreateAccountCommand command) {
 
     if (command == null) {
       throw new IllegalArgumentException("Command cannot be null");

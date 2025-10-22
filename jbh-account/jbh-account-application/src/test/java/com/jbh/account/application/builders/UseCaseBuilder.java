@@ -1,4 +1,4 @@
-package com.jbh.account.application.core.usecases;
+package com.jbh.account.application.builders;
 
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.core.ports.input.AddMovementInputPort;
@@ -15,6 +15,11 @@ import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
+import com.jbh.account.application.core.usecases.AddMovementUseCase;
+import com.jbh.account.application.core.usecases.AddTransferJbhAccountsUseCase;
+import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
+import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.vo.AccountType;

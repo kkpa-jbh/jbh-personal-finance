@@ -1,9 +1,9 @@
 package com.jbh.account.application.core.usecases.mock;
 
+import static com.jbh.account.application.builders.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.account.application.core.mappers.MonthlyBalanceMapper.toDomain;
 import static com.jbh.account.application.core.usecases.integration.monthlybalance.IgnoreOption.IGNORE_MONTHLY_PROFIT;
 import static com.jbh.account.application.core.usecases.integration.monthlybalance.IgnoreOption.IGNORE_OPENING_BALANCE;
-import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
@@ -18,6 +18,8 @@ import static org.mockito.Mockito.when;
 
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
+import com.jbh.account.application.builders.TestDataFactory;
+import com.jbh.account.application.builders.UseCaseBuilder;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.AddMultipleBasicMovementDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
@@ -30,11 +32,8 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.account.application.core.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
-import com.jbh.account.application.core.usecases.UseCaseBuilder;
-import com.jbh.account.application.core.usecases.utils.TestDataFactory;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
-import com.jbh.account.application.core.vo.commands.CreateBasicAccountCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;

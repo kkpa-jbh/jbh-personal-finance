@@ -1,8 +1,7 @@
 package com.jbh.account.application.core.usecases.mock;
 
-import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createMovement;
-import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createMovementWithSnapshot;
-import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createMovementWithType;
+import static com.jbh.account.application.builders.CommandTestBuilder.createMovement;
+import static com.jbh.account.application.builders.CommandTestBuilder.createMovementWithType;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.account.domain.vo.MovementType.DEPOSIT;
