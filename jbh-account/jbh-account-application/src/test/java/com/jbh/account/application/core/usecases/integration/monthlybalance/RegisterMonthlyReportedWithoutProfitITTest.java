@@ -5,6 +5,9 @@ import static com.jbh.account.application.core.usecases.UseCaseBuilder.DEFAULT_A
 import static com.jbh.account.application.core.usecases.utils.AccountITUtils.assertAccount;
 import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createInitialBalance;
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createMovement;
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createMovementWithSnapshot;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;

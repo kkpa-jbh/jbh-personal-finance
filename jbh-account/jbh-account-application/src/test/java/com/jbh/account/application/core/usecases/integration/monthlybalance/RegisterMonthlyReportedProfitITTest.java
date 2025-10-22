@@ -5,6 +5,7 @@ import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.account.application.core.usecases.utils.TestDataFactory.getAddMonthlyBalanceCommandsWithProfit;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createInitialBalance;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

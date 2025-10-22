@@ -2,6 +2,7 @@ package com.jbh.account.application.core.usecases.integration.movements;
 
 import static com.jbh.account.application.core.usecases.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
 import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createBasicAccountCommand;
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createInitialBalance;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

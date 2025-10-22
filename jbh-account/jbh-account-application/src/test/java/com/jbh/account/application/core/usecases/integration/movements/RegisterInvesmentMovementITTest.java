@@ -1,6 +1,9 @@
 package com.jbh.account.application.core.usecases.integration.movements;
 
 import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createBasicAccountCommand;
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createInitialBalance;
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createMovementWithSnapshot;
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createMovement;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;

@@ -12,6 +12,8 @@ import java.time.LocalDate;
  * @param totalAmount Positive always. Based on the movement type it will be interpreted as a
  *     deposit or a withdrawal
  * @param balanceSnapshot Current net flow after the movement (optional)
+ * @param movementType The type of movement
+ * @param categoryDTO The category of the movement
  */
 public record AddMovementCommand(
     LocalDate entryDate,

@@ -1,5 +1,8 @@
 package com.jbh.account.application.core.usecases.mock;
 
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createMovement;
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createMovementWithSnapshot;
+import static com.jbh.account.application.core.usecases.utils.CommandTestBuilder.createMovementWithType;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.account.domain.vo.MovementType.DEPOSIT;
@@ -98,7 +101,7 @@ public class RegisterMovementExecutionMockTest {
     final BigDecimal amount = new BigDecimal("100.00");
 
     final AddMovementCommand request =
-        new AddMovementCommand(movementDate, amount, DEPOSIT, OTHER_INCOME_CATEGORY);
+        createMovementWithType(movementDate, amount, DEPOSIT, OTHER_INCOME_CATEGORY);
     final AccountDomain accountDomain = withId(accountId);
 
     final var dto = Optional.of(AccountMapper.toDTO(accountDomain));
@@ -154,7 +157,7 @@ public class RegisterMovementExecutionMockTest {
     final BigDecimal balanceSnashot = new BigDecimal("200.00");
     final BigDecimal existingAccountPpalBalance = new BigDecimal("100.00");
     final AddMovementCommand request =
-        new AddMovementCommand(movementDate, null, balanceSnashot, BALANCE_SNAPSHOT, null);
+        createMovement(movementDate, null, balanceSnashot, BALANCE_SNAPSHOT, null);
 
     final AccountDomain accountDomain =
         AccountDomain.withBasicMovementForExisting(
@@ -192,8 +195,7 @@ public class RegisterMovementExecutionMockTest {
     final BigDecimal balanceSnapshot = new BigDecimal("35693653.00");
 
     final AddMovementCommand request =
-        new AddMovementCommand(
-            movementDate, amount, balanceSnapshot, DEPOSIT, OTHER_INCOME_CATEGORY);
+        createMovement(movementDate, amount, balanceSnapshot, DEPOSIT, OTHER_INCOME_CATEGORY);
 
     final BigDecimal existingMovBalance = new BigDecimal("12591000.00");
 
@@ -272,7 +274,7 @@ public class RegisterMovementExecutionMockTest {
     // When & Then
     final BigDecimal amount = new BigDecimal("100.00");
     final AddMovementCommand request =
-        new AddMovementCommand(movementDate, amount, DEPOSIT, OTHER_INCOME_CATEGORY);
+        createMovementWithType(movementDate, amount, DEPOSIT, OTHER_INCOME_CATEGORY);
     final AtomicReference<AddBasicMovementDTO> processedResponse = new AtomicReference<>();
     assertDoesNotThrow(
         () -> processedResponse.set(useCaseInstanceTest.addMovement(userId, accountId, request)));
