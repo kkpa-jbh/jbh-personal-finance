@@ -22,6 +22,10 @@ public final class AccountMovementMetadata {
     return new AccountMovementMetadata(data);
   }
 
+  public Map<AccountMovementMetadataKey, Object> asMap() {
+    return data;
+  }
+
   public boolean hasKey(final AccountMovementMetadataKey key) {
     return data.containsKey(key);
   }

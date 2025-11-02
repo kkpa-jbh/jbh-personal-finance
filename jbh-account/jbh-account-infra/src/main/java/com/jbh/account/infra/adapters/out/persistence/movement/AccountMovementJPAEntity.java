@@ -1,6 +1,11 @@
 package com.jbh.account.infra.adapters.out.persistence.movement;
 
 import com.jbh.account.application.core.dto.MovementDTO;
+import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountMovementId;
+import com.jbh.account.domain.vo.AccountMovementMetadata;
+import com.jbh.account.domain.vo.AccountMovementMetadataKey;
+import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.MovementType;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
@@ -54,7 +59,7 @@ public class AccountMovementJPAEntity extends PanacheEntityBase {
 
   @Type(JsonBinaryType.class)
   @Column(name = "metadata", columnDefinition = "jsonb")
-  public Map<String, Object> metadata;
+  public Map<AccountMovementMetadataKey, Object> metadata;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   public LocalDateTime createdAt;
@@ -68,7 +73,8 @@ public class AccountMovementJPAEntity extends PanacheEntityBase {
     entity.setMovementAmount(accountMovement.movementAmount());
     entity.setMovementDate(accountMovement.movementDate());
     entity.setBalanceSnapshot(accountMovement.balanceSnapshot());
-    entity.setMetadata(accountMovement.metadata());
+    entity.setMetadata(
+        accountMovement.metadata() != null ? accountMovement.metadata().asMap() : null);
     entity.setCategory(accountMovement.category().getType().getTypeName());
     entity.setDescription(accountMovement.description());
     entity.setCreatedAt(accountMovement.createdAt());
@@ -78,5 +84,20 @@ public class AccountMovementJPAEntity extends PanacheEntityBase {
   @PrePersist
   protected void onCreate() {
     createdAt = LocalDateTime.now();
+  }
+
+  public MovementDTO toDTO() {
+    return MovementDTO.builder()
+        .id(AccountMovementId.of(id))
+        .accountId(AccountId.of(accountId))
+        .movementType(movementType)
+        .category(MovementCategoryDTO.withName(movementType, category))
+        .movementAmount(movementAmount)
+        .movementDate(movementDate)
+        .balanceSnapshot(balanceSnapshot)
+        .metadata(metadata != null ? AccountMovementMetadata.of(metadata) : null)
+        .createdAt(createdAt)
+        .description(description)
+        .build();
   }
 }

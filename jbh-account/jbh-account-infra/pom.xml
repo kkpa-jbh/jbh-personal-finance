@@ -133,6 +133,11 @@
 
     <!-- JBH Dependencies -->
     <dependency>
+      <artifactId>jbh-account-domain</artifactId>
+      <groupId>com.jbh</groupId>
+    </dependency>
+
+    <dependency>
       <artifactId>jbh-account-application</artifactId>
       <groupId>com.jbh</groupId>
     </dependency>

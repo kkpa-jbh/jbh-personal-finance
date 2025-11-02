@@ -38,4 +38,8 @@ public enum MovementType {
   public boolean isDeposit() {
     return this == DEPOSIT;
   }
+
+  public boolean isWithdrawal() {
+    return this == WITHDRAWAL;
+  }
 }
