@@ -1,6 +1,7 @@
 package com.jbh.account.application.core.usecases.mock;
 
 import static com.jbh.account.application.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
+import static com.jbh.account.application.builders.UseCaseBuilder.movementQueryRepository;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
@@ -22,12 +23,14 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
+import com.jbh.account.application.core.services.movements.AccountMovementApplicationServiceImpl;
+import com.jbh.account.application.core.services.movements.AccountMovementService;
 import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
-import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;
@@ -50,11 +53,11 @@ public class RegisterMonthlyBalanceMockTest {
   final LocalDate runningDate = LocalDate.now();
   RegisterMonthlyBalanceUseCase useCaseInstanceTest;
 
-  AccountMovementServiceImpl accountMovementService;
+  AccountMovementApplicationServiceImpl accountMovementService;
   MonthlyBalanceService monthlyBalanceService;
   AccountService accountService;
   @Mock private AccountRepository accountRepository;
-  @Mock private AccountMovementRepository accountMovementRepository;
+  @Mock private AccountMovementWriterRepository accountMovementRepository;
   @Mock private AccountMonthlyBalanceQueryRepo monthlyBalanceQueryRepoMock;
   @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
 
@@ -76,9 +79,12 @@ public class RegisterMonthlyBalanceMockTest {
             new AsyncTaskExecutorImpl(),
             accountService);
 
+    final AccountMovementService coreAccountMovementService =
+        new AccountMovementServiceImpl(accountMovementRepository, movementQueryRepository);
+
     accountMovementService =
-        new AccountMovementServiceImpl(
-            accountMovementRepository,
+        new AccountMovementApplicationServiceImpl(
+            coreAccountMovementService,
             accountService,
             realMonthlyBalanceService,
             new UnitOfWorkTest());

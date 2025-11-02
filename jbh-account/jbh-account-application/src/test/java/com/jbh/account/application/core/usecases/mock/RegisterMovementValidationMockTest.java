@@ -2,6 +2,7 @@ package com.jbh.account.application.core.usecases.mock;
 
 import static com.jbh.account.application.builders.CommandTestBuilder.createExpense;
 import static com.jbh.account.application.builders.CommandTestBuilder.createMovement;
+import static com.jbh.account.application.builders.UseCaseBuilder.movementQueryRepository;
 import static com.jbh.account.application.core.usecases.mock.RegisterMovementExecutionMockTest.OTHER_INCOME_CATEGORY;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -14,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
+import com.jbh.account.application.builders.AccountEntityBuilder;
 import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.ports.input.AddMovementInputPort;
@@ -25,14 +27,16 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
+import com.jbh.account.application.core.services.movements.AccountMovementApplicationService;
+import com.jbh.account.application.core.services.movements.AccountMovementApplicationServiceImpl;
 import com.jbh.account.application.core.services.movements.AccountMovementService;
 import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.application.builders.AccountEntityBuilder;
-import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.utils.JbhMoneyUtils;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.ExpenseCategory;
@@ -54,11 +58,11 @@ public class RegisterMovementValidationMockTest {
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   MonthlyBalanceService monthlyBalanceService;
   @Mock private AccountRepository accountRepository;
-  @Mock private AccountMovementRepository accountMovementRepository;
+  @Mock private AccountMovementWriterRepository accountMovementRepository;
   @Mock private AccountMonthlyBalanceQueryRepo accountMonthlyBalanceRepository;
   @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
   private AddMovementInputPort registerSimpleMovementInputPort;
-  private AccountMovementService accountMovementService;
+  private AccountMovementApplicationService accountMovementService;
 
   @BeforeEach
   void setUp() {
@@ -75,9 +79,15 @@ public class RegisterMovementValidationMockTest {
     final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService =
         new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
 
+    final AccountMovementService coreAccountMovementService =
+        new AccountMovementServiceImpl(accountMovementRepository, movementQueryRepository);
+
     accountMovementService =
-        new AccountMovementServiceImpl(
-            accountMovementRepository, accountService, monthlyBalanceService, new UnitOfWorkTest());
+        new AccountMovementApplicationServiceImpl(
+            coreAccountMovementService,
+            accountService,
+            monthlyBalanceService,
+            new UnitOfWorkTest());
 
     registerSimpleMovementInputPort = new AddMovementInputPort(accountMovementService);
   }
@@ -94,9 +104,9 @@ public class RegisterMovementValidationMockTest {
         createExpense(movementDate, amount, ExpenseCategory.PERSONAL);
 
     // When & Then
-    final IllegalArgumentException exception =
+    final GenericSpecificationException exception =
         assertThrows(
-            IllegalArgumentException.class,
+            GenericSpecificationException.class,
             () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
 
     assertEquals("User ID cannot be null", exception.getMessage());
@@ -163,9 +173,9 @@ public class RegisterMovementValidationMockTest {
     when(accountRepository.findByUserAndAccountId(userId, accountId)).thenReturn(Optional.empty());
 
     // When & Then
-    final IllegalArgumentException exception =
+    final GenericSpecificationException exception =
         assertThrows(
-            IllegalArgumentException.class,
+            GenericSpecificationException.class,
             () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
 
     assertEquals("Account not found", exception.getMessage());

@@ -1,20 +1,33 @@
 package com.jbh.account.application.core.usecases.integration.accounts;
 
 import static com.jbh.account.application.builders.CommandTestBuilder.createBasicAccountCommand;
+import static com.jbh.account.application.builders.CommandTestBuilder.createCDTCommand;
 import static com.jbh.account.application.builders.CommandTestBuilder.createCreditCardCommand;
 import static com.jbh.account.application.builders.CommandTestBuilder.createInvestmentCommand;
+import static com.jbh.account.application.builders.UseCaseBuilder.addMovementUseCase;
+import static com.jbh.account.application.builders.UseCaseBuilder.delayTests;
+import static com.jbh.account.application.core.usecases.utils.AccountITUtils.assertAccount;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.jbh.account.application.builders.AccountEntityBuilder;
+import com.jbh.account.application.builders.CommandTestBuilder;
 import com.jbh.account.application.builders.UseCaseBuilder;
 import com.jbh.account.application.core.dto.AccountDTO;
+import com.jbh.account.application.core.mappers.AccountMapper;
+import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.vo.commands.CreateAccountCommand;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountMetadataKey;
 import com.jbh.account.domain.vo.AccountType;
+import com.jbh.account.domain.vo.ExpenseCategory;
+import com.jbh.account.domain.vo.MovementCategoryDTO;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -25,21 +38,34 @@ public class CreateAccountITTest {
   static UUID userId = UUID.randomUUID();
   static BigDecimal creditLimit = new BigDecimal("1000000");
   private static CreateAccountUseCase createAccountUseCase;
+  private static InMemoryAccountRepository inMemoryAccountRepo;
 
   @BeforeEach
   public void setUp() {
     createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
+    inMemoryAccountRepo = UseCaseBuilder.getAccountRepository();
   }
 
   @Test
-  void accountCreationValidations() {
+  void accountCreationValidations() throws AccountBusinessException {
+    assertThrows(GenericSpecificationException.class, () -> createAccountUseCase.execute(null));
+    assertThrows(
+        GenericSpecificationException.class,
+        () -> createAccountUseCase.execute(createBasicAccountCommand(null, null, null)));
+    assertThrows(
+        GenericSpecificationException.class,
+        () -> createAccountUseCase.execute(createBasicAccountCommand(userId, null, null)));
+    assertThrows(
+        GenericSpecificationException.class,
+        () -> createAccountUseCase.execute(createBasicAccountCommand(userId, "Test", null)));
+
     // Test 1: Credit Card account WITHOUT required metadata should fail
     final CreateAccountCommand missingTagsCreditCardAccount =
         createBasicAccountCommand(userId, "Test Credit Card", AccountType.CREDIT_CARD);
 
-    final GenericSpecificationException exception =
+    final AccountBusinessException exception =
         assertThrows(
-            GenericSpecificationException.class,
+            AccountBusinessException.class,
             () -> createAccountUseCase.execute(missingTagsCreditCardAccount),
             "Expected creation to fail when CREDIT_CARD account is missing required metadata");
 
@@ -49,9 +75,9 @@ public class CreateAccountITTest {
     final CreateAccountCommand missingBrokerInvestmentAccount =
         createBasicAccountCommand(userId, "Test Investment", AccountType.INVESTMENT);
 
-    final GenericSpecificationException investmentException =
+    final AccountBusinessException investmentException =
         assertThrows(
-            GenericSpecificationException.class,
+            AccountBusinessException.class,
             () -> createAccountUseCase.execute(missingBrokerInvestmentAccount),
             "Expected creation to fail when INVESTMENT account is missing BROKER_NAME");
 
@@ -66,7 +92,7 @@ public class CreateAccountITTest {
     assertEquals("Test Savings", savingsAccountDTO.name());
     assertEquals(AccountType.SAVINGS, savingsAccountDTO.type());
 
-    // Test 4: CDT account WITHOUT metadata should succeed (no required metadata)
+    // Test 4: CDT account WITHOUT metadata should FAILS
     final CreateAccountCommand validCdtAccount =
         createBasicAccountCommand(userId, "Test CDT", AccountType.CDT);
 
@@ -82,25 +108,11 @@ public class CreateAccountITTest {
     final CreateAccountCommand invalidCommand =
         createCreditCardCommand(userId, "Test CDT", metadata);
     assertThrows(
-        GenericSpecificationException.class, () -> createAccountUseCase.execute(invalidCommand));
+        AccountBusinessException.class, () -> createAccountUseCase.execute(invalidCommand));
   }
 
   @Test
-  void createCreditCardAccount() {
-    // Credit Card WITH required metadata should succeed
-    final CreateAccountCommand validCreditCardCommand =
-        createCreditCardCommand(userId, "LULO Credit Card", creditLimit, 15);
-
-    final AccountDTO creditCardAccountDTO = createAccountUseCase.execute(validCreditCardCommand);
-
-    assertNotNull(creditCardAccountDTO);
-    assertEquals("LULO Credit Card", creditCardAccountDTO.name());
-    assertEquals(AccountType.CREDIT_CARD, creditCardAccountDTO.type());
-    assertNotNull(creditCardAccountDTO.id());
-  }
-
-  @Test
-  void createInvestmentAccount() {
+  void createInvestmentAccount() throws AccountBusinessException {
     // Investment WITH required metadata should succeed
     final CreateAccountCommand validInvestmentCommand =
         createInvestmentCommand(userId, "Fidelity Portfolio", "Fidelity");
@@ -120,7 +132,7 @@ public class CreateAccountITTest {
         createCreditCardCommand(userId, "Invalid Card", BigDecimal.ZERO, 15);
 
     assertThrows(
-        GenericSpecificationException.class,
+        AccountBusinessException.class,
         () -> createAccountUseCase.execute(invalidCreditLimitCommand),
         "Expected creation to fail when credit limit is zero");
   }
@@ -132,8 +144,78 @@ public class CreateAccountITTest {
         createCreditCardCommand(userId, "Invalid Card", creditLimit, 32); // Day 32 is invalid
 
     assertThrows(
-        GenericSpecificationException.class,
+        AccountBusinessException.class,
         () -> createAccountUseCase.execute(invalidPaymentDayCommand),
         "Expected creation to fail when payment due day is out of valid range (1-31)");
+  }
+
+  @Test
+  void createCreditCardAccount() throws AccountBusinessException {
+    // Credit Card WITH required metadata should succeed
+    final CreateAccountCommand validCreditCardCommand =
+        createCreditCardCommand(userId, "LULO Credit Card", creditLimit, 15);
+    final LocalDate mvmDate = LocalDate.of(2023, 1, 1);
+    final AccountDTO creditCardAccountDTO = createAccountUseCase.execute(validCreditCardCommand);
+
+    assertNotNull(creditCardAccountDTO);
+    assertEquals("LULO Credit Card", creditCardAccountDTO.name());
+    final var creditCardType = AccountType.CREDIT_CARD;
+    assertEquals(creditCardType, creditCardAccountDTO.type());
+    assertNotNull(creditCardAccountDTO.id());
+
+    final var personalExpense1 = new BigDecimal("100.00");
+    addMovementUseCase.addMovement(
+        userId,
+        creditCardAccountDTO.id(),
+        CommandTestBuilder.createMovement(
+            mvmDate, personalExpense1, MovementCategoryDTO.withType(ExpenseCategory.PERSONAL)));
+
+    AccountDTO updatedAccount =
+        inMemoryAccountRepo.findByAccountId(creditCardAccountDTO.id()).get();
+    assertNotNull(updatedAccount);
+    var expectedAccountBuilder =
+        AccountEntityBuilder.withBuilder(
+            creditCardAccountDTO.id(),
+            userId,
+            personalExpense1.negate(),
+            personalExpense1.negate(),
+            creditCardAccountDTO.name(),
+            creditCardType);
+
+    AccountDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
+
+    assertAccount(expectedAccount, updatedAccount);
+
+    delayTests();
+
+    final var publicServicesExpense1 = new BigDecimal("500.00");
+    addMovementUseCase.addMovement(
+        userId,
+        creditCardAccountDTO.id(),
+        CommandTestBuilder.createMovement(
+            mvmDate.plus(1, ChronoUnit.DAYS),
+            publicServicesExpense1,
+            MovementCategoryDTO.withType(ExpenseCategory.PUBLIC_SERVICES)));
+
+    updatedAccount = inMemoryAccountRepo.findByAccountId(creditCardAccountDTO.id()).get();
+
+    expectedAccountBuilder =
+        AccountEntityBuilder.withBuilder(
+            creditCardAccountDTO.id(),
+            userId,
+            personalExpense1.add(publicServicesExpense1).negate(),
+            personalExpense1.add(publicServicesExpense1).negate(),
+            creditCardAccountDTO.name(),
+            creditCardType);
+
+    expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
+
+    assertAccount(expectedAccount, updatedAccount);
+  }
+
+  @Test
+  public void createCDTAccount() throws AccountBusinessException {
+
+    createAccountUseCase.execute(createCDTCommand(userId, "My CDT", new HashMap<>()));
   }
 }

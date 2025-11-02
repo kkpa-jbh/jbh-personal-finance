@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountMovementMetadataKey;
 import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -61,10 +62,10 @@ public class AccountMovementTest {
             BALANCE_SNAPSHOT,
             importedAt);
 
-    assertTrue(newMovement.hasMetadata(AccountMovementDomain.FILE_IMPORT_TAG));
-    assertTrue(newMovement.hasMetadata(AccountMovementDomain.FILE_IMPORTED_AT_TAG));
+    assertTrue(newMovement.hasMetadata(AccountMovementMetadataKey.FILE_IMPORTED_AT_TAG));
+    assertTrue(newMovement.hasMetadata(AccountMovementMetadataKey.FILE_IMPORTED_AT_TAG));
     assertEquals(
-        importedAt, newMovement.getMetadataField(AccountMovementDomain.FILE_IMPORTED_AT_TAG));
+        importedAt, newMovement.getMetadataField(AccountMovementMetadataKey.FILE_IMPORTED_AT_TAG));
     assertEquals(BALANCE_SNAPSHOT, newMovement.getMovementType());
   }
 

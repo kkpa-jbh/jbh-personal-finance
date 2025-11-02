@@ -7,11 +7,11 @@ import com.jbh.account.domain.calculators.MoneyGrowthCalculator;
 import com.jbh.account.domain.calculators.MoneyWeightedReturnCalculator;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.account.domain.utils.JbhBooleanUtils;
 import com.jbh.account.domain.utils.JbhMoneyUtils;
-import com.jbh.account.domain.validation.AccountCreationValidator;
-import com.jbh.account.domain.validation.AccountValidatorFactory;
+import com.jbh.account.domain.validation.account.creation.AccountCreationValidator;
+import com.jbh.account.domain.validation.account.creation.AccountCreationValidatorFactory;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountMetadata;
 import com.jbh.account.domain.vo.AccountMetadataKey;
 import com.jbh.account.domain.vo.AccountType;
 import java.math.BigDecimal;
@@ -48,15 +48,13 @@ public class AccountDomain {
   /** Net growth rate is the rate of change of the net profit balance for the account. */
   protected BigDecimal netGrowthRate = JBH_ZERO;
 
-  protected Map<String, Object> metadata = new HashMap<>();
+  protected AccountMetadata metadata = AccountMetadata.empty();
 
-  private AccountDomain(final AccountId id, final UUID userId) {
-    this.userId = userId;
-    this.id = id;
-  }
-
-  public AccountDomain() {
+  private AccountDomain(final String name, final AccountType type, final UUID userId) {
     this.id = AccountId.generate();
+    this.name = name;
+    this.type = type;
+    this.userId = userId;
   }
 
   public AccountDomain(
@@ -83,7 +81,7 @@ public class AccountDomain {
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.netGrowthRate = netGrowthRate;
-    this.metadata = metadata;
+    this.metadata = AccountMetadata.of(metadata);
   }
 
   /**
@@ -105,21 +103,22 @@ public class AccountDomain {
       throws AccountBusinessException {
 
     // Validate metadata based on account type BEFORE creating the domain object
-    final AccountCreationValidator validator = AccountValidatorFactory.getValidator(type);
-    validator.validate(metadata != null ? metadata : new HashMap<>());
+    final AccountCreationValidator validator = getValidator(type);
+    validator.validateMetadata(metadata != null ? metadata : new HashMap<>());
 
     // Only create the object if validation passes
-    final AccountDomain accountDomain = new AccountDomain();
-    accountDomain.name = name;
-    accountDomain.type = type;
-    accountDomain.userId = userId;
+    final AccountDomain accountDomain = new AccountDomain(name, type, userId);
 
     // Set metadata if provided
     if (metadata != null && !metadata.isEmpty()) {
-      accountDomain.metadata = new HashMap<>(metadata);
+      accountDomain.metadata = AccountMetadata.of(metadata);
     }
 
     return accountDomain;
+  }
+
+  private static AccountCreationValidator getValidator(final AccountType type) {
+    return AccountCreationValidatorFactory.getValidator(type);
   }
 
   public void syncBalancesByMovement(
@@ -138,15 +137,7 @@ public class AccountDomain {
 
   private void validateInsufficientNetFlow(final AccountMovementDomain movement)
       throws AccountBusinessException {
-    final BigDecimal mvmtAmount = movement.getMovementAmount();
-    final boolean isNegativeAmount = mvmtAmount != null && mvmtAmount.signum() < 0;
-    if (isNegativeAmount) {
-      final BigDecimal possibleCurrentBalance = this.currentBalance.add(mvmtAmount);
-      final boolean isNegativeCurrentBalance = possibleCurrentBalance.signum() < 0;
-      if (isNegativeCurrentBalance) {
-        throw new AccountBusinessException(BusinessDomainExceptionType.INSUFFICIENT_FUNDS);
-      }
-    }
+    getValidator(this.type).validateInsufficientNetFlow(this, movement);
   }
 
   /**
@@ -232,7 +223,7 @@ public class AccountDomain {
   }
 
   private void addMetadata(final AccountMetadataKey key, final Object value) {
-    metadata.put(key.name(), value);
+    metadata.put(key, value);
   }
 
   public void setCalculatedMoneyGrowthRate(
@@ -242,16 +233,15 @@ public class AccountDomain {
   }
 
   public boolean isFullyWithdrawn() {
-    return hasMetadata(AccountMetadataKey.FULLY_WITHDRAWN)
-        && JbhBooleanUtils.isTrue(getMetadataField(AccountMetadataKey.FULLY_WITHDRAWN));
+    return metadata.isFullyWithdrawn();
   }
 
   public boolean hasMetadata(final AccountMetadataKey key) {
-    return metadata != null && metadata.containsKey(key.name());
+    return metadata.hasKey(key);
   }
 
   public Object getMetadataField(final AccountMetadataKey key) {
-    return metadata != null ? metadata.get(key.name()) : null;
+    return metadata.get(key);
   }
 
   public void setCurrentBalance(final BigDecimal closingBalance) {

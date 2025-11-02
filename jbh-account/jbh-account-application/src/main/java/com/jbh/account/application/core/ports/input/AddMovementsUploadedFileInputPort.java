@@ -1,7 +1,5 @@
 package com.jbh.account.application.core.ports.input;
 
-import static com.jbh.account.application.core.mappers.AccountMapper.toDomain;
-
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.common.logging.LoggerFactory;
 import com.jbh.account.application.core.dto.AccountDTO;
@@ -12,7 +10,7 @@ import com.jbh.account.application.core.services.MonthlyBalanceSyncForUploadedMo
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
-import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
@@ -28,14 +26,14 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
   private static final Logger LOG =
       LoggerFactory.getLogger(AddMovementsUploadedFileInputPort.class);
 
-  private final AccountMovementRepository movementRepo;
+  private final AccountMovementWriterRepository movementRepo;
   private final AccountService accountService;
   private final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService;
   private final UnitOfWork unitOfWork;
 
   public AddMovementsUploadedFileInputPort(
       final AccountService accountService,
-      final AccountMovementRepository movementRepo,
+      final AccountMovementWriterRepository movementRepo,
       final UnitOfWork unitOfWork,
       final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService) {
     this.movementRepo = movementRepo;
@@ -115,7 +113,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
                   return new IllegalArgumentException("Account not found");
                 });
 
-    return toDomain(accountDTO);
+    return accountDTO.toDomain();
   }
 
   private List<AccountMovementDomain> mapCommandToDomain(

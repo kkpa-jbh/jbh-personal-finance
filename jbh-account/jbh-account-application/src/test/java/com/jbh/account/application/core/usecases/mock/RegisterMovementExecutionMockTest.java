@@ -2,6 +2,7 @@ package com.jbh.account.application.core.usecases.mock;
 
 import static com.jbh.account.application.builders.CommandTestBuilder.createMovement;
 import static com.jbh.account.application.builders.CommandTestBuilder.createMovementWithType;
+import static com.jbh.account.application.builders.UseCaseBuilder.movementQueryRepository;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.account.domain.vo.MovementType.DEPOSIT;
@@ -14,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
+import com.jbh.account.application.builders.AccountEntityBuilder;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.AddBasicMovementDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
@@ -27,12 +29,13 @@ import com.jbh.account.application.core.services.MonthlyBalanceSyncForUploadedMo
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
+import com.jbh.account.application.core.services.movements.AccountMovementApplicationService;
+import com.jbh.account.application.core.services.movements.AccountMovementApplicationServiceImpl;
 import com.jbh.account.application.core.services.movements.AccountMovementService;
 import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.application.builders.AccountEntityBuilder;
-import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.IncomeCategory;
@@ -58,14 +61,14 @@ public class RegisterMovementExecutionMockTest {
   public static final MovementCategoryDTO OTHER_INCOME_CATEGORY =
       MovementCategoryDTO.withType(IncomeCategory.OTHER);
   static UUID userId = UUID.randomUUID();
-  private static AccountMovementService accountMovementService;
+  private static AccountMovementApplicationService accountMovementService;
   private static AccountService accountService;
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   private final Logger log = LoggerFactory.getLogger(RegisterMovementExecutionMockTest.class);
   MonthlyBalanceSyncForUploadedMovements monthlyBalanceAsyncTask;
   LocalDate movementDate = LocalDate.now();
   @Mock private AccountRepository accountRepository;
-  @Mock private AccountMovementRepository accountMovementRepository;
+  @Mock private AccountMovementWriterRepository accountMovementRepository;
   @Mock private AccountMonthlyBalanceQueryRepo accountMonthlyBalanceRepository;
   @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
   private AddMovementInputPort useCaseInstanceTest;
@@ -86,9 +89,12 @@ public class RegisterMovementExecutionMockTest {
             accountService);
     monthlyBalanceAsyncTask = new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
 
+    final AccountMovementService coreAccountMovementService =
+        new AccountMovementServiceImpl(accountMovementRepository, movementQueryRepository);
+
     accountMovementService =
-        new AccountMovementServiceImpl(
-            accountMovementRepository, accountService, monthlyBalanceService, unitOfWork);
+        new AccountMovementApplicationServiceImpl(
+            coreAccountMovementService, accountService, monthlyBalanceService, unitOfWork);
     useCaseInstanceTest = new AddMovementInputPort(accountMovementService);
   }
 

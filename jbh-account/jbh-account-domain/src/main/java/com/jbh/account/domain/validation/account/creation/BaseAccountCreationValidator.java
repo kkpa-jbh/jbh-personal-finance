@@ -1,0 +1,26 @@
+package com.jbh.account.domain.validation.account.creation;
+
+import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.entity.AccountMovementDomain;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
+import java.math.BigDecimal;
+
+@SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
+public abstract class BaseAccountCreationValidator {
+
+  protected void defaultValidationInsufficientNetFlow(
+      final AccountDomain account, final AccountMovementDomain movement)
+      throws AccountBusinessException {
+    final BigDecimal currentBalance = account.getCurrentBalance();
+    final BigDecimal mvmtAmount = movement.getMovementAmount();
+    final boolean isNegativeAmount = mvmtAmount != null && mvmtAmount.signum() < 0;
+    if (isNegativeAmount) {
+      final BigDecimal possibleCurrentBalance = currentBalance.add(mvmtAmount);
+      final boolean isNegativeCurrentBalance = possibleCurrentBalance.signum() < 0;
+      if (isNegativeCurrentBalance) {
+        throw new AccountBusinessException(BusinessDomainExceptionType.INSUFFICIENT_FUNDS);
+      }
+    }
+  }
+}

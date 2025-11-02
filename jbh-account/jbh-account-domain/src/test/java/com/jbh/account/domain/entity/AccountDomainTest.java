@@ -11,6 +11,7 @@ import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountMetadataKey;
 import com.jbh.account.domain.vo.AccountMovementId;
+import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.AccountType;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
@@ -19,6 +20,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
@@ -67,6 +69,505 @@ public class AccountDomainTest {
     assertNotNull(accountDomain.getNetProfitBalance());
   }
 
+  // ========== SAVINGS ACCOUNT TESTS ==========
+
+  @Test
+  public void shouldCreateSavingsAccountWithEmptyMetadata() throws AccountBusinessException {
+    // Arrange
+    final String accountName = "My Savings Account";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+
+    // Act
+    final AccountDomain account =
+        AccountDomain.withMinimumDataForCreation(
+            accountName, AccountType.SAVINGS, testUserId, metadata);
+
+    // Assert
+    assertNotNull(account);
+    assertNotNull(account.getId());
+    assertEquals(accountName, account.getName());
+    assertEquals(AccountType.SAVINGS, account.getType());
+    assertEquals(testUserId, account.getUserId());
+    assertEquals(JBH_ZERO, account.getCurrentBalance());
+    assertEquals(JBH_ZERO, account.getMovementBalance());
+    assertEquals(JBH_ZERO, account.getNetProfitBalance());
+    assertTrue(account.isActive());
+    assertNotNull(account.getCreatedAt());
+  }
+
+  @Test
+  public void shouldCreateSavingsAccountWithNullMetadata() throws AccountBusinessException {
+    // Arrange
+    final String accountName = "Another Savings";
+    final UUID testUserId = UUID.randomUUID();
+
+    // Act
+    final AccountDomain account =
+        AccountDomain.withMinimumDataForCreation(
+            accountName, AccountType.SAVINGS, testUserId, null);
+
+    // Assert
+    assertNotNull(account);
+    assertEquals(accountName, account.getName());
+    assertEquals(AccountType.SAVINGS, account.getType());
+    assertEquals(testUserId, account.getUserId());
+  }
+
+  // ========== CDT ACCOUNT TESTS ==========
+
+  @Test
+  public void shouldCreateCdtAccountWithEmptyMetadata() throws AccountBusinessException {
+    // Arrange
+    final String accountName = "CDT Account";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+
+    // Act
+    final AccountDomain account =
+        AccountDomain.withMinimumDataForCreation(
+            accountName, AccountType.CDT, testUserId, metadata);
+
+    // Assert
+    assertNotNull(account);
+    assertNotNull(account.getId());
+    assertEquals(accountName, account.getName());
+    assertEquals(AccountType.CDT, account.getType());
+    assertEquals(testUserId, account.getUserId());
+    assertEquals(JBH_ZERO, account.getCurrentBalance());
+    assertEquals(JBH_ZERO, account.getMovementBalance());
+    assertEquals(JBH_ZERO, account.getNetProfitBalance());
+    assertTrue(account.isActive());
+  }
+
+  @Test
+  public void shouldCreateCdtAccountWithNullMetadata() throws AccountBusinessException {
+    // Arrange
+    final String accountName = "CDT Long Term";
+    final UUID testUserId = UUID.randomUUID();
+
+    // Act
+    final AccountDomain account =
+        AccountDomain.withMinimumDataForCreation(accountName, AccountType.CDT, testUserId, null);
+
+    // Assert
+    assertNotNull(account);
+    assertEquals(accountName, account.getName());
+    assertEquals(AccountType.CDT, account.getType());
+  }
+
+  @Test
+  public void shouldValidateCDTAccount() throws AccountBusinessException {
+    // Arrange
+    final String accountName = "CDT Long Term";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+    metadata.put(AccountMetadataKey.MATURITY_DATE.name(), null);
+    // Act
+    assertThrows(
+        AccountBusinessException.class,
+        () ->
+            AccountDomain.withMinimumDataForCreation(
+                accountName, AccountType.CDT, testUserId, metadata));
+
+    metadata.put(AccountMetadataKey.MATURITY_DATE.name(), "30/01/2025");
+    assertThrows(
+        AccountBusinessException.class,
+        () ->
+            AccountDomain.withMinimumDataForCreation(
+                accountName, AccountType.CDT, testUserId, metadata));
+
+    metadata.put(AccountMetadataKey.MATURITY_DATE.name(), LocalDate.of(2025, 1, 30));
+    final AccountDomain account =
+        AccountDomain.withMinimumDataForCreation(
+            accountName, AccountType.CDT, testUserId, metadata);
+    assertNotNull(account);
+  }
+
+  // ========== CREDIT CARD ACCOUNT VALIDATION TESTS ==========
+
+  @Test
+  public void shouldFailWhenCreditCardAccountMissingCreditLimit() {
+    // Arrange
+    final String accountName = "Credit Card Without Limit";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 15);
+    // Missing CREDIT_LIMIT
+
+    // Act & Assert
+    final AccountBusinessException exception =
+        assertThrows(
+            AccountBusinessException.class,
+            () ->
+                AccountDomain.withMinimumDataForCreation(
+                    accountName, AccountType.CREDIT_CARD, testUserId, metadata));
+
+    assertNotNull(exception.getMessage());
+  }
+
+  @Test
+  public void shouldFailWhenCreditCardAccountHasInvalidCreditLimitType() {
+    // Arrange
+    final String accountName = "Credit Card Invalid Type";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), "1000"); // String instead of BigDecimal
+    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 15);
+
+    // Act & Assert
+    final AccountBusinessException exception =
+        assertThrows(
+            AccountBusinessException.class,
+            () ->
+                AccountDomain.withMinimumDataForCreation(
+                    accountName, AccountType.CREDIT_CARD, testUserId, metadata));
+
+    assertNotNull(exception.getMessage());
+  }
+
+  @Test
+  public void shouldFailWhenCreditCardAccountHasZeroCreditLimit() {
+    // Arrange
+    final String accountName = "Credit Card Zero Limit";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), BigDecimal.ZERO);
+    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 15);
+
+    // Act & Assert
+    final AccountBusinessException exception =
+        assertThrows(
+            AccountBusinessException.class,
+            () ->
+                AccountDomain.withMinimumDataForCreation(
+                    accountName, AccountType.CREDIT_CARD, testUserId, metadata));
+
+    assertNotNull(exception.getMessage());
+  }
+
+  @Test
+  public void shouldFailWhenCreditCardAccountHasNegativeCreditLimit() {
+    // Arrange
+    final String accountName = "Credit Card Negative Limit";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), new BigDecimal("-1000"));
+    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 15);
+
+    // Act & Assert
+    final AccountBusinessException exception =
+        assertThrows(
+            AccountBusinessException.class,
+            () ->
+                AccountDomain.withMinimumDataForCreation(
+                    accountName, AccountType.CREDIT_CARD, testUserId, metadata));
+
+    assertNotNull(exception.getMessage());
+  }
+
+  @Test
+  public void shouldFailWhenCreditCardAccountMissingPaymentDueDay() {
+    // Arrange
+    final String accountName = "Credit Card Without Due Day";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), new BigDecimal("10000"));
+    // Missing PAYMENT_DUE_DAY
+
+    // Act & Assert
+    final AccountBusinessException exception =
+        assertThrows(
+            AccountBusinessException.class,
+            () ->
+                AccountDomain.withMinimumDataForCreation(
+                    accountName, AccountType.CREDIT_CARD, testUserId, metadata));
+
+    assertNotNull(exception.getMessage());
+  }
+
+  @Test
+  public void shouldFailWhenCreditCardAccountHasInvalidPaymentDueDayType() {
+    // Arrange
+    final String accountName = "Credit Card Invalid Day Type";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), new BigDecimal("10000"));
+    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), "15"); // String instead of Integer
+
+    // Act & Assert
+    final AccountBusinessException exception =
+        assertThrows(
+            AccountBusinessException.class,
+            () ->
+                AccountDomain.withMinimumDataForCreation(
+                    accountName, AccountType.CREDIT_CARD, testUserId, metadata));
+
+    assertNotNull(exception.getMessage());
+  }
+
+  @Test
+  public void shouldFailWhenCreditCardAccountHasPaymentDueDayLessThanOne() {
+    // Arrange
+    final String accountName = "Credit Card Invalid Day Low";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), new BigDecimal("10000"));
+    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 0);
+
+    // Act & Assert
+    final AccountBusinessException exception =
+        assertThrows(
+            AccountBusinessException.class,
+            () ->
+                AccountDomain.withMinimumDataForCreation(
+                    accountName, AccountType.CREDIT_CARD, testUserId, metadata));
+
+    assertNotNull(exception.getMessage());
+  }
+
+  @Test
+  public void shouldFailWhenCreditCardAccountHasPaymentDueDayGreaterThan31() {
+    // Arrange
+    final String accountName = "Credit Card Invalid Day High";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), new BigDecimal("10000"));
+    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 32);
+
+    // Act & Assert
+    final AccountBusinessException exception =
+        assertThrows(
+            AccountBusinessException.class,
+            () ->
+                AccountDomain.withMinimumDataForCreation(
+                    accountName, AccountType.CREDIT_CARD, testUserId, metadata));
+
+    assertNotNull(exception.getMessage());
+  }
+
+  @Test
+  public void shouldFailWhenCreditCardAccountHasEmptyMetadata() {
+    // Arrange
+    final String accountName = "Credit Card Empty Metadata";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+
+    // Act & Assert
+    final AccountBusinessException exception =
+        assertThrows(
+            AccountBusinessException.class,
+            () ->
+                AccountDomain.withMinimumDataForCreation(
+                    accountName, AccountType.CREDIT_CARD, testUserId, metadata));
+
+    assertNotNull(exception.getMessage());
+  }
+
+  // ========== CREDIT CARD ACCOUNT SUCCESS TESTS ==========
+
+  @Test
+  public void shouldCreateCreditCardAccountWithValidMetadata() throws AccountBusinessException {
+    // Arrange
+    final String accountName = "LULO Credit Card";
+    final UUID testUserId = UUID.randomUUID();
+    final BigDecimal creditLimit = new BigDecimal("1000000");
+    final Map<String, Object> metadata = new HashMap<>();
+    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), creditLimit);
+    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 15);
+
+    // Act
+    final AccountDomain account =
+        AccountDomain.withMinimumDataForCreation(
+            accountName, AccountType.CREDIT_CARD, testUserId, metadata);
+
+    // Assert
+    assertNotNull(account);
+    assertNotNull(account.getId());
+    assertEquals(accountName, account.getName());
+    assertEquals(AccountType.CREDIT_CARD, account.getType());
+    assertEquals(testUserId, account.getUserId());
+    assertEquals(JBH_ZERO, account.getCurrentBalance());
+    assertEquals(JBH_ZERO, account.getMovementBalance());
+    assertEquals(JBH_ZERO, account.getNetProfitBalance());
+    assertTrue(account.isActive());
+    assertNotNull(account.getCreatedAt());
+    assertEquals(creditLimit, account.getMetadataField(AccountMetadataKey.CREDIT_LIMIT));
+    assertEquals(15, account.getMetadataField(AccountMetadataKey.PAYMENT_DUE_DAY));
+  }
+
+  @Test
+  public void shouldCreateCreditCardAccountWithPaymentDueDayBoundaryValue1()
+      throws AccountBusinessException {
+    // Arrange - Test lower boundary (day 1)
+    final String accountName = "Credit Card Day 1";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), new BigDecimal("50000"));
+    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 1);
+
+    // Act
+    final AccountDomain account =
+        AccountDomain.withMinimumDataForCreation(
+            accountName, AccountType.CREDIT_CARD, testUserId, metadata);
+
+    // Assert
+    assertNotNull(account);
+    assertEquals(1, account.getMetadataField(AccountMetadataKey.PAYMENT_DUE_DAY));
+  }
+
+  @Test
+  public void shouldCreateCreditCardAccountWithPaymentDueDayBoundaryValue31()
+      throws AccountBusinessException {
+    // Arrange - Test upper boundary (day 31)
+    final String accountName = "Credit Card Day 31";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), new BigDecimal("50000"));
+    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 31);
+
+    // Act
+    final AccountDomain account =
+        AccountDomain.withMinimumDataForCreation(
+            accountName, AccountType.CREDIT_CARD, testUserId, metadata);
+
+    // Assert
+    assertNotNull(account);
+    assertEquals(31, account.getMetadataField(AccountMetadataKey.PAYMENT_DUE_DAY));
+  }
+
+  // ========== INVESTMENT ACCOUNT VALIDATION TESTS ==========
+
+  @Test
+  public void shouldFailWhenInvestmentAccountMissingBrokerName() {
+    // Arrange
+    final String accountName = "Investment Without Broker";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+    // Missing BROKER_NAME
+
+    // Act & Assert
+    final AccountBusinessException exception =
+        assertThrows(
+            AccountBusinessException.class,
+            () ->
+                AccountDomain.withMinimumDataForCreation(
+                    accountName, AccountType.INVESTMENT, testUserId, metadata));
+
+    assertNotNull(exception.getMessage());
+  }
+
+  @Test
+  public void shouldFailWhenInvestmentAccountHasNullBrokerName() {
+    // Arrange
+    final String accountName = "Investment Null Broker";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+    metadata.put(AccountMetadataKey.BROKER_NAME.name(), null);
+
+    // Act & Assert
+    final AccountBusinessException exception =
+        assertThrows(
+            AccountBusinessException.class,
+            () ->
+                AccountDomain.withMinimumDataForCreation(
+                    accountName, AccountType.INVESTMENT, testUserId, metadata));
+
+    assertNotNull(exception.getMessage());
+  }
+
+  @Test
+  public void shouldFailWhenInvestmentAccountHasBlankBrokerName() {
+    // Arrange
+    final String accountName = "Investment Blank Broker";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+    metadata.put(AccountMetadataKey.BROKER_NAME.name(), "   ");
+
+    // Act & Assert
+    final AccountBusinessException exception =
+        assertThrows(
+            AccountBusinessException.class,
+            () ->
+                AccountDomain.withMinimumDataForCreation(
+                    accountName, AccountType.INVESTMENT, testUserId, metadata));
+
+    assertNotNull(exception.getMessage());
+  }
+
+  @Test
+  public void shouldFailWhenInvestmentAccountHasEmptyBrokerName() {
+    // Arrange
+    final String accountName = "Investment Empty Broker";
+    final UUID testUserId = UUID.randomUUID();
+    final Map<String, Object> metadata = new HashMap<>();
+    metadata.put(AccountMetadataKey.BROKER_NAME.name(), "");
+
+    // Act & Assert
+    final AccountBusinessException exception =
+        assertThrows(
+            AccountBusinessException.class,
+            () ->
+                AccountDomain.withMinimumDataForCreation(
+                    accountName, AccountType.INVESTMENT, testUserId, metadata));
+
+    assertNotNull(exception.getMessage());
+  }
+
+  // ========== INVESTMENT ACCOUNT SUCCESS TESTS ==========
+
+  @Test
+  public void shouldCreateInvestmentAccountWithValidBrokerName() throws AccountBusinessException {
+    // Arrange
+    final String accountName = "Fidelity Portfolio";
+    final UUID testUserId = UUID.randomUUID();
+    final String brokerName = "Fidelity";
+    final Map<String, Object> metadata = new HashMap<>();
+    metadata.put(AccountMetadataKey.BROKER_NAME.name(), brokerName);
+    metadata.put(AccountMetadataKey.COMMISSION_RATE.name(), JBH_ZERO);
+
+    // Act
+    final AccountDomain account =
+        AccountDomain.withMinimumDataForCreation(
+            accountName, AccountType.INVESTMENT, testUserId, metadata);
+
+    // Assert
+    assertNotNull(account);
+    assertNotNull(account.getId());
+    assertEquals(accountName, account.getName());
+    assertEquals(AccountType.INVESTMENT, account.getType());
+    assertEquals(testUserId, account.getUserId());
+    assertEquals(JBH_ZERO, account.getCurrentBalance());
+    assertEquals(JBH_ZERO, account.getMovementBalance());
+    assertEquals(JBH_ZERO, account.getNetProfitBalance());
+    assertTrue(account.isActive());
+    assertNotNull(account.getCreatedAt());
+    assertEquals(brokerName, account.getMetadataField(AccountMetadataKey.BROKER_NAME));
+  }
+
+  @Test
+  public void shouldCreateInvestmentAccountWithDifferentBrokerNames()
+      throws AccountBusinessException {
+    // Arrange
+    final UUID testUserId = UUID.randomUUID();
+    final String[] brokerNames = {"Charles Schwab", "Vanguard", "Interactive Brokers"};
+
+    for (final String brokerName : brokerNames) {
+      final Map<String, Object> metadata = new HashMap<>();
+      metadata.put(AccountMetadataKey.COMMISSION_RATE.name(), new BigDecimal("1.30"));
+      metadata.put(AccountMetadataKey.BROKER_NAME.name(), brokerName);
+
+      // Act
+      final AccountDomain account =
+          AccountDomain.withMinimumDataForCreation(
+              brokerName + " Account", AccountType.INVESTMENT, testUserId, metadata);
+
+      // Assert
+      assertNotNull(account);
+      assertEquals(brokerName, account.getMetadataField(AccountMetadataKey.BROKER_NAME));
+    }
+  }
+
   @Test
   public void shouldCreateWithBasicMovementForExisting() {
     final var movementBalance = new BigDecimal("100.00");
@@ -109,7 +610,7 @@ public class AccountDomainTest {
             movementAmount,
             LocalDate.now(),
             null,
-            new HashMap<>());
+            AccountMovementMetadata.createEmpty());
 
     accountDomain.syncBalancesByMovement(movement, false);
 
@@ -127,7 +628,7 @@ public class AccountDomainTest {
             new BigDecimal("-100.00"),
             LocalDate.now(),
             JBH_ZERO,
-            new HashMap<>());
+            AccountMovementMetadata.createEmpty());
     accountDomain.syncBalancesByMovement(withdrawalMovement, false);
     assertTrue(accountDomain.isFullyWithdrawn());
     assertTrue(accountDomain.hasMetadata(AccountMetadataKey.FULLY_WITHDRAWN));
@@ -146,7 +647,7 @@ public class AccountDomainTest {
             movementAmount,
             LocalDate.now(),
             JBH_ZERO,
-            new HashMap<>());
+            AccountMovementMetadata.createEmpty());
     assertThrows(
         AccountBusinessException.class,
         () -> accountDomain.syncBalancesByMovement(unknownMovement, false));

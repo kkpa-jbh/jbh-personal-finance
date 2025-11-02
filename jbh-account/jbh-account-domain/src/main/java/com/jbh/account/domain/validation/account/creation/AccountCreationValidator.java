@@ -1,7 +1,8 @@
-package com.jbh.account.domain.validation;
+package com.jbh.account.domain.validation.account.creation;
 
+import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountType;
 import java.util.Map;
 
 /**
@@ -21,12 +22,15 @@ public interface AccountCreationValidator {
    * @param metadata The metadata map for the account (keys are AccountMetadataKey.name())
    * @throws AccountBusinessException if validation fails with specific error type
    */
-  void validate(Map<String, Object> metadata) throws AccountBusinessException;
+  void validateMetadata(Map<String, Object> metadata) throws AccountBusinessException;
 
   /**
-   * Returns the account type this validator supports.
+   * Validates that the account movement is valid for the account type. @Param account The account
+   * to validate
    *
-   * @return The supported AccountType
+   * @param movement The movement to validate
+   * @throws AccountBusinessException if validation fails with specific error type
    */
-  AccountType supportedAccountType();
+  void validateInsufficientNetFlow(AccountDomain account, AccountMovementDomain movement)
+      throws AccountBusinessException;
 }

@@ -5,4 +5,6 @@ public interface CategoryType {
   CategorySource getSource();
 
   String getTypeName();
+
+  String getTranslationsKey();
 }

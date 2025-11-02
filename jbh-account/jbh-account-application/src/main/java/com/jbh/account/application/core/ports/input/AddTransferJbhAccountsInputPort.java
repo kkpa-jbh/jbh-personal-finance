@@ -2,7 +2,7 @@ package com.jbh.account.application.core.ports.input;
 
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.services.account.AccountService;
-import com.jbh.account.application.core.services.movements.AccountMovementService;
+import com.jbh.account.application.core.services.movements.AccountMovementApplicationService;
 import com.jbh.account.application.core.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.AddTransferCommand;
@@ -20,11 +20,12 @@ import org.slf4j.LoggerFactory;
 public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUseCase {
 
   private static final Logger LOG = LoggerFactory.getLogger(AddTransferJbhAccountsInputPort.class);
-  private final AccountMovementService accountMovementService;
+  private final AccountMovementApplicationService accountMovementService;
   private final AccountService accountService;
 
   public AddTransferJbhAccountsInputPort(
-      final AccountService accountService, final AccountMovementService accountMovementService) {
+      final AccountService accountService,
+      final AccountMovementApplicationService accountMovementService) {
 
     this.accountService = accountService;
     this.accountMovementService = accountMovementService;

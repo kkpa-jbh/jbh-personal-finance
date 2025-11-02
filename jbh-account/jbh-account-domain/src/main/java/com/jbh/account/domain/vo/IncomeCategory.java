@@ -1,5 +1,7 @@
 package com.jbh.account.domain.vo;
 
+import com.jbh.account.domain.utils.JbhStringUtils;
+
 /**
  * CHATGPT
  *
@@ -48,15 +50,22 @@ package com.jbh.account.domain.vo;
  * <p>Reimbursements (Work Expenses, Health Insurance)
  */
 public enum IncomeCategory implements CategoryType {
-  TRANSFER,
-  SALARY,
-  DIVIDENDS,
-  FREELANCE,
-  INVESTMENT,
-  RENTAL,
-  GIFT,
-  OTHER,
-  INITIAL_BALANCE;
+  TRANSFER("Transfer", "Transferencia"),
+  SALARY("Salary", "Salario"),
+  DIVIDENDS("Dividends", "Dividendos"),
+  FREELANCE("Freelance", "Freelance"),
+  INVESTMENT("Investment", "Inversión"),
+  RENTAL("Rental", "Renta"),
+  GIFT("Gift", "Regalo"),
+  OTHER("Other", "Otro"),
+  INITIAL_BALANCE("Initial Balance", "Saldo Inicial"),
+  DEPOSIT("Deposit", "Depósito");
+
+  private final String translationsKey;
+
+  IncomeCategory(final String englishTranslation, final String spanishTranslation) {
+    this.translationsKey = JbhStringUtils.buildJsonMessage(englishTranslation, spanishTranslation);
+  }
 
   public static CategoryType findByName(final String categoryName) {
     return IncomeCategory.valueOf(categoryName);
@@ -70,5 +79,15 @@ public enum IncomeCategory implements CategoryType {
   @Override
   public String getTypeName() {
     return this.name();
+  }
+
+  @Override
+  public String getTranslationsKey() {
+    return translationsKey;
+  }
+
+  @Override
+  public String toString() {
+    return "IncomeCategory{" + this.name() + "}";
   }
 }

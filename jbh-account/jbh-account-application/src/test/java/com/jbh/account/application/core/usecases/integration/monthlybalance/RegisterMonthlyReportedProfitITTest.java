@@ -14,19 +14,20 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.jbh.account.application.builders.EntityTestBuilder;
 import com.jbh.account.application.builders.UseCaseBuilder;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
-import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
+import com.jbh.account.application.core.services.movements.AccountMovementApplicationServiceImpl;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
@@ -69,15 +70,15 @@ public class RegisterMonthlyReportedProfitITTest {
   private static MonthlyBalanceDTO finalReported20249;
   private static AccountDTO finalAccountBalance;
   private static MonthlyBalanceDTO finalReported202410;
-  @Mock private static AccountMovementRepository accountMovementRepository;
-  AddMovementUseCase addMovementUseCase;
+  @Mock private static AccountMovementWriterRepository accountMovementRepository;
   RegisterMonthlyBalanceUseCase useCaseTest;
   YearMonth initialPeriod = YearMonth.of(2024, 7);
   LocalDate runningDate = LocalDate.now();
   BigDecimal FIRST_BALANCE_ZERO = withJBHDecimals(new BigDecimal("1000"));
   List<AddMonthlyBalanceCommand> monthlyCommands =
       getAddMonthlyBalanceCommandsWithProfit(initialPeriod, FIRST_BALANCE_ZERO);
-  AccountMovementServiceImpl accountMovementService;
+  AccountMovementApplicationServiceImpl accountMovementService;
+  private AddMovementUseCase addMovementUseCase;
 
   @BeforeAll
   static void beforeAll() {
@@ -91,7 +92,8 @@ public class RegisterMonthlyReportedProfitITTest {
 
     monthlyBalanceService = UseCaseBuilder.buildMonthlyBalanceService();
 
-    accountMovementService = UseCaseBuilder.buildAccountMovementService(accountMovementRepository);
+    accountMovementService =
+        UseCaseBuilder.buildAccountMovementApplicationService(accountMovementRepository);
 
     useCaseTest = UseCaseBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
 
@@ -165,7 +167,7 @@ public class RegisterMonthlyReportedProfitITTest {
     final var actualMonthlyBalance = savedMonthlyBalance.get();
     final var monthlyProfitReported = command.monthlyProfitReported();
     final var expectedMonthlyBalance =
-        MonthlyBalanceDTO.withClosingBalance(
+        EntityTestBuilder.withClosingBalance(
                 accountId,
                 command.monthlyPeriod(),
                 command.closingBalance().subtract(monthlyProfitReported))
@@ -215,7 +217,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
     final var previousDividends = previousCommand.monthlyProfitReported();
     final MonthlyBalanceDTO expectedMonthlyBalanceAfterMovement =
-        MonthlyBalanceDTO.withClosingBalance(accountId, period, snapshot2)
+        EntityTestBuilder.withClosingBalance(accountId, period, snapshot2)
             .totalDebits(deposit2.add(previousDividends))
             .openingBalance(previousCommand.closingBalance().subtract(previousDividends))
             .movementBalance(deposit2.add(previousDividends))
@@ -242,7 +244,7 @@ public class RegisterMonthlyReportedProfitITTest {
     final var closingBalanceWithProfit =
         getCurrentCommand().closingBalance().subtract(command.monthlyProfitReported());
     final MonthlyBalanceDTO expectedReportedBalance =
-        MonthlyBalanceDTO.withClosingBalance(accountId, period, closingBalanceWithProfit)
+        EntityTestBuilder.withClosingBalance(accountId, period, closingBalanceWithProfit)
             .officialMonthlyReport(true)
             .monthlyNetProfit(command.monthlyProfitReported())
             .monthlyReportedProfit(command.monthlyProfitReported())
@@ -320,7 +322,7 @@ public class RegisterMonthlyReportedProfitITTest {
         monthlyBalanceService.findByAccountIdAndPeriod(accountId, period).get();
 
     final MonthlyBalanceDTO expectedMonthlyBalanceAfterMovement =
-        MonthlyBalanceDTO.withClosingBalance(accountId, period, snapshotWithdrawal)
+        EntityTestBuilder.withClosingBalance(accountId, period, snapshotWithdrawal)
             .totalDebits(initialMonthlyBalance.totalDebits())
             .totalCredits(initialMonthlyBalance.totalCredits().add(withdrawal))
             .openingBalance(initialMonthlyBalance.openingBalance())
@@ -339,7 +341,7 @@ public class RegisterMonthlyReportedProfitITTest {
         monthlyBalanceService.findByAccountIdAndPeriod(accountId, period).get();
 
     final MonthlyBalanceDTO expectedMonthlyBalanceAfterMovement2 =
-        MonthlyBalanceDTO.withClosingBalance(accountId, period, snapshotDeposit)
+        EntityTestBuilder.withClosingBalance(accountId, period, snapshotDeposit)
             .totalDebits(expectedMonthlyBalanceAfterMovement.totalDebits().add(deposit))
             .totalCredits(expectedMonthlyBalanceAfterMovement.totalCredits())
             .openingBalance(expectedMonthlyBalanceAfterMovement.openingBalance())
@@ -362,7 +364,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
     LOG.info("Assertion for Monthly Balance for period {}", period);
     finalReported202410 =
-        MonthlyBalanceDTO.withClosingBalance(
+        EntityTestBuilder.withClosingBalance(
                 accountId,
                 period,
                 command.closingBalance().subtract(command.monthlyProfitReported()))
@@ -436,7 +438,7 @@ public class RegisterMonthlyReportedProfitITTest {
     final MonthlyBalanceDTO currentBalanceAfter3Movements =
         monthlyBalanceService.findByAccountIdAndPeriod(accountId, period).get();
     final MonthlyBalanceDTO expectedBalanceAfter3Movements =
-        MonthlyBalanceDTO.withClosingBalance(accountId, period, snapshot3)
+        EntityTestBuilder.withClosingBalance(accountId, period, snapshot3)
             .totalDebits(deposit1.add(dividendsPreviousMonth))
             .totalCredits(withdrawal1.add(withdrawal2))
             .openingBalance(openingBalance)
@@ -456,7 +458,7 @@ public class RegisterMonthlyReportedProfitITTest {
         useCaseTest.registerOfficialMonthlyBalance(
             runningDate, userId, accountId, getCurrentCommand());
     final MonthlyBalanceDTO expectedReportedBalance =
-        MonthlyBalanceDTO.withClosingBalance(
+        EntityTestBuilder.withClosingBalance(
                 accountId,
                 period,
                 currentCommand.closingBalance().subtract(currentCommand.monthlyProfitReported()))
@@ -493,7 +495,7 @@ public class RegisterMonthlyReportedProfitITTest {
     final MonthlyBalanceDTO nextMonthBalance =
         monthlyBalanceService.findByAccountIdAndPeriod(accountId, nextPeriod).get();
     final MonthlyBalanceDTO expectedNextMonthBalance =
-        MonthlyBalanceDTO.withClosingBalance(accountId, nextPeriod, currentCommand.closingBalance())
+        EntityTestBuilder.withClosingBalance(accountId, nextPeriod, currentCommand.closingBalance())
             .totalDebits(currentCommand.monthlyProfitReported())
             .openingBalance(
                 currentCommand.closingBalance().subtract(currentCommand.monthlyProfitReported()))
@@ -539,7 +541,7 @@ public class RegisterMonthlyReportedProfitITTest {
         useCaseTest.registerOfficialMonthlyBalance(runningDate, userId, accountId, command);
 
     final var expectedMonthlyBalance =
-        MonthlyBalanceDTO.withClosingBalance(
+        EntityTestBuilder.withClosingBalance(
                 accountId,
                 period,
                 command.closingBalance().subtract(command.monthlyProfitReported()))
@@ -601,7 +603,7 @@ public class RegisterMonthlyReportedProfitITTest {
     final var closingBalanceWithoutDividends =
         command.closingBalance().subtract(command.monthlyProfitReported());
     final var expectedMonthlyBalance =
-        MonthlyBalanceDTO.withClosingBalance(accountId, period, closingBalanceWithoutDividends)
+        EntityTestBuilder.withClosingBalance(accountId, period, closingBalanceWithoutDividends)
             .totalDebits(withJBHDecimals(new BigDecimal("140")))
             .openingBalance(openingBalance)
             .movementBalance(deposit1.add(previousDividends))
@@ -624,7 +626,7 @@ public class RegisterMonthlyReportedProfitITTest {
     final MonthlyBalanceDTO nextMonthBalance =
         monthlyBalanceService.findByAccountIdAndPeriod(accountId, nextPeriod).get();
     final MonthlyBalanceDTO expectedNextMonthBalance =
-        MonthlyBalanceDTO.withClosingBalance(accountId, nextPeriod, command.closingBalance())
+        EntityTestBuilder.withClosingBalance(accountId, nextPeriod, command.closingBalance())
             .totalDebits(command.monthlyProfitReported())
             .openingBalance(closingBalanceWithoutDividends)
             .movementBalance(command.monthlyProfitReported())

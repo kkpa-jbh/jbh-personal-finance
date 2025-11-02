@@ -214,6 +214,7 @@ public class AccountMonthlyBalanceDomain {
     // if it's not reported, or it was reported without a profit, calculate the monthly net profit
     if (!this.officialMonthlyReport || isZero(monthlyProfitReported)) {
       final var movementBalance = getMovementBalance();
+      // FIXME: For Credit Cards, it's not possible to calculate the monthly net profit
       monthlyNetProfit = closingBalance.subtract(openingBalance).subtract(movementBalance);
     }
   }

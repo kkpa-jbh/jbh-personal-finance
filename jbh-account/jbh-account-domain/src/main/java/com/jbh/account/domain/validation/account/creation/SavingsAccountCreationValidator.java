@@ -1,0 +1,33 @@
+package com.jbh.account.domain.validation.account.creation;
+
+import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.entity.AccountMovementDomain;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
+import java.util.Map;
+
+/**
+ * Validator for SAVINGS account type creation.
+ *
+ * <p>Savings accounts currently do not require specific metadata. This validator exists to follow
+ * the Strategy Pattern and can be extended in the future if savings-specific validations are needed
+ * (e.g., minimum balance, interest rate, etc.).
+ */
+public class SavingsAccountCreationValidator extends BaseAccountCreationValidator
+    implements AccountCreationValidator {
+
+  @Override
+  public void validateMetadata(final Map<String, Object> metadata) throws AccountBusinessException {
+    // No specific metadata required for savings accounts (yet)
+    // Future validations can be added here:
+    // - Minimum balance
+    // - Interest rate
+    // - Account features
+  }
+
+  @Override
+  public void validateInsufficientNetFlow(
+      final AccountDomain account, final AccountMovementDomain movement)
+      throws AccountBusinessException {
+    defaultValidationInsufficientNetFlow(account, movement);
+  }
+}

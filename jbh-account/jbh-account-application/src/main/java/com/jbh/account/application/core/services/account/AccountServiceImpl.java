@@ -6,7 +6,6 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
-import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.domain.entity.AccountDomain;
@@ -86,7 +85,7 @@ public class AccountServiceImpl implements AccountService {
       throw new GenericSpecificationException("Account not found");
     }
 
-    return AccountMapper.toDomain(accountDTO.get());
+    return accountDTO.get().toDomain();
   }
 
   @Override
@@ -145,6 +144,8 @@ public class AccountServiceImpl implements AccountService {
     syncAccountDomainBalanceByMovement(
         accountDomain, MovementMapper.toDomain(movement), isMonthOfficiallyReported);
 
+    log.info("Account {} was synced by Movement.. {}", accountDomain.getName(), movement);
+
     return toDTO(accountDomain);
   }
 
@@ -180,7 +181,7 @@ public class AccountServiceImpl implements AccountService {
 
     if (userId == null) {
       log.error("User ID cannot be null");
-      throw new IllegalArgumentException("User ID cannot be null");
+      throw new GenericSpecificationException("User ID cannot be null");
     }
 
     final AccountDTO accountDTO =
@@ -189,9 +190,9 @@ public class AccountServiceImpl implements AccountService {
                 () -> {
                   log.error(
                       "Account not found for user: {} and account: {}", userId, accountId.value());
-                  return new IllegalArgumentException("Account not found");
+                  return new GenericSpecificationException("Account not found");
                 });
 
-    return AccountMapper.toDomain(accountDTO);
+    return accountDTO.toDomain();
   }
 }

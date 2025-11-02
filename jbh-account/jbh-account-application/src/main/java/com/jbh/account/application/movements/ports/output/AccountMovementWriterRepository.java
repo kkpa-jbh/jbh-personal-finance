@@ -3,7 +3,7 @@ package com.jbh.account.application.movements.ports.output;
 import com.jbh.account.application.core.dto.MovementDTO;
 import java.util.List;
 
-public interface AccountMovementRepository {
+public interface AccountMovementWriterRepository {
 
   void save(MovementDTO accountMovement);
 

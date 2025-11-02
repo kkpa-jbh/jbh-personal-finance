@@ -2,7 +2,7 @@ package com.jbh.account.application.core.services.monthlybalance;
 
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.services.account.AccountService;
-import com.jbh.account.application.core.services.movements.AccountMovementService;
+import com.jbh.account.application.core.services.movements.AccountMovementApplicationService;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
@@ -13,13 +13,13 @@ public class ReportedProfitStrategy implements MonthlyBalanceProfitStrategy {
 
   private final MonthlyBalanceService monthlyBalanceService;
   private final AccountService accountService;
-  private final AccountMovementService accountMovementService;
+  private final AccountMovementApplicationService movementApplicationService;
 
   public ReportedProfitStrategy(
       final MonthlyBalanceService monthlyBalanceService,
       final AccountService accountService,
-      final AccountMovementService accountMovementService) {
-    this.accountMovementService = accountMovementService;
+      final AccountMovementApplicationService movementApplicationService) {
+    this.movementApplicationService = movementApplicationService;
     this.accountService = accountService;
     this.monthlyBalanceService = monthlyBalanceService;
   }
@@ -55,7 +55,7 @@ public class ReportedProfitStrategy implements MonthlyBalanceProfitStrategy {
         monthlyBalanceService.updateOfficialReportedBalance(monthlyBalanceDomain, profitCommand);
 
     // Run in background to async task (One for each movement)
-    accountMovementService.addDividendsMovementForNextMonth(accountPK, command);
+    movementApplicationService.addDividendsMovementForNextMonth(accountPK, command);
 
     // This is important to be after the dividends movement because it will update the account net
     // profit  with the monthly reported profit

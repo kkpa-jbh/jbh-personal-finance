@@ -15,6 +15,7 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.vo.commands.CreateAccountCommand;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
@@ -44,7 +45,7 @@ public class CreateBasicAccountMockTest {
   }
 
   @Test
-  public void shouldCreateAccount() {
+  public void shouldCreateAccount() throws AccountBusinessException {
 
     final AccountDTO mockedAccount =
         AccountDTO.defaultBuilder(userId, AccountId.generate(), testAccountName, type).build();

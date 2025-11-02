@@ -13,11 +13,11 @@ import com.jbh.account.domain.entity.MovementCategoryDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,7 +90,7 @@ public class AccountServiceTest {
             movementDate,
             totalAmount,
             balanceSnapshot,
-            new HashMap<>(),
+            AccountMovementMetadata.createEmpty(),
             category);
 
     try {

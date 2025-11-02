@@ -13,7 +13,8 @@ import java.util.concurrent.CompletableFuture;
 public interface MonthlyBalanceService
     extends AccountMonthlyBalanceQueryRepo, AccountMonthlyBalanceWriterRepository {
 
-  void validateNewMovement(MovementDTO movementDTO) throws AccountBusinessException;
+  void validateNewMovementForOfficialMonthlyReport(MovementDTO movementDTO)
+      throws AccountBusinessException;
 
   /**
    * 1. It will set/apply the closing balance, monthly profit reported and income withholding tax

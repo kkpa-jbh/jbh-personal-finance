@@ -8,12 +8,11 @@ import com.jbh.account.application.builders.UseCaseBuilder;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
-import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.MonthlyBalanceCommandVO;
-import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
@@ -44,9 +43,8 @@ public class RegisterMonthlyReportedValidationITTest {
   private static InMemoryAccountRepository inMemoryAccountRepo;
   private static RegisterMonthlyBalanceUseCase useCaseTest;
   private static CreateAccountUseCase createAccountUseCase;
-  private static AddMovementUseCase addMovementUseCase;
   private static AccountId accountId;
-  @Mock private AccountMovementRepository accountMovementRepository;
+  @Mock private AccountMovementWriterRepository accountMovementRepository;
 
   @BeforeEach
   public void setUp() {
@@ -58,8 +56,6 @@ public class RegisterMonthlyReportedValidationITTest {
     useCaseTest = UseCaseBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
 
     createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
-
-    addMovementUseCase = UseCaseBuilder.buildAddMovementUseCase(accountMovementRepository);
   }
 
   @Test

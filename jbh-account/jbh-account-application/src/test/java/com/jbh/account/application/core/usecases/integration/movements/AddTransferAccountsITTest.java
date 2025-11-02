@@ -18,7 +18,7 @@ import com.jbh.account.application.core.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.AddTransferCommand;
-import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountPK;
 import com.jbh.account.domain.vo.IncomeCategory;
@@ -51,7 +51,7 @@ public class AddTransferAccountsITTest {
   static AccountDTO toAccount;
   static AccountPK toAccountPK;
   static AddTransferJbhAccountsUseCase transferUseCase;
-  @Mock private static AccountMovementRepository accountMovementRepository;
+  @Mock private static AccountMovementWriterRepository accountMovementRepository;
   private static CreateAccountUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
   private static AccountService accountService;

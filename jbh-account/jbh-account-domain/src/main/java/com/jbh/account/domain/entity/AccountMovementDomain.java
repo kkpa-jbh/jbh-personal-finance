@@ -7,6 +7,8 @@ import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountMovementId;
+import com.jbh.account.domain.vo.AccountMovementMetadata;
+import com.jbh.account.domain.vo.AccountMovementMetadataKey;
 import com.jbh.account.domain.vo.CategorySource;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
@@ -14,16 +16,12 @@ import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import lombok.Getter;
 
 @Getter
 @SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
 public class AccountMovementDomain {
 
-  public static final String FILE_IMPORT_TAG = "fileImport";
-  public static final String FILE_IMPORTED_AT_TAG = "fileImportedAt";
   private final AccountMovementId id;
   private final AccountId accountId;
   private final MovementType movementType;
@@ -37,7 +35,7 @@ public class AccountMovementDomain {
 
   private final LocalDate movementDate;
   private final BigDecimal balanceSnapshot;
-  private final Map<String, Object> metadata;
+  private final AccountMovementMetadata metadata;
 
   public AccountMovementDomain(
       final AccountMovementId id,
@@ -47,7 +45,7 @@ public class AccountMovementDomain {
       final BigDecimal movementAmount,
       final LocalDate movementDate,
       final BigDecimal balanceSnapshot,
-      final Map<String, Object> metadata) {
+      final AccountMovementMetadata metadata) {
     this.id = id;
     this.accountId = accountId;
     this.movementType = movementType;
@@ -64,7 +62,7 @@ public class AccountMovementDomain {
       final LocalDate movementDate,
       final BigDecimal movementAmount,
       final BigDecimal balanceSnapshot,
-      final Map<String, Object> metadata,
+      final AccountMovementMetadata metadata,
       final MovementCategoryDomain category) {
     this.id = AccountMovementId.generate();
     this.accountId = accountId;
@@ -100,13 +98,13 @@ public class AccountMovementDomain {
             movementDate,
             totalAmount,
             balanceSnapshot,
-            new HashMap<>(),
+            AccountMovementMetadata.createEmpty(),
             category);
 
     movementDomain.validate();
 
-    movementDomain.addMetadata(FILE_IMPORT_TAG, true);
-    movementDomain.addMetadata(FILE_IMPORTED_AT_TAG, importedAt);
+    movementDomain.getMetadata().putFileImportedAt(importedAt);
+
     return movementDomain;
   }
 
@@ -117,10 +115,6 @@ public class AccountMovementDomain {
     validateCategory();
     validateMovementDateNotFuture();
     validateAmountOrSnapshot();
-  }
-
-  private void addMetadata(final String key, final Object value) {
-    metadata.put(key, value);
   }
 
   private void validateAccountId() {
@@ -216,11 +210,11 @@ public class AccountMovementDomain {
     }
   }
 
-  public boolean hasMetadata(final String fieldName) {
-    return metadata != null && metadata.containsKey(fieldName);
+  public boolean hasMetadata(final AccountMovementMetadataKey fieldName) {
+    return metadata != null && metadata.hasKey(fieldName);
   }
 
-  public Object getMetadataField(final String key) {
+  public Object getMetadataField(final AccountMovementMetadataKey key) {
     return metadata != null ? metadata.get(key) : null;
   }
 }

@@ -14,10 +14,13 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
+import com.jbh.account.application.core.services.movements.AccountMovementApplicationService;
+import com.jbh.account.application.core.services.movements.AccountMovementApplicationServiceImpl;
 import com.jbh.account.application.core.services.movements.AccountMovementService;
 import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
-import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.application.movements.ports.output.AccountMovementQueryRepository;
+import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
@@ -30,7 +33,9 @@ public class AccountUseCasesCDIConfig {
 
   @Inject AccountRepository accountRepository;
 
-  @Inject AccountMovementRepository accountMovementRepo;
+  @Inject AccountMovementWriterRepository accountMovementWriterRepo;
+
+  @Inject AccountMovementQueryRepository accountMovementQueryRepo;
 
   @Inject UnitOfWork unitOfWork;
 
@@ -57,14 +62,19 @@ public class AccountUseCasesCDIConfig {
   @Produces
   @ApplicationScoped
   public AddMovementInputPort registeringAddMovementUseCase() {
-    return new AddMovementInputPort(accountMovementService());
+    return new AddMovementInputPort(accountMovementServiceApplication());
   }
 
   @Produces
   @ApplicationScoped
+  public AccountMovementApplicationService accountMovementServiceApplication() {
+    return new AccountMovementApplicationServiceImpl(
+        accountMovementService(), accountService(), monthlyBalanceService(), unitOfWork);
+  }
+
+  @Produces
   public AccountMovementService accountMovementService() {
-    return new AccountMovementServiceImpl(
-        accountMovementRepo, accountService(), monthlyBalanceService(), unitOfWork);
+    return new AccountMovementServiceImpl(accountMovementWriterRepo, accountMovementQueryRepo);
   }
 
   @Produces
@@ -81,7 +91,10 @@ public class AccountUseCasesCDIConfig {
   @ApplicationScoped
   public AddMovementsUploadedFileInputPort registeringAddMovementsUploadedFileUseCase() {
     return new AddMovementsUploadedFileInputPort(
-        accountService(), accountMovementRepo, unitOfWork, uploadedMovementsBalanceSynchronizer());
+        accountService(),
+        accountMovementWriterRepo,
+        unitOfWork,
+        uploadedMovementsBalanceSynchronizer());
   }
 
   @Produces

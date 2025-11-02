@@ -1,7 +1,6 @@
 package com.jbh.account.application.core.dto;
 
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;
@@ -56,15 +55,5 @@ public record MonthlyBalanceDTO(
         .monthlyNetProfit(JBH_ZERO)
         .totalMovements(0)
         .openingBalance(JBH_ZERO);
-  }
-
-  public static MonthlyBalanceDTO.MonthlyBalanceDTOBuilder withClosingBalance(
-      final AccountId accountId, final YearMonth period, final BigDecimal closingBalance) {
-    return defaultBuilder()
-        .accountId(accountId)
-        .period(period)
-        .year(period.getYear())
-        .month(period.getMonthValue())
-        .closingBalance(withJBHDecimals(closingBalance));
   }
 }

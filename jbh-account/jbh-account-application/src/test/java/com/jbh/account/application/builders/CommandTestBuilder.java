@@ -89,6 +89,11 @@ public class CommandTestBuilder {
     return new CreateAccountCommand(userId, name, AccountType.CREDIT_CARD, metadata);
   }
 
+  public static CreateAccountCommand createCDTCommand(
+      final UUID userId, final String name, final Map<AccountMetadataKey, Object> metadata) {
+    return new CreateAccountCommand(userId, name, AccountType.CDT, metadata);
+  }
+
   /**
    * Creates a CreateBasicAccountCommand for an investment account with typical metadata.
    *
@@ -101,6 +106,7 @@ public class CommandTestBuilder {
       final UUID userId, final String name, final String brokerName) {
     final Map<AccountMetadataKey, Object> metadata = new HashMap<>();
     metadata.put(AccountMetadataKey.BROKER_NAME, brokerName);
+    metadata.put(AccountMetadataKey.COMMISSION_RATE, new BigDecimal("1.2"));
     return new CreateAccountCommand(userId, name, AccountType.INVESTMENT, metadata);
   }
 
@@ -190,6 +196,12 @@ public class CommandTestBuilder {
     return new AddMovementCommand(date, amount, MovementCategoryDTO.withType(incomeCategory));
   }
 
+  public static AddMovementCommand createDepositIncome(
+      final LocalDate date, final BigDecimal amount) {
+    return new AddMovementCommand(
+        date, amount, MovementCategoryDTO.withType(IncomeCategory.DEPOSIT));
+  }
+
   /**
    * Creates an expense movement (withdrawal).
    *
@@ -201,6 +213,12 @@ public class CommandTestBuilder {
   public static AddMovementCommand createExpense(
       final LocalDate date, final BigDecimal amount, final ExpenseCategory expenseCategory) {
     return new AddMovementCommand(date, amount, MovementCategoryDTO.withType(expenseCategory));
+  }
+
+  public static AddMovementCommand createPersonalExpense(
+      final LocalDate date, final BigDecimal amount) {
+    return new AddMovementCommand(
+        date, amount, MovementCategoryDTO.withType(ExpenseCategory.PERSONAL));
   }
 
   /**

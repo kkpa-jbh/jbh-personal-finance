@@ -94,7 +94,7 @@ public class AccountRestAdapter extends BaseRestAdapter {
       @RequestBody final CreateAccountRequest request,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
-      throws JbhGatewayException {
+      throws JbhGatewayException, AccountBusinessException {
     log.info("Creating account for user {}", authorizationHeader);
 
     final UUID userId = findUserId(authorizationHeader);

@@ -18,6 +18,8 @@ import static org.mockito.Mockito.when;
 
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
+import com.jbh.account.application.builders.AccountEntityBuilder;
+import com.jbh.account.application.builders.EntityTestBuilder;
 import com.jbh.account.application.builders.TestDataFactory;
 import com.jbh.account.application.builders.UseCaseBuilder;
 import com.jbh.account.application.core.dto.AccountDTO;
@@ -34,10 +36,10 @@ import com.jbh.account.application.core.usecases.AddMovementsUploadedFileUseCase
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
-import com.jbh.account.application.builders.AccountEntityBuilder;
-import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
 import java.math.BigDecimal;
@@ -76,7 +78,7 @@ public class UploadMultiMovementsExecutionMockTest {
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   private final Logger log = LoggerFactory.getLogger(UploadMultiMovementsExecutionMockTest.class);
   MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService;
-  @Mock private AccountMovementRepository accountMovementRepository;
+  @Mock private AccountMovementWriterRepository accountMovementRepository;
   @Mock private AccountMonthlyBalanceQueryRepo accountMonthlyBalanceQueryRepo;
   @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
   private AddMovementsUploadedFileUseCase useCaseInstanceTest;
@@ -128,7 +130,7 @@ public class UploadMultiMovementsExecutionMockTest {
   @DisplayName("Should create movements for NU")
   @Order(3)
   void shouldCreateMovementsForNU()
-      throws ExecutionException, InterruptedException, TimeoutException {
+      throws ExecutionException, InterruptedException, TimeoutException, AccountBusinessException {
 
     createAccount("NU");
 
@@ -161,7 +163,7 @@ public class UploadMultiMovementsExecutionMockTest {
       final YearMonth yearMonth =
           YearMonth.of(command.entryDate().getYear(), command.entryDate().getMonthValue());
       final MonthlyBalanceDTO monthlyBalanceDTO =
-          MonthlyBalanceDTO.withClosingBalance(accountId, yearMonth, command.balanceSnapshot())
+          EntityTestBuilder.withClosingBalance(accountId, yearMonth, command.balanceSnapshot())
               .movementBalance(command.totalAmount())
               .build();
       savedMonthlyBalances.add(monthlyBalanceDTO);
@@ -457,10 +459,10 @@ public class UploadMultiMovementsExecutionMockTest {
     final AccountDTO accountDTO = accountService.findAccountOrThrow(accountId);
     assertEquals(numberOf("10.28"), accountDTO.netGrowthRate());
     assertNotNull(accountDTO.metadata());
-    assertEquals(true, accountDTO.metadata().get("FULLY_WITHDRAWN"));
+    assertTrue(accountDTO.isFullyWithdrawn());
   }
 
-  void createAccount(final String name) {
+  void createAccount(final String name) throws AccountBusinessException {
     currentAccount =
         createAccountUseCase.execute(createBasicAccountCommand(userId, name, AccountType.SAVINGS));
     accountId = currentAccount.id();
@@ -475,7 +477,7 @@ public class UploadMultiMovementsExecutionMockTest {
   @Test
   @DisplayName("Should create movements for PIKMI")
   void shouldCreatedMovementsForPIKMI()
-      throws ExecutionException, InterruptedException, TimeoutException {
+      throws ExecutionException, InterruptedException, TimeoutException, AccountBusinessException {
 
     createAccount("PIKMI");
 
@@ -708,7 +710,7 @@ public class UploadMultiMovementsExecutionMockTest {
   @Test
   @DisplayName("Should create movements for PIBI")
   void shouldCreatedMovementsForPIBI()
-      throws ExecutionException, InterruptedException, TimeoutException {
+      throws ExecutionException, InterruptedException, TimeoutException, AccountBusinessException {
 
     createAccount("PIBI");
     // Given

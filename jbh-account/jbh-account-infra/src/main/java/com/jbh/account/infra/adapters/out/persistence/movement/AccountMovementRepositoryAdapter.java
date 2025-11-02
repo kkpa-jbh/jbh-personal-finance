@@ -1,14 +1,14 @@
 package com.jbh.account.infra.adapters.out.persistence.movement;
 
 import com.jbh.account.application.core.dto.MovementDTO;
-import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import java.util.List;
 
 @ApplicationScoped
-public class AccountMovementRepositoryAdapter implements AccountMovementRepository {
+public class AccountMovementRepositoryAdapter implements AccountMovementWriterRepository {
 
   @Inject AccountMovementJPARepository jpaRepo;
 

@@ -1,7 +1,7 @@
 package com.jbh.account.application.core.ports.input;
 
 import com.jbh.account.application.core.dto.AddBasicMovementDTO;
-import com.jbh.account.application.core.services.movements.AccountMovementService;
+import com.jbh.account.application.core.services.movements.AccountMovementApplicationService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
@@ -12,9 +12,9 @@ import java.util.UUID;
 public class AddMovementInputPort implements AddMovementUseCase {
 
   // private static final Logger LOG = LoggerFactory.getLogger(AddMovementInputPort.class);
-  private final AccountMovementService accountMovementService;
+  private final AccountMovementApplicationService accountMovementService;
 
-  public AddMovementInputPort(final AccountMovementService accountMovementService) {
+  public AddMovementInputPort(final AccountMovementApplicationService accountMovementService) {
     this.accountMovementService = accountMovementService;
   }
 

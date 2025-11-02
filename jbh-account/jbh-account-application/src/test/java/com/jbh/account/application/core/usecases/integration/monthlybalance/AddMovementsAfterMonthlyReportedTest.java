@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
+import com.jbh.account.application.builders.EntityTestBuilder;
 import com.jbh.account.application.builders.UseCaseBuilder;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
@@ -21,7 +22,7 @@ import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.MonthlyBalanceCommandVO;
-import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountType;
@@ -72,7 +73,7 @@ public class AddMovementsAfterMonthlyReportedTest {
   private static InMemoryAccountRepository inMemoryAccountRepo;
   RegisterMonthlyBalanceUseCase useCaseTest;
   LocalDate runningDate = LocalDate.now();
-  @Mock private AccountMovementRepository accountMovementRepository;
+  @Mock private AccountMovementWriterRepository accountMovementRepository;
   private AddMovementUseCase addMovementUseCase;
 
   @BeforeEach
@@ -151,7 +152,7 @@ public class AddMovementsAfterMonthlyReportedTest {
     final MonthlyBalanceDTO currentMonthlyBalance =
         monthlyBalanceService.findByAccountIdAndPeriod(accountId, reportedPeriod).get();
     final var expectedMonthlyBalance =
-        MonthlyBalanceDTO.withClosingBalance(
+        EntityTestBuilder.withClosingBalance(
                 accountId, reportedPeriod, officialReportedBalance.closingBalance())
             .totalDebits(officialReportedBalance.totalDebits())
             .totalCredits(officialReportedBalance.totalCredits().add(withDrawal1))
@@ -215,7 +216,7 @@ public class AddMovementsAfterMonthlyReportedTest {
     final MonthlyBalanceDTO currentMonthlyBalance =
         monthlyBalanceService.findByAccountIdAndPeriod(accountId, reportedPeriod).get();
     final var expectedMonthlyBalance =
-        MonthlyBalanceDTO.withClosingBalance(
+        EntityTestBuilder.withClosingBalance(
                 accountId, reportedPeriod, officialReportedBalance.closingBalance())
             .totalDebits(officialReportedBalance.totalDebits().add(deposit))
             .totalCredits(officialReportedBalance.totalCredits().add(withDrawal1))

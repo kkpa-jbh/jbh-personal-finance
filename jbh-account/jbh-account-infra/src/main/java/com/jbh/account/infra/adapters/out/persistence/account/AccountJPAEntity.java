@@ -2,6 +2,7 @@ package com.jbh.account.infra.adapters.out.persistence.account;
 
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountMetadata;
 import com.jbh.account.domain.vo.AccountType;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
@@ -77,7 +78,7 @@ public class AccountJPAEntity extends PanacheEntityBase {
     accountJpaEntity.setNetProfitBalance(account.netProfitBalance());
     accountJpaEntity.setIsActive(account.isActive());
     accountJpaEntity.setNetGrowthRate(account.netGrowthRate());
-    accountJpaEntity.setMetadata(account.metadata());
+    accountJpaEntity.setMetadata(account.metadata().asMap());
     accountJpaEntity.setCreatedAt(account.createdAt());
     accountJpaEntity.setUpdatedAt(account.updatedAt());
     return accountJpaEntity;
@@ -101,7 +102,7 @@ public class AccountJPAEntity extends PanacheEntityBase {
         .netProfitBalance(netProfitBalance)
         .isActive(isActive)
         .netGrowthRate(netGrowthRate)
-        .metadata(metadata)
+        .metadata(AccountMetadata.of(metadata))
         .createdAt(createdAt)
         .updatedAt(updatedAt)
         .build();

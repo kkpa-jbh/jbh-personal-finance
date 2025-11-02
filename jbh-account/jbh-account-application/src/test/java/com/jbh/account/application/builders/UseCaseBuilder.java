@@ -5,23 +5,29 @@ import com.jbh.account.application.core.ports.input.AddMovementInputPort;
 import com.jbh.account.application.core.ports.input.AddTransferJbhAccountsInputPort;
 import com.jbh.account.application.core.ports.input.CreateAccountInputPort;
 import com.jbh.account.application.core.ports.input.FindMonthlyBalanceInputPort;
+import com.jbh.account.application.core.ports.input.LiquidateAccountInputPort;
 import com.jbh.account.application.core.ports.input.RegisterMonthlyBalanceInputPort;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
+import com.jbh.account.application.core.ports.output.movement.InMemoryAccountMovementQueryRepository;
+import com.jbh.account.application.core.ports.output.movement.InMemoryAccountMovementRepository;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
+import com.jbh.account.application.core.services.movements.AccountMovementApplicationServiceImpl;
+import com.jbh.account.application.core.services.movements.AccountMovementService;
 import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
+import com.jbh.account.application.core.usecases.LiquidateAccountUseCase;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
-import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.vo.AccountType;
 
 public class UseCaseBuilder {
@@ -40,6 +46,15 @@ public class UseCaseBuilder {
   static final AccountMonthlyBalanceQueryRepo monthlyBalanceInMemoQuery =
       inMemoryMonthlyBalanceRepos.getQueryRepo();
 
+  public static InMemoryAccountMovementQueryRepository movementQueryRepository =
+      new InMemoryAccountMovementQueryRepository();
+
+  static final AccountMovementWriterRepository movementInMemoWriter =
+      new InMemoryAccountMovementRepository(movementQueryRepository);
+
+  public static final AddMovementUseCase addMovementUseCase =
+      buildAddMovementUseCase(movementInMemoWriter);
+
   // Use Cases
 
   public static CreateAccountUseCase buildCreateAccountUseCase() {
@@ -54,26 +69,36 @@ public class UseCaseBuilder {
     return inMemoryAccountRepo;
   }
 
+  public static AccountMovementWriterRepository getAccountMovementWriterRepository() {
+    return movementInMemoWriter;
+  }
+
   public static RegisterMonthlyBalanceUseCase buildRegisterMonthlyBalanceUseCase(
-      final AccountMovementRepository accountMovementRepository) {
+      final AccountMovementWriterRepository accountMovementRepository) {
     return new RegisterMonthlyBalanceInputPort(
         buildMonthlyBalanceService(),
         buildAccountService(),
-        buildAccountMovementService(accountMovementRepository));
+        buildAccountMovementApplicationService(accountMovementRepository));
   }
 
   public static AddMovementUseCase buildAddMovementUseCase(
-      final AccountMovementRepository accountMovementRepository) {
-    return new AddMovementInputPort(buildAccountMovementService(accountMovementRepository));
+      final AccountMovementWriterRepository accountMovementRepository) {
+    return new AddMovementInputPort(
+        buildAccountMovementApplicationService(accountMovementRepository));
   }
 
-  public static AccountMovementServiceImpl buildAccountMovementService(
-      final AccountMovementRepository accountMovementRepository) {
-    return new AccountMovementServiceImpl(
-        accountMovementRepository,
+  public static AccountMovementApplicationServiceImpl buildAccountMovementApplicationService(
+      final AccountMovementWriterRepository accountMovementRepository) {
+    return new AccountMovementApplicationServiceImpl(
+        buildAccountMovementService(accountMovementRepository),
         buildAccountService(),
         buildMonthlyBalanceService(),
         new UnitOfWorkTest());
+  }
+
+  public static AccountMovementService buildAccountMovementService(
+      final AccountMovementWriterRepository accountMovementRepository) {
+    return new AccountMovementServiceImpl(accountMovementRepository, movementQueryRepository);
   }
 
   public static MonthlyBalanceService buildMonthlyBalanceService() {
@@ -101,8 +126,18 @@ public class UseCaseBuilder {
   }
 
   public static AddTransferJbhAccountsUseCase buildAddTransferUseCase(
-      final AccountMovementRepository accountMovementRepository) {
+      final AccountMovementWriterRepository accountMovementRepository) {
     return new AddTransferJbhAccountsInputPort(
-        buildAccountService(), buildAccountMovementService(accountMovementRepository));
+        buildAccountService(), buildAccountMovementApplicationService(accountMovementRepository));
+  }
+
+  public static LiquidateAccountUseCase buildLiquidateAccountUseCase(
+      final AccountMovementWriterRepository accountMovementRepository) {
+    return new LiquidateAccountInputPort(
+        buildAccountService(),
+        buildAccountMovementService(accountMovementRepository),
+        buildMonthlyBalanceService(),
+        buildAccountMovementApplicationService(accountMovementRepository),
+        new UnitOfWorkTest());
   }
 }

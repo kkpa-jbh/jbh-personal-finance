@@ -2,12 +2,12 @@ package com.jbh.account.application.core.dto;
 
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountMovementId;
+import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Map;
 import lombok.Builder;
 
 @Builder
@@ -19,7 +19,7 @@ public record MovementDTO(
     BigDecimal movementAmount,
     LocalDate movementDate,
     BigDecimal balanceSnapshot,
-    Map<String, Object> metadata,
+    AccountMovementMetadata metadata,
     LocalDateTime createdAt,
     String description) {
 
@@ -35,5 +35,13 @@ public record MovementDTO(
         + ", balanceSnapshot="
         + balanceSnapshot
         + '}';
+  }
+
+  public boolean isWithdrawalType() {
+    return movementType == MovementType.WITHDRAWAL;
+  }
+
+  public boolean isDepositType() {
+    return movementType == MovementType.DEPOSIT;
   }
 }

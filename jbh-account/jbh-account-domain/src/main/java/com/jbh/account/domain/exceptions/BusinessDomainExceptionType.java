@@ -34,23 +34,27 @@ public enum BusinessDomainExceptionType implements BusinessExceptionType {
       "CREDIT_LIMIT is required for CREDIT_CARD accounts",
       "CREDIT_LIMIT es requerido para cuentas CREDIT_CARD"),
   INVALID_CREDIT_LIMIT_TYPE(
-      "CREDIT_LIMIT must be a BigDecimal",
-      "CREDIT_LIMIT debe ser un BigDecimal"),
+      "CREDIT_LIMIT must be a BigDecimal", "CREDIT_LIMIT debe ser un BigDecimal"),
   INVALID_CREDIT_LIMIT_VALUE(
-      "CREDIT_LIMIT must be greater than zero",
-      "CREDIT_LIMIT debe ser mayor que cero"),
+      "CREDIT_LIMIT must be greater than zero", "CREDIT_LIMIT debe ser mayor que cero"),
   MISSING_PAYMENT_DUE_DAY(
       "PAYMENT_DUE_DAY is required for CREDIT_CARD accounts",
       "PAYMENT_DUE_DAY es requerido para cuentas CREDIT_CARD"),
   INVALID_PAYMENT_DUE_DAY_TYPE(
-      "PAYMENT_DUE_DAY must be an Integer",
-      "PAYMENT_DUE_DAY debe ser un Integer"),
+      "The payment due day must be an Integer", "PAYMENT_DUE_DAY debe ser un Integer"),
   INVALID_PAYMENT_DUE_DAY_RANGE(
-      "PAYMENT_DUE_DAY must be between 1 and 31",
-      "PAYMENT_DUE_DAY debe estar entre 1 y 31"),
+      "PAYMENT_DUE_DAY must be between 1 and 31", "PAYMENT_DUE_DAY debe estar entre 1 y 31"),
   MISSING_BROKER_NAME(
-      "BROKER_NAME is required for INVESTMENT accounts",
-      "BROKER_NAME es requerido para cuentas INVESTMENT"),
+      "The broker name is required for INVESTMENT accounts",
+      "El nombre del broker es requerido para cuentas INVESTMENT"),
+  MISSING_COMMISSION_RATE(
+      "It's required to provide the commission rate",
+      "Es requerido proveer el porcentaje de comisión"),
+  MISSING_MATURITY_DATE(
+      "It's required to provide the maturity date", "Es requerido proveer la fecha de vencimiento"),
+  INVALID_MATURITY_DATE_TYPE(
+      "The maturity date has an invalid format",
+      "La fecha de vencimiento tiene un formato inválido"),
   ;
 
   private final String en;

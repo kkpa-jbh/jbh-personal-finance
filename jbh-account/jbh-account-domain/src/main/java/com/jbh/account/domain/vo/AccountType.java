@@ -4,6 +4,6 @@ public enum AccountType {
   SAVINGS,
   CREDIT_CARD,
   INVESTMENT,
-  CDT,
+  CDT, // Certificate of Deposit
   ;
 }

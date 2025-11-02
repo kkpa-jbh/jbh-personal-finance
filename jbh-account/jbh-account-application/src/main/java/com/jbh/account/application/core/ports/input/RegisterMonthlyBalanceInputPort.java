@@ -7,7 +7,7 @@ import com.jbh.account.application.core.services.monthlybalance.MonthlyBalancePr
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.monthlybalance.ReportedProfitStrategy;
 import com.jbh.account.application.core.services.monthlybalance.UnreportedProfitStrategy;
-import com.jbh.account.application.core.services.movements.AccountMovementService;
+import com.jbh.account.application.core.services.movements.AccountMovementApplicationService;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
@@ -32,12 +32,12 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
 
   private final MonthlyBalanceService monthlyBalanceService;
   private final AccountService accountService;
-  private final AccountMovementService accountMovementService;
+  private final AccountMovementApplicationService accountMovementService;
 
   public RegisterMonthlyBalanceInputPort(
       final MonthlyBalanceService monthlyBalanceService,
       final AccountService accountService,
-      final AccountMovementService accountMovementService) {
+      final AccountMovementApplicationService accountMovementService) {
     this.accountMovementService = accountMovementService;
     this.accountService = accountService;
     this.monthlyBalanceService = monthlyBalanceService;

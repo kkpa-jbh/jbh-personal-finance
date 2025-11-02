@@ -1,5 +1,7 @@
 package com.jbh.account.domain.vo;
 
+import com.jbh.account.domain.utils.JbhStringUtils;
+
 /**
  * 1. Housing
  *
@@ -153,16 +155,17 @@ package com.jbh.account.domain.vo;
  * <p>Gifts - Presents, donations Pets - Food, vet, supplies Misc - Uncategorized items
  */
 public enum ExpenseCategory implements CategoryType {
-  RETEFUENTE(0),
-  SOCIAL_SECURITY(1),
-  PUBLIC_SERVICES(2),
-  PERSONAL(3),
-  TRANSFER(4);
+  RETEFUENTE("Withholding Tax", "Retención en la Fuente"),
+  SOCIAL_SECURITY("Social Security", "Seguridad Social"),
+  PUBLIC_SERVICES("Public Services", "Servicios Públicos"),
+  PERSONAL("Personal", "Personal"),
+  TRANSFER("Transfer", "Transferencia"),
+  INVESTMENT_WITHDRAWAL("Investment Withdrawal", "Retiro de Inversión");
 
-  private final int categoryId;
+  private final String translationsKey;
 
-  ExpenseCategory(final int value) {
-    this.categoryId = value;
+  ExpenseCategory(final String englishTranslation, final String spanishTranslation) {
+    this.translationsKey = JbhStringUtils.buildJsonMessage(englishTranslation, spanishTranslation);
   }
 
   public static CategoryType findByName(final String categoryName) {
@@ -180,7 +183,12 @@ public enum ExpenseCategory implements CategoryType {
   }
 
   @Override
+  public String getTranslationsKey() {
+    return translationsKey;
+  }
+
+  @Override
   public String toString() {
-    return "ExpenseCategory{" + "categoryId=" + categoryId + '}';
+    return "ExpenseCategory{" + this.name() + "}";
   }
 }

@@ -1,25 +1,32 @@
 package com.jbh.account.application.core.usecases.integration.movements;
 
 import static com.jbh.account.application.builders.CommandTestBuilder.createInvestmentCommand;
+import static com.jbh.account.application.builders.UseCaseBuilder.delayTests;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.account.domain.vo.MovementType.WITHDRAWAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.account.application.builders.UseCaseBuilder;
 import com.jbh.account.application.core.dto.AccountDTO;
+import com.jbh.account.application.core.dto.LiquidationResultDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
-import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
+import com.jbh.account.application.core.services.movements.AccountMovementApplicationServiceImpl;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.LiquidateAccountUseCase;
 import com.jbh.account.application.core.usecases.integration.monthlybalance.RegisterMonthlyReportedWithoutProfitITTest;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.application.core.vo.commands.ExternalAccountInfoVO;
+import com.jbh.account.application.core.vo.commands.LiquidateAccountCommand;
+import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.ExpenseCategory;
@@ -29,6 +36,7 @@ import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,16 +58,16 @@ public class RegisterInvesmentMovementITTest {
       UseCaseBuilder.getAccountRepository();
   private static CreateAccountUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
-  @Mock private static AccountMovementRepository accountMovementRepository;
+  private static LiquidateAccountUseCase liquidateAccountUseCase;
+  @Mock private static AccountMovementWriterRepository accountMovementRepository;
   private static AccountDTO acciCuenta;
   private static AccountId acciCuentaId;
   private static AccountDTO fondoAcciones;
   private static AccountId fondoAccionesId;
   private static BigDecimal finalAcciBalanceSept;
   private final BigDecimal initialBalance = withJBHDecimals(new BigDecimal("5000000"));
-  LocalDate runningDate = LocalDate.now();
   private MonthlyBalanceService monthlyBalanceService;
-  private AccountMovementServiceImpl accountMovementService;
+  private AccountMovementApplicationServiceImpl accountMovementApplicationService;
 
   @BeforeAll
   static void beforeAll() {
@@ -73,18 +81,22 @@ public class RegisterInvesmentMovementITTest {
 
     monthlyBalanceService = UseCaseBuilder.buildMonthlyBalanceService();
 
-    accountMovementService = UseCaseBuilder.buildAccountMovementService(accountMovementRepository);
+    accountMovementApplicationService =
+        UseCaseBuilder.buildAccountMovementApplicationService(accountMovementRepository);
 
     createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
 
     addMovementUseCase = UseCaseBuilder.buildAddMovementUseCase(accountMovementRepository);
 
-    UseCaseBuilder.delayTests();
+    liquidateAccountUseCase =
+        UseCaseBuilder.buildLiquidateAccountUseCase(accountMovementRepository);
+
+    delayTests();
   }
 
   @Test
   @Order(0)
-  void createInvestmentAccount() {
+  void createInvestmentAccount() throws AccountBusinessException {
     acciCuenta =
         createAccountUseCase.execute(createInvestmentCommand(userId, "ACCICUENTA", "TRII"));
     acciCuentaId = acciCuenta.id();
@@ -230,7 +242,7 @@ public class RegisterInvesmentMovementITTest {
               assertEquals(withJBHDecimals("1.31"), updatedAcciCuenta.netGrowthRate());
             });
 
-    UseCaseBuilder.delayTests();
+    delayTests();
     currentMonthlyBalance =
         monthlyBalanceService
             .findByAccountIdAndPeriod(acciCuentaId, YearMonth.of(2025, entryDate.getMonthValue()))
@@ -277,21 +289,33 @@ public class RegisterInvesmentMovementITTest {
             BigDecimal.ZERO,
             WITHDRAWAL,
             MovementCategoryDTO.withType(ExpenseCategory.PERSONAL));
-    addMovementUseCase.addMovement(userId, acciCuentaId, withdrawal);
 
-    UseCaseBuilder.delayTests();
+    assertThrows(
+        AccountBusinessException.class,
+        () -> addMovementUseCase.addMovement(userId, acciCuentaId, withdrawal));
+
+    delayTests();
+
+    final LiquidateAccountCommand liquidateCommand =
+        new LiquidateAccountCommand(
+            Optional.empty(),
+            Optional.of(new ExternalAccountInfoVO("External Account")),
+            currentBalance,
+            LocalDate.now());
+    final LiquidationResultDTO result =
+        liquidateAccountUseCase.liquidateAccount(userId, acciCuentaId, liquidateCommand);
+    assertTrue(result.valid());
 
     final AccountDTO updatedAccount =
         inMemoryAccountRepo.findByAccountId(acciCuentaId).orElse(null);
     assertNotNull(updatedAccount);
-    assertEquals(new BigDecimal("8.10"), updatedAccount.netGrowthRate());
+    assertEquals(new BigDecimal("1.31"), updatedAccount.netGrowthRate());
     assertTrue(updatedAccount.netProfitBalance().compareTo(BigDecimal.ZERO) > 0);
-    assertEquals(updatedAccount.currentBalance(), BigDecimal.ZERO);
+    assertEquals(JBH_ZERO, updatedAccount.currentBalance());
     assertTrue(updatedAccount.movementBalance().compareTo(BigDecimal.ZERO) < 0);
 
     final MonthlyBalanceDTO lastMonthBalance =
         monthlyBalanceService.findAllByAccountIdUntilNow(acciCuentaId).getLast();
     assertNotNull(lastMonthBalance);
-    assertEquals(1, lastMonthBalance.totalMovements());
   }
 }

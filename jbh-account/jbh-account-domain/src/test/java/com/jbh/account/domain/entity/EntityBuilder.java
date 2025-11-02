@@ -5,11 +5,11 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.HashMap;
 
 public class EntityBuilder {
 
@@ -52,7 +52,7 @@ public class EntityBuilder {
             movementDate,
             totalAmount,
             balanceSnapshot,
-            new HashMap<>(),
+            AccountMovementMetadata.createEmpty(),
             category);
 
     try {

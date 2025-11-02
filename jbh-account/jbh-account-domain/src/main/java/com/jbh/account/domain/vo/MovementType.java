@@ -34,4 +34,8 @@ public enum MovementType {
     }
     return movementCategoryDTO.getSource() == CategorySource.INCOME ? DEPOSIT : WITHDRAWAL;
   }
+
+  public boolean isDeposit() {
+    return this == DEPOSIT;
+  }
 }

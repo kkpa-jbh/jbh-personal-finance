@@ -2,12 +2,13 @@ package com.jbh.account.application.core.dto;
 
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
+import com.jbh.account.application.core.mappers.AccountMapper;
+import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.AccountMetadata;
 import com.jbh.account.domain.vo.AccountType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import lombok.Builder;
 
@@ -24,7 +25,7 @@ public record AccountDTO(
     LocalDateTime createdAt,
     LocalDateTime updatedAt,
     BigDecimal netGrowthRate,
-    Map<String, Object> metadata) {
+    AccountMetadata metadata) {
 
   public static AccountDTO.AccountDTOBuilder defaultBuilder(
       final UUID userId, final AccountId accountId, final String name, final AccountType type) {
@@ -40,6 +41,18 @@ public record AccountDTO(
         .createdAt(LocalDateTime.now())
         .updatedAt(LocalDateTime.now())
         .netGrowthRate(JBH_ZERO)
-        .metadata(new HashMap<>());
+        .metadata(AccountMetadata.empty());
+  }
+
+  public boolean isCDT() {
+    return type == AccountType.CDT;
+  }
+
+  public boolean isFullyWithdrawn() {
+    return metadata.isFullyWithdrawn();
+  }
+
+  public AccountDomain toDomain() {
+    return AccountMapper.toDomain(this);
   }
 }

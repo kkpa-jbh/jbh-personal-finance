@@ -1,11 +1,11 @@
-package com.jbh.account.application.core.validation.movement;
+package com.jbh.account.application.core.validation.movementtype;
 
 import com.jbh.account.domain.vo.MovementType;
 import java.util.Map;
 
 public class MovementValidationStrategyFactory {
 
-  private final Map<MovementType, MovementTypeValidationStrategy> strategies;
+  private final Map<MovementType, MovementTypeValidatorStrategy> strategies;
 
   public MovementValidationStrategyFactory() {
     this.strategies =
@@ -14,8 +14,8 @@ public class MovementValidationStrategyFactory {
             MovementType.WITHDRAWAL, new WithdrawalValidationStrategy());
   }
 
-  public MovementTypeValidationStrategy getStrategy(final MovementType movementType) {
-    final MovementTypeValidationStrategy strategy = strategies.get(movementType);
+  public MovementTypeValidatorStrategy getStrategy(final MovementType movementType) {
+    final MovementTypeValidatorStrategy strategy = strategies.get(movementType);
     if (strategy == null) {
       throw new IllegalArgumentException("Unknown movement type: " + movementType);
     }

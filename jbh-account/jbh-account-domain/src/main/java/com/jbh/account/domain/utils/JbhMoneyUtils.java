@@ -45,4 +45,14 @@ public final class JbhMoneyUtils {
   public static boolean isNegative(final BigDecimal totalAmount) {
     return totalAmount != null && totalAmount.signum() < 0;
   }
+
+  public static BigDecimal toDecimal(final Object value) {
+    if (value == null) {
+      return null;
+    }
+    if (value instanceof BigDecimal) {
+      return (BigDecimal) value;
+    }
+    return new BigDecimal(value.toString());
+  }
 }

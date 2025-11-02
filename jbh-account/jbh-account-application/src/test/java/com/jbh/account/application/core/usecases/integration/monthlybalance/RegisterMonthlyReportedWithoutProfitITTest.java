@@ -30,7 +30,7 @@ import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.usecases.utils.IgnoreAccountOptions;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.application.movements.ports.output.AccountMovementRepository;
+import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
@@ -91,7 +91,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   static int totalMonthsCreated = 1;
   static AccountDTO createdAccount;
   static AccountId accountId;
-  @Mock private static AccountMovementRepository accountMovementRepository;
+  @Mock private static AccountMovementWriterRepository accountMovementRepository;
   private static MonthlyBalanceService monthlyBalanceService;
   private static RegisterMonthlyBalanceUseCase useCaseTest;
   ;
@@ -132,7 +132,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
   @Test
   @Order(1)
-  void settingInitialReportedBalanceNov24() {
+  void settingInitialReportedBalanceNov24() throws AccountBusinessException {
 
     // Given
     createdAccount =

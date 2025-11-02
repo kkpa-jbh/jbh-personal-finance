@@ -15,8 +15,8 @@ import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.account.application.core.services.account.AccountService;
-import com.jbh.account.application.core.validation.movement.MovementTypeValidationStrategy;
-import com.jbh.account.application.core.validation.movement.MovementValidationStrategyFactory;
+import com.jbh.account.application.core.validation.movementtype.MovementTypeValidatorStrategy;
+import com.jbh.account.application.core.validation.movementtype.MovementValidationStrategyFactory;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
@@ -68,8 +68,25 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   }
 
   @Override
+  public Optional<MonthlyBalanceDTO> findByAccountIdAndPeriod(
+      final AccountId accountId, final YearMonth period) {
+    return queryRepo.findByAccountIdAndPeriod(accountId, period);
+  }
+
+  @Override
+  public Optional<MonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
+    return queryRepo.findLastOfficialReport(accountId);
+  }
+
+  @Override
   public BigDecimal sumNetProfitOfficialReported(final AccountId accountId) {
     return queryRepo.sumNetProfitOfficialReported(accountId);
+  }
+
+  @Override
+  public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
+      final AccountId accountId, final YearMonth currentPeriod) {
+    return queryRepo.findNextBalancesFromPeriodInclusive(accountId, currentPeriod);
   }
 
   @Override
@@ -79,7 +96,14 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   }
 
   @Override
-  public void validateNewMovement(final MovementDTO movementDTO) throws AccountBusinessException {
+  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final AccountId accountId) {
+    // TODO: Check if it's necessary to return until the current period
+    return queryRepo.findAllByAccountIdUntilNow(accountId);
+  }
+
+  @Override
+  public void validateNewMovementForOfficialMonthlyReport(final MovementDTO movementDTO)
+      throws AccountBusinessException {
     final YearMonth movementPeriod = YearMonth.from(movementDTO.movementDate());
     final AccountId accountId = movementDTO.accountId();
     final BigDecimal balanceSnapshot = movementDTO.balanceSnapshot();
@@ -96,17 +120,11 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
       // Validate the new movement does not exceed the monthly balance reported
       if (isMonthOfficiallyReported) {
-        final MovementTypeValidationStrategy strategy =
+        final MovementTypeValidatorStrategy strategy =
             movValidationStrategyFactory.getStrategy(movementType);
         strategy.validateMovementAgainstOfficialBalance(movementAmount, existingMonthlyBalance);
       }
     }
-  }
-
-  @Override
-  public Optional<MonthlyBalanceDTO> findByAccountIdAndPeriod(
-      final AccountId accountId, final YearMonth period) {
-    return queryRepo.findByAccountIdAndPeriod(accountId, period);
   }
 
   private static boolean isMonthOfficiallyReportedValid(
@@ -154,6 +172,18 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   }
 
   @Override
+  public List<MonthlyBalanceDTO> saveMultiBalances(
+      final List<MonthlyBalanceDTO> accountMonthlyBalance) {
+    LOG.info(
+        "Persisting in database Monthly Balances {}",
+        accountMonthlyBalance.stream().map(MonthlyBalanceDTO::period).toList());
+    final List<MonthlyBalanceDTO> savedBalances =
+        writerRepo.saveMultiBalances(accountMonthlyBalance);
+    LOG.info("Monthly Balances persisted successfully");
+    return savedBalances;
+  }
+
+  @Override
   public void updateOpeningBalanceNextMonth(final MonthlyBalanceDTO currentMonthlyBalance) {
     final YearMonth nextPeriod = currentMonthlyBalance.period().plusMonths(1);
 
@@ -187,11 +217,6 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
     LOG.info("Its period {} the last official report: {}", currentPeriod, isLastOfficialReport);
     return isLastOfficialReport;
-  }
-
-  @Override
-  public Optional<MonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
-    return queryRepo.findLastOfficialReport(accountId);
   }
 
   @Override
@@ -274,18 +299,6 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
           return updatedBalances;
         });
-  }
-
-  @Override
-  public List<MonthlyBalanceDTO> saveMultiBalances(
-      final List<MonthlyBalanceDTO> accountMonthlyBalance) {
-    LOG.info(
-        "Persisting in database Monthly Balances {}",
-        accountMonthlyBalance.stream().map(MonthlyBalanceDTO::period).toList());
-    final List<MonthlyBalanceDTO> savedBalances =
-        writerRepo.saveMultiBalances(accountMonthlyBalance);
-    LOG.info("Monthly Balances persisted successfully");
-    return savedBalances;
   }
 
   /**
@@ -391,18 +404,6 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
     saveMultiBalances(profitBalancesSyncedDto);
 
     return profitBalancesSyncedDto;
-  }
-
-  @Override
-  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final AccountId accountId) {
-    // TODO: Check if it's necessary to return until the current period
-    return queryRepo.findAllByAccountIdUntilNow(accountId);
-  }
-
-  @Override
-  public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
-      final AccountId accountId, final YearMonth currentPeriod) {
-    return queryRepo.findNextBalancesFromPeriodInclusive(accountId, currentPeriod);
   }
 
   private boolean isAvailablePeriod(
