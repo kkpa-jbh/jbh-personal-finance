@@ -169,7 +169,12 @@ public class AccountServiceImpl implements AccountService {
         uploadedMovements.stream().filter(Objects::nonNull).toList();
 
     for (final AccountMovementDomain movement : filteredMovements) {
-      syncAccountDomainBalanceByMovement(accountDomain, movement, false);
+      try {
+        syncAccountDomainBalanceByMovement(accountDomain, movement, false);
+      } catch (final AccountBusinessException ex) {
+        log.error("Error syncing account movement by movement {}", movement);
+        throw ex;
+      }
     }
 
     return toDTO(accountDomain);

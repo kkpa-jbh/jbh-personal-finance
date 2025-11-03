@@ -41,7 +41,7 @@ import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountType;
+import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -464,7 +464,7 @@ public class UploadMultiMovementsExecutionMockTest {
 
   void createAccount(final String name) throws AccountBusinessException {
     currentAccount =
-        createAccountUseCase.execute(createBasicAccountCommand(userId, name, AccountType.SAVINGS));
+        createAccountUseCase.execute(createBasicAccountCommand(userId, name, ProductType.SAVINGS));
     accountId = currentAccount.id();
     assertNotNull(accountId);
     log.info("Account created with id {} for user {}", accountId, userId);

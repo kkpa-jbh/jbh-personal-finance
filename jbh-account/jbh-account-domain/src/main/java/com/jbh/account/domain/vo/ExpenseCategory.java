@@ -154,13 +154,15 @@ import com.jbh.account.domain.utils.JbhStringUtils;
  *
  * <p>Gifts - Presents, donations Pets - Food, vet, supplies Misc - Uncategorized items
  */
+@SuppressWarnings("PMD.LongVariable")
 public enum ExpenseCategory implements CategoryType {
   RETEFUENTE("Withholding Tax", "Retención en la Fuente"),
   SOCIAL_SECURITY("Social Security", "Seguridad Social"),
   PUBLIC_SERVICES("Public Services", "Servicios Públicos"),
   PERSONAL("Personal", "Personal"),
   TRANSFER("Transfer", "Transferencia"),
-  INVESTMENT_WITHDRAWAL("Investment Withdrawal", "Retiro de Inversión");
+  // To Close CDT, Investments
+  INVESTMENT_WITHDRAWAL_TO_CLOSE_IT("Investment Total Withdrawal", "Retiro Total de la Inversión");
 
   private final String translationsKey;
 

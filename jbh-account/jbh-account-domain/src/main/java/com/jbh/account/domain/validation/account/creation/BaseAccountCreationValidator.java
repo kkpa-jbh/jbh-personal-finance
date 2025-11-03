@@ -12,6 +12,7 @@ public abstract class BaseAccountCreationValidator {
   protected void defaultValidationInsufficientNetFlow(
       final AccountDomain account, final AccountMovementDomain movement)
       throws AccountBusinessException {
+
     final BigDecimal currentBalance = account.getCurrentBalance();
     final BigDecimal mvmtAmount = movement.getMovementAmount();
     final boolean isNegativeAmount = mvmtAmount != null && mvmtAmount.signum() < 0;

@@ -39,7 +39,15 @@ public class MovementCategoryDomain {
     return new MovementCategoryDomain(categoryType);
   }
 
+  public boolean isExpense() {
+    return getSource() == CategorySource.EXPENSE;
+  }
+
   public CategorySource getSource() {
     return categoryType.getSource();
+  }
+
+  public boolean isIncome() {
+    return getSource() == CategorySource.INCOME;
   }
 }

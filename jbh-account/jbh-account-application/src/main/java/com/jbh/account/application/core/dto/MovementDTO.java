@@ -44,4 +44,8 @@ public record MovementDTO(
   public boolean isDepositType() {
     return movementType == MovementType.DEPOSIT;
   }
+
+  public boolean isBalanceSnapshot() {
+    return movementType == MovementType.BALANCE_SNAPSHOT;
+  }
 }

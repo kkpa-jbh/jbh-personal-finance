@@ -55,6 +55,9 @@ public enum BusinessDomainExceptionType implements BusinessExceptionType {
   INVALID_MATURITY_DATE_TYPE(
       "The maturity date has an invalid format",
       "La fecha de vencimiento tiene un formato inválido"),
+  METRICS_CALCULATOR_NOT_IMPLEMENTED(
+      "Metrics calculator not implemented for product type",
+      "Calculadora de métricas no implementada para el tipo de producto"),
   ;
 
   private final String en;

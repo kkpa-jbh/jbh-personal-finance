@@ -2,16 +2,20 @@ package com.jbh.account.application.builders;
 
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.CreateAccountCommand;
+import com.jbh.account.application.core.vo.commands.ExternalAccountInfoVO;
+import com.jbh.account.application.core.vo.commands.LiquidateAccountCommand;
 import com.jbh.account.domain.vo.AccountMetadataKey;
-import com.jbh.account.domain.vo.AccountType;
+import com.jbh.account.domain.vo.AccountPK;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.MovementType;
+import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -31,7 +35,7 @@ public class CommandTestBuilder {
    * @return a CreateBasicAccountCommand
    */
   public static CreateAccountCommand createBasicAccountCommand(
-      final UUID userId, final String name, final AccountType type) {
+      final UUID userId, final String name, final ProductType type) {
     return new CreateAccountCommand(userId, name, type, Map.of());
   }
 
@@ -47,9 +51,13 @@ public class CommandTestBuilder {
   public static CreateAccountCommand createBasicAccountCommand(
       final UUID userId,
       final String name,
-      final AccountType type,
+      final ProductType type,
       final Map<AccountMetadataKey, Object> metadata) {
     return new CreateAccountCommand(userId, name, type, metadata);
+  }
+
+  public static CreateAccountCommand createSavingAccountCommand(final UUID userId) {
+    return createBasicAccountCommand(userId, ProductType.SAVINGS);
   }
 
   /**
@@ -60,7 +68,7 @@ public class CommandTestBuilder {
    * @return a CreateBasicAccountCommand
    */
   public static CreateAccountCommand createBasicAccountCommand(
-      final UUID userId, final AccountType type) {
+      final UUID userId, final ProductType type) {
     return new CreateAccountCommand(userId, DEFAULT_ACCOUNT_NAME, type, Map.of());
   }
 
@@ -81,17 +89,17 @@ public class CommandTestBuilder {
     final Map<AccountMetadataKey, Object> metadata = new HashMap<>();
     metadata.put(AccountMetadataKey.CREDIT_LIMIT, creditLimit);
     metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY, paymentDueDay);
-    return new CreateAccountCommand(userId, name, AccountType.CREDIT_CARD, metadata);
+    return new CreateAccountCommand(userId, name, ProductType.CREDIT_CARD, metadata);
   }
 
   public static CreateAccountCommand createCreditCardCommand(
       final UUID userId, final String name, final Map<AccountMetadataKey, Object> metadata) {
-    return new CreateAccountCommand(userId, name, AccountType.CREDIT_CARD, metadata);
+    return new CreateAccountCommand(userId, name, ProductType.CREDIT_CARD, metadata);
   }
 
   public static CreateAccountCommand createCDTCommand(
       final UUID userId, final String name, final Map<AccountMetadataKey, Object> metadata) {
-    return new CreateAccountCommand(userId, name, AccountType.CDT, metadata);
+    return new CreateAccountCommand(userId, name, ProductType.CDT, metadata);
   }
 
   /**
@@ -107,7 +115,7 @@ public class CommandTestBuilder {
     final Map<AccountMetadataKey, Object> metadata = new HashMap<>();
     metadata.put(AccountMetadataKey.BROKER_NAME, brokerName);
     metadata.put(AccountMetadataKey.COMMISSION_RATE, new BigDecimal("1.2"));
-    return new CreateAccountCommand(userId, name, AccountType.INVESTMENT, metadata);
+    return new CreateAccountCommand(userId, name, ProductType.INVESTMENT, metadata);
   }
 
   // ==================== AddMovementCommand Factory Methods ====================
@@ -269,5 +277,18 @@ public class CommandTestBuilder {
   public static AddMovementCommand createTransferIn(final LocalDate date, final BigDecimal amount) {
     return new AddMovementCommand(
         date, amount, MovementCategoryDTO.withType(IncomeCategory.TRANSFER));
+  }
+
+  public static LiquidateAccountCommand createLiquidateCommandToInternal(
+      final AccountPK accountPK, final BigDecimal amount, final LocalDate date) {
+    return new LiquidateAccountCommand(Optional.of(accountPK), Optional.empty(), amount, date);
+  }
+
+  public static LiquidateAccountCommand createLiquidateCommandToExternal(
+      final ExternalAccountInfoVO externalAccountInfoVO,
+      final BigDecimal amount,
+      final LocalDate date) {
+    return new LiquidateAccountCommand(
+        Optional.empty(), Optional.of(externalAccountInfoVO), amount, date);
   }
 }

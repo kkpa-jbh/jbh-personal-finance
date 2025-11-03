@@ -3,7 +3,7 @@ package com.jbh.account.infra.adapters.out.persistence.account;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountMetadata;
-import com.jbh.account.domain.vo.AccountType;
+import com.jbh.account.domain.vo.ProductType;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
@@ -40,7 +40,7 @@ public class AccountJPAEntity extends PanacheEntityBase {
 
   @Enumerated(EnumType.STRING)
   @Column(name = "type")
-  private AccountType type;
+  private ProductType type;
 
   @Column(name = "user_id", nullable = false)
   private UUID userId;

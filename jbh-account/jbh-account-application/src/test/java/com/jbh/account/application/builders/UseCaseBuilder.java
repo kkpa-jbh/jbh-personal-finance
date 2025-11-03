@@ -28,12 +28,12 @@ import com.jbh.account.application.core.usecases.LiquidateAccountUseCase;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.vo.AccountType;
+import com.jbh.account.domain.vo.ProductType;
 
 public class UseCaseBuilder {
 
   public static final String DEFAULT_ACCOUNT_NAME = "Account 1";
-  public static final AccountType DEFAULT_ACCOUNT_TYPE = AccountType.SAVINGS;
+  public static final ProductType DEFAULT_ACCOUNT_TYPE = ProductType.SAVINGS;
 
   // Account
   private static final InMemoryAccountRepository inMemoryAccountRepo =
@@ -134,10 +134,6 @@ public class UseCaseBuilder {
   public static LiquidateAccountUseCase buildLiquidateAccountUseCase(
       final AccountMovementWriterRepository accountMovementRepository) {
     return new LiquidateAccountInputPort(
-        buildAccountService(),
-        buildAccountMovementService(accountMovementRepository),
-        buildMonthlyBalanceService(),
-        buildAccountMovementApplicationService(accountMovementRepository),
-        new UnitOfWorkTest());
+        buildAccountService(), buildAccountMovementApplicationService(accountMovementRepository));
   }
 }

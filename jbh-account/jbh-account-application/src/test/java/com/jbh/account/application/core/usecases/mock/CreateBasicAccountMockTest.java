@@ -18,7 +18,7 @@ import com.jbh.account.application.core.vo.commands.CreateAccountCommand;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountType;
+import com.jbh.account.domain.vo.ProductType;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,7 +29,7 @@ import org.mockito.MockitoAnnotations;
 public class CreateBasicAccountMockTest {
 
   final UUID userId = UUID.randomUUID();
-  final AccountType type = AccountType.SAVINGS;
+  final ProductType type = ProductType.SAVINGS;
   final String testAccountName = "Test Account";
   private CreateAccountUseCase useCase;
   private AccountService accountService;

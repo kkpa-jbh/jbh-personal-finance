@@ -1,6 +1,7 @@
 package com.jbh.account.application.core.usecases.integration.movements;
 
 import static com.jbh.account.application.builders.CommandTestBuilder.createInvestmentCommand;
+import static com.jbh.account.application.builders.CommandTestBuilder.createLiquidateCommandToExternal;
 import static com.jbh.account.application.builders.UseCaseBuilder.delayTests;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
@@ -8,6 +9,7 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.account.domain.vo.MovementType.WITHDRAWAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -36,7 +38,6 @@ import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -296,12 +297,13 @@ public class RegisterInvesmentMovementITTest {
 
     delayTests();
 
+    final var latestEarning = new BigDecimal("120.00");
     final LiquidateAccountCommand liquidateCommand =
-        new LiquidateAccountCommand(
-            Optional.empty(),
-            Optional.of(new ExternalAccountInfoVO("External Account")),
-            currentBalance,
+        createLiquidateCommandToExternal(
+            new ExternalAccountInfoVO("External Account"),
+            currentBalance.add(latestEarning),
             LocalDate.now());
+
     final LiquidationResultDTO result =
         liquidateAccountUseCase.liquidateAccount(userId, acciCuentaId, liquidateCommand);
     assertTrue(result.valid());
@@ -312,10 +314,14 @@ public class RegisterInvesmentMovementITTest {
     assertEquals(new BigDecimal("1.31"), updatedAccount.netGrowthRate());
     assertTrue(updatedAccount.netProfitBalance().compareTo(BigDecimal.ZERO) > 0);
     assertEquals(JBH_ZERO, updatedAccount.currentBalance());
+    assertFalse(updatedAccount.isActive());
     assertTrue(updatedAccount.movementBalance().compareTo(BigDecimal.ZERO) < 0);
 
     final MonthlyBalanceDTO lastMonthBalance =
         monthlyBalanceService.findAllByAccountIdUntilNow(acciCuentaId).getLast();
     assertNotNull(lastMonthBalance);
+    assertEquals(latestEarning, lastMonthBalance.monthlyNetProfit());
+    assertEquals(JBH_ZERO, lastMonthBalance.netGrowthRate());
+    assertEquals(JBH_ZERO, lastMonthBalance.closingBalance());
   }
 }

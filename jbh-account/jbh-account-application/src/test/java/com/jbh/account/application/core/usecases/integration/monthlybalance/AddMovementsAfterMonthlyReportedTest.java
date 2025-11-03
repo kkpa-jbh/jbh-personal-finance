@@ -25,11 +25,11 @@ import com.jbh.account.application.core.vo.commands.MonthlyBalanceCommandVO;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountType;
 import com.jbh.account.domain.vo.CategoryType;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
+import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -95,7 +95,7 @@ public class AddMovementsAfterMonthlyReportedTest {
   void creatingAccount() throws AccountBusinessException {
     createdAccount =
         createAccountUseCase.execute(
-            createBasicAccountCommand(userId, ACCOUNT_REPORTED, AccountType.SAVINGS));
+            createBasicAccountCommand(userId, ACCOUNT_REPORTED, ProductType.SAVINGS));
     accountId = createdAccount.id();
     LOG.info("Account created with id {}", accountId);
     assert accountId != null;

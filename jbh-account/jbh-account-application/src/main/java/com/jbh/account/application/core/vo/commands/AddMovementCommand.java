@@ -82,4 +82,11 @@ public record AddMovementCommand(
       throw new IllegalArgumentException("Total amount cannot be negative");
     }
   }
+
+  @Override
+  public String toString() {
+    return String.format(
+        " date:%s, category:%s, amount:%s, snapshot:%s",
+        entryDate, categoryDTO, totalAmount, balanceSnapshot);
+  }
 }

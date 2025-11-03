@@ -1,6 +1,7 @@
 package com.jbh.account.application.core.services.movements;
 
 import com.jbh.account.application.core.dto.AddBasicMovementDTO;
+import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
@@ -44,6 +45,10 @@ public interface AccountMovementApplicationService {
    */
   AddBasicMovementDTO addMovementProcessingBalances(
       AccountPK accountPK, AddMovementCommand movementCommand) throws AccountBusinessException;
+
+  AddBasicMovementDTO processMovement(
+      MovementDTO movementDTO, AccountPK accountPK, boolean isMonthOfficiallyReported)
+      throws AccountBusinessException;
 
   void addDividendsMovement(
       AccountPK accountPK,

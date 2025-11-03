@@ -87,9 +87,9 @@ public final class MovementMapper {
    */
   public static MovementDTO fromCommand(
       final AccountId accountId, final LiquidateAccountCommand command) {
-    final BigDecimal totalAmount = command.totalAmount().negate();
+    final BigDecimal totalAmount = command.currentBalance();
     final MovementCategoryDTO categoryDTO =
-        MovementCategoryDTO.withType(ExpenseCategory.INVESTMENT_WITHDRAWAL);
+        MovementCategoryDTO.withType(ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT);
 
     final AccountMovementMetadata metadata = AccountMovementMetadata.createEmpty();
 
@@ -97,9 +97,9 @@ public final class MovementMapper {
         new AccountMovementDomain(
             accountId,
             WITHDRAWAL,
-            command.transferDate(),
-            totalAmount,
-            null,
+            command.liquidatedDate(),
+            totalAmount.negate(),
+            BigDecimal.ZERO,
             metadata,
             MovementCategoryDomain.withDTO(categoryDTO));
 

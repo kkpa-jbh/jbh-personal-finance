@@ -42,6 +42,10 @@ public final class JbhMoneyUtils {
     return amount.divide(divisor, 2, RoundingMode.HALF_EVEN);
   }
 
+  public static boolean isNegativeOrZero(final BigDecimal totalAmount) {
+    return isNegative(totalAmount) || isZero(totalAmount);
+  }
+
   public static boolean isNegative(final BigDecimal totalAmount) {
     return totalAmount != null && totalAmount.signum() < 0;
   }

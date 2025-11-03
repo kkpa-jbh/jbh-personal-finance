@@ -5,11 +5,11 @@ import static com.jbh.account.domain.entity.MovementCategoryDomain.withCategoryT
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
+import com.jbh.account.domain.utils.JbhMoneyUtils;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountMovementId;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.AccountMovementMetadataKey;
-import com.jbh.account.domain.vo.CategorySource;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementType;
@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import lombok.Getter;
 
 @Getter
-@SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
+@SuppressWarnings({"PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal", "PMD.GodClass"})
 public class AccountMovementDomain {
 
   private final AccountMovementId id;
@@ -50,9 +50,9 @@ public class AccountMovementDomain {
     this.accountId = accountId;
     this.movementType = movementType;
     this.category = category;
-    this.movementAmount = movementAmount;
+    this.movementAmount = JbhMoneyUtils.withJBHDecimals(movementAmount);
     this.movementDate = movementDate;
-    this.balanceSnapshot = balanceSnapshot;
+    this.balanceSnapshot = JbhMoneyUtils.withJBHDecimals(balanceSnapshot);
     this.metadata = metadata;
   }
 
@@ -67,9 +67,9 @@ public class AccountMovementDomain {
     this.id = AccountMovementId.generate();
     this.accountId = accountId;
     this.movementDate = movementDate;
-    this.movementAmount = movementAmount;
+    this.movementAmount = JbhMoneyUtils.withJBHDecimals(movementAmount);
     this.movementType = movementType;
-    this.balanceSnapshot = balanceSnapshot;
+    this.balanceSnapshot = JbhMoneyUtils.withJBHDecimals(balanceSnapshot);
     this.metadata = metadata;
     this.category = category;
   }
@@ -183,7 +183,8 @@ public class AccountMovementDomain {
     if (movementType == MovementType.DEPOSIT && movementAmount.signum() < 0) {
       throw new AccountBusinessException(BusinessDomainExceptionType.DEPOSIT_AMOUNT_NOT_POSITIVE);
     }
-    if (movementType == MovementType.WITHDRAWAL && movementAmount.signum() > 0) {
+    if (movementType == MovementType.WITHDRAWAL
+        && (movementAmount == null || movementAmount.signum() > 0)) {
       throw new AccountBusinessException(
           BusinessDomainExceptionType.WITHDRAWAL_AMOUNT_NOT_POSITIVE);
     }
@@ -197,13 +198,13 @@ public class AccountMovementDomain {
   }
 
   private void validateDepositCategory() {
-    if (category.getSource() != CategorySource.INCOME) {
+    if (!category.isIncome()) {
       throw new GenericSpecificationException("Category must be income");
     }
   }
 
   private void validateWithdrawalCategory() {
-    if (category.getSource() != CategorySource.EXPENSE) {
+    if (!category.isExpense()) {
       final String categoryMustBeExpense =
           String.format("Category %s must be expense", category.getType());
       throw new GenericSpecificationException(categoryMustBeExpense);
@@ -216,5 +217,25 @@ public class AccountMovementDomain {
 
   public Object getMetadataField(final AccountMovementMetadataKey key) {
     return metadata != null ? metadata.get(key) : null;
+  }
+
+  public boolean isToCloseProduct() {
+    return movementType.isWithdrawal()
+        && category.isExpense()
+        && category.getType() == ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT;
+  }
+
+  @Override
+  public String toString() {
+    return "MovementDomain{"
+        + "movementType="
+        + movementType
+        + ", movementAmount="
+        + movementAmount
+        + ", movementDate="
+        + movementDate
+        + ", balanceSnapshot="
+        + balanceSnapshot
+        + '}';
   }
 }

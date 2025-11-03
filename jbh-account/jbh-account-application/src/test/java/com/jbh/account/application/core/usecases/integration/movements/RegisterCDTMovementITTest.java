@@ -2,26 +2,35 @@ package com.jbh.account.application.core.usecases.integration.movements;
 
 import static com.jbh.account.application.builders.CommandTestBuilder.createInitialBalance;
 import static com.jbh.account.application.core.usecases.utils.AccountITUtils.assertAccount;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.account.application.builders.AccountEntityBuilder;
 import com.jbh.account.application.builders.CommandTestBuilder;
 import com.jbh.account.application.builders.UseCaseBuilder;
 import com.jbh.account.application.core.dto.AccountDTO;
+import com.jbh.account.application.core.dto.LiquidationResultDTO;
+import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.LiquidateAccountUseCase;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountMetadataKey;
+import com.jbh.account.domain.vo.AccountPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,6 +56,8 @@ public class RegisterCDTMovementITTest {
   private static AddMovementUseCase addMovementUseCase;
   private static AccountMovementWriterRepository accountMovementRepository;
   private static AccountDTO cdtAccount;
+  private static AccountDTO internalAccount;
+  private static LiquidateAccountUseCase liquidateAccountUseCase;
   private MonthlyBalanceService monthlyBalanceService;
 
   @BeforeAll
@@ -64,12 +75,14 @@ public class RegisterCDTMovementITTest {
     addMovementUseCase = UseCaseBuilder.buildAddMovementUseCase(accountMovementRepository);
     monthlyBalanceService = UseCaseBuilder.buildMonthlyBalanceService();
 
+    liquidateAccountUseCase =
+        UseCaseBuilder.buildLiquidateAccountUseCase(accountMovementRepository);
     UseCaseBuilder.delayTests();
   }
 
   @Test
   @Order(0)
-  void createAccount() throws AccountBusinessException {
+  void createAccounts() throws AccountBusinessException {
     final LocalDate mvmDate = period.atDay(1);
     final Map<AccountMetadataKey, Object> metadata = new HashMap<>();
     metadata.put(AccountMetadataKey.MATURITY_DATE, period.plusMonths(1).atDay(1));
@@ -104,11 +117,64 @@ public class RegisterCDTMovementITTest {
           addMovementUseCase.addMovement(
               userId, cdtAccount.id(), createInitialBalance(mvmDate, CDT_INITIAL_BALANCE));
         });
+
+    internalAccount =
+        createAccountUseCase.execute(CommandTestBuilder.createSavingAccountCommand(userId));
+    assertNotNull(internalAccount);
+
+    addMovementUseCase.addMovement(
+        userId, internalAccount.id(), createInitialBalance(mvmDate, new BigDecimal("2000")));
   }
 
   @Test
   @Order(2)
-  void withdrawalCDTMovement() {
-    final LocalDate mvmDate = period.plusMonths(1).atDay(1);
+  void withdrawalCDTMovement() throws AccountBusinessException {
+    final YearMonth currentPeriod = period.plusMonths(1);
+    final LocalDate mvmDate = currentPeriod.atDay(1);
+
+    final BigDecimal gainedInterest = new BigDecimal("25.00");
+
+    final LiquidationResultDTO result =
+        liquidateAccountUseCase.liquidateAccount(
+            userId,
+            cdtAccount.id(),
+            CommandTestBuilder.createLiquidateCommandToInternal(
+                new AccountPK(userId, internalAccount.id()),
+                CDT_INITIAL_BALANCE.add(gainedInterest),
+                mvmDate));
+    assertNotNull(result);
+
+    UseCaseBuilder.delayTests();
+
+    final Optional<AccountDTO> updatedCDTAccount =
+        inMemoryAccountRepo.findByAccountId(cdtAccount.id());
+
+    final AccountDTO expectedCDTAccount =
+        AccountDTO.defaultBuilder(userId, cdtAccount.id(), cdtAccount.name(), cdtAccount.type())
+            .currentBalance(JBH_ZERO)
+            .netProfitBalance(gainedInterest)
+            .movementBalance(gainedInterest.negate())
+            .netGrowthRate(new BigDecimal("25.00"))
+            .isActive(false)
+            .build();
+    assertAccount(expectedCDTAccount, updatedCDTAccount.get());
+    assertTrue(updatedCDTAccount.get().metadata().isFullyWithdrawn(), "Is not Fully withdrawn");
+    assertEquals(
+        mvmDate,
+        updatedCDTAccount.get().metadata().getFullyWithdrawnDate(),
+        "There is not fully withdrawn date");
+    UseCaseBuilder.delayTests();
+
+    final Optional<MonthlyBalanceDTO> cdtAccountMonthlyBalanceOpt =
+        monthlyBalanceService.findByAccountIdAndPeriod(cdtAccount.id(), currentPeriod);
+    assertFalse(cdtAccountMonthlyBalanceOpt.isPresent());
+
+    final Optional<AccountDTO> updatedInternalAccount =
+        inMemoryAccountRepo.findByAccountId(internalAccount.id());
+    assertTrue(updatedInternalAccount.isPresent());
+
+    final Optional<MonthlyBalanceDTO> internalAccountMonthlyBalance =
+        monthlyBalanceService.findByAccountIdAndPeriod(internalAccount.id(), currentPeriod);
+    assertTrue(internalAccountMonthlyBalance.isPresent());
   }
 }

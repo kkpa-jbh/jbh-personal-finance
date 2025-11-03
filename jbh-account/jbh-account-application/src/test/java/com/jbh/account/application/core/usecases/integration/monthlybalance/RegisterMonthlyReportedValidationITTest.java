@@ -15,7 +15,7 @@ import com.jbh.account.application.core.vo.commands.MonthlyBalanceCommandVO;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountType;
+import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -64,7 +64,7 @@ public class RegisterMonthlyReportedValidationITTest {
     // Create Account
     final AccountDTO accountDTO =
         createAccountUseCase.execute(
-            createBasicAccountCommand(userId, ACCOUNT_REPORTED, AccountType.SAVINGS));
+            createBasicAccountCommand(userId, ACCOUNT_REPORTED, ProductType.SAVINGS));
     accountId = accountDTO.id();
     LOG.info("Account created with id {}", accountId);
     assert accountId != null;

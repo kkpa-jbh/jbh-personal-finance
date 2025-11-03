@@ -1,21 +1,21 @@
 package com.jbh.account.application.core.validation.accounttype;
 
 import com.jbh.account.application.core.services.movements.AccountMovementService;
-import com.jbh.account.domain.vo.AccountType;
+import com.jbh.account.domain.vo.ProductType;
 import java.util.Map;
 
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.LawOfDemeter"})
 public class AccountMovementValidatorFactory {
-  final Map<AccountType, AccountMovementValidator> validators;
+  final Map<ProductType, AccountMovementValidator> validators;
 
   public AccountMovementValidatorFactory(final AccountMovementService accountMovementService) {
 
     validators =
         Map.of(
-            AccountType.CREDIT_CARD, new UndefinedAccountMovementValidator(),
-            AccountType.SAVINGS, new UndefinedAccountMovementValidator(),
-            AccountType.INVESTMENT, new InvestmentAccountMovementValidator(),
-            AccountType.CDT, new CDTAccountMovementValidator(accountMovementService));
+            ProductType.CREDIT_CARD, new UndefinedAccountMovementValidator(),
+            ProductType.SAVINGS, new UndefinedAccountMovementValidator(),
+            ProductType.INVESTMENT, new InvestmentAccountMovementValidator(),
+            ProductType.CDT, new CDTAccountMovementValidator(accountMovementService));
   }
 
   /**
@@ -25,7 +25,7 @@ public class AccountMovementValidatorFactory {
    * @return The validator instance for the account type
    * @throws IllegalArgumentException if no validator is registered for the account type
    */
-  public AccountMovementValidator getValidator(final AccountType accountType) {
+  public AccountMovementValidator getValidator(final ProductType accountType) {
     final AccountMovementValidator validator = this.validators.get(accountType);
 
     if (validator == null) {

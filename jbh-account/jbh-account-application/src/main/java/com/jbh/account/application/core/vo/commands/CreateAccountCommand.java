@@ -2,17 +2,17 @@ package com.jbh.account.application.core.vo.commands;
 
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountMetadataKey;
-import com.jbh.account.domain.vo.AccountType;
+import com.jbh.account.domain.vo.ProductType;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
 public record CreateAccountCommand(
-    UUID userId, String name, AccountType type, Map<AccountMetadataKey, Object> metadata)
+    UUID userId, String name, ProductType type, Map<AccountMetadataKey, Object> metadata)
     implements CommandValidator {
 
   // Convenience constructor for backward compatibility
-  public CreateAccountCommand(final UUID userId, final String name, final AccountType type) {
+  public CreateAccountCommand(final UUID userId, final String name, final ProductType type) {
     this(userId, name, type, Collections.emptyMap());
   }
 

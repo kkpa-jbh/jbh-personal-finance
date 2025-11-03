@@ -11,17 +11,23 @@ import java.util.Optional;
 // Tax and Fees Handling
 // TaxWithholdingStrategy taxStrategy,  // How to handle tax implications
 
+/**
+ * @param toInternalAccount
+ * @param toExternalAccount
+ * @param currentBalance The latest current balance of the cdt/investment product
+ * @param liquidatedDate
+ */
 public record LiquidateAccountCommand(
     Optional<AccountPK> toInternalAccount,
     Optional<ExternalAccountInfoVO> toExternalAccount,
-    BigDecimal totalAmount,
-    LocalDate transferDate)
+    BigDecimal currentBalance,
+    LocalDate liquidatedDate)
     implements CommandValidator {
 
   public LiquidateAccountCommand {
     validateAccounts(toInternalAccount, toExternalAccount);
-    validateTotalAmount(totalAmount);
-    validateTransferDate(transferDate);
+    validateTotalAmount(currentBalance);
+    validateTransferDate(liquidatedDate);
   }
 
   private static void validateAccounts(
@@ -48,7 +54,7 @@ public record LiquidateAccountCommand(
   @Override
   public void validate() {
     validateAccounts(toInternalAccount, toExternalAccount);
-    validateTotalAmount(totalAmount);
-    validateTransferDate(transferDate);
+    validateTotalAmount(currentBalance);
+    validateTransferDate(liquidatedDate);
   }
 }

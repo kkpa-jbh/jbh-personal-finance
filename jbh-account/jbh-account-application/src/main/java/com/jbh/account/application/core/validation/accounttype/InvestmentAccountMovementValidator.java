@@ -18,13 +18,24 @@ public class InvestmentAccountMovementValidator implements AccountMovementValida
       final AccountDTO existingAccount, final MovementDTO movementDTO)
       throws AccountBusinessException {
 
-    if (movementDTO.isWithdrawalType() && existingAccount.isFullyWithdrawn()) {
+    if (movementDTO.isBalanceSnapshot()) {
+      return;
+    }
 
-      final var categoryType = movementDTO.category().getType();
-      if (categoryType != ExpenseCategory.INVESTMENT_WITHDRAWAL) {
+    final var categoryType = movementDTO.category().getType();
+
+    if (movementDTO.isWithdrawalType()) {
+      if (existingAccount.isFullyWithdrawn()
+          && categoryType != ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT) {
+
         LOG.error("The Category {} is not valid for Investment accounts", categoryType);
         throw new AccountBusinessException(
             BusinessApplicationExceptionType.INVALID_CATEGORY_INVESTMENT_WITHDRAWAL);
+      } else if (!existingAccount.isFullyWithdrawn()
+          && categoryType == ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT) {
+
+        throw new AccountBusinessException(
+            BusinessApplicationExceptionType.INVALID_LIQUIDATION_AMOUNT);
       }
     }
   }

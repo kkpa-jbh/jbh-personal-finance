@@ -22,9 +22,9 @@ import com.jbh.account.application.core.vo.commands.CreateAccountCommand;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountMetadataKey;
-import com.jbh.account.domain.vo.AccountType;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
+import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -61,7 +61,7 @@ public class CreateAccountITTest {
 
     // Test 1: Credit Card account WITHOUT required metadata should fail
     final CreateAccountCommand missingTagsCreditCardAccount =
-        createBasicAccountCommand(userId, "Test Credit Card", AccountType.CREDIT_CARD);
+        createBasicAccountCommand(userId, "Test Credit Card", ProductType.CREDIT_CARD);
 
     final AccountBusinessException exception =
         assertThrows(
@@ -73,7 +73,7 @@ public class CreateAccountITTest {
 
     // Test 2: Investment account WITHOUT BROKER_NAME should fail
     final CreateAccountCommand missingBrokerInvestmentAccount =
-        createBasicAccountCommand(userId, "Test Investment", AccountType.INVESTMENT);
+        createBasicAccountCommand(userId, "Test Investment", ProductType.INVESTMENT);
 
     final AccountBusinessException investmentException =
         assertThrows(
@@ -85,21 +85,21 @@ public class CreateAccountITTest {
 
     // Test 3: Savings account WITHOUT metadata should succeed (no required metadata)
     final CreateAccountCommand validSavingsAccount =
-        createBasicAccountCommand(userId, "Test Savings", AccountType.SAVINGS);
+        createBasicAccountCommand(userId, "Test Savings", ProductType.SAVINGS);
 
     final AccountDTO savingsAccountDTO = createAccountUseCase.execute(validSavingsAccount);
     assertNotNull(savingsAccountDTO);
     assertEquals("Test Savings", savingsAccountDTO.name());
-    assertEquals(AccountType.SAVINGS, savingsAccountDTO.type());
+    assertEquals(ProductType.SAVINGS, savingsAccountDTO.type());
 
     // Test 4: CDT account WITHOUT metadata should FAILS
     final CreateAccountCommand validCdtAccount =
-        createBasicAccountCommand(userId, "Test CDT", AccountType.CDT);
+        createBasicAccountCommand(userId, "Test CDT", ProductType.CDT);
 
     final AccountDTO cdtAccountDTO = createAccountUseCase.execute(validCdtAccount);
     assertNotNull(cdtAccountDTO);
     assertEquals("Test CDT", cdtAccountDTO.name());
-    assertEquals(AccountType.CDT, cdtAccountDTO.type());
+    assertEquals(ProductType.CDT, cdtAccountDTO.type());
   }
 
   @Test
@@ -121,7 +121,7 @@ public class CreateAccountITTest {
 
     assertNotNull(investmentAccountDTO);
     assertEquals("Fidelity Portfolio", investmentAccountDTO.name());
-    assertEquals(AccountType.INVESTMENT, investmentAccountDTO.type());
+    assertEquals(ProductType.INVESTMENT, investmentAccountDTO.type());
     assertNotNull(investmentAccountDTO.id());
   }
 
@@ -159,7 +159,7 @@ public class CreateAccountITTest {
 
     assertNotNull(creditCardAccountDTO);
     assertEquals("LULO Credit Card", creditCardAccountDTO.name());
-    final var creditCardType = AccountType.CREDIT_CARD;
+    final var creditCardType = ProductType.CREDIT_CARD;
     assertEquals(creditCardType, creditCardAccountDTO.type());
     assertNotNull(creditCardAccountDTO.id());
 

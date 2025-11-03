@@ -1,14 +1,11 @@
 package com.jbh.account.application.core.ports.input;
 
-import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.core.dto.AccountDTO;
+import com.jbh.account.application.core.dto.AddBasicMovementDTO;
 import com.jbh.account.application.core.dto.LiquidationResultDTO;
-import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.services.account.AccountService;
-import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.movements.AccountMovementApplicationService;
-import com.jbh.account.application.core.services.movements.AccountMovementService;
 import com.jbh.account.application.core.usecases.LiquidateAccountUseCase;
 import com.jbh.account.application.core.vo.commands.LiquidateAccountCommand;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
@@ -24,21 +21,12 @@ public class LiquidateAccountInputPort implements LiquidateAccountUseCase {
   private static final Logger LOG = LoggerFactory.getLogger(LiquidateAccountInputPort.class);
 
   private final AccountService accountService;
-  private final AccountMovementService accountMovementService;
-  private final UnitOfWork unitOfWork;
-  private final MonthlyBalanceService monthlyBalanceService;
   private final AccountMovementApplicationService movementApplicationService;
 
   public LiquidateAccountInputPort(
       final AccountService accountService,
-      final AccountMovementService accountMovementService,
-      final MonthlyBalanceService monthlyBalanceService,
-      final AccountMovementApplicationService movementApplicationService,
-      final UnitOfWork unitOfWork) {
-    this.unitOfWork = unitOfWork;
-    this.accountMovementService = accountMovementService;
+      final AccountMovementApplicationService movementApplicationService) {
     this.accountService = accountService;
-    this.monthlyBalanceService = monthlyBalanceService;
     this.movementApplicationService = movementApplicationService;
   }
 
@@ -49,6 +37,8 @@ public class LiquidateAccountInputPort implements LiquidateAccountUseCase {
       final LiquidateAccountCommand liquidationCommand)
       throws AccountBusinessException {
 
+    liquidationCommand.validate();
+
     final var movementDTO = MovementMapper.fromCommand(accountId, liquidationCommand);
     AccountDTO toInternalAccount = null;
     if (liquidationCommand.toInternalAccount().isPresent()) {
@@ -57,27 +47,13 @@ public class LiquidateAccountInputPort implements LiquidateAccountUseCase {
       movementDTO.metadata().putTargetInternalAccount(toInternalAccount.toDomain());
     }
 
-    final AccountDTO syncedAccountDTO =
-        accountService.syncByMovement(new AccountPK(userId, accountId), movementDTO, false);
+    final AccountPK accountPK = new AccountPK(userId, accountId);
 
-    if (!syncedAccountDTO.isFullyWithdrawn()) {
-      throw new AccountBusinessException(
-          BusinessApplicationExceptionType.INVALID_LIQUIDATION_AMOUNT);
-    }
+    LOG.info("Liquidating account {} ", accountId);
+    final AddBasicMovementDTO addedMovementDTO =
+        movementApplicationService.processMovement(movementDTO, accountPK, false);
 
-    final var accountName = syncedAccountDTO.name();
-    LOG.info("Liquidating account {} ", accountName);
-
-    unitOfWork.execute(
-        () -> {
-          accountMovementService.save(movementDTO);
-          accountService.save(syncedAccountDTO);
-          LOG.info("Movement and Account {} persisted successfully", accountName);
-        });
-
-    LOG.info("Syncing Monthly Balance for liquidated account {}", accountName);
-    monthlyBalanceService.syncForNewMovement(movementDTO);
-
+    final AccountDTO syncedAccountDTO = addedMovementDTO.account();
     depositToAccount(liquidationCommand, toInternalAccount, syncedAccountDTO);
 
     return new LiquidationResultDTO(true);
@@ -89,9 +65,10 @@ public class LiquidateAccountInputPort implements LiquidateAccountUseCase {
       final AccountDTO syncedAccountDTO)
       throws AccountBusinessException {
     if (toInternalAccount != null) {
+      LOG.info("Deposit dividends to internal account {} ", toInternalAccount);
       final var internalAccountId = toInternalAccount.id();
-      final var totalAmount = liquidationCommand.totalAmount();
-      final var transferDate = liquidationCommand.transferDate();
+      final var totalAmount = liquidationCommand.currentBalance();
+      final var transferDate = liquidationCommand.liquidatedDate();
 
       final AccountPK accountPK = new AccountPK(toInternalAccount.userId(), internalAccountId);
       final AccountMovementMetadata metadata = AccountMovementMetadata.createEmpty();

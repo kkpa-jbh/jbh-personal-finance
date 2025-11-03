@@ -5,7 +5,7 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountType;
+import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ public class AccountEntityBuilder {
   private BigDecimal currentBalance;
 
   private String name;
-  private AccountType type;
+  private ProductType type;
 
   private AccountEntityBuilder() {}
 
@@ -124,7 +124,7 @@ public class AccountEntityBuilder {
       final BigDecimal movementBalance,
       final BigDecimal currentBalance,
       final String name,
-      final AccountType accountType) {
+      final ProductType accountType) {
     return builder()
         .withAccountId(accountId)
         .withUserId(userId)
@@ -134,7 +134,7 @@ public class AccountEntityBuilder {
         .withAccountType(accountType);
   }
 
-  public AccountEntityBuilder withAccountType(final AccountType accountType) {
+  public AccountEntityBuilder withAccountType(final ProductType accountType) {
     this.type = accountType;
     return this;
   }

@@ -30,11 +30,11 @@ import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountType;
 import com.jbh.account.domain.vo.CategoryType;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
+import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -111,7 +111,7 @@ public class RegisterMonthlyReportedProfitITTest {
     ++commandIndex;
     createdAccount =
         createAccountUseCase.execute(
-            createBasicAccountCommand(userId, DEFAULT_ACCOUNT_NAME, AccountType.SAVINGS));
+            createBasicAccountCommand(userId, DEFAULT_ACCOUNT_NAME, ProductType.SAVINGS));
     accountId = createdAccount.id();
     LOG.info("Account created with id {}", accountId);
     assertNotNull(accountId);

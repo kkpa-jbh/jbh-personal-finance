@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Optional;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,18 +135,13 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
     // Input validations
     movementCommand.validate();
 
-    final var userId = accountPK.userId();
     final var accountId = accountPK.accountId();
 
-    final var movementBalanceSnapshot = movementCommand.balanceSnapshot();
     log.info(
-        "Analyzing Movement {} for account: {}, date:{} category:{} amount: {} snapshot: {}",
+        "Analyzing Movement {} for account: {}, {}",
         movementCommand.movementType(),
         accountId.value(),
-        movementCommand.entryDate(),
-        movementCommand.categoryDTO(),
-        movementCommand.totalAmount(),
-        movementBalanceSnapshot);
+        movementCommand);
 
     final YearMonth movementPeriod = YearMonth.from(movementCommand.entryDate());
     final boolean isMonthOfficiallyReported =
@@ -154,8 +150,20 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
     // Create MovementDTO from command
     final var movementDTO = MovementMapper.fromCommand(accountId, movementCommand);
 
+    return processMovement(movementDTO, accountPK, isMonthOfficiallyReported);
+  }
+
+  @Override
+  public AddBasicMovementDTO processMovement(
+      final MovementDTO movementDTO,
+      final AccountPK accountPK,
+      final boolean isMonthOfficiallyReported)
+      throws AccountBusinessException {
     // Validations
     monthlyBalanceService.validateNewMovementForOfficialMonthlyReport(movementDTO);
+
+    final UUID userId = accountPK.userId();
+    final AccountId accountId = accountPK.accountId();
 
     final AccountDTO syncedAccountDTO =
         accountService.syncByMovement(
@@ -173,8 +181,10 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
         });
 
     log.info("Syncing Monthly Balance for new movement {}", movementDTO);
-    final MonthlyBalanceDTO monthlyBalanceDTO =
-        monthlyBalanceService.syncForNewMovement(movementDTO);
+    MonthlyBalanceDTO monthlyBalanceDTO = null;
+    if (syncedAccountDTO.productTypeShouldUpdateMonthlyBalance()) {
+      monthlyBalanceDTO = monthlyBalanceService.syncForNewMovement(movementDTO);
+    }
 
     return new AddBasicMovementDTO(syncedAccountDTO, movementDTO, monthlyBalanceDTO);
   }

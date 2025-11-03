@@ -1,5 +1,6 @@
 package com.jbh.account.domain.calculators;
 
+import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.isNotZero;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 
@@ -31,8 +32,12 @@ public class MoneyGrowthCalculator {
   public BigDecimal calculateGrowth(
       final BigDecimal openingBalance,
       final BigDecimal closingBalance,
-      final BigDecimal movementBalance)
+      final BigDecimal inputMovementAmount)
       throws AccountBusinessException {
+
+    final BigDecimal movementBalance =
+        inputMovementAmount != null ? withJBHDecimals(inputMovementAmount) : JBH_ZERO;
+
     final var denominator = getDenominator(openingBalance, closingBalance, movementBalance);
 
     // numerator = closingBalance - openingBalance - movementBalance

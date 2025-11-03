@@ -45,8 +45,8 @@ public final class AccountMetadata {
    * @return true if FULLY_WITHDRAWN key exists and is true
    */
   public boolean isFullyWithdrawn() {
-    return hasKey(AccountMetadataKey.FULLY_WITHDRAWN)
-        && JbhBooleanUtils.isTrue(get(AccountMetadataKey.FULLY_WITHDRAWN));
+    return hasKey(AccountMetadataKey.IS_FULLY_WITHDRAWN)
+        && JbhBooleanUtils.isTrue(get(AccountMetadataKey.IS_FULLY_WITHDRAWN));
   }
 
   /**
@@ -70,18 +70,6 @@ public final class AccountMetadata {
   }
 
   /**
-   * Adds or updates a metadata entry.
-   *
-   * @param key The metadata key
-   * @param value The value to store
-   */
-  public void put(final AccountMetadataKey key, final Object value) {
-    data.put(key.name(), value);
-  }
-
-  // ========== Typed Getters for Fully Withdrawn Data ==========
-
-  /**
    * Gets the date when the account was fully withdrawn.
    *
    * @return LocalDate or null if not set
@@ -89,6 +77,8 @@ public final class AccountMetadata {
   public LocalDate getFullyWithdrawnDate() {
     return (LocalDate) get(AccountMetadataKey.FULLY_WITHDRAWN_DATE);
   }
+
+  // ========== Typed Getters for Fully Withdrawn Data ==========
 
   /**
    * Gets the timestamp when the account was marked as fully withdrawn.
@@ -99,8 +89,6 @@ public final class AccountMetadata {
     return (LocalDateTime) get(AccountMetadataKey.FULLY_WITHDRAWN_AT);
   }
 
-  // ========== Typed Getters for Credit Card Metadata ==========
-
   /**
    * Gets the credit limit for credit card accounts.
    *
@@ -109,6 +97,8 @@ public final class AccountMetadata {
   public BigDecimal getCreditLimit() {
     return (BigDecimal) get(AccountMetadataKey.CREDIT_LIMIT);
   }
+
+  // ========== Typed Getters for Credit Card Metadata ==========
 
   /**
    * Gets the payment due day for credit card accounts.
@@ -119,8 +109,6 @@ public final class AccountMetadata {
     return (Integer) get(AccountMetadataKey.PAYMENT_DUE_DAY);
   }
 
-  // ========== Typed Getters for Investment Metadata ==========
-
   /**
    * Gets the broker name for investment accounts.
    *
@@ -129,6 +117,8 @@ public final class AccountMetadata {
   public String getBrokerName() {
     return (String) get(AccountMetadataKey.BROKER_NAME);
   }
+
+  // ========== Typed Getters for Investment Metadata ==========
 
   /**
    * Gets the commission rate for investment accounts.
@@ -139,8 +129,6 @@ public final class AccountMetadata {
     return (BigDecimal) get(AccountMetadataKey.COMMISSION_RATE);
   }
 
-  // ========== Typed Getters for CDT Metadata ==========
-
   /**
    * Gets the maturity date for CDT accounts.
    *
@@ -149,6 +137,8 @@ public final class AccountMetadata {
   public LocalDate getMaturityDate() {
     return (LocalDate) get(AccountMetadataKey.MATURITY_DATE);
   }
+
+  // ========== Typed Getters for CDT Metadata ==========
 
   /**
    * Gets the opening date for CDT accounts.
@@ -168,8 +158,6 @@ public final class AccountMetadata {
     return (Integer) get(AccountMetadataKey.TERM_LENGTH_IN_DAYS);
   }
 
-  // ========== Map Conversion ==========
-
   /**
    * Returns a defensive copy of the underlying metadata map. Used for persistence and
    * serialization.
@@ -179,6 +167,8 @@ public final class AccountMetadata {
   public Map<String, Object> asMap() {
     return new HashMap<>(data);
   }
+
+  // ========== Map Conversion ==========
 
   /**
    * Returns the number of metadata entries.
@@ -196,5 +186,29 @@ public final class AccountMetadata {
    */
   public boolean isEmpty() {
     return data.isEmpty();
+  }
+
+  public void putFullyWithdrawn(final LocalDate movementDate) {
+    put(AccountMetadataKey.FULLY_WITHDRAWN_DATE, movementDate);
+    put(AccountMetadataKey.FULLY_WITHDRAWN_AT, LocalDateTime.now());
+    put(AccountMetadataKey.IS_FULLY_WITHDRAWN, true);
+  }
+
+  /**
+   * Adds or updates a metadata entry.
+   *
+   * @param key The metadata key
+   * @param value The value to store
+   */
+  private void put(final AccountMetadataKey key, final Object value) {
+    data.put(key.name(), value);
+  }
+
+  public void putInitialBalance(final BigDecimal initialBalance) {
+    put(AccountMetadataKey.INITIAL_BALANCE, initialBalance);
+  }
+
+  public BigDecimal getInitialBalance() {
+    return (BigDecimal) get(AccountMetadataKey.INITIAL_BALANCE);
   }
 }

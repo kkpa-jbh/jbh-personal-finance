@@ -6,7 +6,7 @@ import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountMetadata;
-import com.jbh.account.domain.vo.AccountType;
+import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -16,7 +16,7 @@ import lombok.Builder;
 public record AccountDTO(
     AccountId id,
     String name,
-    AccountType type,
+    ProductType type,
     UUID userId,
     BigDecimal movementBalance,
     BigDecimal currentBalance,
@@ -28,7 +28,7 @@ public record AccountDTO(
     AccountMetadata metadata) {
 
   public static AccountDTO.AccountDTOBuilder defaultBuilder(
-      final UUID userId, final AccountId accountId, final String name, final AccountType type) {
+      final UUID userId, final AccountId accountId, final String name, final ProductType type) {
     return AccountDTO.notUseThisInternalBuilder()
         .userId(userId)
         .id(accountId)
@@ -45,7 +45,7 @@ public record AccountDTO(
   }
 
   public boolean isCDT() {
-    return type == AccountType.CDT;
+    return type == ProductType.CDT;
   }
 
   public boolean isFullyWithdrawn() {
@@ -54,5 +54,9 @@ public record AccountDTO(
 
   public AccountDomain toDomain() {
     return AccountMapper.toDomain(this);
+  }
+
+  public boolean productTypeShouldUpdateMonthlyBalance() {
+    return type.productTypeShouldUpdateMonthlyBalance();
   }
 }

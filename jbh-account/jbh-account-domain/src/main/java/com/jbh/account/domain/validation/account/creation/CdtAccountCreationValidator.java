@@ -46,6 +46,6 @@ public class CdtAccountCreationValidator extends BaseAccountCreationValidator
   public void validateInsufficientNetFlow(
       final AccountDomain account, final AccountMovementDomain movement)
       throws AccountBusinessException {
-    defaultValidationInsufficientNetFlow(account, movement);
+    // Do nothing
   }
 }

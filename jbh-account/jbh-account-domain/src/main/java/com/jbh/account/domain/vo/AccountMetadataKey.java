@@ -1,6 +1,8 @@
 package com.jbh.account.domain.vo;
 
 public enum AccountMetadataKey {
+  INITIAL_BALANCE,
+
   // Credit Card Input Metadata
   CREDIT_LIMIT,
   PAYMENT_DUE_DAY, // Fecha de Vencimiento de la cuenta (TC Dia del mes a pagar o corte).
@@ -15,7 +17,7 @@ public enum AccountMetadataKey {
   TERM_LENGTH_IN_DAYS,
 
   // System Calculated Metadata (all types)
-  FULLY_WITHDRAWN,
+  IS_FULLY_WITHDRAWN,
   FULLY_WITHDRAWN_DATE,
   FULLY_WITHDRAWN_AT,
   ;

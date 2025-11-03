@@ -23,7 +23,8 @@ import org.slf4j.LoggerFactory;
   "PMD.ImmutableField",
   "PMD.GodClass",
   "PMD.CyclomaticComplexity",
-  "PMD.NPathComplexity"
+  "PMD.NPathComplexity",
+  "PMD.UnusedAssignment"
 })
 public class AccountMonthlyBalanceDomain {
   private static final Logger LOG = LoggerFactory.getLogger(AccountMonthlyBalanceDomain.class);
@@ -55,6 +56,8 @@ public class AccountMonthlyBalanceDomain {
 
   private BigDecimal incomeWithholdingTaxAmount;
 
+  private boolean isActive = true;
+
   @SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.NPathComplexity"})
   public AccountMonthlyBalanceDomain(
       final Long id,
@@ -74,6 +77,7 @@ public class AccountMonthlyBalanceDomain {
       final BigDecimal monthlyProfitReported,
       final BigDecimal incomeWithholdingTaxAmount) {
 
+    this.isActive = true;
     this.id = id;
     this.accountId = accountId;
     this.year = year;
@@ -98,7 +102,7 @@ public class AccountMonthlyBalanceDomain {
     this.period = period;
     this.year = period.getYear();
     this.month = period.getMonthValue();
-
+    this.isActive = true;
     this.id = null;
   }
 

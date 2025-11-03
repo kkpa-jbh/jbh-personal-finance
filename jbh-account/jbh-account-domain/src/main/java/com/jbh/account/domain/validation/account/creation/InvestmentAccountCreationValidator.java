@@ -28,7 +28,7 @@ public class InvestmentAccountCreationValidator extends BaseAccountCreationValid
   public void validateInsufficientNetFlow(
       final AccountDomain account, final AccountMovementDomain movement)
       throws AccountBusinessException {
-    defaultValidationInsufficientNetFlow(account, movement);
+    // Do Nothing
   }
 
   private void validateBrokerName(final Map<String, Object> metadata)

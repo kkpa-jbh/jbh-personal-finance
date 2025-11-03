@@ -3,7 +3,7 @@ package com.jbh.account.domain.entity;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountType;
+import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -56,7 +56,7 @@ public class AccountDomainTestBuilder {
     return new AccountDomain(
         accountId,
         "DEFAULT_ACCOUNT_NAME",
-        AccountType.SAVINGS,
+        ProductType.SAVINGS,
         userId,
         movementBalance,
         currentBalance,
