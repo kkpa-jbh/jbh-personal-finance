@@ -11,8 +11,8 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.entity.AccountMovementDomain;
+import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import java.math.BigDecimal;
@@ -61,7 +61,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
 
     validateUploadedMovements(allUploadedMovCommand);
 
-    final AccountDomain accountDomain = findAccountOrElseThrow(userId, accountId);
+    final ProductDomain accountDomain = findAccountOrElseThrow(userId, accountId);
 
     final List<AccountMovementDomain> uploadedMovements =
         mapCommandToDomain(allUploadedMovCommand, accountDomain);
@@ -97,7 +97,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
     }
   }
 
-  private AccountDomain findAccountOrElseThrow(final UUID userId, final AccountId accountId) {
+  private ProductDomain findAccountOrElseThrow(final UUID userId, final AccountId accountId) {
     if (userId == null) {
       LOG.error("User ID cannot be null");
       throw new IllegalArgumentException("User ID cannot be null");
@@ -118,7 +118,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
 
   private List<AccountMovementDomain> mapCommandToDomain(
       final List<AddMovementUploadedFileCommand> allSimpleMovements,
-      final AccountDomain accountDomain) {
+      final ProductDomain accountDomain) {
     return allSimpleMovements.stream()
         .map(
             mvmntCommand -> {

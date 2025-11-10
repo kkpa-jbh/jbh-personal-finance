@@ -18,7 +18,7 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.validation.movementtype.MovementTypeValidatorStrategy;
 import com.jbh.account.application.core.validation.movementtype.MovementValidationStrategyFactory;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
-import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
+import com.jbh.account.domain.entity.MonthlyBalanceDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.JbhExceptionMessage;
 import com.jbh.account.domain.vo.AccountId;
@@ -146,7 +146,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
       final MonthlyBalanceDTO reportedMonthlyBalance, final AddMonthlyBalanceCommand command)
       throws AccountBusinessException {
 
-    final AccountMonthlyBalanceDomain monthlyBalanceDomain = toDomain(reportedMonthlyBalance);
+    final MonthlyBalanceDomain monthlyBalanceDomain = toDomain(reportedMonthlyBalance);
     final var updatedMonthlyBalance = assignOfficialReport(monthlyBalanceDomain, command);
 
     saveBalance(updatedMonthlyBalance);
@@ -156,8 +156,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   }
 
   private MonthlyBalanceDTO assignOfficialReport(
-      final AccountMonthlyBalanceDomain monthlyBalanceDomain,
-      final AddMonthlyBalanceCommand command)
+      final MonthlyBalanceDomain monthlyBalanceDomain, final AddMonthlyBalanceCommand command)
       throws AccountBusinessException {
     monthlyBalanceDomain.assignOfficialMonthlyReport(
         command.closingBalance(),
@@ -187,15 +186,14 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   public void updateOpeningBalanceNextMonth(final MonthlyBalanceDTO currentMonthlyBalance) {
     final YearMonth nextPeriod = currentMonthlyBalance.period().plusMonths(1);
 
-    final AccountMonthlyBalanceDomain nextMonthlyBalance =
+    final MonthlyBalanceDomain nextMonthlyBalance =
         queryRepo
             .findByAccountIdYearAndMonth(
                 currentMonthlyBalance.accountId(), nextPeriod.getYear(), nextPeriod.getMonthValue())
             .map(MonthlyBalanceMapper::toDomain)
             .orElseGet(
                 () ->
-                    AccountMonthlyBalanceDomain.withPeriod(
-                        currentMonthlyBalance.accountId(), nextPeriod));
+                    MonthlyBalanceDomain.withPeriod(currentMonthlyBalance.accountId(), nextPeriod));
 
     nextMonthlyBalance.assignOpeningBalance(toDomain(currentMonthlyBalance));
 
@@ -230,10 +228,10 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
         newMovement.movementDate());
     final LocalDate movementDate = newMovement.movementDate();
     final YearMonth movementPeriod = YearMonth.from(movementDate);
-    final AccountMonthlyBalanceDomain accountMonthlyBalance =
+    final MonthlyBalanceDomain accountMonthlyBalance =
         findByAccountIdAndPeriod(accountId, movementPeriod)
             .map(MonthlyBalanceMapper::toDomain)
-            .orElseGet(() -> AccountMonthlyBalanceDomain.withPeriod(accountId, movementPeriod));
+            .orElseGet(() -> MonthlyBalanceDomain.withPeriod(accountId, movementPeriod));
 
     accountMonthlyBalance.assignMovement(MovementMapper.toDomain(newMovement));
     final var syncedMonthlyBalanceDTO = toDTO(accountMonthlyBalance);
@@ -332,16 +330,15 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
       return Collections.emptyList();
     }
 
-    final List<AccountMonthlyBalanceDomain> existingNextBalancesFromPeriod =
+    final List<MonthlyBalanceDomain> existingNextBalancesFromPeriod =
         existingNextPeriodBalanceDTO.stream().map(MonthlyBalanceMapper::toDomain).toList();
-    final ConcurrentMap<YearMonth, AccountMonthlyBalanceDomain> existingDomainBalancesMap =
+    final ConcurrentMap<YearMonth, MonthlyBalanceDomain> existingDomainBalancesMap =
         existingNextBalancesFromPeriod.stream()
             .collect(
-                Collectors.toConcurrentMap(
-                    AccountMonthlyBalanceDomain::getPeriod, Function.identity()));
+                Collectors.toConcurrentMap(MonthlyBalanceDomain::getPeriod, Function.identity()));
 
     YearMonth currentPeriod = initPeriod;
-    final List<AccountMonthlyBalanceDomain> profitBalancesSynced = new ArrayList<>();
+    final List<MonthlyBalanceDomain> profitBalancesSynced = new ArrayList<>();
 
     // Syncing current and next monthly balances
     // FIXME: Using now() is not a good idea
@@ -350,14 +347,14 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
     while (isAvailablePeriod(now, currentPeriod, endPeriod)) {
 
       LOG.info("Syncing Movement Balance and Monthly Profit for period: {}", currentPeriod);
-      final AccountMonthlyBalanceDomain currentMonthlyBalance =
+      final MonthlyBalanceDomain currentMonthlyBalance =
           existingDomainBalancesMap.get(currentPeriod);
       currentMonthlyBalance.recalculateBalances();
 
       final YearMonth nextPeriod = currentMonthlyBalance.getPeriod().plusMonths(1);
       // LOG.debug("Syncing Opening Balance for next period: {} ", nextPeriod);
       // Syncing Next month opening balance with current month closing balance
-      AccountMonthlyBalanceDomain nextMonthlyBalanceOfCurrent =
+      MonthlyBalanceDomain nextMonthlyBalanceOfCurrent =
           existingNextBalancesFromPeriod.stream()
               .filter(mb -> mb.getPeriod().equals(nextPeriod))
               .findFirst()

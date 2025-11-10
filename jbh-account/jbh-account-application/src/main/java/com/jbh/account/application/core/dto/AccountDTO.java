@@ -3,7 +3,7 @@ package com.jbh.account.application.core.dto;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.account.application.core.mappers.AccountMapper;
-import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountMetadata;
 import com.jbh.account.domain.vo.ProductType;
@@ -52,7 +52,7 @@ public record AccountDTO(
     return metadata.isFullyWithdrawn();
   }
 
-  public AccountDomain toDomain() {
+  public ProductDomain toDomain() {
     return AccountMapper.toDomain(this);
   }
 

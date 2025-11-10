@@ -1,14 +1,14 @@
 package com.jbh.account.domain.validation.account.metrics;
 
 import com.jbh.account.domain.calculators.MoneyGrowthCalculator;
-import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import java.math.BigDecimal;
 
 public class BaseAccountMetricsCalculator {
   protected final MoneyGrowthCalculator moneyGrowthCalculator = new MoneyGrowthCalculator();
 
-  public BigDecimal defaultProfitBalanceCalculation(final AccountDomain accountDomain) {
+  public BigDecimal defaultProfitBalanceCalculation(final ProductDomain accountDomain) {
     final BigDecimal currentBalance = accountDomain.getCurrentBalance();
     final BigDecimal movementBalance = accountDomain.getMovementBalance();
     return currentBalance.subtract(movementBalance);

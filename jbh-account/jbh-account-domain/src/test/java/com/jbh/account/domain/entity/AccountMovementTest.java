@@ -25,8 +25,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class AccountMovementTest {
-  AccountDomain accountCeroBalance;
-  AccountDomain account100Balance;
+  ProductDomain accountCeroBalance;
+  ProductDomain account100Balance;
 
   LocalDate today = LocalDate.now();
   LocalDateTime importedAt = LocalDateTime.now();
@@ -47,7 +47,7 @@ public class AccountMovementTest {
     final var movementBalance = new BigDecimal("100.00");
     final var currentBalance = new BigDecimal("200.00");
 
-    final AccountDomain accountDomain =
+    final ProductDomain accountDomain =
         AccountDomainTestBuilder.withBasicMovementForExisting(
             AccountId.generate(), userId, movementBalance, currentBalance);
 

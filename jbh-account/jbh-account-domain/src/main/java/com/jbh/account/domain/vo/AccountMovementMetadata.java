@@ -1,6 +1,6 @@
 package com.jbh.account.domain.vo;
 
-import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.entity.ProductDomain;
 import java.time.LocalDateTime;
 import java.util.EnumMap;
 import java.util.Map;
@@ -38,7 +38,7 @@ public final class AccountMovementMetadata {
     return data.isEmpty();
   }
 
-  public void putTargetInternalAccount(final AccountDomain accountDomain) {
+  public void putTargetInternalAccount(final ProductDomain accountDomain) {
     put(AccountMovementMetadataKey.TARGET_INTERNAL_ACCOUNT_ID, accountDomain.getId());
     put(AccountMovementMetadataKey.TARGET_INTERNAL_ACCOUNT_NAME, accountDomain.getName());
   }
@@ -47,7 +47,7 @@ public final class AccountMovementMetadata {
     data.put(key, value);
   }
 
-  public void putInvestmentIncomeAccount(final AccountDomain accountDomain) {
+  public void putInvestmentIncomeAccount(final ProductDomain accountDomain) {
     put(AccountMovementMetadataKey.INVESTMENT_INCOME_ACCOUNT, accountDomain.getName());
   }
 

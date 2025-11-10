@@ -1,7 +1,7 @@
 package com.jbh.account.domain.validation.account.creation;
 
-import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.entity.AccountMovementDomain;
+import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import java.util.Map;
 
@@ -31,6 +31,6 @@ public interface AccountCreationValidator {
    * @param movement The movement to validate
    * @throws AccountBusinessException if validation fails with specific error type
    */
-  void validateInsufficientNetFlow(AccountDomain account, AccountMovementDomain movement)
+  void validateInsufficientNetFlow(ProductDomain account, AccountMovementDomain movement)
       throws AccountBusinessException;
 }

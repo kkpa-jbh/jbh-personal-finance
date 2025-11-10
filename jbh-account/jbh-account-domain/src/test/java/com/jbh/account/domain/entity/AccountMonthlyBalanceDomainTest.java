@@ -25,17 +25,17 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class AccountMonthlyBalanceDomainTest {
-  AccountMonthlyBalanceDomain ceroMonthlyBalance;
-  AccountMonthlyBalanceDomain oneHundredMonthlyBalance;
+  MonthlyBalanceDomain ceroMonthlyBalance;
+  MonthlyBalanceDomain oneHundredMonthlyBalance;
   LocalDate today = LocalDate.now();
   YearMonth todayYM = YearMonth.now();
   AccountId accountId = AccountId.generate();
 
   @BeforeEach
   public void setUp() throws AccountBusinessException {
-    ceroMonthlyBalance = AccountMonthlyBalanceDomain.withPeriod(accountId, todayYM);
+    ceroMonthlyBalance = MonthlyBalanceDomain.withPeriod(accountId, todayYM);
     ceroMonthlyBalance =
-        new AccountMonthlyBalanceDomain(
+        new MonthlyBalanceDomain(
             null,
             accountId,
             todayYM.getYear(),
@@ -53,7 +53,7 @@ public class AccountMonthlyBalanceDomainTest {
             JBH_ZERO,
             null);
 
-    oneHundredMonthlyBalance = AccountMonthlyBalanceDomain.withPeriod(accountId, todayYM);
+    oneHundredMonthlyBalance = MonthlyBalanceDomain.withPeriod(accountId, todayYM);
     oneHundredMonthlyBalance.assignMovement(
         EntityBuilder.with(
             accountId,
@@ -66,8 +66,8 @@ public class AccountMonthlyBalanceDomainTest {
 
   @Test
   public void shouldCreateWithConstructor() {
-    final AccountMonthlyBalanceDomain expected =
-        new AccountMonthlyBalanceDomain(
+    final MonthlyBalanceDomain expected =
+        new MonthlyBalanceDomain(
             null,
             accountId,
             todayYM.getYear(),
@@ -113,7 +113,7 @@ public class AccountMonthlyBalanceDomainTest {
 
   @Test
   public void shouldCreateWithOpeningBalance() {
-    AccountMonthlyBalanceDomain previousMonthlyBalance =
+    MonthlyBalanceDomain previousMonthlyBalance =
         EntityBuilder.withInitialDataForNextMonth(
             accountId, todayYM, new BigDecimal("350.00"), false);
     ceroMonthlyBalance.assignOpeningBalance(previousMonthlyBalance);
@@ -244,7 +244,7 @@ public class AccountMonthlyBalanceDomainTest {
     final BigDecimal existingTotalDebits = oneHundredMonthlyBalance.getTotalDebits();
     oneHundredMonthlyBalance.assignMovement(newMovement);
 
-    final AccountMonthlyBalanceDomain newBalance = oneHundredMonthlyBalance;
+    final MonthlyBalanceDomain newBalance = oneHundredMonthlyBalance;
 
     assertEquals(totalAmount.add(existingTotalDebits), newBalance.getTotalDebits());
     assertEquals(JBH_ZERO, newBalance.getTotalCredits());
@@ -315,7 +315,7 @@ public class AccountMonthlyBalanceDomainTest {
               }
             });
 
-    final AccountMonthlyBalanceDomain newBalance = oneHundredMonthlyBalance;
+    final MonthlyBalanceDomain newBalance = oneHundredMonthlyBalance;
     assertEquals(4, newBalance.getTotalMovements());
     assertEquals(new BigDecimal("140.00"), newBalance.getTotalDebits());
     assertEquals(new BigDecimal("20.00"), newBalance.getTotalCredits());
@@ -334,11 +334,11 @@ public class AccountMonthlyBalanceDomainTest {
     final var period4 = YearMonth.of(2024, 1);
     final var period5 = YearMonth.of(2024, 2);
 
-    final var balance1 = AccountMonthlyBalanceDomain.withPeriod(accountId, period1);
-    final var balance2 = AccountMonthlyBalanceDomain.withPeriod(accountId, period2);
-    final var balance3 = AccountMonthlyBalanceDomain.withPeriod(accountId, period3);
-    final var balance4 = AccountMonthlyBalanceDomain.withPeriod(accountId, period4);
-    final var balance5 = AccountMonthlyBalanceDomain.withPeriod(accountId, period5);
+    final var balance1 = MonthlyBalanceDomain.withPeriod(accountId, period1);
+    final var balance2 = MonthlyBalanceDomain.withPeriod(accountId, period2);
+    final var balance3 = MonthlyBalanceDomain.withPeriod(accountId, period3);
+    final var balance4 = MonthlyBalanceDomain.withPeriod(accountId, period4);
+    final var balance5 = MonthlyBalanceDomain.withPeriod(accountId, period5);
 
     balance1.assignMovement(
         EntityBuilder.with(
@@ -392,8 +392,8 @@ public class AccountMonthlyBalanceDomainTest {
   public void shouldThrowExceptionWhenDifferentPeriod() throws AccountBusinessException {
     final LocalDate initBalanceDate = LocalDate.of(2024, 8, 1);
     final YearMonth initBalancePeriod = YearMonth.of(2024, 8);
-    final AccountMonthlyBalanceDomain accountMonthlyBalance =
-        AccountMonthlyBalanceDomain.withPeriod(accountId, initBalancePeriod);
+    final MonthlyBalanceDomain accountMonthlyBalance =
+        MonthlyBalanceDomain.withPeriod(accountId, initBalancePeriod);
 
     // Add movement with balance snapshot of 2105192.00
     final var initBalanceSnapshot = new BigDecimal("2105192.00");

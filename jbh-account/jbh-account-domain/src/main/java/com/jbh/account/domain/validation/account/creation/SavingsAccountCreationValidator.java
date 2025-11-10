@@ -1,7 +1,7 @@
 package com.jbh.account.domain.validation.account.creation;
 
-import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.entity.AccountMovementDomain;
+import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import java.util.Map;
 
@@ -26,7 +26,7 @@ public class SavingsAccountCreationValidator extends BaseAccountCreationValidato
 
   @Override
   public void validateInsufficientNetFlow(
-      final AccountDomain account, final AccountMovementDomain movement)
+      final ProductDomain account, final AccountMovementDomain movement)
       throws AccountBusinessException {
     defaultValidationInsufficientNetFlow(account, movement);
   }

@@ -4,8 +4,8 @@ import com.jbh.account.application.common.logging.LoggerFactory;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
-import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
 import com.jbh.account.domain.entity.AccountMovementDomain;
+import com.jbh.account.domain.entity.MonthlyBalanceDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import java.time.YearMonth;
@@ -45,7 +45,7 @@ public class MonthlyBalanceSyncForUploadedMovements {
         movementsByPeriodMap.keySet().stream().sorted();
 
     // Sync Monthly Balances and prepare them for persistence
-    final List<AccountMonthlyBalanceDomain> monthlyBalancesToPersist = new ArrayList<>();
+    final List<MonthlyBalanceDomain> monthlyBalancesToPersist = new ArrayList<>();
     movementsPeriodsSorted.forEach(
         monthlyPeriodKey -> {
           final List<AccountMovementDomain> movementsInPeriod =
@@ -56,12 +56,11 @@ public class MonthlyBalanceSyncForUploadedMovements {
               movementsInPeriod.size(),
               monthlyPeriodKey);
 
-          final AccountMonthlyBalanceDomain accountMonthlyBalance =
+          final MonthlyBalanceDomain accountMonthlyBalance =
               monthlyBalanceService
                   .findByAccountIdAndPeriod(accountId, monthlyPeriodKey)
                   .map(MonthlyBalanceMapper::toDomain)
-                  .orElseGet(
-                      () -> AccountMonthlyBalanceDomain.withPeriod(accountId, monthlyPeriodKey));
+                  .orElseGet(() -> MonthlyBalanceDomain.withPeriod(accountId, monthlyPeriodKey));
 
           // TODO Should It return a AccountBusinessException?
           for (final AccountMovementDomain movement : movementsInPeriod) {

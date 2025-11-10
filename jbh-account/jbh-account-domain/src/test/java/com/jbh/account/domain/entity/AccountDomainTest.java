@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 public class AccountDomainTest {
 
   static UUID userId = UUID.randomUUID();
-  AccountDomain accountDomain;
+  ProductDomain accountDomain;
   LocalDate today = LocalDate.now();
 
   @Test
@@ -40,7 +40,7 @@ public class AccountDomainTest {
     assertDefaultAccountBalances(accountDomain);
   }
 
-  private void assertDefaultAccountBalances(final AccountDomain accountDomain) {
+  private void assertDefaultAccountBalances(final ProductDomain accountDomain) {
     assertNotNull(accountDomain.getId());
     assertEquals(JBH_ZERO, accountDomain.getMovementBalance());
     assertEquals(JBH_ZERO, accountDomain.getCurrentBalance());
@@ -52,13 +52,13 @@ public class AccountDomainTest {
   public void shouldCreateWithMinimumDataForCreation() throws Exception {
     final String name = "Test Account";
     accountDomain =
-        AccountDomain.withMinimumDataForCreation(
+        ProductDomain.withMinimumDataForCreation(
             name, ProductType.SAVINGS, UUID.randomUUID(), new HashMap<>());
     assert accountDomain.getId() != null;
     assertRequiredAccount(accountDomain);
   }
 
-  private void assertRequiredAccount(final AccountDomain accountDomain) {
+  private void assertRequiredAccount(final ProductDomain accountDomain) {
     assertNotNull(accountDomain.getId());
     assertNotNull(accountDomain.getName());
     assertNotNull(accountDomain.getType());
@@ -79,8 +79,8 @@ public class AccountDomainTest {
     final Map<String, Object> metadata = new HashMap<>();
 
     // Act
-    final AccountDomain account =
-        AccountDomain.withMinimumDataForCreation(
+    final ProductDomain account =
+        ProductDomain.withMinimumDataForCreation(
             accountName, ProductType.SAVINGS, testUserId, metadata);
 
     // Assert
@@ -103,8 +103,8 @@ public class AccountDomainTest {
     final UUID testUserId = UUID.randomUUID();
 
     // Act
-    final AccountDomain account =
-        AccountDomain.withMinimumDataForCreation(
+    final ProductDomain account =
+        ProductDomain.withMinimumDataForCreation(
             accountName, ProductType.SAVINGS, testUserId, null);
 
     // Assert
@@ -124,14 +124,15 @@ public class AccountDomainTest {
     final Map<String, Object> metadata = new HashMap<>();
 
     // Act
-    final AccountDomain account =
-        AccountDomain.withMinimumDataForCreation(
+    final ProductDomain account =
+        ProductDomain.withMinimumDataForCreation(
             accountName, ProductType.CDT, testUserId, metadata);
 
     // Assert
     assertNotNull(account);
     assertNotNull(account.getId());
     assertEquals(accountName, account.getName());
+    assertEquals(ProductType.CDT, account.getType());
     assertEquals(ProductType.CDT, account.getType());
     assertEquals(testUserId, account.getUserId());
     assertEquals(JBH_ZERO, account.getCurrentBalance());
@@ -147,8 +148,8 @@ public class AccountDomainTest {
     final UUID testUserId = UUID.randomUUID();
 
     // Act
-    final AccountDomain account =
-        AccountDomain.withMinimumDataForCreation(accountName, ProductType.CDT, testUserId, null);
+    final ProductDomain account =
+        ProductDomain.withMinimumDataForCreation(accountName, ProductType.CDT, testUserId, null);
 
     // Assert
     assertNotNull(account);
@@ -167,19 +168,19 @@ public class AccountDomainTest {
     assertThrows(
         AccountBusinessException.class,
         () ->
-            AccountDomain.withMinimumDataForCreation(
+            ProductDomain.withMinimumDataForCreation(
                 accountName, ProductType.CDT, testUserId, metadata));
 
     metadata.put(AccountMetadataKey.MATURITY_DATE.name(), "30/01/2025");
     assertThrows(
         AccountBusinessException.class,
         () ->
-            AccountDomain.withMinimumDataForCreation(
+            ProductDomain.withMinimumDataForCreation(
                 accountName, ProductType.CDT, testUserId, metadata));
 
     metadata.put(AccountMetadataKey.MATURITY_DATE.name(), LocalDate.of(2025, 1, 30));
-    final AccountDomain account =
-        AccountDomain.withMinimumDataForCreation(
+    final ProductDomain account =
+        ProductDomain.withMinimumDataForCreation(
             accountName, ProductType.CDT, testUserId, metadata);
     assertNotNull(account);
   }
@@ -200,7 +201,7 @@ public class AccountDomainTest {
         assertThrows(
             AccountBusinessException.class,
             () ->
-                AccountDomain.withMinimumDataForCreation(
+                ProductDomain.withMinimumDataForCreation(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
 
     assertNotNull(exception.getMessage());
@@ -220,7 +221,7 @@ public class AccountDomainTest {
         assertThrows(
             AccountBusinessException.class,
             () ->
-                AccountDomain.withMinimumDataForCreation(
+                ProductDomain.withMinimumDataForCreation(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
 
     assertNotNull(exception.getMessage());
@@ -240,7 +241,7 @@ public class AccountDomainTest {
         assertThrows(
             AccountBusinessException.class,
             () ->
-                AccountDomain.withMinimumDataForCreation(
+                ProductDomain.withMinimumDataForCreation(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
 
     assertNotNull(exception.getMessage());
@@ -260,7 +261,7 @@ public class AccountDomainTest {
         assertThrows(
             AccountBusinessException.class,
             () ->
-                AccountDomain.withMinimumDataForCreation(
+                ProductDomain.withMinimumDataForCreation(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
 
     assertNotNull(exception.getMessage());
@@ -280,7 +281,7 @@ public class AccountDomainTest {
         assertThrows(
             AccountBusinessException.class,
             () ->
-                AccountDomain.withMinimumDataForCreation(
+                ProductDomain.withMinimumDataForCreation(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
 
     assertNotNull(exception.getMessage());
@@ -300,7 +301,7 @@ public class AccountDomainTest {
         assertThrows(
             AccountBusinessException.class,
             () ->
-                AccountDomain.withMinimumDataForCreation(
+                ProductDomain.withMinimumDataForCreation(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
 
     assertNotNull(exception.getMessage());
@@ -320,7 +321,7 @@ public class AccountDomainTest {
         assertThrows(
             AccountBusinessException.class,
             () ->
-                AccountDomain.withMinimumDataForCreation(
+                ProductDomain.withMinimumDataForCreation(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
 
     assertNotNull(exception.getMessage());
@@ -340,7 +341,7 @@ public class AccountDomainTest {
         assertThrows(
             AccountBusinessException.class,
             () ->
-                AccountDomain.withMinimumDataForCreation(
+                ProductDomain.withMinimumDataForCreation(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
 
     assertNotNull(exception.getMessage());
@@ -358,7 +359,7 @@ public class AccountDomainTest {
         assertThrows(
             AccountBusinessException.class,
             () ->
-                AccountDomain.withMinimumDataForCreation(
+                ProductDomain.withMinimumDataForCreation(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
 
     assertNotNull(exception.getMessage());
@@ -377,8 +378,8 @@ public class AccountDomainTest {
     metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 15);
 
     // Act
-    final AccountDomain account =
-        AccountDomain.withMinimumDataForCreation(
+    final ProductDomain account =
+        ProductDomain.withMinimumDataForCreation(
             accountName, ProductType.CREDIT_CARD, testUserId, metadata);
 
     // Assert
@@ -407,8 +408,8 @@ public class AccountDomainTest {
     metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 1);
 
     // Act
-    final AccountDomain account =
-        AccountDomain.withMinimumDataForCreation(
+    final ProductDomain account =
+        ProductDomain.withMinimumDataForCreation(
             accountName, ProductType.CREDIT_CARD, testUserId, metadata);
 
     // Assert
@@ -427,8 +428,8 @@ public class AccountDomainTest {
     metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 31);
 
     // Act
-    final AccountDomain account =
-        AccountDomain.withMinimumDataForCreation(
+    final ProductDomain account =
+        ProductDomain.withMinimumDataForCreation(
             accountName, ProductType.CREDIT_CARD, testUserId, metadata);
 
     // Assert
@@ -451,7 +452,7 @@ public class AccountDomainTest {
         assertThrows(
             AccountBusinessException.class,
             () ->
-                AccountDomain.withMinimumDataForCreation(
+                ProductDomain.withMinimumDataForCreation(
                     accountName, ProductType.INVESTMENT, testUserId, metadata));
 
     assertNotNull(exception.getMessage());
@@ -470,7 +471,7 @@ public class AccountDomainTest {
         assertThrows(
             AccountBusinessException.class,
             () ->
-                AccountDomain.withMinimumDataForCreation(
+                ProductDomain.withMinimumDataForCreation(
                     accountName, ProductType.INVESTMENT, testUserId, metadata));
 
     assertNotNull(exception.getMessage());
@@ -489,7 +490,7 @@ public class AccountDomainTest {
         assertThrows(
             AccountBusinessException.class,
             () ->
-                AccountDomain.withMinimumDataForCreation(
+                ProductDomain.withMinimumDataForCreation(
                     accountName, ProductType.INVESTMENT, testUserId, metadata));
 
     assertNotNull(exception.getMessage());
@@ -508,7 +509,7 @@ public class AccountDomainTest {
         assertThrows(
             AccountBusinessException.class,
             () ->
-                AccountDomain.withMinimumDataForCreation(
+                ProductDomain.withMinimumDataForCreation(
                     accountName, ProductType.INVESTMENT, testUserId, metadata));
 
     assertNotNull(exception.getMessage());
@@ -527,8 +528,8 @@ public class AccountDomainTest {
     metadata.put(AccountMetadataKey.COMMISSION_RATE.name(), JBH_ZERO);
 
     // Act
-    final AccountDomain account =
-        AccountDomain.withMinimumDataForCreation(
+    final ProductDomain account =
+        ProductDomain.withMinimumDataForCreation(
             accountName, ProductType.INVESTMENT, testUserId, metadata);
 
     // Assert
@@ -558,8 +559,8 @@ public class AccountDomainTest {
       metadata.put(AccountMetadataKey.BROKER_NAME.name(), brokerName);
 
       // Act
-      final AccountDomain account =
-          AccountDomain.withMinimumDataForCreation(
+      final ProductDomain account =
+          ProductDomain.withMinimumDataForCreation(
               brokerName + " Account", ProductType.INVESTMENT, testUserId, metadata);
 
       // Assert
@@ -572,7 +573,7 @@ public class AccountDomainTest {
   public void shouldCreateWithBasicMovementForExisting() {
     final var movementBalance = new BigDecimal("100.00");
     final var currentBalance = new BigDecimal("200.00");
-    final AccountDomain accountDomain =
+    final ProductDomain accountDomain =
         AccountDomainTestBuilder.withBasicMovementForExisting(
             AccountId.generate(), userId, movementBalance, currentBalance);
 
@@ -584,7 +585,7 @@ public class AccountDomainTest {
   @Test
   public void shouldCreateWithConstructor() throws AccountBusinessException {
     final var accountDomain =
-        new AccountDomain(
+        new ProductDomain(
             AccountId.generate(),
             "name",
             ProductType.SAVINGS,

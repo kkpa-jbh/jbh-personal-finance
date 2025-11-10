@@ -37,8 +37,8 @@ import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.entity.AccountDomain;
-import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
+import com.jbh.account.domain.entity.MonthlyBalanceDomain;
+import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.ProductType;
@@ -69,7 +69,7 @@ import org.slf4j.LoggerFactory;
 public class UploadMultiMovementsExecutionMockTest {
   static AccountId accountId = AccountId.generate();
   static UUID userId = UUID.randomUUID();
-  static AccountDomain accountDomain =
+  static ProductDomain accountDomain =
       AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
   private static CreateAccountUseCase createAccountUseCase;
   private static AccountDTO currentAccount;
@@ -397,7 +397,7 @@ public class UploadMultiMovementsExecutionMockTest {
     assertEquals(10, actualProfitBalances.size());
 
     int index = -1;
-    AccountMonthlyBalanceDomain actualResponse = null;
+    MonthlyBalanceDomain actualResponse = null;
     final YearMonth expectedPeriod = YearMonth.of(2024, 7);
 
     // Row 1
@@ -511,7 +511,7 @@ public class UploadMultiMovementsExecutionMockTest {
     final List<MonthlyBalanceDTO> actualMonthlyBalances = futureResponse.get();
 
     int index = -1;
-    AccountMonthlyBalanceDomain actualResponse = null;
+    MonthlyBalanceDomain actualResponse = null;
 
     // Row Julio/23
     actualResponse = toDomain(actualMonthlyBalances.get(++index));
@@ -775,7 +775,7 @@ public class UploadMultiMovementsExecutionMockTest {
 
     // Response
     int index = -1;
-    AccountMonthlyBalanceDomain actualResponse = null;
+    MonthlyBalanceDomain actualResponse = null;
 
     // Row Octubre/23
     actualResponse = toDomain(actualMonthlyBalances.get(++index));

@@ -1,6 +1,6 @@
 package com.jbh.account.domain.validation.account.metrics;
 
-import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import java.math.BigDecimal;
 
@@ -8,14 +8,14 @@ public class CreditCardAccountMetricsCalculator extends BaseAccountMetricsCalcul
     implements AccountMetricsCalculator {
 
   @Override
-  public BigDecimal calculateProfitBalance(final AccountDomain accountDomain) {
+  public BigDecimal calculateProfitBalance(final ProductDomain accountDomain) {
     return defaultProfitBalanceCalculation(accountDomain);
   }
 
   @Override
   public BigDecimal calculateNetGrowthReate(
       final BigDecimal openingBalance,
-      final AccountDomain accountDomain,
+      final ProductDomain accountDomain,
       final BigDecimal movementAmount)
       throws AccountBusinessException {
     final BigDecimal closingBalance = accountDomain.getCurrentBalance();

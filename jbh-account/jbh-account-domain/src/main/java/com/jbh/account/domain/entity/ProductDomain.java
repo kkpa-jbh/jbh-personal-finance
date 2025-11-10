@@ -30,9 +30,9 @@ import org.slf4j.LoggerFactory;
 
 @Getter
 @SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.CollapsibleIfStatements"})
-public class AccountDomain {
+public class ProductDomain {
 
-  private static final Logger LOG = LoggerFactory.getLogger(AccountDomain.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProductDomain.class);
   protected AccountId id;
   protected String name;
   protected ProductType type;
@@ -56,14 +56,14 @@ public class AccountDomain {
   protected AccountMetadata metadata = AccountMetadata.empty();
   private AccountMetricsCalculator metricsCalculator;
 
-  private AccountDomain(final String name, final ProductType type, final UUID userId) {
+  private ProductDomain(final String name, final ProductType type, final UUID userId) {
     this.id = AccountId.generate();
     this.name = name;
     this.type = type;
     this.userId = userId;
   }
 
-  public AccountDomain(
+  public ProductDomain(
       final AccountId id,
       final String name,
       final ProductType type,
@@ -101,7 +101,7 @@ public class AccountDomain {
    * @return AccountDomain instance
    * @throws AccountBusinessException if validation fails based on account type requirements
    */
-  public static AccountDomain withMinimumDataForCreation(
+  public static ProductDomain withMinimumDataForCreation(
       final String name,
       final ProductType type,
       final UUID userId,
@@ -113,7 +113,7 @@ public class AccountDomain {
     validator.validateMetadata(metadata != null ? metadata : new HashMap<>());
 
     // Only create the object if validation passes
-    final AccountDomain accountDomain = new AccountDomain(name, type, userId);
+    final ProductDomain accountDomain = new ProductDomain(name, type, userId);
 
     // Set metadata if provided
     if (metadata != null && !metadata.isEmpty()) {

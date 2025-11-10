@@ -13,12 +13,12 @@ import java.time.YearMonth;
 
 public class EntityBuilder {
 
-  public static AccountMonthlyBalanceDomain withInitialDataForNextMonth(
+  public static MonthlyBalanceDomain withInitialDataForNextMonth(
       final AccountId accountId,
       final YearMonth period,
       final BigDecimal closingBalance,
       final boolean gapPeriod) {
-    return new AccountMonthlyBalanceDomain(
+    return new MonthlyBalanceDomain(
         null,
         accountId,
         period.getYear(),

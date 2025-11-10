@@ -1,13 +1,13 @@
 package com.jbh.account.application.core.mappers;
 
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
+import com.jbh.account.domain.entity.MonthlyBalanceDomain;
 
 public final class MonthlyBalanceMapper {
 
   private MonthlyBalanceMapper() {}
 
-  public static MonthlyBalanceDTO toDTO(final AccountMonthlyBalanceDomain domain) {
+  public static MonthlyBalanceDTO toDTO(final MonthlyBalanceDomain domain) {
     if (domain == null) {
       return null;
     }
@@ -33,12 +33,12 @@ public final class MonthlyBalanceMapper {
         .build();
   }
 
-  public static AccountMonthlyBalanceDomain toDomain(final MonthlyBalanceDTO dto) {
+  public static MonthlyBalanceDomain toDomain(final MonthlyBalanceDTO dto) {
     if (dto == null) {
       return null;
     }
 
-    return new AccountMonthlyBalanceDomain(
+    return new MonthlyBalanceDomain(
         dto.id(),
         dto.accountId(),
         dto.year(),

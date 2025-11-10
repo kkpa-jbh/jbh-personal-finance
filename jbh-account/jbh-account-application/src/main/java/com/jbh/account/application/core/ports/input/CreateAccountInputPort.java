@@ -5,7 +5,7 @@ import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.vo.commands.CreateAccountCommand;
-import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountMetadataKey;
@@ -42,8 +42,8 @@ public class CreateAccountInputPort implements CreateAccountUseCase {
 
     // Domain validates itself during construction using Strategy Pattern
     // This ensures type-specific metadata requirements are enforced
-    final AccountDomain accountDomain =
-        AccountDomain.withMinimumDataForCreation(
+    final ProductDomain accountDomain =
+        ProductDomain.withMinimumDataForCreation(
             command.name(), command.type(), command.userId(), domainMetadata);
 
     // Persist the validated domain entity

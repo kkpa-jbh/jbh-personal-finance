@@ -3,8 +3,8 @@ package com.jbh.account.application.core.services.account;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
-import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.entity.AccountMovementDomain;
+import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
@@ -25,7 +25,7 @@ public interface AccountService {
 
   AccountDTO save(AccountDTO account);
 
-  AccountDTO save(AccountDomain account);
+  AccountDTO save(ProductDomain account);
 
   /**
    * @param accountId
@@ -64,6 +64,6 @@ public interface AccountService {
       throws AccountBusinessException;
 
   AccountDTO syncByUploadedMovements(
-      AccountDomain accountDomain, List<AccountMovementDomain> uploadedMovements)
+      ProductDomain accountDomain, List<AccountMovementDomain> uploadedMovements)
       throws AccountBusinessException;
 }

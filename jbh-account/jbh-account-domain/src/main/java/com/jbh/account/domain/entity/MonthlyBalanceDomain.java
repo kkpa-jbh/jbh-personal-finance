@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
   "PMD.NPathComplexity",
   "PMD.UnusedAssignment"
 })
-public class AccountMonthlyBalanceDomain {
-  private static final Logger LOG = LoggerFactory.getLogger(AccountMonthlyBalanceDomain.class);
+public class MonthlyBalanceDomain {
+  private static final Logger LOG = LoggerFactory.getLogger(MonthlyBalanceDomain.class);
   private final MoneyGrowthCalculator moneyGrowthCalculator = new MoneyGrowthCalculator();
 
   // Attributes
@@ -59,7 +59,7 @@ public class AccountMonthlyBalanceDomain {
   private boolean isActive = true;
 
   @SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.NPathComplexity"})
-  public AccountMonthlyBalanceDomain(
+  public MonthlyBalanceDomain(
       final Long id,
       final AccountId accountId,
       final Integer year,
@@ -97,7 +97,7 @@ public class AccountMonthlyBalanceDomain {
   }
 
   /** Constructor with required fields. */
-  private AccountMonthlyBalanceDomain(final AccountId accountId, final YearMonth period) {
+  private MonthlyBalanceDomain(final AccountId accountId, final YearMonth period) {
     this.accountId = accountId;
     this.period = period;
     this.year = period.getYear();
@@ -106,9 +106,8 @@ public class AccountMonthlyBalanceDomain {
     this.id = null;
   }
 
-  public static AccountMonthlyBalanceDomain withPeriod(
-      final AccountId accountId, final YearMonth period) {
-    return new AccountMonthlyBalanceDomain(accountId, period);
+  public static MonthlyBalanceDomain withPeriod(final AccountId accountId, final YearMonth period) {
+    return new MonthlyBalanceDomain(accountId, period);
   }
 
   /** Returns a hash code value for the object based on period and accountId. */
@@ -130,11 +129,11 @@ public class AccountMonthlyBalanceDomain {
       return false;
     }
 
-    final AccountMonthlyBalanceDomain that = (AccountMonthlyBalanceDomain) obj;
+    final MonthlyBalanceDomain that = (MonthlyBalanceDomain) obj;
     return Objects.equals(period, that.period) && Objects.equals(accountId, that.accountId);
   }
 
-  public void assignOpeningBalance(final AccountMonthlyBalanceDomain previousMonthlyBalance) {
+  public void assignOpeningBalance(final MonthlyBalanceDomain previousMonthlyBalance) {
     if (this.officialMonthlyReport && previousMonthlyBalance.officialMonthlyReport) {
       LOG.info(
           "Skipping opening balance adjustment for an official monthly report {}", this.period);

@@ -8,8 +8,8 @@ import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.ports.output.AccountRepository;
-import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.entity.AccountMovementDomain;
+import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
@@ -57,7 +57,7 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public AccountDTO save(final AccountDomain account) {
+  public AccountDTO save(final ProductDomain account) {
     return accountRepo.save(toDTO(account));
   }
 
@@ -78,7 +78,7 @@ public class AccountServiceImpl implements AccountService {
     save(accountDomain);
   }
 
-  private AccountDomain findDomainOrThrow(final AccountId accountId) {
+  private ProductDomain findDomainOrThrow(final AccountId accountId) {
     final Optional<AccountDTO> accountDTO = findByAccountId(accountId);
 
     if (accountDTO.isEmpty()) {
@@ -99,7 +99,7 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public boolean isFullyWithdrawn(final AccountId accountId) {
-    final AccountDomain accountDomain = findDomainOrThrow(accountId);
+    final ProductDomain accountDomain = findDomainOrThrow(accountId);
     return accountDomain.isFullyWithdrawn();
   }
 
@@ -140,7 +140,7 @@ public class AccountServiceImpl implements AccountService {
       final boolean isMonthOfficiallyReported)
       throws AccountBusinessException {
 
-    final AccountDomain accountDomain = findDomainOrThrow(accountPK);
+    final ProductDomain accountDomain = findDomainOrThrow(accountPK);
     syncAccountDomainBalanceByMovement(
         accountDomain, MovementMapper.toDomain(movement), isMonthOfficiallyReported);
 
@@ -150,7 +150,7 @@ public class AccountServiceImpl implements AccountService {
   }
 
   private void syncAccountDomainBalanceByMovement(
-      final AccountDomain accountDomain,
+      final ProductDomain accountDomain,
       final AccountMovementDomain movement,
       final boolean isMonthOfficiallyReported)
       throws AccountBusinessException {
@@ -159,7 +159,7 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public AccountDTO syncByUploadedMovements(
-      final AccountDomain accountDomain, final List<AccountMovementDomain> uploadedMovements)
+      final ProductDomain accountDomain, final List<AccountMovementDomain> uploadedMovements)
       throws AccountBusinessException {
 
     if (uploadedMovements == null || uploadedMovements.isEmpty()) {
@@ -180,7 +180,7 @@ public class AccountServiceImpl implements AccountService {
     return toDTO(accountDomain);
   }
 
-  private AccountDomain findDomainOrThrow(final AccountPK accountPK) {
+  private ProductDomain findDomainOrThrow(final AccountPK accountPK) {
     final UUID userId = accountPK.userId();
     final AccountId accountId = accountPK.accountId();
 

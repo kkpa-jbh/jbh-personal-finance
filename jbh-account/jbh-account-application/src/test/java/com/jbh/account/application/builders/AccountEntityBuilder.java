@@ -3,7 +3,7 @@ package com.jbh.account.application.builders;
 import static com.jbh.account.application.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
-import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
@@ -38,7 +38,7 @@ public class AccountEntityBuilder {
    * @param currentBalance Current balance
    * @return AccountDomain instance
    */
-  public static AccountDomain withBasicMovementForExisting(
+  public static ProductDomain withBasicMovementForExisting(
       final AccountId accountId,
       final UUID userId,
       final BigDecimal movementBalance,
@@ -57,10 +57,10 @@ public class AccountEntityBuilder {
    *
    * @return AccountDomain instance configured with the builder's data
    */
-  public AccountDomain build() {
+  public ProductDomain build() {
     try {
-      final AccountDomain accountDomain =
-          new AccountDomain(
+      final ProductDomain accountDomain =
+          new ProductDomain(
               accountId,
               name,
               type != null ? type : DEFAULT_ACCOUNT_TYPE,
@@ -111,9 +111,9 @@ public class AccountEntityBuilder {
   }
 
   private void setField(
-      final AccountDomain accountDomain, final String fieldName, final Object value)
+      final ProductDomain accountDomain, final String fieldName, final Object value)
       throws NoSuchFieldException, IllegalAccessException {
-    final var field = AccountDomain.class.getDeclaredField(fieldName);
+    final var field = ProductDomain.class.getDeclaredField(fieldName);
     field.setAccessible(true);
     field.set(accountDomain, value);
   }

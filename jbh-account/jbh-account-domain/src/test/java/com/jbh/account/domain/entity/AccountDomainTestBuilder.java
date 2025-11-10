@@ -32,7 +32,7 @@ public class AccountDomainTestBuilder {
    * @param currentBalance Current balance
    * @return AccountDomain instance
    */
-  public static AccountDomain withBasicMovementForExisting(
+  public static ProductDomain withBasicMovementForExisting(
       final AccountId accountId,
       final UUID userId,
       final BigDecimal movementBalance,
@@ -51,9 +51,9 @@ public class AccountDomainTestBuilder {
    *
    * @return AccountDomain instance configured with the builder's data
    */
-  public AccountDomain build() {
+  public ProductDomain build() {
 
-    return new AccountDomain(
+    return new ProductDomain(
         accountId,
         "DEFAULT_ACCOUNT_NAME",
         ProductType.SAVINGS,

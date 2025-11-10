@@ -11,7 +11,7 @@ import com.jbh.account.application.core.services.movements.AccountMovementApplic
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.domain.entity.AccountMonthlyBalanceDomain;
+import com.jbh.account.domain.entity.MonthlyBalanceDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.JbhExceptionMessage;
 import com.jbh.account.domain.vo.AccountId;
@@ -79,7 +79,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
     validateConsecutiveMonthlyBalances(accountId, periodToRegister);
 
     // FIXME TODO - Move all this logic to the service itself
-    AccountMonthlyBalanceDomain monthlyBalanceDomain =
+    MonthlyBalanceDomain monthlyBalanceDomain =
         findMonthlyBalanceByPeriod(accountId, periodToRegister);
 
     // If it's the first monthly balance, create a movement and it will create the monthly balance
@@ -157,7 +157,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
     }
   }
 
-  private AccountMonthlyBalanceDomain findMonthlyBalanceByPeriod(
+  private MonthlyBalanceDomain findMonthlyBalanceByPeriod(
       final AccountId accountId, final YearMonth periodToRegister) {
     return monthlyBalanceService
         .findByAccountIdYearAndMonth(

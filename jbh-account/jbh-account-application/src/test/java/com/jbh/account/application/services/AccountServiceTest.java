@@ -7,9 +7,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.jbh.account.application.builders.AccountEntityBuilder;
 import com.jbh.account.application.builders.UseCaseBuilder;
 import com.jbh.account.application.core.services.account.AccountService;
-import com.jbh.account.domain.entity.AccountDomain;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.MovementCategoryDomain;
+import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountId;
@@ -27,7 +27,7 @@ public class AccountServiceTest {
 
   static UUID userId = UUID.randomUUID();
   private static AccountService accountService;
-  AccountDomain accountDomain;
+  ProductDomain accountDomain;
   LocalDate today = LocalDate.now();
 
   @BeforeEach
@@ -40,7 +40,7 @@ public class AccountServiceTest {
     int totalMovements = 2;
     final var accountMovementBalance = new BigDecimal("100.00");
     final var accountCurrentBalance = new BigDecimal("100.00");
-    final AccountDomain accountDomain =
+    final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(
             AccountId.generate(), userId, accountMovementBalance, accountCurrentBalance);
 
@@ -106,7 +106,7 @@ public class AccountServiceTest {
   public void shouldSyncSingleBalance() throws AccountBusinessException {
     final var movementBalance = new BigDecimal("100.00");
     final var currentBalance = new BigDecimal("200.00");
-    final AccountDomain accountDomain =
+    final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(
             AccountId.generate(), userId, movementBalance, currentBalance);
 

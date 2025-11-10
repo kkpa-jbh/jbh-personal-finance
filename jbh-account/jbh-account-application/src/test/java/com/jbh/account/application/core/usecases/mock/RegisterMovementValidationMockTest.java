@@ -34,7 +34,7 @@ import com.jbh.account.application.core.services.movements.AccountMovementServic
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.utils.JbhMoneyUtils;
@@ -193,7 +193,7 @@ public class RegisterMovementValidationMockTest {
     final AddMovementCommand request =
         new AddMovementCommand(
             movementDate, amount, MovementCategoryDTO.withType(IncomeCategory.OTHER));
-    final AccountDomain accountDomain =
+    final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
@@ -217,7 +217,7 @@ public class RegisterMovementValidationMockTest {
     final BigDecimal amount = new BigDecimal("100.00");
 
     final AddMovementCommand request = createMovement(movementDate, amount, OTHER_INCOME_CATEGORY);
-    final AccountDomain accountDomain =
+    final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
@@ -242,7 +242,7 @@ public class RegisterMovementValidationMockTest {
 
     final AddMovementCommand request =
         createExpense(movementDate, amount, ExpenseCategory.PERSONAL);
-    final AccountDomain accountDomain =
+    final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
@@ -267,7 +267,7 @@ public class RegisterMovementValidationMockTest {
 
     final AddMovementCommand request =
         createExpense(movementDate, amount, ExpenseCategory.PERSONAL);
-    final AccountDomain accountDomain =
+    final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(
             accountId, userId, new BigDecimal("30.00"), new BigDecimal("30.00"));
 

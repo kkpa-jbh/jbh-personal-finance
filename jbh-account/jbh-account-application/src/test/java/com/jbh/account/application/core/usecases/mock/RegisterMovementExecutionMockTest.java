@@ -36,7 +36,7 @@ import com.jbh.account.application.core.services.movements.AccountMovementServic
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.entity.AccountDomain;
+import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
@@ -108,7 +108,7 @@ public class RegisterMovementExecutionMockTest {
 
     final AddMovementCommand request =
         createMovementWithType(movementDate, amount, DEPOSIT, OTHER_INCOME_CATEGORY);
-    final AccountDomain accountDomain = withId(accountId);
+    final ProductDomain accountDomain = withId(accountId);
 
     final var dto = Optional.of(AccountMapper.toDTO(accountDomain));
     when(accountRepository.findByUserAndAccountId(userId, accountId)).thenReturn(dto);
@@ -150,7 +150,7 @@ public class RegisterMovementExecutionMockTest {
     assertEquals(JBH_ZERO, futureResponse.get(1).monthlyNetProfit());
   }
 
-  private AccountDomain withId(final AccountId accountId) {
+  private ProductDomain withId(final AccountId accountId) {
     return AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
   }
 
@@ -165,7 +165,7 @@ public class RegisterMovementExecutionMockTest {
     final AddMovementCommand request =
         createMovement(movementDate, null, balanceSnashot, BALANCE_SNAPSHOT, null);
 
-    final AccountDomain accountDomain =
+    final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(
             accountId, userId, existingAccountPpalBalance, new BigDecimal("190.00"));
 
@@ -205,7 +205,7 @@ public class RegisterMovementExecutionMockTest {
 
     final BigDecimal existingMovBalance = new BigDecimal("12591000.00");
 
-    final AccountDomain accountDomain =
+    final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(
             accountId, userId, existingMovBalance, new BigDecimal("12689712.00"));
 
@@ -246,7 +246,7 @@ public class RegisterMovementExecutionMockTest {
     final AccountId accountId = AccountId.generate();
     final LocalDate movementDate = LocalDate.now();
 
-    final AccountDomain accountDomain = withId(accountId);
+    final ProductDomain accountDomain = withId(accountId);
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
