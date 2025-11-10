@@ -3,7 +3,7 @@ package com.jbh.account.domain.validation.account.creation;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
-import java.util.Map;
+import com.jbh.account.domain.vo.ProductMetadata;
 
 /**
  * Validator for SAVINGS account type creation.
@@ -16,7 +16,7 @@ public class SavingsAccountCreationValidator extends BaseAccountCreationValidato
     implements AccountCreationValidator {
 
   @Override
-  public void validateMetadata(final Map<String, Object> metadata) throws AccountBusinessException {
+  public void validateMetadata(final ProductMetadata metadata) throws AccountBusinessException {
     // No specific metadata required for savings accounts (yet)
     // Future validations can be added here:
     // - Minimum balance

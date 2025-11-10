@@ -1,6 +1,6 @@
 package com.jbh.account.domain.vo;
 
-public enum AccountMetadataKey {
+public enum ProductMetadataKey {
   INITIAL_BALANCE,
 
   // Credit Card Input Metadata
@@ -20,5 +20,12 @@ public enum AccountMetadataKey {
   IS_FULLY_WITHDRAWN,
   FULLY_WITHDRAWN_DATE,
   FULLY_WITHDRAWN_AT,
+
+  // Core Loan Terms
+  LOAN_PRINCIPAL_AMOUNT, // Original amount borrowed
+  LOAN_INTEREST_RATE, // Annual interest rate (APR)
+  LOAN_TOTAL_AMOUNT_PAID, // Total cumulative amount paid
+
+  LOAN_PAYOFF_AMOUNT, // Total amount to pay off loan today
   ;
 }

@@ -21,9 +21,9 @@ import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.vo.commands.CreateAccountCommand;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.vo.AccountMetadataKey;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
+import com.jbh.account.domain.vo.ProductMetadataKey;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -104,7 +104,7 @@ public class CreateAccountITTest {
 
   @Test
   void creditCardAccountValidations() {
-    final Map<AccountMetadataKey, Object> metadata = new HashMap<>();
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
     final CreateAccountCommand invalidCommand =
         createCreditCardCommand(userId, "Test CDT", metadata);
     assertThrows(

@@ -5,10 +5,10 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -72,7 +72,7 @@ public class AccountEntityBuilder {
               LocalDateTime.now(),
               LocalDateTime.now(),
               JBH_ZERO,
-              new HashMap<>());
+              ProductMetadata.empty());
 
       // Set fields using reflection since they're protected and in a different module
       setField(accountDomain, "id", accountId);

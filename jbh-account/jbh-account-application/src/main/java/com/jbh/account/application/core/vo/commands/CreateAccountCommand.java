@@ -1,14 +1,14 @@
 package com.jbh.account.application.core.vo.commands;
 
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.vo.AccountMetadataKey;
+import com.jbh.account.domain.vo.ProductMetadataKey;
 import com.jbh.account.domain.vo.ProductType;
 import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 
 public record CreateAccountCommand(
-    UUID userId, String name, ProductType type, Map<AccountMetadataKey, Object> metadata)
+    UUID userId, String name, ProductType type, Map<ProductMetadataKey, Object> metadata)
     implements CommandValidator {
 
   // Convenience constructor for backward compatibility

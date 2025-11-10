@@ -5,7 +5,7 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountMetadata;
+import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -25,7 +25,7 @@ public record AccountDTO(
     LocalDateTime createdAt,
     LocalDateTime updatedAt,
     BigDecimal netGrowthRate,
-    AccountMetadata metadata) {
+    ProductMetadata metadata) {
 
   public static AccountDTO.AccountDTOBuilder defaultBuilder(
       final UUID userId, final AccountId accountId, final String name, final ProductType type) {
@@ -41,7 +41,7 @@ public record AccountDTO(
         .createdAt(LocalDateTime.now())
         .updatedAt(LocalDateTime.now())
         .netGrowthRate(JBH_ZERO)
-        .metadata(AccountMetadata.empty());
+        .metadata(ProductMetadata.empty());
   }
 
   public boolean isCDT() {

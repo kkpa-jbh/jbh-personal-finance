@@ -46,7 +46,7 @@ public final class AccountMapper {
             dto.createdAt(),
             dto.updatedAt(),
             dto.netGrowthRate(),
-            dto.metadata().asMap());
+            dto.metadata());
 
     return domain;
   }

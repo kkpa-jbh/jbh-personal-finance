@@ -23,8 +23,8 @@ import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.usecases.LiquidateAccountUseCase;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountMetadataKey;
 import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.vo.ProductMetadataKey;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -84,8 +84,8 @@ public class RegisterCDTMovementITTest {
   @Order(0)
   void createAccounts() throws AccountBusinessException {
     final LocalDate mvmDate = period.atDay(1);
-    final Map<AccountMetadataKey, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.MATURITY_DATE, period.plusMonths(1).atDay(1));
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.MATURITY_DATE, period.plusMonths(1).atDay(1));
     cdtAccount =
         createAccountUseCase.execute(CommandTestBuilder.createCDTCommand(userId, name, metadata));
     assertNotNull(cdtAccount);

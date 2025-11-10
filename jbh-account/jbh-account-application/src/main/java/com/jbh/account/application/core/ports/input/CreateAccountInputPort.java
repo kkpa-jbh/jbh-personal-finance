@@ -8,8 +8,8 @@ import com.jbh.account.application.core.vo.commands.CreateAccountCommand;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.vo.AccountMetadataKey;
-import java.util.HashMap;
+import com.jbh.account.domain.vo.ProductMetadata;
+import com.jbh.account.domain.vo.ProductMetadataKey;
 import java.util.Map;
 import org.slf4j.Logger;
 
@@ -35,7 +35,7 @@ public class CreateAccountInputPort implements CreateAccountUseCase {
 
     // Convert metadata from command format (AccountMetadataKey -> Object)
     // to domain format (String -> Object)
-    final Map<String, Object> domainMetadata = convertMetadata(command.metadata());
+    final ProductMetadata domainMetadata = convertMetadata(command.metadata());
 
     // The application layer (Input Port) is responsible for orchestrating the use case. Creating
     // domain objects is part of that orchestration.
@@ -65,14 +65,11 @@ public class CreateAccountInputPort implements CreateAccountUseCase {
    * @param commandMetadata The metadata from the command
    * @return A map with string keys (AccountMetadataKey.name()) and original values
    */
-  private Map<String, Object> convertMetadata(
-      final Map<AccountMetadataKey, Object> commandMetadata) {
+  private ProductMetadata convertMetadata(final Map<ProductMetadataKey, Object> commandMetadata) {
     if (commandMetadata == null || commandMetadata.isEmpty()) {
-      return new HashMap<>();
+      return ProductMetadata.empty();
     }
 
-    final Map<String, Object> domainMetadata = new HashMap<>();
-    commandMetadata.forEach((key, value) -> domainMetadata.put(key.name(), value));
-    return domainMetadata;
+    return ProductMetadata.of(commandMetadata);
   }
 }

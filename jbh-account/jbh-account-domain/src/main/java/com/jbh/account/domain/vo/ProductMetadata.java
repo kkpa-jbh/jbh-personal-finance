@@ -4,6 +4,7 @@ import com.jbh.account.domain.utils.JbhBooleanUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,12 +13,15 @@ import java.util.Map;
  * This VO can be used across all layers (domain, application, infrastructure) in the hexagonal
  * architecture without breaking layer isolation.
  */
-public final class AccountMetadata {
+public final class ProductMetadata {
 
-  private final Map<String, Object> data;
+  private final Map<ProductMetadataKey, Object> data;
 
-  private AccountMetadata(final Map<String, Object> data) {
-    this.data = data != null ? new HashMap<>(data) : new HashMap<>();
+  private ProductMetadata(final Map<ProductMetadataKey, Object> data) {
+    this.data =
+        data != null && !data.isEmpty()
+            ? new EnumMap<>(data)
+            : new EnumMap<>(ProductMetadataKey.class);
   }
 
   /**
@@ -25,18 +29,12 @@ public final class AccountMetadata {
    *
    * @return AccountMetadata with no data
    */
-  public static AccountMetadata empty() {
-    return new AccountMetadata(new HashMap<>());
+  public static ProductMetadata empty() {
+    return new ProductMetadata(new EnumMap<>(ProductMetadataKey.class));
   }
 
-  /**
-   * Creates an AccountMetadata instance from a Map.
-   *
-   * @param data The metadata map
-   * @return AccountMetadata wrapping the provided data
-   */
-  public static AccountMetadata of(final Map<String, Object> data) {
-    return new AccountMetadata(data);
+  public static ProductMetadata of(final Map<ProductMetadataKey, Object> data) {
+    return new ProductMetadata(data);
   }
 
   /**
@@ -45,8 +43,8 @@ public final class AccountMetadata {
    * @return true if FULLY_WITHDRAWN key exists and is true
    */
   public boolean isFullyWithdrawn() {
-    return hasKey(AccountMetadataKey.IS_FULLY_WITHDRAWN)
-        && JbhBooleanUtils.isTrue(get(AccountMetadataKey.IS_FULLY_WITHDRAWN));
+    return hasKey(ProductMetadataKey.IS_FULLY_WITHDRAWN)
+        && JbhBooleanUtils.isTrue(get(ProductMetadataKey.IS_FULLY_WITHDRAWN));
   }
 
   /**
@@ -55,8 +53,8 @@ public final class AccountMetadata {
    * @param key The metadata key to check
    * @return true if the key exists in metadata
    */
-  public boolean hasKey(final AccountMetadataKey key) {
-    return data.containsKey(key.name());
+  public boolean hasKey(final ProductMetadataKey key) {
+    return data.containsKey(key);
   }
 
   /**
@@ -65,8 +63,8 @@ public final class AccountMetadata {
    * @param key The metadata key
    * @return The value associated with the key, or null if not present
    */
-  public Object get(final AccountMetadataKey key) {
-    return data.get(key.name());
+  public Object get(final ProductMetadataKey key) {
+    return data.get(key);
   }
 
   /**
@@ -75,7 +73,7 @@ public final class AccountMetadata {
    * @return LocalDate or null if not set
    */
   public LocalDate getFullyWithdrawnDate() {
-    return (LocalDate) get(AccountMetadataKey.FULLY_WITHDRAWN_DATE);
+    return (LocalDate) get(ProductMetadataKey.FULLY_WITHDRAWN_DATE);
   }
 
   // ========== Typed Getters for Fully Withdrawn Data ==========
@@ -86,7 +84,7 @@ public final class AccountMetadata {
    * @return LocalDateTime or null if not set
    */
   public LocalDateTime getFullyWithdrawnAt() {
-    return (LocalDateTime) get(AccountMetadataKey.FULLY_WITHDRAWN_AT);
+    return (LocalDateTime) get(ProductMetadataKey.FULLY_WITHDRAWN_AT);
   }
 
   /**
@@ -95,7 +93,7 @@ public final class AccountMetadata {
    * @return BigDecimal credit limit or null if not set
    */
   public BigDecimal getCreditLimit() {
-    return (BigDecimal) get(AccountMetadataKey.CREDIT_LIMIT);
+    return (BigDecimal) get(ProductMetadataKey.CREDIT_LIMIT);
   }
 
   // ========== Typed Getters for Credit Card Metadata ==========
@@ -106,7 +104,7 @@ public final class AccountMetadata {
    * @return Integer day of month or null if not set
    */
   public Integer getPaymentDueDay() {
-    return (Integer) get(AccountMetadataKey.PAYMENT_DUE_DAY);
+    return (Integer) get(ProductMetadataKey.PAYMENT_DUE_DAY);
   }
 
   /**
@@ -115,7 +113,7 @@ public final class AccountMetadata {
    * @return String broker name or null if not set
    */
   public String getBrokerName() {
-    return (String) get(AccountMetadataKey.BROKER_NAME);
+    return (String) get(ProductMetadataKey.BROKER_NAME);
   }
 
   // ========== Typed Getters for Investment Metadata ==========
@@ -126,7 +124,7 @@ public final class AccountMetadata {
    * @return BigDecimal commission rate or null if not set
    */
   public BigDecimal getCommissionRate() {
-    return (BigDecimal) get(AccountMetadataKey.COMMISSION_RATE);
+    return (BigDecimal) get(ProductMetadataKey.COMMISSION_RATE);
   }
 
   /**
@@ -135,7 +133,7 @@ public final class AccountMetadata {
    * @return LocalDate maturity date or null if not set
    */
   public LocalDate getMaturityDate() {
-    return (LocalDate) get(AccountMetadataKey.MATURITY_DATE);
+    return (LocalDate) get(ProductMetadataKey.MATURITY_DATE);
   }
 
   // ========== Typed Getters for CDT Metadata ==========
@@ -146,7 +144,7 @@ public final class AccountMetadata {
    * @return LocalDate opening date or null if not set
    */
   public LocalDate getOpeningDate() {
-    return (LocalDate) get(AccountMetadataKey.OPENING_DATE);
+    return (LocalDate) get(ProductMetadataKey.OPENING_DATE);
   }
 
   /**
@@ -155,17 +153,25 @@ public final class AccountMetadata {
    * @return Integer term length or null if not set
    */
   public Integer getTermLengthInDays() {
-    return (Integer) get(AccountMetadataKey.TERM_LENGTH_IN_DAYS);
+    return (Integer) get(ProductMetadataKey.TERM_LENGTH_IN_DAYS);
   }
 
   /**
-   * Returns a defensive copy of the underlying metadata map. Used for persistence and
-   * serialization.
+   * Returns a defensive copy of the underlying metadata map with String keys. Used for persistence
+   * and serialization.
    *
-   * @return A new HashMap containing all metadata entries
+   * @return A new HashMap containing all metadata entries with String keys
    */
   public Map<String, Object> asMap() {
-    return new HashMap<>(data);
+    final Map<String, Object> result = new HashMap<>();
+    for (final Map.Entry<ProductMetadataKey, Object> entry : data.entrySet()) {
+      result.put(entry.getKey().name(), entry.getValue());
+    }
+    return result;
+  }
+
+  public Map<ProductMetadataKey, Object> getData() {
+    return new EnumMap<>(data);
   }
 
   // ========== Map Conversion ==========
@@ -189,9 +195,9 @@ public final class AccountMetadata {
   }
 
   public void putFullyWithdrawn(final LocalDate movementDate) {
-    put(AccountMetadataKey.FULLY_WITHDRAWN_DATE, movementDate);
-    put(AccountMetadataKey.FULLY_WITHDRAWN_AT, LocalDateTime.now());
-    put(AccountMetadataKey.IS_FULLY_WITHDRAWN, true);
+    put(ProductMetadataKey.FULLY_WITHDRAWN_DATE, movementDate);
+    put(ProductMetadataKey.FULLY_WITHDRAWN_AT, LocalDateTime.now());
+    put(ProductMetadataKey.IS_FULLY_WITHDRAWN, true);
   }
 
   /**
@@ -200,15 +206,15 @@ public final class AccountMetadata {
    * @param key The metadata key
    * @param value The value to store
    */
-  private void put(final AccountMetadataKey key, final Object value) {
-    data.put(key.name(), value);
+  private void put(final ProductMetadataKey key, final Object value) {
+    data.put(key, value);
   }
 
   public void putInitialBalance(final BigDecimal initialBalance) {
-    put(AccountMetadataKey.INITIAL_BALANCE, initialBalance);
+    put(ProductMetadataKey.INITIAL_BALANCE, initialBalance);
   }
 
   public BigDecimal getInitialBalance() {
-    return (BigDecimal) get(AccountMetadataKey.INITIAL_BALANCE);
+    return (BigDecimal) get(ProductMetadataKey.INITIAL_BALANCE);
   }
 }

@@ -14,15 +14,13 @@ import com.jbh.account.domain.validation.account.creation.AccountCreationValidat
 import com.jbh.account.domain.validation.account.metrics.AccountMetricsCalculator;
 import com.jbh.account.domain.validation.account.metrics.AccountMetricsCalculatorFactory;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountMetadata;
-import com.jbh.account.domain.vo.AccountMetadataKey;
+import com.jbh.account.domain.vo.ProductMetadata;
+import com.jbh.account.domain.vo.ProductMetadataKey;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -53,7 +51,7 @@ public class ProductDomain {
   /** Net growth rate is the rate of change of the net profit balance for the account. */
   protected BigDecimal netGrowthRate = JBH_ZERO;
 
-  protected AccountMetadata metadata = AccountMetadata.empty();
+  protected ProductMetadata metadata = ProductMetadata.empty();
   private AccountMetricsCalculator metricsCalculator;
 
   private ProductDomain(final String name, final ProductType type, final UUID userId) {
@@ -75,7 +73,7 @@ public class ProductDomain {
       final LocalDateTime createdAt,
       final LocalDateTime updatedAt,
       final BigDecimal netGrowthRate,
-      final Map<String, Object> metadata) {
+      final ProductMetadata metadata) {
     this.id = id;
     this.name = name;
     this.type = type;
@@ -87,7 +85,7 @@ public class ProductDomain {
     this.createdAt = createdAt;
     this.updatedAt = updatedAt;
     this.netGrowthRate = netGrowthRate;
-    this.metadata = AccountMetadata.of(metadata);
+    this.metadata = metadata;
   }
 
   /**
@@ -97,27 +95,27 @@ public class ProductDomain {
    * @param name Account name
    * @param type Account type
    * @param userId User ID
-   * @param metadata Account metadata (can be empty but not null)
+   * @param metadata Account metadata (ProductMetadata instance)
    * @return AccountDomain instance
    * @throws AccountBusinessException if validation fails based on account type requirements
    */
   public static ProductDomain withMinimumDataForCreation(
-      final String name,
-      final ProductType type,
-      final UUID userId,
-      final Map<String, Object> metadata)
+      final String name, final ProductType type, final UUID userId, final ProductMetadata metadata)
       throws AccountBusinessException {
+
+    // Use provided metadata or create empty if null
+    final ProductMetadata productMetadata = metadata != null ? metadata : ProductMetadata.empty();
 
     // Validate metadata based on account type BEFORE creating the domain object
     final AccountCreationValidator validator = getValidator(type);
-    validator.validateMetadata(metadata != null ? metadata : new HashMap<>());
+    validator.validateMetadata(productMetadata);
 
     // Only create the object if validation passes
     final ProductDomain accountDomain = new ProductDomain(name, type, userId);
 
     // Set metadata if provided
-    if (metadata != null && !metadata.isEmpty()) {
-      accountDomain.metadata = AccountMetadata.of(metadata);
+    if (!productMetadata.isEmpty()) {
+      accountDomain.metadata = productMetadata;
     }
 
     return accountDomain;
@@ -251,11 +249,11 @@ public class ProductDomain {
     return metadata.isFullyWithdrawn();
   }
 
-  public boolean hasMetadata(final AccountMetadataKey key) {
+  public boolean hasMetadata(final ProductMetadataKey key) {
     return metadata.hasKey(key);
   }
 
-  public Object getMetadataField(final AccountMetadataKey key) {
+  public Object getMetadataField(final ProductMetadataKey key) {
     return metadata.get(key);
   }
 

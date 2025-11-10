@@ -1,6 +1,7 @@
 package com.jbh.account.domain.entity;
 
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -9,12 +10,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountMetadataKey;
 import com.jbh.account.domain.vo.AccountMovementId;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementType;
+import com.jbh.account.domain.vo.ProductMetadata;
+import com.jbh.account.domain.vo.ProductMetadataKey;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -33,7 +35,7 @@ public class AccountDomainTest {
   @Test
   public void shouldCreateAccountWithBasicMovementForExistingId() {
     accountDomain =
-        AccountDomainTestBuilder.withBasicMovementForExisting(
+        AccountDomainTestBuilder.createSavingProductWithBalance(
             AccountId.generate(), userId, JBH_ZERO, JBH_ZERO);
 
     assert accountDomain.getId() != null;
@@ -53,7 +55,7 @@ public class AccountDomainTest {
     final String name = "Test Account";
     accountDomain =
         ProductDomain.withMinimumDataForCreation(
-            name, ProductType.SAVINGS, UUID.randomUUID(), new HashMap<>());
+            name, ProductType.SAVINGS, UUID.randomUUID(), ProductMetadata.empty());
     assert accountDomain.getId() != null;
     assertRequiredAccount(accountDomain);
   }
@@ -76,12 +78,11 @@ public class AccountDomainTest {
     // Arrange
     final String accountName = "My Savings Account";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
 
     // Act
     final ProductDomain account =
         ProductDomain.withMinimumDataForCreation(
-            accountName, ProductType.SAVINGS, testUserId, metadata);
+            accountName, ProductType.SAVINGS, testUserId, ProductMetadata.empty());
 
     // Assert
     assertNotNull(account);
@@ -121,12 +122,11 @@ public class AccountDomainTest {
     // Arrange
     final String accountName = "CDT Account";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
 
     // Act
     final ProductDomain account =
         ProductDomain.withMinimumDataForCreation(
-            accountName, ProductType.CDT, testUserId, metadata);
+            accountName, ProductType.CDT, testUserId, ProductMetadata.empty());
 
     // Assert
     assertNotNull(account);
@@ -162,26 +162,26 @@ public class AccountDomainTest {
     // Arrange
     final String accountName = "CDT Long Term";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.MATURITY_DATE.name(), null);
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.MATURITY_DATE, null);
     // Act
     assertThrows(
         AccountBusinessException.class,
         () ->
             ProductDomain.withMinimumDataForCreation(
-                accountName, ProductType.CDT, testUserId, metadata));
+                accountName, ProductType.CDT, testUserId, ProductMetadata.of(metadata)));
 
-    metadata.put(AccountMetadataKey.MATURITY_DATE.name(), "30/01/2025");
+    metadata.put(ProductMetadataKey.MATURITY_DATE, "30/01/2025");
     assertThrows(
         AccountBusinessException.class,
         () ->
             ProductDomain.withMinimumDataForCreation(
-                accountName, ProductType.CDT, testUserId, metadata));
+                accountName, ProductType.CDT, testUserId, ProductMetadata.of(metadata)));
 
-    metadata.put(AccountMetadataKey.MATURITY_DATE.name(), LocalDate.of(2025, 1, 30));
+    metadata.put(ProductMetadataKey.MATURITY_DATE, LocalDate.of(2025, 1, 30));
     final ProductDomain account =
         ProductDomain.withMinimumDataForCreation(
-            accountName, ProductType.CDT, testUserId, metadata);
+            accountName, ProductType.CDT, testUserId, ProductMetadata.of(metadata));
     assertNotNull(account);
   }
 
@@ -192,8 +192,8 @@ public class AccountDomainTest {
     // Arrange
     final String accountName = "Credit Card Without Limit";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 15);
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.PAYMENT_DUE_DAY, 15);
     // Missing CREDIT_LIMIT
 
     // Act & Assert
@@ -202,7 +202,10 @@ public class AccountDomainTest {
             AccountBusinessException.class,
             () ->
                 ProductDomain.withMinimumDataForCreation(
-                    accountName, ProductType.CREDIT_CARD, testUserId, metadata));
+                    accountName,
+                    ProductType.CREDIT_CARD,
+                    testUserId,
+                    ProductMetadata.of(metadata)));
 
     assertNotNull(exception.getMessage());
   }
@@ -212,9 +215,9 @@ public class AccountDomainTest {
     // Arrange
     final String accountName = "Credit Card Invalid Type";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), "1000"); // String instead of BigDecimal
-    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 15);
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.CREDIT_LIMIT, "1000"); // String instead of BigDecimal
+    metadata.put(ProductMetadataKey.PAYMENT_DUE_DAY, 15);
 
     // Act & Assert
     final AccountBusinessException exception =
@@ -222,7 +225,10 @@ public class AccountDomainTest {
             AccountBusinessException.class,
             () ->
                 ProductDomain.withMinimumDataForCreation(
-                    accountName, ProductType.CREDIT_CARD, testUserId, metadata));
+                    accountName,
+                    ProductType.CREDIT_CARD,
+                    testUserId,
+                    ProductMetadata.of(metadata)));
 
     assertNotNull(exception.getMessage());
   }
@@ -232,9 +238,9 @@ public class AccountDomainTest {
     // Arrange
     final String accountName = "Credit Card Zero Limit";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), BigDecimal.ZERO);
-    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 15);
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.CREDIT_LIMIT, BigDecimal.ZERO);
+    metadata.put(ProductMetadataKey.PAYMENT_DUE_DAY, 15);
 
     // Act & Assert
     final AccountBusinessException exception =
@@ -242,7 +248,10 @@ public class AccountDomainTest {
             AccountBusinessException.class,
             () ->
                 ProductDomain.withMinimumDataForCreation(
-                    accountName, ProductType.CREDIT_CARD, testUserId, metadata));
+                    accountName,
+                    ProductType.CREDIT_CARD,
+                    testUserId,
+                    ProductMetadata.of(metadata)));
 
     assertNotNull(exception.getMessage());
   }
@@ -252,9 +261,9 @@ public class AccountDomainTest {
     // Arrange
     final String accountName = "Credit Card Negative Limit";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), new BigDecimal("-1000"));
-    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 15);
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.CREDIT_LIMIT, new BigDecimal("-1000"));
+    metadata.put(ProductMetadataKey.PAYMENT_DUE_DAY, 15);
 
     // Act & Assert
     final AccountBusinessException exception =
@@ -262,7 +271,10 @@ public class AccountDomainTest {
             AccountBusinessException.class,
             () ->
                 ProductDomain.withMinimumDataForCreation(
-                    accountName, ProductType.CREDIT_CARD, testUserId, metadata));
+                    accountName,
+                    ProductType.CREDIT_CARD,
+                    testUserId,
+                    ProductMetadata.of(metadata)));
 
     assertNotNull(exception.getMessage());
   }
@@ -272,8 +284,8 @@ public class AccountDomainTest {
     // Arrange
     final String accountName = "Credit Card Without Due Day";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), new BigDecimal("10000"));
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.CREDIT_LIMIT, new BigDecimal("10000"));
     // Missing PAYMENT_DUE_DAY
 
     // Act & Assert
@@ -282,7 +294,10 @@ public class AccountDomainTest {
             AccountBusinessException.class,
             () ->
                 ProductDomain.withMinimumDataForCreation(
-                    accountName, ProductType.CREDIT_CARD, testUserId, metadata));
+                    accountName,
+                    ProductType.CREDIT_CARD,
+                    testUserId,
+                    ProductMetadata.of(metadata)));
 
     assertNotNull(exception.getMessage());
   }
@@ -292,9 +307,9 @@ public class AccountDomainTest {
     // Arrange
     final String accountName = "Credit Card Invalid Day Type";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), new BigDecimal("10000"));
-    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), "15"); // String instead of Integer
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.CREDIT_LIMIT, new BigDecimal("10000"));
+    metadata.put(ProductMetadataKey.PAYMENT_DUE_DAY, "15"); // String instead of Integer
 
     // Act & Assert
     final AccountBusinessException exception =
@@ -302,7 +317,10 @@ public class AccountDomainTest {
             AccountBusinessException.class,
             () ->
                 ProductDomain.withMinimumDataForCreation(
-                    accountName, ProductType.CREDIT_CARD, testUserId, metadata));
+                    accountName,
+                    ProductType.CREDIT_CARD,
+                    testUserId,
+                    ProductMetadata.of(metadata)));
 
     assertNotNull(exception.getMessage());
   }
@@ -312,9 +330,9 @@ public class AccountDomainTest {
     // Arrange
     final String accountName = "Credit Card Invalid Day Low";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), new BigDecimal("10000"));
-    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 0);
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.CREDIT_LIMIT, new BigDecimal("10000"));
+    metadata.put(ProductMetadataKey.PAYMENT_DUE_DAY, 0);
 
     // Act & Assert
     final AccountBusinessException exception =
@@ -322,7 +340,10 @@ public class AccountDomainTest {
             AccountBusinessException.class,
             () ->
                 ProductDomain.withMinimumDataForCreation(
-                    accountName, ProductType.CREDIT_CARD, testUserId, metadata));
+                    accountName,
+                    ProductType.CREDIT_CARD,
+                    testUserId,
+                    ProductMetadata.of(metadata)));
 
     assertNotNull(exception.getMessage());
   }
@@ -332,9 +353,9 @@ public class AccountDomainTest {
     // Arrange
     final String accountName = "Credit Card Invalid Day High";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), new BigDecimal("10000"));
-    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 32);
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.CREDIT_LIMIT, new BigDecimal("10000"));
+    metadata.put(ProductMetadataKey.PAYMENT_DUE_DAY, 32);
 
     // Act & Assert
     final AccountBusinessException exception =
@@ -342,7 +363,10 @@ public class AccountDomainTest {
             AccountBusinessException.class,
             () ->
                 ProductDomain.withMinimumDataForCreation(
-                    accountName, ProductType.CREDIT_CARD, testUserId, metadata));
+                    accountName,
+                    ProductType.CREDIT_CARD,
+                    testUserId,
+                    ProductMetadata.of(metadata)));
 
     assertNotNull(exception.getMessage());
   }
@@ -352,7 +376,7 @@ public class AccountDomainTest {
     // Arrange
     final String accountName = "Credit Card Empty Metadata";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
 
     // Act & Assert
     final AccountBusinessException exception =
@@ -360,7 +384,10 @@ public class AccountDomainTest {
             AccountBusinessException.class,
             () ->
                 ProductDomain.withMinimumDataForCreation(
-                    accountName, ProductType.CREDIT_CARD, testUserId, metadata));
+                    accountName,
+                    ProductType.CREDIT_CARD,
+                    testUserId,
+                    ProductMetadata.of(metadata)));
 
     assertNotNull(exception.getMessage());
   }
@@ -373,14 +400,14 @@ public class AccountDomainTest {
     final String accountName = "LULO Credit Card";
     final UUID testUserId = UUID.randomUUID();
     final BigDecimal creditLimit = new BigDecimal("1000000");
-    final Map<String, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), creditLimit);
-    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 15);
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.CREDIT_LIMIT, creditLimit);
+    metadata.put(ProductMetadataKey.PAYMENT_DUE_DAY, 15);
 
     // Act
     final ProductDomain account =
         ProductDomain.withMinimumDataForCreation(
-            accountName, ProductType.CREDIT_CARD, testUserId, metadata);
+            accountName, ProductType.CREDIT_CARD, testUserId, ProductMetadata.of(metadata));
 
     // Assert
     assertNotNull(account);
@@ -393,8 +420,8 @@ public class AccountDomainTest {
     assertEquals(JBH_ZERO, account.getNetProfitBalance());
     assertTrue(account.isActive());
     assertNotNull(account.getCreatedAt());
-    assertEquals(creditLimit, account.getMetadataField(AccountMetadataKey.CREDIT_LIMIT));
-    assertEquals(15, account.getMetadataField(AccountMetadataKey.PAYMENT_DUE_DAY));
+    assertEquals(creditLimit, account.getMetadataField(ProductMetadataKey.CREDIT_LIMIT));
+    assertEquals(15, account.getMetadataField(ProductMetadataKey.PAYMENT_DUE_DAY));
   }
 
   @Test
@@ -403,18 +430,18 @@ public class AccountDomainTest {
     // Arrange - Test lower boundary (day 1)
     final String accountName = "Credit Card Day 1";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), new BigDecimal("50000"));
-    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 1);
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.CREDIT_LIMIT, new BigDecimal("50000"));
+    metadata.put(ProductMetadataKey.PAYMENT_DUE_DAY, 1);
 
     // Act
     final ProductDomain account =
         ProductDomain.withMinimumDataForCreation(
-            accountName, ProductType.CREDIT_CARD, testUserId, metadata);
+            accountName, ProductType.CREDIT_CARD, testUserId, ProductMetadata.of(metadata));
 
     // Assert
     assertNotNull(account);
-    assertEquals(1, account.getMetadataField(AccountMetadataKey.PAYMENT_DUE_DAY));
+    assertEquals(1, account.getMetadataField(ProductMetadataKey.PAYMENT_DUE_DAY));
   }
 
   @Test
@@ -423,18 +450,18 @@ public class AccountDomainTest {
     // Arrange - Test upper boundary (day 31)
     final String accountName = "Credit Card Day 31";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.CREDIT_LIMIT.name(), new BigDecimal("50000"));
-    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY.name(), 31);
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.CREDIT_LIMIT, new BigDecimal("50000"));
+    metadata.put(ProductMetadataKey.PAYMENT_DUE_DAY, 31);
 
     // Act
     final ProductDomain account =
         ProductDomain.withMinimumDataForCreation(
-            accountName, ProductType.CREDIT_CARD, testUserId, metadata);
+            accountName, ProductType.CREDIT_CARD, testUserId, ProductMetadata.of(metadata));
 
     // Assert
     assertNotNull(account);
-    assertEquals(31, account.getMetadataField(AccountMetadataKey.PAYMENT_DUE_DAY));
+    assertEquals(31, account.getMetadataField(ProductMetadataKey.PAYMENT_DUE_DAY));
   }
 
   // ========== INVESTMENT ACCOUNT VALIDATION TESTS ==========
@@ -444,7 +471,7 @@ public class AccountDomainTest {
     // Arrange
     final String accountName = "Investment Without Broker";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
     // Missing BROKER_NAME
 
     // Act & Assert
@@ -453,7 +480,7 @@ public class AccountDomainTest {
             AccountBusinessException.class,
             () ->
                 ProductDomain.withMinimumDataForCreation(
-                    accountName, ProductType.INVESTMENT, testUserId, metadata));
+                    accountName, ProductType.INVESTMENT, testUserId, ProductMetadata.of(metadata)));
 
     assertNotNull(exception.getMessage());
   }
@@ -463,8 +490,8 @@ public class AccountDomainTest {
     // Arrange
     final String accountName = "Investment Null Broker";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.BROKER_NAME.name(), null);
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.BROKER_NAME, null);
 
     // Act & Assert
     final AccountBusinessException exception =
@@ -472,7 +499,7 @@ public class AccountDomainTest {
             AccountBusinessException.class,
             () ->
                 ProductDomain.withMinimumDataForCreation(
-                    accountName, ProductType.INVESTMENT, testUserId, metadata));
+                    accountName, ProductType.INVESTMENT, testUserId, ProductMetadata.of(metadata)));
 
     assertNotNull(exception.getMessage());
   }
@@ -482,8 +509,8 @@ public class AccountDomainTest {
     // Arrange
     final String accountName = "Investment Blank Broker";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.BROKER_NAME.name(), "   ");
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.BROKER_NAME, "   ");
 
     // Act & Assert
     final AccountBusinessException exception =
@@ -491,7 +518,7 @@ public class AccountDomainTest {
             AccountBusinessException.class,
             () ->
                 ProductDomain.withMinimumDataForCreation(
-                    accountName, ProductType.INVESTMENT, testUserId, metadata));
+                    accountName, ProductType.INVESTMENT, testUserId, ProductMetadata.of(metadata)));
 
     assertNotNull(exception.getMessage());
   }
@@ -501,8 +528,8 @@ public class AccountDomainTest {
     // Arrange
     final String accountName = "Investment Empty Broker";
     final UUID testUserId = UUID.randomUUID();
-    final Map<String, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.BROKER_NAME.name(), "");
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.BROKER_NAME, "");
 
     // Act & Assert
     final AccountBusinessException exception =
@@ -510,7 +537,7 @@ public class AccountDomainTest {
             AccountBusinessException.class,
             () ->
                 ProductDomain.withMinimumDataForCreation(
-                    accountName, ProductType.INVESTMENT, testUserId, metadata));
+                    accountName, ProductType.INVESTMENT, testUserId, ProductMetadata.of(metadata)));
 
     assertNotNull(exception.getMessage());
   }
@@ -523,14 +550,14 @@ public class AccountDomainTest {
     final String accountName = "Fidelity Portfolio";
     final UUID testUserId = UUID.randomUUID();
     final String brokerName = "Fidelity";
-    final Map<String, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.BROKER_NAME.name(), brokerName);
-    metadata.put(AccountMetadataKey.COMMISSION_RATE.name(), JBH_ZERO);
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.BROKER_NAME, brokerName);
+    metadata.put(ProductMetadataKey.COMMISSION_RATE, JBH_ZERO);
 
     // Act
     final ProductDomain account =
         ProductDomain.withMinimumDataForCreation(
-            accountName, ProductType.INVESTMENT, testUserId, metadata);
+            accountName, ProductType.INVESTMENT, testUserId, ProductMetadata.of(metadata));
 
     // Assert
     assertNotNull(account);
@@ -543,7 +570,7 @@ public class AccountDomainTest {
     assertEquals(JBH_ZERO, account.getNetProfitBalance());
     assertTrue(account.isActive());
     assertNotNull(account.getCreatedAt());
-    assertEquals(brokerName, account.getMetadataField(AccountMetadataKey.BROKER_NAME));
+    assertEquals(brokerName, account.getMetadataField(ProductMetadataKey.BROKER_NAME));
   }
 
   @Test
@@ -554,18 +581,21 @@ public class AccountDomainTest {
     final String[] brokerNames = {"Charles Schwab", "Vanguard", "Interactive Brokers"};
 
     for (final String brokerName : brokerNames) {
-      final Map<String, Object> metadata = new HashMap<>();
-      metadata.put(AccountMetadataKey.COMMISSION_RATE.name(), new BigDecimal("1.30"));
-      metadata.put(AccountMetadataKey.BROKER_NAME.name(), brokerName);
+      final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+      metadata.put(ProductMetadataKey.COMMISSION_RATE, new BigDecimal("1.30"));
+      metadata.put(ProductMetadataKey.BROKER_NAME, brokerName);
 
       // Act
       final ProductDomain account =
           ProductDomain.withMinimumDataForCreation(
-              brokerName + " Account", ProductType.INVESTMENT, testUserId, metadata);
+              brokerName + " Account",
+              ProductType.INVESTMENT,
+              testUserId,
+              ProductMetadata.of(metadata));
 
       // Assert
       assertNotNull(account);
-      assertEquals(brokerName, account.getMetadataField(AccountMetadataKey.BROKER_NAME));
+      assertEquals(brokerName, account.getMetadataField(ProductMetadataKey.BROKER_NAME));
     }
   }
 
@@ -574,7 +604,7 @@ public class AccountDomainTest {
     final var movementBalance = new BigDecimal("100.00");
     final var currentBalance = new BigDecimal("200.00");
     final ProductDomain accountDomain =
-        AccountDomainTestBuilder.withBasicMovementForExisting(
+        AccountDomainTestBuilder.createSavingProductWithBalance(
             AccountId.generate(), userId, movementBalance, currentBalance);
 
     assertEquals(movementBalance, accountDomain.getMovementBalance());
@@ -597,7 +627,7 @@ public class AccountDomainTest {
             LocalDateTime.now(),
             LocalDateTime.now(),
             JBH_ZERO,
-            new HashMap<>());
+            ProductMetadata.empty());
 
     assertNotNull(accountDomain.getId());
 
@@ -617,8 +647,7 @@ public class AccountDomainTest {
 
     assertNotNull(accountDomain.getId());
     assertFalse(accountDomain.isFullyWithdrawn());
-    assertFalse(
-        accountDomain.hasMetadata(com.jbh.account.domain.vo.AccountMetadataKey.IS_FULLY_WITHDRAWN));
+    assertFalse(accountDomain.hasMetadata(ProductMetadataKey.IS_FULLY_WITHDRAWN));
 
     final AccountMovementDomain withdrawalMovement =
         new AccountMovementDomain(
@@ -632,7 +661,7 @@ public class AccountDomainTest {
             AccountMovementMetadata.createEmpty());
     accountDomain.syncBalancesByMovement(withdrawalMovement, false);
     assertTrue(accountDomain.isFullyWithdrawn());
-    assertTrue(accountDomain.hasMetadata(AccountMetadataKey.IS_FULLY_WITHDRAWN));
+    assertTrue(accountDomain.hasMetadata(ProductMetadataKey.IS_FULLY_WITHDRAWN));
 
     accountDomain.getUpdatedAt();
     accountDomain.getCreatedAt();
@@ -651,5 +680,19 @@ public class AccountDomainTest {
     assertThrows(
         AccountBusinessException.class,
         () -> accountDomain.syncBalancesByMovement(unknownMovement, false));
+  }
+
+  @Test
+  public void shouldFailWhenCreatingLoanProductWithoutValidator() throws AccountBusinessException {
+    // Arrange
+    final Map<ProductMetadataKey, Object> metadata =
+        Map.of(
+            ProductMetadataKey.LOAN_PRINCIPAL_AMOUNT, new BigDecimal("5000"),
+            ProductMetadataKey.LOAN_INTEREST_RATE, new BigDecimal("5.5"),
+            ProductMetadataKey.LOAN_TOTAL_AMOUNT_PAID, withJBHDecimals("4000"));
+
+    ProductDomain.withMinimumDataForCreation(
+        "Personal Loan", ProductType.LOANS, UUID.randomUUID(), ProductMetadata.of(metadata));
+    ;
   }
 }

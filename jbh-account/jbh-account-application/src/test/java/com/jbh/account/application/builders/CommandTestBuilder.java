@@ -4,12 +4,12 @@ import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.CreateAccountCommand;
 import com.jbh.account.application.core.vo.commands.ExternalAccountInfoVO;
 import com.jbh.account.application.core.vo.commands.LiquidateAccountCommand;
-import com.jbh.account.domain.vo.AccountMetadataKey;
 import com.jbh.account.domain.vo.AccountPK;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.MovementType;
+import com.jbh.account.domain.vo.ProductMetadataKey;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -52,7 +52,7 @@ public class CommandTestBuilder {
       final UUID userId,
       final String name,
       final ProductType type,
-      final Map<AccountMetadataKey, Object> metadata) {
+      final Map<ProductMetadataKey, Object> metadata) {
     return new CreateAccountCommand(userId, name, type, metadata);
   }
 
@@ -86,19 +86,19 @@ public class CommandTestBuilder {
       final String name,
       final BigDecimal creditLimit,
       final Integer paymentDueDay) {
-    final Map<AccountMetadataKey, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.CREDIT_LIMIT, creditLimit);
-    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY, paymentDueDay);
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.CREDIT_LIMIT, creditLimit);
+    metadata.put(ProductMetadataKey.PAYMENT_DUE_DAY, paymentDueDay);
     return new CreateAccountCommand(userId, name, ProductType.CREDIT_CARD, metadata);
   }
 
   public static CreateAccountCommand createCreditCardCommand(
-      final UUID userId, final String name, final Map<AccountMetadataKey, Object> metadata) {
+      final UUID userId, final String name, final Map<ProductMetadataKey, Object> metadata) {
     return new CreateAccountCommand(userId, name, ProductType.CREDIT_CARD, metadata);
   }
 
   public static CreateAccountCommand createCDTCommand(
-      final UUID userId, final String name, final Map<AccountMetadataKey, Object> metadata) {
+      final UUID userId, final String name, final Map<ProductMetadataKey, Object> metadata) {
     return new CreateAccountCommand(userId, name, ProductType.CDT, metadata);
   }
 
@@ -112,9 +112,9 @@ public class CommandTestBuilder {
    */
   public static CreateAccountCommand createInvestmentCommand(
       final UUID userId, final String name, final String brokerName) {
-    final Map<AccountMetadataKey, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.BROKER_NAME, brokerName);
-    metadata.put(AccountMetadataKey.COMMISSION_RATE, new BigDecimal("1.2"));
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.BROKER_NAME, brokerName);
+    metadata.put(ProductMetadataKey.COMMISSION_RATE, new BigDecimal("1.2"));
     return new CreateAccountCommand(userId, name, ProductType.INVESTMENT, metadata);
   }
 

@@ -3,7 +3,7 @@ package com.jbh.account.domain.validation.account.creation;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
-import java.util.Map;
+import com.jbh.account.domain.vo.ProductMetadata;
 
 /**
  * Strategy interface for validating account creation based on account type.
@@ -19,10 +19,10 @@ public interface AccountCreationValidator {
   /**
    * Validates account metadata for creation based on account type requirements.
    *
-   * @param metadata The metadata map for the account (keys are AccountMetadataKey.name())
+   * @param metadata The ProductMetadata containing account-specific fields
    * @throws AccountBusinessException if validation fails with specific error type
    */
-  void validateMetadata(Map<String, Object> metadata) throws AccountBusinessException;
+  void validateMetadata(ProductMetadata metadata) throws AccountBusinessException;
 
   /**
    * Validates that the account movement is valid for the account type. @Param account The account

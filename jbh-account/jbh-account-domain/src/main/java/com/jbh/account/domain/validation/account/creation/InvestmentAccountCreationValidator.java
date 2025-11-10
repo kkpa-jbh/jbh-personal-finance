@@ -4,8 +4,8 @@ import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.account.domain.vo.AccountMetadataKey;
-import java.util.Map;
+import com.jbh.account.domain.vo.ProductMetadata;
+import com.jbh.account.domain.vo.ProductMetadataKey;
 
 /**
  * Validator for INVESTMENT account type creation.
@@ -20,8 +20,24 @@ public class InvestmentAccountCreationValidator extends BaseAccountCreationValid
     implements AccountCreationValidator {
 
   @Override
-  public void validateMetadata(final Map<String, Object> metadata) throws AccountBusinessException {
+  public void validateMetadata(final ProductMetadata metadata) throws AccountBusinessException {
     validateBrokerName(metadata);
+  }
+
+  private void validateBrokerName(final ProductMetadata metadata)
+      throws AccountBusinessException {
+    if (!metadata.hasKey(ProductMetadataKey.BROKER_NAME)) {
+      throw new AccountBusinessException(BusinessDomainExceptionType.MISSING_BROKER_NAME);
+    }
+
+    final Object brokerName = metadata.get(ProductMetadataKey.BROKER_NAME);
+    if (brokerName == null || (brokerName instanceof String && ((String) brokerName).isBlank())) {
+      throw new AccountBusinessException(BusinessDomainExceptionType.MISSING_BROKER_NAME);
+    }
+
+    if (!metadata.hasKey(ProductMetadataKey.COMMISSION_RATE)) {
+      throw new AccountBusinessException(BusinessDomainExceptionType.MISSING_COMMISSION_RATE);
+    }
   }
 
   @Override
@@ -29,23 +45,5 @@ public class InvestmentAccountCreationValidator extends BaseAccountCreationValid
       final ProductDomain account, final AccountMovementDomain movement)
       throws AccountBusinessException {
     // Do Nothing
-  }
-
-  private void validateBrokerName(final Map<String, Object> metadata)
-      throws AccountBusinessException {
-    final String brokerNameKey = AccountMetadataKey.BROKER_NAME.name();
-
-    if (!metadata.containsKey(brokerNameKey)) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.MISSING_BROKER_NAME);
-    }
-
-    final Object brokerName = metadata.get(brokerNameKey);
-    if (brokerName == null || (brokerName instanceof String && ((String) brokerName).isBlank())) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.MISSING_BROKER_NAME);
-    }
-
-    if (!metadata.containsKey(AccountMetadataKey.COMMISSION_RATE.name())) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.MISSING_COMMISSION_RATE);
-    }
   }
 }

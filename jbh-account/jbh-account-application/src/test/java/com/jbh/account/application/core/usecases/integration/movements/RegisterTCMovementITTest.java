@@ -22,7 +22,7 @@ import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.usecases.integration.monthlybalance.RegisterMonthlyReportedWithoutProfitITTest;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountMetadataKey;
+import com.jbh.account.domain.vo.ProductMetadataKey;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -78,9 +78,9 @@ public class RegisterTCMovementITTest {
   @Order(0)
   void createAccount() throws AccountBusinessException {
     final LocalDate mvmDate = period.atDay(1);
-    final Map<AccountMetadataKey, Object> metadata = new HashMap<>();
-    metadata.put(AccountMetadataKey.CREDIT_LIMIT, CREDIT_LIMIT);
-    metadata.put(AccountMetadataKey.PAYMENT_DUE_DAY, 15);
+    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
+    metadata.put(ProductMetadataKey.CREDIT_LIMIT, CREDIT_LIMIT);
+    metadata.put(ProductMetadataKey.PAYMENT_DUE_DAY, 15);
     creditCardAccount =
         createAccountUseCase.execute(
             CommandTestBuilder.createCreditCardCommand(userId, name, metadata));
