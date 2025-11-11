@@ -3,10 +3,8 @@ package com.jbh.account.domain.validation.account.creation;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductMetadataKey;
-import java.time.LocalDate;
 
 /**
  * Validator for CDT (Certificate of Deposit / Certificado de Depósito a Término) account type
@@ -33,10 +31,7 @@ public class CdtAccountCreationValidator extends BaseAccountCreationValidator
   private void validateMaturityDate(final ProductMetadata metadata)
       throws AccountBusinessException {
     if (metadata.hasKey(ProductMetadataKey.MATURITY_DATE)) {
-      final Object maturityDate = metadata.get(ProductMetadataKey.MATURITY_DATE);
-      if (!(maturityDate instanceof LocalDate)) {
-        throw new AccountBusinessException(BusinessDomainExceptionType.INVALID_MATURITY_DATE_TYPE);
-      }
+      metadata.getMaturityDate();
     }
   }
 

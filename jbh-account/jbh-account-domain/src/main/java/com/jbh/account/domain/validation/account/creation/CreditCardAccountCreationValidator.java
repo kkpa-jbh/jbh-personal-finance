@@ -28,19 +28,14 @@ public class CreditCardAccountCreationValidator extends BaseAccountCreationValid
     validatePaymentDueDay(metadata);
   }
 
-  private void validateCreditLimit(final ProductMetadata metadata)
-      throws AccountBusinessException {
+  private void validateCreditLimit(final ProductMetadata metadata) throws AccountBusinessException {
     if (!metadata.hasKey(ProductMetadataKey.CREDIT_LIMIT)) {
       throw new AccountBusinessException(BusinessDomainExceptionType.MISSING_CREDIT_LIMIT);
     }
 
-    final Object creditLimit = metadata.get(ProductMetadataKey.CREDIT_LIMIT);
-    if (!(creditLimit instanceof BigDecimal)) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.INVALID_CREDIT_LIMIT_TYPE);
-    }
+    final BigDecimal creditLimit = metadata.getCreditLimit();
 
-    final BigDecimal limit = (BigDecimal) creditLimit;
-    if (limit.compareTo(BigDecimal.ZERO) <= 0) {
+    if (creditLimit.compareTo(BigDecimal.ZERO) <= 0) {
       throw new AccountBusinessException(BusinessDomainExceptionType.INVALID_CREDIT_LIMIT_VALUE);
     }
   }
@@ -51,7 +46,7 @@ public class CreditCardAccountCreationValidator extends BaseAccountCreationValid
       throw new AccountBusinessException(BusinessDomainExceptionType.MISSING_PAYMENT_DUE_DAY);
     }
 
-    final Object paymentDueDay = metadata.get(ProductMetadataKey.PAYMENT_DUE_DAY);
+    final Object paymentDueDay = metadata.getPaymentDueDay();
     if (!(paymentDueDay instanceof Integer)) {
       throw new AccountBusinessException(BusinessDomainExceptionType.INVALID_PAYMENT_DUE_DAY_TYPE);
     }

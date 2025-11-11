@@ -12,6 +12,7 @@ import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
+import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.infra.adapters.in.rest.vo.AccountApiRoutes;
 import com.jbh.account.infra.adapters.in.rest.vo.AddMovementRequest;
 import com.jbh.account.infra.adapters.in.rest.vo.CreateAccountRequest;
@@ -23,7 +24,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import org.eclipse.microprofile.openapi.annotations.*;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -101,7 +101,8 @@ public class AccountRestAdapter extends BaseRestAdapter {
 
     final AccountDTO accountDTO =
         createAccountUseCase.execute(
-            new CreateAccountCommand(userId, request.name(), request.type(), Map.of()));
+            new CreateAccountCommand(
+                userId, request.name(), request.type(), ProductMetadata.empty()));
 
     return Response.ok(accountDTO).build();
   }

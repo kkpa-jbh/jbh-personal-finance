@@ -2,6 +2,7 @@ package com.jbh.account.domain.entity;
 
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
+import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductType;
@@ -124,18 +125,9 @@ public class AccountDomainTestBuilder {
   }
 
   public static ProductDomain createLoanProduct(
-      final UUID userId, final String name, final ProductMetadata metadata) {
-    return builder().withUserId(userId).withName(name).withProductMetadata(metadata).build();
-  }
-
-  public AccountDomainTestBuilder withProductMetadata(final ProductMetadata productMetadata) {
-    this.productMetadata = productMetadata;
-    return this;
-  }
-
-  public AccountDomainTestBuilder withName(final String name) {
-    this.name = name;
-    return this;
+      final UUID userId, final String name, final ProductMetadata metadata)
+      throws AccountBusinessException {
+    return ProductDomain.withMinimumDataForCreation(name, ProductType.LOAN, userId, metadata);
   }
 
   /**
@@ -205,5 +197,15 @@ public class AccountDomainTestBuilder {
         .withCurrentBalance(currentBalance)
         .withProductType(ProductType.CDT)
         .build();
+  }
+
+  public AccountDomainTestBuilder withProductMetadata(final ProductMetadata productMetadata) {
+    this.productMetadata = productMetadata;
+    return this;
+  }
+
+  public AccountDomainTestBuilder withName(final String name) {
+    this.name = name;
+    return this;
   }
 }

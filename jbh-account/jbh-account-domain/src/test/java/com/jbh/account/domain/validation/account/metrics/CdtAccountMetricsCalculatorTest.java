@@ -9,12 +9,9 @@ import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.ProductMetadata;
-import com.jbh.account.domain.vo.ProductMetadataKey;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,8 +33,8 @@ class CdtAccountMetricsCalculatorTest {
     final BigDecimal movementBalance = new BigDecimal("-5000.00");
     final BigDecimal currentBalance = JBH_ZERO;
 
-    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
-    metadata.put(ProductMetadataKey.IS_FULLY_WITHDRAWN, true);
+    final ProductMetadata metadata = ProductMetadata.empty();
+    metadata.putIsFullyWithdrawn(true);
 
     final ProductDomain accountDomain =
         new ProductDomain(
@@ -52,7 +49,7 @@ class CdtAccountMetricsCalculatorTest {
             LocalDateTime.now(),
             LocalDateTime.now(),
             JBH_ZERO,
-            ProductMetadata.of(metadata));
+            metadata);
 
     // When
     final BigDecimal result = calculator.calculateProfitBalance(accountDomain);
@@ -86,8 +83,8 @@ class CdtAccountMetricsCalculatorTest {
     final BigDecimal movementBalance = new BigDecimal("5000.00");
     final BigDecimal currentBalance = JBH_ZERO;
 
-    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
-    metadata.put(ProductMetadataKey.IS_FULLY_WITHDRAWN, true);
+    final ProductMetadata metadata = ProductMetadata.empty();
+    metadata.putIsFullyWithdrawn(true);
 
     final ProductDomain accountDomain =
         new ProductDomain(
@@ -102,7 +99,7 @@ class CdtAccountMetricsCalculatorTest {
             LocalDateTime.now(),
             LocalDateTime.now(),
             JBH_ZERO,
-            ProductMetadata.of(metadata));
+            metadata);
 
     // When
     final BigDecimal result = calculator.calculateProfitBalance(accountDomain);

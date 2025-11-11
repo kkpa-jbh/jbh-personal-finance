@@ -1,20 +1,13 @@
 package com.jbh.account.application.core.vo.commands;
 
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.vo.ProductMetadataKey;
+import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductType;
-import java.util.Collections;
-import java.util.Map;
 import java.util.UUID;
 
 public record CreateAccountCommand(
-    UUID userId, String name, ProductType type, Map<ProductMetadataKey, Object> metadata)
+    UUID userId, String name, ProductType type, ProductMetadata productMetadata)
     implements CommandValidator {
-
-  // Convenience constructor for backward compatibility
-  public CreateAccountCommand(final UUID userId, final String name, final ProductType type) {
-    this(userId, name, type, Collections.emptyMap());
-  }
 
   // Canonical constructor to ensure immutability
 
@@ -41,10 +34,8 @@ public record CreateAccountCommand(
     }
 
     // Reassign parameters before they're assigned to fields
-    if (metadata != null) {
-      metadata = Map.copyOf(metadata); // Make immutable copy
-    } else {
-      metadata = Collections.emptyMap();
+    if (productMetadata == null) {
+      productMetadata = ProductMetadata.empty();
     }
   }
 

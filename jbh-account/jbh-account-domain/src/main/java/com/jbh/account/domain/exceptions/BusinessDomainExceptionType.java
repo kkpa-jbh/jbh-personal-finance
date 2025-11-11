@@ -58,7 +58,14 @@ public enum BusinessDomainExceptionType implements BusinessExceptionType {
   METRICS_CALCULATOR_NOT_IMPLEMENTED(
       "Metrics calculator not implemented for product type",
       "Calculadora de métricas no implementada para el tipo de producto"),
-  ;
+  EMPTY_LOAN_PRINCIPAL_AMOUNT(
+      "The amount borrowed has not been set", "El valor del préstamo no ha sido definido."),
+  EMPTY_LOAN_TOTAL_AMOUNT_PAID(
+      "The total amount paid towards the loan has not been set",
+      "El valor total pagado hacia el préstamo no ha sido definido."),
+  EMPTY_LOAN_PAYOFF_AMOUNT(
+      "The payoff amount for the loan has not been set",
+      "El valor pendiente de pagar el préstamo, no ha sido definido.");
 
   private final String en;
   private final String es;

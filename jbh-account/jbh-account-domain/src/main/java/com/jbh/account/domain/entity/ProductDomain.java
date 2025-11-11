@@ -253,10 +253,6 @@ public class ProductDomain {
     return metadata.hasKey(key);
   }
 
-  public Object getMetadataField(final ProductMetadataKey key) {
-    return metadata.get(key);
-  }
-
   public void setCurrentBalance(final BigDecimal closingBalance) {
     this.currentBalance = withJBHDecimals(closingBalance);
   }

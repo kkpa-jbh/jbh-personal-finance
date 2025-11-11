@@ -9,12 +9,9 @@ import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.ProductMetadata;
-import com.jbh.account.domain.vo.ProductMetadataKey;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -105,8 +102,8 @@ class InvestmentAccountMetricsCalculatorTest {
     final BigDecimal currentBalance = JBH_ZERO;
     final BigDecimal movementAmount = new BigDecimal("-10000.00");
 
-    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
-    metadata.put(ProductMetadataKey.IS_FULLY_WITHDRAWN, true);
+    final ProductMetadata metadata = ProductMetadata.empty();
+    metadata.putIsFullyWithdrawn(true);
 
     final ProductDomain accountDomain =
         new ProductDomain(
@@ -121,7 +118,7 @@ class InvestmentAccountMetricsCalculatorTest {
             LocalDateTime.now(),
             LocalDateTime.now(),
             JBH_ZERO,
-            ProductMetadata.of(metadata));
+            metadata);
 
     // When
     final BigDecimal result =
@@ -139,8 +136,8 @@ class InvestmentAccountMetricsCalculatorTest {
     final BigDecimal currentBalance = new BigDecimal("-100.00");
     final BigDecimal movementAmount = new BigDecimal("-10100.00");
 
-    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
-    metadata.put(ProductMetadataKey.IS_FULLY_WITHDRAWN, true);
+    final ProductMetadata metadata = ProductMetadata.empty();
+    metadata.putIsFullyWithdrawn(true);
 
     final ProductDomain accountDomain =
         new ProductDomain(
@@ -155,7 +152,7 @@ class InvestmentAccountMetricsCalculatorTest {
             LocalDateTime.now(),
             LocalDateTime.now(),
             JBH_ZERO,
-            ProductMetadata.of(metadata));
+            metadata);
 
     // When
     final BigDecimal result =
@@ -193,8 +190,8 @@ class InvestmentAccountMetricsCalculatorTest {
     final BigDecimal currentBalance = new BigDecimal("100.00");
     final BigDecimal movementAmount = new BigDecimal("-4900.00");
 
-    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
-    metadata.put(ProductMetadataKey.IS_FULLY_WITHDRAWN, true);
+    final ProductMetadata metadata = ProductMetadata.empty();
+    metadata.putIsFullyWithdrawn(true);
 
     final ProductDomain accountDomain =
         new ProductDomain(
@@ -209,7 +206,7 @@ class InvestmentAccountMetricsCalculatorTest {
             LocalDateTime.now(),
             LocalDateTime.now(),
             JBH_ZERO,
-            ProductMetadata.of(metadata));
+            metadata);
 
     // When
     final BigDecimal result =

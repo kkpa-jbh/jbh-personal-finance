@@ -28,7 +28,7 @@ public final class AccountCreationValidatorFactory {
             ProductType.CREDIT_CARD, new CreditCardAccountCreationValidator(),
             ProductType.SAVINGS, new SavingsAccountCreationValidator(),
             ProductType.INVESTMENT, new InvestmentAccountCreationValidator(),
-            ProductType.LOANS, new LoanProductCreationValidator(),
+            ProductType.LOAN, new LoanProductCreationValidator(),
             ProductType.CDT, new CdtAccountCreationValidator());
   }
 

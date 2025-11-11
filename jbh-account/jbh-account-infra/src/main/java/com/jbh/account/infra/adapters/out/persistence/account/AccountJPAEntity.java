@@ -103,7 +103,7 @@ public class AccountJPAEntity extends PanacheEntityBase {
         .netProfitBalance(netProfitBalance)
         .isActive(isActive)
         .netGrowthRate(netGrowthRate)
-        .metadata(ProductMetadata.of(metadata))
+        .metadata(ProductMetadata.fromMap(metadata))
         .createdAt(createdAt)
         .updatedAt(updatedAt)
         .build();

@@ -24,14 +24,13 @@ public class InvestmentAccountCreationValidator extends BaseAccountCreationValid
     validateBrokerName(metadata);
   }
 
-  private void validateBrokerName(final ProductMetadata metadata)
-      throws AccountBusinessException {
+  private void validateBrokerName(final ProductMetadata metadata) throws AccountBusinessException {
     if (!metadata.hasKey(ProductMetadataKey.BROKER_NAME)) {
       throw new AccountBusinessException(BusinessDomainExceptionType.MISSING_BROKER_NAME);
     }
 
-    final Object brokerName = metadata.get(ProductMetadataKey.BROKER_NAME);
-    if (brokerName == null || (brokerName instanceof String && ((String) brokerName).isBlank())) {
+    final String brokerName = metadata.getBrokerName();
+    if (brokerName == null || brokerName.isBlank()) {
       throw new AccountBusinessException(BusinessDomainExceptionType.MISSING_BROKER_NAME);
     }
 

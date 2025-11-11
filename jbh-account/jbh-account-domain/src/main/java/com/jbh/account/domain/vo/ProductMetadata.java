@@ -1,5 +1,7 @@
 package com.jbh.account.domain.vo;
 
+import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.utils.JbhBooleanUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -33,10 +35,6 @@ public final class ProductMetadata {
     return new ProductMetadata(new EnumMap<>(ProductMetadataKey.class));
   }
 
-  public static ProductMetadata of(final Map<ProductMetadataKey, Object> data) {
-    return new ProductMetadata(data);
-  }
-
   /**
    * Checks if the account is fully withdrawn based on metadata.
    *
@@ -63,7 +61,7 @@ public final class ProductMetadata {
    * @param key The metadata key
    * @return The value associated with the key, or null if not present
    */
-  public Object get(final ProductMetadataKey key) {
+  private Object get(final ProductMetadataKey key) {
     return data.get(key);
   }
 
@@ -92,8 +90,13 @@ public final class ProductMetadata {
    *
    * @return BigDecimal credit limit or null if not set
    */
-  public BigDecimal getCreditLimit() {
-    return (BigDecimal) get(ProductMetadataKey.CREDIT_LIMIT);
+  public BigDecimal getCreditLimit() throws AccountBusinessException {
+    final Object creditLimit = get(ProductMetadataKey.CREDIT_LIMIT);
+    if (!(creditLimit instanceof BigDecimal)) {
+      throw new AccountBusinessException(BusinessDomainExceptionType.INVALID_CREDIT_LIMIT_TYPE);
+    }
+
+    return (BigDecimal) creditLimit;
   }
 
   // ========== Typed Getters for Credit Card Metadata ==========
@@ -103,8 +106,12 @@ public final class ProductMetadata {
    *
    * @return Integer day of month or null if not set
    */
-  public Integer getPaymentDueDay() {
-    return (Integer) get(ProductMetadataKey.PAYMENT_DUE_DAY);
+  public Integer getPaymentDueDay() throws AccountBusinessException {
+    final Object dueDay = get(ProductMetadataKey.PAYMENT_DUE_DAY);
+    if (!(dueDay instanceof Integer)) {
+      throw new AccountBusinessException(BusinessDomainExceptionType.INVALID_PAYMENT_DUE_DAY_TYPE);
+    }
+    return (Integer) dueDay;
   }
 
   /**
@@ -132,8 +139,12 @@ public final class ProductMetadata {
    *
    * @return LocalDate maturity date or null if not set
    */
-  public LocalDate getMaturityDate() {
-    return (LocalDate) get(ProductMetadataKey.MATURITY_DATE);
+  public LocalDate getMaturityDate() throws AccountBusinessException {
+    final Object maturityDate = get(ProductMetadataKey.MATURITY_DATE);
+    if (!(maturityDate instanceof LocalDate)) {
+      throw new AccountBusinessException(BusinessDomainExceptionType.INVALID_MATURITY_DATE_TYPE);
+    }
+    return (LocalDate) maturityDate;
   }
 
   // ========== Typed Getters for CDT Metadata ==========
@@ -216,5 +227,76 @@ public final class ProductMetadata {
 
   public BigDecimal getInitialBalance() {
     return (BigDecimal) get(ProductMetadataKey.INITIAL_BALANCE);
+  }
+
+  // ========== PUT Methods for Credit Card Metadata ==========
+
+  public void putCreditLimit(final BigDecimal creditLimit) {
+    put(ProductMetadataKey.CREDIT_LIMIT, creditLimit);
+  }
+
+  public void putPaymentDueDay(final Integer paymentDueDay) {
+    put(ProductMetadataKey.PAYMENT_DUE_DAY, paymentDueDay);
+  }
+
+  // ========== PUT Methods for Investment Metadata ==========
+
+  public void putBrokerName(final String brokerName) {
+    put(ProductMetadataKey.BROKER_NAME, brokerName);
+  }
+
+  public void putCommissionRate(final BigDecimal commissionRate) {
+    put(ProductMetadataKey.COMMISSION_RATE, commissionRate);
+  }
+
+  // ========== PUT Methods for CDT Metadata ==========
+
+  public void putMaturityDate(final LocalDate maturityDate) {
+    put(ProductMetadataKey.MATURITY_DATE, maturityDate);
+  }
+
+  public void putOpeningDate(final LocalDate openingDate) {
+    put(ProductMetadataKey.OPENING_DATE, openingDate);
+  }
+
+  public void putTermLengthInDays(final Integer termLengthInDays) {
+    put(ProductMetadataKey.TERM_LENGTH_IN_DAYS, termLengthInDays);
+  }
+
+  // ========== PUT Methods for Fully Withdrawn System Metadata ==========
+
+  public void putIsFullyWithdrawn(final Boolean isFullyWithdrawn) {
+    put(ProductMetadataKey.IS_FULLY_WITHDRAWN, isFullyWithdrawn);
+  }
+
+  // ========== PUT Methods for Loan Metadata ==========
+
+  public void putLoanPrincipalAmount(final BigDecimal loanPrincipalAmount) {
+    put(ProductMetadataKey.LOAN_PRINCIPAL_AMOUNT, loanPrincipalAmount);
+  }
+
+  public void putLoanInterestRate(final BigDecimal loanInterestRate) {
+    put(ProductMetadataKey.LOAN_INTEREST_RATE, loanInterestRate);
+  }
+
+  public void putLoanTotalAmountPaid(final BigDecimal loanTotalAmountPaid) {
+    put(ProductMetadataKey.LOAN_TOTAL_AMOUNT_PAID, loanTotalAmountPaid);
+  }
+
+  public void putLoanPayoffAmountToday(final BigDecimal loanPayoffAmountToday) {
+    put(ProductMetadataKey.LOAN_PAYOFF_AMOUNT_TODAY, loanPayoffAmountToday);
+  }
+
+  // ========== Factory Method for Infrastructure Layer ==========
+
+  /**
+   * Creates ProductMetadata from a map. This is primarily used by the infrastructure layer for
+   * persistence operations.
+   *
+   * @param data Map containing metadata
+   * @return ProductMetadata instance
+   */
+  public static ProductMetadata fromMap(final Map<ProductMetadataKey, Object> data) {
+    return new ProductMetadata(data);
   }
 }
