@@ -1,4 +1,4 @@
-package com.jbh.account.application.core.validation.accounttype;
+package com.jbh.account.application.core.validation.product_type;
 
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
@@ -8,14 +8,13 @@ import com.jbh.account.domain.vo.ExpenseCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InvestmentAccountMovementValidator implements AccountMovementValidator {
+public class InvestmentMovementValidator implements ProductMovementValidator {
 
-  private static final Logger LOG =
-      LoggerFactory.getLogger(InvestmentAccountMovementValidator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(InvestmentMovementValidator.class);
 
   @Override
-  public void validateMovementByAccountType(
-      final AccountDTO existingAccount, final MovementDTO movementDTO)
+  public void validateMovementByProductType(
+      final AccountDTO existingProduct, final MovementDTO movementDTO)
       throws AccountBusinessException {
 
     if (movementDTO.isBalanceSnapshot()) {
@@ -25,13 +24,13 @@ public class InvestmentAccountMovementValidator implements AccountMovementValida
     final var categoryType = movementDTO.category().getType();
 
     if (movementDTO.isWithdrawalType()) {
-      if (existingAccount.isFullyWithdrawn()
+      if (existingProduct.isFullyWithdrawn()
           && categoryType != ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT) {
 
         LOG.error("The Category {} is not valid for Investment accounts", categoryType);
         throw new AccountBusinessException(
             BusinessApplicationExceptionType.INVALID_CATEGORY_INVESTMENT_WITHDRAWAL);
-      } else if (!existingAccount.isFullyWithdrawn()
+      } else if (!existingProduct.isFullyWithdrawn()
           && categoryType == ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT) {
 
         throw new AccountBusinessException(

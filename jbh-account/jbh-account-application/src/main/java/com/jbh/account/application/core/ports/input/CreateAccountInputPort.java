@@ -4,7 +4,7 @@ import com.jbh.account.application.common.logging.LoggerFactory;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
-import com.jbh.account.application.core.vo.commands.CreateAccountCommand;
+import com.jbh.account.application.core.vo.commands.CreateProductCommand;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
@@ -22,7 +22,7 @@ public class CreateAccountInputPort implements CreateAccountUseCase {
   }
 
   @Override
-  public AccountDTO execute(final CreateAccountCommand command) throws AccountBusinessException {
+  public AccountDTO execute(final CreateProductCommand command) throws AccountBusinessException {
 
     if (command == null) {
       throw new GenericSpecificationException("Command cannot be null");

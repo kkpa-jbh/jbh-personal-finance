@@ -4,6 +4,7 @@ import static com.jbh.account.application.builders.CommandTestBuilder.createBasi
 import static com.jbh.account.application.builders.CommandTestBuilder.createCDTCommand;
 import static com.jbh.account.application.builders.CommandTestBuilder.createCreditCardCommand;
 import static com.jbh.account.application.builders.CommandTestBuilder.createInvestmentCommand;
+import static com.jbh.account.application.builders.CommandTestBuilder.createLoanCommand;
 import static com.jbh.account.application.builders.UseCaseBuilder.addMovementUseCase;
 import static com.jbh.account.application.builders.UseCaseBuilder.delayTests;
 import static com.jbh.account.application.core.usecases.utils.AccountITUtils.assertAccount;
@@ -18,23 +19,21 @@ import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
-import com.jbh.account.application.core.vo.commands.CreateAccountCommand;
+import com.jbh.account.application.core.vo.commands.CreateProductCommand;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
-import com.jbh.account.domain.vo.ProductMetadataKey;
+import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class CreateAccountITTest {
+public class CreateProductITTest {
   static UUID userId = UUID.randomUUID();
   static BigDecimal creditLimit = new BigDecimal("1000000");
   private static CreateAccountUseCase createAccountUseCase;
@@ -60,7 +59,7 @@ public class CreateAccountITTest {
         () -> createAccountUseCase.execute(createBasicAccountCommand(userId, "Test", null)));
 
     // Test 1: Credit Card account WITHOUT required metadata should fail
-    final CreateAccountCommand missingTagsCreditCardAccount =
+    final CreateProductCommand missingTagsCreditCardAccount =
         createBasicAccountCommand(userId, "Test Credit Card", ProductType.CREDIT_CARD);
 
     final AccountBusinessException exception =
@@ -72,7 +71,7 @@ public class CreateAccountITTest {
     assertNotNull(exception.getMessage());
 
     // Test 2: Investment account WITHOUT BROKER_NAME should fail
-    final CreateAccountCommand missingBrokerInvestmentAccount =
+    final CreateProductCommand missingBrokerInvestmentAccount =
         createBasicAccountCommand(userId, "Test Investment", ProductType.INVESTMENT);
 
     final AccountBusinessException investmentException =
@@ -84,7 +83,7 @@ public class CreateAccountITTest {
     assertNotNull(investmentException.getMessage());
 
     // Test 3: Savings account WITHOUT metadata should succeed (no required metadata)
-    final CreateAccountCommand validSavingsAccount =
+    final CreateProductCommand validSavingsAccount =
         createBasicAccountCommand(userId, "Test Savings", ProductType.SAVINGS);
 
     final AccountDTO savingsAccountDTO = createAccountUseCase.execute(validSavingsAccount);
@@ -93,7 +92,7 @@ public class CreateAccountITTest {
     assertEquals(ProductType.SAVINGS, savingsAccountDTO.type());
 
     // Test 4: CDT account WITHOUT metadata should FAILS
-    final CreateAccountCommand validCdtAccount =
+    final CreateProductCommand validCdtAccount =
         createBasicAccountCommand(userId, "Test CDT", ProductType.CDT);
 
     final AccountDTO cdtAccountDTO = createAccountUseCase.execute(validCdtAccount);
@@ -104,9 +103,8 @@ public class CreateAccountITTest {
 
   @Test
   void creditCardAccountValidations() {
-    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
-    final CreateAccountCommand invalidCommand =
-        createCreditCardCommand(userId, "Test CDT", metadata);
+    final CreateProductCommand invalidCommand =
+        createCreditCardCommand(userId, "Test CDT", ProductMetadata.empty());
     assertThrows(
         AccountBusinessException.class, () -> createAccountUseCase.execute(invalidCommand));
   }
@@ -114,7 +112,7 @@ public class CreateAccountITTest {
   @Test
   void createInvestmentAccount() throws AccountBusinessException {
     // Investment WITH required metadata should succeed
-    final CreateAccountCommand validInvestmentCommand =
+    final CreateProductCommand validInvestmentCommand =
         createInvestmentCommand(userId, "Fidelity Portfolio", "Fidelity");
 
     final AccountDTO investmentAccountDTO = createAccountUseCase.execute(validInvestmentCommand);
@@ -128,7 +126,7 @@ public class CreateAccountITTest {
   @Test
   void createCreditCardWithInvalidCreditLimit() {
     // Credit Card WITH zero credit limit should fail
-    final CreateAccountCommand invalidCreditLimitCommand =
+    final CreateProductCommand invalidCreditLimitCommand =
         createCreditCardCommand(userId, "Invalid Card", BigDecimal.ZERO, 15);
 
     assertThrows(
@@ -140,7 +138,7 @@ public class CreateAccountITTest {
   @Test
   void createCreditCardWithInvalidPaymentDueDay() {
     // Credit Card WITH invalid payment due day (out of range) should fail
-    final CreateAccountCommand invalidPaymentDayCommand =
+    final CreateProductCommand invalidPaymentDayCommand =
         createCreditCardCommand(userId, "Invalid Card", creditLimit, 32); // Day 32 is invalid
 
     assertThrows(
@@ -152,7 +150,7 @@ public class CreateAccountITTest {
   @Test
   void createCreditCardAccount() throws AccountBusinessException {
     // Credit Card WITH required metadata should succeed
-    final CreateAccountCommand validCreditCardCommand =
+    final CreateProductCommand validCreditCardCommand =
         createCreditCardCommand(userId, "LULO Credit Card", creditLimit, 15);
     final LocalDate mvmDate = LocalDate.of(2023, 1, 1);
     final AccountDTO creditCardAccountDTO = createAccountUseCase.execute(validCreditCardCommand);
@@ -216,6 +214,34 @@ public class CreateAccountITTest {
   @Test
   public void createCDTAccount() throws AccountBusinessException {
 
-    createAccountUseCase.execute(createCDTCommand(userId, "My CDT", new HashMap<>()));
+    createAccountUseCase.execute(createCDTCommand(userId, "My CDT", ProductMetadata.empty()));
+  }
+
+  @Test
+  public void createLoanProductMissingValidations() throws AccountBusinessException {
+    final ProductMetadata metadata = ProductMetadata.empty();
+    assertThrows(
+        AccountBusinessException.class,
+        () -> createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata)));
+
+    final var expected = new BigDecimal("100.00");
+    metadata.putLoanPrincipalAmount(expected);
+    assertThrows(
+        AccountBusinessException.class,
+        () -> createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata)));
+
+    metadata.putLoanTotalAmountPaid(expected);
+    assertThrows(
+        AccountBusinessException.class,
+        () -> createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata)));
+
+    metadata.putLoanPayoffAmountToday(expected);
+    final AccountDTO createdLoan =
+        createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata));
+
+    assertNotNull(createdLoan);
+    assertEquals(expected, createdLoan.metadata().getLoanPrincipalAmount());
+    assertEquals(expected, createdLoan.metadata().getLoanTotalAmountPaid());
+    assertEquals(expected, createdLoan.metadata().getLoanPayoffAmountToday());
   }
 }

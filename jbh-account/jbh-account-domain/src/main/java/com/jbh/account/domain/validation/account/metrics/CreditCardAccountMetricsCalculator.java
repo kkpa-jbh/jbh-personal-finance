@@ -1,7 +1,9 @@
 package com.jbh.account.domain.validation.account.metrics;
 
+import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.vo.ProductMetadata;
 import java.math.BigDecimal;
 
 public class CreditCardAccountMetricsCalculator extends BaseAccountMetricsCalculator
@@ -20,5 +22,11 @@ public class CreditCardAccountMetricsCalculator extends BaseAccountMetricsCalcul
       throws AccountBusinessException {
     final BigDecimal closingBalance = accountDomain.getCurrentBalance();
     return defaultNetGrowthRateCalculation(openingBalance, closingBalance, movementAmount);
+  }
+
+  @Override
+  public ProductMetadata updateMetadata(
+      final ProductDomain productDomain, final AccountMovementDomain movement) {
+    return productDomain.getMetadata();
   }
 }

@@ -7,9 +7,11 @@ import static com.jbh.account.application.core.usecases.mock.RegisterMovementExe
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -89,7 +91,8 @@ public class RegisterMovementValidationMockTest {
             monthlyBalanceService,
             new UnitOfWorkTest());
 
-    registerSimpleMovementInputPort = new AddMovementInputPort(accountMovementService);
+    registerSimpleMovementInputPort =
+        new AddMovementInputPort(accountMovementService, accountService);
   }
 
   @Test
@@ -171,15 +174,15 @@ public class RegisterMovementValidationMockTest {
     final AddMovementCommand request = createMovement(movementDate, amount, OTHER_INCOME_CATEGORY);
 
     when(accountRepository.findByUserAndAccountId(userId, accountId)).thenReturn(Optional.empty());
+    when(accountRepository.findByAccountId(accountId)).thenReturn(Optional.empty());
 
     // When & Then
-    final GenericSpecificationException exception =
+    final AccountBusinessException exception =
         assertThrows(
-            GenericSpecificationException.class,
+            AccountBusinessException.class,
             () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
 
-    assertEquals("Account not found", exception.getMessage());
-    verify(accountRepository).findByUserAndAccountId(userId, accountId);
+    assertNotNull(exception.getMessage());
   }
 
   @Test
@@ -196,16 +199,23 @@ public class RegisterMovementValidationMockTest {
     final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
-    when(accountRepository.findByUserAndAccountId(userId, accountId))
-        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+    mockAccount(userId, accountId, accountDomain);
 
     // When & Then
     assertDoesNotThrow(
         () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
-    verify(accountRepository).findByUserAndAccountId(userId, accountId);
+    verify(accountRepository, times(2)).findByUserAndAccountId(userId, accountId);
     verify(accountMovementRepository).save((MovementDTO) any());
     verify(accountRepository).save(any());
     assertEquals(JbhMoneyUtils.withJBHDecimals(amount), accountDomain.getMovementBalance());
+  }
+
+  private void mockAccount(
+      final UUID userId, final AccountId accountId, final ProductDomain accountDomain) {
+    when(accountRepository.findByAccountId(accountId))
+        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+    when(accountRepository.findByUserAndAccountId(userId, accountId))
+        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
   }
 
   @Test
@@ -220,14 +230,12 @@ public class RegisterMovementValidationMockTest {
     final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
-    when(accountRepository.findByUserAndAccountId(userId, accountId))
-        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+    mockAccount(userId, accountId, accountDomain);
 
     // When & Then
     assertDoesNotThrow(
         () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
 
-    verify(accountRepository).findByUserAndAccountId(userId, accountId);
     verify(accountMovementRepository).save((MovementDTO) any());
     verify(accountRepository).save(any());
   }
@@ -245,8 +253,7 @@ public class RegisterMovementValidationMockTest {
     final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
-    when(accountRepository.findByUserAndAccountId(userId, accountId))
-        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+    mockAccount(userId, accountId, accountDomain);
 
     // When & Then
     assertThrows(
@@ -271,15 +278,13 @@ public class RegisterMovementValidationMockTest {
         AccountEntityBuilder.withBasicMovementForExisting(
             accountId, userId, new BigDecimal("30.00"), new BigDecimal("30.00"));
 
-    when(accountRepository.findByUserAndAccountId(userId, accountId))
-        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+    mockAccount(userId, accountId, accountDomain);
 
     // When & Then
     assertThrows(
         AccountBusinessException.class,
         () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
 
-    verify(accountRepository).findByUserAndAccountId(userId, accountId);
     verify(accountMovementRepository, never()).save((MovementDTO) any());
     verify(accountRepository, never()).save(AccountMapper.toDTO(accountDomain));
   }

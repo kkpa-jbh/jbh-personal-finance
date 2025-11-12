@@ -1,4 +1,4 @@
-package com.jbh.account.application.core.validation.movementtype;
+package com.jbh.account.application.core.validation.movement_type;
 
 import com.jbh.account.domain.vo.MovementType;
 import java.util.Map;

@@ -97,21 +97,9 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
     }
   }
 
-  private ProductDomain findAccountOrElseThrow(final UUID userId, final AccountId accountId) {
-    if (userId == null) {
-      LOG.error("User ID cannot be null");
-      throw new IllegalArgumentException("User ID cannot be null");
-    }
-
-    final AccountDTO accountDTO =
-        accountService
-            .findByUserAndAccountId(userId, accountId)
-            .orElseThrow(
-                () -> {
-                  LOG.error(
-                      "Account not found for user: {} and account: {}", userId, accountId.value());
-                  return new IllegalArgumentException("Account not found");
-                });
+  private ProductDomain findAccountOrElseThrow(final UUID userId, final AccountId accountId)
+      throws AccountBusinessException {
+    final AccountDTO accountDTO = accountService.findByUserAndAccountId(userId, accountId);
 
     return accountDTO.toDomain();
   }

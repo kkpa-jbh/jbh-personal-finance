@@ -84,29 +84,7 @@ public class UseCaseBuilder {
   public static AddMovementUseCase buildAddMovementUseCase(
       final AccountMovementWriterRepository accountMovementRepository) {
     return new AddMovementInputPort(
-        buildAccountMovementApplicationService(accountMovementRepository));
-  }
-
-  public static AccountMovementApplicationServiceImpl buildAccountMovementApplicationService(
-      final AccountMovementWriterRepository accountMovementRepository) {
-    return new AccountMovementApplicationServiceImpl(
-        buildAccountMovementService(accountMovementRepository),
-        buildAccountService(),
-        buildMonthlyBalanceService(),
-        new UnitOfWorkTest());
-  }
-
-  public static AccountMovementService buildAccountMovementService(
-      final AccountMovementWriterRepository accountMovementRepository) {
-    return new AccountMovementServiceImpl(accountMovementRepository, movementQueryRepository);
-  }
-
-  public static MonthlyBalanceService buildMonthlyBalanceService() {
-    return new MonthlyBalanceServiceImpl(
-        monthlyBalanceInMemoQuery,
-        monthlyBalanceInMemoWriter,
-        new AsyncTaskExecutorImpl(),
-        buildAccountService());
+        buildAccountMovementApplicationService(accountMovementRepository), buildAccountService());
   }
 
   public static FindMonthlyBalanceUseCase buildFindMonthlyBalanceUseCase() {
@@ -129,6 +107,28 @@ public class UseCaseBuilder {
       final AccountMovementWriterRepository accountMovementRepository) {
     return new AddTransferJbhAccountsInputPort(
         buildAccountService(), buildAccountMovementApplicationService(accountMovementRepository));
+  }
+
+  public static AccountMovementApplicationServiceImpl buildAccountMovementApplicationService(
+      final AccountMovementWriterRepository accountMovementRepository) {
+    return new AccountMovementApplicationServiceImpl(
+        buildAccountMovementService(accountMovementRepository),
+        buildAccountService(),
+        buildMonthlyBalanceService(),
+        new UnitOfWorkTest());
+  }
+
+  public static AccountMovementService buildAccountMovementService(
+      final AccountMovementWriterRepository accountMovementRepository) {
+    return new AccountMovementServiceImpl(accountMovementRepository, movementQueryRepository);
+  }
+
+  public static MonthlyBalanceService buildMonthlyBalanceService() {
+    return new MonthlyBalanceServiceImpl(
+        monthlyBalanceInMemoQuery,
+        monthlyBalanceInMemoWriter,
+        new AsyncTaskExecutorImpl(),
+        buildAccountService());
   }
 
   public static LiquidateAccountUseCase buildLiquidateAccountUseCase(

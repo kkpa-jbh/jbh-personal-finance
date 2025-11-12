@@ -10,7 +10,6 @@ import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -19,7 +18,8 @@ import java.util.UUID;
  * <p>Like a Repository abstraction.
  */
 public interface AccountService {
-  Optional<AccountDTO> findByUserAndAccountId(UUID userId, AccountId accountId);
+  AccountDTO findByUserAndAccountId(UUID userId, AccountId accountId)
+      throws AccountBusinessException;
 
   AccountDTO findAccountOrThrow(AccountId accountId);
 

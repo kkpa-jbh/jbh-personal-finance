@@ -11,7 +11,7 @@ import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
-import com.jbh.account.application.core.validation.accounttype.AccountMovementValidatorFactory;
+import com.jbh.account.application.core.validation.product_type.ProductMovementValidatorFactory;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
@@ -39,7 +39,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
   private final MonthlyBalanceService monthlyBalanceService;
   private final UnitOfWork unitOfWork;
 
-  private final AccountMovementValidatorFactory movementValidatorFactory;
+  private final ProductMovementValidatorFactory movementValidatorFactory;
 
   public AccountMovementApplicationServiceImpl(
       final AccountMovementService accountMovementService,
@@ -51,7 +51,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
     this.monthlyBalanceService = monthlyBalanceService;
     this.accountMovementService = accountMovementService;
 
-    movementValidatorFactory = new AccountMovementValidatorFactory(accountMovementService);
+    movementValidatorFactory = new ProductMovementValidatorFactory(accountMovementService);
   }
 
   // TODO: Move this out of the service. This service should be responsible of
@@ -169,11 +169,10 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
         accountService.syncByMovement(
             new AccountPK(userId, accountId), movementDTO, isMonthOfficiallyReported);
 
-    validateMovementByAccountType(syncedAccountDTO, movementDTO);
+    validateMovementByProductType(syncedAccountDTO, movementDTO);
 
     unitOfWork.execute(
         () -> {
-          log.info("ACID operations...");
           log.info("Persisting Movement {} ", movementDTO.movementDate());
           persistMovementDTO(movementDTO);
           accountService.save(syncedAccountDTO);
@@ -247,12 +246,12 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
     return existingMonthlyBalanceOpt.map(MonthlyBalanceDTO::officialMonthlyReport).orElse(false);
   }
 
-  private void validateMovementByAccountType(
+  private void validateMovementByProductType(
       final AccountDTO existingAccount, final MovementDTO movementDTO)
       throws AccountBusinessException {
     movementValidatorFactory
         .getValidator(existingAccount.type())
-        .validateMovementByAccountType(existingAccount, movementDTO);
+        .validateMovementByProductType(existingAccount, movementDTO);
   }
 
   private void persistMovementDTO(final MovementDTO movementDTO) {

@@ -8,9 +8,9 @@ public enum BusinessApplicationExceptionType implements BusinessExceptionType {
   INVALID_RANGE_DATES_FOR_MONTHLY_BALANCES(
       "Invalid range dates for monthly balances",
       "Rango de fechas no válido para los saldos mensuales"),
-  ACCOUNTPK_MISMATCH(
-      "What are you trying to do? The account id does not match the user id",
-      "¿Qué estás intentando hacer? El ID de la cuenta no coincide con el ID de usuario"),
+  PRODUCT_NOT_FOUND(
+      "Product not found for the given user and account ID",
+      "Producto no encontrado para el usuario y ID de cuenta proporcionados"),
   INVALID_TRANSFER_RECIPIENT(
       "The transfer recipient is invalid", "El destinatario de la transferencia no es válido"),
   INVALID_TRANSFER_AMOUNT(
@@ -24,8 +24,14 @@ public enum BusinessApplicationExceptionType implements BusinessExceptionType {
   INVALID_CATEGORY_INVESTMENT_WITHDRAWAL(
       "You cannot withdraw the full investment by using this option",
       "No puedes retirar el total de la inversión usando esta opción"),
+  INVALID_CATEGORY_LOAN_MOVEMENT(
+      "Only transfer movements are allowed for loan products",
+      "Solo se permiten movimientos de transferencia para productos de préstamo"),
   INVALID_LIQUIDATION_AMOUNT(
       "The amount to liquidate is invalid", "El importe a liquidar no es válido"),
+  DISALLOWED_MOVEMENT_FOR_PRODUCT(
+      "Product type not allowed to add a movement. Please use the transfer option instead.",
+      "Este tipo de producto no puede agregar un movimiento. Por favor, use la opción de transferencia."),
   ;
 
   private final String en;

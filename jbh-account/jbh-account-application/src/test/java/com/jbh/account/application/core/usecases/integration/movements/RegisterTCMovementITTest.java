@@ -22,12 +22,10 @@ import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.usecases.integration.monthlybalance.RegisterMonthlyReportedWithoutProfitITTest;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.ProductMetadataKey;
+import com.jbh.account.domain.vo.ProductMetadata;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -78,9 +76,9 @@ public class RegisterTCMovementITTest {
   @Order(0)
   void createAccount() throws AccountBusinessException {
     final LocalDate mvmDate = period.atDay(1);
-    final Map<ProductMetadataKey, Object> metadata = new HashMap<>();
-    metadata.put(ProductMetadataKey.CREDIT_LIMIT, CREDIT_LIMIT);
-    metadata.put(ProductMetadataKey.PAYMENT_DUE_DAY, 15);
+    final ProductMetadata metadata = ProductMetadata.empty();
+    metadata.putCreditLimit(CREDIT_LIMIT);
+    metadata.putPaymentDueDay(15);
     creditCardAccount =
         createAccountUseCase.execute(
             CommandTestBuilder.createCreditCardCommand(userId, name, metadata));

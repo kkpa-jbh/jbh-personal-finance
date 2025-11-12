@@ -7,7 +7,7 @@ import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.application.core.vo.commands.CreateAccountCommand;
+import com.jbh.account.application.core.vo.commands.CreateProductCommand;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
@@ -101,7 +101,7 @@ public class AccountRestAdapter extends BaseRestAdapter {
 
     final AccountDTO accountDTO =
         createAccountUseCase.execute(
-            new CreateAccountCommand(
+            new CreateProductCommand(
                 userId, request.name(), request.type(), ProductMetadata.empty()));
 
     return Response.ok(accountDTO).build();

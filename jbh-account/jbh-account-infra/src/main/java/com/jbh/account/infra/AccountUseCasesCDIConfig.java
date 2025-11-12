@@ -62,7 +62,7 @@ public class AccountUseCasesCDIConfig {
   @Produces
   @ApplicationScoped
   public AddMovementInputPort registeringAddMovementUseCase() {
-    return new AddMovementInputPort(accountMovementServiceApplication());
+    return new AddMovementInputPort(accountMovementServiceApplication(), accountService());
   }
 
   @Produces

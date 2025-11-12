@@ -195,6 +195,9 @@ public class ProductDomain {
     this.isActive = !newAccountMovement.isToCloseProduct();
 
     syncProfitBalance();
+
+    updateMetadataFields(newAccountMovement);
+
     this.updatedAt = LocalDateTime.now();
   }
 
@@ -237,6 +240,10 @@ public class ProductDomain {
 
   private void syncProfitBalance() throws AccountBusinessException {
     this.netProfitBalance = metricsCalculator.calculateProfitBalance(this);
+  }
+
+  private void updateMetadataFields(final AccountMovementDomain movement) {
+    this.metadata = metricsCalculator.updateMetadata(this, movement);
   }
 
   public void setCalculatedMoneyGrowthRate(

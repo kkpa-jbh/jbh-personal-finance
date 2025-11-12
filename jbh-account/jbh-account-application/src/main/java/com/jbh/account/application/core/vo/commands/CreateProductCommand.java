@@ -5,7 +5,7 @@ import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductType;
 import java.util.UUID;
 
-public record CreateAccountCommand(
+public record CreateProductCommand(
     UUID userId, String name, ProductType type, ProductMetadata productMetadata)
     implements CommandValidator {
 
@@ -20,7 +20,7 @@ public record CreateAccountCommand(
   metadata.put(CREDIT_LIMIT, 10000);  // ⚠️ Modifies the command's internal state!
    */
   @SuppressWarnings("PMD.UnusedAssignment")
-  public CreateAccountCommand {
+  public CreateProductCommand {
     if (userId == null) {
       throw new GenericSpecificationException("User ID cannot be null");
     }

@@ -6,6 +6,7 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
+import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.domain.entity.AccountMovementDomain;
@@ -37,8 +38,29 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public Optional<AccountDTO> findByUserAndAccountId(final UUID userId, final AccountId accountId) {
-    return accountRepo.findByUserAndAccountId(userId, accountId);
+  public AccountDTO findByUserAndAccountId(final UUID userId, final AccountId accountId)
+      throws AccountBusinessException {
+
+    if (userId == null) {
+      log.error("User ID cannot be null");
+      throw new GenericSpecificationException("User ID cannot be null");
+    }
+
+    if (accountId == null) {
+      log.error("Account ID cannot be null");
+      throw new GenericSpecificationException("Account ID cannot be null");
+    }
+
+    return accountRepo
+        .findByUserAndAccountId(userId, accountId)
+        .orElseThrow(
+            () -> {
+              log.error(
+                  "Account not found for user: {} and account: {}", userId, accountId.value());
+
+              return new AccountBusinessException(
+                  BusinessApplicationExceptionType.PRODUCT_NOT_FOUND);
+            });
   }
 
   @Override
@@ -180,23 +202,12 @@ public class AccountServiceImpl implements AccountService {
     return toDTO(accountDomain);
   }
 
-  private ProductDomain findDomainOrThrow(final AccountPK accountPK) {
+  private ProductDomain findDomainOrThrow(final AccountPK accountPK)
+      throws AccountBusinessException {
     final UUID userId = accountPK.userId();
     final AccountId accountId = accountPK.accountId();
 
-    if (userId == null) {
-      log.error("User ID cannot be null");
-      throw new GenericSpecificationException("User ID cannot be null");
-    }
-
-    final AccountDTO accountDTO =
-        findByUserAndAccountId(userId, accountId)
-            .orElseThrow(
-                () -> {
-                  log.error(
-                      "Account not found for user: {} and account: {}", userId, accountId.value());
-                  return new GenericSpecificationException("Account not found");
-                });
+    final AccountDTO accountDTO = findByUserAndAccountId(userId, accountId);
 
     return accountDTO.toDomain();
   }

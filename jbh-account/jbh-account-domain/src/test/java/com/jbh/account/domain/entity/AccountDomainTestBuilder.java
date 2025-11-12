@@ -2,7 +2,6 @@ package com.jbh.account.domain.entity;
 
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
-import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductType;
@@ -22,7 +21,7 @@ public class AccountDomainTestBuilder {
   private BigDecimal currentBalance;
   private ProductType productType;
   private String name;
-  private ProductMetadata productMetadata;
+  private ProductMetadata productMetadata = ProductMetadata.empty();
 
   private AccountDomainTestBuilder() {
     this.productType = ProductType.SAVINGS; // Default to SAVINGS
@@ -80,19 +79,13 @@ public class AccountDomainTestBuilder {
    */
   public ProductDomain build() {
 
-    return new ProductDomain(
-        accountId,
+    return createProduct(
         "DEFAULT_ACCOUNT_NAME",
         productType,
         userId,
         movementBalance,
         currentBalance,
-        JBH_ZERO,
-        true,
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-        BigDecimal.ZERO,
-        ProductMetadata.empty());
+        productMetadata);
   }
 
   public AccountDomainTestBuilder withProductType(final ProductType productType) {
@@ -124,10 +117,31 @@ public class AccountDomainTestBuilder {
     return new AccountDomainTestBuilder();
   }
 
+  public static ProductDomain createProduct(
+      final String name,
+      final ProductType productType,
+      final UUID userId,
+      final BigDecimal movementBalance,
+      final BigDecimal currentBalance,
+      final ProductMetadata metadata) {
+    return new ProductDomain(
+        AccountId.generate(),
+        name,
+        productType,
+        userId,
+        movementBalance,
+        currentBalance,
+        JBH_ZERO,
+        true,
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        JBH_ZERO,
+        metadata);
+  }
+
   public static ProductDomain createLoanProduct(
-      final UUID userId, final String name, final ProductMetadata metadata)
-      throws AccountBusinessException {
-    return ProductDomain.withMinimumDataForCreation(name, ProductType.LOAN, userId, metadata);
+      final UUID userId, final String name, final ProductMetadata metadata) {
+    return createProduct("Loan Account", ProductType.LOAN, userId, JBH_ZERO, JBH_ZERO, metadata);
   }
 
   /**
@@ -179,23 +193,23 @@ public class AccountDomainTestBuilder {
   /**
    * Creates a CDT ProductDomain with basic movement data for an existing account.
    *
-   * @param accountId Account identifier
    * @param userId User identifier
    * @param movementBalance Movement balance
    * @param currentBalance Current balance
    * @return ProductDomain instance of type CDT
    */
   public static ProductDomain createCdtProductWithBalance(
-      final AccountId accountId,
       final UUID userId,
       final BigDecimal movementBalance,
-      final BigDecimal currentBalance) {
+      final BigDecimal currentBalance,
+      final ProductMetadata productMetadata) {
     return builder()
-        .withAccountId(accountId)
+        .withAccountId(AccountId.generate())
         .withUserId(userId)
         .withMovementBalance(movementBalance)
         .withCurrentBalance(currentBalance)
         .withProductType(ProductType.CDT)
+        .withProductMetadata(productMetadata)
         .build();
   }
 

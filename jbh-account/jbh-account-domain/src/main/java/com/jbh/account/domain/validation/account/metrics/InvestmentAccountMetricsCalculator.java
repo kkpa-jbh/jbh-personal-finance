@@ -3,8 +3,10 @@ package com.jbh.account.domain.validation.account.metrics;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.isNegativeOrZero;
 
+import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.vo.ProductMetadata;
 import java.math.BigDecimal;
 
 public class InvestmentAccountMetricsCalculator extends BaseAccountMetricsCalculator
@@ -27,5 +29,11 @@ public class InvestmentAccountMetricsCalculator extends BaseAccountMetricsCalcul
     }
     return moneyGrowthCalculator.calculateGrowth(
         openingBalance, accountDomain.getCurrentBalance(), JBH_ZERO);
+  }
+
+  @Override
+  public ProductMetadata updateMetadata(
+      final ProductDomain productDomain, final AccountMovementDomain movement) {
+    return productDomain.getMetadata();
   }
 }

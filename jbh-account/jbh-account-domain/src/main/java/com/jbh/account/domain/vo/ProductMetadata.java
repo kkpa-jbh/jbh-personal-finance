@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -33,6 +32,29 @@ public final class ProductMetadata {
    */
   public static ProductMetadata empty() {
     return new ProductMetadata(new EnumMap<>(ProductMetadataKey.class));
+  }
+
+  /**
+   * Creates ProductMetadata from a map. This is primarily used by the infrastructure layer for
+   * persistence operations.
+   *
+   * @param data Map containing metadata
+   * @return ProductMetadata instance
+   */
+  // FIXME: Consider removing this method to enforce immutability
+  public static ProductMetadata fromMap(final Map<ProductMetadataKey, Object> data) {
+    return new ProductMetadata(data);
+  }
+
+  // FIXME: Consider removing this method to enforce immutability
+  /**
+   * Returns a defensive copy of the underlying metadata map with String keys. Used for persistence
+   * and serialization.
+   *
+   * @return A new HashMap containing all metadata entries with String keys
+   */
+  public Map<ProductMetadataKey, Object> asMap() {
+    return new EnumMap<>(data);
   }
 
   /**
@@ -65,6 +87,8 @@ public final class ProductMetadata {
     return data.get(key);
   }
 
+  // ========== Typed Getters for Fully Withdrawn Data ==========
+
   /**
    * Gets the date when the account was fully withdrawn.
    *
@@ -74,8 +98,6 @@ public final class ProductMetadata {
     return (LocalDate) get(ProductMetadataKey.FULLY_WITHDRAWN_DATE);
   }
 
-  // ========== Typed Getters for Fully Withdrawn Data ==========
-
   /**
    * Gets the timestamp when the account was marked as fully withdrawn.
    *
@@ -84,6 +106,8 @@ public final class ProductMetadata {
   public LocalDateTime getFullyWithdrawnAt() {
     return (LocalDateTime) get(ProductMetadataKey.FULLY_WITHDRAWN_AT);
   }
+
+  // ========== Typed Getters for Credit Card Metadata ==========
 
   /**
    * Gets the credit limit for credit card accounts.
@@ -99,8 +123,6 @@ public final class ProductMetadata {
     return (BigDecimal) creditLimit;
   }
 
-  // ========== Typed Getters for Credit Card Metadata ==========
-
   /**
    * Gets the payment due day for credit card accounts.
    *
@@ -114,6 +136,8 @@ public final class ProductMetadata {
     return (Integer) dueDay;
   }
 
+  // ========== Typed Getters for Investment Metadata ==========
+
   /**
    * Gets the broker name for investment accounts.
    *
@@ -123,8 +147,6 @@ public final class ProductMetadata {
     return (String) get(ProductMetadataKey.BROKER_NAME);
   }
 
-  // ========== Typed Getters for Investment Metadata ==========
-
   /**
    * Gets the commission rate for investment accounts.
    *
@@ -133,6 +155,8 @@ public final class ProductMetadata {
   public BigDecimal getCommissionRate() {
     return (BigDecimal) get(ProductMetadataKey.COMMISSION_RATE);
   }
+
+  // ========== Typed Getters for CDT Metadata ==========
 
   /**
    * Gets the maturity date for CDT accounts.
@@ -146,8 +170,6 @@ public final class ProductMetadata {
     }
     return (LocalDate) maturityDate;
   }
-
-  // ========== Typed Getters for CDT Metadata ==========
 
   /**
    * Gets the opening date for CDT accounts.
@@ -167,25 +189,9 @@ public final class ProductMetadata {
     return (Integer) get(ProductMetadataKey.TERM_LENGTH_IN_DAYS);
   }
 
-  /**
-   * Returns a defensive copy of the underlying metadata map with String keys. Used for persistence
-   * and serialization.
-   *
-   * @return A new HashMap containing all metadata entries with String keys
-   */
-  public Map<String, Object> asMap() {
-    final Map<String, Object> result = new HashMap<>();
-    for (final Map.Entry<ProductMetadataKey, Object> entry : data.entrySet()) {
-      result.put(entry.getKey().name(), entry.getValue());
-    }
-    return result;
-  }
-
   public Map<ProductMetadataKey, Object> getData() {
     return new EnumMap<>(data);
   }
-
-  // ========== Map Conversion ==========
 
   /**
    * Returns the number of metadata entries.
@@ -225,31 +231,31 @@ public final class ProductMetadata {
     put(ProductMetadataKey.INITIAL_BALANCE, initialBalance);
   }
 
+  // ========== PUT Methods for Credit Card Metadata ==========
+
   public BigDecimal getInitialBalance() {
     return (BigDecimal) get(ProductMetadataKey.INITIAL_BALANCE);
   }
-
-  // ========== PUT Methods for Credit Card Metadata ==========
 
   public void putCreditLimit(final BigDecimal creditLimit) {
     put(ProductMetadataKey.CREDIT_LIMIT, creditLimit);
   }
 
+  // ========== PUT Methods for Investment Metadata ==========
+
   public void putPaymentDueDay(final Integer paymentDueDay) {
     put(ProductMetadataKey.PAYMENT_DUE_DAY, paymentDueDay);
   }
-
-  // ========== PUT Methods for Investment Metadata ==========
 
   public void putBrokerName(final String brokerName) {
     put(ProductMetadataKey.BROKER_NAME, brokerName);
   }
 
+  // ========== PUT Methods for CDT Metadata ==========
+
   public void putCommissionRate(final BigDecimal commissionRate) {
     put(ProductMetadataKey.COMMISSION_RATE, commissionRate);
   }
-
-  // ========== PUT Methods for CDT Metadata ==========
 
   public void putMaturityDate(final LocalDate maturityDate) {
     put(ProductMetadataKey.MATURITY_DATE, maturityDate);
@@ -259,17 +265,17 @@ public final class ProductMetadata {
     put(ProductMetadataKey.OPENING_DATE, openingDate);
   }
 
+  // ========== PUT Methods for Fully Withdrawn System Metadata ==========
+
   public void putTermLengthInDays(final Integer termLengthInDays) {
     put(ProductMetadataKey.TERM_LENGTH_IN_DAYS, termLengthInDays);
   }
 
-  // ========== PUT Methods for Fully Withdrawn System Metadata ==========
+  // ========== PUT Methods for Loan Metadata ==========
 
   public void putIsFullyWithdrawn(final Boolean isFullyWithdrawn) {
     put(ProductMetadataKey.IS_FULLY_WITHDRAWN, isFullyWithdrawn);
   }
-
-  // ========== PUT Methods for Loan Metadata ==========
 
   public void putLoanPrincipalAmount(final BigDecimal loanPrincipalAmount) {
     put(ProductMetadataKey.LOAN_PRINCIPAL_AMOUNT, loanPrincipalAmount);
@@ -283,20 +289,21 @@ public final class ProductMetadata {
     put(ProductMetadataKey.LOAN_TOTAL_AMOUNT_PAID, loanTotalAmountPaid);
   }
 
+  // ========== Factory Method for Infrastructure Layer ==========
+
   public void putLoanPayoffAmountToday(final BigDecimal loanPayoffAmountToday) {
     put(ProductMetadataKey.LOAN_PAYOFF_AMOUNT_TODAY, loanPayoffAmountToday);
   }
 
-  // ========== Factory Method for Infrastructure Layer ==========
+  public BigDecimal getLoanPrincipalAmount() {
+    return (BigDecimal) get(ProductMetadataKey.LOAN_PRINCIPAL_AMOUNT);
+  }
 
-  /**
-   * Creates ProductMetadata from a map. This is primarily used by the infrastructure layer for
-   * persistence operations.
-   *
-   * @param data Map containing metadata
-   * @return ProductMetadata instance
-   */
-  public static ProductMetadata fromMap(final Map<ProductMetadataKey, Object> data) {
-    return new ProductMetadata(data);
+  public BigDecimal getLoanPayoffAmountToday() {
+    return (BigDecimal) get(ProductMetadataKey.LOAN_PAYOFF_AMOUNT_TODAY);
+  }
+
+  public BigDecimal getLoanTotalAmountPaid() {
+    return (BigDecimal) get(ProductMetadataKey.LOAN_TOTAL_AMOUNT_PAID);
   }
 }

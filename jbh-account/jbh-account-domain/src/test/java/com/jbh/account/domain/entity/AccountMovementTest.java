@@ -1,8 +1,8 @@
 package com.jbh.account.domain.entity;
 
-import static com.jbh.account.domain.entity.AccountDomainTest.userId;
 import static com.jbh.account.domain.entity.MovementCategoryDomain.OTHER_INCOME_CATEGORY;
 import static com.jbh.account.domain.entity.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
+import static com.jbh.account.domain.entity.ProductDomainTest.userId;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.account.domain.vo.MovementType.DEPOSIT;

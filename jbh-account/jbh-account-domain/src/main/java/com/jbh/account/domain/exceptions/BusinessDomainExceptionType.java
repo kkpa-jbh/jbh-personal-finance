@@ -55,9 +55,7 @@ public enum BusinessDomainExceptionType implements BusinessExceptionType {
   INVALID_MATURITY_DATE_TYPE(
       "The maturity date has an invalid format",
       "La fecha de vencimiento tiene un formato inválido"),
-  METRICS_CALCULATOR_NOT_IMPLEMENTED(
-      "Metrics calculator not implemented for product type",
-      "Calculadora de métricas no implementada para el tipo de producto"),
+
   EMPTY_LOAN_PRINCIPAL_AMOUNT(
       "The amount borrowed has not been set", "El valor del préstamo no ha sido definido."),
   EMPTY_LOAN_TOTAL_AMOUNT_PAID(

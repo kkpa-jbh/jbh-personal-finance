@@ -20,11 +20,10 @@ import com.jbh.account.domain.vo.ProductMetadataKey;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-public class AccountDomainTest {
+public class ProductDomainTest {
 
   static UUID userId = UUID.randomUUID();
   ProductDomain accountDomain;
@@ -180,7 +179,8 @@ public class AccountDomainTest {
     final ProductMetadata metadata3 = ProductMetadata.empty();
     metadata3.putMaturityDate(LocalDate.of(2025, 1, 30));
     final ProductDomain account =
-        ProductDomain.withMinimumDataForCreation(accountName, ProductType.CDT, testUserId, metadata3);
+        ProductDomain.withMinimumDataForCreation(
+            accountName, ProductType.CDT, testUserId, metadata3);
     assertNotNull(account);
   }
 
@@ -568,19 +568,8 @@ public class AccountDomainTest {
   @Test
   public void shouldCreateWithConstructor() throws AccountBusinessException {
     final var accountDomain =
-        new ProductDomain(
-            AccountId.generate(),
-            "name",
-            ProductType.SAVINGS,
-            userId,
-            JBH_ZERO,
-            JBH_ZERO,
-            JBH_ZERO,
-            true,
-            LocalDateTime.now(),
-            LocalDateTime.now(),
-            JBH_ZERO,
-            ProductMetadata.empty());
+        AccountDomainTestBuilder.createProduct(
+            "name", ProductType.SAVINGS, userId, JBH_ZERO, JBH_ZERO, ProductMetadata.empty());
 
     assertNotNull(accountDomain.getId());
 

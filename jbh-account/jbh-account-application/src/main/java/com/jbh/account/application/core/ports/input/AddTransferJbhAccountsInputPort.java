@@ -53,15 +53,6 @@ public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUs
         toAccountDTO.name(),
         transferAmount);
 
-    LOG.info("Registering the withdrawal movement for the account {}", fromAccountName);
-    accountMovementService.addMovementProcessingBalances(
-        fromAccount,
-        new AddMovementCommand(
-            transferDate,
-            transferAmount,
-            MovementType.WITHDRAWAL,
-            MovementCategoryDTO.withType(ExpenseCategory.TRANSFER)));
-
     LOG.info("Registering the deposit movement for the account {}", toAccountName);
     accountMovementService.addMovementProcessingBalances(
         new AccountPK(transferCommand.toAccount().userId(), toAccountDTO.id()),
@@ -70,5 +61,14 @@ public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUs
             transferAmount,
             MovementType.DEPOSIT,
             MovementCategoryDTO.withType(IncomeCategory.TRANSFER)));
+
+    LOG.info("Registering the withdrawal movement for the account {}", fromAccountName);
+    accountMovementService.addMovementProcessingBalances(
+        fromAccount,
+        new AddMovementCommand(
+            transferDate,
+            transferAmount,
+            MovementType.WITHDRAWAL,
+            MovementCategoryDTO.withType(ExpenseCategory.TRANSFER)));
   }
 }

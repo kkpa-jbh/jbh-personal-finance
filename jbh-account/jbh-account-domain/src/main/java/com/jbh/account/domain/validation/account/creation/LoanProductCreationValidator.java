@@ -16,10 +16,6 @@ public class LoanProductCreationValidator extends BaseAccountCreationValidator
       throw new AccountBusinessException(BusinessDomainExceptionType.EMPTY_LOAN_PRINCIPAL_AMOUNT);
     }
 
-    if (!metadata.hasKey(ProductMetadataKey.LOAN_TOTAL_AMOUNT_PAID)) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.EMPTY_LOAN_TOTAL_AMOUNT_PAID);
-    }
-
     if (!metadata.hasKey(ProductMetadataKey.LOAN_PAYOFF_AMOUNT_TODAY)) {
       throw new AccountBusinessException(BusinessDomainExceptionType.EMPTY_LOAN_PAYOFF_AMOUNT);
     }

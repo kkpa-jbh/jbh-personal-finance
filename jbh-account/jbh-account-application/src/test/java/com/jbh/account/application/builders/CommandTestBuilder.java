@@ -1,7 +1,7 @@
 package com.jbh.account.application.builders;
 
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.application.core.vo.commands.CreateAccountCommand;
+import com.jbh.account.application.core.vo.commands.CreateProductCommand;
 import com.jbh.account.application.core.vo.commands.ExternalAccountInfoVO;
 import com.jbh.account.application.core.vo.commands.LiquidateAccountCommand;
 import com.jbh.account.domain.vo.AccountPK;
@@ -14,7 +14,6 @@ import com.jbh.account.domain.vo.ProductMetadataKey;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,9 +34,9 @@ public class CommandTestBuilder {
    * @param type the account type
    * @return a CreateBasicAccountCommand
    */
-  public static CreateAccountCommand createBasicAccountCommand(
+  public static CreateProductCommand createBasicAccountCommand(
       final UUID userId, final String name, final ProductType type) {
-    return new CreateAccountCommand(userId, name, type, ProductMetadata.empty());
+    return new CreateProductCommand(userId, name, type, ProductMetadata.empty());
   }
 
   /**
@@ -49,15 +48,15 @@ public class CommandTestBuilder {
    * @param metadata the account metadata
    * @return a CreateBasicAccountCommand
    */
-  public static CreateAccountCommand createBasicAccountCommand(
+  public static CreateProductCommand createBasicAccountCommand(
       final UUID userId,
       final String name,
       final ProductType type,
       final Map<ProductMetadataKey, Object> metadata) {
-    return new CreateAccountCommand(userId, name, type, ProductMetadata.fromMap(metadata));
+    return new CreateProductCommand(userId, name, type, ProductMetadata.fromMap(metadata));
   }
 
-  public static CreateAccountCommand createSavingAccountCommand(final UUID userId) {
+  public static CreateProductCommand createSavingAccountCommand(final UUID userId) {
     return createBasicAccountCommand(userId, ProductType.SAVINGS);
   }
 
@@ -68,9 +67,9 @@ public class CommandTestBuilder {
    * @param type the account type
    * @return a CreateBasicAccountCommand
    */
-  public static CreateAccountCommand createBasicAccountCommand(
+  public static CreateProductCommand createBasicAccountCommand(
       final UUID userId, final ProductType type) {
-    return new CreateAccountCommand(userId, DEFAULT_ACCOUNT_NAME, type, ProductMetadata.empty());
+    return new CreateProductCommand(userId, DEFAULT_ACCOUNT_NAME, type, ProductMetadata.empty());
   }
 
   /**
@@ -82,7 +81,7 @@ public class CommandTestBuilder {
    * @param paymentDueDay the payment due day
    * @return a CreateBasicAccountCommand configured for credit card
    */
-  public static CreateAccountCommand createCreditCardCommand(
+  public static CreateProductCommand createCreditCardCommand(
       final UUID userId,
       final String name,
       final BigDecimal creditLimit,
@@ -90,17 +89,30 @@ public class CommandTestBuilder {
     final ProductMetadata metadata = ProductMetadata.empty();
     metadata.putCreditLimit(creditLimit);
     metadata.putPaymentDueDay(paymentDueDay);
-    return new CreateAccountCommand(userId, name, ProductType.CREDIT_CARD, metadata);
+    return new CreateProductCommand(userId, name, ProductType.CREDIT_CARD, metadata);
   }
 
-  public static CreateAccountCommand createCreditCardCommand(
-      final UUID userId, final String name, final Map<ProductMetadataKey, Object> metadata) {
-    return new CreateAccountCommand(userId, name, ProductType.CREDIT_CARD, ProductMetadata.fromMap(metadata));
+  public static CreateProductCommand createCreditCardCommand(
+      final UUID userId, final String name, final ProductMetadata metadata) {
+    return new CreateProductCommand(userId, name, ProductType.CREDIT_CARD, metadata);
   }
 
-  public static CreateAccountCommand createCDTCommand(
-      final UUID userId, final String name, final Map<ProductMetadataKey, Object> metadata) {
-    return new CreateAccountCommand(userId, name, ProductType.CDT, ProductMetadata.fromMap(metadata));
+  public static CreateProductCommand createCDTCommand(
+      final UUID userId, final String name, final ProductMetadata metadata) {
+    return new CreateProductCommand(userId, name, ProductType.CDT, metadata);
+  }
+
+  public static CreateProductCommand createLoanCommand(
+      final UUID userId, final String name, final ProductMetadata productMetadata) {
+    return new CreateProductCommand(userId, name, ProductType.LOAN, productMetadata);
+  }
+
+  public static CreateProductCommand createMockLoanCommand(final UUID userId, final String name) {
+    final ProductMetadata metadata = ProductMetadata.empty();
+    metadata.putLoanPrincipalAmount(new BigDecimal("10000"));
+    metadata.putLoanTotalAmountPaid(new BigDecimal("2000"));
+    metadata.putLoanPayoffAmountToday(new BigDecimal("8500"));
+    return new CreateProductCommand(userId, name, ProductType.LOAN, metadata);
   }
 
   /**
@@ -111,12 +123,12 @@ public class CommandTestBuilder {
    * @param brokerName the broker name
    * @return a CreateBasicAccountCommand configured for investment
    */
-  public static CreateAccountCommand createInvestmentCommand(
+  public static CreateProductCommand createInvestmentCommand(
       final UUID userId, final String name, final String brokerName) {
     final ProductMetadata metadata = ProductMetadata.empty();
     metadata.putBrokerName(brokerName);
     metadata.putCommissionRate(new BigDecimal("1.2"));
-    return new CreateAccountCommand(userId, name, ProductType.INVESTMENT, metadata);
+    return new CreateProductCommand(userId, name, ProductType.INVESTMENT, metadata);
   }
 
   // ==================== AddMovementCommand Factory Methods ====================

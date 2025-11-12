@@ -1,6 +1,7 @@
 # USECASES TO DO
 
 - [] DLQ
+- [] Transfer when deposit movement fails, it shoudl revert back the withdrawal movement.
 - [X] Make transfers between existing accounts
 - [X] Add TC movements and deposits until closing one
 - [] CDT cash flows until closing one [Move To Account, Renegotiate, Pay to Third party]

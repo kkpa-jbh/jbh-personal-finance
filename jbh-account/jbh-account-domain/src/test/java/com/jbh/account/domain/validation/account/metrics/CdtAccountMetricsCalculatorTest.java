@@ -7,11 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.jbh.account.domain.entity.AccountDomainTestBuilder;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.ProductMetadata;
-import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,25 +28,13 @@ class CdtAccountMetricsCalculatorTest {
   void shouldCalculateProfitBalanceWhenFullyWithdrawn() {
     // Given
     final BigDecimal movementBalance = new BigDecimal("-5000.00");
-    final BigDecimal currentBalance = JBH_ZERO;
 
     final ProductMetadata metadata = ProductMetadata.empty();
     metadata.putIsFullyWithdrawn(true);
 
     final ProductDomain accountDomain =
-        new ProductDomain(
-            AccountId.generate(),
-            "CDT Account",
-            ProductType.CDT,
-            userId,
-            movementBalance,
-            currentBalance,
-            JBH_ZERO,
-            true,
-            LocalDateTime.now(),
-            LocalDateTime.now(),
-            JBH_ZERO,
-            metadata);
+        AccountDomainTestBuilder.createCdtProductWithBalance(
+            userId, movementBalance, JBH_ZERO, metadata);
 
     // When
     final BigDecimal result = calculator.calculateProfitBalance(accountDomain);
@@ -67,7 +52,7 @@ class CdtAccountMetricsCalculatorTest {
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCdtProductWithBalance(
-            AccountId.generate(), userId, movementBalance, currentBalance);
+            userId, movementBalance, currentBalance, ProductMetadata.empty());
 
     // When
     final BigDecimal result = calculator.calculateProfitBalance(accountDomain);
@@ -87,19 +72,8 @@ class CdtAccountMetricsCalculatorTest {
     metadata.putIsFullyWithdrawn(true);
 
     final ProductDomain accountDomain =
-        new ProductDomain(
-            AccountId.generate(),
-            "CDT Account",
-            ProductType.CDT,
-            userId,
-            movementBalance,
-            currentBalance,
-            JBH_ZERO,
-            true,
-            LocalDateTime.now(),
-            LocalDateTime.now(),
-            JBH_ZERO,
-            metadata);
+        AccountDomainTestBuilder.createCdtProductWithBalance(
+            userId, movementBalance, currentBalance, metadata);
 
     // When
     final BigDecimal result = calculator.calculateProfitBalance(accountDomain);
@@ -118,7 +92,7 @@ class CdtAccountMetricsCalculatorTest {
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCdtProductWithBalance(
-            AccountId.generate(), userId, movementAmount, currentBalance);
+            userId, movementAmount, currentBalance, ProductMetadata.empty());
 
     // When
     final BigDecimal result =
@@ -137,7 +111,7 @@ class CdtAccountMetricsCalculatorTest {
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCdtProductWithBalance(
-            AccountId.generate(), userId, movementAmount, currentBalance);
+            userId, movementAmount, currentBalance, ProductMetadata.empty());
 
     // When
     final BigDecimal result =
@@ -156,7 +130,7 @@ class CdtAccountMetricsCalculatorTest {
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCdtProductWithBalance(
-            AccountId.generate(), userId, movementAmount, currentBalance);
+            userId, movementAmount, currentBalance, ProductMetadata.empty());
 
     // When
     final BigDecimal result =
@@ -176,7 +150,7 @@ class CdtAccountMetricsCalculatorTest {
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCdtProductWithBalance(
-            AccountId.generate(), userId, movementAmount, currentBalance);
+            userId, movementAmount, currentBalance, ProductMetadata.empty());
 
     // When
     final BigDecimal result =
@@ -195,7 +169,7 @@ class CdtAccountMetricsCalculatorTest {
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCdtProductWithBalance(
-            AccountId.generate(), userId, movementAmount, currentBalance);
+            userId, movementAmount, currentBalance, ProductMetadata.empty());
 
     // When
     final BigDecimal result =
@@ -210,7 +184,7 @@ class CdtAccountMetricsCalculatorTest {
     // Given
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCdtProductWithBalance(
-            AccountId.generate(), userId, JBH_ZERO, JBH_ZERO);
+            userId, JBH_ZERO, JBH_ZERO, ProductMetadata.empty());
 
     // When
     final BigDecimal result = calculator.calculateProfitBalance(accountDomain);

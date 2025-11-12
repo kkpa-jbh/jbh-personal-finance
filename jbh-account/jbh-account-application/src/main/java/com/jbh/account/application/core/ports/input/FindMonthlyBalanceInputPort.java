@@ -3,7 +3,6 @@ package com.jbh.account.application.core.ports.input;
 import static com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType.INVALID_RANGE_DATES_FOR_MONTHLY_BALANCES;
 
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
@@ -40,11 +39,7 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
       throw new AccountBusinessException(INVALID_RANGE_DATES_FOR_MONTHLY_BALANCES);
     }
 
-    accountService
-        .findByUserAndAccountId(accountPK.userId(), accountPK.accountId())
-        .orElseThrow(
-            () ->
-                new AccountBusinessException(BusinessApplicationExceptionType.ACCOUNTPK_MISMATCH));
+    accountService.findByUserAndAccountId(accountPK.userId(), accountPK.accountId());
 
     return monthlyBalanceService.findByAccountAndPeriods(accountPK, startPeriod, endPeriod);
   }

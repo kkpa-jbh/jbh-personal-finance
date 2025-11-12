@@ -9,9 +9,7 @@ import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.ProductMetadata;
-import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -106,19 +104,8 @@ class InvestmentAccountMetricsCalculatorTest {
     metadata.putIsFullyWithdrawn(true);
 
     final ProductDomain accountDomain =
-        new ProductDomain(
-            AccountId.generate(),
-            "Investment Account",
-            ProductType.INVESTMENT,
-            userId,
-            movementAmount,
-            currentBalance,
-            JBH_ZERO,
-            true,
-            LocalDateTime.now(),
-            LocalDateTime.now(),
-            JBH_ZERO,
-            metadata);
+        AccountDomainTestBuilder.createInvestmentProductWithBalance(
+            AccountId.generate(), userId, movementAmount, currentBalance);
 
     // When
     final BigDecimal result =
@@ -140,19 +127,8 @@ class InvestmentAccountMetricsCalculatorTest {
     metadata.putIsFullyWithdrawn(true);
 
     final ProductDomain accountDomain =
-        new ProductDomain(
-            AccountId.generate(),
-            "Investment Account",
-            ProductType.INVESTMENT,
-            userId,
-            movementAmount,
-            currentBalance,
-            JBH_ZERO,
-            true,
-            LocalDateTime.now(),
-            LocalDateTime.now(),
-            JBH_ZERO,
-            metadata);
+        AccountDomainTestBuilder.createInvestmentProductWithBalance(
+            AccountId.generate(), userId, movementAmount, currentBalance);
 
     // When
     final BigDecimal result =
@@ -194,19 +170,8 @@ class InvestmentAccountMetricsCalculatorTest {
     metadata.putIsFullyWithdrawn(true);
 
     final ProductDomain accountDomain =
-        new ProductDomain(
-            AccountId.generate(),
-            "Investment Account",
-            ProductType.INVESTMENT,
-            userId,
-            movementAmount,
-            currentBalance,
-            JBH_ZERO,
-            true,
-            LocalDateTime.now(),
-            LocalDateTime.now(),
-            JBH_ZERO,
-            metadata);
+        AccountDomainTestBuilder.createInvestmentProductWithBalance(
+            AccountId.generate(), userId, movementAmount, currentBalance);
 
     // When
     final BigDecimal result =

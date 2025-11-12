@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atMostOnce;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -95,7 +96,7 @@ public class RegisterMovementExecutionMockTest {
     accountMovementService =
         new AccountMovementApplicationServiceImpl(
             coreAccountMovementService, accountService, monthlyBalanceService, unitOfWork);
-    useCaseInstanceTest = new AddMovementInputPort(accountMovementService);
+    useCaseInstanceTest = new AddMovementInputPort(accountMovementService, accountService);
   }
 
   @Test
@@ -120,7 +121,7 @@ public class RegisterMovementExecutionMockTest {
     assertDoesNotThrow(
         () -> mvmtResponse.set(useCaseInstanceTest.addMovement(userId, accountId, request)));
 
-    verify(accountRepository).findByUserAndAccountId(userId, accountId);
+    verify(accountRepository, times(2)).findByUserAndAccountId(userId, accountId);
     verify(accountMovementRepository).save((MovementDTO) any());
     verify(accountRepository).save(any());
 
@@ -171,13 +172,15 @@ public class RegisterMovementExecutionMockTest {
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+    when(accountRepository.findByAccountId(accountId))
+        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
 
     // When & Then
     final AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
     assertDoesNotThrow(
         () -> mvmtResponse.set(useCaseInstanceTest.addMovement(userId, accountId, request)));
 
-    verify(accountRepository).findByUserAndAccountId(userId, accountId);
+    verify(accountRepository, times(2)).findByUserAndAccountId(userId, accountId);
     verify(accountMovementRepository).save((MovementDTO) any());
     verify(accountRepository).save(any());
 
@@ -211,13 +214,15 @@ public class RegisterMovementExecutionMockTest {
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+    when(accountRepository.findByAccountId(accountId))
+        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
 
     // When & Then
     final AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
     assertDoesNotThrow(
         () -> mvmtResponse.set(useCaseInstanceTest.addMovement(userId, accountId, request)));
 
-    verify(accountRepository).findByUserAndAccountId(userId, accountId);
+    verify(accountRepository, times(2)).findByUserAndAccountId(userId, accountId);
     verify(accountMovementRepository).save((MovementDTO) any());
     verify(accountRepository).save((AccountDTO) any());
 
@@ -249,6 +254,8 @@ public class RegisterMovementExecutionMockTest {
     final ProductDomain accountDomain = withId(accountId);
 
     when(accountRepository.findByUserAndAccountId(userId, accountId))
+        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+    when(accountRepository.findByAccountId(accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
 
     final int existingEntries = 10;
@@ -285,7 +292,6 @@ public class RegisterMovementExecutionMockTest {
     assertDoesNotThrow(
         () -> processedResponse.set(useCaseInstanceTest.addMovement(userId, accountId, request)));
 
-    verify(accountRepository).findByUserAndAccountId(userId, accountId);
     verify(accountMovementRepository).save((MovementDTO) any());
     verify(accountRepository).save(any());
     verify(monthlyBalanceWriterRepoMock, atMostOnce()).saveBalance((MonthlyBalanceDTO) any());
