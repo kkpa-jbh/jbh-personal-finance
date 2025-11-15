@@ -180,14 +180,21 @@ public class AccountDomainTestBuilder {
       final AccountId accountId,
       final UUID userId,
       final BigDecimal movementBalance,
-      final BigDecimal currentBalance) {
+      final BigDecimal currentBalance,
+      final ProductMetadata metadata) {
     return builder()
         .withAccountId(accountId)
         .withUserId(userId)
         .withMovementBalance(movementBalance)
         .withCurrentBalance(currentBalance)
         .withProductType(ProductType.INVESTMENT)
+        .withProductMetadata(metadata)
         .build();
+  }
+
+  public AccountDomainTestBuilder withProductMetadata(final ProductMetadata productMetadata) {
+    this.productMetadata = productMetadata;
+    return this;
   }
 
   /**
@@ -211,11 +218,6 @@ public class AccountDomainTestBuilder {
         .withProductType(ProductType.CDT)
         .withProductMetadata(productMetadata)
         .build();
-  }
-
-  public AccountDomainTestBuilder withProductMetadata(final ProductMetadata productMetadata) {
-    this.productMetadata = productMetadata;
-    return this;
   }
 
   public AccountDomainTestBuilder withName(final String name) {

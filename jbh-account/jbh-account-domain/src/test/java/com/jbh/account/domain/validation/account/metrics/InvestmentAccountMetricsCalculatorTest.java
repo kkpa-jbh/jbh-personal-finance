@@ -32,7 +32,7 @@ class InvestmentAccountMetricsCalculatorTest {
     final BigDecimal currentBalance = new BigDecimal("6500.00");
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createInvestmentProductWithBalance(
-            AccountId.generate(), userId, movementBalance, currentBalance);
+            AccountId.generate(), userId, movementBalance, currentBalance, ProductMetadata.empty());
 
     // When
     final BigDecimal result = calculator.calculateProfitBalance(accountDomain);
@@ -49,7 +49,7 @@ class InvestmentAccountMetricsCalculatorTest {
     final BigDecimal currentBalance = new BigDecimal("8000.00");
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createInvestmentProductWithBalance(
-            AccountId.generate(), userId, movementBalance, currentBalance);
+            AccountId.generate(), userId, movementBalance, currentBalance, ProductMetadata.empty());
 
     // When
     final BigDecimal result = calculator.calculateProfitBalance(accountDomain);
@@ -64,7 +64,7 @@ class InvestmentAccountMetricsCalculatorTest {
     // Given
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createInvestmentProductWithBalance(
-            AccountId.generate(), userId, JBH_ZERO, JBH_ZERO);
+            AccountId.generate(), userId, JBH_ZERO, JBH_ZERO, ProductMetadata.empty());
 
     // When
     final BigDecimal result = calculator.calculateProfitBalance(accountDomain);
@@ -82,7 +82,7 @@ class InvestmentAccountMetricsCalculatorTest {
     final BigDecimal movementAmount = new BigDecimal("500.00");
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createInvestmentProductWithBalance(
-            AccountId.generate(), userId, JBH_ZERO, currentBalance);
+            AccountId.generate(), userId, JBH_ZERO, currentBalance, ProductMetadata.empty());
 
     // When
     final BigDecimal result =
@@ -105,7 +105,7 @@ class InvestmentAccountMetricsCalculatorTest {
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createInvestmentProductWithBalance(
-            AccountId.generate(), userId, movementAmount, currentBalance);
+            AccountId.generate(), userId, movementAmount, currentBalance, ProductMetadata.empty());
 
     // When
     final BigDecimal result =
@@ -128,7 +128,7 @@ class InvestmentAccountMetricsCalculatorTest {
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createInvestmentProductWithBalance(
-            AccountId.generate(), userId, movementAmount, currentBalance);
+            AccountId.generate(), userId, movementAmount, currentBalance, ProductMetadata.empty());
 
     // When
     final BigDecimal result =
@@ -148,7 +148,7 @@ class InvestmentAccountMetricsCalculatorTest {
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createInvestmentProductWithBalance(
-            AccountId.generate(), userId, movementAmount, currentBalance);
+            AccountId.generate(), userId, movementAmount, currentBalance, ProductMetadata.empty());
 
     // When
     final BigDecimal result =
@@ -171,7 +171,7 @@ class InvestmentAccountMetricsCalculatorTest {
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createInvestmentProductWithBalance(
-            AccountId.generate(), userId, movementAmount, currentBalance);
+            AccountId.generate(), userId, movementAmount, currentBalance, ProductMetadata.empty());
 
     // When
     final BigDecimal result =
@@ -190,7 +190,7 @@ class InvestmentAccountMetricsCalculatorTest {
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createInvestmentProductWithBalance(
-            AccountId.generate(), userId, movementAmount, currentBalance);
+            AccountId.generate(), userId, movementAmount, currentBalance, ProductMetadata.empty());
 
     // When
     final BigDecimal result =
@@ -198,5 +198,38 @@ class InvestmentAccountMetricsCalculatorTest {
 
     // Then
     assertNotNull(result);
+  }
+
+  @Test
+  void shouldCalculateNetGrowthWhenZeroBalance() throws AccountBusinessException {
+    // Given
+    final BigDecimal openingBalance = new BigDecimal("10000.00");
+    final BigDecimal currentBalance = BigDecimal.ZERO;
+    final BigDecimal movementAmount = new BigDecimal("10100.00");
+
+    ProductDomain accountDomain =
+        AccountDomainTestBuilder.createInvestmentProductWithBalance(
+            AccountId.generate(), userId, movementAmount, currentBalance, ProductMetadata.empty());
+
+    // When
+    BigDecimal result =
+        calculator.calculateNetGrowthReate(openingBalance, accountDomain, movementAmount);
+
+    // Then
+    assertNotNull(result);
+
+    final ProductMetadata metadata = ProductMetadata.empty();
+    metadata.putIsFullyWithdrawn(true);
+    accountDomain =
+        AccountDomainTestBuilder.createInvestmentProductWithBalance(
+            AccountId.generate(), userId, movementAmount, currentBalance, metadata);
+    result = calculator.calculateNetGrowthReate(openingBalance, accountDomain, movementAmount);
+
+    // Then
+    assertNotNull(result);
+
+    final ProductMetadata updatedMetadata = calculator.updateMetadata(accountDomain, null);
+    assertNotNull(updatedMetadata);
+    assertEquals(metadata, updatedMetadata);
   }
 }
