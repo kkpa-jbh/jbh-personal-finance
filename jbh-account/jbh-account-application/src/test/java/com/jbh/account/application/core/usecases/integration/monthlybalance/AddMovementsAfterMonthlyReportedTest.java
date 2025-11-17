@@ -11,9 +11,9 @@ import static org.mockito.Mockito.verify;
 
 import com.jbh.account.application.builders.EntityTestBuilder;
 import com.jbh.account.application.builders.UseCaseBuilder;
-import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
@@ -61,14 +61,14 @@ public class AddMovementsAfterMonthlyReportedTest {
       List.of(withJBHDecimals(new BigDecimal("10")));
 
   static CreateAccountUseCase createAccountUseCase;
-  static AccountDTO createdAccount;
+  static ProductDTO createdAccount;
   static AccountId accountId;
   static MonthlyBalanceService monthlyBalanceService;
   static YearMonth reportedPeriod = YearMonth.of(2024, 7);
   static MonthlyBalanceCommandVO reportedPeriodAmounts =
       new MonthlyBalanceCommandVO(
           withJBHDecimals(new BigDecimal("1010")), withJBHDecimals(new BigDecimal("10")));
-  private static AccountDTO finalExpectedAccountBalance;
+  private static ProductDTO finalExpectedAccountBalance;
   private static MonthlyBalanceDTO officialReportedBalance;
   private static InMemoryAccountRepository inMemoryAccountRepo;
   RegisterMonthlyBalanceUseCase useCaseTest;
@@ -169,7 +169,7 @@ public class AddMovementsAfterMonthlyReportedTest {
         currentMonthlyBalance.netGrowthRate().compareTo(officialReportedBalance.netGrowthRate())
             > 0);
 
-    final AccountDTO currentAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
+    final ProductDTO currentAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
     assertEquals(
         finalExpectedAccountBalance.currentBalance(),
         currentAccountBalance.currentBalance(),
@@ -233,7 +233,7 @@ public class AddMovementsAfterMonthlyReportedTest {
         currentMonthlyBalance.netGrowthRate().compareTo(officialReportedBalance.netGrowthRate())
             < 0);
 
-    final AccountDTO currentAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
+    final ProductDTO currentAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
     assertEquals(
         finalExpectedAccountBalance.currentBalance(),
         currentAccountBalance.currentBalance(),

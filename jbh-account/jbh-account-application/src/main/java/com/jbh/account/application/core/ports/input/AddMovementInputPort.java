@@ -1,7 +1,7 @@
 package com.jbh.account.application.core.ports.input;
 
-import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.AddBasicMovementDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.movements.AccountMovementApplicationService;
@@ -37,7 +37,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
 
     movementCommand.validate();
 
-    final AccountDTO productDTO = accountService.findByUserAndAccountId(userId, accountId);
+    final ProductDTO productDTO = accountService.findByUserAndAccountId(userId, accountId);
     final ProductType productType = productDTO.type();
 
     if (!productType.addingMovementsProductsAllowed().contains(productType)) {

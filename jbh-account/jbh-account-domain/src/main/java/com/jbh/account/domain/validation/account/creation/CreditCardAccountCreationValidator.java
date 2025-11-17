@@ -59,16 +59,16 @@ public class CreditCardAccountCreationValidator extends BaseAccountCreationValid
 
   @Override
   public void validateInsufficientNetFlow(
-      final ProductDomain account, final AccountMovementDomain movement)
+      final ProductDomain productDomain, final AccountMovementDomain movement)
       throws AccountBusinessException {
-    final var metadata = account.getMetadata();
+    final var metadata = productDomain.getMetadata();
     validateCreditLimit(metadata);
 
     final BigDecimal creditLimit = metadata.getCreditLimit();
 
     // Check if there is enough credit in the account
     final var movementAmount = movement.getMovementAmount();
-    final var futureBalance = account.getCurrentBalance().add(movementAmount);
+    final var futureBalance = productDomain.getCurrentBalance().add(movementAmount);
     if (creditLimit.compareTo(futureBalance.negate()) < 0) {
       throw new AccountBusinessException(BusinessDomainExceptionType.INSUFFICIENT_FUNDS);
     }

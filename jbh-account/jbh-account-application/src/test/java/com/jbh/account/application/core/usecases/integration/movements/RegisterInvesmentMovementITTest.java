@@ -15,9 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.account.application.builders.UseCaseBuilder;
-import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.LiquidationResultDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.movements.AccountMovementApplicationServiceImpl;
@@ -61,9 +61,9 @@ public class RegisterInvesmentMovementITTest {
   private static AddMovementUseCase addMovementUseCase;
   private static LiquidateAccountUseCase liquidateAccountUseCase;
   @Mock private static AccountMovementWriterRepository accountMovementRepository;
-  private static AccountDTO acciCuenta;
+  private static ProductDTO acciCuenta;
   private static AccountId acciCuentaId;
-  private static AccountDTO fondoAcciones;
+  private static ProductDTO fondoAcciones;
   private static AccountId fondoAccionesId;
   private static BigDecimal finalAcciBalanceSept;
   private final BigDecimal initialBalance = withJBHDecimals(new BigDecimal("5000000"));
@@ -280,7 +280,7 @@ public class RegisterInvesmentMovementITTest {
   @Order(99)
   void shouldWithDrawalAllMoneySuccessfully() throws AccountBusinessException {
 
-    final AccountDTO account = inMemoryAccountRepo.findByAccountId(acciCuentaId).orElse(null);
+    final ProductDTO account = inMemoryAccountRepo.findByAccountId(acciCuentaId).orElse(null);
     final BigDecimal currentBalance = account.currentBalance();
 
     final AddMovementCommand withdrawal =
@@ -309,7 +309,7 @@ public class RegisterInvesmentMovementITTest {
     delayTests();
     delayTests();
 
-    final AccountDTO updatedAccount =
+    final ProductDTO updatedAccount =
         inMemoryAccountRepo.findByAccountId(acciCuentaId).orElse(null);
     assertNotNull(updatedAccount);
     // assertEquals(new BigDecimal("1.31"), updatedAccount.netGrowthRate());

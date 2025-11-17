@@ -7,19 +7,22 @@ import static com.jbh.account.application.builders.UseCaseBuilder.delayTests;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.account.application.builders.UseCaseBuilder;
-import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.AddBasicMovementDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.UpdateProductUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.AddTransferCommand;
+import com.jbh.account.application.core.vo.commands.UpdateMetadataProductCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.AccountPK;
@@ -46,16 +49,16 @@ import org.mockito.MockitoAnnotations;
 @TestMethodOrder(OrderAnnotation.class)
 public class AddTransferAccountsITTest {
 
-  public static final String PAYOFF_TODAY_INITIAL = "950.00";
-  public static final BigDecimal LOAN_TOTAL_AMOUNT_PAID_INITIAL = new BigDecimal("100.00");
+  public static final String PAYOFF_TODAY_INITIAL = "550.00";
+  public static final BigDecimal LOAN_TOTAL_AMOUNT_PAID_INITIAL = new BigDecimal("450.00");
   private static final YearMonth createdAccountsPeriod = YearMonth.of(2025, 8);
   private static final ProductMetadata loanMetadata = ProductMetadata.empty();
   static UUID fromUserId = UUID.randomUUID();
   static UUID toUserId = UUID.randomUUID();
-  static AccountDTO fromAccount;
+  static ProductDTO fromAccount;
   static AccountPK fromAccountPK;
-  static AccountDTO toAccount;
-  static AccountDTO loanAccount;
+  static ProductDTO toAccount;
+  static ProductDTO loanAccount;
   static AccountPK toAccountPK;
   static AddTransferJbhAccountsUseCase transferUseCase;
   @Mock private static AccountMovementWriterRepository accountMovementRepository;
@@ -63,6 +66,7 @@ public class AddTransferAccountsITTest {
   private static AddMovementUseCase addMovementUseCase;
   private static AccountService accountService;
   private static MonthlyBalanceService monthlyBalanceService;
+  private static UpdateProductUseCase updateProductUseCase;
 
   @BeforeEach
   public void setUp() {
@@ -76,6 +80,8 @@ public class AddTransferAccountsITTest {
     accountService = UseCaseBuilder.buildAccountService();
 
     monthlyBalanceService = UseCaseBuilder.buildMonthlyBalanceService();
+
+    updateProductUseCase = UseCaseBuilder.buildUpdateProductUseCase();
 
     UseCaseBuilder.delayTests();
   }
@@ -171,7 +177,7 @@ public class AddTransferAccountsITTest {
         new AddTransferCommand(toAccountPK, withJBHDecimals(transferAmount), transferDate));
 
     // From Account Assertions
-    final AccountDTO fromAccountUpdated =
+    final ProductDTO fromAccountUpdated =
         accountService.findAccountOrThrow(fromAccountPK.accountId());
     assertEquals(withJBHDecimals(new BigDecimal("900")), fromAccountUpdated.currentBalance());
 
@@ -182,7 +188,7 @@ public class AddTransferAccountsITTest {
 
     // To Account Assertions
 
-    final AccountDTO toAccountUpdated = accountService.findAccountOrThrow(toAccountPK.accountId());
+    final ProductDTO toAccountUpdated = accountService.findAccountOrThrow(toAccountPK.accountId());
     assertEquals(
         withJBHDecimals(toAccount.currentBalance().add(transferAmount)),
         toAccountUpdated.currentBalance());
@@ -197,7 +203,7 @@ public class AddTransferAccountsITTest {
   @Order(2)
   void addTransferToLoan() throws AccountBusinessException {
     final AccountPK fromAccountPK = toAccountPK;
-    final AccountDTO fromAccountInitial =
+    final ProductDTO fromAccountInitial =
         accountService.findAccountOrThrow(fromAccountPK.accountId());
     final YearMonth period = YearMonth.now();
     final LocalDate transferDate = period.atDay(1);
@@ -214,7 +220,7 @@ public class AddTransferAccountsITTest {
 
     delayTests();
 
-    final AccountDTO loanAccountUpdated = accountService.findAccountOrThrow(loanAccount.id());
+    final ProductDTO loanAccountUpdated = accountService.findAccountOrThrow(loanAccount.id());
     assertEquals(
         loanAccountUpdated.metadata().getLoanTotalAmountPaid(),
         withJBHDecimals(LOAN_TOTAL_AMOUNT_PAID_INITIAL.add(transferAmount)));
@@ -230,13 +236,92 @@ public class AddTransferAccountsITTest {
     assertEquals(finalFromAccountMB.closingBalance(), withJBHDecimals(transferAmount.negate()));
     assertEquals(finalFromAccountMB.movementBalance(), withJBHDecimals(transferAmount.negate()));
 
-    final AccountDTO toAccountUpdated =
+    final ProductDTO fromProductUpdated =
         accountService.findAccountOrThrow(fromAccountPK.accountId());
     assertEquals(
-        toAccountUpdated.currentBalance(),
+        fromProductUpdated.currentBalance(),
         fromAccountInitial.currentBalance().subtract(transferAmount));
     assertEquals(
-        toAccountUpdated.movementBalance(),
+        fromProductUpdated.movementBalance(),
+        fromAccountInitial.movementBalance().subtract(transferAmount));
+  }
+
+  @Test
+  @Order(3)
+  void updatePayOffTodayForLoan() throws AccountBusinessException {
+    final var payoffAmount = new BigDecimal("300");
+    final AccountPK loanAccountPK = new AccountPK(loanAccount.userId(), loanAccount.id());
+    final ProductMetadata loanMetadata = ProductMetadata.empty();
+    loanMetadata.putLoanPayoffAmountToday(payoffAmount);
+    loanMetadata.putLoanPrincipalAmount(LOAN_TOTAL_AMOUNT_PAID_INITIAL);
+    final UpdateMetadataProductCommand command = new UpdateMetadataProductCommand(loanMetadata);
+    updateProductUseCase.replaceMetadata(loanAccountPK, command);
+
+    final ProductDTO loanAccountUpdated = accountService.findAccountOrThrow(loanAccount.id());
+    assertEquals(
+        loanAccountUpdated.metadata().getLoanPayoffAmountToday(), withJBHDecimals(payoffAmount));
+  }
+
+  @Test
+  @Order(4)
+  void payMoreThanLoan() throws AccountBusinessException {
+    final AccountPK fromAccountPK = toAccountPK;
+    final ProductDTO fromAccountInitial =
+        accountService.findAccountOrThrow(fromAccountPK.accountId());
+    final YearMonth period = YearMonth.now();
+    final LocalDate transferDate = period.atDay(1);
+
+    final ProductDTO initialLoanAccount = accountService.findAccountOrThrow(loanAccount.id());
+
+    final var transferAmount =
+        initialLoanAccount.metadata().getLoanPayoffAmountToday().add(new BigDecimal("50"));
+
+    assertThrows(
+        AccountBusinessException.class,
+        () ->
+            transferUseCase.addTransfer(
+                fromAccountPK,
+                new AddTransferCommand(
+                    new AccountPK(loanAccount.userId(), loanAccount.id()),
+                    transferAmount,
+                    transferDate)));
+  }
+
+  @Test
+  @Order(5)
+  void payTheExactPendingToPayOff() throws AccountBusinessException {
+    final AccountPK fromAccountPK = toAccountPK;
+    final ProductDTO fromAccountInitial =
+        accountService.findAccountOrThrow(fromAccountPK.accountId());
+    final YearMonth period = YearMonth.now();
+    final LocalDate transferDate = period.atDay(1);
+
+    final ProductDTO initialLoanAccount = accountService.findAccountOrThrow(loanAccount.id());
+
+    final var transferAmount = initialLoanAccount.metadata().getLoanPayoffAmountToday();
+
+    transferUseCase.addTransfer(
+        fromAccountPK,
+        new AddTransferCommand(
+            new AccountPK(loanAccount.userId(), loanAccount.id()), transferAmount, transferDate));
+
+    delayTests();
+
+    final ProductDTO loanAccountUpdated = accountService.findAccountOrThrow(loanAccount.id());
+    assertEquals(
+        loanAccountUpdated.metadata().getLoanTotalAmountPaid(), withJBHDecimals((transferAmount)));
+
+    final Optional<MonthlyBalanceDTO> monthlyBalanceLoan =
+        monthlyBalanceService.findByAccountIdAndPeriod(loanAccountUpdated.id(), period);
+    assertTrue(monthlyBalanceLoan.isEmpty());
+
+    final ProductDTO fromProductUpdated =
+        accountService.findAccountOrThrow(fromAccountPK.accountId());
+    assertEquals(
+        fromProductUpdated.currentBalance(),
+        fromAccountInitial.currentBalance().subtract(transferAmount));
+    assertEquals(
+        fromProductUpdated.movementBalance(),
         fromAccountInitial.movementBalance().subtract(transferAmount));
   }
 }

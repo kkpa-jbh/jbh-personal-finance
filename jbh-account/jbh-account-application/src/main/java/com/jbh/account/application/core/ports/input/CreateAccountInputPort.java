@@ -1,7 +1,7 @@
 package com.jbh.account.application.core.ports.input;
 
 import com.jbh.account.application.common.logging.LoggerFactory;
-import com.jbh.account.application.core.dto.AccountDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.vo.commands.CreateProductCommand;
@@ -22,7 +22,7 @@ public class CreateAccountInputPort implements CreateAccountUseCase {
   }
 
   @Override
-  public AccountDTO execute(final CreateProductCommand command) throws AccountBusinessException {
+  public ProductDTO execute(final CreateProductCommand command) throws AccountBusinessException {
 
     if (command == null) {
       throw new GenericSpecificationException("Command cannot be null");
@@ -44,7 +44,7 @@ public class CreateAccountInputPort implements CreateAccountUseCase {
             command.name(), command.type(), command.userId(), domainMetadata);
 
     // Persist the validated domain entity
-    final AccountDTO accountDTO = accountService.save(accountDomain);
+    final ProductDTO accountDTO = accountService.save(accountDomain);
 
     LOG.info(
         "Account '{}' (type: {}) created successfully for user {}",

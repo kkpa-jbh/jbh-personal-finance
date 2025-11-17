@@ -15,9 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.account.application.builders.UseCaseBuilder;
-import com.jbh.account.application.core.dto.AccountDTO;
-import com.jbh.account.application.core.dto.AccountDTO.AccountDTOBuilder;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
+import com.jbh.account.application.core.dto.ProductDTO.ProductDTOBuilder;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
@@ -89,16 +89,16 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
       UseCaseBuilder.getInMemoryMonthlyBalanceRepos();
   // Static to be shared between tests
   static int totalMonthsCreated = 1;
-  static AccountDTO createdAccount;
+  static ProductDTO createdAccount;
   static AccountId accountId;
   @Mock private static AccountMovementWriterRepository accountMovementRepository;
   private static MonthlyBalanceService monthlyBalanceService;
   private static RegisterMonthlyBalanceUseCase useCaseTest;
   ;
   private static AddMovementUseCase addMovementUseCase;
-  private static AccountDTO finalAccountBalance;
-  public final AccountDTOBuilder ACCOUNT_DEFAULT_BUILDER =
-      AccountDTO.defaultBuilder(userId, accountId, DEFAULT_ACCOUNT_NAME, DEFAULT_ACCOUNT_TYPE);
+  private static ProductDTO finalAccountBalance;
+  public final ProductDTOBuilder ACCOUNT_DEFAULT_BUILDER =
+      ProductDTO.defaultBuilder(userId, accountId, DEFAULT_ACCOUNT_NAME, DEFAULT_ACCOUNT_TYPE);
   AccountMonthlyBalanceWriterRepository monthlyBalanceInMemoWriter =
       inMemoryMonthlyBalanceRepos.getWriterRepo();
   AccountMonthlyBalanceQueryRepo monthlyBalanceInMemoQuery =
@@ -239,13 +239,13 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
     logBlockHeader("TESTING " + monthlyPeriod);
 
-    final AccountDTO expectedAccount =
+    final ProductDTO expectedAccount =
         ACCOUNT_DEFAULT_BUILDER
             .currentBalance(withJBHDecimals(closingBalanceNov24))
             .movementBalance(withJBHDecimals(salaryAmountNov24))
             .build();
 
-    final AccountDTO persistedAccount =
+    final ProductDTO persistedAccount =
         inMemoryAccountRepo.findByUserAndAccountId(userId, accountId).get();
     assertAccount(
         (expectedAccount),
@@ -316,14 +316,14 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
     logBlockHeader("TESTING " + monthlyPeriod);
 
-    final AccountDTO expectedAccount =
+    final ProductDTO expectedAccount =
         ACCOUNT_DEFAULT_BUILDER
             .currentBalance(withJBHDecimals(closingBalanceDec24))
             .movementBalance(withJBHDecimals(salaryAmountDec24).add(salaryAmountNov24))
             .netProfitBalance(withJBHDecimals(new BigDecimal("7676950.00")))
             .netGrowthRate(withJBHDecimals(new BigDecimal("59.05")))
             .build();
-    final AccountDTO persistedAccount =
+    final ProductDTO persistedAccount =
         inMemoryAccountRepo.findByUserAndAccountId(userId, accountId).get();
     assertAccount(expectedAccount, persistedAccount);
 
@@ -665,7 +665,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     final YearMonth lastOfficialReportPeriod = lastOfficialReport.get().period();
     assertEquals(YearMonth.of(2025, 3), lastOfficialReportPeriod);
 
-    final AccountDTO expectedAccount =
+    final ProductDTO expectedAccount =
         ACCOUNT_DEFAULT_BUILDER
             .netGrowthRate(withJBHDecimals(new BigDecimal("-18.70")))
             .currentBalance(
@@ -681,7 +681,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
                     .subtract(expensesFeb25))
             .build();
 
-    final AccountDTO persistedAccount =
+    final ProductDTO persistedAccount =
         inMemoryAccountRepo.findByUserAndAccountId(userId, accountId).get();
     assertAccount(expectedAccount, persistedAccount, IgnoreAccountOptions.IGNORE_ACCOUNT_PROFIT);
   }

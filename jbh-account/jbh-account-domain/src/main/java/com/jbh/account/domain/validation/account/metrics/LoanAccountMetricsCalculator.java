@@ -7,7 +7,6 @@ import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.vo.ProductMetadata;
-import com.jbh.account.domain.vo.ProductMetadataKey;
 import java.math.BigDecimal;
 
 public class LoanAccountMetricsCalculator extends BaseAccountMetricsCalculator
@@ -28,20 +27,18 @@ public class LoanAccountMetricsCalculator extends BaseAccountMetricsCalculator
   }
 
   @Override
+  @SuppressWarnings("PMD.LawOfDemeter")
   public ProductMetadata updateMetadata(
       final ProductDomain productDomain, final AccountMovementDomain movement) {
-    final ProductMetadata loanMetadata =
-        ProductMetadata.fromMap(productDomain.getMetadata().asMap());
+    final ProductMetadata loanMetadata = productDomain.getMetadata();
+    BigDecimal totalAmountPaid = loanMetadata.getLoanTotalAmountPaid();
 
-    if (loanMetadata.hasKey(ProductMetadataKey.LOAN_TOTAL_AMOUNT_PAID)) {
-      BigDecimal totalAmountPaid = loanMetadata.getLoanTotalAmountPaid();
-
-      totalAmountPaid = totalAmountPaid.add(movement.getMovementAmount());
+    final BigDecimal loanAmountPaid = movement.getMovementAmount();
+    if (loanAmountPaid != null) {
+      totalAmountPaid = totalAmountPaid.add(loanAmountPaid);
       totalAmountPaid = withJBHDecimals(totalAmountPaid);
-
       loanMetadata.putLoanTotalAmountPaid(totalAmountPaid);
     }
-
     return loanMetadata;
   }
 }

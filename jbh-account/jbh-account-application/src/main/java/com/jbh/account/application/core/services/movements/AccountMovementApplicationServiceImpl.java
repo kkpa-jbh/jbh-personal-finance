@@ -4,10 +4,10 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.account.domain.vo.MovementType.WITHDRAWAL;
 
 import com.jbh.account.application.acid.UnitOfWork;
-import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.AddBasicMovementDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
@@ -165,7 +165,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
     final UUID userId = accountPK.userId();
     final AccountId accountId = accountPK.accountId();
 
-    final AccountDTO syncedAccountDTO =
+    final ProductDTO syncedAccountDTO =
         accountService.syncByMovement(
             new AccountPK(userId, accountId), movementDTO, isMonthOfficiallyReported);
 
@@ -247,7 +247,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
   }
 
   private void validateMovementByProductType(
-      final AccountDTO existingAccount, final MovementDTO movementDTO)
+      final ProductDTO existingAccount, final MovementDTO movementDTO)
       throws AccountBusinessException {
     movementValidatorFactory
         .getValidator(existingAccount.type())

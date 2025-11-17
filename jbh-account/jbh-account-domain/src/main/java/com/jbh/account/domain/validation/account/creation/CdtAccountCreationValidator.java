@@ -37,7 +37,7 @@ public class CdtAccountCreationValidator extends BaseAccountCreationValidator
 
   @Override
   public void validateInsufficientNetFlow(
-      final ProductDomain account, final AccountMovementDomain movement)
+      final ProductDomain productDomain, final AccountMovementDomain movement)
       throws AccountBusinessException {
     // Do nothing
   }

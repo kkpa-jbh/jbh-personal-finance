@@ -1,6 +1,6 @@
 package com.jbh.account.infra.adapters.out.persistence.account;
 
-import com.jbh.account.application.core.dto.AccountDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductMetadataKey;
@@ -68,7 +68,7 @@ public class AccountJPAEntity extends PanacheEntityBase {
   @Column(name = "updated_at", nullable = false)
   private LocalDateTime updatedAt;
 
-  public static AccountJPAEntity toEntity(final AccountDTO account) {
+  public static AccountJPAEntity toEntity(final ProductDTO account) {
     final AccountJPAEntity accountJpaEntity = new AccountJPAEntity();
     accountJpaEntity.setId(account.id() != null ? account.id().value() : null);
     accountJpaEntity.setName(account.name());
@@ -96,8 +96,8 @@ public class AccountJPAEntity extends PanacheEntityBase {
     updatedAt = LocalDateTime.now();
   }
 
-  public AccountDTO toDTO() {
-    return AccountDTO.defaultBuilder(userId, AccountId.of(id), name, type)
+  public ProductDTO toDTO() {
+    return ProductDTO.defaultBuilder(userId, AccountId.of(id), name, type)
         .movementBalance(movementBalance)
         .currentBalance(currentBalance)
         .netProfitBalance(netProfitBalance)

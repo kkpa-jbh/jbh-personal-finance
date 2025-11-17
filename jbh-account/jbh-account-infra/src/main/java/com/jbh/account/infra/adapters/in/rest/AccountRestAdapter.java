@@ -1,8 +1,8 @@
 package com.jbh.account.infra.adapters.in.rest;
 
-import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.AddBasicMovementDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
@@ -99,7 +99,7 @@ public class AccountRestAdapter extends BaseRestAdapter {
 
     final UUID userId = findUserId(authorizationHeader);
 
-    final AccountDTO accountDTO =
+    final ProductDTO accountDTO =
         createAccountUseCase.execute(
             new CreateProductCommand(
                 userId, request.name(), request.type(), ProductMetadata.empty()));

@@ -12,8 +12,8 @@ import com.jbh.account.application.builders.AccountEntityBuilder;
 import com.jbh.account.application.builders.CommandTestBuilder;
 import com.jbh.account.application.builders.EntityTestBuilder;
 import com.jbh.account.application.builders.UseCaseBuilder;
-import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
@@ -52,7 +52,7 @@ public class RegisterTCMovementITTest {
   private static CreateAccountUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
   @Mock private static AccountMovementWriterRepository accountMovementRepository;
-  private static AccountDTO creditCardAccount;
+  private static ProductDTO creditCardAccount;
   private MonthlyBalanceService monthlyBalanceService;
 
   @BeforeAll
@@ -89,7 +89,7 @@ public class RegisterTCMovementITTest {
     addMovementUseCase.addMovement(
         userId, creditCardAccount.id(), createPersonalExpense(mvmDate, personalExpense));
 
-    final AccountDTO updatedAccount =
+    final ProductDTO updatedAccount =
         inMemoryAccountRepo.findByAccountId(creditCardAccount.id()).get();
     assertNotNull(updatedAccount);
 
@@ -102,7 +102,7 @@ public class RegisterTCMovementITTest {
             creditCardAccount.name(),
             creditCardAccount.type());
 
-    final AccountDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
+    final ProductDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
 
     assertAccount(expectedAccount, updatedAccount);
   }
@@ -115,7 +115,7 @@ public class RegisterTCMovementITTest {
     addMovementUseCase.addMovement(
         userId, creditCardAccount.id(), createPersonalExpense(mvmDate, personalExpense));
 
-    final AccountDTO updatedAccount =
+    final ProductDTO updatedAccount =
         inMemoryAccountRepo.findByAccountId(creditCardAccount.id()).get();
     assertNotNull(updatedAccount);
 
@@ -128,7 +128,7 @@ public class RegisterTCMovementITTest {
             creditCardAccount.name(),
             creditCardAccount.type());
 
-    final AccountDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
+    final ProductDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
 
     assertAccount(expectedAccount, updatedAccount);
   }
@@ -141,7 +141,7 @@ public class RegisterTCMovementITTest {
     addMovementUseCase.addMovement(
         userId, creditCardAccount.id(), createDepositIncome(mvmDate, personalExpense));
 
-    final AccountDTO updatedAccount =
+    final ProductDTO updatedAccount =
         inMemoryAccountRepo.findByAccountId(creditCardAccount.id()).get();
     assertNotNull(updatedAccount);
 
@@ -154,7 +154,7 @@ public class RegisterTCMovementITTest {
             creditCardAccount.name(),
             creditCardAccount.type());
 
-    final AccountDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
+    final ProductDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
 
     assertAccount(expectedAccount, updatedAccount);
 
@@ -188,7 +188,7 @@ public class RegisterTCMovementITTest {
     addMovementUseCase.addMovement(
         userId, creditCardAccount.id(), createPersonalExpense(mvmDate, personalExpense));
 
-    final AccountDTO updatedAccount =
+    final ProductDTO updatedAccount =
         inMemoryAccountRepo.findByAccountId(creditCardAccount.id()).get();
     assertNotNull(updatedAccount);
 
@@ -201,7 +201,7 @@ public class RegisterTCMovementITTest {
             creditCardAccount.name(),
             creditCardAccount.type());
 
-    final AccountDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
+    final ProductDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
 
     assertAccount(expectedAccount, updatedAccount);
 
@@ -247,7 +247,7 @@ public class RegisterTCMovementITTest {
     addMovementUseCase.addMovement(
         userId, creditCardAccount.id(), createDepositIncome(mvmDate, personalExpense));
 
-    final AccountDTO updatedAccount =
+    final ProductDTO updatedAccount =
         inMemoryAccountRepo.findByAccountId(creditCardAccount.id()).get();
     assertNotNull(updatedAccount);
 
@@ -260,7 +260,7 @@ public class RegisterTCMovementITTest {
             creditCardAccount.name(),
             creditCardAccount.type());
 
-    final AccountDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
+    final ProductDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
 
     assertAccount(expectedAccount, updatedAccount);
 

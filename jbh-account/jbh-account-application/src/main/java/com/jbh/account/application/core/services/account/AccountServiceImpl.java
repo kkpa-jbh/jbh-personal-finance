@@ -3,9 +3,9 @@ package com.jbh.account.application.core.services.account;
 import static com.jbh.account.application.core.mappers.AccountMapper.toDTO;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
-import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.ports.output.AccountRepository;
@@ -38,7 +38,7 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public AccountDTO findByUserAndAccountId(final UUID userId, final AccountId accountId)
+  public ProductDTO findByUserAndAccountId(final UUID userId, final AccountId accountId)
       throws AccountBusinessException {
 
     if (userId == null) {
@@ -64,22 +64,22 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public AccountDTO findAccountOrThrow(final AccountId accountId) {
+  public ProductDTO findAccountOrThrow(final AccountId accountId) {
     return findByAccountId(accountId)
         .orElseThrow(() -> new IllegalArgumentException("Account not found"));
   }
 
-  private Optional<AccountDTO> findByAccountId(final AccountId accountId) {
+  private Optional<ProductDTO> findByAccountId(final AccountId accountId) {
     return accountRepo.findByAccountId(accountId);
   }
 
   @Override
-  public AccountDTO save(final AccountDTO account) {
+  public ProductDTO save(final ProductDTO account) {
     return accountRepo.save(account);
   }
 
   @Override
-  public AccountDTO save(final ProductDomain account) {
+  public ProductDTO save(final ProductDomain account) {
     return accountRepo.save(toDTO(account));
   }
 
@@ -101,7 +101,7 @@ public class AccountServiceImpl implements AccountService {
   }
 
   private ProductDomain findDomainOrThrow(final AccountId accountId) {
-    final Optional<AccountDTO> accountDTO = findByAccountId(accountId);
+    final Optional<ProductDTO> accountDTO = findByAccountId(accountId);
 
     if (accountDTO.isEmpty()) {
       throw new GenericSpecificationException("Account not found");
@@ -156,7 +156,7 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public AccountDTO syncByMovement(
+  public ProductDTO syncByMovement(
       final AccountPK accountPK,
       final MovementDTO movement,
       final boolean isMonthOfficiallyReported)
@@ -180,7 +180,7 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public AccountDTO syncByUploadedMovements(
+  public ProductDTO syncByUploadedMovements(
       final ProductDomain accountDomain, final List<AccountMovementDomain> uploadedMovements)
       throws AccountBusinessException {
 
@@ -207,7 +207,7 @@ public class AccountServiceImpl implements AccountService {
     final UUID userId = accountPK.userId();
     final AccountId accountId = accountPK.accountId();
 
-    final AccountDTO accountDTO = findByUserAndAccountId(userId, accountId);
+    final ProductDTO accountDTO = findByUserAndAccountId(userId, accountId);
 
     return accountDTO.toDomain();
   }

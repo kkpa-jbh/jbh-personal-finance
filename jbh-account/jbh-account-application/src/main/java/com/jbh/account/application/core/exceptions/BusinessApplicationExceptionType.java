@@ -32,7 +32,9 @@ public enum BusinessApplicationExceptionType implements BusinessExceptionType {
   DISALLOWED_MOVEMENT_FOR_PRODUCT(
       "Product type not allowed to add a movement. Please use the transfer option instead.",
       "Este tipo de producto no puede agregar un movimiento. Por favor, use la opción de transferencia."),
-  ;
+  INVALID_PRODUCT_USE_CASE(
+      "The action you want to do is not valid for this product type",
+      "la acción que deseas realizar no es válida para este tipo de producto");
 
   private final String en;
   private final String es;

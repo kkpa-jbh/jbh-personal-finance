@@ -63,7 +63,10 @@ public enum BusinessDomainExceptionType implements BusinessExceptionType {
       "El valor total pagado hacia el préstamo no ha sido definido."),
   EMPTY_LOAN_PAYOFF_AMOUNT(
       "The payoff amount for the loan has not been set",
-      "El valor pendiente de pagar el préstamo, no ha sido definido.");
+      "El valor pendiente de pagar el préstamo, no ha sido definido."),
+  PAYMENT_AMOUNT_GREATER_PAYOFF(
+      "The amount paid is greater than the payoff amount",
+      "El monto pagado es mayor al monto pendiente de pagar");
 
   private final String en;
   private final String es;

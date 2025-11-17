@@ -3,6 +3,7 @@ package com.jbh.account.domain.vo;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.utils.JbhBooleanUtils;
+import com.jbh.account.domain.utils.JbhMoneyUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -19,10 +20,26 @@ public final class ProductMetadata {
   private final Map<ProductMetadataKey, Object> data;
 
   private ProductMetadata(final Map<ProductMetadataKey, Object> data) {
-    this.data =
-        data != null && !data.isEmpty()
-            ? new EnumMap<>(data)
-            : new EnumMap<>(ProductMetadataKey.class);
+    this.data = syncTypes(data);
+  }
+
+  private Map<ProductMetadataKey, Object> syncTypes(final Map<ProductMetadataKey, Object> data) {
+    if (data == null || data.isEmpty()) {
+      return new EnumMap<>(ProductMetadataKey.class);
+    }
+
+    final Map<ProductMetadataKey, Object> result = new EnumMap<>(ProductMetadataKey.class);
+
+    data.forEach(
+        (key, value) -> {
+          if (value instanceof BigDecimal) {
+            result.put(key, JbhMoneyUtils.withJBHDecimals((BigDecimal) value));
+          } else {
+            result.put(key, value);
+          }
+        });
+
+    return result;
   }
 
   /**
@@ -153,10 +170,15 @@ public final class ProductMetadata {
    * @return BigDecimal commission rate or null if not set
    */
   public BigDecimal getCommissionRate() {
-    return (BigDecimal) get(ProductMetadataKey.COMMISSION_RATE);
+    return getDecimal(ProductMetadataKey.COMMISSION_RATE);
   }
 
   // ========== Typed Getters for CDT Metadata ==========
+
+  private BigDecimal getDecimal(final ProductMetadataKey key) {
+    final Object result = get(key);
+    return result instanceof BigDecimal ? (BigDecimal) result : BigDecimal.ZERO;
+  }
 
   /**
    * Gets the maturity date for CDT accounts.
@@ -187,10 +209,6 @@ public final class ProductMetadata {
    */
   public Integer getTermLengthInDays() {
     return (Integer) get(ProductMetadataKey.TERM_LENGTH_IN_DAYS);
-  }
-
-  public Map<ProductMetadataKey, Object> getData() {
-    return new EnumMap<>(data);
   }
 
   /**
@@ -224,6 +242,9 @@ public final class ProductMetadata {
    * @param value The value to store
    */
   private void put(final ProductMetadataKey key, final Object value) {
+    if (value instanceof BigDecimal) {
+      data.put(key, JbhMoneyUtils.withJBHDecimals((BigDecimal) value));
+    }
     data.put(key, value);
   }
 
@@ -234,7 +255,7 @@ public final class ProductMetadata {
   // ========== PUT Methods for Credit Card Metadata ==========
 
   public BigDecimal getInitialBalance() {
-    return (BigDecimal) get(ProductMetadataKey.INITIAL_BALANCE);
+    return getDecimal(ProductMetadataKey.INITIAL_BALANCE);
   }
 
   public void putCreditLimit(final BigDecimal creditLimit) {
@@ -296,14 +317,18 @@ public final class ProductMetadata {
   }
 
   public BigDecimal getLoanPrincipalAmount() {
-    return (BigDecimal) get(ProductMetadataKey.LOAN_PRINCIPAL_AMOUNT);
+    return getDecimal(ProductMetadataKey.LOAN_PRINCIPAL_AMOUNT);
   }
 
   public BigDecimal getLoanPayoffAmountToday() {
-    return (BigDecimal) get(ProductMetadataKey.LOAN_PAYOFF_AMOUNT_TODAY);
+    return getDecimal(ProductMetadataKey.LOAN_PAYOFF_AMOUNT_TODAY);
   }
 
   public BigDecimal getLoanTotalAmountPaid() {
-    return (BigDecimal) get(ProductMetadataKey.LOAN_TOTAL_AMOUNT_PAID);
+    return getDecimal(ProductMetadataKey.LOAN_TOTAL_AMOUNT_PAID);
+  }
+
+  public Map<ProductMetadataKey, Object> getData() {
+    return new EnumMap<>(data);
   }
 }

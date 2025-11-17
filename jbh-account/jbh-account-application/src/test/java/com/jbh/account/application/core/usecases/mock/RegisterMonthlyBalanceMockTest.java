@@ -13,8 +13,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
-import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.ports.input.RegisterMonthlyBalanceInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
@@ -68,7 +68,7 @@ public class RegisterMonthlyBalanceMockTest {
     when(accountRepository.findByUserAndAccountId(userId, accountId))
         .thenReturn(
             Optional.of(
-                AccountDTO.defaultBuilder(userId, accountId, "DF", DEFAULT_ACCOUNT_TYPE).build()));
+                ProductDTO.defaultBuilder(userId, accountId, "DF", DEFAULT_ACCOUNT_TYPE).build()));
 
     accountService = new AccountServiceImpl(accountRepository);
 

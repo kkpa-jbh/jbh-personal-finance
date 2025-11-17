@@ -2,9 +2,9 @@ package com.jbh.account.application.core.ports.input;
 
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.common.logging.LoggerFactory;
-import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.AddMultipleBasicMovementDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.account.application.core.services.account.AccountService;
@@ -67,7 +67,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
         mapCommandToDomain(allUploadedMovCommand, accountDomain);
 
     // Sync account balance
-    final AccountDTO accountDTO =
+    final ProductDTO accountDTO =
         accountService.syncByUploadedMovements(accountDomain, uploadedMovements);
 
     // Persist Movements and Account UOW
@@ -99,7 +99,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
 
   private ProductDomain findAccountOrElseThrow(final UUID userId, final AccountId accountId)
       throws AccountBusinessException {
-    final AccountDTO accountDTO = accountService.findByUserAndAccountId(userId, accountId);
+    final ProductDTO accountDTO = accountService.findByUserAndAccountId(userId, accountId);
 
     return accountDTO.toDomain();
   }
@@ -128,7 +128,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
   }
 
   private void persistMovementAndAccountUOW(
-      final List<AccountMovementDomain> newMovements, final AccountDTO accountDTO) {
+      final List<AccountMovementDomain> newMovements, final ProductDTO accountDTO) {
     unitOfWork.execute(
         () -> {
           LOG.info("Persisting Movements changes");

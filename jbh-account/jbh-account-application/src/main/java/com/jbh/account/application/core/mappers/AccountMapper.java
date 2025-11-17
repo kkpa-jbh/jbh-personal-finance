@@ -1,18 +1,18 @@
 package com.jbh.account.application.core.mappers;
 
-import com.jbh.account.application.core.dto.AccountDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.domain.entity.ProductDomain;
 
 public final class AccountMapper {
 
   private AccountMapper() {}
 
-  public static AccountDTO toDTO(final ProductDomain domain) {
+  public static ProductDTO toDTO(final ProductDomain domain) {
     if (domain == null) {
       return null;
     }
 
-    return new AccountDTO(
+    return new ProductDTO(
         domain.getId(),
         domain.getName(),
         domain.getType(),
@@ -27,7 +27,7 @@ public final class AccountMapper {
         domain.getMetadata());
   }
 
-  public static ProductDomain toDomain(final AccountDTO dto) {
+  public static ProductDomain toDomain(final ProductDTO dto) {
     if (dto == null) {
       return null;
     }

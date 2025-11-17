@@ -22,9 +22,9 @@ import com.jbh.account.application.builders.AccountEntityBuilder;
 import com.jbh.account.application.builders.EntityTestBuilder;
 import com.jbh.account.application.builders.TestDataFactory;
 import com.jbh.account.application.builders.UseCaseBuilder;
-import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.AddMultipleBasicMovementDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.ports.input.AddMovementsUploadedFileInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
@@ -72,7 +72,7 @@ public class UploadMultiMovementsExecutionMockTest {
   static ProductDomain accountDomain =
       AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
   private static CreateAccountUseCase createAccountUseCase;
-  private static AccountDTO currentAccount;
+  private static ProductDTO currentAccount;
   private static AccountService accountService;
   private static AccountRepository accountRepository;
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
@@ -181,7 +181,7 @@ public class UploadMultiMovementsExecutionMockTest {
 
     verify(accountMovementRepository).save(anyList());
 
-    final AccountDTO actualAccountResponse = processedResponse.get().account();
+    final ProductDTO actualAccountResponse = processedResponse.get().account();
     final List<MonthlyBalanceDTO> actualBalancesWithoutAsyncOperation =
         processedResponse.get().monthlyBalances();
 
@@ -456,7 +456,7 @@ public class UploadMultiMovementsExecutionMockTest {
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
 
     // Assert account net growth rate
-    final AccountDTO accountDTO = accountService.findAccountOrThrow(accountId);
+    final ProductDTO accountDTO = accountService.findAccountOrThrow(accountId);
     assertEquals(numberOf("10.28"), accountDTO.netGrowthRate());
     assertNotNull(accountDTO.metadata());
     assertTrue(accountDTO.isFullyWithdrawn());
@@ -493,7 +493,7 @@ public class UploadMultiMovementsExecutionMockTest {
             processedResponse.set(
                 useCaseInstanceTest.uploadMovementsFromFile(userId, accountId, testData)));
 
-    final AccountDTO actualAccount = processedResponse.get().account();
+    final ProductDTO actualAccount = processedResponse.get().account();
 
     assertEquals(numberOf("56386448"), actualAccount.movementBalance());
     assertEquals(numberOf("70908065"), actualAccount.currentBalance());
@@ -756,7 +756,7 @@ public class UploadMultiMovementsExecutionMockTest {
             processedResponse.set(
                 useCaseInstanceTest.uploadMovementsFromFile(userId, accountId, testData)));
 
-    final AccountDTO actualAccount = processedResponse.get().account();
+    final ProductDTO actualAccount = processedResponse.get().account();
 
     assertEquals(numberOf("29710000"), actualAccount.movementBalance());
     assertEquals(numberOf("37074883"), actualAccount.currentBalance());

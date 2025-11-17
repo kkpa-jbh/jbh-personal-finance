@@ -26,8 +26,8 @@ public class SavingsAccountCreationValidator extends BaseAccountCreationValidato
 
   @Override
   public void validateInsufficientNetFlow(
-      final ProductDomain account, final AccountMovementDomain movement)
+      final ProductDomain productDomain, final AccountMovementDomain movement)
       throws AccountBusinessException {
-    defaultValidationInsufficientNetFlow(account, movement);
+    defaultValidationInsufficientNetFlow(productDomain, movement);
   }
 }

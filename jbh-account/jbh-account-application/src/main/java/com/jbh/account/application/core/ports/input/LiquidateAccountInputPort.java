@@ -1,8 +1,8 @@
 package com.jbh.account.application.core.ports.input;
 
-import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.AddBasicMovementDTO;
 import com.jbh.account.application.core.dto.LiquidationResultDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.movements.AccountMovementApplicationService;
@@ -40,7 +40,7 @@ public class LiquidateAccountInputPort implements LiquidateAccountUseCase {
     liquidationCommand.validate();
 
     final var movementDTO = MovementMapper.fromCommand(accountId, liquidationCommand);
-    AccountDTO toInternalAccount = null;
+    ProductDTO toInternalAccount = null;
     if (liquidationCommand.toInternalAccount().isPresent()) {
       final var internalAccountId = liquidationCommand.toInternalAccount().get().accountId();
       toInternalAccount = accountService.findAccountOrThrow(internalAccountId);
@@ -53,7 +53,7 @@ public class LiquidateAccountInputPort implements LiquidateAccountUseCase {
     final AddBasicMovementDTO addedMovementDTO =
         movementApplicationService.processMovement(movementDTO, accountPK, false);
 
-    final AccountDTO syncedAccountDTO = addedMovementDTO.account();
+    final ProductDTO syncedAccountDTO = addedMovementDTO.account();
     depositToAccount(liquidationCommand, toInternalAccount, syncedAccountDTO);
 
     return new LiquidationResultDTO(true);
@@ -61,8 +61,8 @@ public class LiquidateAccountInputPort implements LiquidateAccountUseCase {
 
   private void depositToAccount(
       final LiquidateAccountCommand liquidationCommand,
-      final AccountDTO toInternalAccount,
-      final AccountDTO syncedAccountDTO)
+      final ProductDTO toInternalAccount,
+      final ProductDTO syncedAccountDTO)
       throws AccountBusinessException {
     if (toInternalAccount != null) {
       LOG.info("Deposit dividends to internal account {} ", toInternalAccount);

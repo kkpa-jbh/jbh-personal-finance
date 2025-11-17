@@ -7,6 +7,7 @@ import com.jbh.account.application.core.ports.input.CreateAccountInputPort;
 import com.jbh.account.application.core.ports.input.FindMonthlyBalanceInputPort;
 import com.jbh.account.application.core.ports.input.LiquidateAccountInputPort;
 import com.jbh.account.application.core.ports.input.RegisterMonthlyBalanceInputPort;
+import com.jbh.account.application.core.ports.input.UpdateProductInputPort;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
@@ -26,6 +27,7 @@ import com.jbh.account.application.core.usecases.CreateAccountUseCase;
 import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.account.application.core.usecases.LiquidateAccountUseCase;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
+import com.jbh.account.application.core.usecases.UpdateProductUseCase;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.vo.ProductType;
@@ -135,5 +137,9 @@ public class UseCaseBuilder {
       final AccountMovementWriterRepository accountMovementRepository) {
     return new LiquidateAccountInputPort(
         buildAccountService(), buildAccountMovementApplicationService(accountMovementRepository));
+  }
+
+  public static UpdateProductUseCase buildUpdateProductUseCase() {
+    return new UpdateProductInputPort(buildAccountService());
   }
 }

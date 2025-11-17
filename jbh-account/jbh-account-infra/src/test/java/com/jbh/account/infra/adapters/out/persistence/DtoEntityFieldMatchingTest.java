@@ -2,9 +2,9 @@ package com.jbh.account.infra.adapters.out.persistence;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.infra.adapters.out.persistence.account.AccountJPAEntity;
 import com.jbh.account.infra.adapters.out.persistence.monthlybalance.AccountMonthlyBalanceJPAEntity;
 import com.jbh.account.infra.adapters.out.persistence.movement.AccountMovementJPAEntity;
@@ -23,7 +23,7 @@ public class DtoEntityFieldMatchingTest {
   @Test
   public void accountDTO_and_AccountJPAEntity_should_have_matching_fields() {
     // Get field names from both classes
-    final Set<String> dtoFields = getFieldNames(AccountDTO.class);
+    final Set<String> dtoFields = getFieldNames(ProductDTO.class);
     final Set<String> entityFields = getFieldNames(AccountJPAEntity.class);
     final String dtoClass = "AccountDTO";
     final String entityClass = "AccountJPAEntity";

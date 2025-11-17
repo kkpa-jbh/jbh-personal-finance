@@ -2,13 +2,13 @@ package com.jbh.account.application.core.usecases.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.jbh.account.application.core.dto.AccountDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 
 public class AccountITUtils {
 
   public static void assertAccount(
-      final AccountDTO expected,
-      final AccountDTO actual,
+      final ProductDTO expected,
+      final ProductDTO actual,
       final IgnoreAccountOptions... ignoreOptions) {
     boolean ignoreAccountName = false;
     boolean ignoreAccountType = false;
@@ -42,7 +42,7 @@ public class AccountITUtils {
     assertEquals(expected.netGrowthRate(), actual.netGrowthRate(), "Net Growth Rate");
   }
 
-  public static void assertAccount(final AccountDTO expected, final AccountDTO actual) {
+  public static void assertAccount(final ProductDTO expected, final ProductDTO actual) {
     assertEquals(expected.id(), actual.id(), "Account ID");
     assertEquals(expected.name(), actual.name(), "Account Name");
     assertEquals(expected.type(), actual.type(), "Account Type");

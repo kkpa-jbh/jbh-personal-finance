@@ -8,7 +8,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.jbh.account.application.core.dto.AccountDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.ports.input.CreateAccountInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.services.account.AccountService;
@@ -47,13 +47,13 @@ public class CreateBasicAccountMockTest {
   @Test
   public void shouldCreateAccount() throws AccountBusinessException {
 
-    final AccountDTO mockedAccount =
-        AccountDTO.defaultBuilder(userId, AccountId.generate(), testAccountName, type).build();
+    final ProductDTO mockedAccount =
+        ProductDTO.defaultBuilder(userId, AccountId.generate(), testAccountName, type).build();
 
     when(accountRepository.save(any())).thenReturn(mockedAccount);
 
     final CreateProductCommand command = createBasicAccountCommand(userId, testAccountName, type);
-    final AccountDTO accountDTO = useCase.execute(command);
+    final ProductDTO accountDTO = useCase.execute(command);
 
     // Verify output
     assertNotNull(accountDTO);
@@ -63,10 +63,10 @@ public class CreateBasicAccountMockTest {
     assertEquals(userId, accountDTO.userId());
 
     // Capture the argument passed to accountService.save()
-    final ArgumentCaptor<AccountDTO> captor = ArgumentCaptor.forClass(AccountDTO.class);
+    final ArgumentCaptor<ProductDTO> captor = ArgumentCaptor.forClass(ProductDTO.class);
     verify(accountRepository).save(captor.capture());
 
-    final AccountDTO captured = captor.getValue();
+    final ProductDTO captured = captor.getValue();
 
     // Verify that the AccountDomain was mapped correctly
     assertEquals(testAccountName, captured.name());

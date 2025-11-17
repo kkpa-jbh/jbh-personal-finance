@@ -17,10 +17,10 @@ import static org.mockito.Mockito.when;
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.builders.AccountEntityBuilder;
-import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.AddBasicMovementDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.ports.input.AddMovementInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
@@ -224,9 +224,9 @@ public class RegisterMovementExecutionMockTest {
 
     verify(accountRepository, times(2)).findByUserAndAccountId(userId, accountId);
     verify(accountMovementRepository).save((MovementDTO) any());
-    verify(accountRepository).save((AccountDTO) any());
+    verify(accountRepository).save((ProductDTO) any());
 
-    final AccountDTO accountResponse = mvmtResponse.get().account();
+    final ProductDTO accountResponse = mvmtResponse.get().account();
     assertEquals(amount.add(existingMovBalance), accountResponse.movementBalance());
     assertEquals(balanceSnapshot, accountResponse.currentBalance());
 

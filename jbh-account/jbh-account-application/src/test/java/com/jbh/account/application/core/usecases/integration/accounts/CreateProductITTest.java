@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.jbh.account.application.builders.AccountEntityBuilder;
 import com.jbh.account.application.builders.CommandTestBuilder;
 import com.jbh.account.application.builders.UseCaseBuilder;
-import com.jbh.account.application.core.dto.AccountDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
@@ -86,7 +86,7 @@ public class CreateProductITTest {
     final CreateProductCommand validSavingsAccount =
         createBasicAccountCommand(userId, "Test Savings", ProductType.SAVINGS);
 
-    final AccountDTO savingsAccountDTO = createAccountUseCase.execute(validSavingsAccount);
+    final ProductDTO savingsAccountDTO = createAccountUseCase.execute(validSavingsAccount);
     assertNotNull(savingsAccountDTO);
     assertEquals("Test Savings", savingsAccountDTO.name());
     assertEquals(ProductType.SAVINGS, savingsAccountDTO.type());
@@ -95,7 +95,7 @@ public class CreateProductITTest {
     final CreateProductCommand validCdtAccount =
         createBasicAccountCommand(userId, "Test CDT", ProductType.CDT);
 
-    final AccountDTO cdtAccountDTO = createAccountUseCase.execute(validCdtAccount);
+    final ProductDTO cdtAccountDTO = createAccountUseCase.execute(validCdtAccount);
     assertNotNull(cdtAccountDTO);
     assertEquals("Test CDT", cdtAccountDTO.name());
     assertEquals(ProductType.CDT, cdtAccountDTO.type());
@@ -115,7 +115,7 @@ public class CreateProductITTest {
     final CreateProductCommand validInvestmentCommand =
         createInvestmentCommand(userId, "Fidelity Portfolio", "Fidelity");
 
-    final AccountDTO investmentAccountDTO = createAccountUseCase.execute(validInvestmentCommand);
+    final ProductDTO investmentAccountDTO = createAccountUseCase.execute(validInvestmentCommand);
 
     assertNotNull(investmentAccountDTO);
     assertEquals("Fidelity Portfolio", investmentAccountDTO.name());
@@ -153,7 +153,7 @@ public class CreateProductITTest {
     final CreateProductCommand validCreditCardCommand =
         createCreditCardCommand(userId, "LULO Credit Card", creditLimit, 15);
     final LocalDate mvmDate = LocalDate.of(2023, 1, 1);
-    final AccountDTO creditCardAccountDTO = createAccountUseCase.execute(validCreditCardCommand);
+    final ProductDTO creditCardAccountDTO = createAccountUseCase.execute(validCreditCardCommand);
 
     assertNotNull(creditCardAccountDTO);
     assertEquals("LULO Credit Card", creditCardAccountDTO.name());
@@ -168,7 +168,7 @@ public class CreateProductITTest {
         CommandTestBuilder.createMovement(
             mvmDate, personalExpense1, MovementCategoryDTO.withType(ExpenseCategory.PERSONAL)));
 
-    AccountDTO updatedAccount =
+    ProductDTO updatedAccount =
         inMemoryAccountRepo.findByAccountId(creditCardAccountDTO.id()).get();
     assertNotNull(updatedAccount);
     var expectedAccountBuilder =
@@ -180,7 +180,7 @@ public class CreateProductITTest {
             creditCardAccountDTO.name(),
             creditCardType);
 
-    AccountDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
+    ProductDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
 
     assertAccount(expectedAccount, updatedAccount);
 
@@ -236,7 +236,7 @@ public class CreateProductITTest {
         () -> createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata)));
 
     metadata.putLoanPayoffAmountToday(expected);
-    final AccountDTO createdLoan =
+    final ProductDTO createdLoan =
         createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata));
 
     assertNotNull(createdLoan);

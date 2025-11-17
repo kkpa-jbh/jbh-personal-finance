@@ -107,8 +107,7 @@ public class ProductDomain {
     final ProductMetadata productMetadata = metadata != null ? metadata : ProductMetadata.empty();
 
     // Validate metadata based on account type BEFORE creating the domain object
-    final AccountCreationValidator validator = getValidator(type);
-    validator.validateMetadata(productMetadata);
+    validateMetadata(type, productMetadata);
 
     // Only create the object if validation passes
     final ProductDomain accountDomain = new ProductDomain(name, type, userId);
@@ -119,6 +118,12 @@ public class ProductDomain {
     }
 
     return accountDomain;
+  }
+
+  private static void validateMetadata(
+      final ProductType inputType, final ProductMetadata inputMetadata)
+      throws AccountBusinessException {
+    getValidator(inputType).validateMetadata(inputMetadata);
   }
 
   private static AccountCreationValidator getValidator(final ProductType type) {
@@ -139,7 +144,7 @@ public class ProductDomain {
     applyMovement(movement, wasOfficialReport);
   }
 
-  private void validateInsufficientNetFlow(final AccountMovementDomain movement)
+  public void validateInsufficientNetFlow(final AccountMovementDomain movement)
       throws AccountBusinessException {
     getValidator(this.type).validateInsufficientNetFlow(this, movement);
   }
@@ -268,5 +273,11 @@ public class ProductDomain {
     if (inputNetProfit != null) {
       this.netProfitBalance = withJBHDecimals(inputNetProfit);
     }
+  }
+
+  public void replaceAllMetadata(final ProductMetadata productMetadata)
+      throws AccountBusinessException {
+    validateMetadata(this.type, productMetadata);
+    this.metadata = ProductMetadata.fromMap(productMetadata.getData());
   }
 }

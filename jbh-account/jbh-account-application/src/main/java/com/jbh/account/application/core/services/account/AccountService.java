@@ -1,8 +1,8 @@
 package com.jbh.account.application.core.services.account;
 
-import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
@@ -18,14 +18,14 @@ import java.util.UUID;
  * <p>Like a Repository abstraction.
  */
 public interface AccountService {
-  AccountDTO findByUserAndAccountId(UUID userId, AccountId accountId)
+  ProductDTO findByUserAndAccountId(UUID userId, AccountId accountId)
       throws AccountBusinessException;
 
-  AccountDTO findAccountOrThrow(AccountId accountId);
+  ProductDTO findAccountOrThrow(AccountId accountId);
 
-  AccountDTO save(AccountDTO account);
+  ProductDTO save(ProductDTO account);
 
-  AccountDTO save(ProductDomain account);
+  ProductDTO save(ProductDomain account);
 
   /**
    * @param accountId
@@ -59,11 +59,11 @@ public interface AccountService {
    * @param isMonthOfficiallyReported
    * @return
    */
-  AccountDTO syncByMovement(
+  ProductDTO syncByMovement(
       AccountPK accountPK, MovementDTO movement, boolean isMonthOfficiallyReported)
       throws AccountBusinessException;
 
-  AccountDTO syncByUploadedMovements(
+  ProductDTO syncByUploadedMovements(
       ProductDomain accountDomain, List<AccountMovementDomain> uploadedMovements)
       throws AccountBusinessException;
 }

@@ -13,7 +13,7 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder(builderMethodName = "notUseThisInternalBuilder")
-public record AccountDTO(
+public record ProductDTO(
     AccountId id,
     String name,
     ProductType type,
@@ -27,9 +27,9 @@ public record AccountDTO(
     BigDecimal netGrowthRate,
     ProductMetadata metadata) {
 
-  public static AccountDTO.AccountDTOBuilder defaultBuilder(
+  public static ProductDTO.ProductDTOBuilder defaultBuilder(
       final UUID userId, final AccountId accountId, final String name, final ProductType type) {
-    return AccountDTO.notUseThisInternalBuilder()
+    return ProductDTO.notUseThisInternalBuilder()
         .userId(userId)
         .id(accountId)
         .name(name)
@@ -58,5 +58,9 @@ public record AccountDTO(
 
   public boolean productTypeShouldUpdateMonthlyBalance() {
     return type.productTypeShouldUpdateMonthlyBalance();
+  }
+
+  public boolean isLoan() {
+    return type == ProductType.LOAN;
   }
 }

@@ -5,7 +5,7 @@ import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUt
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.account.application.builders.UseCaseBuilder;
-import com.jbh.account.application.core.dto.AccountDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.usecases.CreateAccountUseCase;
@@ -62,7 +62,7 @@ public class RegisterMonthlyReportedValidationITTest {
   @Order(0)
   void registeringOfficialMonthlyBalance() throws AccountBusinessException {
     // Create Account
-    final AccountDTO accountDTO =
+    final ProductDTO accountDTO =
         createAccountUseCase.execute(
             createBasicAccountCommand(userId, ACCOUNT_REPORTED, ProductType.SAVINGS));
     accountId = accountDTO.id();

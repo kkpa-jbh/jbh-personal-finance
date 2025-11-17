@@ -16,9 +16,9 @@ import static org.mockito.Mockito.verify;
 
 import com.jbh.account.application.builders.EntityTestBuilder;
 import com.jbh.account.application.builders.UseCaseBuilder;
-import com.jbh.account.application.core.dto.AccountDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.movements.AccountMovementApplicationServiceImpl;
@@ -63,12 +63,12 @@ public class RegisterMonthlyReportedProfitITTest {
       UseCaseBuilder.getAccountRepository();
 
   static CreateAccountUseCase createAccountUseCase;
-  static AccountDTO createdAccount;
+  static ProductDTO createdAccount;
   static AccountId accountId;
   static int commandIndex = -1;
   static MonthlyBalanceService monthlyBalanceService;
   private static MonthlyBalanceDTO finalReported20249;
-  private static AccountDTO finalAccountBalance;
+  private static ProductDTO finalAccountBalance;
   private static MonthlyBalanceDTO finalReported202410;
   @Mock private static AccountMovementWriterRepository accountMovementRepository;
   RegisterMonthlyBalanceUseCase useCaseTest;

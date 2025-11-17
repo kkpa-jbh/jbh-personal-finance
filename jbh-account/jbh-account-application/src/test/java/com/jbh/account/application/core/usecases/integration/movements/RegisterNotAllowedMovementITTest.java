@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.jbh.account.application.builders.CommandTestBuilder;
 import com.jbh.account.application.builders.UseCaseBuilder;
-import com.jbh.account.application.core.dto.AccountDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
@@ -29,8 +29,8 @@ public class RegisterNotAllowedMovementITTest {
   private static CreateAccountUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
   private static AccountMovementWriterRepository accountMovementRepository;
-  private static AccountDTO cdtAccount;
-  private static AccountDTO internalAccount;
+  private static ProductDTO cdtAccount;
+  private static ProductDTO internalAccount;
   private static LiquidateAccountUseCase liquidateAccountUseCase;
   private MonthlyBalanceService monthlyBalanceService;
 
@@ -56,7 +56,7 @@ public class RegisterNotAllowedMovementITTest {
   public void shouldThrowWhenLoanMovement() throws AccountBusinessException {
 
     final BigDecimal amount = new BigDecimal("100");
-    final AccountDTO loanProduct =
+    final ProductDTO loanProduct =
         createAccountUseCase.execute(
             CommandTestBuilder.createMockLoanCommand(userId, "Loan Account"));
     assertNotNull(loanProduct);

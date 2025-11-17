@@ -25,12 +25,12 @@ public interface AccountCreationValidator {
   void validateMetadata(ProductMetadata metadata) throws AccountBusinessException;
 
   /**
-   * Validates that the account movement is valid for the account type. @Param account The account
-   * to validate
+   * Validates that the productDomain movement is valid for the productDomain type. @Param
+   * productDomain The productDomain to validate
    *
    * @param movement The movement to validate
    * @throws AccountBusinessException if validation fails with specific error type
    */
-  void validateInsufficientNetFlow(ProductDomain account, AccountMovementDomain movement)
+  void validateInsufficientNetFlow(ProductDomain productDomain, AccountMovementDomain movement)
       throws AccountBusinessException;
 }

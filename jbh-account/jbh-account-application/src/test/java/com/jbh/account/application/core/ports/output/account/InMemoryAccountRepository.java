@@ -1,6 +1,6 @@
 package com.jbh.account.application.core.ports.output.account;
 
-import com.jbh.account.application.core.dto.AccountDTO;
+import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.domain.vo.AccountId;
 import java.util.HashMap;
@@ -13,11 +13,11 @@ import org.slf4j.LoggerFactory;
 public class InMemoryAccountRepository implements AccountRepository {
 
   private static final Logger log = LoggerFactory.getLogger(InMemoryAccountRepository.class);
-  private final Map<UUID, AccountDTO> storage = new HashMap<>();
+  private final Map<UUID, ProductDTO> storage = new HashMap<>();
 
   @Override
-  public Optional<AccountDTO> findByUserAndAccountId(final UUID userId, final AccountId accountId) {
-    final AccountDTO account = storage.get(accountId.value());
+  public Optional<ProductDTO> findByUserAndAccountId(final UUID userId, final AccountId accountId) {
+    final ProductDTO account = storage.get(accountId.value());
     if (account != null && account.userId().equals(userId)) {
       return Optional.of(account);
     }
@@ -34,12 +34,12 @@ public class InMemoryAccountRepository implements AccountRepository {
   }
 
   @Override
-  public Optional<AccountDTO> findByAccountId(final AccountId accountId) {
+  public Optional<ProductDTO> findByAccountId(final AccountId accountId) {
     return Optional.ofNullable(storage.get(accountId.value()));
   }
 
   @Override
-  public AccountDTO save(final AccountDTO account) {
+  public ProductDTO save(final ProductDTO account) {
     storage.put(account.id().value(), account);
     log.warn("Updated Account " + account);
     return account;

@@ -23,8 +23,9 @@ public class LoanProductCreationValidator extends BaseAccountCreationValidator
 
   @Override
   public void validateInsufficientNetFlow(
-      final ProductDomain account, final AccountMovementDomain movement)
+      final ProductDomain productDomain, final AccountMovementDomain movement)
       throws AccountBusinessException {
-    // do nothing
+
+    // Custom Validation for Movements
   }
 }
