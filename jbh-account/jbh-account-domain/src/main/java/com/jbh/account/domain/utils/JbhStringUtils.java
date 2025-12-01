@@ -14,10 +14,11 @@ public final class JbhStringUtils {
         .formatted(escapeJson(en), escapeJson(es));
   }
 
+  @SuppressWarnings("FORMAT_STRING_MANIPULATION")
   public static String buildFormattedJsonMessage(
       final String enTemplate, final String esTemplate, final Object... args) {
-    final String formattedEn = String.format(enTemplate, args);
-    final String formattedEs = String.format(esTemplate, args);
+    final String formattedEn = String.format(java.util.Locale.ROOT, enTemplate, args);
+    final String formattedEs = String.format(java.util.Locale.ROOT, esTemplate, args);
     return buildJsonMessage(formattedEn, formattedEs);
   }
 
