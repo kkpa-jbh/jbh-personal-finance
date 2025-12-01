@@ -328,7 +328,47 @@ public final class ProductMetadata {
     return getDecimal(ProductMetadataKey.LOAN_TOTAL_AMOUNT_PAID);
   }
 
+  public void putRealEstatePurchaseDate(final LocalDate purchaseDate) {
+    put(ProductMetadataKey.REAL_ESTATE_PURCHASE_DATE, purchaseDate);
+  }
+
+  public void putRealEstatePurchasePrice(final BigDecimal purchasePrice) {
+    put(ProductMetadataKey.REAL_ESTATE_PURCHASE_PRICE, purchasePrice);
+  }
+
+  public void putRealEstatePropertySize(final BigDecimal propertySize) {
+    put(ProductMetadataKey.REAL_ESTATE_PROPERTY_SIZE, propertySize);
+  }
+
+  public void putRealEstateFinancedAmount(final BigDecimal financedAmount) {
+    put(ProductMetadataKey.REAL_ESTATE_FINANCED_AMOUNT, financedAmount);
+  }
+
+  public void putRealEstateDownPaymentAmount(final BigDecimal downPaymentAmount) {
+    put(ProductMetadataKey.REAL_ESTATE_DOWN_PAYMENT_AMOUNT, downPaymentAmount);
+  }
+
+  public void putRealEstateDownPaymentPercentage(final BigDecimal downPaymentPercentage) {
+    put(ProductMetadataKey.REAL_ESTATE_DOWN_PAYMENT_PERCENTAGE, downPaymentPercentage);
+  }
+
+  public void putRealEstateDownPaymentPaidToDate(final BigDecimal downPaymentPaidToDate) {
+    put(ProductMetadataKey.REAL_ESTATE_DOWN_PAYMENT_PAID_TO_DATE, downPaymentPaidToDate);
+  }
+
   public Map<ProductMetadataKey, Object> getData() {
     return new EnumMap<>(data);
+  }
+
+  public BigDecimal getRealEstatePurchasePrice() {
+    return getDecimal(ProductMetadataKey.REAL_ESTATE_PURCHASE_PRICE);
+  }
+
+  public BigDecimal getRealEstateDownPaymentPercentage() {
+    return getDecimal(ProductMetadataKey.REAL_ESTATE_DOWN_PAYMENT_PERCENTAGE);
+  }
+
+  public BigDecimal getRealEstateDownPaymentAmount() {
+    return getDecimal(ProductMetadataKey.REAL_ESTATE_DOWN_PAYMENT_AMOUNT);
   }
 }

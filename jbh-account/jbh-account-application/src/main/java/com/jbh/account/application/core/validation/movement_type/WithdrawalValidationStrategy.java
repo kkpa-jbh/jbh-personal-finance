@@ -1,8 +1,8 @@
 package com.jbh.account.application.core.validation.movement_type;
 
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.exceptions.JbhExceptionMessage;
 import java.math.BigDecimal;
 
 public class WithdrawalValidationStrategy implements MovementTypeValidatorStrategy {
@@ -17,10 +17,7 @@ public class WithdrawalValidationStrategy implements MovementTypeValidatorStrate
     final var futureMovementBalance = openingBalance.add(movementBalance).add(movementAmount);
     if (futureMovementBalance.compareTo(BigDecimal.ZERO) < 0) {
       throw new AccountBusinessException(
-          "The new withdrawal exceeds the monthly balance " + openingBalance,
-          new JbhExceptionMessage(
-              "The new withdrawal exceeds the monthly balance " + openingBalance,
-              "La retirada excede el saldo reportado del mes" + openingBalance));
+          BusinessApplicationExceptionType.WITHDRAWAL_EXCEEDS_BALANCE, openingBalance);
     }
   }
 }

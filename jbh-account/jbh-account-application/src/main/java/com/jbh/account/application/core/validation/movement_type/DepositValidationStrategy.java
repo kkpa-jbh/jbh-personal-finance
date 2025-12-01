@@ -1,8 +1,8 @@
 package com.jbh.account.application.core.validation.movement_type;
 
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.exceptions.JbhExceptionMessage;
 import java.math.BigDecimal;
 
 public class DepositValidationStrategy implements MovementTypeValidatorStrategy {
@@ -19,10 +19,7 @@ public class DepositValidationStrategy implements MovementTypeValidatorStrategy 
 
     if (futureMovementBalance.compareTo(closingBalance) > 0) {
       throw new AccountBusinessException(
-          "The new deposit exceeds the monthly balance " + closingBalance,
-          new JbhExceptionMessage(
-              "The new deposit exceeds the monthly balance " + closingBalance,
-              "El depósito excede el saldo reportado del mes" + closingBalance));
+          BusinessApplicationExceptionType.DEPOSIT_EXCEEDS_BALANCE, closingBalance);
     }
   }
 }

@@ -115,6 +115,19 @@ public class CommandTestBuilder {
     return new CreateProductCommand(userId, name, ProductType.LOAN, metadata);
   }
 
+  public static CreateProductCommand createMockRealStateCommand(final UUID userId) {
+    final ProductMetadata metadata = ProductMetadata.empty();
+    metadata.putRealEstatePurchaseDate(LocalDate.now());
+    metadata.putRealEstatePurchasePrice(new BigDecimal("100000"));
+    metadata.putRealEstatePropertySize(new BigDecimal("100"));
+    metadata.putRealEstateFinancedAmount(new BigDecimal("80000"));
+    metadata.putRealEstateDownPaymentAmount(new BigDecimal("20000"));
+    metadata.putRealEstateDownPaymentPercentage(new BigDecimal("20"));
+    metadata.putRealEstateDownPaymentPaidToDate(new BigDecimal("0"));
+    return new CreateProductCommand(
+        userId, "Real State Account", ProductType.REAL_ESTATE_INVESTMENT, metadata);
+  }
+
   /**
    * Creates a CreateBasicAccountCommand for an investment account with typical metadata.
    *
@@ -130,8 +143,6 @@ public class CommandTestBuilder {
     metadata.putCommissionRate(new BigDecimal("1.2"));
     return new CreateProductCommand(userId, name, ProductType.INVESTMENT, metadata);
   }
-
-  // ==================== AddMovementCommand Factory Methods ====================
 
   /**
    * Creates an AddMovementCommand with all parameters (full constructor).
@@ -152,6 +163,8 @@ public class CommandTestBuilder {
     return new AddMovementCommand(
         entryDate, totalAmount, balanceSnapshot, movementType, categoryDTO);
   }
+
+  // ==================== AddMovementCommand Factory Methods ====================
 
   /**
    * Creates an AddMovementCommand without balance snapshot (3-param + category).
@@ -202,8 +215,6 @@ public class CommandTestBuilder {
     return new AddMovementCommand(entryDate, totalAmount, movementType, categoryDTO);
   }
 
-  // ==================== Convenience Methods for Common Scenarios ====================
-
   /**
    * Creates an income movement (deposit).
    *
@@ -216,6 +227,8 @@ public class CommandTestBuilder {
       final LocalDate date, final BigDecimal amount, final IncomeCategory incomeCategory) {
     return new AddMovementCommand(date, amount, MovementCategoryDTO.withType(incomeCategory));
   }
+
+  // ==================== Convenience Methods for Common Scenarios ====================
 
   public static AddMovementCommand createDepositIncome(
       final LocalDate date, final BigDecimal amount) {
@@ -303,5 +316,11 @@ public class CommandTestBuilder {
       final LocalDate date) {
     return new LiquidateAccountCommand(
         Optional.empty(), Optional.of(externalAccountInfoVO), amount, date);
+  }
+
+  public static CreateProductCommand createRealEstateCommand(
+      final UUID userId, final ProductMetadata metadata) {
+    return new CreateProductCommand(
+        userId, "MonteAzul", ProductType.REAL_ESTATE_INVESTMENT, metadata);
   }
 }

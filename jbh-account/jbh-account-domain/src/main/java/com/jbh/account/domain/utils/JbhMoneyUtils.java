@@ -1,5 +1,7 @@
 package com.jbh.account.domain.utils;
 
+import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -58,5 +60,18 @@ public final class JbhMoneyUtils {
       return (BigDecimal) value;
     }
     return new BigDecimal(value.toString());
+  }
+
+  public static void validatePercentage(final BigDecimal percentage)
+      throws AccountBusinessException {
+    if (percentage == null) {
+      return;
+    }
+    if (percentage.signum() < 0
+        || percentage.compareTo(BigDecimal.ZERO) <= 0
+        || percentage.compareTo(new BigDecimal("100")) > 0) {
+      throw new AccountBusinessException(
+          BusinessDomainExceptionType.INVALID_PERCENTAGE, percentage.toString());
+    }
   }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 @SuppressWarnings("PMD.LongVariable")
 public enum ProductType {
   SAVINGS,
+  REAL_ESTATE_INVESTMENT,
   LOAN,
   CREDIT_CARD,
   INVESTMENT,

@@ -14,6 +14,13 @@ public final class JbhStringUtils {
         .formatted(escapeJson(en), escapeJson(es));
   }
 
+  public static String buildFormattedJsonMessage(
+      final String enTemplate, final String esTemplate, final Object... args) {
+    final String formattedEn = String.format(enTemplate, args);
+    final String formattedEs = String.format(esTemplate, args);
+    return buildJsonMessage(formattedEn, formattedEs);
+  }
+
   private static String escapeJson(final String value) {
     // Very basic escaping for quotes and backslashes
     return value.replace("\\", "\\\\").replace("\"", "\\\"");

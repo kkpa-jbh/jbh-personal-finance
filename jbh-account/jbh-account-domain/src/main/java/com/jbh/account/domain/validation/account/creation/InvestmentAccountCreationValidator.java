@@ -17,7 +17,7 @@ import com.jbh.account.domain.vo.ProductMetadataKey;
  * </ul>
  */
 public class InvestmentAccountCreationValidator extends BaseAccountCreationValidator
-    implements AccountCreationValidator {
+    implements ProductCreationValidator {
 
   @Override
   public void validateMetadata(final ProductMetadata metadata) throws AccountBusinessException {

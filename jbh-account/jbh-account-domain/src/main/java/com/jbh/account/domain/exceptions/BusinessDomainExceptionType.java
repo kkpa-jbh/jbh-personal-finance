@@ -66,7 +66,9 @@ public enum BusinessDomainExceptionType implements BusinessExceptionType {
       "El valor pendiente de pagar el préstamo, no ha sido definido."),
   PAYMENT_AMOUNT_GREATER_PAYOFF(
       "The amount paid is greater than the payoff amount",
-      "El monto pagado es mayor al monto pendiente de pagar");
+      "El monto pagado es mayor al monto pendiente de pagar"),
+  MISSING_METADATA("Missing required metadata: %s", "Falta el metadato requerido: %s"),
+  INVALID_PERCENTAGE("Percentage must be between 0 and 100", "Porcentaje debe estar entre 0 y 100");
 
   private final String en;
   private final String es;
@@ -79,5 +81,10 @@ public enum BusinessDomainExceptionType implements BusinessExceptionType {
   @Override
   public String getMessage() {
     return JbhStringUtils.buildJsonMessage(en, es);
+  }
+
+  @Override
+  public String getFormattedMessage(final Object... args) {
+    return JbhStringUtils.buildFormattedJsonMessage(en, es, args);
   }
 }

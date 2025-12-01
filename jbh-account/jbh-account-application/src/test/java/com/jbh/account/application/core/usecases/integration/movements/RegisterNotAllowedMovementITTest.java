@@ -71,4 +71,23 @@ public class RegisterNotAllowedMovementITTest {
 
     assertNotNull(error);
   }
+
+  @Test
+  public void shouldThrowWhenRealstateMovement() throws AccountBusinessException {
+
+    final BigDecimal amount = new BigDecimal("100");
+    final ProductDTO realEstateAccount =
+        createAccountUseCase.execute(CommandTestBuilder.createMockRealStateCommand(userId));
+    assertNotNull(realEstateAccount);
+
+    final AccountBusinessException error =
+        assertThrows(
+            AccountBusinessException.class,
+            () -> {
+              addMovementUseCase.addMovement(
+                  userId, realEstateAccount.id(), createDepositIncome(period.atDay(1), amount));
+            });
+
+    assertNotNull(error);
+  }
 }

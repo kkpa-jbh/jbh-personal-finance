@@ -13,7 +13,7 @@ import com.jbh.account.domain.vo.ProductMetadata;
  * (e.g., minimum balance, interest rate, etc.).
  */
 public class SavingsAccountCreationValidator extends BaseAccountCreationValidator
-    implements AccountCreationValidator {
+    implements ProductCreationValidator {
 
   @Override
   public void validateMetadata(final ProductMetadata metadata) throws AccountBusinessException {

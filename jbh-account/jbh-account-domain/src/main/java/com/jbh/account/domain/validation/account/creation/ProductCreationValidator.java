@@ -14,7 +14,7 @@ import com.jbh.account.domain.vo.ProductMetadata;
  * <p>Implementations should throw {@link AccountBusinessException} with appropriate {@link
  * com.jbh.account.domain.exceptions.BusinessDomainExceptionType} when validation fails.
  */
-public interface AccountCreationValidator {
+public interface ProductCreationValidator {
 
   /**
    * Validates account metadata for creation based on account type requirements.

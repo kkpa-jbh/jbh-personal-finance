@@ -34,7 +34,22 @@ public enum BusinessApplicationExceptionType implements BusinessExceptionType {
       "Este tipo de producto no puede agregar un movimiento. Por favor, use la opción de transferencia."),
   INVALID_PRODUCT_USE_CASE(
       "The action you want to do is not valid for this product type",
-      "la acción que deseas realizar no es válida para este tipo de producto");
+      "la acción que deseas realizar no es válida para este tipo de producto"),
+  WITHDRAWAL_EXCEEDS_BALANCE(
+      "The new withdrawal exceeds the monthly balance %s",
+      "La retirada excede el saldo reportado del mes %s"),
+  DEPOSIT_EXCEEDS_BALANCE(
+      "The new deposit exceeds the monthly balance %s",
+      "El depósito excede el saldo reportado del mes %s"),
+  MONTHLY_BALANCE_PERIOD_NOT_IN_PAST(
+      "The monthly balance period is not in the past",
+      "El periodo de la cuenta no es en el pasado"),
+  MONTHLY_BALANCE_NOT_CONSECUTIVE(
+      "The monthly balance period is not consecutive. The last period was: %s",
+      "El periodo de la cuenta no es consecutivo. La última periodo fue: %s"),
+  SNAPSHOT_AFTER_OFFICIAL_REPORT(
+      "Cannot add a snapshot after the monthly balance was officially reported",
+      "No se puede añadir un snapshot después de que el balance anual fue reportado");
 
   private final String en;
   private final String es;
@@ -47,5 +62,10 @@ public enum BusinessApplicationExceptionType implements BusinessExceptionType {
   @Override
   public String getMessage() {
     return JbhStringUtils.buildJsonMessage(en, es);
+  }
+
+  @Override
+  public String getFormattedMessage(final Object... args) {
+    return JbhStringUtils.buildFormattedJsonMessage(en, es, args);
   }
 }

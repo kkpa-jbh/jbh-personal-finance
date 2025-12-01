@@ -3,7 +3,7 @@ package com.jbh.account.infra.adapters.exceptions;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.exceptions.JbhExceptionMessage;
+import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.infra.adapters.in.rest.vo.ApiResponse;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,10 +21,8 @@ class GlobalExceptionHandlerTest {
   @Test
   void shouldReturnHttp422WhenAccountBusinessExceptionIsThrown() {
     // Given
-    final String errorMessage = "Business validation failed";
     final AccountBusinessException exception =
-        new AccountBusinessException(
-            errorMessage, new JbhExceptionMessage("VALIDATION_ERROR", "Custom validation error"));
+        new AccountBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENTS);
 
     // When
     final Response response = handler.toResponse(exception);
@@ -37,7 +35,10 @@ class GlobalExceptionHandlerTest {
 
     final ApiResponse<?> apiResponse = (ApiResponse<?>) response.getEntity();
     assertFalse(apiResponse.success(), "ApiResponse success should be false");
-    assertEquals(errorMessage, apiResponse.message(), "Error message should match");
+    assertEquals(
+        BusinessDomainExceptionType.EMPTY_MOVEMENTS.getMessage(),
+        apiResponse.message(),
+        "Error message should match");
     assertNotNull(apiResponse.errors(), "Errors list should not be null");
   }
 
@@ -85,10 +86,11 @@ class GlobalExceptionHandlerTest {
   }
 
   @Test
-  void shouldHandleAccountBusinessExceptionWithoutCustomMessage() {
+  void shouldHandleAccountBusinessExceptionWithFormattedMessage() {
     // Given
-    final String errorMessage = "Business error without custom message";
-    final AccountBusinessException exception = new AccountBusinessException(errorMessage, null);
+    final String metadataKey = "REAL_ESTATE_PURCHASE_DATE";
+    final AccountBusinessException exception =
+        new AccountBusinessException(BusinessDomainExceptionType.MISSING_METADATA, metadataKey);
 
     // When
     final Response response = handler.toResponse(exception);
@@ -97,7 +99,10 @@ class GlobalExceptionHandlerTest {
     assertEquals(422, response.getStatus(), "Should return HTTP 422");
     final ApiResponse<?> apiResponse = (ApiResponse<?>) response.getEntity();
     assertFalse(apiResponse.success(), "ApiResponse success should be false");
-    assertEquals(errorMessage, apiResponse.message(), "Error message should match");
-    assertNull(apiResponse.errors(), "Errors list should be null when no custom message");
+    assertTrue(
+        apiResponse.message().contains(metadataKey),
+        "Error message should contain the metadata key");
+    assertNotNull(
+        apiResponse.errors(), "Errors list should contain the exception type message");
   }
 }

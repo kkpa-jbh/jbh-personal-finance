@@ -8,16 +8,16 @@ public class AccountBusinessException extends Exception {
   // Generate serialVersionUID
   private static final long serialVersionUID = 132234234234L;
 
-  private JbhExceptionMessage customMessage;
-  private BusinessExceptionType businessExceptionType;
-
-  public AccountBusinessException(final String message, final JbhExceptionMessage customMessage) {
-    super(message);
-    this.customMessage = customMessage;
-  }
+  private final BusinessExceptionType businessExceptionType;
 
   public AccountBusinessException(final BusinessExceptionType businessExceptionType) {
     super(businessExceptionType.getMessage());
+    this.businessExceptionType = businessExceptionType;
+  }
+
+  public AccountBusinessException(
+      final BusinessExceptionType businessExceptionType, final Object... args) {
+    super(businessExceptionType.getFormattedMessage(args));
     this.businessExceptionType = businessExceptionType;
   }
 }

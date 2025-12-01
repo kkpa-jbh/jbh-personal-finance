@@ -15,7 +15,7 @@ import com.jbh.account.domain.vo.ProductMetadataKey;
  * maturity date, interest rate, minimum deposit, etc.).
  */
 public class CdtAccountCreationValidator extends BaseAccountCreationValidator
-    implements AccountCreationValidator {
+    implements ProductCreationValidator {
 
   @Override
   public void validateMetadata(final ProductMetadata metadata) throws AccountBusinessException {

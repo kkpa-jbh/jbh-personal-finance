@@ -9,8 +9,8 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import com.jbh.account.domain.calculators.MoneyWeightedReturnCalculator;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.account.domain.validation.account.creation.AccountCreationValidator;
 import com.jbh.account.domain.validation.account.creation.AccountCreationValidatorFactory;
+import com.jbh.account.domain.validation.account.creation.ProductCreationValidator;
 import com.jbh.account.domain.validation.account.metrics.AccountMetricsCalculator;
 import com.jbh.account.domain.validation.account.metrics.AccountMetricsCalculatorFactory;
 import com.jbh.account.domain.vo.AccountId;
@@ -126,7 +126,7 @@ public class ProductDomain {
     getValidator(inputType).validateMetadata(inputMetadata);
   }
 
-  private static AccountCreationValidator getValidator(final ProductType type) {
+  private static ProductCreationValidator getValidator(final ProductType type) {
     return AccountCreationValidatorFactory.getValidator(type);
   }
 

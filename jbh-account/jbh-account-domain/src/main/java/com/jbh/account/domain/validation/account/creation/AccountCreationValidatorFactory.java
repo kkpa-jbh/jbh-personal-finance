@@ -4,7 +4,7 @@ import com.jbh.account.domain.vo.ProductType;
 import java.util.Map;
 
 /**
- * Factory for obtaining the appropriate {@link AccountCreationValidator} for a given {@link
+ * Factory for obtaining the appropriate {@link ProductCreationValidator} for a given {@link
  * ProductType}.
  *
  * <p>This factory implements the Strategy Pattern by providing the correct validator implementation
@@ -20,16 +20,17 @@ import java.util.Map;
  */
 public final class AccountCreationValidatorFactory {
 
-  private static final Map<ProductType, AccountCreationValidator> VALIDATORS;
+  private static final Map<ProductType, ProductCreationValidator> VALIDATORS;
 
   static {
     VALIDATORS =
-        Map.of(
-            ProductType.CREDIT_CARD, new CreditCardAccountCreationValidator(),
-            ProductType.SAVINGS, new SavingsAccountCreationValidator(),
-            ProductType.INVESTMENT, new InvestmentAccountCreationValidator(),
-            ProductType.LOAN, new LoanProductCreationValidator(),
-            ProductType.CDT, new CdtAccountCreationValidator());
+        Map.ofEntries(
+            Map.entry(ProductType.CREDIT_CARD, new CreditCardAccountCreationValidator()),
+            Map.entry(ProductType.SAVINGS, new SavingsAccountCreationValidator()),
+            Map.entry(ProductType.INVESTMENT, new InvestmentAccountCreationValidator()),
+            Map.entry(ProductType.LOAN, new LoanProductCreationValidator()),
+            Map.entry(ProductType.CDT, new CdtAccountCreationValidator()),
+            Map.entry(ProductType.REAL_ESTATE_INVESTMENT, new RealEstateProductCreationValidator()));
   }
 
   private AccountCreationValidatorFactory() {
@@ -44,8 +45,8 @@ public final class AccountCreationValidatorFactory {
    * @return The validator instance for the account type
    * @throws IllegalArgumentException if no validator is registered for the account type
    */
-  public static AccountCreationValidator getValidator(final ProductType accountType) {
-    final AccountCreationValidator validator = VALIDATORS.get(accountType);
+  public static ProductCreationValidator getValidator(final ProductType accountType) {
+    final ProductCreationValidator validator = VALIDATORS.get(accountType);
 
     if (validator == null) {
       throw new IllegalArgumentException(

@@ -8,7 +8,7 @@ import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductMetadataKey;
 
 public class LoanProductCreationValidator extends BaseAccountCreationValidator
-    implements AccountCreationValidator {
+    implements ProductCreationValidator {
 
   @Override
   public void validateMetadata(final ProductMetadata metadata) throws AccountBusinessException {

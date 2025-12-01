@@ -65,4 +65,11 @@
     </Or>
   </Match>
 
+  <!-- Exclude FORMAT_STRING_MANIPULATION for exception message formatting -->
+  <!-- Format templates are hardcoded in enum values, arguments are application-controlled -->
+  <Match>
+    <Bug pattern="FORMAT_STRING_MANIPULATION"/>
+    <Source name="~.*BusinessApplicationExceptionType\.java"/>
+  </Match>
+
 </FindBugsFilter>

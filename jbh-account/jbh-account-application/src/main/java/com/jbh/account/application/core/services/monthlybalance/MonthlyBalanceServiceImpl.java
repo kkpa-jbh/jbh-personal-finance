@@ -18,9 +18,9 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.validation.movement_type.MovementTypeValidatorStrategy;
 import com.jbh.account.application.core.validation.movement_type.MovementValidationStrategyFactory;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
+import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.account.domain.entity.MonthlyBalanceDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.exceptions.JbhExceptionMessage;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
 import com.jbh.account.domain.vo.MovementType;
@@ -133,10 +133,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
     final boolean isMonthOfficiallyReported = existingMonthlyBalance.officialMonthlyReport();
     if (isMonthOfficiallyReported && balanceSnapshot != null) {
       throw new AccountBusinessException(
-          "Cannot add a snapshot after the monthly balance was officially reported",
-          new JbhExceptionMessage(
-              "Cannot add a snapshot after the monthly balance was officially reported",
-              "No se puede añadir un snapshot después de que el balance anual fue reportado"));
+          BusinessApplicationExceptionType.SNAPSHOT_AFTER_OFFICIAL_REPORT);
     }
     return isMonthOfficiallyReported;
   }

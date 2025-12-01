@@ -20,7 +20,7 @@ import java.math.BigDecimal;
  */
 @SuppressWarnings("PMD.LawOfDemeter")
 public class CreditCardAccountCreationValidator extends BaseAccountCreationValidator
-    implements AccountCreationValidator {
+    implements ProductCreationValidator {
 
   @Override
   public void validateMetadata(final ProductMetadata metadata) throws AccountBusinessException {

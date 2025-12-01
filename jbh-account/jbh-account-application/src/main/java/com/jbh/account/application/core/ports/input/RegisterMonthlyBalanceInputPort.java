@@ -8,12 +8,12 @@ import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceSe
 import com.jbh.account.application.core.services.monthlybalance.ReportedProfitStrategy;
 import com.jbh.account.application.core.services.monthlybalance.UnreportedProfitStrategy;
 import com.jbh.account.application.core.services.movements.AccountMovementApplicationService;
+import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.domain.entity.MonthlyBalanceDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.exceptions.JbhExceptionMessage;
 import com.jbh.account.domain.vo.AccountId;
 import com.jbh.account.domain.vo.AccountPK;
 import com.jbh.account.domain.vo.IncomeCategory;
@@ -127,10 +127,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
       throws AccountBusinessException {
     if (!periodToRegister.isBefore(YearMonth.from(runningDate))) {
       throw new AccountBusinessException(
-          "The monthly balance period is not in the past",
-          new JbhExceptionMessage(
-              "The monthly balance period is not in the past",
-              "El periodo de la cuenta no es en el pasado"));
+          BusinessApplicationExceptionType.MONTHLY_BALANCE_PERIOD_NOT_IN_PAST);
     }
   }
 
@@ -146,13 +143,8 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
 
       if (!periodToRegister.equals(lastOfficialReportPeriod.plusMonths(1))) {
         throw new AccountBusinessException(
-            "The monthly balance period is not consecutive. The last period was: "
-                + lastOfficialReportPeriod,
-            new JbhExceptionMessage(
-                "The monthly balance period is not consecutive. The last period was: "
-                    + lastOfficialReportPeriod,
-                "El periodo de la cuenta no es consecutivo. La última periodo fue: "
-                    + lastOfficialReportPeriod));
+            BusinessApplicationExceptionType.MONTHLY_BALANCE_NOT_CONSECUTIVE,
+            lastOfficialReportPeriod);
       }
     }
   }

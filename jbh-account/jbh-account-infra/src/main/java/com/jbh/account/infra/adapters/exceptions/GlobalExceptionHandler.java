@@ -40,8 +40,8 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
     final ApiResponse<Void> errorResponse =
         ApiResponse.error(
             errorMessage,
-            exception.getCustomMessage() != null
-                ? List.of(exception.getCustomMessage().toString())
+            exception.getBusinessExceptionType() != null
+                ? List.of(exception.getBusinessExceptionType().getMessage())
                 : null);
 
     LOG.warn("Business exception: {}", errorMessage);
