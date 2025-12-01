@@ -100,7 +100,7 @@ public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUs
       throws AccountBusinessException {
     if (toAccountDTO.isLoan()) {
       final BigDecimal movementAmount = movementCommandTo.totalAmount();
-      final BigDecimal pendingToPaid = toAccountDTO.metadata().getLoanPayoffAmountToday();
+      final BigDecimal pendingToPaid = toAccountDTO.metadata().getLoan().getPayoffAmountToday();
 
       if (movementAmount.compareTo(pendingToPaid) > 0) {
         throw new AccountBusinessException(

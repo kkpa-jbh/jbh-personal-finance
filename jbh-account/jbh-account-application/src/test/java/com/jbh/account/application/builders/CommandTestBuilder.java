@@ -87,8 +87,8 @@ public class CommandTestBuilder {
       final BigDecimal creditLimit,
       final Integer paymentDueDay) {
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.putCreditLimit(creditLimit);
-    metadata.putPaymentDueDay(paymentDueDay);
+    metadata.getCreditCard().putCreditLimit(creditLimit);
+    metadata.getCreditCard().putPaymentDueDay(paymentDueDay);
     return new CreateProductCommand(userId, name, ProductType.CREDIT_CARD, metadata);
   }
 
@@ -109,21 +109,21 @@ public class CommandTestBuilder {
 
   public static CreateProductCommand createMockLoanCommand(final UUID userId, final String name) {
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.putLoanPrincipalAmount(new BigDecimal("10000"));
-    metadata.putLoanTotalAmountPaid(new BigDecimal("2000"));
-    metadata.putLoanPayoffAmountToday(new BigDecimal("8500"));
+    metadata.getLoan().putPrincipalAmount(new BigDecimal("10000"));
+    metadata.getLoan().putTotalAmountPaid(new BigDecimal("2000"));
+    metadata.getLoan().putPayoffAmountToday(new BigDecimal("8500"));
     return new CreateProductCommand(userId, name, ProductType.LOAN, metadata);
   }
 
   public static CreateProductCommand createMockRealStateCommand(final UUID userId) {
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.putRealEstatePurchaseDate(LocalDate.now());
-    metadata.putRealEstatePurchasePrice(new BigDecimal("100000"));
-    metadata.putRealEstatePropertySize(new BigDecimal("100"));
-    metadata.putRealEstateFinancedAmount(new BigDecimal("80000"));
-    metadata.putRealEstateDownPaymentAmount(new BigDecimal("20000"));
-    metadata.putRealEstateDownPaymentPercentage(new BigDecimal("20"));
-    metadata.putRealEstateDownPaymentPaidToDate(new BigDecimal("0"));
+    metadata.getRealEstate().putPurchaseDate(LocalDate.now());
+    metadata.getRealEstate().putPurchasePrice(new BigDecimal("100000"));
+    metadata.getRealEstate().putPropertySize(new BigDecimal("100"));
+    metadata.getRealEstate().putFinancedAmount(new BigDecimal("80000"));
+    metadata.getRealEstate().putDownPaymentAmount(new BigDecimal("20000"));
+    metadata.getRealEstate().putDownPaymentPercentage(new BigDecimal("20"));
+    metadata.getRealEstate().putDownPaymentPaidToDate(new BigDecimal("0"));
     return new CreateProductCommand(
         userId, "Real State Account", ProductType.REAL_ESTATE_INVESTMENT, metadata);
   }
@@ -139,8 +139,8 @@ public class CommandTestBuilder {
   public static CreateProductCommand createInvestmentCommand(
       final UUID userId, final String name, final String brokerName) {
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.putBrokerName(brokerName);
-    metadata.putCommissionRate(new BigDecimal("1.2"));
+    metadata.getInvestment().putBrokerName(brokerName);
+    metadata.getInvestment().putCommissionRate(new BigDecimal("1.2"));
     return new CreateProductCommand(userId, name, ProductType.INVESTMENT, metadata);
   }
 

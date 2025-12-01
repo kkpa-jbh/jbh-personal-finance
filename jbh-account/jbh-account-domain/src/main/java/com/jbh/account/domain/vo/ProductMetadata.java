@@ -1,23 +1,44 @@
 package com.jbh.account.domain.vo;
 
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.account.domain.utils.JbhBooleanUtils;
 import com.jbh.account.domain.utils.JbhMoneyUtils;
+import com.jbh.account.domain.vo.metadata.CdtMetadata;
+import com.jbh.account.domain.vo.metadata.CommonMetadata;
+import com.jbh.account.domain.vo.metadata.CreditCardMetadata;
+import com.jbh.account.domain.vo.metadata.InvestmentMetadata;
+import com.jbh.account.domain.vo.metadata.LoanMetadata;
+import com.jbh.account.domain.vo.metadata.RealEstateMetadata;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.EnumMap;
 import java.util.Map;
 
 /**
- * Value Object that encapsulates account metadata and provides type-safe access to metadata fields.
- * This VO can be used across all layers (domain, application, infrastructure) in the hexagonal
- * architecture without breaking layer isolation.
+ * Value Object that encapsulates product metadata and provides type-safe access to metadata
+ * fields. This VO can be used across all layers (domain, application, infrastructure) in the
+ * hexagonal architecture without breaking layer isolation.
+ *
+ * <p>This class uses composition to organize metadata by product type, reducing the number of
+ * public methods and improving cohesion. Access type-specific metadata through fluent accessors:
+ *
+ * <ul>
+ *   <li>metadata.getCommon() - for common metadata across all product types
+ *   <li>metadata.getRealEstate() - for real estate investment metadata
+ *   <li>metadata.getLoan() - for loan metadata
+ *   <li>metadata.getCreditCard() - for credit card metadata
+ *   <li>metadata.getInvestment() - for investment metadata
+ *   <li>metadata.getCdt() - for CDT metadata
+ * </ul>
  */
 public final class ProductMetadata {
 
   private final Map<ProductMetadataKey, Object> data;
+
+  // Lazy-initialized type-specific metadata
+  private CommonMetadata common;
+  private RealEstateMetadata realEstate;
+  private LoanMetadata loan;
+  private CreditCardMetadata creditCard;
+  private InvestmentMetadata investment;
+  private CdtMetadata cdt;
 
   private ProductMetadata(final Map<ProductMetadataKey, Object> data) {
     this.data = syncTypes(data);
@@ -43,9 +64,9 @@ public final class ProductMetadata {
   }
 
   /**
-   * Creates an empty AccountMetadata instance.
+   * Creates an empty ProductMetadata instance.
    *
-   * @return AccountMetadata with no data
+   * @return ProductMetadata with no data
    */
   public static ProductMetadata empty() {
     return new ProductMetadata(new EnumMap<>(ProductMetadataKey.class));
@@ -58,30 +79,90 @@ public final class ProductMetadata {
    * @param data Map containing metadata
    * @return ProductMetadata instance
    */
-  // FIXME: Consider removing this method to enforce immutability
   public static ProductMetadata fromMap(final Map<ProductMetadataKey, Object> data) {
     return new ProductMetadata(data);
   }
 
-  // FIXME: Consider removing this method to enforce immutability
   /**
-   * Returns a defensive copy of the underlying metadata map with String keys. Used for persistence
-   * and serialization.
+   * Returns a defensive copy of the underlying metadata map. Used for persistence and
+   * serialization.
    *
-   * @return A new HashMap containing all metadata entries with String keys
+   * @return A new EnumMap containing all metadata entries
    */
   public Map<ProductMetadataKey, Object> asMap() {
     return new EnumMap<>(data);
   }
 
   /**
-   * Checks if the account is fully withdrawn based on metadata.
+   * Gets common metadata shared across all product types.
    *
-   * @return true if FULLY_WITHDRAWN key exists and is true
+   * @return CommonMetadata instance
    */
-  public boolean isFullyWithdrawn() {
-    return hasKey(ProductMetadataKey.IS_FULLY_WITHDRAWN)
-        && JbhBooleanUtils.isTrue(get(ProductMetadataKey.IS_FULLY_WITHDRAWN));
+  public CommonMetadata getCommon() {
+    if (common == null) {
+      common = new CommonMetadata(data);
+    }
+    return common;
+  }
+
+  /**
+   * Gets real estate investment specific metadata.
+   *
+   * @return RealEstateMetadata instance
+   */
+  public RealEstateMetadata getRealEstate() {
+    if (realEstate == null) {
+      realEstate = new RealEstateMetadata(data);
+    }
+    return realEstate;
+  }
+
+  /**
+   * Gets loan specific metadata.
+   *
+   * @return LoanMetadata instance
+   */
+  public LoanMetadata getLoan() {
+    if (loan == null) {
+      loan = new LoanMetadata(data);
+    }
+    return loan;
+  }
+
+  /**
+   * Gets credit card specific metadata.
+   *
+   * @return CreditCardMetadata instance
+   */
+  public CreditCardMetadata getCreditCard() {
+    if (creditCard == null) {
+      creditCard = new CreditCardMetadata(data);
+    }
+    return creditCard;
+  }
+
+  /**
+   * Gets investment specific metadata.
+   *
+   * @return InvestmentMetadata instance
+   */
+  public InvestmentMetadata getInvestment() {
+    if (investment == null) {
+      investment = new InvestmentMetadata(data);
+    }
+    return investment;
+  }
+
+  /**
+   * Gets CDT (Certificate of Deposit) specific metadata.
+   *
+   * @return CdtMetadata instance
+   */
+  public CdtMetadata getCdt() {
+    if (cdt == null) {
+      cdt = new CdtMetadata(data);
+    }
+    return cdt;
   }
 
   /**
@@ -92,123 +173,6 @@ public final class ProductMetadata {
    */
   public boolean hasKey(final ProductMetadataKey key) {
     return data.containsKey(key);
-  }
-
-  /**
-   * Retrieves the value for a specific metadata key.
-   *
-   * @param key The metadata key
-   * @return The value associated with the key, or null if not present
-   */
-  private Object get(final ProductMetadataKey key) {
-    return data.get(key);
-  }
-
-  // ========== Typed Getters for Fully Withdrawn Data ==========
-
-  /**
-   * Gets the date when the account was fully withdrawn.
-   *
-   * @return LocalDate or null if not set
-   */
-  public LocalDate getFullyWithdrawnDate() {
-    return (LocalDate) get(ProductMetadataKey.FULLY_WITHDRAWN_DATE);
-  }
-
-  /**
-   * Gets the timestamp when the account was marked as fully withdrawn.
-   *
-   * @return LocalDateTime or null if not set
-   */
-  public LocalDateTime getFullyWithdrawnAt() {
-    return (LocalDateTime) get(ProductMetadataKey.FULLY_WITHDRAWN_AT);
-  }
-
-  // ========== Typed Getters for Credit Card Metadata ==========
-
-  /**
-   * Gets the credit limit for credit card accounts.
-   *
-   * @return BigDecimal credit limit or null if not set
-   */
-  public BigDecimal getCreditLimit() throws AccountBusinessException {
-    final Object creditLimit = get(ProductMetadataKey.CREDIT_LIMIT);
-    if (!(creditLimit instanceof BigDecimal)) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.INVALID_CREDIT_LIMIT_TYPE);
-    }
-
-    return (BigDecimal) creditLimit;
-  }
-
-  /**
-   * Gets the payment due day for credit card accounts.
-   *
-   * @return Integer day of month or null if not set
-   */
-  public Integer getPaymentDueDay() throws AccountBusinessException {
-    final Object dueDay = get(ProductMetadataKey.PAYMENT_DUE_DAY);
-    if (!(dueDay instanceof Integer)) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.INVALID_PAYMENT_DUE_DAY_TYPE);
-    }
-    return (Integer) dueDay;
-  }
-
-  // ========== Typed Getters for Investment Metadata ==========
-
-  /**
-   * Gets the broker name for investment accounts.
-   *
-   * @return String broker name or null if not set
-   */
-  public String getBrokerName() {
-    return (String) get(ProductMetadataKey.BROKER_NAME);
-  }
-
-  /**
-   * Gets the commission rate for investment accounts.
-   *
-   * @return BigDecimal commission rate or null if not set
-   */
-  public BigDecimal getCommissionRate() {
-    return getDecimal(ProductMetadataKey.COMMISSION_RATE);
-  }
-
-  // ========== Typed Getters for CDT Metadata ==========
-
-  private BigDecimal getDecimal(final ProductMetadataKey key) {
-    final Object result = get(key);
-    return result instanceof BigDecimal ? (BigDecimal) result : BigDecimal.ZERO;
-  }
-
-  /**
-   * Gets the maturity date for CDT accounts.
-   *
-   * @return LocalDate maturity date or null if not set
-   */
-  public LocalDate getMaturityDate() throws AccountBusinessException {
-    final Object maturityDate = get(ProductMetadataKey.MATURITY_DATE);
-    if (!(maturityDate instanceof LocalDate)) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.INVALID_MATURITY_DATE_TYPE);
-    }
-    return (LocalDate) maturityDate;
-  }
-
-  /**
-   * Gets the opening date for CDT accounts.
-   *
-   * @return LocalDate opening date or null if not set
-   */
-  public LocalDate getOpeningDate() {
-    return (LocalDate) get(ProductMetadataKey.OPENING_DATE);
-  }
-
-  /**
-   * Gets the term length in days for CDT accounts.
-   *
-   * @return Integer term length or null if not set
-   */
-  public Integer getTermLengthInDays() {
-    return (Integer) get(ProductMetadataKey.TERM_LENGTH_IN_DAYS);
   }
 
   /**
@@ -229,146 +193,12 @@ public final class ProductMetadata {
     return data.isEmpty();
   }
 
-  public void putFullyWithdrawn(final LocalDate movementDate) {
-    put(ProductMetadataKey.FULLY_WITHDRAWN_DATE, movementDate);
-    put(ProductMetadataKey.FULLY_WITHDRAWN_AT, LocalDateTime.now());
-    put(ProductMetadataKey.IS_FULLY_WITHDRAWN, true);
-  }
-
   /**
-   * Adds or updates a metadata entry.
+   * Returns a defensive copy of the underlying metadata map.
    *
-   * @param key The metadata key
-   * @param value The value to store
+   * @return A new EnumMap containing all metadata entries
    */
-  private void put(final ProductMetadataKey key, final Object value) {
-    if (value instanceof BigDecimal) {
-      data.put(key, JbhMoneyUtils.withJBHDecimals((BigDecimal) value));
-    }
-    data.put(key, value);
-  }
-
-  public void putInitialBalance(final BigDecimal initialBalance) {
-    put(ProductMetadataKey.INITIAL_BALANCE, initialBalance);
-  }
-
-  // ========== PUT Methods for Credit Card Metadata ==========
-
-  public BigDecimal getInitialBalance() {
-    return getDecimal(ProductMetadataKey.INITIAL_BALANCE);
-  }
-
-  public void putCreditLimit(final BigDecimal creditLimit) {
-    put(ProductMetadataKey.CREDIT_LIMIT, creditLimit);
-  }
-
-  // ========== PUT Methods for Investment Metadata ==========
-
-  public void putPaymentDueDay(final Integer paymentDueDay) {
-    put(ProductMetadataKey.PAYMENT_DUE_DAY, paymentDueDay);
-  }
-
-  public void putBrokerName(final String brokerName) {
-    put(ProductMetadataKey.BROKER_NAME, brokerName);
-  }
-
-  // ========== PUT Methods for CDT Metadata ==========
-
-  public void putCommissionRate(final BigDecimal commissionRate) {
-    put(ProductMetadataKey.COMMISSION_RATE, commissionRate);
-  }
-
-  public void putMaturityDate(final LocalDate maturityDate) {
-    put(ProductMetadataKey.MATURITY_DATE, maturityDate);
-  }
-
-  public void putOpeningDate(final LocalDate openingDate) {
-    put(ProductMetadataKey.OPENING_DATE, openingDate);
-  }
-
-  // ========== PUT Methods for Fully Withdrawn System Metadata ==========
-
-  public void putTermLengthInDays(final Integer termLengthInDays) {
-    put(ProductMetadataKey.TERM_LENGTH_IN_DAYS, termLengthInDays);
-  }
-
-  // ========== PUT Methods for Loan Metadata ==========
-
-  public void putIsFullyWithdrawn(final Boolean isFullyWithdrawn) {
-    put(ProductMetadataKey.IS_FULLY_WITHDRAWN, isFullyWithdrawn);
-  }
-
-  public void putLoanPrincipalAmount(final BigDecimal loanPrincipalAmount) {
-    put(ProductMetadataKey.LOAN_PRINCIPAL_AMOUNT, loanPrincipalAmount);
-  }
-
-  public void putLoanInterestRate(final BigDecimal loanInterestRate) {
-    put(ProductMetadataKey.LOAN_INTEREST_RATE, loanInterestRate);
-  }
-
-  public void putLoanTotalAmountPaid(final BigDecimal loanTotalAmountPaid) {
-    put(ProductMetadataKey.LOAN_TOTAL_AMOUNT_PAID, loanTotalAmountPaid);
-  }
-
-  // ========== Factory Method for Infrastructure Layer ==========
-
-  public void putLoanPayoffAmountToday(final BigDecimal loanPayoffAmountToday) {
-    put(ProductMetadataKey.LOAN_PAYOFF_AMOUNT_TODAY, loanPayoffAmountToday);
-  }
-
-  public BigDecimal getLoanPrincipalAmount() {
-    return getDecimal(ProductMetadataKey.LOAN_PRINCIPAL_AMOUNT);
-  }
-
-  public BigDecimal getLoanPayoffAmountToday() {
-    return getDecimal(ProductMetadataKey.LOAN_PAYOFF_AMOUNT_TODAY);
-  }
-
-  public BigDecimal getLoanTotalAmountPaid() {
-    return getDecimal(ProductMetadataKey.LOAN_TOTAL_AMOUNT_PAID);
-  }
-
-  public void putRealEstatePurchaseDate(final LocalDate purchaseDate) {
-    put(ProductMetadataKey.REAL_ESTATE_PURCHASE_DATE, purchaseDate);
-  }
-
-  public void putRealEstatePurchasePrice(final BigDecimal purchasePrice) {
-    put(ProductMetadataKey.REAL_ESTATE_PURCHASE_PRICE, purchasePrice);
-  }
-
-  public void putRealEstatePropertySize(final BigDecimal propertySize) {
-    put(ProductMetadataKey.REAL_ESTATE_PROPERTY_SIZE, propertySize);
-  }
-
-  public void putRealEstateFinancedAmount(final BigDecimal financedAmount) {
-    put(ProductMetadataKey.REAL_ESTATE_FINANCED_AMOUNT, financedAmount);
-  }
-
-  public void putRealEstateDownPaymentAmount(final BigDecimal downPaymentAmount) {
-    put(ProductMetadataKey.REAL_ESTATE_DOWN_PAYMENT_AMOUNT, downPaymentAmount);
-  }
-
-  public void putRealEstateDownPaymentPercentage(final BigDecimal downPaymentPercentage) {
-    put(ProductMetadataKey.REAL_ESTATE_DOWN_PAYMENT_PERCENTAGE, downPaymentPercentage);
-  }
-
-  public void putRealEstateDownPaymentPaidToDate(final BigDecimal downPaymentPaidToDate) {
-    put(ProductMetadataKey.REAL_ESTATE_DOWN_PAYMENT_PAID_TO_DATE, downPaymentPaidToDate);
-  }
-
   public Map<ProductMetadataKey, Object> getData() {
     return new EnumMap<>(data);
-  }
-
-  public BigDecimal getRealEstatePurchasePrice() {
-    return getDecimal(ProductMetadataKey.REAL_ESTATE_PURCHASE_PRICE);
-  }
-
-  public BigDecimal getRealEstateDownPaymentPercentage() {
-    return getDecimal(ProductMetadataKey.REAL_ESTATE_DOWN_PAYMENT_PERCENTAGE);
-  }
-
-  public BigDecimal getRealEstateDownPaymentAmount() {
-    return getDecimal(ProductMetadataKey.REAL_ESTATE_DOWN_PAYMENT_AMOUNT);
   }
 }

@@ -101,7 +101,7 @@ class InvestmentAccountMetricsCalculatorTest {
     final BigDecimal movementAmount = new BigDecimal("-10000.00");
 
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.putIsFullyWithdrawn(true);
+    metadata.getCommon().putIsFullyWithdrawn(true);
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createInvestmentProductWithBalance(
@@ -124,7 +124,7 @@ class InvestmentAccountMetricsCalculatorTest {
     final BigDecimal movementAmount = new BigDecimal("-10100.00");
 
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.putIsFullyWithdrawn(true);
+    metadata.getCommon().putIsFullyWithdrawn(true);
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createInvestmentProductWithBalance(
@@ -167,7 +167,7 @@ class InvestmentAccountMetricsCalculatorTest {
     final BigDecimal movementAmount = new BigDecimal("-4900.00");
 
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.putIsFullyWithdrawn(true);
+    metadata.getCommon().putIsFullyWithdrawn(true);
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createInvestmentProductWithBalance(
@@ -219,7 +219,7 @@ class InvestmentAccountMetricsCalculatorTest {
     assertNotNull(result);
 
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.putIsFullyWithdrawn(true);
+    metadata.getCommon().putIsFullyWithdrawn(true);
     accountDomain =
         AccountDomainTestBuilder.createInvestmentProductWithBalance(
             AccountId.generate(), userId, movementAmount, currentBalance, metadata);

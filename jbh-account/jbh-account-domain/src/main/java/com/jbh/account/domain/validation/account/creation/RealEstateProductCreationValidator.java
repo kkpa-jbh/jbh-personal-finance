@@ -13,6 +13,7 @@ import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.util.List;
 
+@SuppressWarnings("PMD.LawOfDemeter")
 public class RealEstateProductCreationValidator extends BaseAccountCreationValidator
     implements ProductCreationValidator {
 
@@ -30,13 +31,14 @@ public class RealEstateProductCreationValidator extends BaseAccountCreationValid
     }
 
     // Validate Percentage
-    JbhMoneyUtils.validatePercentage(metadata.getRealEstateDownPaymentPercentage());
+    final var realEstate = metadata.getRealEstate();
+    JbhMoneyUtils.validatePercentage(realEstate.getDownPaymentPercentage());
 
     if (!metadata.hasKey(REAL_ESTATE_DOWN_PAYMENT_AMOUNT)) {
-      final BigDecimal purchasePrice = metadata.getRealEstatePurchasePrice();
-      final BigDecimal downPaymentPercentage = metadata.getRealEstateDownPaymentPercentage();
+      final BigDecimal purchasePrice = realEstate.getPurchasePrice();
+      final BigDecimal downPaymentPercentage = realEstate.getDownPaymentPercentage();
       final BigDecimal downPaymentAmount = purchasePrice.multiply(downPaymentPercentage);
-      metadata.putRealEstateDownPaymentAmount(JbhMoneyUtils.withJBHDecimals(downPaymentAmount));
+      realEstate.putDownPaymentAmount(JbhMoneyUtils.withJBHDecimals(downPaymentAmount));
     }
   }
 

@@ -29,7 +29,7 @@ public class InvestmentAccountCreationValidator extends BaseAccountCreationValid
       throw new AccountBusinessException(BusinessDomainExceptionType.MISSING_BROKER_NAME);
     }
 
-    final String brokerName = metadata.getBrokerName();
+    final String brokerName = metadata.getInvestment().getBrokerName();
     if (brokerName == null || brokerName.isBlank()) {
       throw new AccountBusinessException(BusinessDomainExceptionType.MISSING_BROKER_NAME);
     }

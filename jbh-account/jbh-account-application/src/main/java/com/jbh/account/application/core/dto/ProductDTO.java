@@ -49,7 +49,7 @@ public record ProductDTO(
   }
 
   public boolean isFullyWithdrawn() {
-    return metadata.isFullyWithdrawn();
+    return metadata.getCommon().isFullyWithdrawn();
   }
 
   public ProductDomain toDomain() {

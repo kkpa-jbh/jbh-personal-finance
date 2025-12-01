@@ -83,7 +83,7 @@ public class RegisterCDTMovementITTest {
   void createAccounts() throws AccountBusinessException {
     final LocalDate mvmDate = period.atDay(1);
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.putMaturityDate(period.plusMonths(1).atDay(1));
+    metadata.getCdt().putMaturityDate(period.plusMonths(1).atDay(1));
     cdtAccount =
         createAccountUseCase.execute(CommandTestBuilder.createCDTCommand(userId, name, metadata));
     assertNotNull(cdtAccount);
@@ -156,10 +156,10 @@ public class RegisterCDTMovementITTest {
             .isActive(false)
             .build();
     assertAccount(expectedCDTAccount, updatedCDTAccount.get());
-    assertTrue(updatedCDTAccount.get().metadata().isFullyWithdrawn(), "Is not Fully withdrawn");
+    assertTrue(updatedCDTAccount.get().metadata().getCommon().isFullyWithdrawn(), "Is not Fully withdrawn");
     assertEquals(
         mvmDate,
-        updatedCDTAccount.get().metadata().getFullyWithdrawnDate(),
+        updatedCDTAccount.get().metadata().getCommon().getFullyWithdrawnDate(),
         "There is not fully withdrawn date");
     UseCaseBuilder.delayTests();
 

@@ -279,13 +279,13 @@ public class RegisterInvesmentMovementITTest {
   @Test
   @Order(99)
   void shouldWithDrawalAllMoneySuccessfully() throws AccountBusinessException {
-
+    final LocalDate withdrawalDate = YearMonth.of(2025, 11).atDay(1);
     final ProductDTO account = inMemoryAccountRepo.findByAccountId(acciCuentaId).orElse(null);
     final BigDecimal currentBalance = account.currentBalance();
 
     final AddMovementCommand withdrawal =
         new AddMovementCommand(
-            LocalDate.now(),
+            withdrawalDate,
             currentBalance,
             BigDecimal.ZERO,
             WITHDRAWAL,
@@ -300,7 +300,7 @@ public class RegisterInvesmentMovementITTest {
         createLiquidateCommandToExternal(
             new ExternalAccountInfoVO("External Account"),
             currentBalance.add(latestEarning),
-            LocalDate.now());
+            withdrawalDate);
 
     final LiquidationResultDTO result =
         liquidateAccountUseCase.liquidateAccount(userId, acciCuentaId, liquidateCommand);
@@ -319,7 +319,9 @@ public class RegisterInvesmentMovementITTest {
     assertTrue(updatedAccount.movementBalance().compareTo(BigDecimal.ZERO) < 0);
 
     final MonthlyBalanceDTO lastMonthBalance =
-        monthlyBalanceService.findAllByAccountIdUntilNow(acciCuentaId).getLast();
+        monthlyBalanceService
+            .findByAccountIdAndPeriod(acciCuentaId, YearMonth.of(2025, 11))
+            .orElse(null);
     assertNotNull(lastMonthBalance);
     assertEquals(latestEarning, lastMonthBalance.monthlyNetProfit());
     assertEquals(JBH_ZERO, lastMonthBalance.netGrowthRate());

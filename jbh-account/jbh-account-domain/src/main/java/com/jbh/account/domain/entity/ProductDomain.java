@@ -192,7 +192,7 @@ public class ProductDomain {
 
     if (hasValidBalance()) {
       if (checkIfFullyWithdrawn(currentBalance, movementAmount)) {
-        metadata.putFullyWithdrawn(newAccountMovement.getMovementDate());
+        metadata.getCommon().putFullyWithdrawn(newAccountMovement.getMovementDate());
       }
     }
 
@@ -215,7 +215,7 @@ public class ProductDomain {
   }
 
   private void putInitialBalanceMetadata(final BigDecimal initialBalance) {
-    metadata.putInitialBalance(initialBalance);
+    metadata.getCommon().putInitialBalance(initialBalance);
   }
 
   private boolean hasValidBalance() {
@@ -258,7 +258,7 @@ public class ProductDomain {
   }
 
   public boolean isFullyWithdrawn() {
-    return metadata.isFullyWithdrawn();
+    return metadata.getCommon().isFullyWithdrawn();
   }
 
   public boolean hasMetadata(final ProductMetadataKey key) {

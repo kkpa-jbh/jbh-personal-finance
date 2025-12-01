@@ -77,8 +77,8 @@ public class RegisterTCMovementITTest {
   void createAccount() throws AccountBusinessException {
     final LocalDate mvmDate = period.atDay(1);
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.putCreditLimit(CREDIT_LIMIT);
-    metadata.putPaymentDueDay(15);
+    metadata.getCreditCard().putCreditLimit(CREDIT_LIMIT);
+    metadata.getCreditCard().putPaymentDueDay(15);
     creditCardAccount =
         createAccountUseCase.execute(
             CommandTestBuilder.createCreditCardCommand(userId, name, metadata));

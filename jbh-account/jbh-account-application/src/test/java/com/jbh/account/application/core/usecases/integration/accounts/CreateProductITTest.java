@@ -226,24 +226,24 @@ public class CreateProductITTest {
         () -> createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata)));
 
     final var expected = new BigDecimal("100.00");
-    metadata.putLoanPrincipalAmount(expected);
+    metadata.getLoan().putPrincipalAmount(expected);
     assertThrows(
         AccountBusinessException.class,
         () -> createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata)));
 
-    metadata.putLoanTotalAmountPaid(expected);
+    metadata.getLoan().putTotalAmountPaid(expected);
     assertThrows(
         AccountBusinessException.class,
         () -> createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata)));
 
-    metadata.putLoanPayoffAmountToday(expected);
+    metadata.getLoan().putPayoffAmountToday(expected);
     final ProductDTO createdLoan =
         createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata));
 
     assertNotNull(createdLoan);
-    assertEquals(expected, createdLoan.metadata().getLoanPrincipalAmount());
-    assertEquals(expected, createdLoan.metadata().getLoanTotalAmountPaid());
-    assertEquals(expected, createdLoan.metadata().getLoanPayoffAmountToday());
+    assertEquals(expected, createdLoan.metadata().getLoan().getPrincipalAmount());
+    assertEquals(expected, createdLoan.metadata().getLoan().getTotalAmountPaid());
+    assertEquals(expected, createdLoan.metadata().getLoan().getPayoffAmountToday());
   }
 
   @Test
@@ -254,23 +254,23 @@ public class CreateProductITTest {
     assertNotNull(error);
 
     // Adding PURCHASE_DATE
-    metadata.putRealEstatePurchaseDate(LocalDate.now());
+    metadata.getRealEstate().putPurchaseDate(LocalDate.now());
     error = assertThrows(AccountBusinessException.class, () -> createRealEstateProduct(metadata));
 
     // Adding REAL_ESTATE_PURCHASE_PRICE
-    metadata.putRealEstatePurchasePrice(new BigDecimal(1000));
+    metadata.getRealEstate().putPurchasePrice(new BigDecimal(1000));
     error = assertThrows(AccountBusinessException.class, () -> createRealEstateProduct(metadata));
 
     // Adding REAL_ESTATE_PROPERTY_SIZE
-    metadata.putRealEstatePropertySize(new BigDecimal("100.00"));
+    metadata.getRealEstate().putPropertySize(new BigDecimal("100.00"));
     error = assertThrows(AccountBusinessException.class, () -> createRealEstateProduct(metadata));
 
     // Adding REAL_ESTATE_FINANCED_AMOUNT
-    metadata.putRealEstateFinancedAmount(BigDecimal.ONE);
+    metadata.getRealEstate().putFinancedAmount(BigDecimal.ONE);
     error = assertThrows(AccountBusinessException.class, () -> createRealEstateProduct(metadata));
 
     // Adding REAL_ESTATE_DOWN_PAYMENT_PERCENTAGE
-    metadata.putRealEstateDownPaymentPercentage(new BigDecimal("171.00"));
+    metadata.getRealEstate().putDownPaymentPercentage(new BigDecimal("171.00"));
     error = assertThrows(AccountBusinessException.class, () -> createRealEstateProduct(metadata));
 
     assertNotNull(error);
@@ -287,25 +287,25 @@ public class CreateProductITTest {
     final ProductMetadata metadata = ProductMetadata.empty();
 
     // Adding PURCHASE_DATE
-    metadata.putRealEstatePurchaseDate(LocalDate.now());
+    metadata.getRealEstate().putPurchaseDate(LocalDate.now());
 
     // Adding REAL_ESTATE_PURCHASE_PRICE
-    metadata.putRealEstatePurchasePrice(new BigDecimal(1000));
+    metadata.getRealEstate().putPurchasePrice(new BigDecimal(1000));
 
     // Adding REAL_ESTATE_PROPERTY_SIZE
-    metadata.putRealEstatePropertySize(new BigDecimal("100.00"));
+    metadata.getRealEstate().putPropertySize(new BigDecimal("100.00"));
 
     // Adding REAL_ESTATE_FINANCED_AMOUNT
-    metadata.putRealEstateFinancedAmount(BigDecimal.ONE);
+    metadata.getRealEstate().putFinancedAmount(BigDecimal.ONE);
 
     // Adding REAL_ESTATE_DOWN_PAYMENT_PERCENTAGE
-    metadata.putRealEstateDownPaymentPercentage(new BigDecimal("30.00"));
+    metadata.getRealEstate().putDownPaymentPercentage(new BigDecimal("30.00"));
 
     // Adding REAL_ESTATE_DOWN_PAYMENT_PAID_TO_DATE
-    metadata.putRealEstateDownPaymentPaidToDate(BigDecimal.ONE);
+    metadata.getRealEstate().putDownPaymentPaidToDate(BigDecimal.ONE);
 
     final ProductDTO realEstateAccount = createRealEstateProduct(metadata);
     assertNotNull(realEstateAccount);
-    assertEquals(metadata.getRealEstateDownPaymentAmount(), new BigDecimal("30000.00"));
+    assertEquals(metadata.getRealEstate().getDownPaymentAmount(), new BigDecimal("30000.00"));
   }
 }
