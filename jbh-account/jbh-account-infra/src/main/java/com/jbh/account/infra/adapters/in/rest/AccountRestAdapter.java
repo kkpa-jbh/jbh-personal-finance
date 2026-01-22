@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"PMD.UnnecessaryAnnotationValueElement", "PMD.CallSuperInConstructor"})
 @RequestScoped
-@Path(AccountApiRoutes.ACCOUNTS_API_PATH)
+@Path(AccountApiRoutes.PRODUCTS_API_PATH)
 @Tag(name = "Account Operations", description = "Account management operations")
 public class AccountRestAdapter extends BaseRestAdapter {
 
@@ -108,7 +108,7 @@ public class AccountRestAdapter extends BaseRestAdapter {
   }
 
   @POST
-  @Path(AccountApiRoutes.ACCOUNTS_MOVEMENTS_API_PATH + "/{accountId}")
+  @Path(AccountApiRoutes.PRODUCTS_MOVEMENTS_API_PATH + "/{accountId}")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(
@@ -169,7 +169,7 @@ public class AccountRestAdapter extends BaseRestAdapter {
   }
 
   @POST
-  @Path(AccountApiRoutes.ACCOUNTS_MONTHLY_BALANCES_API_PATH + "/{accountId}")
+  @Path(AccountApiRoutes.PRODUCTS_MONTHLY_BALANCES_API_PATH + "/{accountId}")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(summary = "Find monthly balances for an account")

@@ -10,7 +10,7 @@ public class JbhStringUtilsTest {
 
   @Test
   public void shouldBuildJsonMessageWithBasicStrings() {
-    final String result = JbhStringUtils.buildJsonMessage("Hello", "Hola");
+    final String result = buildJsonMessage("Hello", "Hola");
 
     final String expected =
         """
@@ -26,9 +26,13 @@ public class JbhStringUtilsTest {
     assertFalse(JbhBooleanUtils.isTrue(null));
   }
 
+  private String buildJsonMessage(String en, String es) {
+    return JbhStringUtils.buildJsonMessage(en, es);
+  }
+
   @Test
   public void shouldBuildJsonMessageWithEmptyStrings() {
-    final String result = JbhStringUtils.buildJsonMessage("", "");
+    final String result = buildJsonMessage("", "");
 
     final String expected =
         """
@@ -43,7 +47,7 @@ public class JbhStringUtilsTest {
 
   @Test
   public void shouldEscapeQuotesInJsonMessage() {
-    final String result = JbhStringUtils.buildJsonMessage("Say \"Hello\"", "Diga \"Hola\"");
+    final String result = buildJsonMessage("Say \"Hello\"", "Diga \"Hola\"");
 
     final String expected =
         """
@@ -58,7 +62,7 @@ public class JbhStringUtilsTest {
 
   @Test
   public void shouldEscapeBackslashesInJsonMessage() {
-    final String result = JbhStringUtils.buildJsonMessage("Path\\to\\file", "Ruta\\al\\archivo");
+    final String result = buildJsonMessage("Path\\to\\file", "Ruta\\al\\archivo");
 
     final String expected =
         """
@@ -73,8 +77,7 @@ public class JbhStringUtilsTest {
 
   @Test
   public void shouldEscapeBothQuotesAndBackslashesInJsonMessage() {
-    final String result =
-        JbhStringUtils.buildJsonMessage("Path\\to\\\"file\"", "Ruta\\al\\\"archivo\"");
+    final String result = buildJsonMessage("Path\\to\\\"file\"", "Ruta\\al\\\"archivo\"");
 
     final String expected =
         """
@@ -89,7 +92,7 @@ public class JbhStringUtilsTest {
 
   @Test
   public void shouldHandleSpecialCharactersInJsonMessage() {
-    final String result = JbhStringUtils.buildJsonMessage("Line 1\nLine 2", "Línea 1\nLínea 2");
+    final String result = buildJsonMessage("Line 1\nLine 2", "Línea 1\nLínea 2");
 
     final String expected =
         """
@@ -109,7 +112,7 @@ public class JbhStringUtilsTest {
     final String longSpanish =
         "Este es un mensaje muy largo en español que contiene múltiples palabras y debe ser formateado correctamente en JSON";
 
-    final String result = JbhStringUtils.buildJsonMessage(longEnglish, longSpanish);
+    final String result = buildJsonMessage(longEnglish, longSpanish);
 
     final String expected =
         """

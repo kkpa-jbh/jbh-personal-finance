@@ -6,11 +6,13 @@ import com.jbh.account.application.core.ports.input.AddMovementInputPort;
 import com.jbh.account.application.core.ports.input.AddMovementsUploadedFileInputPort;
 import com.jbh.account.application.core.ports.input.CreateAccountInputPort;
 import com.jbh.account.application.core.ports.input.FindMonthlyBalanceInputPort;
+import com.jbh.account.application.core.ports.input.GetProductMetadataConfigInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.account.application.core.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.account.application.core.services.account.AccountService;
+import com.jbh.account.application.core.services.metadata.ProductMetadataConfigRegistry;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
@@ -19,6 +21,7 @@ import com.jbh.account.application.core.services.movements.AccountMovementApplic
 import com.jbh.account.application.core.services.movements.AccountMovementService;
 import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
+import com.jbh.account.application.core.usecases.GetProductMetadataConfigUseCase;
 import com.jbh.account.application.movements.ports.output.AccountMovementQueryRepository;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import io.quarkus.runtime.annotations.RegisterForReflection;
@@ -107,5 +110,17 @@ public class AccountUseCasesCDIConfig {
   @ApplicationScoped
   public FindMonthlyBalanceUseCase findMonthlyBalanceUseCase() {
     return new FindMonthlyBalanceInputPort(monthlyBalanceService(), accountService());
+  }
+
+  @Produces
+  @ApplicationScoped
+  public ProductMetadataConfigRegistry productMetadataConfigRegistry() {
+    return new ProductMetadataConfigRegistry();
+  }
+
+  @Produces
+  @ApplicationScoped
+  public GetProductMetadataConfigUseCase getProductMetadataConfigUseCase() {
+    return new GetProductMetadataConfigInputPort(productMetadataConfigRegistry());
   }
 }

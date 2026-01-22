@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"PMD.UnnecessaryAnnotationValueElement", "PMD.CallSuperInConstructor"})
 @RequestScoped
-@Path(AccountApiRoutes.ACCOUNTS_API_PATH)
+@Path(AccountApiRoutes.PRODUCTS_API_PATH)
 @Tag(name = "Upload movements to an account", description = "Register multiple movements")
 public class AccountUploadFileRestAdapter extends BaseRestAdapter {
 
