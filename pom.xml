@@ -45,6 +45,13 @@
           <version>${jandex-plugin.version}</version>
         </plugin>
 
+        <!-- Quarkus Maven Plugin -->
+        <plugin>
+          <groupId>io.quarkus.platform</groupId>
+          <artifactId>quarkus-maven-plugin</artifactId>
+          <version>${quarkus.version}</version>
+        </plugin>
+
         <!-- PMD Static Code Analysis -->
         <plugin>
           <artifactId>maven-pmd-plugin</artifactId>

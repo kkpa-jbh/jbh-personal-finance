@@ -14,6 +14,7 @@ NC = \033[0m # No Color
 
 .PHONY: help account-help notification-help
 .PHONY: create-all-schemas drop-all-schemas recreate-all-schemas check-all-connections
+.PHONY: export-all-schemas export-account-schema export-notification-schema
 .PHONY: account-create-schema account-drop-schema account-recreate-schema account-check-connection
 .PHONY: notification-create-schema notification-drop-schema notification-recreate-schema notification-check-connection
 
@@ -92,3 +93,16 @@ notification-recreate-schema: ## Recreate notification module schema
 
 notification-check-connection: ## Test notification database connection
 	@cd $(NOTIFICATION_DIR) && $(MAKE) -f Notification.mk check-connection
+
+# Schema export commands
+export-all-schemas: ## Export all database schemas to docs/database-schemas
+	@echo "${GREEN}Exporting all database schemas...${NC}"
+	@./scripts/export-schema.sh all
+
+export-account-schema: ## Export account schema to docs/database-schemas
+	@echo "${GREEN}Exporting account schema...${NC}"
+	@./scripts/export-schema.sh acctmgmt
+
+export-notification-schema: ## Export notification schema to docs/database-schemas
+	@echo "${GREEN}Exporting notification schema...${NC}"
+	@./scripts/export-schema.sh notification
