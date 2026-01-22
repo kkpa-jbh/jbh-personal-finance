@@ -23,7 +23,7 @@ import com.jbh.account.application.core.services.movements.AccountMovementServic
 import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.AddTransferJbhAccountsUseCase;
-import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.account.application.core.usecases.LiquidateAccountUseCase;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
@@ -59,7 +59,7 @@ public class UseCaseBuilder {
 
   // Use Cases
 
-  public static CreateAccountUseCase buildCreateAccountUseCase() {
+  public static CreateProductUseCase buildCreateAccountUseCase() {
     return new CreateAccountInputPort(buildAccountService());
   }
 

@@ -9,7 +9,7 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.AddTransferJbhAccountsUseCase;
-import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.UpdateProductUseCase;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
@@ -26,7 +26,7 @@ import org.mockito.MockitoAnnotations;
 public class AddTransferRealEstateITTest {
   private static final UUID userId = UUID.randomUUID();
   @Mock private static AccountMovementWriterRepository accountMovementRepository;
-  private static CreateAccountUseCase createAccountUseCase;
+  private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
   private static AccountService accountService;
   private static MonthlyBalanceService monthlyBalanceService;

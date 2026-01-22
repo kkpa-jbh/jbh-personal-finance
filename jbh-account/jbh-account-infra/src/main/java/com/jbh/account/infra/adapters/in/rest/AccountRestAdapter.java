@@ -4,7 +4,7 @@ import com.jbh.account.application.core.dto.AddBasicMovementDTO;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
-import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.CreateProductCommand;
@@ -44,17 +44,17 @@ import org.slf4j.LoggerFactory;
 public class AccountRestAdapter extends BaseRestAdapter {
 
   private final Logger log = LoggerFactory.getLogger(AccountRestAdapter.class);
-  private final CreateAccountUseCase createAccountUseCase;
+  private final CreateProductUseCase createProductUseCase;
   private final AddMovementUseCase addMovementUseCase;
   private final FindMonthlyBalanceUseCase findMonthlyBalanceUseCase;
 
   @Inject
   public AccountRestAdapter(
-      final CreateAccountUseCase createAccountUseCase,
+      final CreateProductUseCase createProductUseCase,
       final AddMovementUseCase addMovementUseCase,
       final FindMonthlyBalanceUseCase findMonthlyBalanceUseCase) {
     this.addMovementUseCase = addMovementUseCase;
-    this.createAccountUseCase = createAccountUseCase;
+    this.createProductUseCase = createProductUseCase;
     this.findMonthlyBalanceUseCase = findMonthlyBalanceUseCase;
   }
 
@@ -100,7 +100,7 @@ public class AccountRestAdapter extends BaseRestAdapter {
     final UUID userId = findUserId(authorizationHeader);
 
     final ProductDTO accountDTO =
-        createAccountUseCase.execute(
+        createProductUseCase.execute(
             new CreateProductCommand(
                 userId, request.name(), request.type(), ProductMetadata.empty()));
 

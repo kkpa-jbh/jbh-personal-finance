@@ -19,7 +19,7 @@ import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
-import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.LiquidateAccountUseCase;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
@@ -50,7 +50,7 @@ public class RegisterCDTMovementITTest {
   private static final InMemoryAccountRepository inMemoryAccountRepo =
       UseCaseBuilder.getAccountRepository();
   private static final BigDecimal CDT_INITIAL_BALANCE = new BigDecimal("100.00");
-  private static CreateAccountUseCase createAccountUseCase;
+  private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
   private static AccountMovementWriterRepository accountMovementRepository;
   private static ProductDTO cdtAccount;
@@ -156,7 +156,9 @@ public class RegisterCDTMovementITTest {
             .isActive(false)
             .build();
     assertAccount(expectedCDTAccount, updatedCDTAccount.get());
-    assertTrue(updatedCDTAccount.get().metadata().getCommon().isFullyWithdrawn(), "Is not Fully withdrawn");
+    assertTrue(
+        updatedCDTAccount.get().metadata().getCommon().isFullyWithdrawn(),
+        "Is not Fully withdrawn");
     assertEquals(
         mvmDate,
         updatedCDTAccount.get().metadata().getCommon().getFullyWithdrawnDate(),

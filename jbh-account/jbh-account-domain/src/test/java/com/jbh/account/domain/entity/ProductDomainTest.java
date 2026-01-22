@@ -589,7 +589,7 @@ public class ProductDomainTest {
 
     assertNotNull(accountDomain.getId());
     assertFalse(accountDomain.isFullyWithdrawn());
-    assertFalse(accountDomain.hasMetadata(ProductMetadataKey.IS_FULLY_WITHDRAWN));
+    assertFalse(accountDomain.hasMetadata(ProductMetadataKey.COMMON_IS_FULLY_WITHDRAWN));
 
     final AccountMovementDomain withdrawalMovement =
         new AccountMovementDomain(
@@ -603,7 +603,7 @@ public class ProductDomainTest {
             AccountMovementMetadata.createEmpty());
     accountDomain.syncBalancesByMovement(withdrawalMovement, false);
     assertTrue(accountDomain.isFullyWithdrawn());
-    assertTrue(accountDomain.hasMetadata(ProductMetadataKey.IS_FULLY_WITHDRAWN));
+    assertTrue(accountDomain.hasMetadata(ProductMetadataKey.COMMON_IS_FULLY_WITHDRAWN));
 
     accountDomain.getUpdatedAt();
     accountDomain.getCreatedAt();

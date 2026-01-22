@@ -18,7 +18,7 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.AddTransferJbhAccountsUseCase;
-import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.UpdateProductUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.AddTransferCommand;
@@ -62,7 +62,7 @@ public class AddTransferAccountsITTest {
   static AccountPK toAccountPK;
   static AddTransferJbhAccountsUseCase transferUseCase;
   @Mock private static AccountMovementWriterRepository accountMovementRepository;
-  private static CreateAccountUseCase createAccountUseCase;
+  private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
   private static AccountService accountService;
   private static MonthlyBalanceService monthlyBalanceService;
@@ -259,7 +259,8 @@ public class AddTransferAccountsITTest {
 
     final ProductDTO loanAccountUpdated = accountService.findAccountOrThrow(loanAccount.id());
     assertEquals(
-        loanAccountUpdated.metadata().getLoan().getPayoffAmountToday(), withJBHDecimals(payoffAmount));
+        loanAccountUpdated.metadata().getLoan().getPayoffAmountToday(),
+        withJBHDecimals(payoffAmount));
   }
 
   @Test
@@ -309,7 +310,8 @@ public class AddTransferAccountsITTest {
 
     final ProductDTO loanAccountUpdated = accountService.findAccountOrThrow(loanAccount.id());
     assertEquals(
-        loanAccountUpdated.metadata().getLoan().getTotalAmountPaid(), withJBHDecimals((transferAmount)));
+        loanAccountUpdated.metadata().getLoan().getTotalAmountPaid(),
+        withJBHDecimals((transferAmount)));
 
     final Optional<MonthlyBalanceDTO> monthlyBalanceLoan =
         monthlyBalanceService.findByAccountIdAndPeriod(loanAccountUpdated.id(), period);

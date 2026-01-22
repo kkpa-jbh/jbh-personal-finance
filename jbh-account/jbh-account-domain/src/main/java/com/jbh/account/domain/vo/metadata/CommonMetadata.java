@@ -26,64 +26,8 @@ public final class CommonMetadata {
    * @return true if FULLY_WITHDRAWN key exists and is true
    */
   public boolean isFullyWithdrawn() {
-    return hasKey(ProductMetadataKey.IS_FULLY_WITHDRAWN)
-        && JbhBooleanUtils.isTrue(get(ProductMetadataKey.IS_FULLY_WITHDRAWN));
-  }
-
-  /**
-   * Gets the date when the account was fully withdrawn.
-   *
-   * @return LocalDate or null if not set
-   */
-  public LocalDate getFullyWithdrawnDate() {
-    return (LocalDate) get(ProductMetadataKey.FULLY_WITHDRAWN_DATE);
-  }
-
-  /**
-   * Gets the timestamp when the account was marked as fully withdrawn.
-   *
-   * @return LocalDateTime or null if not set
-   */
-  public LocalDateTime getFullyWithdrawnAt() {
-    return (LocalDateTime) get(ProductMetadataKey.FULLY_WITHDRAWN_AT);
-  }
-
-  /**
-   * Gets the initial balance.
-   *
-   * @return BigDecimal initial balance or ZERO if not set
-   */
-  public BigDecimal getInitialBalance() {
-    return getDecimal(ProductMetadataKey.INITIAL_BALANCE);
-  }
-
-  /**
-   * Marks the account as fully withdrawn with the given movement date.
-   *
-   * @param movementDate The date of the withdrawal movement
-   */
-  public void putFullyWithdrawn(final LocalDate movementDate) {
-    put(ProductMetadataKey.FULLY_WITHDRAWN_DATE, movementDate);
-    put(ProductMetadataKey.FULLY_WITHDRAWN_AT, LocalDateTime.now());
-    put(ProductMetadataKey.IS_FULLY_WITHDRAWN, true);
-  }
-
-  /**
-   * Sets the fully withdrawn flag.
-   *
-   * @param isFullyWithdrawn The fully withdrawn status
-   */
-  public void putIsFullyWithdrawn(final Boolean isFullyWithdrawn) {
-    put(ProductMetadataKey.IS_FULLY_WITHDRAWN, isFullyWithdrawn);
-  }
-
-  /**
-   * Sets the initial balance.
-   *
-   * @param initialBalance The initial balance
-   */
-  public void putInitialBalance(final BigDecimal initialBalance) {
-    put(ProductMetadataKey.INITIAL_BALANCE, initialBalance);
+    return hasKey(ProductMetadataKey.COMMON_IS_FULLY_WITHDRAWN)
+        && JbhBooleanUtils.isTrue(get(ProductMetadataKey.COMMON_IS_FULLY_WITHDRAWN));
   }
 
   private boolean hasKey(final ProductMetadataKey key) {
@@ -94,9 +38,47 @@ public final class CommonMetadata {
     return data.get(key);
   }
 
+  /**
+   * Gets the date when the account was fully withdrawn.
+   *
+   * @return LocalDate or null if not set
+   */
+  public LocalDate getFullyWithdrawnDate() {
+    return (LocalDate) get(ProductMetadataKey.COMMON_FULLY_WITHDRAWN_DATE);
+  }
+
+  /**
+   * Gets the timestamp when the account was marked as fully withdrawn.
+   *
+   * @return LocalDateTime or null if not set
+   */
+  public LocalDateTime getFullyWithdrawnAt() {
+    return (LocalDateTime) get(ProductMetadataKey.COMMON_FULLY_WITHDRAWN_AT);
+  }
+
+  /**
+   * Gets the initial balance.
+   *
+   * @return BigDecimal initial balance or ZERO if not set
+   */
+  public BigDecimal getInitialBalance() {
+    return getDecimal(ProductMetadataKey.COMMON_INITIAL_BALANCE);
+  }
+
   private BigDecimal getDecimal(final ProductMetadataKey key) {
     final Object result = get(key);
     return result instanceof BigDecimal ? (BigDecimal) result : BigDecimal.ZERO;
+  }
+
+  /**
+   * Marks the account as fully withdrawn with the given movement date.
+   *
+   * @param movementDate The date of the withdrawal movement
+   */
+  public void putFullyWithdrawn(final LocalDate movementDate) {
+    put(ProductMetadataKey.COMMON_FULLY_WITHDRAWN_DATE, movementDate);
+    put(ProductMetadataKey.COMMON_FULLY_WITHDRAWN_AT, LocalDateTime.now());
+    put(ProductMetadataKey.COMMON_IS_FULLY_WITHDRAWN, true);
   }
 
   private void put(final ProductMetadataKey key, final Object value) {
@@ -105,5 +87,23 @@ public final class CommonMetadata {
       return;
     }
     data.put(key, value);
+  }
+
+  /**
+   * Sets the fully withdrawn flag.
+   *
+   * @param isFullyWithdrawn The fully withdrawn status
+   */
+  public void putIsFullyWithdrawn(final Boolean isFullyWithdrawn) {
+    put(ProductMetadataKey.COMMON_IS_FULLY_WITHDRAWN, isFullyWithdrawn);
+  }
+
+  /**
+   * Sets the initial balance.
+   *
+   * @param initialBalance The initial balance
+   */
+  public void putInitialBalance(final BigDecimal initialBalance) {
+    put(ProductMetadataKey.COMMON_INITIAL_BALANCE, initialBalance);
   }
 }

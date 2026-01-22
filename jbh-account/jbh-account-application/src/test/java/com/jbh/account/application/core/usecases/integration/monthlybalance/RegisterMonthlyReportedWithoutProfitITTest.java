@@ -24,7 +24,7 @@ import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonth
 import com.jbh.account.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
-import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.usecases.utils.IgnoreAccountOptions;
@@ -104,7 +104,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   AccountMonthlyBalanceQueryRepo monthlyBalanceInMemoQuery =
       inMemoryMonthlyBalanceRepos.getQueryRepo();
   private FindMonthlyBalanceUseCase findMonthlyBalanceUseCase;
-  private CreateAccountUseCase createAccountUseCase;
+  private CreateProductUseCase createAccountUseCase;
 
   @BeforeAll
   static void beforeAll() {

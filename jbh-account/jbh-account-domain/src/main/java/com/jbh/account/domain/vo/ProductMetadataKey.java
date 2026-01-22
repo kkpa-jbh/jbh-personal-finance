@@ -4,8 +4,6 @@ import java.util.List;
 
 @SuppressWarnings("PMD.LongVariable")
 public enum ProductMetadataKey {
-  INITIAL_BALANCE,
-
   // Credit Card Input Metadata
   CREDIT_LIMIT,
   PAYMENT_DUE_DAY, // Fecha de Vencimiento de la cuenta (TC Dia del mes a pagar o corte).
@@ -20,9 +18,10 @@ public enum ProductMetadataKey {
   TERM_LENGTH_IN_DAYS,
 
   // System Calculated Metadata (all types)
-  IS_FULLY_WITHDRAWN,
-  FULLY_WITHDRAWN_DATE,
-  FULLY_WITHDRAWN_AT,
+  COMMON_INITIAL_BALANCE,
+  COMMON_IS_FULLY_WITHDRAWN,
+  COMMON_FULLY_WITHDRAWN_DATE,
+  COMMON_FULLY_WITHDRAWN_AT,
 
   // Core Loan Terms
   LOAN_PRINCIPAL_AMOUNT, // Original amount borrowed

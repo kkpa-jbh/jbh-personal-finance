@@ -17,7 +17,7 @@ import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
-import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
@@ -60,7 +60,7 @@ public class AddMovementsAfterMonthlyReportedTest {
   private static final List<BigDecimal> depositMovements =
       List.of(withJBHDecimals(new BigDecimal("10")));
 
-  static CreateAccountUseCase createAccountUseCase;
+  static CreateProductUseCase createAccountUseCase;
   static ProductDTO createdAccount;
   static AccountId accountId;
   static MonthlyBalanceService monthlyBalanceService;

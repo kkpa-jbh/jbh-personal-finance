@@ -33,7 +33,7 @@ import com.jbh.account.application.core.services.MonthlyBalanceSyncForUploadedMo
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.account.application.core.usecases.AddMovementsUploadedFileUseCase;
-import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
@@ -71,7 +71,7 @@ public class UploadMultiMovementsExecutionMockTest {
   static UUID userId = UUID.randomUUID();
   static ProductDomain accountDomain =
       AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
-  private static CreateAccountUseCase createAccountUseCase;
+  private static CreateProductUseCase createAccountUseCase;
   private static ProductDTO currentAccount;
   private static AccountService accountService;
   private static AccountRepository accountRepository;

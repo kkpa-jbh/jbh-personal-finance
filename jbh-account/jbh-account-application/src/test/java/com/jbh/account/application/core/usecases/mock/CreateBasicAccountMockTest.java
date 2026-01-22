@@ -13,7 +13,7 @@ import com.jbh.account.application.core.ports.input.CreateAccountInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
-import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.vo.commands.CreateProductCommand;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
@@ -31,7 +31,7 @@ public class CreateBasicAccountMockTest {
   final UUID userId = UUID.randomUUID();
   final ProductType type = ProductType.SAVINGS;
   final String testAccountName = "Test Account";
-  private CreateAccountUseCase useCase;
+  private CreateProductUseCase useCase;
   private AccountService accountService;
   @Mock private AccountRepository accountRepository;
 

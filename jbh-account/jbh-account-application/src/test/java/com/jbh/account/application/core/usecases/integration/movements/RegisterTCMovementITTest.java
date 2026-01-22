@@ -18,7 +18,7 @@ import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
-import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.integration.monthlybalance.RegisterMonthlyReportedWithoutProfitITTest;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
@@ -49,7 +49,7 @@ public class RegisterTCMovementITTest {
       UseCaseBuilder.getAccountRepository();
   private static final String name = "CREDIT CARD";
   private static final YearMonth period = YearMonth.of(2023, 1);
-  private static CreateAccountUseCase createAccountUseCase;
+  private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
   @Mock private static AccountMovementWriterRepository accountMovementRepository;
   private static ProductDTO creditCardAccount;

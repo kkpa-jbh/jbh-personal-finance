@@ -3,7 +3,7 @@ package com.jbh.account.application.core.ports.input;
 import com.jbh.account.application.common.logging.LoggerFactory;
 import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.services.account.AccountService;
-import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.vo.commands.CreateProductCommand;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
@@ -11,7 +11,7 @@ import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.ProductMetadata;
 import org.slf4j.Logger;
 
-public class CreateAccountInputPort implements CreateAccountUseCase {
+public class CreateAccountInputPort implements CreateProductUseCase {
 
   private static final Logger LOG = LoggerFactory.getLogger(CreateAccountInputPort.class);
 

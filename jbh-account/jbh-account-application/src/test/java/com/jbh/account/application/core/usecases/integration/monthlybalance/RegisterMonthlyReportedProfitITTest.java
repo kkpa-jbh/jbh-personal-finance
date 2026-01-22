@@ -23,7 +23,7 @@ import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepo
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.movements.AccountMovementApplicationServiceImpl;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
-import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
@@ -62,7 +62,7 @@ public class RegisterMonthlyReportedProfitITTest {
   private static final InMemoryAccountRepository inMemoryAccountRepo =
       UseCaseBuilder.getAccountRepository();
 
-  static CreateAccountUseCase createAccountUseCase;
+  static CreateProductUseCase createAccountUseCase;
   static ProductDTO createdAccount;
   static AccountId accountId;
   static int commandIndex = -1;

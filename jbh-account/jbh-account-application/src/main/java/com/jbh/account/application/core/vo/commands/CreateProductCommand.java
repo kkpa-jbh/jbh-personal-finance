@@ -26,11 +26,11 @@ public record CreateProductCommand(
     }
 
     if (name == null || name.isBlank()) {
-      throw new GenericSpecificationException("Account name cannot be null or blank");
+      throw new GenericSpecificationException("Product name cannot be null or blank");
     }
 
     if (type == null) {
-      throw new GenericSpecificationException("Account type cannot be null");
+      throw new GenericSpecificationException("Product type cannot be null");
     }
 
     // Reassign parameters before they're assigned to fields
@@ -46,11 +46,11 @@ public record CreateProductCommand(
     }
 
     if (name == null || name.isBlank()) {
-      throw new GenericSpecificationException("Account name cannot be null or blank");
+      throw new GenericSpecificationException("Product name cannot be null or blank");
     }
 
     if (type == null) {
-      throw new GenericSpecificationException("Account type cannot be null");
+      throw new GenericSpecificationException("Product type cannot be null");
     }
   }
 }

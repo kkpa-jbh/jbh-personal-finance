@@ -8,7 +8,7 @@ import com.jbh.account.application.builders.UseCaseBuilder;
 import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
-import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.MonthlyBalanceCommandVO;
@@ -42,7 +42,7 @@ public class RegisterMonthlyReportedValidationITTest {
   private static MonthlyBalanceService monthlyBalanceService;
   private static InMemoryAccountRepository inMemoryAccountRepo;
   private static RegisterMonthlyBalanceUseCase useCaseTest;
-  private static CreateAccountUseCase createAccountUseCase;
+  private static CreateProductUseCase createAccountUseCase;
   private static AccountId accountId;
   @Mock private AccountMovementWriterRepository accountMovementRepository;
 

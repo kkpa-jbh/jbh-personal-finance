@@ -19,7 +19,7 @@ import com.jbh.account.application.builders.UseCaseBuilder;
 import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
-import com.jbh.account.application.core.usecases.CreateAccountUseCase;
+import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.vo.commands.CreateProductCommand;
 import com.jbh.account.domain.exceptions.AccountBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
 public class CreateProductITTest {
   static UUID userId = UUID.randomUUID();
   static BigDecimal creditLimit = new BigDecimal("1000000");
-  private static CreateAccountUseCase createAccountUseCase;
+  private static CreateProductUseCase createAccountUseCase;
   private static InMemoryAccountRepository inMemoryAccountRepo;
 
   @BeforeEach
