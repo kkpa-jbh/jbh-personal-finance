@@ -13,7 +13,7 @@ class AccountMetricsCalculatorFactoryTest {
   @Test
   void shouldGetSavingsAccountMetricsCalculator() throws ProductBusinessException {
     // When
-    final AccountMetricsCalculator calculator =
+    final ProductMetricsCalculator calculator =
         AccountMetricsCalculatorFactory.getCalculator(ProductType.SAVINGS);
 
     // Then
@@ -24,7 +24,7 @@ class AccountMetricsCalculatorFactoryTest {
   @Test
   void shouldGetCreditCardAccountMetricsCalculator() throws ProductBusinessException {
     // When
-    final AccountMetricsCalculator calculator =
+    final ProductMetricsCalculator calculator =
         AccountMetricsCalculatorFactory.getCalculator(ProductType.CREDIT_CARD);
 
     // Then
@@ -35,7 +35,7 @@ class AccountMetricsCalculatorFactoryTest {
   @Test
   void shouldGetInvestmentAccountMetricsCalculator() throws ProductBusinessException {
     // When
-    final AccountMetricsCalculator calculator =
+    final ProductMetricsCalculator calculator =
         AccountMetricsCalculatorFactory.getCalculator(ProductType.INVESTMENT);
 
     // Then
@@ -46,7 +46,7 @@ class AccountMetricsCalculatorFactoryTest {
   @Test
   void shouldGetCdtAccountMetricsCalculator() throws ProductBusinessException {
     // When
-    final AccountMetricsCalculator calculator =
+    final ProductMetricsCalculator calculator =
         AccountMetricsCalculatorFactory.getCalculator(ProductType.CDT);
 
     // Then

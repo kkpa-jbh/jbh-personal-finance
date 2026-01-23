@@ -9,7 +9,7 @@ public final class AccountMetricsCalculatorFactory {
     throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
   }
 
-  public static AccountMetricsCalculator getCalculator(final ProductType productType) {
+  public static ProductMetricsCalculator getCalculator(final ProductType productType) {
     return switch (productType) {
       case SAVINGS -> new SavingsAccountMetricsCalculator();
       case CREDIT_CARD -> new CreditCardAccountMetricsCalculator();

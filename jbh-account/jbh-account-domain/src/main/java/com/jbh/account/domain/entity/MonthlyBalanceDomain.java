@@ -6,9 +6,9 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.isZero;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.calculators.MoneyGrowthCalculator;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.YearMonth;
@@ -157,13 +157,13 @@ public class MonthlyBalanceDomain {
     LOG.info("Adjusted Opening Balance {} for next period: {}", this.openingBalance, this.period);
   }
 
-  public void assignMovement(final AccountMovementDomain movement) throws ProductBusinessException {
+  public void assignMovement(final ProductMovementDomain movement) throws ProductBusinessException {
     validateMovementPeriod(movement);
     syncBalancesByMovement(movement);
     recalculateBalances();
   }
 
-  private void validateMovementPeriod(final AccountMovementDomain mvmt)
+  private void validateMovementPeriod(final ProductMovementDomain mvmt)
       throws ProductBusinessException {
     if (mvmt.getMovementDate() == null) {
       throw new ProductBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_DATE);
@@ -175,7 +175,7 @@ public class MonthlyBalanceDomain {
     }
   }
 
-  private void syncBalancesByMovement(final AccountMovementDomain movement) {
+  private void syncBalancesByMovement(final ProductMovementDomain movement) {
     final BigDecimal amount = movement.getMovementAmount();
     if (isNotZero(amount)) {
       this.totalMovements++;

@@ -197,6 +197,7 @@
 
     <!-- Assembly module last to ensure all dependencies are built -->
     <module>jbh-z-assembly</module>
+    <module>jbh-commons-lib</module>
   </modules>
 
   <!-- =============================================== -->

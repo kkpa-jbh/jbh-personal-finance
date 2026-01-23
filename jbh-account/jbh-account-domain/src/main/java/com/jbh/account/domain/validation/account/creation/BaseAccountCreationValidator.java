@@ -1,16 +1,16 @@
 package com.jbh.account.domain.validation.account.creation;
 
-import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.entity.ProductMovementDomain;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import java.math.BigDecimal;
 
 @SuppressWarnings("PMD.AbstractClassWithoutAbstractMethod")
 public abstract class BaseAccountCreationValidator {
 
   protected void defaultValidationInsufficientNetFlow(
-      final ProductDomain account, final AccountMovementDomain movement)
+      final ProductDomain account, final ProductMovementDomain movement)
       throws ProductBusinessException {
 
     final BigDecimal currentBalance = account.getCurrentBalance();

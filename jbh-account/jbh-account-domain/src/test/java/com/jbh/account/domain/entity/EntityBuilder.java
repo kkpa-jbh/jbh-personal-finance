@@ -2,11 +2,11 @@ package com.jbh.account.domain.entity;
 
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.MovementType;
+import com.jbh.account.domain.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -37,7 +37,7 @@ public class EntityBuilder {
         null); // monthly profit reported
   }
 
-  public static AccountMovementDomain with(
+  public static ProductMovementDomain with(
       final ProductId accountId,
       final LocalDate movementDate,
       final BigDecimal totalAmount,
@@ -45,8 +45,8 @@ public class EntityBuilder {
       final MovementType movementType,
       final MovementCategoryDomain category) {
 
-    final AccountMovementDomain movDomain =
-        new AccountMovementDomain(
+    final ProductMovementDomain movDomain =
+        new ProductMovementDomain(
             accountId,
             movementType,
             movementDate,

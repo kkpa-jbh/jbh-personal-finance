@@ -7,14 +7,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.jbh.account.application.builders.AccountEntityBuilder;
 import com.jbh.account.application.builders.UseCaseBuilder;
 import com.jbh.account.application.core.services.account.AccountService;
-import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.MovementCategoryDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.entity.ProductMovementDomain;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.MovementType;
+import com.jbh.account.domain.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -75,7 +75,7 @@ public class AccountServiceTest {
     assertEquals(new BigDecimal("5.00"), accountDomain.getNetProfitBalance());
   }
 
-  public static AccountMovementDomain with(
+  public static ProductMovementDomain with(
       final ProductId accountId,
       final LocalDate movementDate,
       final BigDecimal totalAmount,
@@ -83,8 +83,8 @@ public class AccountServiceTest {
       final MovementType movementType,
       final MovementCategoryDomain category) {
 
-    final AccountMovementDomain movDomain =
-        new AccountMovementDomain(
+    final ProductMovementDomain movDomain =
+        new ProductMovementDomain(
             accountId,
             movementType,
             movementDate,

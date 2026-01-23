@@ -5,4 +5,5 @@ public record MetadataFieldConfigDTO(
     String valueType,
     boolean required,
     String minValue,
-    String maxValue) {}
+    String maxValue,
+    String displayName) {}

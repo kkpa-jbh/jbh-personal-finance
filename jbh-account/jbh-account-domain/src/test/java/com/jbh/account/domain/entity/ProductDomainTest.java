@@ -9,12 +9,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.account.domain.exceptions.ProductBusinessException;
-import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.AccountMovementId;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementType;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductMetadataKey;
 import com.jbh.account.domain.vo.ProductType;
@@ -574,8 +574,8 @@ public class ProductDomainTest {
     assertNotNull(accountDomain.getId());
 
     final var movementAmount = new BigDecimal("100.00");
-    final AccountMovementDomain movement =
-        new AccountMovementDomain(
+    final ProductMovementDomain movement =
+        new ProductMovementDomain(
             AccountMovementId.generate(),
             accountDomain.getId(),
             MovementType.DEPOSIT,
@@ -591,8 +591,8 @@ public class ProductDomainTest {
     assertFalse(accountDomain.isFullyWithdrawn());
     assertFalse(accountDomain.hasMetadata(ProductMetadataKey.COMMON_IS_FULLY_WITHDRAWN));
 
-    final AccountMovementDomain withdrawalMovement =
-        new AccountMovementDomain(
+    final ProductMovementDomain withdrawalMovement =
+        new ProductMovementDomain(
             AccountMovementId.generate(),
             accountDomain.getId(),
             MovementType.WITHDRAWAL,
@@ -609,8 +609,8 @@ public class ProductDomainTest {
     accountDomain.getCreatedAt();
     accountDomain.getMetadata();
 
-    final AccountMovementDomain unknownMovement =
-        new AccountMovementDomain(
+    final ProductMovementDomain unknownMovement =
+        new ProductMovementDomain(
             AccountMovementId.generate(),
             ProductId.generate(),
             MovementType.DEPOSIT,

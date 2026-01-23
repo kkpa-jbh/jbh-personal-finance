@@ -1,6 +1,6 @@
 package com.jbh.account.infra.adapters.in.rest;
 
-import static com.jbh.account.infra.adapters.in.rest.vo.ApiConstants.BASE_API_PATH;
+import static com.jbh.account.infra.adapters.in.rest.vo.FinanceApiRoutes.PRODUCTS_API_PATH;
 
 import com.jbh.account.application.core.dto.MetadataFieldConfigDTO;
 import com.jbh.account.application.core.usecases.GetProductMetadataConfigUseCase;
@@ -24,7 +24,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @SuppressWarnings({"PMD.UnnecessaryAnnotationValueElement"})
 @RequestScoped
-@Path(BASE_API_PATH + "/products")
+@Path(PRODUCTS_API_PATH)
 @Tag(name = "Product Configuration", description = "Product configuration and metadata operations")
 public class ProductConfigRestAdapter {
 

@@ -53,12 +53,9 @@ public class ProductMetadataConfigRegistry {
           ProductType.CDT,
               new LinkedHashSet<>(
                   List.of(MATURITY_DATE, OPENING_DATE, TERM_LENGTH_IN_DAYS, COMMISSION_RATE)),
-          ProductType.INVESTMENT,
-              new LinkedHashSet<>(List.of(BROKER_NAME, COMMISSION_RATE)),
-          ProductType.CREDIT_CARD,
-              new LinkedHashSet<>(List.of(CREDIT_LIMIT, PAYMENT_DUE_DAY)),
-          ProductType.SAVINGS,
-              new LinkedHashSet<>());
+          ProductType.INVESTMENT, new LinkedHashSet<>(List.of(BROKER_NAME, COMMISSION_RATE)),
+          ProductType.CREDIT_CARD, new LinkedHashSet<>(List.of(CREDIT_LIMIT, PAYMENT_DUE_DAY)),
+          ProductType.SAVINGS, new LinkedHashSet<>(List.of(COMMON_INITIAL_BALANCE)));
 
   private static final Map<ProductType, Set<ProductMetadataKey>> OPTIONAL_FIELDS =
       Map.of(
@@ -69,13 +66,11 @@ public class ProductMetadataConfigRegistry {
           ProductType.CDT, new LinkedHashSet<>(),
           ProductType.INVESTMENT, new LinkedHashSet<>(),
           ProductType.CREDIT_CARD, new LinkedHashSet<>(),
-          ProductType.SAVINGS, new LinkedHashSet<>(List.of(COMMON_INITIAL_BALANCE)));
+          ProductType.SAVINGS, new LinkedHashSet<>());
 
   public List<MetadataFieldConfigDTO> getConfigurationFor(final ProductType productType) {
-    final Set<ProductMetadataKey> required =
-        REQUIRED_FIELDS.getOrDefault(productType, Set.of());
-    final Set<ProductMetadataKey> optional =
-        OPTIONAL_FIELDS.getOrDefault(productType, Set.of());
+    final Set<ProductMetadataKey> required = REQUIRED_FIELDS.getOrDefault(productType, Set.of());
+    final Set<ProductMetadataKey> optional = OPTIONAL_FIELDS.getOrDefault(productType, Set.of());
 
     final List<MetadataFieldConfigDTO> result = new ArrayList<>();
 
@@ -91,7 +86,8 @@ public class ProductMetadataConfigRegistry {
         key.getValueType().name(),
         required,
         formatValue(key.getMinValue()),
-        formatValue(key.getMaxValue()));
+        formatValue(key.getMaxValue()),
+        key.getDisplayName());
   }
 
   private String formatValue(final Object value) {

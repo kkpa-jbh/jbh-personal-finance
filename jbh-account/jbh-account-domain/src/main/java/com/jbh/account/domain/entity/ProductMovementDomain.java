@@ -2,17 +2,17 @@ package com.jbh.account.domain.entity;
 
 import static com.jbh.account.domain.entity.MovementCategoryDomain.withCategoryType;
 
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.utils.JbhMoneyUtils;
-import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.AccountMovementId;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.AccountMovementMetadataKey;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementType;
+import com.jbh.account.domain.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,7 +20,7 @@ import lombok.Getter;
 
 @Getter
 @SuppressWarnings({"PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal", "PMD.GodClass"})
-public class AccountMovementDomain {
+public class ProductMovementDomain {
 
   private final AccountMovementId id;
   private final ProductId accountId;
@@ -37,7 +37,7 @@ public class AccountMovementDomain {
   private final BigDecimal balanceSnapshot;
   private final AccountMovementMetadata metadata;
 
-  public AccountMovementDomain(
+  public ProductMovementDomain(
       final AccountMovementId id,
       final ProductId accountId,
       final MovementType movementType,
@@ -56,7 +56,7 @@ public class AccountMovementDomain {
     this.metadata = metadata;
   }
 
-  public AccountMovementDomain(
+  public ProductMovementDomain(
       final ProductId accountId,
       final MovementType movementType,
       final LocalDate movementDate,
@@ -75,7 +75,7 @@ public class AccountMovementDomain {
   }
 
   // FIXME Use factory movemtn type and see if this method can be removed
-  public static AccountMovementDomain withFileImport(
+  public static ProductMovementDomain withFileImport(
       final ProductId accountId,
       final LocalDate movementDate,
       final BigDecimal totalAmount,
@@ -91,8 +91,8 @@ public class AccountMovementDomain {
       category = withCategoryType(ExpenseCategory.PERSONAL);
     }
 
-    final AccountMovementDomain movementDomain =
-        new AccountMovementDomain(
+    final ProductMovementDomain movementDomain =
+        new ProductMovementDomain(
             accountId,
             movementType,
             movementDate,

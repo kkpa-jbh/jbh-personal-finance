@@ -9,11 +9,11 @@ import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.ports.output.AccountRepository;
-import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.entity.ProductMovementDomain;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductPK;
 import java.math.BigDecimal;
@@ -173,7 +173,7 @@ public class AccountServiceImpl implements AccountService {
 
   private void syncAccountDomainBalanceByMovement(
       final ProductDomain accountDomain,
-      final AccountMovementDomain movement,
+      final ProductMovementDomain movement,
       final boolean isMonthOfficiallyReported)
       throws ProductBusinessException {
     accountDomain.syncBalancesByMovement(movement, isMonthOfficiallyReported);
@@ -181,16 +181,16 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public ProductDTO syncByUploadedMovements(
-      final ProductDomain accountDomain, final List<AccountMovementDomain> uploadedMovements)
+      final ProductDomain accountDomain, final List<ProductMovementDomain> uploadedMovements)
       throws ProductBusinessException {
 
     if (uploadedMovements == null || uploadedMovements.isEmpty()) {
       throw new ProductBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENTS);
     }
-    final List<AccountMovementDomain> filteredMovements =
+    final List<ProductMovementDomain> filteredMovements =
         uploadedMovements.stream().filter(Objects::nonNull).toList();
 
-    for (final AccountMovementDomain movement : filteredMovements) {
+    for (final ProductMovementDomain movement : filteredMovements) {
       try {
         syncAccountDomainBalanceByMovement(accountDomain, movement, false);
       } catch (final ProductBusinessException ex) {

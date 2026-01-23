@@ -11,8 +11,8 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
+import com.jbh.account.domain.entity.ProductMovementDomain;
 import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
 import java.math.BigDecimal;
@@ -63,7 +63,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
 
     final ProductDomain accountDomain = findAccountOrElseThrow(userId, accountId);
 
-    final List<AccountMovementDomain> uploadedMovements =
+    final List<ProductMovementDomain> uploadedMovements =
         mapCommandToDomain(allUploadedMovCommand, accountDomain);
 
     // Sync account balance
@@ -104,7 +104,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
     return accountDTO.toDomain();
   }
 
-  private List<AccountMovementDomain> mapCommandToDomain(
+  private List<ProductMovementDomain> mapCommandToDomain(
       final List<AddMovementUploadedFileCommand> allSimpleMovements,
       final ProductDomain accountDomain) {
     return allSimpleMovements.stream()
@@ -113,7 +113,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
               final BigDecimal totalAmount = mvmntCommand.totalAmount();
 
               try {
-                return AccountMovementDomain.withFileImport(
+                return ProductMovementDomain.withFileImport(
                     accountDomain.getId(),
                     mvmntCommand.entryDate(),
                     totalAmount,
@@ -128,7 +128,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
   }
 
   private void persistMovementAndAccountUOW(
-      final List<AccountMovementDomain> newMovements, final ProductDTO accountDTO) {
+      final List<ProductMovementDomain> newMovements, final ProductDTO accountDTO) {
     unitOfWork.execute(
         () -> {
           LOG.info("Persisting Movements changes");

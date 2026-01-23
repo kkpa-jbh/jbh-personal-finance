@@ -13,11 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.AccountMovementMetadataKey;
 import com.jbh.account.domain.vo.MovementType;
+import com.jbh.account.domain.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -54,7 +54,7 @@ public class AccountMovementTest {
     final var totalAmount = new BigDecimal("100.00");
     final var balanceSnapshot = new BigDecimal("210.00");
     final var newMovement =
-        AccountMovementDomain.withFileImport(
+        ProductMovementDomain.withFileImport(
             accountDomain.getId(),
             today,
             totalAmount,

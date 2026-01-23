@@ -3,8 +3,8 @@ package com.jbh.account.application.core.services.account;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.dto.ProductDTO;
-import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
+import com.jbh.account.domain.entity.ProductMovementDomain;
 import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductPK;
@@ -64,6 +64,6 @@ public interface AccountService {
       throws ProductBusinessException;
 
   ProductDTO syncByUploadedMovements(
-      ProductDomain accountDomain, List<AccountMovementDomain> uploadedMovements)
+      ProductDomain accountDomain, List<ProductMovementDomain> uploadedMovements)
       throws ProductBusinessException;
 }

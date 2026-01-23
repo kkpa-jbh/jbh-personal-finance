@@ -4,8 +4,8 @@ import com.jbh.account.application.common.logging.LoggerFactory;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
-import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.MonthlyBalanceDomain;
+import com.jbh.account.domain.entity.ProductMovementDomain;
 import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
 import java.time.YearMonth;
@@ -30,9 +30,9 @@ public class MonthlyBalanceSyncForUploadedMovements {
   }
 
   public List<MonthlyBalanceDTO> syncForUploadedMovementsAsync(
-      final ProductId accountId, final List<AccountMovementDomain> multipleMovementsDomain) {
+      final ProductId accountId, final List<ProductMovementDomain> multipleMovementsDomain) {
     // Group movements by Year-Month based on the movementDate attribute
-    final Map<YearMonth, List<AccountMovementDomain>> movementsByPeriodMap =
+    final Map<YearMonth, List<ProductMovementDomain>> movementsByPeriodMap =
         multipleMovementsDomain.stream()
             .collect(
                 Collectors.groupingBy(
@@ -48,7 +48,7 @@ public class MonthlyBalanceSyncForUploadedMovements {
     final List<MonthlyBalanceDomain> monthlyBalancesToPersist = new ArrayList<>();
     movementsPeriodsSorted.forEach(
         monthlyPeriodKey -> {
-          final List<AccountMovementDomain> movementsInPeriod =
+          final List<ProductMovementDomain> movementsInPeriod =
               movementsByPeriodMap.get(monthlyPeriodKey);
 
           LOG.info(
@@ -63,7 +63,7 @@ public class MonthlyBalanceSyncForUploadedMovements {
                   .orElseGet(() -> MonthlyBalanceDomain.withPeriod(accountId, monthlyPeriodKey));
 
           // TODO Should It return a AccountBusinessException?
-          for (final AccountMovementDomain movement : movementsInPeriod) {
+          for (final ProductMovementDomain movement : movementsInPeriod) {
             try {
               accountMonthlyBalance.assignMovement(movement);
             } catch (final ProductBusinessException e) {

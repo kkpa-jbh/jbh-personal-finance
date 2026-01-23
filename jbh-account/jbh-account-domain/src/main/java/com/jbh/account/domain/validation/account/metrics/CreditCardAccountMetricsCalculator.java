@@ -1,13 +1,13 @@
 package com.jbh.account.domain.validation.account.metrics;
 
-import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
+import com.jbh.account.domain.entity.ProductMovementDomain;
 import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductMetadata;
 import java.math.BigDecimal;
 
 public class CreditCardAccountMetricsCalculator extends BaseAccountMetricsCalculator
-    implements AccountMetricsCalculator {
+    implements ProductMetricsCalculator {
 
   @Override
   public BigDecimal calculateProfitBalance(final ProductDomain accountDomain) {
@@ -26,7 +26,7 @@ public class CreditCardAccountMetricsCalculator extends BaseAccountMetricsCalcul
 
   @Override
   public ProductMetadata updateMetadata(
-      final ProductDomain productDomain, final AccountMovementDomain movement) {
+      final ProductDomain productDomain, final ProductMovementDomain movement) {
     return productDomain.getMetadata();
   }
 }

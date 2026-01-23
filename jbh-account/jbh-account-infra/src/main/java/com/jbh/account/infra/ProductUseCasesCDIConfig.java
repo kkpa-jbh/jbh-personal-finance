@@ -12,8 +12,8 @@ import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonth
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.account.application.core.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.account.application.core.services.account.AccountService;
-import com.jbh.account.application.core.services.metadata.ProductMetadataConfigRegistry;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
+import com.jbh.account.application.core.services.metadata.ProductMetadataConfigRegistry;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.account.application.core.services.movements.AccountMovementApplicationService;
@@ -32,7 +32,7 @@ import jakarta.inject.Named;
 
 @ApplicationScoped
 @RegisterForReflection(targets = {CreateAccountInputPort.class, AddMovementInputPort.class})
-public class AccountUseCasesCDIConfig {
+public class ProductUseCasesCDIConfig {
 
   @Inject AccountRepository accountRepository;
 
@@ -114,13 +114,13 @@ public class AccountUseCasesCDIConfig {
 
   @Produces
   @ApplicationScoped
-  public ProductMetadataConfigRegistry productMetadataConfigRegistry() {
-    return new ProductMetadataConfigRegistry();
+  public GetProductMetadataConfigUseCase getProductMetadataConfigUseCase() {
+    return new GetProductMetadataConfigInputPort(productMetadataConfigRegistry());
   }
 
   @Produces
   @ApplicationScoped
-  public GetProductMetadataConfigUseCase getProductMetadataConfigUseCase() {
-    return new GetProductMetadataConfigInputPort(productMetadataConfigRegistry());
+  public ProductMetadataConfigRegistry productMetadataConfigRegistry() {
+    return new ProductMetadataConfigRegistry();
   }
 }

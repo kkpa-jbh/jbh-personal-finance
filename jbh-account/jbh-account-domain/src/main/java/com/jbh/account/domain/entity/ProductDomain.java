@@ -7,12 +7,12 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.isZero;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.calculators.MoneyWeightedReturnCalculator;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.validation.account.creation.AccountCreationValidatorFactory;
 import com.jbh.account.domain.validation.account.creation.ProductCreationValidator;
-import com.jbh.account.domain.validation.account.metrics.AccountMetricsCalculator;
 import com.jbh.account.domain.validation.account.metrics.AccountMetricsCalculatorFactory;
+import com.jbh.account.domain.validation.account.metrics.ProductMetricsCalculator;
 import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductMetadataKey;
@@ -52,7 +52,7 @@ public class ProductDomain {
   protected BigDecimal netGrowthRate = JBH_ZERO;
 
   protected ProductMetadata metadata = ProductMetadata.empty();
-  private AccountMetricsCalculator metricsCalculator;
+  private ProductMetricsCalculator metricsCalculator;
 
   private ProductDomain(final String name, final ProductType type, final UUID userId) {
     this.id = ProductId.generate();
@@ -131,7 +131,7 @@ public class ProductDomain {
   }
 
   public void syncBalancesByMovement(
-      final AccountMovementDomain movement, final boolean wasOfficialReport)
+      final ProductMovementDomain movement, final boolean wasOfficialReport)
       throws ProductBusinessException {
     movement.validate();
 
@@ -144,7 +144,7 @@ public class ProductDomain {
     applyMovement(movement, wasOfficialReport);
   }
 
-  public void validateInsufficientNetFlow(final AccountMovementDomain movement)
+  public void validateInsufficientNetFlow(final ProductMovementDomain movement)
       throws ProductBusinessException {
     getValidator(this.type).validateInsufficientNetFlow(this, movement);
   }
@@ -160,7 +160,7 @@ public class ProductDomain {
    * @param wasOfficialReport
    */
   private void applyMovement(
-      final AccountMovementDomain newAccountMovement, final boolean wasOfficialReport)
+      final ProductMovementDomain newAccountMovement, final boolean wasOfficialReport)
       throws ProductBusinessException {
     final BigDecimal movementAmount = newAccountMovement.getMovementAmount();
 
@@ -247,7 +247,7 @@ public class ProductDomain {
     this.netProfitBalance = metricsCalculator.calculateProfitBalance(this);
   }
 
-  private void updateMetadataFields(final AccountMovementDomain movement) {
+  private void updateMetadataFields(final ProductMovementDomain movement) {
     this.metadata = metricsCalculator.updateMetadata(this, movement);
   }
 
