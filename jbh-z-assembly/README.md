@@ -47,3 +47,40 @@ What the Assembly Module DOES NOT Do:
 ❌ Define @Produces methods for injection
 ❌ Handle specific business logic
 ❌ Know about internal module dependencies
+
+# CONSUL
+
+This is a modular monolith - a single deployable application (jbh-z-assembly) that contains multiple modules. In Consul, you should register one service (the whole application),
+not separate services per module.
+
+The modules (jbh-account, jbh-notification) are internal packages, not independent microservices. They share:
+
+- Same JVM process
+- Same port (7777)
+- Same health endpoint
+
+## Where to Place Configuration
+
+┌─────────────────────┬───────────────────────────────────────────────────────────────┐                                                                                                                                      
+│ Location │ What Goes There │                                                                                                                                      
+├─────────────────────┼───────────────────────────────────────────────────────────────┤                                                                                                                                      
+│ jbh-z-assembly │ Consul registration code and main config (single entry point)
+│                                                                                                                                      
+├─────────────────────┼───────────────────────────────────────────────────────────────┤                                                                                                                                      
+│ Module infra layers │ Nothing for Consul - they're not separate services
+│                                                                                                                                      
+└─────────────────────┴───────────────────────────────────────────────────────────────┘
+
+## How It Works
+
+1. On Startup: @Observes StartupEvent triggers registration with Consul
+2. Health Check: Consul polls /q/health every 30s
+3. On Shutdown: @Observes ShutdownEvent deregisters the service
+4. Auto-deregister: Service removed after 1 minute if health checks
+   fail
+
+## Why One Service (Not Per Module)
+
+Since this is a modular monolith, all modules (jbh-account, jbh-notification) run in the same JVM on port 7777. They're not separate deployable services, so only one Consul
+registration is needed in jbh-z-assembly. 
+                                                                               
