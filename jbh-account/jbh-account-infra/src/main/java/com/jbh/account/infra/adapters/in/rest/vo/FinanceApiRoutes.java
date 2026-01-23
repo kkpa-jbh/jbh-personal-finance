@@ -10,4 +10,7 @@ public class FinanceApiRoutes {
   public static final String PRODUCTS_API_PATH = BASE_API_PATH + "/products";
   public static final String PRODUCTS_MOVEMENTS_API_PATH = "/movements";
   public static final String PRODUCTS_MONTHLY_BALANCES_API_PATH = "/monthly-balances";
+
+  // Product Types API
+  public static final String PRODUCT_TYPES_API_PATH = BASE_API_PATH + "/product-types";
 }

@@ -28,4 +28,8 @@ public enum ProductType {
   public List<ProductType> addingMovementsProductsAllowed() {
     return ADDING_MOVEMENTS_PRODUCTS_ALLOWED;
   }
+
+  public String getTranslationKey() {
+    return translationKey;
+  }
 }
