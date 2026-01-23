@@ -3,8 +3,8 @@ package com.jbh.account.application.core.ports.output.monthlybalance;
 import com.jbh.account.application.core.comparator.AccountMonthlyBalanceComparators;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
-import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.domain.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
     storage.put(key, balance);
   }
 
-  private String generateKey(final AccountId accountId, final Integer year, final Integer month) {
+  private String generateKey(final ProductId accountId, final Integer year, final Integer month) {
     return accountId.value() + "_" + year + "_" + month;
   }
 
@@ -48,7 +48,7 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
     return new ArrayList<>(storage.values());
   }
 
-  private List<MonthlyBalanceDTO> findByAccountId(final AccountId accountId) {
+  private List<MonthlyBalanceDTO> findByAccountId(final ProductId accountId) {
     return storage.values().stream()
         .filter(balance -> balance.accountId().equals(accountId))
         .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
@@ -57,7 +57,7 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
 
   @Override
   public Optional<MonthlyBalanceDTO> findByAccountIdYearAndMonth(
-      final AccountId accountId, final Integer balanceYear, final Integer balanceMonth) {
+      final ProductId accountId, final Integer balanceYear, final Integer balanceMonth) {
 
     final String key = generateKey(accountId, balanceYear, balanceMonth);
     final Optional<MonthlyBalanceDTO> result = Optional.ofNullable(storage.get(key));
@@ -67,13 +67,13 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
 
   @Override
   public Optional<MonthlyBalanceDTO> findByAccountIdAndPeriod(
-      final AccountId accountId, final YearMonth period) {
+      final ProductId accountId, final YearMonth period) {
     return findByAccountIdYearAndMonth(accountId, period.getYear(), period.getMonthValue());
   }
 
   @Override
   public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
-      final AccountId accountId, final YearMonth currentPeriod) {
+      final ProductId accountId, final YearMonth currentPeriod) {
 
     return storage.values().stream()
         .filter(balance -> balance.accountId().equals(accountId))
@@ -84,7 +84,7 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
 
   @Override
   public List<MonthlyBalanceDTO> findByAccountAndPeriods(
-      final AccountPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
+      final ProductPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
     return storage.values().stream()
         .filter(balance -> balance.accountId().equals(accountPK.accountId()))
         .filter(
@@ -95,7 +95,7 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
   }
 
   @Override
-  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final AccountId accountId) {
+  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final ProductId accountId) {
     return findByAccountId(accountId).stream()
         .filter(balance -> balance.period().isBefore(YearMonth.now().plusMonths(1)))
         .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
@@ -103,7 +103,7 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
   }
 
   @Override
-  public Optional<MonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
+  public Optional<MonthlyBalanceDTO> findLastOfficialReport(final ProductId accountId) {
     return findByAccountId(accountId).stream()
         .filter(MonthlyBalanceDTO::officialMonthlyReport)
         .map(MonthlyBalanceMapper::toDomain)
@@ -114,7 +114,7 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
   }
 
   @Override
-  public BigDecimal sumNetProfitOfficialReported(final AccountId accountId) {
+  public BigDecimal sumNetProfitOfficialReported(final ProductId accountId) {
 
     return findByAccountId(accountId).stream()
         .filter(MonthlyBalanceDTO::officialMonthlyReport)

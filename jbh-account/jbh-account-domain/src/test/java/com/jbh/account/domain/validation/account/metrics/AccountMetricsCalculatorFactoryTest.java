@@ -4,14 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductType;
 import org.junit.jupiter.api.Test;
 
 class AccountMetricsCalculatorFactoryTest {
 
   @Test
-  void shouldGetSavingsAccountMetricsCalculator() throws AccountBusinessException {
+  void shouldGetSavingsAccountMetricsCalculator() throws ProductBusinessException {
     // When
     final AccountMetricsCalculator calculator =
         AccountMetricsCalculatorFactory.getCalculator(ProductType.SAVINGS);
@@ -22,7 +22,7 @@ class AccountMetricsCalculatorFactoryTest {
   }
 
   @Test
-  void shouldGetCreditCardAccountMetricsCalculator() throws AccountBusinessException {
+  void shouldGetCreditCardAccountMetricsCalculator() throws ProductBusinessException {
     // When
     final AccountMetricsCalculator calculator =
         AccountMetricsCalculatorFactory.getCalculator(ProductType.CREDIT_CARD);
@@ -33,7 +33,7 @@ class AccountMetricsCalculatorFactoryTest {
   }
 
   @Test
-  void shouldGetInvestmentAccountMetricsCalculator() throws AccountBusinessException {
+  void shouldGetInvestmentAccountMetricsCalculator() throws ProductBusinessException {
     // When
     final AccountMetricsCalculator calculator =
         AccountMetricsCalculatorFactory.getCalculator(ProductType.INVESTMENT);
@@ -44,7 +44,7 @@ class AccountMetricsCalculatorFactoryTest {
   }
 
   @Test
-  void shouldGetCdtAccountMetricsCalculator() throws AccountBusinessException {
+  void shouldGetCdtAccountMetricsCalculator() throws ProductBusinessException {
     // When
     final AccountMetricsCalculator calculator =
         AccountMetricsCalculatorFactory.getCalculator(ProductType.CDT);

@@ -6,10 +6,10 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.isZero;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.calculators.MoneyGrowthCalculator;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.Objects;
@@ -32,7 +32,7 @@ public class MonthlyBalanceDomain {
 
   // Attributes
   private final Long id;
-  private final AccountId accountId;
+  private final ProductId accountId;
   private final Integer year;
   private final Integer month;
   private final YearMonth period;
@@ -61,7 +61,7 @@ public class MonthlyBalanceDomain {
   @SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.NPathComplexity"})
   public MonthlyBalanceDomain(
       final Long id,
-      final AccountId accountId,
+      final ProductId accountId,
       final Integer year,
       final Integer month,
       final YearMonth period,
@@ -97,7 +97,7 @@ public class MonthlyBalanceDomain {
   }
 
   /** Constructor with required fields. */
-  private MonthlyBalanceDomain(final AccountId accountId, final YearMonth period) {
+  private MonthlyBalanceDomain(final ProductId accountId, final YearMonth period) {
     this.accountId = accountId;
     this.period = period;
     this.year = period.getYear();
@@ -106,7 +106,7 @@ public class MonthlyBalanceDomain {
     this.id = null;
   }
 
-  public static MonthlyBalanceDomain withPeriod(final AccountId accountId, final YearMonth period) {
+  public static MonthlyBalanceDomain withPeriod(final ProductId accountId, final YearMonth period) {
     return new MonthlyBalanceDomain(accountId, period);
   }
 
@@ -157,20 +157,20 @@ public class MonthlyBalanceDomain {
     LOG.info("Adjusted Opening Balance {} for next period: {}", this.openingBalance, this.period);
   }
 
-  public void assignMovement(final AccountMovementDomain movement) throws AccountBusinessException {
+  public void assignMovement(final AccountMovementDomain movement) throws ProductBusinessException {
     validateMovementPeriod(movement);
     syncBalancesByMovement(movement);
     recalculateBalances();
   }
 
   private void validateMovementPeriod(final AccountMovementDomain mvmt)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     if (mvmt.getMovementDate() == null) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_DATE);
+      throw new ProductBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_DATE);
     }
     final YearMonth movementPeriod = YearMonth.from(mvmt.getMovementDate());
     if (this.getPeriod().isBefore(movementPeriod) || this.getPeriod().isAfter(movementPeriod)) {
-      throw new AccountBusinessException(
+      throw new ProductBusinessException(
           BusinessDomainExceptionType.INVALID_MOV_DATE_MONTHLY_PERIOD);
     }
   }
@@ -199,7 +199,7 @@ public class MonthlyBalanceDomain {
    * asynchronously and when syncing the current and next monthly balances. The monthly balances are
    * already persisted in the database.
    */
-  public void recalculateBalances() throws AccountBusinessException {
+  public void recalculateBalances() throws ProductBusinessException {
     syncMonthlyNetProfit();
     syncNetGrowthRate();
   }
@@ -222,7 +222,7 @@ public class MonthlyBalanceDomain {
     }
   }
 
-  private void syncNetGrowthRate() throws AccountBusinessException {
+  private void syncNetGrowthRate() throws ProductBusinessException {
     LOG.debug("Syncing Net Growth Rate for account {} and period {}", accountId, period);
     final var movementBalance = getMovementBalance();
     if (this.officialMonthlyReport && isNotZero(monthlyProfitReported)) {
@@ -248,7 +248,7 @@ public class MonthlyBalanceDomain {
       final BigDecimal closingBalance,
       final BigDecimal monthlyProfitReported,
       final BigDecimal incomeWithholdingTaxAmount)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     setOfficialMonthlyReport(closingBalance, monthlyProfitReported, incomeWithholdingTaxAmount);
     recalculateBalances();
   }

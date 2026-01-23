@@ -3,7 +3,7 @@ package com.jbh.account.domain.calculators;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +25,7 @@ public class MoneyGrowthCalculatorTest {
       final BigDecimal opening, final BigDecimal closing, final BigDecimal movement) {
     try {
       return calculator.calculateGrowth(opening, closing, movement);
-    } catch (final AccountBusinessException e) {
+    } catch (final ProductBusinessException e) {
       throw new RuntimeException(e);
     }
   }
@@ -37,7 +37,7 @@ public class MoneyGrowthCalculatorTest {
     final BigDecimal movement = new BigDecimal("-3768488");
 
     assertThrows(
-        AccountBusinessException.class,
+        ProductBusinessException.class,
         () -> calculator.calculateGrowth(opening, closing, movement));
   }
 

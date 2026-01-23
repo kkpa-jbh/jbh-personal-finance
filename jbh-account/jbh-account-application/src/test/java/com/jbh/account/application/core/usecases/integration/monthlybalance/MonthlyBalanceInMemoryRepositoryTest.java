@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
 import com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.List;
@@ -16,12 +16,12 @@ import org.junit.jupiter.api.Test;
 class MonthlyBalanceInMemoryRepositoryTest {
 
   private InMemoryMonthlyBalanceRepositories repositories;
-  private AccountId testAccountId;
+  private ProductId testAccountId;
 
   @BeforeEach
   void setUp() {
     repositories = new InMemoryMonthlyBalanceRepositories();
-    testAccountId = AccountId.generate();
+    testAccountId = ProductId.generate();
   }
 
   @Test
@@ -76,7 +76,7 @@ class MonthlyBalanceInMemoryRepositoryTest {
   }
 
   private MonthlyBalanceDTO createBalance(
-      final AccountId accountId, final int year, final int month, final BigDecimal closingBalance) {
+      final ProductId accountId, final int year, final int month, final BigDecimal closingBalance) {
     return MonthlyBalanceDTO.defaultBuilder()
         .accountId(accountId)
         .year(year)
@@ -92,8 +92,8 @@ class MonthlyBalanceInMemoryRepositoryTest {
   @Test
   void shouldHandleMultipleAccountsSeparately() {
     // Given
-    final AccountId accountId1 = AccountId.generate();
-    final AccountId accountId2 = AccountId.generate();
+    final ProductId accountId1 = ProductId.generate();
+    final ProductId accountId2 = ProductId.generate();
 
     repositories
         .getWriterRepo()

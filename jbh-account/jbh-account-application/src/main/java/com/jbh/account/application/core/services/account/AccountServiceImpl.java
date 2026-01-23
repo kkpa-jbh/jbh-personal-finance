@@ -11,11 +11,11 @@ import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.domain.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -38,8 +38,8 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public ProductDTO findByUserAndAccountId(final UUID userId, final AccountId accountId)
-      throws AccountBusinessException {
+  public ProductDTO findByUserAndAccountId(final UUID userId, final ProductId accountId)
+      throws ProductBusinessException {
 
     if (userId == null) {
       log.error("User ID cannot be null");
@@ -58,18 +58,18 @@ public class AccountServiceImpl implements AccountService {
               log.error(
                   "Account not found for user: {} and account: {}", userId, accountId.value());
 
-              return new AccountBusinessException(
+              return new ProductBusinessException(
                   BusinessApplicationExceptionType.PRODUCT_NOT_FOUND);
             });
   }
 
   @Override
-  public ProductDTO findAccountOrThrow(final AccountId accountId) {
+  public ProductDTO findAccountOrThrow(final ProductId accountId) {
     return findByAccountId(accountId)
         .orElseThrow(() -> new IllegalArgumentException("Account not found"));
   }
 
-  private Optional<ProductDTO> findByAccountId(final AccountId accountId) {
+  private Optional<ProductDTO> findByAccountId(final ProductId accountId) {
     return accountRepo.findByAccountId(accountId);
   }
 
@@ -85,7 +85,7 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public void updateClosingProfitBalances(
-      final AccountId accountId,
+      final ProductId accountId,
       final BigDecimal closingBalance,
       final BigDecimal calculatedNetProfit) {
 
@@ -100,7 +100,7 @@ public class AccountServiceImpl implements AccountService {
     save(accountDomain);
   }
 
-  private ProductDomain findDomainOrThrow(final AccountId accountId) {
+  private ProductDomain findDomainOrThrow(final ProductId accountId) {
     final Optional<ProductDTO> accountDTO = findByAccountId(accountId);
 
     if (accountDTO.isEmpty()) {
@@ -111,7 +111,7 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public void updateClosingBalances(final AccountId accountId, final BigDecimal closingBalance) {
+  public void updateClosingBalances(final ProductId accountId, final BigDecimal closingBalance) {
     final var accountDomain = findDomainOrThrow(accountId);
     accountDomain.setCurrentBalance(closingBalance);
 
@@ -120,7 +120,7 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public boolean isFullyWithdrawn(final AccountId accountId) {
+  public boolean isFullyWithdrawn(final ProductId accountId) {
     final ProductDomain accountDomain = findDomainOrThrow(accountId);
     return accountDomain.isFullyWithdrawn();
   }
@@ -133,7 +133,7 @@ public class AccountServiceImpl implements AccountService {
    */
   @Override
   public void updateWhenFullyWithdrawn(
-      final AccountId accountId, final List<MonthlyBalanceDTO> monthlyBalances) {
+      final ProductId accountId, final List<MonthlyBalanceDTO> monthlyBalances) {
     final var accountDomain = findDomainOrThrow(accountId);
     if (accountDomain.isFullyWithdrawn()) {
       log.info("Updating account {} when it's fully withdrawn", accountId);
@@ -157,10 +157,10 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public ProductDTO syncByMovement(
-      final AccountPK accountPK,
+      final ProductPK accountPK,
       final MovementDTO movement,
       final boolean isMonthOfficiallyReported)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
 
     final ProductDomain accountDomain = findDomainOrThrow(accountPK);
     syncAccountDomainBalanceByMovement(
@@ -175,17 +175,17 @@ public class AccountServiceImpl implements AccountService {
       final ProductDomain accountDomain,
       final AccountMovementDomain movement,
       final boolean isMonthOfficiallyReported)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     accountDomain.syncBalancesByMovement(movement, isMonthOfficiallyReported);
   }
 
   @Override
   public ProductDTO syncByUploadedMovements(
       final ProductDomain accountDomain, final List<AccountMovementDomain> uploadedMovements)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
 
     if (uploadedMovements == null || uploadedMovements.isEmpty()) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENTS);
+      throw new ProductBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENTS);
     }
     final List<AccountMovementDomain> filteredMovements =
         uploadedMovements.stream().filter(Objects::nonNull).toList();
@@ -193,7 +193,7 @@ public class AccountServiceImpl implements AccountService {
     for (final AccountMovementDomain movement : filteredMovements) {
       try {
         syncAccountDomainBalanceByMovement(accountDomain, movement, false);
-      } catch (final AccountBusinessException ex) {
+      } catch (final ProductBusinessException ex) {
         log.error("Error syncing account movement by movement {}", movement);
         throw ex;
       }
@@ -202,10 +202,10 @@ public class AccountServiceImpl implements AccountService {
     return toDTO(accountDomain);
   }
 
-  private ProductDomain findDomainOrThrow(final AccountPK accountPK)
-      throws AccountBusinessException {
+  private ProductDomain findDomainOrThrow(final ProductPK accountPK)
+      throws ProductBusinessException {
     final UUID userId = accountPK.userId();
-    final AccountId accountId = accountPK.accountId();
+    final ProductId accountId = accountPK.accountId();
 
     final ProductDTO accountDTO = findByUserAndAccountId(userId, accountId);
 

@@ -2,7 +2,7 @@ package com.jbh.account.domain.validation.account.creation;
 
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductMetadataKey;
@@ -20,29 +20,29 @@ public class InvestmentAccountCreationValidator extends BaseAccountCreationValid
     implements ProductCreationValidator {
 
   @Override
-  public void validateMetadata(final ProductMetadata metadata) throws AccountBusinessException {
+  public void validateMetadata(final ProductMetadata metadata) throws ProductBusinessException {
     validateBrokerName(metadata);
   }
 
-  private void validateBrokerName(final ProductMetadata metadata) throws AccountBusinessException {
+  private void validateBrokerName(final ProductMetadata metadata) throws ProductBusinessException {
     if (!metadata.hasKey(ProductMetadataKey.BROKER_NAME)) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.MISSING_BROKER_NAME);
+      throw new ProductBusinessException(BusinessDomainExceptionType.MISSING_BROKER_NAME);
     }
 
     final String brokerName = metadata.getInvestment().getBrokerName();
     if (brokerName == null || brokerName.isBlank()) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.MISSING_BROKER_NAME);
+      throw new ProductBusinessException(BusinessDomainExceptionType.MISSING_BROKER_NAME);
     }
 
     if (!metadata.hasKey(ProductMetadataKey.COMMISSION_RATE)) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.MISSING_COMMISSION_RATE);
+      throw new ProductBusinessException(BusinessDomainExceptionType.MISSING_COMMISSION_RATE);
     }
   }
 
   @Override
   public void validateInsufficientNetFlow(
       final ProductDomain productDomain, final AccountMovementDomain movement)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     // Do Nothing
   }
 }

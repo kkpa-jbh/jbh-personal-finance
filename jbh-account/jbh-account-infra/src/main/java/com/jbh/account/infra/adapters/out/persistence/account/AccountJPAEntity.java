@@ -1,7 +1,7 @@
 package com.jbh.account.infra.adapters.out.persistence.account;
 
 import com.jbh.account.application.core.dto.ProductDTO;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductMetadataKey;
 import com.jbh.account.domain.vo.ProductType;
@@ -97,7 +97,7 @@ public class AccountJPAEntity extends PanacheEntityBase {
   }
 
   public ProductDTO toDTO() {
-    return ProductDTO.defaultBuilder(userId, AccountId.of(id), name, type)
+    return ProductDTO.defaultBuilder(userId, ProductId.of(id), name, type)
         .movementBalance(movementBalance)
         .currentBalance(currentBalance)
         .netProfitBalance(netProfitBalance)

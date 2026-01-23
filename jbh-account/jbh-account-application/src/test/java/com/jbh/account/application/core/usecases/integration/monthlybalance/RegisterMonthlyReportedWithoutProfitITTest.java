@@ -31,9 +31,9 @@ import com.jbh.account.application.core.usecases.utils.IgnoreAccountOptions;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
@@ -90,7 +90,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   // Static to be shared between tests
   static int totalMonthsCreated = 1;
   static ProductDTO createdAccount;
-  static AccountId accountId;
+  static ProductId accountId;
   @Mock private static AccountMovementWriterRepository accountMovementRepository;
   private static MonthlyBalanceService monthlyBalanceService;
   private static RegisterMonthlyBalanceUseCase useCaseTest;
@@ -132,7 +132,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
   @Test
   @Order(1)
-  void settingInitialReportedBalanceNov24() throws AccountBusinessException {
+  void settingInitialReportedBalanceNov24() throws ProductBusinessException {
 
     // Given
     createdAccount =
@@ -220,7 +220,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   private void addMovement(final AddMovementCommand movement) {
     try {
       addMovementUseCase.addMovement(userId, accountId, movement);
-    } catch (final AccountBusinessException e) {
+    } catch (final ProductBusinessException e) {
       throw new RuntimeException(e);
     }
     try {
@@ -648,7 +648,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
     final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
     Assertions.assertThrows(
-        AccountBusinessException.class,
+        ProductBusinessException.class,
         () ->
             savedMonthlyBalance.set(
                 useCaseTest.registerOfficialMonthlyBalance(
@@ -688,12 +688,12 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
   @Test
   @Order(99)
-  void verifyAllMonthlyBalances() throws AccountBusinessException {
+  void verifyAllMonthlyBalances() throws ProductBusinessException {
     final YearMonth startPeriod = YearMonth.of(2024, 11);
     final YearMonth endPeriod = YearMonth.now();
     final List<MonthlyBalanceDTO> monthlyBalances =
         findMonthlyBalanceUseCase.findByAccountAndPeriods(
-            new AccountPK(userId, accountId), startPeriod, endPeriod);
+            new ProductPK(userId, accountId), startPeriod, endPeriod);
 
     assertNotNull(monthlyBalances);
     monthlyBalances.forEach(
@@ -710,9 +710,9 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     final YearMonth endPeriod = YearMonth.now();
 
     assertThrows(
-        AccountBusinessException.class,
+        ProductBusinessException.class,
         () ->
             findMonthlyBalanceUseCase.findByAccountAndPeriods(
-                new AccountPK(UUID.randomUUID(), accountId), startPeriod, endPeriod));
+                new ProductPK(UUID.randomUUID(), accountId), startPeriod, endPeriod));
   }
 }

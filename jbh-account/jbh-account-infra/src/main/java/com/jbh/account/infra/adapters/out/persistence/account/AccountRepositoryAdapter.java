@@ -2,7 +2,7 @@ package com.jbh.account.infra.adapters.out.persistence.account;
 
 import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.ports.output.AccountRepository;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -18,7 +18,7 @@ public class AccountRepositoryAdapter implements AccountRepository {
   @Inject AccountJPARepository jpaRepo;
 
   @Override
-  public Optional<ProductDTO> findByUserAndAccountId(final UUID userId, final AccountId accountId) {
+  public Optional<ProductDTO> findByUserAndAccountId(final UUID userId, final ProductId accountId) {
     if (userId == null || accountId == null || accountId.value() == null) {
       throw new IllegalArgumentException("User ID or Account ID cannot be null");
     }
@@ -29,7 +29,7 @@ public class AccountRepositoryAdapter implements AccountRepository {
   }
 
   @Override
-  public Optional<ProductDTO> findByAccountId(final AccountId accountId) {
+  public Optional<ProductDTO> findByAccountId(final ProductId accountId) {
     final Optional<AccountJPAEntity> foundAccount = jpaRepo.findByAccountId(accountId.value());
     return foundAccount.map(AccountJPAEntity::toDTO);
   }

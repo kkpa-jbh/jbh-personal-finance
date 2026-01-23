@@ -1,6 +1,6 @@
 package com.jbh.account.application.core.dto;
 
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.AccountMovementId;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
@@ -13,7 +13,7 @@ import lombok.Builder;
 @Builder
 public record MovementDTO(
     AccountMovementId id,
-    AccountId accountId,
+    ProductId accountId,
     MovementType movementType,
     MovementCategoryDTO category,
     BigDecimal movementAmount,

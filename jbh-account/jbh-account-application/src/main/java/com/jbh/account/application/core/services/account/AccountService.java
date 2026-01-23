@@ -5,9 +5,9 @@ import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.domain.vo.ProductPK;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -18,10 +18,10 @@ import java.util.UUID;
  * <p>Like a Repository abstraction.
  */
 public interface AccountService {
-  ProductDTO findByUserAndAccountId(UUID userId, AccountId accountId)
-      throws AccountBusinessException;
+  ProductDTO findByUserAndAccountId(UUID userId, ProductId accountId)
+      throws ProductBusinessException;
 
-  ProductDTO findAccountOrThrow(AccountId accountId);
+  ProductDTO findAccountOrThrow(ProductId accountId);
 
   ProductDTO save(ProductDTO account);
 
@@ -33,22 +33,22 @@ public interface AccountService {
    * @param calculatedNetProfit NULL to do nothing
    */
   void updateClosingProfitBalances(
-      AccountId accountId, BigDecimal closingBalance, BigDecimal calculatedNetProfit);
+      ProductId accountId, BigDecimal closingBalance, BigDecimal calculatedNetProfit);
 
   /**
    * @param accountId
    * @param closingBalance
    */
-  void updateClosingBalances(AccountId accountId, BigDecimal closingBalance);
+  void updateClosingBalances(ProductId accountId, BigDecimal closingBalance);
 
-  boolean isFullyWithdrawn(AccountId accountId);
+  boolean isFullyWithdrawn(ProductId accountId);
 
   /**
    * Updates the net growth rate of the account if it's fully withdrawn
    *
    * @param accountId Account ID
    */
-  void updateWhenFullyWithdrawn(AccountId accountId, List<MonthlyBalanceDTO> monthlyBalances);
+  void updateWhenFullyWithdrawn(ProductId accountId, List<MonthlyBalanceDTO> monthlyBalances);
 
   /**
    * Syncs the account by the movement. This method will update the account current balance and net
@@ -60,10 +60,10 @@ public interface AccountService {
    * @return
    */
   ProductDTO syncByMovement(
-      AccountPK accountPK, MovementDTO movement, boolean isMonthOfficiallyReported)
-      throws AccountBusinessException;
+      ProductPK accountPK, MovementDTO movement, boolean isMonthOfficiallyReported)
+      throws ProductBusinessException;
 
   ProductDTO syncByUploadedMovements(
       ProductDomain accountDomain, List<AccountMovementDomain> uploadedMovements)
-      throws AccountBusinessException;
+      throws ProductBusinessException;
 }

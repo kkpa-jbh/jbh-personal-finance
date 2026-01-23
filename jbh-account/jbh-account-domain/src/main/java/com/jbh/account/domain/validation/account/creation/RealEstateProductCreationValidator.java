@@ -4,7 +4,7 @@ import static com.jbh.account.domain.vo.ProductMetadataKey.REAL_ESTATE_DOWN_PAYM
 
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.utils.JbhMoneyUtils;
 import com.jbh.account.domain.vo.ProductMetadata;
@@ -18,14 +18,14 @@ public class RealEstateProductCreationValidator extends BaseAccountCreationValid
     implements ProductCreationValidator {
 
   @Override
-  public void validateMetadata(final ProductMetadata metadata) throws AccountBusinessException {
+  public void validateMetadata(final ProductMetadata metadata) throws ProductBusinessException {
     final List<ProductMetadataKey> requiredMetadata =
         ProductMetadataKey.findRequiredMetadataBy(ProductType.REAL_ESTATE_INVESTMENT);
 
     // Validate required metadata
     for (final ProductMetadataKey key : requiredMetadata) {
       if (!metadata.hasKey(key)) {
-        throw new AccountBusinessException(
+        throw new ProductBusinessException(
             BusinessDomainExceptionType.MISSING_METADATA, key.name());
       }
     }
@@ -45,7 +45,7 @@ public class RealEstateProductCreationValidator extends BaseAccountCreationValid
   @Override
   public void validateInsufficientNetFlow(
       final ProductDomain productDomain, final AccountMovementDomain movement)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     // No validation needed for real estate products
   }
 }

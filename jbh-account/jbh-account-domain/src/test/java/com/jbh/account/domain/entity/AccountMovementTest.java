@@ -13,9 +13,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.AccountMovementMetadataKey;
 import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
@@ -35,21 +35,21 @@ public class AccountMovementTest {
   public void setUp() {
     accountCeroBalance =
         AccountDomainTestBuilder.createSavingProductWithBalance(
-            AccountId.generate(), userId, JBH_ZERO, JBH_ZERO);
+            ProductId.generate(), userId, JBH_ZERO, JBH_ZERO);
 
     account100Balance =
         AccountDomainTestBuilder.createSavingProductWithBalance(
-            AccountId.generate(), userId, new BigDecimal("100.00"), new BigDecimal("100.00"));
+            ProductId.generate(), userId, new BigDecimal("100.00"), new BigDecimal("100.00"));
   }
 
   @Test
-  public void shouldCreateMovementWithFileImport() throws AccountBusinessException {
+  public void shouldCreateMovementWithFileImport() throws ProductBusinessException {
     final var movementBalance = new BigDecimal("100.00");
     final var currentBalance = new BigDecimal("200.00");
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createSavingProductWithBalance(
-            AccountId.generate(), userId, movementBalance, currentBalance);
+            ProductId.generate(), userId, movementBalance, currentBalance);
 
     final var totalAmount = new BigDecimal("100.00");
     final var balanceSnapshot = new BigDecimal("210.00");
@@ -113,7 +113,7 @@ public class AccountMovementTest {
 
     assertThrows(
         GenericSpecificationException.class,
-        () -> EntityBuilder.with(AccountId.generate(), null, null, null, null, null));
+        () -> EntityBuilder.with(ProductId.generate(), null, null, null, null, null));
 
     assertThrows(
         GenericSpecificationException.class,

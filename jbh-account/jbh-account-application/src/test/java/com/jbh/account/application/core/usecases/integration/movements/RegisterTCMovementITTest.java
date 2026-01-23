@@ -21,7 +21,7 @@ import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.integration.monthlybalance.RegisterMonthlyReportedWithoutProfitITTest;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductMetadata;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -74,7 +74,7 @@ public class RegisterTCMovementITTest {
 
   @Test
   @Order(0)
-  void createAccount() throws AccountBusinessException {
+  void createAccount() throws ProductBusinessException {
     final LocalDate mvmDate = period.atDay(1);
     final ProductMetadata metadata = ProductMetadata.empty();
     metadata.getCreditCard().putCreditLimit(CREDIT_LIMIT);
@@ -109,7 +109,7 @@ public class RegisterTCMovementITTest {
 
   @Test
   @Order(1)
-  void registerExpense202301() throws AccountBusinessException {
+  void registerExpense202301() throws ProductBusinessException {
     final LocalDate mvmDate = period.atDay(10);
     final var personalExpense = new BigDecimal("800.00");
     addMovementUseCase.addMovement(
@@ -135,7 +135,7 @@ public class RegisterTCMovementITTest {
 
   @Test
   @Order(2)
-  void registerDeposit202301() throws AccountBusinessException {
+  void registerDeposit202301() throws ProductBusinessException {
     final LocalDate mvmDate = period.atDay(10);
     final var personalExpense = new BigDecimal("200.00");
     addMovementUseCase.addMovement(
@@ -181,7 +181,7 @@ public class RegisterTCMovementITTest {
 
   @Test
   @Order(3)
-  void registerExpenses202302() throws AccountBusinessException {
+  void registerExpenses202302() throws ProductBusinessException {
     final YearMonth currentPeriod = period.plusMonths(1);
     final LocalDate mvmDate = currentPeriod.atDay(10);
     final var personalExpense = new BigDecimal("100.00");
@@ -231,7 +231,7 @@ public class RegisterTCMovementITTest {
     final var personalExpense = new BigDecimal("300.00");
 
     assertThrows(
-        AccountBusinessException.class,
+        ProductBusinessException.class,
         () -> {
           addMovementUseCase.addMovement(
               userId, creditCardAccount.id(), createPersonalExpense(mvmDate, personalExpense));
@@ -240,7 +240,7 @@ public class RegisterTCMovementITTest {
 
   @Test
   @Order(5)
-  void payExpenses202302() throws AccountBusinessException {
+  void payExpenses202302() throws ProductBusinessException {
     final YearMonth currentPeriod = period.plusMonths(1);
     final LocalDate mvmDate = currentPeriod.atDay(10);
     final var personalExpense = new BigDecimal("800.00");

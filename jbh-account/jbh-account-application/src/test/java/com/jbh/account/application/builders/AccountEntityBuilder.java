@@ -4,7 +4,7 @@ import static com.jbh.account.application.builders.UseCaseBuilder.DEFAULT_ACCOUN
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
@@ -18,7 +18,7 @@ import java.util.UUID;
  */
 public class AccountEntityBuilder {
 
-  private AccountId accountId;
+  private ProductId accountId;
   private UUID userId;
   private BigDecimal movementBalance;
   private BigDecimal currentBalance;
@@ -39,7 +39,7 @@ public class AccountEntityBuilder {
    * @return AccountDomain instance
    */
   public static ProductDomain withBasicMovementForExisting(
-      final AccountId accountId,
+      final ProductId accountId,
       final UUID userId,
       final BigDecimal movementBalance,
       final BigDecimal currentBalance) {
@@ -101,7 +101,7 @@ public class AccountEntityBuilder {
     return this;
   }
 
-  public AccountEntityBuilder withAccountId(final AccountId accountId) {
+  public AccountEntityBuilder withAccountId(final ProductId accountId) {
     this.accountId = accountId;
     return this;
   }
@@ -119,7 +119,7 @@ public class AccountEntityBuilder {
   }
 
   public static AccountEntityBuilder withBuilder(
-      final AccountId accountId,
+      final ProductId accountId,
       final UUID userId,
       final BigDecimal movementBalance,
       final BigDecimal currentBalance,

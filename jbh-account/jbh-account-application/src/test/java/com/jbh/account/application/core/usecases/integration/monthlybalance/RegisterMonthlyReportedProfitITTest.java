@@ -28,8 +28,8 @@ import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.CategoryType;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
@@ -64,7 +64,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
   static CreateProductUseCase createAccountUseCase;
   static ProductDTO createdAccount;
-  static AccountId accountId;
+  static ProductId accountId;
   static int commandIndex = -1;
   static MonthlyBalanceService monthlyBalanceService;
   private static MonthlyBalanceDTO finalReported20249;
@@ -107,7 +107,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
   @Test
   @Order(0)
-  void settingInitialBalance() throws AccountBusinessException {
+  void settingInitialBalance() throws ProductBusinessException {
     ++commandIndex;
     createdAccount =
         createAccountUseCase.execute(
@@ -397,7 +397,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
   @Test
   @Order(4)
-  void month4ProfitReport202411() throws AccountBusinessException {
+  void month4ProfitReport202411() throws ProductBusinessException {
     final var beforeMovementBalance = finalAccountBalance.movementBalance();
     final var beforeNetProfitBalance = finalAccountBalance.netProfitBalance();
     ++commandIndex;
@@ -507,7 +507,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
   @Test
   @Order(5)
-  void month5ProfitReport202412() throws AccountBusinessException {
+  void month5ProfitReport202412() throws ProductBusinessException {
     ++commandIndex;
     final var previousAccountMovementBalance = finalAccountBalance.movementBalance();
     final var previousAccountNetProfitBalance = finalAccountBalance.netProfitBalance();
@@ -568,7 +568,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
   @Test
   @Order(6)
-  void month6ProfitReport202501() throws AccountBusinessException {
+  void month6ProfitReport202501() throws ProductBusinessException {
     ++commandIndex;
 
     final AddMonthlyBalanceCommand command = getCurrentCommand();
@@ -639,7 +639,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
   @Test
   @Order(7)
-  void registerReportWithRetefuente20252() throws AccountBusinessException {
+  void registerReportWithRetefuente20252() throws ProductBusinessException {
     LOG.info("registerReportWithRetefuente20252 - START");
     ++commandIndex;
     final AddMonthlyBalanceCommand command = getCurrentCommand();

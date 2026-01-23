@@ -5,7 +5,7 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.isNegativeOrZero;
 
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductMetadata;
 import java.math.BigDecimal;
 
@@ -22,7 +22,7 @@ public class InvestmentAccountMetricsCalculator extends BaseAccountMetricsCalcul
       final BigDecimal openingBalance,
       final ProductDomain accountDomain,
       final BigDecimal movementAmount)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     // When it's fully withdrawal
     if (accountDomain.isFullyWithdrawn() && isNegativeOrZero(accountDomain.getCurrentBalance())) {
       return moneyGrowthCalculator.calculateGrowth(openingBalance, movementAmount.abs(), JBH_ZERO);

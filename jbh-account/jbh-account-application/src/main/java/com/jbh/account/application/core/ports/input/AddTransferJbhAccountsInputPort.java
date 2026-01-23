@@ -8,9 +8,9 @@ import com.jbh.account.application.core.services.movements.AccountMovementApplic
 import com.jbh.account.application.core.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.AddTransferCommand;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
@@ -35,8 +35,8 @@ public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUs
   }
 
   @Override
-  public void addTransfer(final AccountPK fromAccount, final AddTransferCommand transferCommand)
-      throws AccountBusinessException {
+  public void addTransfer(final ProductPK fromAccount, final AddTransferCommand transferCommand)
+      throws ProductBusinessException {
 
     transferCommand.validate();
 
@@ -74,7 +74,7 @@ public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUs
 
     LOG.info("Registering the deposit movement for the account {}", toAccountName);
     accountMovementService.addMovementProcessingBalances(
-        new AccountPK(toAccountDTO.userId(), toAccountDTO.id()), movementCommandFrom);
+        new ProductPK(toAccountDTO.userId(), toAccountDTO.id()), movementCommandFrom);
 
     LOG.info("Registering the withdrawal movement for the account {}", fromAccountName);
     accountMovementService.addMovementProcessingBalances(fromAccount, movementCommandTo);
@@ -85,11 +85,11 @@ public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUs
    *
    * @param fromProductDTO the 'from' account
    * @param movementCommand the movement command representing the transfer
-   * @throws AccountBusinessException if the 'from' account does not have sufficient net flow
+   * @throws ProductBusinessException if the 'from' account does not have sufficient net flow
    */
   private void transferValidationFROM(
       final ProductDTO fromProductDTO, final AddMovementCommand movementCommand)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     final var movementDTO = MovementMapper.fromCommand(fromProductDTO.id(), movementCommand);
     AccountMapper.toDomain(fromProductDTO)
         .validateInsufficientNetFlow(MovementMapper.toDomain(movementDTO));
@@ -97,13 +97,13 @@ public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUs
 
   private void transferValidationTO(
       final ProductDTO toAccountDTO, final AddMovementCommand movementCommandTo)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     if (toAccountDTO.isLoan()) {
       final BigDecimal movementAmount = movementCommandTo.totalAmount();
       final BigDecimal pendingToPaid = toAccountDTO.metadata().getLoan().getPayoffAmountToday();
 
       if (movementAmount.compareTo(pendingToPaid) > 0) {
-        throw new AccountBusinessException(
+        throw new ProductBusinessException(
             BusinessDomainExceptionType.PAYMENT_AMOUNT_GREATER_PAYOFF);
       }
     }

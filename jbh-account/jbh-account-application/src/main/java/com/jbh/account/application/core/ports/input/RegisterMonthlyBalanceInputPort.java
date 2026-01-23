@@ -13,9 +13,9 @@ import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.domain.entity.MonthlyBalanceDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import java.time.Duration;
@@ -57,15 +57,15 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
    * @param accountId
    * @param addMonthlyBalanceCommand
    * @return
-   * @throws AccountBusinessException
+   * @throws ProductBusinessException
    */
   @Override
   public MonthlyBalanceDTO registerOfficialMonthlyBalance(
       final LocalDate runningDate,
       final UUID userId,
-      final AccountId accountId,
+      final ProductId accountId,
       final AddMonthlyBalanceCommand addMonthlyBalanceCommand)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
 
     // Command validation
     addMonthlyBalanceCommand.validate();
@@ -87,7 +87,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
       log.info(
           "The monthly balanced has not been reported before. Creating Initial Balance Movement");
       accountMovementService.addMovementProcessingBalances(
-          new AccountPK(userId, accountId),
+          new ProductPK(userId, accountId),
           new AddMovementCommand(
               addMonthlyBalanceCommand.monthlyPeriod().atDay(1),
               addMonthlyBalanceCommand.closingBalance(),
@@ -107,7 +107,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
     if (monthlyBalanceDomain == null) {
       throw new IllegalArgumentException("Monthly Balance not found");
     }
-    final AccountPK accountPK = new AccountPK(userId, accountId);
+    final ProductPK accountPK = new ProductPK(userId, accountId);
     final MonthlyBalanceDTO monthlyBalanceDTO =
         findProfitStrategy(addMonthlyBalanceCommand)
             .registerOfficialMonthlyBalance(
@@ -124,15 +124,15 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
   }
 
   private void validatePeriod(final LocalDate runningDate, final YearMonth periodToRegister)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     if (!periodToRegister.isBefore(YearMonth.from(runningDate))) {
-      throw new AccountBusinessException(
+      throw new ProductBusinessException(
           BusinessApplicationExceptionType.MONTHLY_BALANCE_PERIOD_NOT_IN_PAST);
     }
   }
 
   private void validateConsecutiveMonthlyBalances(
-      final AccountId accountId, final YearMonth periodToRegister) throws AccountBusinessException {
+      final ProductId accountId, final YearMonth periodToRegister) throws ProductBusinessException {
 
     log.debug("Validating consecutive balances for period {}", periodToRegister);
 
@@ -142,7 +142,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
       final YearMonth lastOfficialReportPeriod = lastOfficialReport.get().period();
 
       if (!periodToRegister.equals(lastOfficialReportPeriod.plusMonths(1))) {
-        throw new AccountBusinessException(
+        throw new ProductBusinessException(
             BusinessApplicationExceptionType.MONTHLY_BALANCE_NOT_CONSECUTIVE,
             lastOfficialReportPeriod);
       }
@@ -150,7 +150,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
   }
 
   private MonthlyBalanceDomain findMonthlyBalanceByPeriod(
-      final AccountId accountId, final YearMonth periodToRegister) {
+      final ProductId accountId, final YearMonth periodToRegister) {
     return monthlyBalanceService
         .findByAccountIdYearAndMonth(
             accountId, periodToRegister.getYear(), periodToRegister.getMonthValue())

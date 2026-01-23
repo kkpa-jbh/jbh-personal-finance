@@ -1,8 +1,8 @@
 package com.jbh.account.application.core.ports.output.monthlybalance;
 
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.domain.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.List;
@@ -11,19 +11,19 @@ import java.util.Optional;
 public interface AccountMonthlyBalanceQueryRepo {
 
   Optional<MonthlyBalanceDTO> findByAccountIdYearAndMonth(
-      AccountId accountId, Integer balanceYear, Integer balanceMonth);
+      ProductId accountId, Integer balanceYear, Integer balanceMonth);
 
-  Optional<MonthlyBalanceDTO> findByAccountIdAndPeriod(AccountId accountId, YearMonth period);
+  Optional<MonthlyBalanceDTO> findByAccountIdAndPeriod(ProductId accountId, YearMonth period);
 
-  Optional<MonthlyBalanceDTO> findLastOfficialReport(AccountId accountId);
+  Optional<MonthlyBalanceDTO> findLastOfficialReport(ProductId accountId);
 
-  BigDecimal sumNetProfitOfficialReported(AccountId accountId);
+  BigDecimal sumNetProfitOfficialReported(ProductId accountId);
 
   List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
-      AccountId accountId, YearMonth currentPeriod);
+      ProductId accountId, YearMonth currentPeriod);
 
   List<MonthlyBalanceDTO> findByAccountAndPeriods(
-      AccountPK accountPK, YearMonth startPeriod, YearMonth endPeriod);
+      ProductPK accountPK, YearMonth startPeriod, YearMonth endPeriod);
 
-  List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(AccountId accountId);
+  List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(ProductId accountId);
 }

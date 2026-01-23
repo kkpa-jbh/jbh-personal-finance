@@ -8,8 +8,8 @@ import com.jbh.account.domain.entity.AccountDomainTestBuilder;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.MovementCategoryDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.MovementType;
@@ -77,7 +77,7 @@ class LoanAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateAsZeroWithPositiveValues() throws AccountBusinessException {
+  void shouldCalculateNetGrowthRateAsZeroWithPositiveValues() throws ProductBusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("10000.00");
     final BigDecimal movementAmount = new BigDecimal("500.00");
@@ -96,7 +96,7 @@ class LoanAccountMetricsCalculatorTest {
 
   @Test
   void shouldCalculateNetGrowthRateAsZeroWithNegativeMovementAmount()
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("10000.00");
     final BigDecimal movementAmount = new BigDecimal("-500.00");
@@ -115,7 +115,7 @@ class LoanAccountMetricsCalculatorTest {
 
   @Test
   void shouldCalculateNetGrowthRateAsZeroWithZeroOpeningBalance()
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     // Given
     final BigDecimal openingBalance = JBH_ZERO;
     final BigDecimal movementAmount = new BigDecimal("1000.00");
@@ -134,7 +134,7 @@ class LoanAccountMetricsCalculatorTest {
 
   @Test
   void shouldCalculateNetGrowthRateAsZeroWithZeroMovementAmount()
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("5000.00");
     final BigDecimal movementAmount = JBH_ZERO;
@@ -162,7 +162,7 @@ class LoanAccountMetricsCalculatorTest {
 
     final AccountMovementDomain movement =
         new AccountMovementDomain(
-            AccountId.generate(),
+            ProductId.generate(),
             MovementType.WITHDRAWAL,
             LocalDate.now(),
             new BigDecimal("-500.00"),
@@ -189,7 +189,7 @@ class LoanAccountMetricsCalculatorTest {
 
     final AccountMovementDomain movement =
         new AccountMovementDomain(
-            AccountId.generate(),
+            ProductId.generate(),
             MovementType.DEPOSIT,
             LocalDate.now(),
             new BigDecimal("1000.00"),
@@ -214,7 +214,7 @@ class LoanAccountMetricsCalculatorTest {
 
     final AccountMovementDomain movement =
         new AccountMovementDomain(
-            AccountId.generate(),
+            ProductId.generate(),
             MovementType.WITHDRAWAL,
             LocalDate.now(),
             new BigDecimal("-500.00"),
@@ -242,7 +242,7 @@ class LoanAccountMetricsCalculatorTest {
 
     final AccountMovementDomain movement =
         new AccountMovementDomain(
-            AccountId.generate(),
+            ProductId.generate(),
             MovementType.WITHDRAWAL,
             LocalDate.now(),
             new BigDecimal("-250.00"),
@@ -269,7 +269,7 @@ class LoanAccountMetricsCalculatorTest {
 
     final AccountMovementDomain movement =
         new AccountMovementDomain(
-            AccountId.generate(),
+            ProductId.generate(),
             MovementType.WITHDRAWAL,
             LocalDate.now(),
             new BigDecimal("-25000.00"),
@@ -296,7 +296,7 @@ class LoanAccountMetricsCalculatorTest {
 
     final AccountMovementDomain movement =
         new AccountMovementDomain(
-            AccountId.generate(),
+            ProductId.generate(),
             MovementType.WITHDRAWAL,
             LocalDate.now(),
             new BigDecimal("-500.654321"),

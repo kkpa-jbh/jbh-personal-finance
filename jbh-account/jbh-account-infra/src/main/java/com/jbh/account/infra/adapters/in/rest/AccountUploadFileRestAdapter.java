@@ -1,13 +1,13 @@
 package com.jbh.account.infra.adapters.in.rest;
 
-import static com.jbh.account.infra.adapters.in.rest.vo.AccountApiRoutes.MOVEMENTS_INBULK_API;
+import static com.jbh.account.infra.adapters.in.rest.vo.FinanceApiRoutes.MOVEMENTS_INBULK_API;
 import static com.jbh.account.infra.common.utils.JbhStringUtils.toLowerCase;
 
 import com.jbh.account.application.core.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.infra.adapters.in.rest.vo.AccountApiRoutes;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.infra.adapters.in.rest.vo.FinanceApiRoutes;
 import com.jbh.account.infra.adapters.in.rest.vo.AddMovementsUploadedFileRequest;
 import com.jbh.account.infra.adapters.in.rest.vo.ApiResponse;
 import com.jbh.account.infra.adapters.in.service.ExcelMovementReaderService;
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"PMD.UnnecessaryAnnotationValueElement", "PMD.CallSuperInConstructor"})
 @RequestScoped
-@Path(AccountApiRoutes.PRODUCTS_API_PATH)
+@Path(FinanceApiRoutes.PRODUCTS_API_PATH)
 @Tag(name = "Upload movements to an account", description = "Register multiple movements")
 public class AccountUploadFileRestAdapter extends BaseRestAdapter {
 
@@ -101,7 +101,7 @@ public class AccountUploadFileRestAdapter extends BaseRestAdapter {
           final UUID accountId,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
-      throws JbhGatewayException, AccountBusinessException {
+      throws JbhGatewayException, ProductBusinessException {
     log.info("Uploading excel file {}", authorizationHeader);
 
     final UUID userId = findUserId(authorizationHeader);
@@ -121,7 +121,7 @@ public class AccountUploadFileRestAdapter extends BaseRestAdapter {
       final List<AddMovementUploadedFileCommand> movementsCommandList =
           transformMovementsToCommands(movements);
       addUploadedMvmntsUseCase.uploadMovementsFromFile(
-          userId, AccountId.of(accountId), movementsCommandList);
+          userId, ProductId.of(accountId), movementsCommandList);
 
       log.info("Successfully processed {} movements from Excel file", movements.size());
 

@@ -2,7 +2,7 @@ package com.jbh.account.domain.validation.account.creation;
 
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductMetadataKey;
 
@@ -18,7 +18,7 @@ public class CdtAccountCreationValidator extends BaseAccountCreationValidator
     implements ProductCreationValidator {
 
   @Override
-  public void validateMetadata(final ProductMetadata metadata) throws AccountBusinessException {
+  public void validateMetadata(final ProductMetadata metadata) throws ProductBusinessException {
     // No specific metadata required for CDT accounts (yet)
     // Future validations can be added here:
     // - Maturity date
@@ -29,7 +29,7 @@ public class CdtAccountCreationValidator extends BaseAccountCreationValidator
   }
 
   private void validateMaturityDate(final ProductMetadata metadata)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     if (metadata.hasKey(ProductMetadataKey.MATURITY_DATE)) {
       metadata.getCdt().getMaturityDate();
     }
@@ -38,7 +38,7 @@ public class CdtAccountCreationValidator extends BaseAccountCreationValidator
   @Override
   public void validateInsufficientNetFlow(
       final ProductDomain productDomain, final AccountMovementDomain movement)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     // Do nothing
   }
 }

@@ -7,13 +7,13 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.isZero;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.calculators.MoneyWeightedReturnCalculator;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.validation.account.creation.AccountCreationValidatorFactory;
 import com.jbh.account.domain.validation.account.creation.ProductCreationValidator;
 import com.jbh.account.domain.validation.account.metrics.AccountMetricsCalculator;
 import com.jbh.account.domain.validation.account.metrics.AccountMetricsCalculatorFactory;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductMetadataKey;
 import com.jbh.account.domain.vo.ProductType;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public class ProductDomain {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProductDomain.class);
-  protected AccountId id;
+  protected ProductId id;
   protected String name;
   protected ProductType type;
   protected UUID userId;
@@ -55,14 +55,14 @@ public class ProductDomain {
   private AccountMetricsCalculator metricsCalculator;
 
   private ProductDomain(final String name, final ProductType type, final UUID userId) {
-    this.id = AccountId.generate();
+    this.id = ProductId.generate();
     this.name = name;
     this.type = type;
     this.userId = userId;
   }
 
   public ProductDomain(
-      final AccountId id,
+      final ProductId id,
       final String name,
       final ProductType type,
       final UUID userId,
@@ -97,11 +97,11 @@ public class ProductDomain {
    * @param userId User ID
    * @param metadata Account metadata (ProductMetadata instance)
    * @return AccountDomain instance
-   * @throws AccountBusinessException if validation fails based on account type requirements
+   * @throws ProductBusinessException if validation fails based on account type requirements
    */
   public static ProductDomain withMinimumDataForCreation(
       final String name, final ProductType type, final UUID userId, final ProductMetadata metadata)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
 
     // Use provided metadata or create empty if null
     final ProductMetadata productMetadata = metadata != null ? metadata : ProductMetadata.empty();
@@ -122,7 +122,7 @@ public class ProductDomain {
 
   private static void validateMetadata(
       final ProductType inputType, final ProductMetadata inputMetadata)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     getValidator(inputType).validateMetadata(inputMetadata);
   }
 
@@ -132,11 +132,11 @@ public class ProductDomain {
 
   public void syncBalancesByMovement(
       final AccountMovementDomain movement, final boolean wasOfficialReport)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     movement.validate();
 
     if (!this.getId().equals(movement.getAccountId())) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.ACCOUNT_MISMATCH);
+      throw new ProductBusinessException(BusinessDomainExceptionType.ACCOUNT_MISMATCH);
     }
 
     validateInsufficientNetFlow(movement);
@@ -145,7 +145,7 @@ public class ProductDomain {
   }
 
   public void validateInsufficientNetFlow(final AccountMovementDomain movement)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     getValidator(this.type).validateInsufficientNetFlow(this, movement);
   }
 
@@ -161,7 +161,7 @@ public class ProductDomain {
    */
   private void applyMovement(
       final AccountMovementDomain newAccountMovement, final boolean wasOfficialReport)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     final BigDecimal movementAmount = newAccountMovement.getMovementAmount();
 
     metricsCalculator = AccountMetricsCalculatorFactory.getCalculator(this.type);
@@ -230,12 +230,12 @@ public class ProductDomain {
   }
 
   private void syncNetGrowthRate(final BigDecimal openingBalance, final BigDecimal movementAmount)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     if (hasValidBalance()) {
       try {
         this.netGrowthRate =
             metricsCalculator.calculateNetGrowthReate(openingBalance, this, movementAmount);
-      } catch (final AccountBusinessException e) {
+      } catch (final ProductBusinessException e) {
         // FIXME figure out why it's failing
         // NU Test Closing Balance
         LOG.error("Error in calculating net Growth Rate {}", movementAmount);
@@ -243,7 +243,7 @@ public class ProductDomain {
     }
   }
 
-  private void syncProfitBalance() throws AccountBusinessException {
+  private void syncProfitBalance() throws ProductBusinessException {
     this.netProfitBalance = metricsCalculator.calculateProfitBalance(this);
   }
 
@@ -276,7 +276,7 @@ public class ProductDomain {
   }
 
   public void replaceAllMetadata(final ProductMetadata productMetadata)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     validateMetadata(this.type, productMetadata);
     this.metadata = ProductMetadata.fromMap(productMetadata.getData());
   }

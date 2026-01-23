@@ -3,7 +3,7 @@ package com.jbh.account.application.core.validation.product_type;
 import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +15,7 @@ public class InvestmentMovementValidator implements ProductMovementValidator {
   @Override
   public void validateMovementByProductType(
       final ProductDTO existingProduct, final MovementDTO movementDTO)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
 
     if (movementDTO.isBalanceSnapshot()) {
       return;
@@ -28,12 +28,12 @@ public class InvestmentMovementValidator implements ProductMovementValidator {
           && categoryType != ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT) {
 
         LOG.error("The Category {} is not valid for Investment accounts", categoryType);
-        throw new AccountBusinessException(
+        throw new ProductBusinessException(
             BusinessApplicationExceptionType.INVALID_CATEGORY_INVESTMENT_WITHDRAWAL);
       } else if (!existingProduct.isFullyWithdrawn()
           && categoryType == ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT) {
 
-        throw new AccountBusinessException(
+        throw new ProductBusinessException(
             BusinessApplicationExceptionType.INVALID_LIQUIDATION_AMOUNT);
       }
     }

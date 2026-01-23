@@ -2,7 +2,7 @@ package com.jbh.account.domain.validation.account.metrics;
 
 import com.jbh.account.domain.calculators.MoneyGrowthCalculator;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import java.math.BigDecimal;
 
 public class BaseAccountMetricsCalculator {
@@ -18,7 +18,7 @@ public class BaseAccountMetricsCalculator {
       final BigDecimal openingBalance,
       final BigDecimal closingBalance,
       final BigDecimal movementAmount)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     return moneyGrowthCalculator.calculateGrowth(openingBalance, closingBalance, movementAmount);
   }
 }

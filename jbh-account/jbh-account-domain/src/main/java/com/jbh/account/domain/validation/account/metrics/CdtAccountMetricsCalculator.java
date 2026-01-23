@@ -5,7 +5,7 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.isNegativeOrZero;
 
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductMetadata;
 import java.math.BigDecimal;
 
@@ -25,7 +25,7 @@ public class CdtAccountMetricsCalculator extends BaseAccountMetricsCalculator
       final BigDecimal openingBalance,
       final ProductDomain accountDomain,
       final BigDecimal movementAmount)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     final BigDecimal closingBalance = accountDomain.getCurrentBalance();
     if (isNegativeOrZero(closingBalance)) {
       return moneyGrowthCalculator.calculateGrowth(openingBalance, movementAmount.abs(), JBH_ZERO);

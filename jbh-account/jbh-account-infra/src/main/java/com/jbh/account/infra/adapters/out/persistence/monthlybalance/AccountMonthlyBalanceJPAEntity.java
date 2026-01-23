@@ -1,7 +1,7 @@
 package com.jbh.account.infra.adapters.out.persistence.monthlybalance;
 
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -128,7 +128,7 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
   public MonthlyBalanceDTO toDTO() {
     return MonthlyBalanceDTO.defaultBuilder()
         .id(id)
-        .accountId(AccountId.of(accountId))
+        .accountId(ProductId.of(accountId))
         .year(year)
         .month(month)
         .period(period)

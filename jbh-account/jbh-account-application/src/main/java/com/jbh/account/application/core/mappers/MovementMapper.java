@@ -7,7 +7,7 @@ import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.LiquidateAccountCommand;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.MovementCategoryDomain;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
@@ -42,7 +42,7 @@ public final class MovementMapper {
    * @return MovementDTO with the movement data
    */
   public static MovementDTO fromCommand(
-      final AccountId accountId, final AddMovementCommand command) {
+      final ProductId accountId, final AddMovementCommand command) {
     BigDecimal totalAmount = command.totalAmount();
     final MovementType movementType = command.movementType();
     totalAmount = movementType == WITHDRAWAL ? totalAmount.negate() : totalAmount;
@@ -86,7 +86,7 @@ public final class MovementMapper {
    * @return MovementDTO with the liquidation movement data
    */
   public static MovementDTO fromCommand(
-      final AccountId accountId, final LiquidateAccountCommand command) {
+      final ProductId accountId, final LiquidateAccountCommand command) {
     final BigDecimal totalAmount = command.currentBalance();
     final MovementCategoryDTO categoryDTO =
         MovementCategoryDTO.withType(ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT);

@@ -6,8 +6,8 @@ import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.MonthlyBalanceDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public class MonthlyBalanceSyncForUploadedMovements {
   }
 
   public List<MonthlyBalanceDTO> syncForUploadedMovementsAsync(
-      final AccountId accountId, final List<AccountMovementDomain> multipleMovementsDomain) {
+      final ProductId accountId, final List<AccountMovementDomain> multipleMovementsDomain) {
     // Group movements by Year-Month based on the movementDate attribute
     final Map<YearMonth, List<AccountMovementDomain>> movementsByPeriodMap =
         multipleMovementsDomain.stream()
@@ -66,7 +66,7 @@ public class MonthlyBalanceSyncForUploadedMovements {
           for (final AccountMovementDomain movement : movementsInPeriod) {
             try {
               accountMonthlyBalance.assignMovement(movement);
-            } catch (final AccountBusinessException e) {
+            } catch (final ProductBusinessException e) {
               throw new RuntimeException(e);
             }
           }
@@ -84,7 +84,7 @@ public class MonthlyBalanceSyncForUploadedMovements {
   }
 
   public CompletableFuture<List<MonthlyBalanceDTO>> persistBalancesAsync(
-      final AccountId accountId, final List<MonthlyBalanceDTO> monthlyBalances) {
+      final ProductId accountId, final List<MonthlyBalanceDTO> monthlyBalances) {
     return monthlyBalanceService.persistBalancesAsync(accountId, monthlyBalances);
   }
 }

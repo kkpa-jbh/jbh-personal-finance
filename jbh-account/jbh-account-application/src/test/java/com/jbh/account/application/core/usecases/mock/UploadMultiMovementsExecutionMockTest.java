@@ -39,8 +39,8 @@ import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileComma
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.entity.MonthlyBalanceDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
 
 @TestMethodOrder(MethodOrderer.class)
 public class UploadMultiMovementsExecutionMockTest {
-  static AccountId accountId = AccountId.generate();
+  static ProductId accountId = ProductId.generate();
   static UUID userId = UUID.randomUUID();
   static ProductDomain accountDomain =
       AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
@@ -130,7 +130,7 @@ public class UploadMultiMovementsExecutionMockTest {
   @DisplayName("Should create movements for NU")
   @Order(3)
   void shouldCreateMovementsForNU()
-      throws ExecutionException, InterruptedException, TimeoutException, AccountBusinessException {
+      throws ExecutionException, InterruptedException, TimeoutException, ProductBusinessException {
 
     createAccount("NU");
 
@@ -462,7 +462,7 @@ public class UploadMultiMovementsExecutionMockTest {
     assertTrue(accountDTO.isFullyWithdrawn());
   }
 
-  void createAccount(final String name) throws AccountBusinessException {
+  void createAccount(final String name) throws ProductBusinessException {
     currentAccount =
         createAccountUseCase.execute(createBasicAccountCommand(userId, name, ProductType.SAVINGS));
     accountId = currentAccount.id();
@@ -477,7 +477,7 @@ public class UploadMultiMovementsExecutionMockTest {
   @Test
   @DisplayName("Should create movements for PIKMI")
   void shouldCreatedMovementsForPIKMI()
-      throws ExecutionException, InterruptedException, TimeoutException, AccountBusinessException {
+      throws ExecutionException, InterruptedException, TimeoutException, ProductBusinessException {
 
     createAccount("PIKMI");
 
@@ -710,7 +710,7 @@ public class UploadMultiMovementsExecutionMockTest {
   @Test
   @DisplayName("Should create movements for PIBI")
   void shouldCreatedMovementsForPIBI()
-      throws ExecutionException, InterruptedException, TimeoutException, AccountBusinessException {
+      throws ExecutionException, InterruptedException, TimeoutException, ProductBusinessException {
 
     createAccount("PIBI");
     // Given

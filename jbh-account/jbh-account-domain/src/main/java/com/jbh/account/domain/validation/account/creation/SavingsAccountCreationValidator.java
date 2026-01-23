@@ -2,7 +2,7 @@ package com.jbh.account.domain.validation.account.creation;
 
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductMetadata;
 
 /**
@@ -16,7 +16,7 @@ public class SavingsAccountCreationValidator extends BaseAccountCreationValidato
     implements ProductCreationValidator {
 
   @Override
-  public void validateMetadata(final ProductMetadata metadata) throws AccountBusinessException {
+  public void validateMetadata(final ProductMetadata metadata) throws ProductBusinessException {
     // No specific metadata required for savings accounts (yet)
     // Future validations can be added here:
     // - Minimum balance
@@ -27,7 +27,7 @@ public class SavingsAccountCreationValidator extends BaseAccountCreationValidato
   @Override
   public void validateInsufficientNetFlow(
       final ProductDomain productDomain, final AccountMovementDomain movement)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     defaultValidationInsufficientNetFlow(productDomain, movement);
   }
 }

@@ -21,7 +21,7 @@ import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.vo.commands.CreateProductCommand;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
@@ -47,7 +47,7 @@ public class CreateProductITTest {
   }
 
   @Test
-  void accountCreationValidations() throws AccountBusinessException {
+  void accountCreationValidations() throws ProductBusinessException {
     assertThrows(GenericSpecificationException.class, () -> createAccountUseCase.execute(null));
     assertThrows(
         GenericSpecificationException.class,
@@ -63,9 +63,9 @@ public class CreateProductITTest {
     final CreateProductCommand missingTagsCreditCardAccount =
         createBasicAccountCommand(userId, "Test Credit Card", ProductType.CREDIT_CARD);
 
-    final AccountBusinessException exception =
+    final ProductBusinessException exception =
         assertThrows(
-            AccountBusinessException.class,
+            ProductBusinessException.class,
             () -> createAccountUseCase.execute(missingTagsCreditCardAccount),
             "Expected creation to fail when CREDIT_CARD account is missing required metadata");
 
@@ -75,9 +75,9 @@ public class CreateProductITTest {
     final CreateProductCommand missingBrokerInvestmentAccount =
         createBasicAccountCommand(userId, "Test Investment", ProductType.INVESTMENT);
 
-    final AccountBusinessException investmentException =
+    final ProductBusinessException investmentException =
         assertThrows(
-            AccountBusinessException.class,
+            ProductBusinessException.class,
             () -> createAccountUseCase.execute(missingBrokerInvestmentAccount),
             "Expected creation to fail when INVESTMENT account is missing BROKER_NAME");
 
@@ -107,11 +107,11 @@ public class CreateProductITTest {
     final CreateProductCommand invalidCommand =
         createCreditCardCommand(userId, "Test CDT", ProductMetadata.empty());
     assertThrows(
-        AccountBusinessException.class, () -> createAccountUseCase.execute(invalidCommand));
+        ProductBusinessException.class, () -> createAccountUseCase.execute(invalidCommand));
   }
 
   @Test
-  void createInvestmentAccount() throws AccountBusinessException {
+  void createInvestmentAccount() throws ProductBusinessException {
     // Investment WITH required metadata should succeed
     final CreateProductCommand validInvestmentCommand =
         createInvestmentCommand(userId, "Fidelity Portfolio", "Fidelity");
@@ -131,7 +131,7 @@ public class CreateProductITTest {
         createCreditCardCommand(userId, "Invalid Card", BigDecimal.ZERO, 15);
 
     assertThrows(
-        AccountBusinessException.class,
+        ProductBusinessException.class,
         () -> createAccountUseCase.execute(invalidCreditLimitCommand),
         "Expected creation to fail when credit limit is zero");
   }
@@ -143,13 +143,13 @@ public class CreateProductITTest {
         createCreditCardCommand(userId, "Invalid Card", creditLimit, 32); // Day 32 is invalid
 
     assertThrows(
-        AccountBusinessException.class,
+        ProductBusinessException.class,
         () -> createAccountUseCase.execute(invalidPaymentDayCommand),
         "Expected creation to fail when payment due day is out of valid range (1-31)");
   }
 
   @Test
-  void createCreditCardAccount() throws AccountBusinessException {
+  void createCreditCardAccount() throws ProductBusinessException {
     // Credit Card WITH required metadata should succeed
     final CreateProductCommand validCreditCardCommand =
         createCreditCardCommand(userId, "LULO Credit Card", creditLimit, 15);
@@ -213,27 +213,27 @@ public class CreateProductITTest {
   }
 
   @Test
-  public void createCDTAccount() throws AccountBusinessException {
+  public void createCDTAccount() throws ProductBusinessException {
 
     createAccountUseCase.execute(createCDTCommand(userId, "My CDT", ProductMetadata.empty()));
   }
 
   @Test
-  public void createLoanProductMissingValidations() throws AccountBusinessException {
+  public void createLoanProductMissingValidations() throws ProductBusinessException {
     final ProductMetadata metadata = ProductMetadata.empty();
     assertThrows(
-        AccountBusinessException.class,
+        ProductBusinessException.class,
         () -> createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata)));
 
     final var expected = new BigDecimal("100.00");
     metadata.getLoan().putPrincipalAmount(expected);
     assertThrows(
-        AccountBusinessException.class,
+        ProductBusinessException.class,
         () -> createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata)));
 
     metadata.getLoan().putTotalAmountPaid(expected);
     assertThrows(
-        AccountBusinessException.class,
+        ProductBusinessException.class,
         () -> createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata)));
 
     metadata.getLoan().putPayoffAmountToday(expected);
@@ -247,43 +247,43 @@ public class CreateProductITTest {
   }
 
   @Test
-  public void createRealEstateProductMissingValidations() throws AccountBusinessException {
+  public void createRealEstateProductMissingValidations() throws ProductBusinessException {
     final ProductMetadata metadata = ProductMetadata.empty();
-    AccountBusinessException error =
-        assertThrows(AccountBusinessException.class, () -> createRealEstateProduct(metadata));
+    ProductBusinessException error =
+        assertThrows(ProductBusinessException.class, () -> createRealEstateProduct(metadata));
     assertNotNull(error);
 
     // Adding PURCHASE_DATE
     metadata.getRealEstate().putPurchaseDate(LocalDate.now());
-    error = assertThrows(AccountBusinessException.class, () -> createRealEstateProduct(metadata));
+    error = assertThrows(ProductBusinessException.class, () -> createRealEstateProduct(metadata));
 
     // Adding REAL_ESTATE_PURCHASE_PRICE
     metadata.getRealEstate().putPurchasePrice(new BigDecimal(1000));
-    error = assertThrows(AccountBusinessException.class, () -> createRealEstateProduct(metadata));
+    error = assertThrows(ProductBusinessException.class, () -> createRealEstateProduct(metadata));
 
     // Adding REAL_ESTATE_PROPERTY_SIZE
     metadata.getRealEstate().putPropertySize(new BigDecimal("100.00"));
-    error = assertThrows(AccountBusinessException.class, () -> createRealEstateProduct(metadata));
+    error = assertThrows(ProductBusinessException.class, () -> createRealEstateProduct(metadata));
 
     // Adding REAL_ESTATE_FINANCED_AMOUNT
     metadata.getRealEstate().putFinancedAmount(BigDecimal.ONE);
-    error = assertThrows(AccountBusinessException.class, () -> createRealEstateProduct(metadata));
+    error = assertThrows(ProductBusinessException.class, () -> createRealEstateProduct(metadata));
 
     // Adding REAL_ESTATE_DOWN_PAYMENT_PERCENTAGE
     metadata.getRealEstate().putDownPaymentPercentage(new BigDecimal("171.00"));
-    error = assertThrows(AccountBusinessException.class, () -> createRealEstateProduct(metadata));
+    error = assertThrows(ProductBusinessException.class, () -> createRealEstateProduct(metadata));
 
     assertNotNull(error);
     System.out.println(error);
   }
 
   private static ProductDTO createRealEstateProduct(final ProductMetadata metadata)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     return createAccountUseCase.execute(createRealEstateCommand(userId, metadata));
   }
 
   @Test
-  public void createRealEstateProductSuccesfully() throws AccountBusinessException {
+  public void createRealEstateProductSuccesfully() throws ProductBusinessException {
     final ProductMetadata metadata = ProductMetadata.empty();
 
     // Adding PURCHASE_DATE

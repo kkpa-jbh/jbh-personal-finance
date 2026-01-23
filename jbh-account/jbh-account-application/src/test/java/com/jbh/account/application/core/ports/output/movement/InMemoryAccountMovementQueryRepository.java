@@ -2,7 +2,7 @@ package com.jbh.account.application.core.ports.output.movement;
 
 import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.movements.ports.output.AccountMovementQueryRepository;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +28,7 @@ public class InMemoryAccountMovementQueryRepository implements AccountMovementQu
   }
 
   @Override
-  public List<MovementDTO> findByAccountId(final AccountId accountId) {
+  public List<MovementDTO> findByAccountId(final ProductId accountId) {
     return storage.values().stream()
         .filter(movement -> movement.accountId().equals(accountId))
         .sorted((m1, m2) -> m1.movementDate().compareTo(m2.movementDate()))

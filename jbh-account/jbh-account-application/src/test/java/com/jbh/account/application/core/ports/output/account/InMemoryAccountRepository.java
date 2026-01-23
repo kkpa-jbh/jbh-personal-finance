@@ -2,7 +2,7 @@ package com.jbh.account.application.core.ports.output.account;
 
 import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.ports.output.AccountRepository;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -16,7 +16,7 @@ public class InMemoryAccountRepository implements AccountRepository {
   private final Map<UUID, ProductDTO> storage = new HashMap<>();
 
   @Override
-  public Optional<ProductDTO> findByUserAndAccountId(final UUID userId, final AccountId accountId) {
+  public Optional<ProductDTO> findByUserAndAccountId(final UUID userId, final ProductId accountId) {
     final ProductDTO account = storage.get(accountId.value());
     if (account != null && account.userId().equals(userId)) {
       return Optional.of(account);
@@ -34,7 +34,7 @@ public class InMemoryAccountRepository implements AccountRepository {
   }
 
   @Override
-  public Optional<ProductDTO> findByAccountId(final AccountId accountId) {
+  public Optional<ProductDTO> findByAccountId(final ProductId accountId) {
     return Optional.ofNullable(storage.get(accountId.value()));
   }
 

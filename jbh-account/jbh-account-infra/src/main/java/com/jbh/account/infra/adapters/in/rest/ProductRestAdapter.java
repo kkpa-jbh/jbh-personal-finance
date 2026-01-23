@@ -8,14 +8,14 @@ import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.CreateProductCommand;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductMetadata;
-import com.jbh.account.infra.adapters.in.rest.vo.AccountApiRoutes;
+import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.infra.adapters.in.rest.vo.AddMovementRequest;
-import com.jbh.account.infra.adapters.in.rest.vo.CreateAccountRequest;
+import com.jbh.account.infra.adapters.in.rest.vo.CreateProductRequest;
+import com.jbh.account.infra.adapters.in.rest.vo.FinanceApiRoutes;
 import com.jbh.account.infra.adapters.in.rest.vo.MonthlyBalanceRequest;
 import com.jbh.gateway.client.JbhGatewayException;
 import jakarta.enterprise.context.RequestScoped;
@@ -39,17 +39,17 @@ import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"PMD.UnnecessaryAnnotationValueElement", "PMD.CallSuperInConstructor"})
 @RequestScoped
-@Path(AccountApiRoutes.PRODUCTS_API_PATH)
-@Tag(name = "Account Operations", description = "Account management operations")
-public class AccountRestAdapter extends BaseRestAdapter {
+@Path(FinanceApiRoutes.PRODUCTS_API_PATH)
+@Tag(name = "Product Operations", description = "Product management operations")
+public class ProductRestAdapter extends BaseRestAdapter {
 
-  private final Logger log = LoggerFactory.getLogger(AccountRestAdapter.class);
+  private final Logger log = LoggerFactory.getLogger(ProductRestAdapter.class);
   private final CreateProductUseCase createProductUseCase;
   private final AddMovementUseCase addMovementUseCase;
   private final FindMonthlyBalanceUseCase findMonthlyBalanceUseCase;
 
   @Inject
-  public AccountRestAdapter(
+  public ProductRestAdapter(
       final CreateProductUseCase createProductUseCase,
       final AddMovementUseCase addMovementUseCase,
       final FindMonthlyBalanceUseCase findMonthlyBalanceUseCase) {
@@ -63,13 +63,13 @@ public class AccountRestAdapter extends BaseRestAdapter {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(
-      summary = "Create a new account",
-      description = "Creates a new account for the given user")
+      summary = "Create a new Product",
+      description = "Creates a new Product for the given user")
   @APIResponses(
       value = {
         @APIResponse(
             responseCode = "200",
-            description = "Account created successfully",
+            description = "Product created successfully",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
@@ -90,30 +90,30 @@ public class AccountRestAdapter extends BaseRestAdapter {
                     schema = @Schema(implementation = String.class)))
       })
   @SecurityRequirement(name = "JWT")
-  public Response createAccount(
-      @RequestBody final CreateAccountRequest request,
+  public Response createProduct(
+      @RequestBody final CreateProductRequest request,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
-      throws JbhGatewayException, AccountBusinessException {
-    log.info("Creating account for user {}", authorizationHeader);
+      throws JbhGatewayException, ProductBusinessException {
+    log.info("Creating Product for user {}", authorizationHeader);
 
     final UUID userId = findUserId(authorizationHeader);
 
-    final ProductDTO accountDTO =
+    final ProductDTO ProductDTO =
         createProductUseCase.execute(
             new CreateProductCommand(
                 userId, request.name(), request.type(), ProductMetadata.empty()));
 
-    return Response.ok(accountDTO).build();
+    return Response.ok(ProductDTO).build();
   }
 
   @POST
-  @Path(AccountApiRoutes.PRODUCTS_MOVEMENTS_API_PATH + "/{accountId}")
+  @Path(FinanceApiRoutes.PRODUCTS_MOVEMENTS_API_PATH + "/{productId}")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(
-      summary = "Add a movement to an account",
-      description = "Adds a movement to an account")
+      summary = "Add a movement to an Product",
+      description = "Adds a movement to an Product")
   @APIResponses(
       value = {
         @APIResponse(
@@ -139,12 +139,12 @@ public class AccountRestAdapter extends BaseRestAdapter {
                     schema = @Schema(implementation = String.class)))
       })
   @SecurityRequirement(name = "JWT")
-  public Response addMovementToAccount(
-      @PathParam("accountId") final UUID accountId,
+  public Response addMovementToProduct(
+      @PathParam("productId") final UUID productId,
       @RequestBody final AddMovementRequest request,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
-      throws JbhGatewayException, AccountBusinessException {
+      throws JbhGatewayException, ProductBusinessException {
 
     if (request == null) {
       throw new IllegalArgumentException("Command cannot be null");
@@ -152,7 +152,7 @@ public class AccountRestAdapter extends BaseRestAdapter {
 
     final UUID userId = findUserId(authorizationHeader);
 
-    log.info("Adding movement to account {}", accountId);
+    log.info("Adding movement to Product {}", productId);
 
     final AddMovementCommand command =
         new AddMovementCommand(
@@ -163,16 +163,16 @@ public class AccountRestAdapter extends BaseRestAdapter {
             MovementCategoryDTO.withName(request.movementType(), request.categoryName()));
 
     final AddBasicMovementDTO response =
-        addMovementUseCase.addMovement(userId, AccountId.of(accountId), command);
+        addMovementUseCase.addMovement(userId, ProductId.of(productId), command);
 
     return Response.ok(response).build();
   }
 
   @POST
-  @Path(AccountApiRoutes.PRODUCTS_MONTHLY_BALANCES_API_PATH + "/{accountId}")
+  @Path(FinanceApiRoutes.PRODUCTS_MONTHLY_BALANCES_API_PATH + "/{productId}")
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
-  @Operation(summary = "Find monthly balances for an account")
+  @Operation(summary = "Find monthly balances for an Product")
   @APIResponses(
       value = {
         @APIResponse(
@@ -199,11 +199,11 @@ public class AccountRestAdapter extends BaseRestAdapter {
       })
   @SecurityRequirement(name = "JWT")
   public Response findMonthlyBalances(
-      @PathParam("accountId") final UUID accountId,
+      @PathParam("productId") final UUID productId,
       @RequestBody final MonthlyBalanceRequest request,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
-      throws JbhGatewayException, AccountBusinessException {
+      throws JbhGatewayException, ProductBusinessException {
 
     request.validate();
 
@@ -211,7 +211,7 @@ public class AccountRestAdapter extends BaseRestAdapter {
 
     final List<MonthlyBalanceDTO> monthlyBalances =
         findMonthlyBalanceUseCase.findByAccountAndPeriods(
-            new AccountPK(userId, AccountId.of(accountId)),
+            new ProductPK(userId, ProductId.of(productId)),
             request.startPeriod(),
             request.endPeriod());
 

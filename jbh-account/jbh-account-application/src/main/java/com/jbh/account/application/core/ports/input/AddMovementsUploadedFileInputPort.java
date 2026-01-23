@@ -13,8 +13,8 @@ import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileComma
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -55,9 +55,9 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
   @Override
   public AddMultipleBasicMovementDTO uploadMovementsFromFile(
       final UUID userId,
-      final AccountId accountId,
+      final ProductId accountId,
       final List<AddMovementUploadedFileCommand> allUploadedMovCommand)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
 
     validateUploadedMovements(allUploadedMovCommand);
 
@@ -97,8 +97,8 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
     }
   }
 
-  private ProductDomain findAccountOrElseThrow(final UUID userId, final AccountId accountId)
-      throws AccountBusinessException {
+  private ProductDomain findAccountOrElseThrow(final UUID userId, final ProductId accountId)
+      throws ProductBusinessException {
     final ProductDTO accountDTO = accountService.findByUserAndAccountId(userId, accountId);
 
     return accountDTO.toDomain();
@@ -120,7 +120,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
                     mvmntCommand.balanceSnapshot(),
                     mvmntCommand.movementType(),
                     LocalDateTime.now());
-              } catch (final AccountBusinessException e) {
+              } catch (final ProductBusinessException e) {
                 throw new RuntimeException(e);
               }
             })

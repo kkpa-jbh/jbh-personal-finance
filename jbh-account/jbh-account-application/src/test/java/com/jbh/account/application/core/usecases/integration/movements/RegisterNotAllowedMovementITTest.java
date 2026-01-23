@@ -13,7 +13,7 @@ import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.LiquidateAccountUseCase;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.UUID;
@@ -53,7 +53,7 @@ public class RegisterNotAllowedMovementITTest {
   }
 
   @Test
-  public void shouldThrowWhenLoanMovement() throws AccountBusinessException {
+  public void shouldThrowWhenLoanMovement() throws ProductBusinessException {
 
     final BigDecimal amount = new BigDecimal("100");
     final ProductDTO loanProduct =
@@ -61,9 +61,9 @@ public class RegisterNotAllowedMovementITTest {
             CommandTestBuilder.createMockLoanCommand(userId, "Loan Account"));
     assertNotNull(loanProduct);
 
-    final AccountBusinessException error =
+    final ProductBusinessException error =
         assertThrows(
-            AccountBusinessException.class,
+            ProductBusinessException.class,
             () -> {
               addMovementUseCase.addMovement(
                   userId, loanProduct.id(), createDepositIncome(period.atDay(1), amount));
@@ -73,16 +73,16 @@ public class RegisterNotAllowedMovementITTest {
   }
 
   @Test
-  public void shouldThrowWhenRealstateMovement() throws AccountBusinessException {
+  public void shouldThrowWhenRealstateMovement() throws ProductBusinessException {
 
     final BigDecimal amount = new BigDecimal("100");
     final ProductDTO realEstateAccount =
         createAccountUseCase.execute(CommandTestBuilder.createMockRealStateCommand(userId));
     assertNotNull(realEstateAccount);
 
-    final AccountBusinessException error =
+    final ProductBusinessException error =
         assertThrows(
-            AccountBusinessException.class,
+            ProductBusinessException.class,
             () -> {
               addMovementUseCase.addMovement(
                   userId, realEstateAccount.id(), createDepositIncome(period.atDay(1), amount));

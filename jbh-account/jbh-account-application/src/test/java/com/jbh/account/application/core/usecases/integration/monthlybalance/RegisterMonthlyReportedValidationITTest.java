@@ -13,8 +13,8 @@ import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.MonthlyBalanceCommandVO;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -43,7 +43,7 @@ public class RegisterMonthlyReportedValidationITTest {
   private static InMemoryAccountRepository inMemoryAccountRepo;
   private static RegisterMonthlyBalanceUseCase useCaseTest;
   private static CreateProductUseCase createAccountUseCase;
-  private static AccountId accountId;
+  private static ProductId accountId;
   @Mock private AccountMovementWriterRepository accountMovementRepository;
 
   @BeforeEach
@@ -60,7 +60,7 @@ public class RegisterMonthlyReportedValidationITTest {
 
   @Test
   @Order(0)
-  void registeringOfficialMonthlyBalance() throws AccountBusinessException {
+  void registeringOfficialMonthlyBalance() throws ProductBusinessException {
     // Create Account
     final ProductDTO accountDTO =
         createAccountUseCase.execute(
@@ -80,7 +80,7 @@ public class RegisterMonthlyReportedValidationITTest {
 
   @Test
   @Order(1)
-  void shouldThrowExceptionWhenRegisteringExistingOfficialReport() throws AccountBusinessException {
+  void shouldThrowExceptionWhenRegisteringExistingOfficialReport() throws ProductBusinessException {
 
     // Existing Official Report
     final var initialBalance = withJBHDecimals(new BigDecimal("923"));
@@ -97,7 +97,7 @@ public class RegisterMonthlyReportedValidationITTest {
 
     // Fails when trying to register the existing report (Initial)
     Assertions.assertThrows(
-        AccountBusinessException.class,
+        ProductBusinessException.class,
         () ->
             useCaseTest.registerOfficialMonthlyBalance(
                 runningDate, userId, accountId, existingMonthlyReportCommand));

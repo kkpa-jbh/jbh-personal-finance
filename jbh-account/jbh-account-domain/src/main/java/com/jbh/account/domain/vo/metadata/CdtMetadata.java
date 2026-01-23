@@ -1,6 +1,6 @@
 package com.jbh.account.domain.vo.metadata;
 
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.utils.JbhMoneyUtils;
 import com.jbh.account.domain.vo.ProductMetadataKey;
@@ -21,12 +21,12 @@ public final class CdtMetadata {
    * Gets the maturity date for CDT accounts.
    *
    * @return LocalDate maturity date
-   * @throws AccountBusinessException if maturity date is not a LocalDate
+   * @throws ProductBusinessException if maturity date is not a LocalDate
    */
-  public LocalDate getMaturityDate() throws AccountBusinessException {
+  public LocalDate getMaturityDate() throws ProductBusinessException {
     final Object maturityDate = get(ProductMetadataKey.MATURITY_DATE);
     if (!(maturityDate instanceof LocalDate)) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.INVALID_MATURITY_DATE_TYPE);
+      throw new ProductBusinessException(BusinessDomainExceptionType.INVALID_MATURITY_DATE_TYPE);
     }
     return (LocalDate) maturityDate;
   }

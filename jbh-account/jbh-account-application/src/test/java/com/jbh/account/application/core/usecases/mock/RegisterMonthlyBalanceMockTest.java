@@ -31,8 +31,8 @@ import com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -48,7 +48,7 @@ import org.mockito.MockitoAnnotations;
 public class RegisterMonthlyBalanceMockTest {
 
   final UUID userId = UUID.randomUUID();
-  final AccountId accountId = AccountId.generate();
+  final ProductId accountId = ProductId.generate();
   final YearMonth august24MonthlyPeriod = YearMonth.of(2024, 8);
   final LocalDate runningDate = LocalDate.now();
   RegisterMonthlyBalanceUseCase useCaseInstanceTest;
@@ -189,7 +189,7 @@ public class RegisterMonthlyBalanceMockTest {
     // When
     final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
     Assertions.assertThrows(
-        AccountBusinessException.class,
+        ProductBusinessException.class,
         () ->
             savedMonthlyBalance.set(
                 useCaseInstanceTest.registerOfficialMonthlyBalance(

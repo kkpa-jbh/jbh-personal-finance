@@ -2,7 +2,7 @@ package com.jbh.account.infra.adapters.exceptions;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.infra.adapters.in.rest.vo.ApiResponse;
 import jakarta.ws.rs.core.Response;
@@ -21,8 +21,8 @@ class GlobalExceptionHandlerTest {
   @Test
   void shouldReturnHttp422WhenAccountBusinessExceptionIsThrown() {
     // Given
-    final AccountBusinessException exception =
-        new AccountBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENTS);
+    final ProductBusinessException exception =
+        new ProductBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENTS);
 
     // When
     final Response response = handler.toResponse(exception);
@@ -89,8 +89,8 @@ class GlobalExceptionHandlerTest {
   void shouldHandleAccountBusinessExceptionWithFormattedMessage() {
     // Given
     final String metadataKey = "REAL_ESTATE_PURCHASE_DATE";
-    final AccountBusinessException exception =
-        new AccountBusinessException(BusinessDomainExceptionType.MISSING_METADATA, metadataKey);
+    final ProductBusinessException exception =
+        new ProductBusinessException(BusinessDomainExceptionType.MISSING_METADATA, metadataKey);
 
     // When
     final Response response = handler.toResponse(exception);

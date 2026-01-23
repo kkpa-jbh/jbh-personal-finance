@@ -3,7 +3,7 @@ package com.jbh.account.application.core.vo.commands;
 import static com.jbh.account.domain.utils.JbhMoneyUtils.isZero;
 
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -18,7 +18,7 @@ import java.util.Optional;
  * @param liquidatedDate
  */
 public record LiquidateAccountCommand(
-    Optional<AccountPK> toInternalAccount,
+    Optional<ProductPK> toInternalAccount,
     Optional<ExternalAccountInfoVO> toExternalAccount,
     BigDecimal currentBalance,
     LocalDate liquidatedDate)
@@ -31,7 +31,7 @@ public record LiquidateAccountCommand(
   }
 
   private static void validateAccounts(
-      final Optional<AccountPK> toInternalAccount,
+      final Optional<ProductPK> toInternalAccount,
       final Optional<ExternalAccountInfoVO> toExternalAccount) {
     if (toInternalAccount.isEmpty() && toExternalAccount.isEmpty()) {
       throw new GenericSpecificationException(

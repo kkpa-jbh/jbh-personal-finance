@@ -3,7 +3,7 @@ package com.jbh.account.application.core.services.movements;
 import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.movements.ports.output.AccountMovementQueryRepository;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import java.util.List;
 
 public class AccountMovementServiceImpl implements AccountMovementService {
@@ -23,7 +23,7 @@ public class AccountMovementServiceImpl implements AccountMovementService {
   }
 
   @Override
-  public List<MovementDTO> findByAccountId(final AccountId id) {
+  public List<MovementDTO> findByAccountId(final ProductId id) {
     return movementQueryRepo.findByAccountId(id);
   }
 }

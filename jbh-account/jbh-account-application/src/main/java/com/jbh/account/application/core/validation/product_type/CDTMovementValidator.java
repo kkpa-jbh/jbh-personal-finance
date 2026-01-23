@@ -4,7 +4,7 @@ import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.account.application.core.services.movements.AccountMovementService;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.IncomeCategory;
 
 @SuppressWarnings({
@@ -22,17 +22,17 @@ public class CDTMovementValidator implements ProductMovementValidator {
   @Override
   public void validateMovementByProductType(
       final ProductDTO existingProduct, final MovementDTO movementDTO)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     if (existingProduct.isCDT()) {
       if (movementDTO.movementType().isDeposit()) {
         final int totalCDTMovements =
             accountMovementService.findByAccountId(existingProduct.id()).size();
         if (totalCDTMovements >= 1) {
-          throw new AccountBusinessException(
+          throw new ProductBusinessException(
               BusinessApplicationExceptionType.CDT_MOVEMENTS_EXCEEDED);
         }
         if (movementDTO.category().getType() != IncomeCategory.INITIAL_BALANCE) {
-          throw new AccountBusinessException(
+          throw new ProductBusinessException(
               BusinessApplicationExceptionType.CDT_WRONG_INCOME_CATEGORY);
         }
       }

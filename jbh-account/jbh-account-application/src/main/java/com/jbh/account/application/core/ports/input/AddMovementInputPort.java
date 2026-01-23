@@ -7,10 +7,10 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.movements.AccountMovementApplicationService;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.domain.vo.ProductType;
 import java.util.UUID;
 
@@ -28,8 +28,8 @@ public class AddMovementInputPort implements AddMovementUseCase {
 
   @Override
   public AddBasicMovementDTO addMovement(
-      final UUID userId, final AccountId accountId, final AddMovementCommand movementCommand)
-      throws AccountBusinessException {
+      final UUID userId, final ProductId accountId, final AddMovementCommand movementCommand)
+      throws ProductBusinessException {
 
     if (userId == null) {
       throw new GenericSpecificationException("User ID cannot be null");
@@ -41,7 +41,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
     final ProductType productType = productDTO.type();
 
     if (!productType.addingMovementsProductsAllowed().contains(productType)) {
-      throw new AccountBusinessException(
+      throw new ProductBusinessException(
           BusinessApplicationExceptionType.DISALLOWED_MOVEMENT_FOR_PRODUCT);
     }
 
@@ -49,7 +49,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
     final AddBasicMovementDTO addBasicMovementDTO;
     addBasicMovementDTO =
         accountMovementService.addMovementProcessingBalances(
-            new AccountPK(userId, accountId), movementCommand);
+            new ProductPK(userId, accountId), movementCommand);
 
     return addBasicMovementDTO;
   }

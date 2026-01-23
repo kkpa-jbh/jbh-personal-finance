@@ -29,8 +29,8 @@ import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.ExternalAccountInfoVO;
 import com.jbh.account.application.core.vo.commands.LiquidateAccountCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
@@ -62,9 +62,9 @@ public class RegisterInvesmentMovementITTest {
   private static LiquidateAccountUseCase liquidateAccountUseCase;
   @Mock private static AccountMovementWriterRepository accountMovementRepository;
   private static ProductDTO acciCuenta;
-  private static AccountId acciCuentaId;
+  private static ProductId acciCuentaId;
   private static ProductDTO fondoAcciones;
-  private static AccountId fondoAccionesId;
+  private static ProductId fondoAccionesId;
   private static BigDecimal finalAcciBalanceSept;
   private final BigDecimal initialBalance = withJBHDecimals(new BigDecimal("5000000"));
   private MonthlyBalanceService monthlyBalanceService;
@@ -97,7 +97,7 @@ public class RegisterInvesmentMovementITTest {
 
   @Test
   @Order(0)
-  void createInvestmentAccount() throws AccountBusinessException {
+  void createInvestmentAccount() throws ProductBusinessException {
     acciCuenta =
         createAccountUseCase.execute(createInvestmentCommand(userId, "ACCICUENTA", "TRII"));
     acciCuentaId = acciCuenta.id();
@@ -111,7 +111,7 @@ public class RegisterInvesmentMovementITTest {
 
   @Test
   @Order(1)
-  void initialBalance() throws AccountBusinessException {
+  void initialBalance() throws ProductBusinessException {
     final AddMovementCommand movement =
         new AddMovementCommand(
             LocalDate.of(2025, 8, 20),
@@ -126,7 +126,7 @@ public class RegisterInvesmentMovementITTest {
 
   @Test
   @Order(2)
-  void registerBalanceSnapshotSept1() throws AccountBusinessException {
+  void registerBalanceSnapshotSept1() throws ProductBusinessException {
     final BigDecimal acciCuentaBalance = withJBHDecimals(new BigDecimal("5022458.19"));
     final var entryDate = LocalDate.of(2025, 9, 22);
 
@@ -163,7 +163,7 @@ public class RegisterInvesmentMovementITTest {
 
   @Test
   @Order(2)
-  void registerBalanceSnapshotSept2() throws AccountBusinessException {
+  void registerBalanceSnapshotSept2() throws ProductBusinessException {
     finalAcciBalanceSept = withJBHDecimals(new BigDecimal("5075628.00"));
     final var entryDate = LocalDate.of(2025, 9, 25);
 
@@ -201,7 +201,7 @@ public class RegisterInvesmentMovementITTest {
 
   @Test
   @Order(4)
-  void registerBalanceSnapshotOct1() throws AccountBusinessException {
+  void registerBalanceSnapshotOct1() throws ProductBusinessException {
     final var entryDate = LocalDate.of(2025, 10, 16);
 
     // Check previous monthly balance
@@ -278,7 +278,7 @@ public class RegisterInvesmentMovementITTest {
 
   @Test
   @Order(99)
-  void shouldWithDrawalAllMoneySuccessfully() throws AccountBusinessException {
+  void shouldWithDrawalAllMoneySuccessfully() throws ProductBusinessException {
     final LocalDate withdrawalDate = YearMonth.of(2025, 11).atDay(1);
     final ProductDTO account = inMemoryAccountRepo.findByAccountId(acciCuentaId).orElse(null);
     final BigDecimal currentBalance = account.currentBalance();
@@ -292,7 +292,7 @@ public class RegisterInvesmentMovementITTest {
             MovementCategoryDTO.withType(ExpenseCategory.PERSONAL));
 
     assertThrows(
-        AccountBusinessException.class,
+        ProductBusinessException.class,
         () -> addMovementUseCase.addMovement(userId, acciCuentaId, withdrawal));
 
     final var latestEarning = new BigDecimal("120.00");

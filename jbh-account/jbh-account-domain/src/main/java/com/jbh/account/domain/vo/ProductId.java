@@ -3,18 +3,18 @@ package com.jbh.account.domain.vo;
 import java.util.Objects;
 import java.util.UUID;
 
-public record AccountId(UUID value) {
+public record ProductId(UUID value) {
 
-  public AccountId {
+  public ProductId {
     Objects.requireNonNull(value, "AccountId cannot be null");
   }
 
-  public static AccountId of(final UUID value) {
-    return new AccountId(value);
+  public static ProductId of(final UUID value) {
+    return new ProductId(value);
   }
 
-  public static AccountId generate() {
-    return new AccountId(UUID.randomUUID());
+  public static ProductId generate() {
+    return new ProductId(UUID.randomUUID());
   }
 
   @Override

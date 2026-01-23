@@ -23,8 +23,8 @@ import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.MonthlyBalanceCommandVO;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.CategoryType;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
@@ -62,7 +62,7 @@ public class AddMovementsAfterMonthlyReportedTest {
 
   static CreateProductUseCase createAccountUseCase;
   static ProductDTO createdAccount;
-  static AccountId accountId;
+  static ProductId accountId;
   static MonthlyBalanceService monthlyBalanceService;
   static YearMonth reportedPeriod = YearMonth.of(2024, 7);
   static MonthlyBalanceCommandVO reportedPeriodAmounts =
@@ -92,7 +92,7 @@ public class AddMovementsAfterMonthlyReportedTest {
 
   @Test
   @Order(0)
-  void creatingAccount() throws AccountBusinessException {
+  void creatingAccount() throws ProductBusinessException {
     createdAccount =
         createAccountUseCase.execute(
             createBasicAccountCommand(userId, ACCOUNT_REPORTED, ProductType.SAVINGS));

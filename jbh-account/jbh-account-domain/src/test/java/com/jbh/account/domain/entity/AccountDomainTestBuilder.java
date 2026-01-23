@@ -2,8 +2,8 @@ package com.jbh.account.domain.entity;
 
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
@@ -16,7 +16,7 @@ import java.util.UUID;
  */
 public class AccountDomainTestBuilder {
 
-  private AccountId accountId;
+  private ProductId accountId;
   private UUID userId;
   private BigDecimal movementBalance;
   private BigDecimal currentBalance;
@@ -37,12 +37,12 @@ public class AccountDomainTestBuilder {
    * @param movementBalance Movement balance
    * @param currentBalance Current balance
    * @return AccountDomain instance
-   * @deprecated Use {@link #createSavingProductWithBalance(AccountId, UUID, BigDecimal,
+   * @deprecated Use {@link #createSavingProductWithBalance(ProductId, UUID, BigDecimal,
    *     BigDecimal)} instead
    */
   @Deprecated
   public static ProductDomain withBasicMovementForExisting(
-      final AccountId accountId,
+      final ProductId accountId,
       final UUID userId,
       final BigDecimal movementBalance,
       final BigDecimal currentBalance) {
@@ -59,7 +59,7 @@ public class AccountDomainTestBuilder {
    * @return ProductDomain instance of type SAVINGS
    */
   public static ProductDomain createSavingProductWithBalance(
-      final AccountId accountId,
+      final ProductId accountId,
       final UUID userId,
       final BigDecimal movementBalance,
       final BigDecimal currentBalance) {
@@ -109,7 +109,7 @@ public class AccountDomainTestBuilder {
     return this;
   }
 
-  public AccountDomainTestBuilder withAccountId(final AccountId accountId) {
+  public AccountDomainTestBuilder withAccountId(final ProductId accountId) {
     this.accountId = accountId;
     return this;
   }
@@ -126,7 +126,7 @@ public class AccountDomainTestBuilder {
       final BigDecimal currentBalance,
       final ProductMetadata metadata) {
     return new ProductDomain(
-        AccountId.generate(),
+        ProductId.generate(),
         name,
         productType,
         userId,
@@ -146,7 +146,7 @@ public class AccountDomainTestBuilder {
   }
 
   public static ProductDomain createRealEstateProduct(
-      final UUID userId, final ProductMetadata metadata) throws AccountBusinessException {
+      final UUID userId, final ProductMetadata metadata) throws ProductBusinessException {
     return ProductDomain.withMinimumDataForCreation(
         "RE Account", ProductType.REAL_ESTATE_INVESTMENT, userId, metadata);
   }
@@ -161,7 +161,7 @@ public class AccountDomainTestBuilder {
    * @return ProductDomain instance of type CREDIT_CARD
    */
   public static ProductDomain createCreditCardProductWithBalance(
-      final AccountId accountId,
+      final ProductId accountId,
       final UUID userId,
       final BigDecimal movementBalance,
       final BigDecimal currentBalance) {
@@ -184,7 +184,7 @@ public class AccountDomainTestBuilder {
    * @return ProductDomain instance of type INVESTMENT
    */
   public static ProductDomain createInvestmentProductWithBalance(
-      final AccountId accountId,
+      final ProductId accountId,
       final UUID userId,
       final BigDecimal movementBalance,
       final BigDecimal currentBalance,
@@ -218,7 +218,7 @@ public class AccountDomainTestBuilder {
       final BigDecimal currentBalance,
       final ProductMetadata productMetadata) {
     return builder()
-        .withAccountId(AccountId.generate())
+        .withAccountId(ProductId.generate())
         .withUserId(userId)
         .withMovementBalance(movementBalance)
         .withCurrentBalance(currentBalance)

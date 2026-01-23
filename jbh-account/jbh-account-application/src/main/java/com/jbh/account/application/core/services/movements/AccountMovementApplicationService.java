@@ -4,9 +4,9 @@ import com.jbh.account.application.core.dto.AddBasicMovementDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -16,7 +16,7 @@ public interface AccountMovementApplicationService {
    * It creates a deposit movement for the next month with the dividends(monthly profit reported).
    * It creates a withdrawal movement for the next month with the income withholding tax
    * amount(Retefuente). @See {@link
-   * com.jbh.account.application.core.services.account.AccountService#syncByMovement( AccountPK,
+   * com.jbh.account.application.core.services.account.AccountService#syncByMovement( ProductPK,
    * MovementDTO, boolean isMonthOfficiallyReported)}
    *
    * <p>It will update the monthly balance for the next month
@@ -28,11 +28,11 @@ public interface AccountMovementApplicationService {
    * @param nextMonthlyBalanceCommand The command with the monthly balance for the next month. The
    *     closing balance should include the monthly profit reported and the income withholding tax
    *     amount.
-   * @throws AccountBusinessException
+   * @throws ProductBusinessException
    */
   void addDividendsMovementForNextMonth(
-      AccountPK accountPK, AddMonthlyBalanceCommand nextMonthlyBalanceCommand)
-      throws AccountBusinessException;
+      ProductPK accountPK, AddMonthlyBalanceCommand nextMonthlyBalanceCommand)
+      throws ProductBusinessException;
 
   /**
    * It registers the movement in the database. It will update the account and the monthly balances
@@ -41,21 +41,21 @@ public interface AccountMovementApplicationService {
    * @param accountPK
    * @param movementCommand
    * @return
-   * @throws AccountBusinessException
+   * @throws ProductBusinessException
    */
   AddBasicMovementDTO addMovementProcessingBalances(
-      AccountPK accountPK, AddMovementCommand movementCommand) throws AccountBusinessException;
+      ProductPK accountPK, AddMovementCommand movementCommand) throws ProductBusinessException;
 
   AddBasicMovementDTO processMovement(
-      MovementDTO movementDTO, AccountPK accountPK, boolean isMonthOfficiallyReported)
-      throws AccountBusinessException;
+      MovementDTO movementDTO, ProductPK accountPK, boolean isMonthOfficiallyReported)
+      throws ProductBusinessException;
 
   void addDividendsMovement(
-      AccountPK accountPK,
+      ProductPK accountPK,
       LocalDate movementDate,
       BigDecimal dividendsAmount,
       BigDecimal balanceSnapshot,
       BigDecimal incomeWithholdingTaxAmount,
       AccountMovementMetadata metadata)
-      throws AccountBusinessException;
+      throws ProductBusinessException;
 }

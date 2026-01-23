@@ -2,11 +2,11 @@ package com.jbh.account.domain.entity;
 
 import static com.jbh.account.domain.entity.MovementCategoryDomain.withCategoryType;
 
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.utils.JbhMoneyUtils;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.AccountMovementId;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.AccountMovementMetadataKey;
@@ -23,7 +23,7 @@ import lombok.Getter;
 public class AccountMovementDomain {
 
   private final AccountMovementId id;
-  private final AccountId accountId;
+  private final ProductId accountId;
   private final MovementType movementType;
   private final MovementCategoryDomain category;
 
@@ -39,7 +39,7 @@ public class AccountMovementDomain {
 
   public AccountMovementDomain(
       final AccountMovementId id,
-      final AccountId accountId,
+      final ProductId accountId,
       final MovementType movementType,
       final MovementCategoryDomain category,
       final BigDecimal movementAmount,
@@ -57,7 +57,7 @@ public class AccountMovementDomain {
   }
 
   public AccountMovementDomain(
-      final AccountId accountId,
+      final ProductId accountId,
       final MovementType movementType,
       final LocalDate movementDate,
       final BigDecimal movementAmount,
@@ -76,13 +76,13 @@ public class AccountMovementDomain {
 
   // FIXME Use factory movemtn type and see if this method can be removed
   public static AccountMovementDomain withFileImport(
-      final AccountId accountId,
+      final ProductId accountId,
       final LocalDate movementDate,
       final BigDecimal totalAmount,
       final BigDecimal balanceSnapshot,
       final MovementType movementType,
       final LocalDateTime importedAt)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
 
     MovementCategoryDomain category = null;
     if (movementType == MovementType.DEPOSIT) {
@@ -108,7 +108,7 @@ public class AccountMovementDomain {
     return movementDomain;
   }
 
-  public void validate() throws AccountBusinessException {
+  public void validate() throws ProductBusinessException {
     validateAccountId();
     validateMovementType();
     validateMovementDate();
@@ -123,49 +123,49 @@ public class AccountMovementDomain {
     }
   }
 
-  private void validateMovementType() throws AccountBusinessException {
+  private void validateMovementType() throws ProductBusinessException {
     if (movementType == null) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_TYPE);
+      throw new ProductBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_TYPE);
     }
     if (movementType == MovementType.BALANCE_SNAPSHOT && category != null) {
-      throw new AccountBusinessException(
+      throw new ProductBusinessException(
           BusinessDomainExceptionType.INVALID_CATEGORY_BALANCE_SNAPSHOT);
     }
   }
 
-  private void validateMovementDate() throws AccountBusinessException {
+  private void validateMovementDate() throws ProductBusinessException {
     if (movementDate == null) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_TYPE);
+      throw new ProductBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_TYPE);
     }
   }
 
-  private void validateCategory() throws AccountBusinessException {
+  private void validateCategory() throws ProductBusinessException {
     validateMovementType();
     validateCategoryRequirement();
     validateCategoryByMovementType();
   }
 
-  private void validateMovementDateNotFuture() throws AccountBusinessException {
+  private void validateMovementDateNotFuture() throws ProductBusinessException {
     if (movementDate != null && movementDate.isAfter(LocalDate.now())) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.FUTURE_MOVEMENT_DATE);
+      throw new ProductBusinessException(BusinessDomainExceptionType.FUTURE_MOVEMENT_DATE);
     }
   }
 
-  private void validateAmountOrSnapshot() throws AccountBusinessException {
+  private void validateAmountOrSnapshot() throws ProductBusinessException {
     if (movementAmount == null && balanceSnapshot == null) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.EMPTY_AMOUNT);
+      throw new ProductBusinessException(BusinessDomainExceptionType.EMPTY_AMOUNT);
     }
     validateAmountWithCategory();
   }
 
-  private void validateCategoryRequirement() throws AccountBusinessException {
+  private void validateCategoryRequirement() throws ProductBusinessException {
     if (MovementCategoryDomain.isEmpty(category) && movementType != MovementType.BALANCE_SNAPSHOT) {
 
-      throw new AccountBusinessException(BusinessDomainExceptionType.EMPTY_CATEGORY);
+      throw new ProductBusinessException(BusinessDomainExceptionType.EMPTY_CATEGORY);
     }
   }
 
-  private void validateCategoryByMovementType() throws AccountBusinessException {
+  private void validateCategoryByMovementType() throws ProductBusinessException {
     switch (this.movementType) {
       case BALANCE_SNAPSHOT:
         validateBalanceSnapshotCategory();
@@ -179,20 +179,20 @@ public class AccountMovementDomain {
     }
   }
 
-  private void validateAmountWithCategory() throws AccountBusinessException {
+  private void validateAmountWithCategory() throws ProductBusinessException {
     if (movementType == MovementType.DEPOSIT && movementAmount.signum() < 0) {
-      throw new AccountBusinessException(BusinessDomainExceptionType.DEPOSIT_AMOUNT_NOT_POSITIVE);
+      throw new ProductBusinessException(BusinessDomainExceptionType.DEPOSIT_AMOUNT_NOT_POSITIVE);
     }
     if (movementType == MovementType.WITHDRAWAL
         && (movementAmount == null || movementAmount.signum() > 0)) {
-      throw new AccountBusinessException(
+      throw new ProductBusinessException(
           BusinessDomainExceptionType.WITHDRAWAL_AMOUNT_NOT_POSITIVE);
     }
   }
 
-  private void validateBalanceSnapshotCategory() throws AccountBusinessException {
+  private void validateBalanceSnapshotCategory() throws ProductBusinessException {
     if (category != null) {
-      throw new AccountBusinessException(
+      throw new ProductBusinessException(
           BusinessDomainExceptionType.INVALID_CATEGORY_BALANCE_SNAPSHOT);
     }
   }

@@ -20,9 +20,9 @@ import com.jbh.account.application.core.validation.movement_type.MovementValidat
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.account.domain.entity.MonthlyBalanceDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -63,49 +63,49 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
   @Override
   public Optional<MonthlyBalanceDTO> findByAccountIdYearAndMonth(
-      final AccountId accountId, final Integer balanceYear, final Integer balanceMonth) {
+      final ProductId accountId, final Integer balanceYear, final Integer balanceMonth) {
     return queryRepo.findByAccountIdYearAndMonth(accountId, balanceYear, balanceMonth);
   }
 
   @Override
   public Optional<MonthlyBalanceDTO> findByAccountIdAndPeriod(
-      final AccountId accountId, final YearMonth period) {
+      final ProductId accountId, final YearMonth period) {
     return queryRepo.findByAccountIdAndPeriod(accountId, period);
   }
 
   @Override
-  public Optional<MonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
+  public Optional<MonthlyBalanceDTO> findLastOfficialReport(final ProductId accountId) {
     return queryRepo.findLastOfficialReport(accountId);
   }
 
   @Override
-  public BigDecimal sumNetProfitOfficialReported(final AccountId accountId) {
+  public BigDecimal sumNetProfitOfficialReported(final ProductId accountId) {
     return queryRepo.sumNetProfitOfficialReported(accountId);
   }
 
   @Override
   public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
-      final AccountId accountId, final YearMonth currentPeriod) {
+      final ProductId accountId, final YearMonth currentPeriod) {
     return queryRepo.findNextBalancesFromPeriodInclusive(accountId, currentPeriod);
   }
 
   @Override
   public List<MonthlyBalanceDTO> findByAccountAndPeriods(
-      final AccountPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
+      final ProductPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
     return queryRepo.findByAccountAndPeriods(accountPK, startPeriod, endPeriod);
   }
 
   @Override
-  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final AccountId accountId) {
+  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final ProductId accountId) {
     // TODO: Check if it's necessary to return until the current period
     return queryRepo.findAllByAccountIdUntilNow(accountId);
   }
 
   @Override
   public void validateNewMovementForOfficialMonthlyReport(final MovementDTO movementDTO)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     final YearMonth movementPeriod = YearMonth.from(movementDTO.movementDate());
-    final AccountId accountId = movementDTO.accountId();
+    final ProductId accountId = movementDTO.accountId();
     final BigDecimal balanceSnapshot = movementDTO.balanceSnapshot();
     final BigDecimal movementAmount = movementDTO.movementAmount();
     final MovementType movementType = movementDTO.movementType();
@@ -129,10 +129,10 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
   private static boolean isMonthOfficiallyReportedValid(
       final MonthlyBalanceDTO existingMonthlyBalance, final BigDecimal balanceSnapshot)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     final boolean isMonthOfficiallyReported = existingMonthlyBalance.officialMonthlyReport();
     if (isMonthOfficiallyReported && balanceSnapshot != null) {
-      throw new AccountBusinessException(
+      throw new ProductBusinessException(
           BusinessApplicationExceptionType.SNAPSHOT_AFTER_OFFICIAL_REPORT);
     }
     return isMonthOfficiallyReported;
@@ -141,7 +141,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   @Override
   public MonthlyBalanceDTO updateOfficialReportedBalance(
       final MonthlyBalanceDTO reportedMonthlyBalance, final AddMonthlyBalanceCommand command)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
 
     final MonthlyBalanceDomain monthlyBalanceDomain = toDomain(reportedMonthlyBalance);
     final var updatedMonthlyBalance = assignOfficialReport(monthlyBalanceDomain, command);
@@ -154,7 +154,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
   private MonthlyBalanceDTO assignOfficialReport(
       final MonthlyBalanceDomain monthlyBalanceDomain, final AddMonthlyBalanceCommand command)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     monthlyBalanceDomain.assignOfficialMonthlyReport(
         command.closingBalance(),
         command.monthlyProfitReported(),
@@ -216,9 +216,9 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
   @Override
   public MonthlyBalanceDTO syncForNewMovement(final MovementDTO newMovement)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     // Implementation for syncing monthly balances
-    final AccountId accountId = newMovement.accountId();
+    final ProductId accountId = newMovement.accountId();
     LOG.info(
         "Syncing monthly balance for account {} and new movement date {}",
         accountId,
@@ -239,7 +239,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
   @Override
   public CompletableFuture<List<MonthlyBalanceDTO>> persistBalancesAsync(
-      final AccountId accountId, final List<MonthlyBalanceDTO> monthlyBalances) {
+      final ProductId accountId, final List<MonthlyBalanceDTO> monthlyBalances) {
 
     if (monthlyBalances == null || monthlyBalances.isEmpty()) {
       LOG.warn("No monthly balances available for saving them ASYNC");
@@ -301,8 +301,8 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
    * already persisted in the database.
    */
   private List<MonthlyBalanceDTO> adjustCurrentAndNextMonthlyBalancesAsync(
-      final AccountId accountId, final YearMonth initPeriod, final YearMonth endPeriod)
-      throws AccountBusinessException {
+      final ProductId accountId, final YearMonth initPeriod, final YearMonth endPeriod)
+      throws ProductBusinessException {
 
     LOG.info(
         "Monthly balances from{} to {} for the account {} should be already persisted in the database",

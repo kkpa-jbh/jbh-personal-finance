@@ -2,8 +2,8 @@ package com.jbh.account.infra.adapters.out.persistence.monthlybalance;
 
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
-import com.jbh.account.domain.vo.AccountId;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.domain.vo.ProductPK;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -27,7 +27,7 @@ public class MonthlyBalanceJPARepository
 
   @Override
   public Optional<MonthlyBalanceDTO> findByAccountIdYearAndMonth(
-      final AccountId accountId, final Integer balanceYear, final Integer balanceMonth) {
+      final ProductId accountId, final Integer balanceYear, final Integer balanceMonth) {
     return find(
             "accountId = :accountId and year = :balanceYear and month = :balanceMonth",
             Parameters.with(ACCOUNT_ID_PARAM, accountId.value())
@@ -39,12 +39,12 @@ public class MonthlyBalanceJPARepository
 
   @Override
   public Optional<MonthlyBalanceDTO> findByAccountIdAndPeriod(
-      final AccountId accountId, final YearMonth period) {
+      final ProductId accountId, final YearMonth period) {
     return findByAccountIdYearAndMonth(accountId, period.getYear(), period.getMonthValue());
   }
 
   private List<AccountMonthlyBalanceJPAEntity> findNextFromPeriodInclusiveJPA(
-      final AccountId accountId, final YearMonth currentPeriod) {
+      final ProductId accountId, final YearMonth currentPeriod) {
     return find(
             "accountId = :accountId and period >= :period",
             Parameters.with(ACCOUNT_ID_PARAM, accountId.value()).and("period", currentPeriod))
@@ -53,7 +53,7 @@ public class MonthlyBalanceJPARepository
 
   @Override
   public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
-      final AccountId accountId, final YearMonth currentPeriod) {
+      final ProductId accountId, final YearMonth currentPeriod) {
     return findNextFromPeriodInclusiveJPA(accountId, currentPeriod).stream()
         .map(AccountMonthlyBalanceJPAEntity::toDTO)
         .toList();
@@ -61,7 +61,7 @@ public class MonthlyBalanceJPARepository
 
   @Override
   public List<MonthlyBalanceDTO> findByAccountAndPeriods(
-      final AccountPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
+      final ProductPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
     return find(
             "accountId = :accountId and period >= :startPeriod and period <= :endPeriod order by period asc",
             Parameters.with(ACCOUNT_ID_PARAM, accountPK.accountId().value())
@@ -74,7 +74,7 @@ public class MonthlyBalanceJPARepository
   }
 
   @Override
-  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final AccountId accountId) {
+  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final ProductId accountId) {
     final YearMonth endPeriod = YearMonth.now();
     return find(
             "accountId = :accountId  and period <= :endPeriod order by period asc",
@@ -86,7 +86,7 @@ public class MonthlyBalanceJPARepository
   }
 
   @Override
-  public Optional<MonthlyBalanceDTO> findLastOfficialReport(final AccountId accountId) {
+  public Optional<MonthlyBalanceDTO> findLastOfficialReport(final ProductId accountId) {
     final List<AccountMonthlyBalanceJPAEntity> lastOfficialReportList =
         find(
                 "accountId = :accountId and officialMonthlyReport = true order by period desc",
@@ -101,7 +101,7 @@ public class MonthlyBalanceJPARepository
   }
 
   @Override
-  public BigDecimal sumNetProfitOfficialReported(final AccountId accountId) {
+  public BigDecimal sumNetProfitOfficialReported(final ProductId accountId) {
     try {
       final BigDecimal result =
           getEntityManager()

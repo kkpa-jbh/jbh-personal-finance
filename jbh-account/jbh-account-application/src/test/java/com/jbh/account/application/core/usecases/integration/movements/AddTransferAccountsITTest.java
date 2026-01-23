@@ -24,8 +24,8 @@ import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.AddTransferCommand;
 import com.jbh.account.application.core.vo.commands.UpdateMetadataProductCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.ProductMetadata;
@@ -56,10 +56,10 @@ public class AddTransferAccountsITTest {
   static UUID fromUserId = UUID.randomUUID();
   static UUID toUserId = UUID.randomUUID();
   static ProductDTO fromAccount;
-  static AccountPK fromAccountPK;
+  static ProductPK fromAccountPK;
   static ProductDTO toAccount;
   static ProductDTO loanAccount;
-  static AccountPK toAccountPK;
+  static ProductPK toAccountPK;
   static AddTransferJbhAccountsUseCase transferUseCase;
   @Mock private static AccountMovementWriterRepository accountMovementRepository;
   private static CreateProductUseCase createAccountUseCase;
@@ -96,12 +96,12 @@ public class AddTransferAccountsITTest {
     fromAccount =
         createAccountUseCase.execute(
             createBasicAccountCommand(fromUserId, fromAccountName, DEFAULT_ACCOUNT_TYPE));
-    fromAccountPK = new AccountPK(fromUserId, fromAccount.id());
+    fromAccountPK = new ProductPK(fromUserId, fromAccount.id());
 
     toAccount =
         createAccountUseCase.execute(
             createBasicAccountCommand(toUserId, toAccountName, DEFAULT_ACCOUNT_TYPE));
-    toAccountPK = new AccountPK(toUserId, toAccount.id());
+    toAccountPK = new ProductPK(toUserId, toAccount.id());
 
     loanMetadata.getLoan().putPrincipalAmount(new BigDecimal("1000.00"));
     loanMetadata.getLoan().putTotalAmountPaid(LOAN_TOTAL_AMOUNT_PAID_INITIAL);
@@ -138,7 +138,7 @@ public class AddTransferAccountsITTest {
 
               fromAccount = result.account();
 
-            } catch (final AccountBusinessException e) {
+            } catch (final ProductBusinessException e) {
               throw new RuntimeException(e);
             } finally {
               latch.countDown();
@@ -153,7 +153,7 @@ public class AddTransferAccountsITTest {
               assertNotNull(result);
               toAccount = result.account();
 
-            } catch (final AccountBusinessException e) {
+            } catch (final ProductBusinessException e) {
               throw new RuntimeException(e);
             } finally {
               latch.countDown();
@@ -169,7 +169,7 @@ public class AddTransferAccountsITTest {
 
   @Test
   @Order(1)
-  void shouldAddTransfer1() throws AccountBusinessException {
+  void shouldAddTransfer1() throws ProductBusinessException {
     final LocalDate transferDate = createdAccountsPeriod.atEndOfMonth();
     final var transferAmount = new BigDecimal("100");
     transferUseCase.addTransfer(
@@ -201,8 +201,8 @@ public class AddTransferAccountsITTest {
 
   @Test
   @Order(2)
-  void addTransferToLoan() throws AccountBusinessException {
-    final AccountPK fromAccountPK = toAccountPK;
+  void addTransferToLoan() throws ProductBusinessException {
+    final ProductPK fromAccountPK = toAccountPK;
     final ProductDTO fromAccountInitial =
         accountService.findAccountOrThrow(fromAccountPK.accountId());
     final YearMonth period = YearMonth.now();
@@ -216,7 +216,7 @@ public class AddTransferAccountsITTest {
     transferUseCase.addTransfer(
         fromAccountPK,
         new AddTransferCommand(
-            new AccountPK(loanAccount.userId(), loanAccount.id()), transferAmount, transferDate));
+            new ProductPK(loanAccount.userId(), loanAccount.id()), transferAmount, transferDate));
 
     delayTests();
 
@@ -248,9 +248,9 @@ public class AddTransferAccountsITTest {
 
   @Test
   @Order(3)
-  void updatePayOffTodayForLoan() throws AccountBusinessException {
+  void updatePayOffTodayForLoan() throws ProductBusinessException {
     final var payoffAmount = new BigDecimal("300");
-    final AccountPK loanAccountPK = new AccountPK(loanAccount.userId(), loanAccount.id());
+    final ProductPK loanAccountPK = new ProductPK(loanAccount.userId(), loanAccount.id());
     final ProductMetadata loanMetadata = ProductMetadata.empty();
     loanMetadata.getLoan().putPayoffAmountToday(payoffAmount);
     loanMetadata.getLoan().putPrincipalAmount(LOAN_TOTAL_AMOUNT_PAID_INITIAL);
@@ -265,8 +265,8 @@ public class AddTransferAccountsITTest {
 
   @Test
   @Order(4)
-  void payMoreThanLoan() throws AccountBusinessException {
-    final AccountPK fromAccountPK = toAccountPK;
+  void payMoreThanLoan() throws ProductBusinessException {
+    final ProductPK fromAccountPK = toAccountPK;
     final ProductDTO fromAccountInitial =
         accountService.findAccountOrThrow(fromAccountPK.accountId());
     final YearMonth period = YearMonth.now();
@@ -278,20 +278,20 @@ public class AddTransferAccountsITTest {
         initialLoanAccount.metadata().getLoan().getPayoffAmountToday().add(new BigDecimal("50"));
 
     assertThrows(
-        AccountBusinessException.class,
+        ProductBusinessException.class,
         () ->
             transferUseCase.addTransfer(
                 fromAccountPK,
                 new AddTransferCommand(
-                    new AccountPK(loanAccount.userId(), loanAccount.id()),
+                    new ProductPK(loanAccount.userId(), loanAccount.id()),
                     transferAmount,
                     transferDate)));
   }
 
   @Test
   @Order(5)
-  void payTheExactPendingToPayOff() throws AccountBusinessException {
-    final AccountPK fromAccountPK = toAccountPK;
+  void payTheExactPendingToPayOff() throws ProductBusinessException {
+    final ProductPK fromAccountPK = toAccountPK;
     final ProductDTO fromAccountInitial =
         accountService.findAccountOrThrow(fromAccountPK.accountId());
     final YearMonth period = YearMonth.now();
@@ -304,7 +304,7 @@ public class AddTransferAccountsITTest {
     transferUseCase.addTransfer(
         fromAccountPK,
         new AddTransferCommand(
-            new AccountPK(loanAccount.userId(), loanAccount.id()), transferAmount, transferDate));
+            new ProductPK(loanAccount.userId(), loanAccount.id()), transferAmount, transferDate));
 
     delayTests();
 

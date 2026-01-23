@@ -14,10 +14,10 @@ import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceSe
 import com.jbh.account.application.core.validation.product_type.ProductMovementValidatorFactory;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
@@ -58,8 +58,8 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
   // adding the dividends generically
   @Override
   public void addDividendsMovementForNextMonth(
-      final AccountPK accountPK, final AddMonthlyBalanceCommand nextMonthlyBalanceCommand)
-      throws AccountBusinessException {
+      final ProductPK accountPK, final AddMonthlyBalanceCommand nextMonthlyBalanceCommand)
+      throws ProductBusinessException {
     if (nextMonthlyBalanceCommand == null) {
       log.warn("No monthly balance to add dividends movement");
       return;
@@ -130,8 +130,8 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
 
   @Override
   public AddBasicMovementDTO addMovementProcessingBalances(
-      final AccountPK accountPK, final AddMovementCommand movementCommand)
-      throws AccountBusinessException {
+      final ProductPK accountPK, final AddMovementCommand movementCommand)
+      throws ProductBusinessException {
     // Input validations
     movementCommand.validate();
 
@@ -156,18 +156,18 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
   @Override
   public AddBasicMovementDTO processMovement(
       final MovementDTO movementDTO,
-      final AccountPK accountPK,
+      final ProductPK accountPK,
       final boolean isMonthOfficiallyReported)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     // Validations
     monthlyBalanceService.validateNewMovementForOfficialMonthlyReport(movementDTO);
 
     final UUID userId = accountPK.userId();
-    final AccountId accountId = accountPK.accountId();
+    final ProductId accountId = accountPK.accountId();
 
     final ProductDTO syncedAccountDTO =
         accountService.syncByMovement(
-            new AccountPK(userId, accountId), movementDTO, isMonthOfficiallyReported);
+            new ProductPK(userId, accountId), movementDTO, isMonthOfficiallyReported);
 
     validateMovementByProductType(syncedAccountDTO, movementDTO);
 
@@ -190,13 +190,13 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
 
   @Override
   public void addDividendsMovement(
-      final AccountPK accountPK,
+      final ProductPK accountPK,
       final LocalDate movementDate,
       final BigDecimal dividendsAmount,
       final BigDecimal balanceSnapshot,
       final BigDecimal incomeWithholdingTaxAmount,
       final AccountMovementMetadata metadata)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     final AddMovementCommand dividendsMovement =
         new AddMovementCommand(
             movementDate,
@@ -240,7 +240,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
    * @return true if the monthly balance was already reported, false otherwise
    */
   private boolean findIfMonthlyBalanceWasOfficialReported(
-      final AccountId accountId, final YearMonth movementPeriod) {
+      final ProductId accountId, final YearMonth movementPeriod) {
     final Optional<MonthlyBalanceDTO> existingMonthlyBalanceOpt =
         monthlyBalanceService.findByAccountIdAndPeriod(accountId, movementPeriod);
     return existingMonthlyBalanceOpt.map(MonthlyBalanceDTO::officialMonthlyReport).orElse(false);
@@ -248,7 +248,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
 
   private void validateMovementByProductType(
       final ProductDTO existingAccount, final MovementDTO movementDTO)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     movementValidatorFactory
         .getValidator(existingAccount.type())
         .validateMovementByProductType(existingAccount, movementDTO);

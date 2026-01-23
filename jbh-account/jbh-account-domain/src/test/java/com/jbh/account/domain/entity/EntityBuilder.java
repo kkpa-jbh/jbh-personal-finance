@@ -2,9 +2,9 @@ package com.jbh.account.domain.entity;
 
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
@@ -14,7 +14,7 @@ import java.time.YearMonth;
 public class EntityBuilder {
 
   public static MonthlyBalanceDomain withInitialDataForNextMonth(
-      final AccountId accountId,
+      final ProductId accountId,
       final YearMonth period,
       final BigDecimal closingBalance,
       final boolean gapPeriod) {
@@ -38,7 +38,7 @@ public class EntityBuilder {
   }
 
   public static AccountMovementDomain with(
-      final AccountId accountId,
+      final ProductId accountId,
       final LocalDate movementDate,
       final BigDecimal totalAmount,
       final BigDecimal balanceSnapshot,
@@ -57,7 +57,7 @@ public class EntityBuilder {
 
     try {
       movDomain.validate();
-    } catch (final AccountBusinessException e) {
+    } catch (final ProductBusinessException e) {
       throw new GenericSpecificationException(e.getMessage());
     }
 

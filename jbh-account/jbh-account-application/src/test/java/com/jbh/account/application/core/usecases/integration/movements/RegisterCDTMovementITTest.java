@@ -22,8 +22,8 @@ import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.LiquidateAccountUseCase;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.domain.vo.ProductMetadata;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -80,7 +80,7 @@ public class RegisterCDTMovementITTest {
 
   @Test
   @Order(0)
-  void createAccounts() throws AccountBusinessException {
+  void createAccounts() throws ProductBusinessException {
     final LocalDate mvmDate = period.atDay(1);
     final ProductMetadata metadata = ProductMetadata.empty();
     metadata.getCdt().putMaturityDate(period.plusMonths(1).atDay(1));
@@ -110,7 +110,7 @@ public class RegisterCDTMovementITTest {
 
     // Should not be able to add a new income movement to the account
     assertThrows(
-        AccountBusinessException.class,
+        ProductBusinessException.class,
         () -> {
           addMovementUseCase.addMovement(
               userId, cdtAccount.id(), createInitialBalance(mvmDate, CDT_INITIAL_BALANCE));
@@ -126,7 +126,7 @@ public class RegisterCDTMovementITTest {
 
   @Test
   @Order(2)
-  void withdrawalCDTMovement() throws AccountBusinessException {
+  void withdrawalCDTMovement() throws ProductBusinessException {
     final YearMonth currentPeriod = period.plusMonths(1);
     final LocalDate mvmDate = currentPeriod.atDay(1);
 
@@ -137,7 +137,7 @@ public class RegisterCDTMovementITTest {
             userId,
             cdtAccount.id(),
             CommandTestBuilder.createLiquidateCommandToInternal(
-                new AccountPK(userId, internalAccount.id()),
+                new ProductPK(userId, internalAccount.id()),
                 CDT_INITIAL_BALANCE.add(gainedInterest),
                 mvmDate));
     assertNotNull(result);

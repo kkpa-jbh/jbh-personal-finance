@@ -38,7 +38,7 @@ import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import java.math.BigDecimal;
@@ -103,7 +103,7 @@ public class RegisterMovementExecutionMockTest {
   void shouldAddMovement_WhenNotSnapshotProvided() throws ExecutionException, InterruptedException {
     // Given
     final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
+    final ProductId accountId = ProductId.generate();
 
     final BigDecimal amount = new BigDecimal("100.00");
 
@@ -151,7 +151,7 @@ public class RegisterMovementExecutionMockTest {
     assertEquals(JBH_ZERO, futureResponse.get(1).monthlyNetProfit());
   }
 
-  private ProductDomain withId(final AccountId accountId) {
+  private ProductDomain withId(final ProductId accountId) {
     return AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
   }
 
@@ -159,7 +159,7 @@ public class RegisterMovementExecutionMockTest {
   void shouldAddMovement_WhenOnlySnapshotProvided() {
     // Given
     final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
+    final ProductId accountId = ProductId.generate();
     final LocalDate movementDate = LocalDate.now();
     final BigDecimal balanceSnashot = new BigDecimal("200.00");
     final BigDecimal existingAccountPpalBalance = new BigDecimal("100.00");
@@ -198,7 +198,7 @@ public class RegisterMovementExecutionMockTest {
   void shouldAddMovement_WhenAmountAndSnapshotProvided() {
     // Given
     final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
+    final ProductId accountId = ProductId.generate();
     final LocalDate movementDate = LocalDate.now();
     final BigDecimal amount = new BigDecimal("22685312.00");
     final BigDecimal balanceSnapshot = new BigDecimal("35693653.00");
@@ -248,7 +248,7 @@ public class RegisterMovementExecutionMockTest {
   void shouldAddMvmtWithExistingMonthlyEntries() {
     // Given
     final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
+    final ProductId accountId = ProductId.generate();
     final LocalDate movementDate = LocalDate.now();
 
     final ProductDomain accountDomain = withId(accountId);

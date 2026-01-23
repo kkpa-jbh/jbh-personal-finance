@@ -3,7 +3,7 @@ package com.jbh.account.infra.adapters.in.rest.vo;
 import static com.jbh.account.infra.adapters.in.rest.vo.ApiConstants.BASE_API_PATH;
 
 @SuppressWarnings("PMD.LongVariable")
-public class AccountApiRoutes {
+public class FinanceApiRoutes {
   public static final String MOVEMENTS_INBULK_API = "/movements/upload-excel";
 
   // Accounts API

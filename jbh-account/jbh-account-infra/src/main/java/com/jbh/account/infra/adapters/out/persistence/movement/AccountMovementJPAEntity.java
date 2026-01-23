@@ -1,7 +1,7 @@
 package com.jbh.account.infra.adapters.out.persistence.movement;
 
 import com.jbh.account.application.core.dto.MovementDTO;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.AccountMovementId;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.AccountMovementMetadataKey;
@@ -89,7 +89,7 @@ public class AccountMovementJPAEntity extends PanacheEntityBase {
   public MovementDTO toDTO() {
     return MovementDTO.builder()
         .id(AccountMovementId.of(id))
-        .accountId(AccountId.of(accountId))
+        .accountId(ProductId.of(accountId))
         .movementType(movementType)
         .category(MovementCategoryDTO.withName(movementType, category))
         .movementAmount(movementAmount)

@@ -4,7 +4,7 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
@@ -14,7 +14,7 @@ import lombok.Builder;
 
 @Builder(builderMethodName = "notUseThisInternalBuilder")
 public record ProductDTO(
-    AccountId id,
+    ProductId id,
     String name,
     ProductType type,
     UUID userId,
@@ -28,7 +28,7 @@ public record ProductDTO(
     ProductMetadata metadata) {
 
   public static ProductDTO.ProductDTOBuilder defaultBuilder(
-      final UUID userId, final AccountId accountId, final String name, final ProductType type) {
+      final UUID userId, final ProductId accountId, final String name, final ProductType type) {
     return ProductDTO.notUseThisInternalBuilder()
         .userId(userId)
         .id(accountId)

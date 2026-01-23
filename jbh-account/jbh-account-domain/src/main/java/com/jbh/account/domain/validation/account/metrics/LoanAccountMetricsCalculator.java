@@ -5,7 +5,7 @@ import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductMetadata;
 import java.math.BigDecimal;
 
@@ -22,7 +22,7 @@ public class LoanAccountMetricsCalculator extends BaseAccountMetricsCalculator
       final BigDecimal openingBalance,
       final ProductDomain accountDomain,
       final BigDecimal movementAmount)
-      throws AccountBusinessException {
+      throws ProductBusinessException {
     return JBH_ZERO;
   }
 

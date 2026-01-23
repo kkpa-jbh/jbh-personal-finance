@@ -2,7 +2,7 @@ package com.jbh.account.application.core.dto;
 
 import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
 
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -11,7 +11,7 @@ import lombok.Builder;
 @Builder(builderMethodName = "notUseThisInternalBuilder")
 public record MonthlyBalanceDTO(
     Long id,
-    AccountId accountId,
+    ProductId accountId,
     int year,
     int month,
     YearMonth period,
@@ -31,7 +31,7 @@ public record MonthlyBalanceDTO(
     LocalDateTime updatedAt) {
 
   public static MonthlyBalanceDTO withInitialDataForNextMonth(
-      final AccountId accountId,
+      final ProductId accountId,
       final YearMonth period,
       final BigDecimal closingBalance,
       final boolean gapPeriod) {

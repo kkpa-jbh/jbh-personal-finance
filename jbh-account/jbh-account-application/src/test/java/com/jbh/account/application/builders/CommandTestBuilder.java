@@ -4,7 +4,7 @@ import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.CreateProductCommand;
 import com.jbh.account.application.core.vo.commands.ExternalAccountInfoVO;
 import com.jbh.account.application.core.vo.commands.LiquidateAccountCommand;
-import com.jbh.account.domain.vo.AccountPK;
+import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
@@ -306,7 +306,7 @@ public class CommandTestBuilder {
   }
 
   public static LiquidateAccountCommand createLiquidateCommandToInternal(
-      final AccountPK accountPK, final BigDecimal amount, final LocalDate date) {
+      final ProductPK accountPK, final BigDecimal amount, final LocalDate date) {
     return new LiquidateAccountCommand(Optional.of(accountPK), Optional.empty(), amount, date);
   }
 

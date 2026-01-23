@@ -37,10 +37,10 @@ import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
 import com.jbh.account.domain.utils.JbhMoneyUtils;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
@@ -99,7 +99,7 @@ public class RegisterMovementValidationMockTest {
   void shouldThrowException_WhenUserIdIsNull() {
     // Given
     final UUID userId = null;
-    final AccountId accountId = AccountId.generate();
+    final ProductId accountId = ProductId.generate();
     final LocalDate movementDate = LocalDate.now();
     final BigDecimal amount = new BigDecimal("100.00");
 
@@ -119,7 +119,7 @@ public class RegisterMovementValidationMockTest {
   void shouldThrowException_WhenmovemenDateIsNull() {
     // Given
     final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
+    final ProductId accountId = ProductId.generate();
     final BigDecimal amount = new BigDecimal("100.00");
     final AddMovementCommand request = createMovement(null, amount, PERSONAL_EXPENSE);
 
@@ -134,7 +134,7 @@ public class RegisterMovementValidationMockTest {
   void shouldThrowException_WhenAmountIsNegative() {
     // Given
     final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
+    final ProductId accountId = ProductId.generate();
     final BigDecimal amount = new BigDecimal("-100.00");
     final AddMovementCommand request =
         createExpense(LocalDate.now(), amount, ExpenseCategory.PERSONAL);
@@ -149,7 +149,7 @@ public class RegisterMovementValidationMockTest {
   void shouldThrowException_WhenAmountIsNull() {
     // Given
     final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
+    final ProductId accountId = ProductId.generate();
     final LocalDate movementDate = LocalDate.now();
 
     final AddMovementCommand request = createMovement(movementDate, null, OTHER_INCOME_CATEGORY);
@@ -167,7 +167,7 @@ public class RegisterMovementValidationMockTest {
   void shouldThrowException_WhenAccountNotFound() {
     // Given
     final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
+    final ProductId accountId = ProductId.generate();
     final LocalDate movementDate = LocalDate.now();
     final BigDecimal amount = new BigDecimal("100.00");
 
@@ -177,9 +177,9 @@ public class RegisterMovementValidationMockTest {
     when(accountRepository.findByAccountId(accountId)).thenReturn(Optional.empty());
 
     // When & Then
-    final AccountBusinessException exception =
+    final ProductBusinessException exception =
         assertThrows(
-            AccountBusinessException.class,
+            ProductBusinessException.class,
             () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
 
     assertNotNull(exception.getMessage());
@@ -189,7 +189,7 @@ public class RegisterMovementValidationMockTest {
   void shouldHandleZeroAmount() {
     // Given
     final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
+    final ProductId accountId = ProductId.generate();
     final LocalDate movementDate = LocalDate.now();
     final BigDecimal amount = BigDecimal.ZERO;
 
@@ -211,7 +211,7 @@ public class RegisterMovementValidationMockTest {
   }
 
   private void mockAccount(
-      final UUID userId, final AccountId accountId, final ProductDomain accountDomain) {
+      final UUID userId, final ProductId accountId, final ProductDomain accountDomain) {
     when(accountRepository.findByAccountId(accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
     when(accountRepository.findByUserAndAccountId(userId, accountId))
@@ -222,7 +222,7 @@ public class RegisterMovementValidationMockTest {
   void shouldHandlePastDate() {
     // Given
     final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
+    final ProductId accountId = ProductId.generate();
     final LocalDate movementDate = LocalDate.now().minusDays(30);
     final BigDecimal amount = new BigDecimal("100.00");
 
@@ -244,7 +244,7 @@ public class RegisterMovementValidationMockTest {
   void shouldNotHandleFutureDate() {
     // Given
     final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
+    final ProductId accountId = ProductId.generate();
     final LocalDate movementDate = LocalDate.now().plusDays(30);
     final BigDecimal amount = new BigDecimal("100.00");
 
@@ -257,7 +257,7 @@ public class RegisterMovementValidationMockTest {
 
     // When & Then
     assertThrows(
-        AccountBusinessException.class,
+        ProductBusinessException.class,
         () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
 
     verify(accountMovementRepository, never()).save((MovementDTO) any());
@@ -268,7 +268,7 @@ public class RegisterMovementValidationMockTest {
   void shouldThrowErrorWithInsufficientEffectiveBalance() {
     // Given
     final UUID userId = UUID.randomUUID();
-    final AccountId accountId = AccountId.generate();
+    final ProductId accountId = ProductId.generate();
     final LocalDate movementDate = LocalDate.now();
     final BigDecimal amount = new BigDecimal("50.00");
 
@@ -282,7 +282,7 @@ public class RegisterMovementValidationMockTest {
 
     // When & Then
     assertThrows(
-        AccountBusinessException.class,
+        ProductBusinessException.class,
         () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
 
     verify(accountMovementRepository, never()).save((MovementDTO) any());

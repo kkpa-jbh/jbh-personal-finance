@@ -10,9 +10,9 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.domain.entity.AccountMovementDomain;
 import com.jbh.account.domain.entity.MovementCategoryDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.MovementType;
 import java.math.BigDecimal;
@@ -36,13 +36,13 @@ public class AccountServiceTest {
   }
 
   @Test
-  public void shouldSyncMultiBalances() throws AccountBusinessException {
+  public void shouldSyncMultiBalances() throws ProductBusinessException {
     int totalMovements = 2;
     final var accountMovementBalance = new BigDecimal("100.00");
     final var accountCurrentBalance = new BigDecimal("100.00");
     final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(
-            AccountId.generate(), userId, accountMovementBalance, accountCurrentBalance);
+            ProductId.generate(), userId, accountMovementBalance, accountCurrentBalance);
 
     final var amount1 = new BigDecimal("100.00");
     final var balance1 = new BigDecimal("205.00");
@@ -76,7 +76,7 @@ public class AccountServiceTest {
   }
 
   public static AccountMovementDomain with(
-      final AccountId accountId,
+      final ProductId accountId,
       final LocalDate movementDate,
       final BigDecimal totalAmount,
       final BigDecimal balanceSnapshot,
@@ -95,7 +95,7 @@ public class AccountServiceTest {
 
     try {
       movDomain.validate();
-    } catch (final AccountBusinessException e) {
+    } catch (final ProductBusinessException e) {
       throw new GenericSpecificationException(e.getMessage());
     }
 
@@ -103,12 +103,12 @@ public class AccountServiceTest {
   }
 
   @Test
-  public void shouldSyncSingleBalance() throws AccountBusinessException {
+  public void shouldSyncSingleBalance() throws ProductBusinessException {
     final var movementBalance = new BigDecimal("100.00");
     final var currentBalance = new BigDecimal("200.00");
     final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(
-            AccountId.generate(), userId, movementBalance, currentBalance);
+            ProductId.generate(), userId, movementBalance, currentBalance);
 
     final var totalAmount = new BigDecimal("100.00");
     final var balanceSnapshot = new BigDecimal("210.00");

@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.jbh.account.domain.entity.AccountDomainTestBuilder;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductMetadata;
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -84,7 +84,7 @@ class CdtAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateWhenClosingBalanceIsNegative() throws AccountBusinessException {
+  void shouldCalculateNetGrowthRateWhenClosingBalanceIsNegative() throws ProductBusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("10000.00");
     final BigDecimal currentBalance = new BigDecimal("-100.00");
@@ -103,7 +103,7 @@ class CdtAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateWhenClosingBalanceIsZero() throws AccountBusinessException {
+  void shouldCalculateNetGrowthRateWhenClosingBalanceIsZero() throws ProductBusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("5000.00");
     final BigDecimal currentBalance = JBH_ZERO;
@@ -122,7 +122,7 @@ class CdtAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateWhenClosingBalanceIsPositive() throws AccountBusinessException {
+  void shouldCalculateNetGrowthRateWhenClosingBalanceIsPositive() throws ProductBusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("5000.00");
     final BigDecimal currentBalance = new BigDecimal("5500.00");
@@ -142,7 +142,7 @@ class CdtAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateWithNegativeMovementAmount() throws AccountBusinessException {
+  void shouldCalculateNetGrowthRateWithNegativeMovementAmount() throws ProductBusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("10000.00");
     final BigDecimal currentBalance = new BigDecimal("-500.00");
@@ -161,7 +161,7 @@ class CdtAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateWithZeroOpeningBalance() throws AccountBusinessException {
+  void shouldCalculateNetGrowthRateWithZeroOpeningBalance() throws ProductBusinessException {
     // Given
     final BigDecimal openingBalance = JBH_ZERO;
     final BigDecimal currentBalance = JBH_ZERO;

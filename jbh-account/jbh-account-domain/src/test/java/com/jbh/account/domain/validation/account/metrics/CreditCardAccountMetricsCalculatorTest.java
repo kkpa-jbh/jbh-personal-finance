@@ -6,8 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.jbh.account.domain.entity.AccountDomainTestBuilder;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.AccountBusinessException;
-import com.jbh.account.domain.vo.AccountId;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.ProductId;
 import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +31,7 @@ class CreditCardAccountMetricsCalculatorTest {
     final BigDecimal currentBalance = new BigDecimal("1500.00");
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCreditCardProductWithBalance(
-            AccountId.generate(), userId, movementBalance, currentBalance);
+            ProductId.generate(), userId, movementBalance, currentBalance);
 
     // When
     final BigDecimal result = calculator.calculateProfitBalance(accountDomain);
@@ -48,7 +48,7 @@ class CreditCardAccountMetricsCalculatorTest {
     final BigDecimal currentBalance = new BigDecimal("1500.00");
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCreditCardProductWithBalance(
-            AccountId.generate(), userId, movementBalance, currentBalance);
+            ProductId.generate(), userId, movementBalance, currentBalance);
 
     // When
     final BigDecimal result = calculator.calculateProfitBalance(accountDomain);
@@ -63,7 +63,7 @@ class CreditCardAccountMetricsCalculatorTest {
     // Given
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCreditCardProductWithBalance(
-            AccountId.generate(), userId, JBH_ZERO, JBH_ZERO);
+            ProductId.generate(), userId, JBH_ZERO, JBH_ZERO);
 
     // When
     final BigDecimal result = calculator.calculateProfitBalance(accountDomain);
@@ -79,7 +79,7 @@ class CreditCardAccountMetricsCalculatorTest {
     final BigDecimal movementBalance = new BigDecimal("1000.00");
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCreditCardProductWithBalance(
-            AccountId.generate(), userId, movementBalance, JBH_ZERO);
+            ProductId.generate(), userId, movementBalance, JBH_ZERO);
 
     // When
     final BigDecimal result = calculator.calculateProfitBalance(accountDomain);
@@ -90,14 +90,14 @@ class CreditCardAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateWithPositiveGrowth() throws AccountBusinessException {
+  void shouldCalculateNetGrowthRateWithPositiveGrowth() throws ProductBusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("1000.00");
     final BigDecimal currentBalance = new BigDecimal("1500.00");
     final BigDecimal movementAmount = new BigDecimal("200.00");
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCreditCardProductWithBalance(
-            AccountId.generate(), userId, JBH_ZERO, currentBalance);
+            ProductId.generate(), userId, JBH_ZERO, currentBalance);
 
     // When
     final BigDecimal result =
@@ -108,14 +108,14 @@ class CreditCardAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateWithNegativeGrowth() throws AccountBusinessException {
+  void shouldCalculateNetGrowthRateWithNegativeGrowth() throws ProductBusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("2000.00");
     final BigDecimal currentBalance = new BigDecimal("1500.00");
     final BigDecimal movementAmount = new BigDecimal("100.00");
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCreditCardProductWithBalance(
-            AccountId.generate(), userId, JBH_ZERO, currentBalance);
+            ProductId.generate(), userId, JBH_ZERO, currentBalance);
 
     // When
     final BigDecimal result =
@@ -126,14 +126,14 @@ class CreditCardAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateWhenOpeningBalanceIsZero() throws AccountBusinessException {
+  void shouldCalculateNetGrowthRateWhenOpeningBalanceIsZero() throws ProductBusinessException {
     // Given
     final BigDecimal openingBalance = JBH_ZERO;
     final BigDecimal currentBalance = new BigDecimal("500.00");
     final BigDecimal movementAmount = new BigDecimal("500.00");
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCreditCardProductWithBalance(
-            AccountId.generate(), userId, JBH_ZERO, currentBalance);
+            ProductId.generate(), userId, JBH_ZERO, currentBalance);
 
     // When
     final BigDecimal result =
@@ -145,14 +145,14 @@ class CreditCardAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateWithZeroMovementAmount() throws AccountBusinessException {
+  void shouldCalculateNetGrowthRateWithZeroMovementAmount() throws ProductBusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("1000.00");
     final BigDecimal currentBalance = new BigDecimal("1200.00");
     final BigDecimal movementAmount = JBH_ZERO;
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCreditCardProductWithBalance(
-            AccountId.generate(), userId, JBH_ZERO, currentBalance);
+            ProductId.generate(), userId, JBH_ZERO, currentBalance);
 
     // When
     final BigDecimal result =
@@ -163,14 +163,14 @@ class CreditCardAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateWithNegativeCurrentBalance() throws AccountBusinessException {
+  void shouldCalculateNetGrowthRateWithNegativeCurrentBalance() throws ProductBusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("1000.00");
     final BigDecimal currentBalance = new BigDecimal("-500.00");
     final BigDecimal movementAmount = new BigDecimal("200.00");
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCreditCardProductWithBalance(
-            AccountId.generate(), userId, JBH_ZERO, currentBalance);
+            ProductId.generate(), userId, JBH_ZERO, currentBalance);
 
     // When
     final BigDecimal result =
