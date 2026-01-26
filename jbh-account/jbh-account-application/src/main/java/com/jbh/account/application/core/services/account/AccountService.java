@@ -5,9 +5,9 @@ import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.entity.ProductMovementDomain;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductPK;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
@@ -18,8 +18,7 @@ import java.util.UUID;
  * <p>Like a Repository abstraction.
  */
 public interface AccountService {
-  ProductDTO findByUserAndAccountId(UUID userId, ProductId accountId)
-      throws ProductBusinessException;
+  ProductDTO findByUserAndAccountId(UUID userId, ProductId accountId) throws BusinessException;
 
   ProductDTO findAccountOrThrow(ProductId accountId);
 
@@ -61,9 +60,9 @@ public interface AccountService {
    */
   ProductDTO syncByMovement(
       ProductPK accountPK, MovementDTO movement, boolean isMonthOfficiallyReported)
-      throws ProductBusinessException;
+      throws BusinessException;
 
   ProductDTO syncByUploadedMovements(
       ProductDomain accountDomain, List<ProductMovementDomain> uploadedMovements)
-      throws ProductBusinessException;
+      throws BusinessException;
 }

@@ -12,7 +12,7 @@ import com.jbh.account.application.core.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.UpdateProductUseCase;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.commons.exception.BusinessException;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -53,7 +53,7 @@ public class AddTransferRealEstateITTest {
 
   @Test
   @Order(0)
-  public void shouldCreateRealEstateAccount() throws ProductBusinessException {
+  public void shouldCreateRealEstateAccount() throws BusinessException {
     final ProductDTO realEstateAccount =
         createAccountUseCase.execute(CommandTestBuilder.createMockRealStateCommand(userId));
     assertNotNull(realEstateAccount);

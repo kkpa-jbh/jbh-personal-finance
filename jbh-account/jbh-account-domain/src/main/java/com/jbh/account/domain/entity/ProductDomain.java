@@ -1,14 +1,13 @@
 package com.jbh.account.domain.entity;
 
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.isNegative;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.isNegativeOrZero;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.isZero;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.isNegative;
+import static com.jbh.commons.util.JbhMoneyUtils.isNegativeOrZero;
+import static com.jbh.commons.util.JbhMoneyUtils.isZero;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.calculators.MoneyWeightedReturnCalculator;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.validation.account.creation.AccountCreationValidatorFactory;
 import com.jbh.account.domain.validation.account.creation.ProductCreationValidator;
 import com.jbh.account.domain.validation.account.metrics.AccountMetricsCalculatorFactory;
@@ -17,6 +16,7 @@ import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductMetadataKey;
 import com.jbh.account.domain.vo.ProductType;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -97,14 +97,14 @@ public class ProductDomain {
    * @param userId User ID
    * @param inputMetadata Account inputMetadata (ProductMetadata instance)
    * @return AccountDomain instance
-   * @throws ProductBusinessException if validation fails based on account type requirements
+   * @throws BusinessException if validation fails based on account type requirements
    */
   public static ProductDomain withMinimumDataForCreation(
       final String name,
       final ProductType type,
       final UUID userId,
       final ProductMetadata inputMetadata)
-      throws ProductBusinessException {
+      throws BusinessException {
 
     // Use provided inputMetadata or create empty if null
     final ProductMetadata productMetadata =
@@ -130,8 +130,7 @@ public class ProductDomain {
   }
 
   private static void validateMetadata(
-      final ProductType inputType, final ProductMetadata inputMetadata)
-      throws ProductBusinessException {
+      final ProductType inputType, final ProductMetadata inputMetadata) throws BusinessException {
     getValidator(inputType).validateMetadata(inputMetadata);
   }
 
@@ -141,11 +140,11 @@ public class ProductDomain {
 
   public void syncBalancesByMovement(
       final ProductMovementDomain movement, final boolean wasOfficialReport)
-      throws ProductBusinessException {
+      throws BusinessException {
     movement.validate();
 
     if (!this.getId().equals(movement.getAccountId())) {
-      throw new ProductBusinessException(BusinessDomainExceptionType.ACCOUNT_MISMATCH);
+      throw new BusinessException(BusinessDomainExceptionType.ACCOUNT_MISMATCH);
     }
 
     validateInsufficientNetFlow(movement);
@@ -154,7 +153,7 @@ public class ProductDomain {
   }
 
   public void validateInsufficientNetFlow(final ProductMovementDomain movement)
-      throws ProductBusinessException {
+      throws BusinessException {
     getValidator(this.type).validateInsufficientNetFlow(this, movement);
   }
 
@@ -170,7 +169,7 @@ public class ProductDomain {
    */
   private void applyMovement(
       final ProductMovementDomain newAccountMovement, final boolean wasOfficialReport)
-      throws ProductBusinessException {
+      throws BusinessException {
     final BigDecimal movementAmount = newAccountMovement.getMovementAmount();
 
     metricsCalculator = AccountMetricsCalculatorFactory.getCalculator(this.type);
@@ -239,12 +238,12 @@ public class ProductDomain {
   }
 
   private void syncNetGrowthRate(final BigDecimal openingBalance, final BigDecimal movementAmount)
-      throws ProductBusinessException {
+      throws BusinessException {
     if (hasValidBalance()) {
       try {
         this.netGrowthRate =
             metricsCalculator.calculateNetGrowthReate(openingBalance, this, movementAmount);
-      } catch (final ProductBusinessException e) {
+      } catch (final BusinessException e) {
         // FIXME figure out why it's failing
         // NU Test Closing Balance
         LOG.error("Error in calculating net Growth Rate {}", movementAmount);
@@ -252,7 +251,7 @@ public class ProductDomain {
     }
   }
 
-  private void syncProfitBalance() throws ProductBusinessException {
+  private void syncProfitBalance() throws BusinessException {
     this.netProfitBalance = metricsCalculator.calculateProfitBalance(this);
   }
 
@@ -284,8 +283,7 @@ public class ProductDomain {
     }
   }
 
-  public void replaceAllMetadata(final ProductMetadata productMetadata)
-      throws ProductBusinessException {
+  public void replaceAllMetadata(final ProductMetadata productMetadata) throws BusinessException {
     validateMetadata(this.type, productMetadata);
     this.metadata = ProductMetadata.fromMap(productMetadata.getData());
   }

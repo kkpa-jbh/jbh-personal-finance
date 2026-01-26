@@ -1,8 +1,8 @@
 package com.jbh.account.application.core.vo.commands;
 
-import static com.jbh.account.domain.utils.JbhMoneyUtils.isZero;
+import static com.jbh.commons.util.JbhMoneyUtils.isZero;
 
-import com.jbh.account.domain.exceptions.GenericSpecificationException;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.account.domain.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;

@@ -4,10 +4,10 @@ import static com.jbh.account.application.builders.CommandTestBuilder.createInve
 import static com.jbh.account.application.builders.CommandTestBuilder.createLiquidateCommandToExternal;
 import static com.jbh.account.application.builders.UseCaseBuilder.delayTests;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.account.domain.vo.MovementType.WITHDRAWAL;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -29,12 +29,12 @@ import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.ExternalAccountInfoVO;
 import com.jbh.account.application.core.vo.commands.LiquidateAccountCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
-import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.MovementType;
+import com.jbh.account.domain.vo.ProductId;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -97,7 +97,7 @@ public class RegisterInvesmentMovementITTest {
 
   @Test
   @Order(0)
-  void createInvestmentAccount() throws ProductBusinessException {
+  void createInvestmentAccount() throws BusinessException {
     acciCuenta =
         createAccountUseCase.execute(createInvestmentCommand(userId, "ACCICUENTA", "TRII"));
     acciCuentaId = acciCuenta.id();
@@ -111,7 +111,7 @@ public class RegisterInvesmentMovementITTest {
 
   @Test
   @Order(1)
-  void initialBalance() throws ProductBusinessException {
+  void initialBalance() throws BusinessException {
     final AddMovementCommand movement =
         new AddMovementCommand(
             LocalDate.of(2025, 8, 20),
@@ -126,7 +126,7 @@ public class RegisterInvesmentMovementITTest {
 
   @Test
   @Order(2)
-  void registerBalanceSnapshotSept1() throws ProductBusinessException {
+  void registerBalanceSnapshotSept1() throws BusinessException {
     final BigDecimal acciCuentaBalance = withJBHDecimals(new BigDecimal("5022458.19"));
     final var entryDate = LocalDate.of(2025, 9, 22);
 
@@ -163,7 +163,7 @@ public class RegisterInvesmentMovementITTest {
 
   @Test
   @Order(2)
-  void registerBalanceSnapshotSept2() throws ProductBusinessException {
+  void registerBalanceSnapshotSept2() throws BusinessException {
     finalAcciBalanceSept = withJBHDecimals(new BigDecimal("5075628.00"));
     final var entryDate = LocalDate.of(2025, 9, 25);
 
@@ -201,7 +201,7 @@ public class RegisterInvesmentMovementITTest {
 
   @Test
   @Order(4)
-  void registerBalanceSnapshotOct1() throws ProductBusinessException {
+  void registerBalanceSnapshotOct1() throws BusinessException {
     final var entryDate = LocalDate.of(2025, 10, 16);
 
     // Check previous monthly balance
@@ -278,7 +278,7 @@ public class RegisterInvesmentMovementITTest {
 
   @Test
   @Order(99)
-  void shouldWithDrawalAllMoneySuccessfully() throws ProductBusinessException {
+  void shouldWithDrawalAllMoneySuccessfully() throws BusinessException {
     final LocalDate withdrawalDate = YearMonth.of(2025, 11).atDay(1);
     final ProductDTO account = inMemoryAccountRepo.findByAccountId(acciCuentaId).orElse(null);
     final BigDecimal currentBalance = account.currentBalance();
@@ -292,7 +292,7 @@ public class RegisterInvesmentMovementITTest {
             MovementCategoryDTO.withType(ExpenseCategory.PERSONAL));
 
     assertThrows(
-        ProductBusinessException.class,
+        BusinessException.class,
         () -> addMovementUseCase.addMovement(userId, acciCuentaId, withdrawal));
 
     final var latestEarning = new BigDecimal("120.00");

@@ -3,8 +3,8 @@ package com.jbh.account.application.core.services.monthlybalance;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductPK;
+import com.jbh.commons.exception.BusinessException;
 
 public class UnreportedProfitStrategy implements MonthlyBalanceProfitStrategy {
 
@@ -22,7 +22,7 @@ public class UnreportedProfitStrategy implements MonthlyBalanceProfitStrategy {
       final ProductPK accountPK,
       final MonthlyBalanceDTO monthlyBalanceDomain,
       final AddMonthlyBalanceCommand command)
-      throws ProductBusinessException {
+      throws BusinessException {
 
     final MonthlyBalanceDTO savedMonthlyReported =
         monthlyBalanceService.updateOfficialReportedBalance(monthlyBalanceDomain, command);

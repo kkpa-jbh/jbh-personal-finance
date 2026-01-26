@@ -3,8 +3,8 @@ package com.jbh.account.application.core.usecases.mock;
 import static com.jbh.account.application.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
 import static com.jbh.account.application.builders.UseCaseBuilder.movementQueryRepository;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
@@ -31,8 +31,8 @@ import com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils;
 import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -189,7 +189,7 @@ public class RegisterMonthlyBalanceMockTest {
     // When
     final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
     Assertions.assertThrows(
-        ProductBusinessException.class,
+        BusinessException.class,
         () ->
             savedMonthlyBalance.set(
                 useCaseInstanceTest.registerOfficialMonthlyBalance(

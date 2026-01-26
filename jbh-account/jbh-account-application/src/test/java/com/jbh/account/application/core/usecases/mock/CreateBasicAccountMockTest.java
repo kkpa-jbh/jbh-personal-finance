@@ -15,10 +15,10 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.vo.commands.CreateProductCommand;
-import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductType;
+import com.jbh.commons.exception.BusinessException;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ public class CreateBasicAccountMockTest {
   }
 
   @Test
-  public void shouldCreateAccount() throws ProductBusinessException {
+  public void shouldCreateAccount() throws BusinessException {
 
     final ProductDTO mockedAccount =
         ProductDTO.defaultBuilder(userId, ProductId.generate(), testAccountName, type).build();

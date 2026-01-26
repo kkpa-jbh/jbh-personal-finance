@@ -53,28 +53,28 @@ public final class JbhMoneyUtils {
   }
 
   public static BigDecimal toDecimal(final Object value) {
-    if (value == null) {
-      return null;
-    }
     BigDecimal valueAsDecimal = null;
+    if (value == null) {
+      return valueAsDecimal;
+    }
+
     if (value instanceof BigDecimal) {
       valueAsDecimal = (BigDecimal) value;
+    } else {
+      valueAsDecimal = new BigDecimal(value.toString());
     }
-    valueAsDecimal = new BigDecimal(value.toString());
 
     return withJBHDecimals(valueAsDecimal);
   }
 
-  public static void validatePercentage(final BigDecimal percentage)
-      throws BusinessException {
+  public static void validatePercentage(final BigDecimal percentage) throws BusinessException {
     if (percentage == null) {
       return;
     }
     if (percentage.signum() < 0
         || percentage.compareTo(BigDecimal.ZERO) <= 0
         || percentage.compareTo(new BigDecimal("100")) > 0) {
-      throw new BusinessException(
-          CommonExceptionType.INVALID_PERCENTAGE, percentage.toString());
+      throw new BusinessException(CommonExceptionType.INVALID_PERCENTAGE, percentage.toString());
     }
   }
 }

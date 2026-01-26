@@ -1,7 +1,7 @@
 package com.jbh.account.domain.vo.metadata;
 
-import com.jbh.account.domain.utils.JbhMoneyUtils;
 import com.jbh.account.domain.vo.ProductMetadataKey;
+import com.jbh.commons.util.JbhMoneyUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
@@ -24,6 +24,10 @@ public final class RealEstateMetadata {
     return (LocalDate) get(ProductMetadataKey.REAL_ESTATE_PURCHASE_DATE);
   }
 
+  private Object get(final ProductMetadataKey key) {
+    return data.get(key);
+  }
+
   /**
    * Gets the real estate purchase price.
    *
@@ -31,6 +35,11 @@ public final class RealEstateMetadata {
    */
   public BigDecimal getPurchasePrice() {
     return getDecimal(ProductMetadataKey.REAL_ESTATE_PURCHASE_PRICE);
+  }
+
+  private BigDecimal getDecimal(final ProductMetadataKey key) {
+    final Object result = get(key);
+    return result instanceof BigDecimal ? (BigDecimal) result : BigDecimal.ZERO;
   }
 
   /**
@@ -87,6 +96,14 @@ public final class RealEstateMetadata {
     put(ProductMetadataKey.REAL_ESTATE_PURCHASE_DATE, purchaseDate);
   }
 
+  private void put(final ProductMetadataKey key, final Object value) {
+    if (value instanceof BigDecimal) {
+      data.put(key, JbhMoneyUtils.withJBHDecimals((BigDecimal) value));
+      return;
+    }
+    data.put(key, value);
+  }
+
   /**
    * Sets the purchase price.
    *
@@ -139,22 +156,5 @@ public final class RealEstateMetadata {
    */
   public void putDownPaymentPaidToDate(final BigDecimal downPaymentPaidToDate) {
     put(ProductMetadataKey.REAL_ESTATE_DOWN_PAYMENT_PAID_TO_DATE, downPaymentPaidToDate);
-  }
-
-  private Object get(final ProductMetadataKey key) {
-    return data.get(key);
-  }
-
-  private BigDecimal getDecimal(final ProductMetadataKey key) {
-    final Object result = get(key);
-    return result instanceof BigDecimal ? (BigDecimal) result : BigDecimal.ZERO;
-  }
-
-  private void put(final ProductMetadataKey key, final Object value) {
-    if (value instanceof BigDecimal) {
-      data.put(key, JbhMoneyUtils.withJBHDecimals((BigDecimal) value));
-      return;
-    }
-    data.put(key, value);
   }
 }

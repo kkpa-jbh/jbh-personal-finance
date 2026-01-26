@@ -2,7 +2,7 @@ package com.jbh.account.application.core.usecases.integration.movements;
 
 import static com.jbh.account.application.builders.CommandTestBuilder.createInitialBalance;
 import static com.jbh.account.application.core.usecases.utils.AccountITUtils.assertAccount;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -22,9 +22,9 @@ import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.LiquidateAccountUseCase;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductPK;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -80,7 +80,7 @@ public class RegisterCDTMovementITTest {
 
   @Test
   @Order(0)
-  void createAccounts() throws ProductBusinessException {
+  void createAccounts() throws BusinessException {
     final LocalDate mvmDate = period.atDay(1);
     final ProductMetadata metadata = ProductMetadata.empty();
     metadata.findCDTMetadata().putMaturityDate(period.plusMonths(1).atDay(1));
@@ -110,7 +110,7 @@ public class RegisterCDTMovementITTest {
 
     // Should not be able to add a new income movement to the account
     assertThrows(
-        ProductBusinessException.class,
+        BusinessException.class,
         () -> {
           addMovementUseCase.addMovement(
               userId, cdtAccount.id(), createInitialBalance(mvmDate, CDT_INITIAL_BALANCE));
@@ -126,7 +126,7 @@ public class RegisterCDTMovementITTest {
 
   @Test
   @Order(2)
-  void withdrawalCDTMovement() throws ProductBusinessException {
+  void withdrawalCDTMovement() throws BusinessException {
     final YearMonth currentPeriod = period.plusMonths(1);
     final LocalDate mvmDate = currentPeriod.atDay(1);
 

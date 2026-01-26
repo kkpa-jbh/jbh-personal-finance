@@ -1,6 +1,6 @@
 package com.jbh.account.domain.validation.account.metrics;
 
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -8,12 +8,12 @@ import com.jbh.account.domain.entity.AccountDomainTestBuilder;
 import com.jbh.account.domain.entity.MovementCategoryDomain;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.entity.ProductMovementDomain;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.MovementType;
 import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductMetadata;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -77,7 +77,7 @@ class LoanAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateAsZeroWithPositiveValues() throws ProductBusinessException {
+  void shouldCalculateNetGrowthRateAsZeroWithPositiveValues() throws BusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("10000.00");
     final BigDecimal movementAmount = new BigDecimal("500.00");
@@ -95,8 +95,7 @@ class LoanAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateAsZeroWithNegativeMovementAmount()
-      throws ProductBusinessException {
+  void shouldCalculateNetGrowthRateAsZeroWithNegativeMovementAmount() throws BusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("10000.00");
     final BigDecimal movementAmount = new BigDecimal("-500.00");
@@ -114,7 +113,7 @@ class LoanAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateAsZeroWithZeroOpeningBalance() throws ProductBusinessException {
+  void shouldCalculateNetGrowthRateAsZeroWithZeroOpeningBalance() throws BusinessException {
     // Given
     final BigDecimal openingBalance = JBH_ZERO;
     final BigDecimal movementAmount = new BigDecimal("1000.00");
@@ -132,7 +131,7 @@ class LoanAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateAsZeroWithZeroMovementAmount() throws ProductBusinessException {
+  void shouldCalculateNetGrowthRateAsZeroWithZeroMovementAmount() throws BusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("5000.00");
     final BigDecimal movementAmount = JBH_ZERO;

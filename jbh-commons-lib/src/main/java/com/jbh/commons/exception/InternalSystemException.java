@@ -1,7 +1,9 @@
 package com.jbh.commons.exception;
 
-public class InternalSystemException extends Exception {
+import java.io.Serial;
 
+public class InternalSystemException extends Exception {
+  @Serial private static final long serialVersionUID = -7904385600828403985L;
   private final String message;
   private String errorCode;
 
@@ -21,6 +23,7 @@ public class InternalSystemException extends Exception {
     this.message = message;
   }
 
+  @SuppressWarnings("PMD.MissingOverride")
   public String getMessage() {
     return message;
   }

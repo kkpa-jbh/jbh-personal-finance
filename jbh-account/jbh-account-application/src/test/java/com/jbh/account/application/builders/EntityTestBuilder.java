@@ -1,6 +1,6 @@
 package com.jbh.account.application.builders;
 
-import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.domain.vo.ProductId;

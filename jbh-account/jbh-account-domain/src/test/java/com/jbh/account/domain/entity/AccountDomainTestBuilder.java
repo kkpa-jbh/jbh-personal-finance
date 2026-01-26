@@ -1,11 +1,11 @@
 package com.jbh.account.domain.entity;
 
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductType;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -146,7 +146,7 @@ public class AccountDomainTestBuilder {
   }
 
   public static ProductDomain createRealEstateProduct(
-      final UUID userId, final ProductMetadata metadata) throws ProductBusinessException {
+      final UUID userId, final ProductMetadata metadata) throws BusinessException {
     return ProductDomain.withMinimumDataForCreation(
         "RE Account", ProductType.REAL_ESTATE_INVESTMENT, userId, metadata);
   }

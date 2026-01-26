@@ -4,7 +4,7 @@ import static com.jbh.account.application.builders.CommandTestBuilder.createBasi
 import static com.jbh.account.application.builders.CommandTestBuilder.createLoanCommand;
 import static com.jbh.account.application.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
 import static com.jbh.account.application.builders.UseCaseBuilder.delayTests;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -24,11 +24,11 @@ import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.AddTransferCommand;
 import com.jbh.account.application.core.vo.commands.UpdateMetadataProductCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductPK;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -138,7 +138,7 @@ public class AddTransferAccountsITTest {
 
               fromAccount = result.account();
 
-            } catch (final ProductBusinessException e) {
+            } catch (final BusinessException e) {
               throw new RuntimeException(e);
             } finally {
               latch.countDown();
@@ -153,7 +153,7 @@ public class AddTransferAccountsITTest {
               assertNotNull(result);
               toAccount = result.account();
 
-            } catch (final ProductBusinessException e) {
+            } catch (final BusinessException e) {
               throw new RuntimeException(e);
             } finally {
               latch.countDown();
@@ -169,7 +169,7 @@ public class AddTransferAccountsITTest {
 
   @Test
   @Order(1)
-  void shouldAddTransfer1() throws ProductBusinessException {
+  void shouldAddTransfer1() throws BusinessException {
     final LocalDate transferDate = createdAccountsPeriod.atEndOfMonth();
     final var transferAmount = new BigDecimal("100");
     transferUseCase.addTransfer(
@@ -201,7 +201,7 @@ public class AddTransferAccountsITTest {
 
   @Test
   @Order(2)
-  void addTransferToLoan() throws ProductBusinessException {
+  void addTransferToLoan() throws BusinessException {
     final ProductPK fromAccountPK = toAccountPK;
     final ProductDTO fromAccountInitial =
         accountService.findAccountOrThrow(fromAccountPK.accountId());
@@ -248,7 +248,7 @@ public class AddTransferAccountsITTest {
 
   @Test
   @Order(3)
-  void updatePayOffTodayForLoan() throws ProductBusinessException {
+  void updatePayOffTodayForLoan() throws BusinessException {
     final var payoffAmount = new BigDecimal("300");
     final ProductPK loanAccountPK = new ProductPK(loanAccount.userId(), loanAccount.id());
     final ProductMetadata loanMetadata = ProductMetadata.empty();
@@ -265,7 +265,7 @@ public class AddTransferAccountsITTest {
 
   @Test
   @Order(4)
-  void payMoreThanLoan() throws ProductBusinessException {
+  void payMoreThanLoan() throws BusinessException {
     final ProductPK fromAccountPK = toAccountPK;
     final ProductDTO fromAccountInitial =
         accountService.findAccountOrThrow(fromAccountPK.accountId());
@@ -282,7 +282,7 @@ public class AddTransferAccountsITTest {
             .add(new BigDecimal("50"));
 
     assertThrows(
-        ProductBusinessException.class,
+        BusinessException.class,
         () ->
             transferUseCase.addTransfer(
                 fromAccountPK,
@@ -294,7 +294,7 @@ public class AddTransferAccountsITTest {
 
   @Test
   @Order(5)
-  void payTheExactPendingToPayOff() throws ProductBusinessException {
+  void payTheExactPendingToPayOff() throws BusinessException {
     final ProductPK fromAccountPK = toAccountPK;
     final ProductDTO fromAccountInitial =
         accountService.findAccountOrThrow(fromAccountPK.accountId());

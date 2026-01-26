@@ -1,9 +1,9 @@
 package com.jbh.account.application.core.vo.commands;
 
 import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
-import com.jbh.account.domain.utils.JbhMoneyUtils;
 import com.jbh.account.domain.vo.ProductPK;
+import com.jbh.commons.exception.BusinessException;
+import com.jbh.commons.util.JbhMoneyUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -11,18 +11,17 @@ import java.time.LocalDate;
 public record AddTransferCommand(
     ProductPK toAccount, BigDecimal totalAmount, LocalDate transferDate) {
 
-  public void validate() throws ProductBusinessException {
+  public void validate() throws BusinessException {
     if (toAccount == null || toAccount.userId() == null || toAccount.accountId() == null) {
-      throw new ProductBusinessException(
-          BusinessApplicationExceptionType.INVALID_TRANSFER_RECIPIENT);
+      throw new BusinessException(BusinessApplicationExceptionType.INVALID_TRANSFER_RECIPIENT);
     }
 
     if (JbhMoneyUtils.isZero(totalAmount) || JbhMoneyUtils.isNegative(totalAmount)) {
-      throw new ProductBusinessException(BusinessApplicationExceptionType.INVALID_TRANSFER_AMOUNT);
+      throw new BusinessException(BusinessApplicationExceptionType.INVALID_TRANSFER_AMOUNT);
     }
 
     if (transferDate == null) {
-      throw new ProductBusinessException(BusinessApplicationExceptionType.INVALID_TRANSFER_DATE);
+      throw new BusinessException(BusinessApplicationExceptionType.INVALID_TRANSFER_DATE);
     }
   }
 }

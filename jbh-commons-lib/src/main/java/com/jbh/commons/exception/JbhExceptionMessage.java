@@ -1,6 +1,6 @@
-package com.jbh.account.domain.exceptions;
+package com.jbh.commons.exception;
 
-import com.jbh.account.domain.utils.JbhStringUtils;
+import com.jbh.commons.util.JbhStringUtils;
 import java.io.Serial;
 import java.io.Serializable;
 

@@ -1,6 +1,6 @@
 package com.jbh.account.application.core.dto;
 
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.account.domain.vo.ProductId;
 import java.math.BigDecimal;

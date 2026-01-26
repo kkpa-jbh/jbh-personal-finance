@@ -1,12 +1,12 @@
 package com.jbh.account.domain.vo;
 
-import com.jbh.account.domain.utils.JbhMoneyUtils;
 import com.jbh.account.domain.vo.metadata.CdtMetadata;
 import com.jbh.account.domain.vo.metadata.CommonMetadata;
 import com.jbh.account.domain.vo.metadata.CreditCardMetadata;
 import com.jbh.account.domain.vo.metadata.InvestmentMetadata;
 import com.jbh.account.domain.vo.metadata.LoanMetadata;
 import com.jbh.account.domain.vo.metadata.RealEstateMetadata;
+import com.jbh.commons.util.JbhMoneyUtils;
 import java.math.BigDecimal;
 import java.util.EnumMap;
 import java.util.Map;

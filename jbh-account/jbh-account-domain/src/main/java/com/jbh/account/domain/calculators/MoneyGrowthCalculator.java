@@ -1,11 +1,11 @@
 package com.jbh.account.domain.calculators;
 
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.isNotZero;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.isNotZero;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -33,7 +33,7 @@ public class MoneyGrowthCalculator {
       final BigDecimal openingBalance,
       final BigDecimal closingBalance,
       final BigDecimal inputMovementAmount)
-      throws ProductBusinessException {
+      throws BusinessException {
 
     final BigDecimal movementBalance =
         inputMovementAmount != null ? withJBHDecimals(inputMovementAmount) : JBH_ZERO;
@@ -61,7 +61,7 @@ public class MoneyGrowthCalculator {
           closingBalance,
           movementBalance,
           growthRate);
-      throw new ProductBusinessException(BusinessDomainExceptionType.EXCEEDED_MAXIMUM_NET_GROWTH);
+      throw new BusinessException(BusinessDomainExceptionType.EXCEEDED_MAXIMUM_NET_GROWTH);
     }
 
     return growthRate;

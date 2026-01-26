@@ -1,7 +1,7 @@
 package com.jbh.account.application.core.services.movements;
 
-import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.account.domain.vo.MovementType.WITHDRAWAL;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.core.dto.AddBasicMovementDTO;
@@ -14,14 +14,14 @@ import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceSe
 import com.jbh.account.application.core.validation.product_type.ProductMovementValidatorFactory;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
-import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
-import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.MovementType;
+import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.domain.vo.ProductPK;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -59,7 +59,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
   @Override
   public void addDividendsMovementForNextMonth(
       final ProductPK accountPK, final AddMonthlyBalanceCommand nextMonthlyBalanceCommand)
-      throws ProductBusinessException {
+      throws BusinessException {
     if (nextMonthlyBalanceCommand == null) {
       log.warn("No monthly balance to add dividends movement");
       return;
@@ -131,7 +131,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
   @Override
   public AddBasicMovementDTO addMovementProcessingBalances(
       final ProductPK accountPK, final AddMovementCommand movementCommand)
-      throws ProductBusinessException {
+      throws BusinessException {
     // Input validations
     movementCommand.validate();
 
@@ -158,7 +158,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
       final MovementDTO movementDTO,
       final ProductPK accountPK,
       final boolean isMonthOfficiallyReported)
-      throws ProductBusinessException {
+      throws BusinessException {
     // Validations
     monthlyBalanceService.validateNewMovementForOfficialMonthlyReport(movementDTO);
 
@@ -196,7 +196,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
       final BigDecimal balanceSnapshot,
       final BigDecimal incomeWithholdingTaxAmount,
       final AccountMovementMetadata metadata)
-      throws ProductBusinessException {
+      throws BusinessException {
     final AddMovementCommand dividendsMovement =
         new AddMovementCommand(
             movementDate,
@@ -247,8 +247,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
   }
 
   private void validateMovementByProductType(
-      final ProductDTO existingAccount, final MovementDTO movementDTO)
-      throws ProductBusinessException {
+      final ProductDTO existingAccount, final MovementDTO movementDTO) throws BusinessException {
     movementValidatorFactory
         .getValidator(existingAccount.type())
         .validateMovementByProductType(existingAccount, movementDTO);

@@ -1,14 +1,14 @@
 package com.jbh.account.domain.entity;
 
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 
-import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.MovementType;
 import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductType;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -18,7 +18,7 @@ public class EntityBuilder {
 
   public static ProductDomain buildProductTestObject(
       final String name, final ProductType type, final UUID userId, final ProductMetadata metadata)
-      throws ProductBusinessException {
+      throws BusinessException {
     return ProductDomain.withMinimumDataForCreation(name, type, userId, metadata);
   }
 
@@ -66,7 +66,7 @@ public class EntityBuilder {
 
     try {
       movDomain.validate();
-    } catch (final ProductBusinessException e) {
+    } catch (final BusinessException e) {
       throw new GenericSpecificationException(e.getMessage());
     }
 

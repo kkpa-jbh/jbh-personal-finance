@@ -2,7 +2,7 @@ package com.jbh.account.application.core.services.monthlybalance;
 
 import static com.jbh.account.application.core.mappers.MonthlyBalanceMapper.toDTO;
 import static com.jbh.account.application.core.mappers.MonthlyBalanceMapper.toDomain;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.account.application.async.AsyncTaskExecutor;
 import com.jbh.account.application.async.vo.AsyncTask;
@@ -10,6 +10,7 @@ import com.jbh.account.application.async.vo.AsyncTaskType;
 import com.jbh.account.application.core.comparator.AccountMonthlyBalanceComparators;
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
+import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.application.core.mappers.MovementMapper;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
@@ -18,12 +19,11 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.validation.movement_type.MovementTypeValidatorStrategy;
 import com.jbh.account.application.core.validation.movement_type.MovementValidationStrategyFactory;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
-import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.account.domain.entity.MonthlyBalanceDomain;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.account.domain.vo.MovementType;
 import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductPK;
-import com.jbh.account.domain.vo.MovementType;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -103,7 +103,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
   @Override
   public void validateNewMovementForOfficialMonthlyReport(final MovementDTO movementDTO)
-      throws ProductBusinessException {
+      throws BusinessException {
     final YearMonth movementPeriod = YearMonth.from(movementDTO.movementDate());
     final ProductId accountId = movementDTO.accountId();
     final BigDecimal balanceSnapshot = movementDTO.balanceSnapshot();
@@ -129,11 +129,10 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
   private static boolean isMonthOfficiallyReportedValid(
       final MonthlyBalanceDTO existingMonthlyBalance, final BigDecimal balanceSnapshot)
-      throws ProductBusinessException {
+      throws BusinessException {
     final boolean isMonthOfficiallyReported = existingMonthlyBalance.officialMonthlyReport();
     if (isMonthOfficiallyReported && balanceSnapshot != null) {
-      throw new ProductBusinessException(
-          BusinessApplicationExceptionType.SNAPSHOT_AFTER_OFFICIAL_REPORT);
+      throw new BusinessException(BusinessApplicationExceptionType.SNAPSHOT_AFTER_OFFICIAL_REPORT);
     }
     return isMonthOfficiallyReported;
   }
@@ -141,7 +140,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   @Override
   public MonthlyBalanceDTO updateOfficialReportedBalance(
       final MonthlyBalanceDTO reportedMonthlyBalance, final AddMonthlyBalanceCommand command)
-      throws ProductBusinessException {
+      throws BusinessException {
 
     final MonthlyBalanceDomain monthlyBalanceDomain = toDomain(reportedMonthlyBalance);
     final var updatedMonthlyBalance = assignOfficialReport(monthlyBalanceDomain, command);
@@ -154,7 +153,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
   private MonthlyBalanceDTO assignOfficialReport(
       final MonthlyBalanceDomain monthlyBalanceDomain, final AddMonthlyBalanceCommand command)
-      throws ProductBusinessException {
+      throws BusinessException {
     monthlyBalanceDomain.assignOfficialMonthlyReport(
         command.closingBalance(),
         command.monthlyProfitReported(),
@@ -216,7 +215,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
 
   @Override
   public MonthlyBalanceDTO syncForNewMovement(final MovementDTO newMovement)
-      throws ProductBusinessException {
+      throws BusinessException {
     // Implementation for syncing monthly balances
     final ProductId accountId = newMovement.accountId();
     LOG.info(
@@ -302,7 +301,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
    */
   private List<MonthlyBalanceDTO> adjustCurrentAndNextMonthlyBalancesAsync(
       final ProductId accountId, final YearMonth initPeriod, final YearMonth endPeriod)
-      throws ProductBusinessException {
+      throws BusinessException {
 
     LOG.info(
         "Monthly balances from{} to {} for the account {} should be already persisted in the database",

@@ -5,8 +5,8 @@ import static com.jbh.account.application.core.mappers.MonthlyBalanceMapper.toDo
 import static com.jbh.account.application.core.usecases.integration.monthlybalance.IgnoreOption.IGNORE_MONTHLY_PROFIT;
 import static com.jbh.account.application.core.usecases.integration.monthlybalance.IgnoreOption.IGNORE_OPENING_BALANCE;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -39,9 +39,9 @@ import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileComma
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.entity.MonthlyBalanceDomain;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductType;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -130,7 +130,7 @@ public class UploadMultiMovementsExecutionMockTest {
   @DisplayName("Should create movements for NU")
   @Order(3)
   void shouldCreateMovementsForNU()
-      throws ExecutionException, InterruptedException, TimeoutException, ProductBusinessException {
+      throws ExecutionException, InterruptedException, TimeoutException, BusinessException {
 
     createAccount("NU");
 
@@ -462,7 +462,7 @@ public class UploadMultiMovementsExecutionMockTest {
     assertTrue(accountDTO.isFullyWithdrawn());
   }
 
-  void createAccount(final String name) throws ProductBusinessException {
+  void createAccount(final String name) throws BusinessException {
     currentAccount =
         createAccountUseCase.execute(createBasicAccountCommand(userId, name, ProductType.SAVINGS));
     accountId = currentAccount.id();
@@ -477,7 +477,7 @@ public class UploadMultiMovementsExecutionMockTest {
   @Test
   @DisplayName("Should create movements for PIKMI")
   void shouldCreatedMovementsForPIKMI()
-      throws ExecutionException, InterruptedException, TimeoutException, ProductBusinessException {
+      throws ExecutionException, InterruptedException, TimeoutException, BusinessException {
 
     createAccount("PIKMI");
 
@@ -710,7 +710,7 @@ public class UploadMultiMovementsExecutionMockTest {
   @Test
   @DisplayName("Should create movements for PIBI")
   void shouldCreatedMovementsForPIBI()
-      throws ExecutionException, InterruptedException, TimeoutException, ProductBusinessException {
+      throws ExecutionException, InterruptedException, TimeoutException, BusinessException {
 
     createAccount("PIBI");
     // Given

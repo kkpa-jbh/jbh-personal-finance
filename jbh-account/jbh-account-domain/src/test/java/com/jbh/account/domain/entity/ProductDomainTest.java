@@ -1,14 +1,13 @@
 package com.jbh.account.domain.entity;
 
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.AccountMovementId;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.ExpenseCategory;
@@ -18,6 +17,7 @@ import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductMetadataKey;
 import com.jbh.account.domain.vo.ProductType;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -71,7 +71,7 @@ public class ProductDomainTest {
   // ========== SAVINGS ACCOUNT TESTS ==========
 
   @Test
-  public void shouldCreateSavingsAccountWithEmptyMetadata() throws ProductBusinessException {
+  public void shouldCreateSavingsAccountWithEmptyMetadata() throws BusinessException {
     // Arrange
     final String accountName = "My Savings Account";
     final UUID testUserId = UUID.randomUUID();
@@ -95,7 +95,7 @@ public class ProductDomainTest {
   }
 
   @Test
-  public void shouldCreateSavingsAccountWithNullMetadata() throws ProductBusinessException {
+  public void shouldCreateSavingsAccountWithNullMetadata() throws BusinessException {
     // Arrange
     final String accountName = "Another Savings";
     final UUID testUserId = UUID.randomUUID();
@@ -114,7 +114,7 @@ public class ProductDomainTest {
   // ========== CDT ACCOUNT TESTS ==========
 
   @Test
-  public void shouldCreateCdtAccountWithEmptyMetadata() throws ProductBusinessException {
+  public void shouldCreateCdtAccountWithEmptyMetadata() throws BusinessException {
     // Arrange
     final String accountName = "CDT Account";
     final UUID testUserId = UUID.randomUUID();
@@ -138,7 +138,7 @@ public class ProductDomainTest {
   }
 
   @Test
-  public void shouldCreateCdtAccountWithNullMetadata() throws ProductBusinessException {
+  public void shouldCreateCdtAccountWithNullMetadata() throws BusinessException {
     // Arrange
     final String accountName = "CDT Long Term";
     final UUID testUserId = UUID.randomUUID();
@@ -154,7 +154,7 @@ public class ProductDomainTest {
   }
 
   @Test
-  public void shouldValidateCDTAccount() throws ProductBusinessException {
+  public void shouldValidateCDTAccount() throws BusinessException {
     // Arrange
     final String accountName = "CDT Long Term";
     final UUID testUserId = UUID.randomUUID();
@@ -162,7 +162,7 @@ public class ProductDomainTest {
     metadata1.findCDTMetadata().putMaturityDate(null);
     // Act
     assertThrows(
-        ProductBusinessException.class,
+        BusinessException.class,
         () ->
             EntityBuilder.buildProductTestObject(
                 accountName, ProductType.CDT, testUserId, metadata1));
@@ -172,7 +172,7 @@ public class ProductDomainTest {
         .findCDTMetadata()
         .putMaturityDate(null); // This will be replaced with string in validation
     assertThrows(
-        ProductBusinessException.class,
+        BusinessException.class,
         () ->
             EntityBuilder.buildProductTestObject(
                 accountName, ProductType.CDT, testUserId, metadata2));
@@ -196,9 +196,9 @@ public class ProductDomainTest {
     // Missing CREDIT_LIMIT
 
     // Act & Assert
-    final ProductBusinessException exception =
+    final BusinessException exception =
         assertThrows(
-            ProductBusinessException.class,
+            BusinessException.class,
             () ->
                 EntityBuilder.buildProductTestObject(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
@@ -220,9 +220,9 @@ public class ProductDomainTest {
     metadata.findCreditCardMetadata().putPaymentDueDay(15);
 
     // Act & Assert - Testing with missing credit limit instead
-    final ProductBusinessException exception =
+    final BusinessException exception =
         assertThrows(
-            ProductBusinessException.class,
+            BusinessException.class,
             () ->
                 EntityBuilder.buildProductTestObject(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
@@ -240,9 +240,9 @@ public class ProductDomainTest {
     metadata.findCreditCardMetadata().putPaymentDueDay(15);
 
     // Act & Assert
-    final ProductBusinessException exception =
+    final BusinessException exception =
         assertThrows(
-            ProductBusinessException.class,
+            BusinessException.class,
             () ->
                 EntityBuilder.buildProductTestObject(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
@@ -260,9 +260,9 @@ public class ProductDomainTest {
     metadata.findCreditCardMetadata().putPaymentDueDay(15);
 
     // Act & Assert
-    final ProductBusinessException exception =
+    final BusinessException exception =
         assertThrows(
-            ProductBusinessException.class,
+            BusinessException.class,
             () ->
                 EntityBuilder.buildProductTestObject(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
@@ -280,9 +280,9 @@ public class ProductDomainTest {
     // Missing PAYMENT_DUE_DAY
 
     // Act & Assert
-    final ProductBusinessException exception =
+    final BusinessException exception =
         assertThrows(
-            ProductBusinessException.class,
+            BusinessException.class,
             () ->
                 EntityBuilder.buildProductTestObject(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
@@ -300,9 +300,9 @@ public class ProductDomainTest {
     metadata.findCreditCardMetadata().putPaymentDueDay(0);
 
     // Act & Assert
-    final ProductBusinessException exception =
+    final BusinessException exception =
         assertThrows(
-            ProductBusinessException.class,
+            BusinessException.class,
             () ->
                 EntityBuilder.buildProductTestObject(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
@@ -320,9 +320,9 @@ public class ProductDomainTest {
     metadata.findCreditCardMetadata().putPaymentDueDay(32);
 
     // Act & Assert
-    final ProductBusinessException exception =
+    final BusinessException exception =
         assertThrows(
-            ProductBusinessException.class,
+            BusinessException.class,
             () ->
                 EntityBuilder.buildProductTestObject(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
@@ -338,9 +338,9 @@ public class ProductDomainTest {
     final ProductMetadata metadata = ProductMetadata.empty();
 
     // Act & Assert
-    final ProductBusinessException exception =
+    final BusinessException exception =
         assertThrows(
-            ProductBusinessException.class,
+            BusinessException.class,
             () ->
                 EntityBuilder.buildProductTestObject(
                     accountName, ProductType.CREDIT_CARD, testUserId, metadata));
@@ -351,7 +351,7 @@ public class ProductDomainTest {
   // ========== CREDIT CARD ACCOUNT SUCCESS TESTS ==========
 
   @Test
-  public void shouldCreateCreditCardAccountWithValidMetadata() throws ProductBusinessException {
+  public void shouldCreateCreditCardAccountWithValidMetadata() throws BusinessException {
     // Arrange
     final String accountName = "LULO Credit Card";
     final UUID testUserId = UUID.randomUUID();
@@ -383,7 +383,7 @@ public class ProductDomainTest {
 
   @Test
   public void shouldCreateCreditCardAccountWithPaymentDueDayBoundaryValue1()
-      throws ProductBusinessException {
+      throws BusinessException {
     // Arrange - Test lower boundary (day 1)
     final String accountName = "Credit Card Day 1";
     final UUID testUserId = UUID.randomUUID();
@@ -403,7 +403,7 @@ public class ProductDomainTest {
 
   @Test
   public void shouldCreateCreditCardAccountWithPaymentDueDayBoundaryValue31()
-      throws ProductBusinessException {
+      throws BusinessException {
     // Arrange - Test upper boundary (day 31)
     final String accountName = "Credit Card Day 31";
     final UUID testUserId = UUID.randomUUID();
@@ -432,9 +432,9 @@ public class ProductDomainTest {
     // Missing BROKER_NAME
 
     // Act & Assert
-    final ProductBusinessException exception =
+    final BusinessException exception =
         assertThrows(
-            ProductBusinessException.class,
+            BusinessException.class,
             () ->
                 EntityBuilder.buildProductTestObject(
                     accountName, ProductType.INVESTMENT, testUserId, metadata));
@@ -451,9 +451,9 @@ public class ProductDomainTest {
     metadata.findInvestmentMetadata().putBrokerName(null);
 
     // Act & Assert
-    final ProductBusinessException exception =
+    final BusinessException exception =
         assertThrows(
-            ProductBusinessException.class,
+            BusinessException.class,
             () ->
                 EntityBuilder.buildProductTestObject(
                     accountName, ProductType.INVESTMENT, testUserId, metadata));
@@ -470,9 +470,9 @@ public class ProductDomainTest {
     metadata.findInvestmentMetadata().putBrokerName("   ");
 
     // Act & Assert
-    final ProductBusinessException exception =
+    final BusinessException exception =
         assertThrows(
-            ProductBusinessException.class,
+            BusinessException.class,
             () ->
                 EntityBuilder.buildProductTestObject(
                     accountName, ProductType.INVESTMENT, testUserId, metadata));
@@ -489,9 +489,9 @@ public class ProductDomainTest {
     metadata.findInvestmentMetadata().putBrokerName("");
 
     // Act & Assert
-    final ProductBusinessException exception =
+    final BusinessException exception =
         assertThrows(
-            ProductBusinessException.class,
+            BusinessException.class,
             () ->
                 EntityBuilder.buildProductTestObject(
                     accountName, ProductType.INVESTMENT, testUserId, metadata));
@@ -502,7 +502,7 @@ public class ProductDomainTest {
   // ========== INVESTMENT ACCOUNT SUCCESS TESTS ==========
 
   @Test
-  public void shouldCreateInvestmentAccountWithValidBrokerName() throws ProductBusinessException {
+  public void shouldCreateInvestmentAccountWithValidBrokerName() throws BusinessException {
     // Arrange
     final String accountName = "Fidelity Portfolio";
     final UUID testUserId = UUID.randomUUID();
@@ -531,8 +531,7 @@ public class ProductDomainTest {
   }
 
   @Test
-  public void shouldCreateInvestmentAccountWithDifferentBrokerNames()
-      throws ProductBusinessException {
+  public void shouldCreateInvestmentAccountWithDifferentBrokerNames() throws BusinessException {
     // Arrange
     final UUID testUserId = UUID.randomUUID();
     final String[] brokerNames = {"Charles Schwab", "Vanguard", "Interactive Brokers"};
@@ -567,7 +566,7 @@ public class ProductDomainTest {
   }
 
   @Test
-  public void shouldCreateWithConstructor() throws ProductBusinessException {
+  public void shouldCreateWithConstructor() throws BusinessException {
     final var accountDomain =
         AccountDomainTestBuilder.createProduct(
             "name", ProductType.SAVINGS, userId, JBH_ZERO, JBH_ZERO, ProductMetadata.empty());
@@ -621,12 +620,12 @@ public class ProductDomainTest {
             JBH_ZERO,
             AccountMovementMetadata.createEmpty());
     assertThrows(
-        ProductBusinessException.class,
+        BusinessException.class,
         () -> accountDomain.syncBalancesByMovement(unknownMovement, false));
   }
 
   @Test
-  public void shouldCreateLoanProduct() throws ProductBusinessException {
+  public void shouldCreateLoanProduct() throws BusinessException {
     // Arrange
     final ProductMetadata metadata = ProductMetadata.empty();
     metadata.findLoanMetadata().putPrincipalAmount(new BigDecimal("5000"));
@@ -642,20 +641,19 @@ public class ProductDomainTest {
   }
 
   @Test
-  public void shouldCreateRealEstateProductWithoutRequiredMetadata()
-      throws ProductBusinessException {
+  public void shouldCreateRealEstateProductWithoutRequiredMetadata() throws BusinessException {
     // Arrange
     final ProductMetadata metadata = ProductMetadata.empty();
 
     assertThrows(
-        ProductBusinessException.class,
+        BusinessException.class,
         () ->
             EntityBuilder.buildProductTestObject(
                 "RES ", ProductType.REAL_ESTATE_INVESTMENT, UUID.randomUUID(), metadata));
   }
 
   @Test
-  public void shouldCreateRealEstateProduct() throws ProductBusinessException {
+  public void shouldCreateRealEstateProduct() throws BusinessException {
     // Arrange
     final ProductMetadata metadata = ProductMetadata.empty();
     metadata.findRealEstateMetadata().putPurchaseDate(LocalDate.now());

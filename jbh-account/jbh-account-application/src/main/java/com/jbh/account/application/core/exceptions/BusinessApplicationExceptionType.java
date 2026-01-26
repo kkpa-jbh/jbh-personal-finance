@@ -1,7 +1,7 @@
 package com.jbh.account.application.core.exceptions;
 
-import com.jbh.account.domain.exceptions.BusinessExceptionType;
-import com.jbh.account.domain.utils.JbhStringUtils;
+import com.jbh.commons.exception.BusinessExceptionType;
+import com.jbh.commons.util.JbhStringUtils;
 
 @SuppressWarnings("PMD.LongVariable")
 public enum BusinessApplicationExceptionType implements BusinessExceptionType {

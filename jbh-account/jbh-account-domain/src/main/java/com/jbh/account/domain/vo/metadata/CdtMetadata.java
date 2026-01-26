@@ -1,9 +1,9 @@
 package com.jbh.account.domain.vo.metadata;
 
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.account.domain.utils.JbhMoneyUtils;
 import com.jbh.account.domain.vo.ProductMetadataKey;
+import com.jbh.commons.exception.BusinessException;
+import com.jbh.commons.util.JbhMoneyUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
@@ -21,14 +21,18 @@ public final class CdtMetadata {
    * Gets the maturity date for CDT accounts.
    *
    * @return LocalDate maturity date
-   * @throws ProductBusinessException if maturity date is not a LocalDate
+   * @throws BusinessException if maturity date is not a LocalDate
    */
-  public LocalDate getMaturityDate() throws ProductBusinessException {
+  public LocalDate getMaturityDate() throws BusinessException {
     final Object maturityDate = get(ProductMetadataKey.MATURITY_DATE);
     if (!(maturityDate instanceof LocalDate)) {
-      throw new ProductBusinessException(BusinessDomainExceptionType.INVALID_MATURITY_DATE_TYPE);
+      throw new BusinessException(BusinessDomainExceptionType.INVALID_MATURITY_DATE_TYPE);
     }
     return (LocalDate) maturityDate;
+  }
+
+  private Object get(final ProductMetadataKey key) {
+    return data.get(key);
   }
 
   /**
@@ -58,6 +62,11 @@ public final class CdtMetadata {
     return getDecimal(ProductMetadataKey.COMMISSION_RATE);
   }
 
+  private BigDecimal getDecimal(final ProductMetadataKey key) {
+    final Object result = get(key);
+    return result instanceof BigDecimal ? (BigDecimal) result : BigDecimal.ZERO;
+  }
+
   /**
    * Sets the maturity date.
    *
@@ -65,6 +74,14 @@ public final class CdtMetadata {
    */
   public void putMaturityDate(final LocalDate maturityDate) {
     put(ProductMetadataKey.MATURITY_DATE, maturityDate);
+  }
+
+  private void put(final ProductMetadataKey key, final Object value) {
+    if (value instanceof BigDecimal) {
+      data.put(key, JbhMoneyUtils.withJBHDecimals((BigDecimal) value));
+      return;
+    }
+    data.put(key, value);
   }
 
   /**
@@ -92,22 +109,5 @@ public final class CdtMetadata {
    */
   public void putCommissionRate(final BigDecimal commissionRate) {
     put(ProductMetadataKey.COMMISSION_RATE, commissionRate);
-  }
-
-  private Object get(final ProductMetadataKey key) {
-    return data.get(key);
-  }
-
-  private BigDecimal getDecimal(final ProductMetadataKey key) {
-    final Object result = get(key);
-    return result instanceof BigDecimal ? (BigDecimal) result : BigDecimal.ZERO;
-  }
-
-  private void put(final ProductMetadataKey key, final Object value) {
-    if (value instanceof BigDecimal) {
-      data.put(key, JbhMoneyUtils.withJBHDecimals((BigDecimal) value));
-      return;
-    }
-    data.put(key, value);
   }
 }

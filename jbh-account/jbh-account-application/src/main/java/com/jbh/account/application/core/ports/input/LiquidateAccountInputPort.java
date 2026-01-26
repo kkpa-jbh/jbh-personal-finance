@@ -8,10 +8,10 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.movements.AccountMovementApplicationService;
 import com.jbh.account.application.core.usecases.LiquidateAccountUseCase;
 import com.jbh.account.application.core.vo.commands.LiquidateAccountCommand;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
-import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
+import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductPK;
+import com.jbh.commons.exception.BusinessException;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ public class LiquidateAccountInputPort implements LiquidateAccountUseCase {
       final UUID userId,
       final ProductId accountId,
       final LiquidateAccountCommand liquidationCommand)
-      throws ProductBusinessException {
+      throws BusinessException {
 
     liquidationCommand.validate();
 
@@ -63,7 +63,7 @@ public class LiquidateAccountInputPort implements LiquidateAccountUseCase {
       final LiquidateAccountCommand liquidationCommand,
       final ProductDTO toInternalAccount,
       final ProductDTO syncedAccountDTO)
-      throws ProductBusinessException {
+      throws BusinessException {
     if (toInternalAccount != null) {
       LOG.info("Deposit dividends to internal account {} ", toInternalAccount);
       final var internalAccountId = toInternalAccount.id();

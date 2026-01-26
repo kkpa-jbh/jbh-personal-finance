@@ -3,9 +3,7 @@ package com.jbh.account.domain.entity;
 import static com.jbh.account.domain.entity.MovementCategoryDomain.withCategoryType;
 
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
-import com.jbh.account.domain.utils.JbhMoneyUtils;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountMovementId;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.AccountMovementMetadataKey;
@@ -13,6 +11,8 @@ import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementType;
 import com.jbh.account.domain.vo.ProductId;
+import com.jbh.commons.exception.BusinessException;
+import com.jbh.commons.util.JbhMoneyUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -82,7 +82,7 @@ public class ProductMovementDomain {
       final BigDecimal balanceSnapshot,
       final MovementType movementType,
       final LocalDateTime importedAt)
-      throws ProductBusinessException {
+      throws BusinessException {
 
     MovementCategoryDomain category = null;
     if (movementType == MovementType.DEPOSIT) {
@@ -108,7 +108,7 @@ public class ProductMovementDomain {
     return movementDomain;
   }
 
-  public void validate() throws ProductBusinessException {
+  public void validate() throws BusinessException {
     validateAccountId();
     validateMovementType();
     validateMovementDate();
@@ -123,49 +123,48 @@ public class ProductMovementDomain {
     }
   }
 
-  private void validateMovementType() throws ProductBusinessException {
+  private void validateMovementType() throws BusinessException {
     if (movementType == null) {
-      throw new ProductBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_TYPE);
+      throw new BusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_TYPE);
     }
     if (movementType == MovementType.BALANCE_SNAPSHOT && category != null) {
-      throw new ProductBusinessException(
-          BusinessDomainExceptionType.INVALID_CATEGORY_BALANCE_SNAPSHOT);
+      throw new BusinessException(BusinessDomainExceptionType.INVALID_CATEGORY_BALANCE_SNAPSHOT);
     }
   }
 
-  private void validateMovementDate() throws ProductBusinessException {
+  private void validateMovementDate() throws BusinessException {
     if (movementDate == null) {
-      throw new ProductBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_TYPE);
+      throw new BusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_TYPE);
     }
   }
 
-  private void validateCategory() throws ProductBusinessException {
+  private void validateCategory() throws BusinessException {
     validateMovementType();
     validateCategoryRequirement();
     validateCategoryByMovementType();
   }
 
-  private void validateMovementDateNotFuture() throws ProductBusinessException {
+  private void validateMovementDateNotFuture() throws BusinessException {
     if (movementDate != null && movementDate.isAfter(LocalDate.now())) {
-      throw new ProductBusinessException(BusinessDomainExceptionType.FUTURE_MOVEMENT_DATE);
+      throw new BusinessException(BusinessDomainExceptionType.FUTURE_MOVEMENT_DATE);
     }
   }
 
-  private void validateAmountOrSnapshot() throws ProductBusinessException {
+  private void validateAmountOrSnapshot() throws BusinessException {
     if (movementAmount == null && balanceSnapshot == null) {
-      throw new ProductBusinessException(BusinessDomainExceptionType.EMPTY_AMOUNT);
+      throw new BusinessException(BusinessDomainExceptionType.EMPTY_AMOUNT);
     }
     validateAmountWithCategory();
   }
 
-  private void validateCategoryRequirement() throws ProductBusinessException {
+  private void validateCategoryRequirement() throws BusinessException {
     if (MovementCategoryDomain.isEmpty(category) && movementType != MovementType.BALANCE_SNAPSHOT) {
 
-      throw new ProductBusinessException(BusinessDomainExceptionType.EMPTY_CATEGORY);
+      throw new BusinessException(BusinessDomainExceptionType.EMPTY_CATEGORY);
     }
   }
 
-  private void validateCategoryByMovementType() throws ProductBusinessException {
+  private void validateCategoryByMovementType() throws BusinessException {
     switch (this.movementType) {
       case BALANCE_SNAPSHOT:
         validateBalanceSnapshotCategory();
@@ -179,21 +178,19 @@ public class ProductMovementDomain {
     }
   }
 
-  private void validateAmountWithCategory() throws ProductBusinessException {
+  private void validateAmountWithCategory() throws BusinessException {
     if (movementType == MovementType.DEPOSIT && movementAmount.signum() < 0) {
-      throw new ProductBusinessException(BusinessDomainExceptionType.DEPOSIT_AMOUNT_NOT_POSITIVE);
+      throw new BusinessException(BusinessDomainExceptionType.DEPOSIT_AMOUNT_NOT_POSITIVE);
     }
     if (movementType == MovementType.WITHDRAWAL
         && (movementAmount == null || movementAmount.signum() > 0)) {
-      throw new ProductBusinessException(
-          BusinessDomainExceptionType.WITHDRAWAL_AMOUNT_NOT_POSITIVE);
+      throw new BusinessException(BusinessDomainExceptionType.WITHDRAWAL_AMOUNT_NOT_POSITIVE);
     }
   }
 
-  private void validateBalanceSnapshotCategory() throws ProductBusinessException {
+  private void validateBalanceSnapshotCategory() throws BusinessException {
     if (category != null) {
-      throw new ProductBusinessException(
-          BusinessDomainExceptionType.INVALID_CATEGORY_BALANCE_SNAPSHOT);
+      throw new BusinessException(BusinessDomainExceptionType.INVALID_CATEGORY_BALANCE_SNAPSHOT);
     }
   }
 

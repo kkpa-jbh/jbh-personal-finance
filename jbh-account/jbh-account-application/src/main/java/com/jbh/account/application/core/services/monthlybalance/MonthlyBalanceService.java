@@ -5,8 +5,8 @@ import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.account.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
+import com.jbh.commons.exception.BusinessException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -14,7 +14,7 @@ public interface MonthlyBalanceService
     extends AccountMonthlyBalanceQueryRepo, AccountMonthlyBalanceWriterRepository {
 
   void validateNewMovementForOfficialMonthlyReport(MovementDTO movementDTO)
-      throws ProductBusinessException;
+      throws BusinessException;
 
   /**
    * 1. It will set/apply the closing balance, monthly profit reported and income withholding tax
@@ -31,13 +31,13 @@ public interface MonthlyBalanceService
    */
   MonthlyBalanceDTO updateOfficialReportedBalance(
       MonthlyBalanceDTO reportedMonthlyBalance, AddMonthlyBalanceCommand command)
-      throws ProductBusinessException;
+      throws BusinessException;
 
   void updateOpeningBalanceNextMonth(MonthlyBalanceDTO currentMonthlyBalance);
 
   boolean isLastOfficialReport(MonthlyBalanceDTO monthlyBalanceDTO);
 
-  MonthlyBalanceDTO syncForNewMovement(MovementDTO newMovement) throws ProductBusinessException;
+  MonthlyBalanceDTO syncForNewMovement(MovementDTO newMovement) throws BusinessException;
 
   /**
    * Saves the monthly balances in the database and syncs them asynchronously. This is called when

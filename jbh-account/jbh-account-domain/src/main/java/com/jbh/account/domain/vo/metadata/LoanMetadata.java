@@ -1,7 +1,7 @@
 package com.jbh.account.domain.vo.metadata;
 
-import com.jbh.account.domain.utils.JbhMoneyUtils;
 import com.jbh.account.domain.vo.ProductMetadataKey;
+import com.jbh.commons.util.JbhMoneyUtils;
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -21,6 +21,15 @@ public final class LoanMetadata {
    */
   public BigDecimal getPrincipalAmount() {
     return getDecimal(ProductMetadataKey.LOAN_PRINCIPAL_AMOUNT);
+  }
+
+  private BigDecimal getDecimal(final ProductMetadataKey key) {
+    final Object result = get(key);
+    return result instanceof BigDecimal ? (BigDecimal) result : BigDecimal.ZERO;
+  }
+
+  private Object get(final ProductMetadataKey key) {
+    return data.get(key);
   }
 
   /**
@@ -59,6 +68,14 @@ public final class LoanMetadata {
     put(ProductMetadataKey.LOAN_PRINCIPAL_AMOUNT, principalAmount);
   }
 
+  private void put(final ProductMetadataKey key, final Object value) {
+    if (value instanceof BigDecimal) {
+      data.put(key, JbhMoneyUtils.withJBHDecimals((BigDecimal) value));
+      return;
+    }
+    data.put(key, value);
+  }
+
   /**
    * Sets the interest rate.
    *
@@ -84,22 +101,5 @@ public final class LoanMetadata {
    */
   public void putPayoffAmountToday(final BigDecimal payoffAmountToday) {
     put(ProductMetadataKey.LOAN_PAYOFF_AMOUNT_TODAY, payoffAmountToday);
-  }
-
-  private Object get(final ProductMetadataKey key) {
-    return data.get(key);
-  }
-
-  private BigDecimal getDecimal(final ProductMetadataKey key) {
-    final Object result = get(key);
-    return result instanceof BigDecimal ? (BigDecimal) result : BigDecimal.ZERO;
-  }
-
-  private void put(final ProductMetadataKey key, final Object value) {
-    if (value instanceof BigDecimal) {
-      data.put(key, JbhMoneyUtils.withJBHDecimals((BigDecimal) value));
-      return;
-    }
-    data.put(key, value);
   }
 }

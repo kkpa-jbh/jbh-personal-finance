@@ -2,9 +2,9 @@ package com.jbh.account.infra.adapters.exceptions;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.account.infra.adapters.in.rest.vo.ApiResponse;
+import com.jbh.commons.exception.BusinessException;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,8 +21,8 @@ class GlobalExceptionHandlerTest {
   @Test
   void shouldReturnHttp422WhenAccountBusinessExceptionIsThrown() {
     // Given
-    final ProductBusinessException exception =
-        new ProductBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENTS);
+    final BusinessException exception =
+        new BusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENTS);
 
     // When
     final Response response = handler.toResponse(exception);
@@ -52,8 +52,7 @@ class GlobalExceptionHandlerTest {
     final Response response = handler.toResponse(exception);
 
     // Then
-    assertEquals(
-        400, response.getStatus(), "Should return HTTP 400 for IllegalArgumentException");
+    assertEquals(400, response.getStatus(), "Should return HTTP 400 for IllegalArgumentException");
     assertNotNull(response.getEntity(), "Response should contain an entity");
     assertTrue(
         response.getEntity() instanceof ApiResponse, "Entity should be an ApiResponse instance");
@@ -89,8 +88,8 @@ class GlobalExceptionHandlerTest {
   void shouldHandleAccountBusinessExceptionWithFormattedMessage() {
     // Given
     final String metadataKey = "REAL_ESTATE_PURCHASE_DATE";
-    final ProductBusinessException exception =
-        new ProductBusinessException(BusinessDomainExceptionType.MISSING_METADATA, metadataKey);
+    final BusinessException exception =
+        new BusinessException(BusinessDomainExceptionType.MISSING_METADATA, metadataKey);
 
     // When
     final Response response = handler.toResponse(exception);
@@ -102,7 +101,6 @@ class GlobalExceptionHandlerTest {
     assertTrue(
         apiResponse.message().contains(metadataKey),
         "Error message should contain the metadata key");
-    assertNotNull(
-        apiResponse.errors(), "Errors list should contain the exception type message");
+    assertNotNull(apiResponse.errors(), "Errors list should contain the exception type message");
   }
 }

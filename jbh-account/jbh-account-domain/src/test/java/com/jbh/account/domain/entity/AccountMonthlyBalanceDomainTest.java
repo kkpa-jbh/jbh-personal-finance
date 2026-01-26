@@ -2,11 +2,11 @@ package com.jbh.account.domain.entity;
 
 import static com.jbh.account.domain.entity.MovementCategoryDomain.OTHER_INCOME_CATEGORY;
 import static com.jbh.account.domain.entity.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.account.domain.vo.MovementType.DEPOSIT;
 import static com.jbh.account.domain.vo.MovementType.WITHDRAWAL;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -14,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -32,7 +32,7 @@ public class AccountMonthlyBalanceDomainTest {
   ProductId accountId = ProductId.generate();
 
   @BeforeEach
-  public void setUp() throws ProductBusinessException {
+  public void setUp() throws BusinessException {
     ceroMonthlyBalance = MonthlyBalanceDomain.withPeriod(accountId, todayYM);
     ceroMonthlyBalance =
         new MonthlyBalanceDomain(
@@ -92,7 +92,7 @@ public class AccountMonthlyBalanceDomainTest {
   }
 
   @Test
-  public void shouldCreateWithPeriod() throws ProductBusinessException {
+  public void shouldCreateWithPeriod() throws BusinessException {
     assertNull(ceroMonthlyBalance.getId());
     assertNotNull(ceroMonthlyBalance.getAccountId());
     assertEquals(accountId, ceroMonthlyBalance.getAccountId());
@@ -126,8 +126,7 @@ public class AccountMonthlyBalanceDomainTest {
   }
 
   @Test
-  public void shouldSetOfficialReportAndAdjustClosingBalanceForMonth()
-      throws ProductBusinessException {
+  public void shouldSetOfficialReportAndAdjustClosingBalanceForMonth() throws BusinessException {
 
     final var closingBalance = (new BigDecimal("150.00"));
     final var monthlyProfitReported = (new BigDecimal("20.00"));
@@ -142,7 +141,7 @@ public class AccountMonthlyBalanceDomainTest {
 
   @Test
   public void shouldSetOfficialReportWithZeroProfitAndRegularNetProfitFormula()
-      throws ProductBusinessException {
+      throws BusinessException {
 
     final var closingBalance = (new BigDecimal("150.00"));
     final var monthlyProfitReported = BigDecimal.ZERO;
@@ -174,7 +173,7 @@ public class AccountMonthlyBalanceDomainTest {
   }
 
   @Test
-  public void shouldSyncDepositAndSnapshotMovement() throws ProductBusinessException {
+  public void shouldSyncDepositAndSnapshotMovement() throws BusinessException {
     final var totalAmount = new BigDecimal("100.00");
     final var balanceSnapshot = new BigDecimal("120.00");
     final var newMovement =
@@ -195,7 +194,7 @@ public class AccountMonthlyBalanceDomainTest {
 
   @Test
   @DisplayName("First deposit to monthly balance should not have profit")
-  public void shouldSyncDepositWithoutSnapshotMovement() throws ProductBusinessException {
+  public void shouldSyncDepositWithoutSnapshotMovement() throws BusinessException {
     final var totalAmount = new BigDecimal("100.00");
     final var newMovement =
         EntityBuilder.with(accountId, today, totalAmount, null, DEPOSIT, OTHER_INCOME_CATEGORY);
@@ -213,8 +212,7 @@ public class AccountMonthlyBalanceDomainTest {
   }
 
   @Test
-  public void shouldSyncDepositAndSnapshotMovementOneHundredBalance()
-      throws ProductBusinessException {
+  public void shouldSyncDepositAndSnapshotMovementOneHundredBalance() throws BusinessException {
     final var totalAmount = new BigDecimal("115.00");
     final var balanceSnapshot = new BigDecimal("230.00");
     final var newMovement =
@@ -237,7 +235,7 @@ public class AccountMonthlyBalanceDomainTest {
   }
 
   @Test
-  public void shouldSyncDepositWithoutSnapshotMovementOneHundred() throws ProductBusinessException {
+  public void shouldSyncDepositWithoutSnapshotMovementOneHundred() throws BusinessException {
     final var totalAmount = new BigDecimal("50.00");
     final var newMovement =
         EntityBuilder.with(accountId, today, totalAmount, null, DEPOSIT, OTHER_INCOME_CATEGORY);
@@ -257,7 +255,7 @@ public class AccountMonthlyBalanceDomainTest {
   }
 
   @Test
-  public void shouldSyncWithdrawalAndSnapshotMovement() throws ProductBusinessException {
+  public void shouldSyncWithdrawalAndSnapshotMovement() throws BusinessException {
     final var totalAmount = new BigDecimal("-100.00");
     final var balanceSnapshot = new BigDecimal("120.00");
     final var newMovement =
@@ -310,7 +308,7 @@ public class AccountMonthlyBalanceDomainTest {
             mov -> {
               try {
                 oneHundredMonthlyBalance.assignMovement(mov);
-              } catch (final ProductBusinessException e) {
+              } catch (final BusinessException e) {
                 throw new RuntimeException(e);
               }
             });
@@ -327,7 +325,7 @@ public class AccountMonthlyBalanceDomainTest {
   }
 
   @Test
-  public void shouldSortByPeriodAscending() throws ProductBusinessException {
+  public void shouldSortByPeriodAscending() throws BusinessException {
     final var period1 = YearMonth.of(2023, 10);
     final var period2 = YearMonth.of(2023, 11);
     final var period3 = YearMonth.of(2023, 12);
@@ -389,7 +387,7 @@ public class AccountMonthlyBalanceDomainTest {
   }
 
   @Test
-  public void shouldThrowExceptionWhenDifferentPeriod() throws ProductBusinessException {
+  public void shouldThrowExceptionWhenDifferentPeriod() throws BusinessException {
     final LocalDate initBalanceDate = LocalDate.of(2024, 8, 1);
     final YearMonth initBalancePeriod = YearMonth.of(2024, 8);
     final MonthlyBalanceDomain accountMonthlyBalance =
@@ -416,7 +414,7 @@ public class AccountMonthlyBalanceDomainTest {
     final var septBalanceDate = septBalancePeriod.atDay(1);
 
     assertThrows(
-        ProductBusinessException.class,
+        BusinessException.class,
         () -> {
           accountMonthlyBalance.assignMovement(
               EntityBuilder.with(

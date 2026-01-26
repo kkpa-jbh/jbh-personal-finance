@@ -1,8 +1,8 @@
 package com.jbh.account.domain.vo.metadata;
 
-import com.jbh.account.domain.utils.JbhBooleanUtils;
-import com.jbh.account.domain.utils.JbhMoneyUtils;
 import com.jbh.account.domain.vo.ProductMetadataKey;
+import com.jbh.commons.util.JbhBooleanUtils;
+import com.jbh.commons.util.JbhMoneyUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -67,7 +67,7 @@ public final class CommonMetadata {
 
   private BigDecimal getDecimal(final ProductMetadataKey key) {
     final Object result = get(key);
-    return com.jbh.commons.util.JbhMoneyUtils.toDecimal(result);
+    return JbhMoneyUtils.toDecimal(result);
   }
 
   /**

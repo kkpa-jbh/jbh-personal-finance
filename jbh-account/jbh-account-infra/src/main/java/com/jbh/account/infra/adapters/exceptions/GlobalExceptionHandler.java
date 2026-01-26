@@ -1,7 +1,7 @@
 package com.jbh.account.infra.adapters.exceptions;
 
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.infra.adapters.in.rest.vo.ApiResponse;
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
@@ -24,7 +24,7 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
   public Response toResponse(final Exception exception) {
     LOG.error("Exception caught by GlobalExceptionHandler", exception);
 
-    if (exception instanceof final ProductBusinessException accountBusinessException) {
+    if (exception instanceof final BusinessException accountBusinessException) {
       return handleAccountBusinessException(accountBusinessException);
     }
 
@@ -40,7 +40,7 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
     return handleGenericException(exception);
   }
 
-  private Response handleAccountBusinessException(final ProductBusinessException exception) {
+  private Response handleAccountBusinessException(final BusinessException exception) {
     final String errorMessage = exception.getMessage();
 
     final ApiResponse<Void> errorResponse =

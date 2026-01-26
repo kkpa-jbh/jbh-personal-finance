@@ -1,4 +1,5 @@
 module jbh.account.application {
+  requires jbh.commons;
   requires jbh.account.domain;
   requires org.slf4j;
   requires java.logging;

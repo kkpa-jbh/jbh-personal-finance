@@ -9,12 +9,12 @@ import com.jbh.account.application.core.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.AddTransferCommand;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.MovementType;
 import com.jbh.account.domain.vo.ProductPK;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUs
 
   @Override
   public void addTransfer(final ProductPK fromAccount, final AddTransferCommand transferCommand)
-      throws ProductBusinessException {
+      throws BusinessException {
 
     transferCommand.validate();
 
@@ -85,11 +85,11 @@ public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUs
    *
    * @param fromProductDTO the 'from' account
    * @param movementCommand the movement command representing the transfer
-   * @throws ProductBusinessException if the 'from' account does not have sufficient net flow
+   * @throws BusinessException if the 'from' account does not have sufficient net flow
    */
   private void transferValidationFROM(
       final ProductDTO fromProductDTO, final AddMovementCommand movementCommand)
-      throws ProductBusinessException {
+      throws BusinessException {
     final var movementDTO = MovementMapper.fromCommand(fromProductDTO.id(), movementCommand);
     AccountMapper.toDomain(fromProductDTO)
         .validateInsufficientNetFlow(MovementMapper.toDomain(movementDTO));
@@ -97,15 +97,14 @@ public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUs
 
   private void transferValidationTO(
       final ProductDTO toAccountDTO, final AddMovementCommand movementCommandTo)
-      throws ProductBusinessException {
+      throws BusinessException {
     if (toAccountDTO.isLoan()) {
       final BigDecimal movementAmount = movementCommandTo.totalAmount();
       final BigDecimal pendingToPaid =
           toAccountDTO.metadata().findLoanMetadata().getPayoffAmountToday();
 
       if (movementAmount.compareTo(pendingToPaid) > 0) {
-        throw new ProductBusinessException(
-            BusinessDomainExceptionType.PAYMENT_AMOUNT_GREATER_PAYOFF);
+        throw new BusinessException(BusinessDomainExceptionType.PAYMENT_AMOUNT_GREATER_PAYOFF);
       }
     }
   }

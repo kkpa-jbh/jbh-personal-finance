@@ -1,6 +1,6 @@
 package com.jbh.account.domain.validation.account.metrics;
 
-import com.jbh.account.domain.exceptions.GenericSpecificationException;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.account.domain.vo.ProductType;
 
 public final class AccountMetricsCalculatorFactory {

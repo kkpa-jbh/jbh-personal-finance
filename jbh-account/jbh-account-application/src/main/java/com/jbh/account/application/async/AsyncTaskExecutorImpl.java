@@ -1,7 +1,7 @@
 package com.jbh.account.application.async;
 
 import com.jbh.account.application.async.vo.AsyncTask;
-import com.jbh.account.domain.exceptions.GenericSpecificationException;
+import com.jbh.commons.exception.GenericSpecificationException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;

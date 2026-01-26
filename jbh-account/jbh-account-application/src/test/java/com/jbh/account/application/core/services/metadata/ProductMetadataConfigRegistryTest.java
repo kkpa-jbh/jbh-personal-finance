@@ -22,12 +22,12 @@ class ProductMetadataConfigRegistryTest {
 
   @Test
   void shouldReturnLoanConfigurationWithRequiredFieldsFirst() {
-    List<MetadataFieldConfigDTO> config = registry.getConfigurationFor(ProductType.LOAN);
+    final List<MetadataFieldConfigDTO> config = registry.getConfigurationFor(ProductType.LOAN);
 
     assertNotNull(config);
     assertFalse(config.isEmpty());
 
-    List<MetadataFieldConfigDTO> requiredFields =
+    final List<MetadataFieldConfigDTO> requiredFields =
         config.stream().filter(MetadataFieldConfigDTO::required).toList();
     assertFalse(requiredFields.isEmpty());
     assertTrue(requiredFields.stream().anyMatch(f -> f.key().equals("LOAN_PRINCIPAL_AMOUNT")));
@@ -36,7 +36,8 @@ class ProductMetadataConfigRegistryTest {
 
   @Test
   void shouldReturnCreditCardConfiguration() {
-    List<MetadataFieldConfigDTO> config = registry.getConfigurationFor(ProductType.CREDIT_CARD);
+    final List<MetadataFieldConfigDTO> config =
+        registry.getConfigurationFor(ProductType.CREDIT_CARD);
 
     assertNotNull(config);
     assertTrue(config.stream().anyMatch(f -> f.key().equals("CREDIT_LIMIT")));
@@ -45,7 +46,8 @@ class ProductMetadataConfigRegistryTest {
 
   @Test
   void shouldReturnInvestmentConfiguration() {
-    List<MetadataFieldConfigDTO> config = registry.getConfigurationFor(ProductType.INVESTMENT);
+    final List<MetadataFieldConfigDTO> config =
+        registry.getConfigurationFor(ProductType.INVESTMENT);
 
     assertNotNull(config);
     assertTrue(config.stream().anyMatch(f -> f.key().equals("BROKER_NAME")));
@@ -54,7 +56,7 @@ class ProductMetadataConfigRegistryTest {
 
   @Test
   void shouldReturnCDTConfiguration() {
-    List<MetadataFieldConfigDTO> config = registry.getConfigurationFor(ProductType.CDT);
+    final List<MetadataFieldConfigDTO> config = registry.getConfigurationFor(ProductType.CDT);
 
     assertNotNull(config);
     assertTrue(config.stream().anyMatch(f -> f.key().equals("MATURITY_DATE")));
@@ -64,34 +66,33 @@ class ProductMetadataConfigRegistryTest {
 
   @Test
   void shouldReturnRealEstateConfiguration() {
-    List<MetadataFieldConfigDTO> config =
+    final List<MetadataFieldConfigDTO> config =
         registry.getConfigurationFor(ProductType.REAL_ESTATE_INVESTMENT);
 
     assertNotNull(config);
     assertTrue(config.stream().anyMatch(f -> f.key().equals("REAL_ESTATE_PURCHASE_DATE")));
     assertTrue(config.stream().anyMatch(f -> f.key().equals("REAL_ESTATE_PURCHASE_PRICE")));
 
-    List<MetadataFieldConfigDTO> optionalFields =
+    final List<MetadataFieldConfigDTO> optionalFields =
         config.stream().filter(f -> !f.required()).toList();
     assertTrue(optionalFields.stream().anyMatch(f -> f.key().equals("REAL_ESTATE_RENTAL_INCOME")));
   }
 
   @Test
   void shouldReturnSavingsConfigurationWithOptionalFields() {
-    List<MetadataFieldConfigDTO> config = registry.getConfigurationFor(ProductType.SAVINGS);
+    final List<MetadataFieldConfigDTO> config = registry.getConfigurationFor(ProductType.SAVINGS);
 
     assertNotNull(config);
-    List<MetadataFieldConfigDTO> optionalFields =
+    final List<MetadataFieldConfigDTO> optionalFields =
         config.stream().filter(f -> !f.required()).toList();
-    assertTrue(
-        optionalFields.stream().anyMatch(f -> f.key().equals("COMMON_INITIAL_BALANCE")));
+    assertFalse(optionalFields.stream().anyMatch(f -> f.key().equals("COMMON_INITIAL_BALANCE")));
   }
 
   @Test
   void shouldReturnCorrectValueTypes() {
-    List<MetadataFieldConfigDTO> config = registry.getConfigurationFor(ProductType.LOAN);
+    final List<MetadataFieldConfigDTO> config = registry.getConfigurationFor(ProductType.LOAN);
 
-    MetadataFieldConfigDTO principalAmount =
+    final MetadataFieldConfigDTO principalAmount =
         config.stream()
             .filter(f -> f.key().equals("LOAN_PRINCIPAL_AMOUNT"))
             .findFirst()
@@ -103,13 +104,11 @@ class ProductMetadataConfigRegistryTest {
 
   @Test
   void shouldReturnMinMaxValues() {
-    List<MetadataFieldConfigDTO> config = registry.getConfigurationFor(ProductType.CREDIT_CARD);
+    final List<MetadataFieldConfigDTO> config =
+        registry.getConfigurationFor(ProductType.CREDIT_CARD);
 
-    MetadataFieldConfigDTO paymentDueDay =
-        config.stream()
-            .filter(f -> f.key().equals("PAYMENT_DUE_DAY"))
-            .findFirst()
-            .orElseThrow();
+    final MetadataFieldConfigDTO paymentDueDay =
+        config.stream().filter(f -> f.key().equals("PAYMENT_DUE_DAY")).findFirst().orElseThrow();
 
     assertEquals("INT", paymentDueDay.valueType());
     assertEquals("1", paymentDueDay.minValue());

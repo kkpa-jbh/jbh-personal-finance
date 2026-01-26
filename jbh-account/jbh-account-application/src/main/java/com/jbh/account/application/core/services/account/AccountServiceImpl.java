@@ -1,7 +1,7 @@
 package com.jbh.account.application.core.services.account;
 
 import static com.jbh.account.application.core.mappers.AccountMapper.toDTO;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
@@ -12,10 +12,10 @@ import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.entity.ProductMovementDomain;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductPK;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -39,7 +39,7 @@ public class AccountServiceImpl implements AccountService {
 
   @Override
   public ProductDTO findByUserAndAccountId(final UUID userId, final ProductId accountId)
-      throws ProductBusinessException {
+      throws BusinessException {
 
     if (userId == null) {
       log.error("User ID cannot be null");
@@ -58,8 +58,7 @@ public class AccountServiceImpl implements AccountService {
               log.error(
                   "Account not found for user: {} and account: {}", userId, accountId.value());
 
-              return new ProductBusinessException(
-                  BusinessApplicationExceptionType.PRODUCT_NOT_FOUND);
+              return new BusinessException(BusinessApplicationExceptionType.PRODUCT_NOT_FOUND);
             });
   }
 
@@ -160,7 +159,7 @@ public class AccountServiceImpl implements AccountService {
       final ProductPK accountPK,
       final MovementDTO movement,
       final boolean isMonthOfficiallyReported)
-      throws ProductBusinessException {
+      throws BusinessException {
 
     final ProductDomain accountDomain = findDomainOrThrow(accountPK);
     syncAccountDomainBalanceByMovement(
@@ -175,17 +174,17 @@ public class AccountServiceImpl implements AccountService {
       final ProductDomain accountDomain,
       final ProductMovementDomain movement,
       final boolean isMonthOfficiallyReported)
-      throws ProductBusinessException {
+      throws BusinessException {
     accountDomain.syncBalancesByMovement(movement, isMonthOfficiallyReported);
   }
 
   @Override
   public ProductDTO syncByUploadedMovements(
       final ProductDomain accountDomain, final List<ProductMovementDomain> uploadedMovements)
-      throws ProductBusinessException {
+      throws BusinessException {
 
     if (uploadedMovements == null || uploadedMovements.isEmpty()) {
-      throw new ProductBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENTS);
+      throw new BusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENTS);
     }
     final List<ProductMovementDomain> filteredMovements =
         uploadedMovements.stream().filter(Objects::nonNull).toList();
@@ -193,7 +192,7 @@ public class AccountServiceImpl implements AccountService {
     for (final ProductMovementDomain movement : filteredMovements) {
       try {
         syncAccountDomainBalanceByMovement(accountDomain, movement, false);
-      } catch (final ProductBusinessException ex) {
+      } catch (final BusinessException ex) {
         log.error("Error syncing account movement by movement {}", movement);
         throw ex;
       }
@@ -202,8 +201,7 @@ public class AccountServiceImpl implements AccountService {
     return toDTO(accountDomain);
   }
 
-  private ProductDomain findDomainOrThrow(final ProductPK accountPK)
-      throws ProductBusinessException {
+  private ProductDomain findDomainOrThrow(final ProductPK accountPK) throws BusinessException {
     final UUID userId = accountPK.userId();
     final ProductId accountId = accountPK.accountId();
 

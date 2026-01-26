@@ -6,8 +6,8 @@ import static com.jbh.account.application.builders.UseCaseBuilder.DEFAULT_ACCOUN
 import static com.jbh.account.application.core.usecases.utils.AccountITUtils.assertAccount;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.account.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,13 +31,13 @@ import com.jbh.account.application.core.usecases.utils.IgnoreAccountOptions;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
-import com.jbh.account.domain.vo.ProductId;
-import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.MovementType;
+import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.domain.vo.ProductPK;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -132,7 +132,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
   @Test
   @Order(1)
-  void settingInitialReportedBalanceNov24() throws ProductBusinessException {
+  void settingInitialReportedBalanceNov24() throws BusinessException {
 
     // Given
     createdAccount =
@@ -220,7 +220,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   private void addMovement(final AddMovementCommand movement) {
     try {
       addMovementUseCase.addMovement(userId, accountId, movement);
-    } catch (final ProductBusinessException e) {
+    } catch (final BusinessException e) {
       throw new RuntimeException(e);
     }
     try {
@@ -648,7 +648,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
     final AtomicReference<MonthlyBalanceDTO> savedMonthlyBalance = new AtomicReference<>();
     Assertions.assertThrows(
-        ProductBusinessException.class,
+        BusinessException.class,
         () ->
             savedMonthlyBalance.set(
                 useCaseTest.registerOfficialMonthlyBalance(
@@ -688,7 +688,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
   @Test
   @Order(99)
-  void verifyAllMonthlyBalances() throws ProductBusinessException {
+  void verifyAllMonthlyBalances() throws BusinessException {
     final YearMonth startPeriod = YearMonth.of(2024, 11);
     final YearMonth endPeriod = YearMonth.now();
     final List<MonthlyBalanceDTO> monthlyBalances =
@@ -710,7 +710,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     final YearMonth endPeriod = YearMonth.now();
 
     assertThrows(
-        ProductBusinessException.class,
+        BusinessException.class,
         () ->
             findMonthlyBalanceUseCase.findByAccountAndPeriods(
                 new ProductPK(UUID.randomUUID(), accountId), startPeriod, endPeriod));

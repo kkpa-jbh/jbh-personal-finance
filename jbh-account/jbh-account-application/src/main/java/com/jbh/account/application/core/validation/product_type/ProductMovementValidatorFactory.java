@@ -1,7 +1,7 @@
 package com.jbh.account.application.core.validation.product_type;
 
 import com.jbh.account.application.core.services.movements.AccountMovementService;
-import com.jbh.account.domain.exceptions.GenericSpecificationException;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.account.domain.vo.ProductType;
 import java.util.Map;
 

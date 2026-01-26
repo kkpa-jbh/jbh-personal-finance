@@ -1,8 +1,8 @@
 package com.jbh.account.application.core.usecases;
 
 import com.jbh.account.application.core.vo.commands.AddTransferCommand;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductPK;
+import com.jbh.commons.exception.BusinessException;
 
 /**
  * Use case to add a transfer between existing accounts into the system. If the transfer is to an
@@ -11,5 +11,5 @@ import com.jbh.account.domain.vo.ProductPK;
 public interface AddTransferJbhAccountsUseCase {
 
   void addTransfer(ProductPK fromAccount, AddTransferCommand transferCommand)
-      throws ProductBusinessException;
+      throws BusinessException;
 }

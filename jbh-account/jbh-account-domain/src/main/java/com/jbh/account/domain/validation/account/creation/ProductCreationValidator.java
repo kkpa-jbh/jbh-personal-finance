@@ -2,8 +2,8 @@ package com.jbh.account.domain.validation.account.creation;
 
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.entity.ProductMovementDomain;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductMetadata;
+import com.jbh.commons.exception.BusinessException;
 
 /**
  * Strategy interface for validating account creation based on account type.
@@ -11,7 +11,7 @@ import com.jbh.account.domain.vo.ProductMetadata;
  * <p>Each account type (CREDIT_CARD, SAVINGS, INVESTMENT, CDT) has specific metadata requirements
  * that must be validated before creating an account.
  *
- * <p>Implementations should throw {@link ProductBusinessException} with appropriate {@link
+ * <p>Implementations should throw {@link BusinessException} with appropriate {@link
  * com.jbh.account.domain.exceptions.BusinessDomainExceptionType} when validation fails.
  */
 public interface ProductCreationValidator {
@@ -20,17 +20,17 @@ public interface ProductCreationValidator {
    * Validates account metadata for creation based on account type requirements.
    *
    * @param metadata The ProductMetadata containing account-specific fields
-   * @throws ProductBusinessException if validation fails with specific error type
+   * @throws BusinessException if validation fails with specific error type
    */
-  void validateMetadata(ProductMetadata metadata) throws ProductBusinessException;
+  void validateMetadata(ProductMetadata metadata) throws BusinessException;
 
   /**
    * Validates that the productDomain movement is valid for the productDomain type. @Param
    * productDomain The productDomain to validate
    *
    * @param movement The movement to validate
-   * @throws ProductBusinessException if validation fails with specific error type
+   * @throws BusinessException if validation fails with specific error type
    */
   void validateInsufficientNetFlow(ProductDomain productDomain, ProductMovementDomain movement)
-      throws ProductBusinessException;
+      throws BusinessException;
 }

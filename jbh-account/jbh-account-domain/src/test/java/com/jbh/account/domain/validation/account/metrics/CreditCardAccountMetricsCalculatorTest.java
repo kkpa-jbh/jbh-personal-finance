@@ -1,13 +1,13 @@
 package com.jbh.account.domain.validation.account.metrics;
 
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.jbh.account.domain.entity.AccountDomainTestBuilder;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -90,7 +90,7 @@ class CreditCardAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateWithPositiveGrowth() throws ProductBusinessException {
+  void shouldCalculateNetGrowthRateWithPositiveGrowth() throws BusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("1000.00");
     final BigDecimal currentBalance = new BigDecimal("1500.00");
@@ -108,7 +108,7 @@ class CreditCardAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateWithNegativeGrowth() throws ProductBusinessException {
+  void shouldCalculateNetGrowthRateWithNegativeGrowth() throws BusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("2000.00");
     final BigDecimal currentBalance = new BigDecimal("1500.00");
@@ -126,7 +126,7 @@ class CreditCardAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateWhenOpeningBalanceIsZero() throws ProductBusinessException {
+  void shouldCalculateNetGrowthRateWhenOpeningBalanceIsZero() throws BusinessException {
     // Given
     final BigDecimal openingBalance = JBH_ZERO;
     final BigDecimal currentBalance = new BigDecimal("500.00");
@@ -145,7 +145,7 @@ class CreditCardAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateWithZeroMovementAmount() throws ProductBusinessException {
+  void shouldCalculateNetGrowthRateWithZeroMovementAmount() throws BusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("1000.00");
     final BigDecimal currentBalance = new BigDecimal("1200.00");
@@ -163,7 +163,7 @@ class CreditCardAccountMetricsCalculatorTest {
   }
 
   @Test
-  void shouldCalculateNetGrowthRateWithNegativeCurrentBalance() throws ProductBusinessException {
+  void shouldCalculateNetGrowthRateWithNegativeCurrentBalance() throws BusinessException {
     // Given
     final BigDecimal openingBalance = new BigDecimal("1000.00");
     final BigDecimal currentBalance = new BigDecimal("-500.00");

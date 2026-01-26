@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jbh.commons.util.JbhBooleanUtils;
+import com.jbh.commons.util.JbhStringUtils;
 import org.junit.jupiter.api.Test;
 
 public class JbhStringUtilsTest {
@@ -26,7 +28,7 @@ public class JbhStringUtilsTest {
     assertFalse(JbhBooleanUtils.isTrue(null));
   }
 
-  private String buildJsonMessage(String en, String es) {
+  private String buildJsonMessage(final String en, final String es) {
     return JbhStringUtils.buildJsonMessage(en, es);
   }
 

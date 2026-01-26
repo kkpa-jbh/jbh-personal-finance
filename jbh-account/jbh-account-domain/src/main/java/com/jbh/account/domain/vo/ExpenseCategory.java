@@ -1,6 +1,6 @@
 package com.jbh.account.domain.vo;
 
-import com.jbh.account.domain.utils.JbhStringUtils;
+import com.jbh.commons.util.JbhStringUtils;
 
 /**
  * 1. Housing

@@ -6,8 +6,8 @@ import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.account.domain.entity.MonthlyBalanceDomain;
 import com.jbh.account.domain.entity.ProductMovementDomain;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
+import com.jbh.commons.exception.BusinessException;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.List;
@@ -66,7 +66,7 @@ public class MonthlyBalanceSyncForUploadedMovements {
           for (final ProductMovementDomain movement : movementsInPeriod) {
             try {
               accountMonthlyBalance.assignMovement(movement);
-            } catch (final ProductBusinessException e) {
+            } catch (final BusinessException e) {
               throw new RuntimeException(e);
             }
           }

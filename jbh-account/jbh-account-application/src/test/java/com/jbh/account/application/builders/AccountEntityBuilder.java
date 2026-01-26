@@ -1,7 +1,7 @@
 package com.jbh.account.application.builders;
 
 import static com.jbh.account.application.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.vo.ProductId;

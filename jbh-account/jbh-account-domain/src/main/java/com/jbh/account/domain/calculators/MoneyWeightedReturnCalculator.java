@@ -1,6 +1,6 @@
 package com.jbh.account.domain.calculators;
 
-import com.jbh.account.domain.utils.JbhMoneyUtils;
+import com.jbh.commons.util.JbhMoneyUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;

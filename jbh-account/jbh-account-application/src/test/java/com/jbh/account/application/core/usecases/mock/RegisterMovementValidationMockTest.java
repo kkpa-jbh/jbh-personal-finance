@@ -4,7 +4,7 @@ import static com.jbh.account.application.builders.CommandTestBuilder.createExpe
 import static com.jbh.account.application.builders.CommandTestBuilder.createMovement;
 import static com.jbh.account.application.builders.UseCaseBuilder.movementQueryRepository;
 import static com.jbh.account.application.core.usecases.mock.RegisterMovementExecutionMockTest.OTHER_INCOME_CATEGORY;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -37,13 +37,13 @@ import com.jbh.account.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
-import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.utils.JbhMoneyUtils;
-import com.jbh.account.domain.vo.ProductId;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
+import com.jbh.account.domain.vo.ProductId;
+import com.jbh.commons.exception.BusinessException;
+import com.jbh.commons.util.JbhMoneyUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -177,9 +177,9 @@ public class RegisterMovementValidationMockTest {
     when(accountRepository.findByAccountId(accountId)).thenReturn(Optional.empty());
 
     // When & Then
-    final ProductBusinessException exception =
+    final BusinessException exception =
         assertThrows(
-            ProductBusinessException.class,
+            BusinessException.class,
             () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
 
     assertNotNull(exception.getMessage());
@@ -257,7 +257,7 @@ public class RegisterMovementValidationMockTest {
 
     // When & Then
     assertThrows(
-        ProductBusinessException.class,
+        BusinessException.class,
         () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
 
     verify(accountMovementRepository, never()).save((MovementDTO) any());
@@ -282,7 +282,7 @@ public class RegisterMovementValidationMockTest {
 
     // When & Then
     assertThrows(
-        ProductBusinessException.class,
+        BusinessException.class,
         () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
 
     verify(accountMovementRepository, never()).save((MovementDTO) any());

@@ -4,9 +4,9 @@ import com.jbh.account.application.core.dto.AddBasicMovementDTO;
 import com.jbh.account.application.core.dto.MovementDTO;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.ProductPK;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -28,11 +28,11 @@ public interface AccountMovementApplicationService {
    * @param nextMonthlyBalanceCommand The command with the monthly balance for the next month. The
    *     closing balance should include the monthly profit reported and the income withholding tax
    *     amount.
-   * @throws ProductBusinessException
+   * @throws BusinessException
    */
   void addDividendsMovementForNextMonth(
       ProductPK accountPK, AddMonthlyBalanceCommand nextMonthlyBalanceCommand)
-      throws ProductBusinessException;
+      throws BusinessException;
 
   /**
    * It registers the movement in the database. It will update the account and the monthly balances
@@ -41,14 +41,14 @@ public interface AccountMovementApplicationService {
    * @param accountPK
    * @param movementCommand
    * @return
-   * @throws ProductBusinessException
+   * @throws BusinessException
    */
   AddBasicMovementDTO addMovementProcessingBalances(
-      ProductPK accountPK, AddMovementCommand movementCommand) throws ProductBusinessException;
+      ProductPK accountPK, AddMovementCommand movementCommand) throws BusinessException;
 
   AddBasicMovementDTO processMovement(
       MovementDTO movementDTO, ProductPK accountPK, boolean isMonthOfficiallyReported)
-      throws ProductBusinessException;
+      throws BusinessException;
 
   void addDividendsMovement(
       ProductPK accountPK,
@@ -57,5 +57,5 @@ public interface AccountMovementApplicationService {
       BigDecimal balanceSnapshot,
       BigDecimal incomeWithholdingTaxAmount,
       AccountMovementMetadata metadata)
-      throws ProductBusinessException;
+      throws BusinessException;
 }

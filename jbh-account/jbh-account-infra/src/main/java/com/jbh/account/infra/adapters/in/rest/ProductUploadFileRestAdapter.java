@@ -1,16 +1,16 @@
 package com.jbh.account.infra.adapters.in.rest;
 
 import static com.jbh.account.infra.adapters.in.rest.vo.FinanceApiRoutes.MOVEMENTS_INBULK_API;
-import static com.jbh.account.infra.common.utils.JbhStringUtils.toLowerCase;
+import static com.jbh.commons.util.JbhStringUtils.toLowerCase;
 
 import com.jbh.account.application.core.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.infra.adapters.in.rest.vo.AddMovementsUploadedFileRequest;
 import com.jbh.account.infra.adapters.in.rest.vo.ApiResponse;
 import com.jbh.account.infra.adapters.in.rest.vo.FinanceApiRoutes;
 import com.jbh.account.infra.adapters.in.service.ExcelMovementReaderService;
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
 import com.jbh.gateway.client.JbhGatewayException;
 import jakarta.enterprise.context.RequestScoped;
@@ -102,7 +102,7 @@ public class ProductUploadFileRestAdapter extends BaseRestAdapter {
           final UUID accountId,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
-      throws JbhGatewayException, ProductBusinessException, InternalSystemException {
+      throws JbhGatewayException, BusinessException, InternalSystemException {
     log.info("Uploading excel file {}", authorizationHeader);
 
     final UUID userId = findUserId(authorizationHeader);

@@ -1,9 +1,9 @@
 package com.jbh.account.infra.adapters.in.service;
 
-import static com.jbh.account.infra.common.utils.JbhStringUtils.isBlank;
+import static com.jbh.commons.util.JbhStringUtils.isBlank;
 
 import com.jbh.account.infra.adapters.in.rest.vo.AddMovementsUploadedFileRequest;
-import com.jbh.account.infra.common.utils.JbhStringUtils;
+import com.jbh.commons.util.JbhStringUtils;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import java.io.InputStream;

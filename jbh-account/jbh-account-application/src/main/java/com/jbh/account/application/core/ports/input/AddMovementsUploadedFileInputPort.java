@@ -13,8 +13,8 @@ import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileComma
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.entity.ProductMovementDomain;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -57,7 +57,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
       final UUID userId,
       final ProductId accountId,
       final List<AddMovementUploadedFileCommand> allUploadedMovCommand)
-      throws ProductBusinessException {
+      throws BusinessException {
 
     validateUploadedMovements(allUploadedMovCommand);
 
@@ -98,7 +98,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
   }
 
   private ProductDomain findAccountOrElseThrow(final UUID userId, final ProductId accountId)
-      throws ProductBusinessException {
+      throws BusinessException {
     final ProductDTO accountDTO = accountService.findByUserAndAccountId(userId, accountId);
 
     return accountDTO.toDomain();
@@ -120,7 +120,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
                     mvmntCommand.balanceSnapshot(),
                     mvmntCommand.movementType(),
                     LocalDateTime.now());
-              } catch (final ProductBusinessException e) {
+              } catch (final BusinessException e) {
                 throw new RuntimeException(e);
               }
             })

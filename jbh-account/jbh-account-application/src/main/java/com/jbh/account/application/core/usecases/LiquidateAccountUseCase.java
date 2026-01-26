@@ -2,8 +2,8 @@ package com.jbh.account.application.core.usecases;
 
 import com.jbh.account.application.core.dto.LiquidationResultDTO;
 import com.jbh.account.application.core.vo.commands.LiquidateAccountCommand;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
+import com.jbh.commons.exception.BusinessException;
 import java.util.UUID;
 
 /**
@@ -25,9 +25,9 @@ public interface LiquidateAccountUseCase {
    * @param accountId the account to be liquidated
    * @param liquidationCommand contains liquidation details and target account information
    * @return liquidation result containing transaction details and final amounts
-   * @throws ProductBusinessException if liquidation cannot be processed
+   * @throws BusinessException if liquidation cannot be processed
    */
   LiquidationResultDTO liquidateAccount(
       UUID userId, ProductId accountId, LiquidateAccountCommand liquidationCommand)
-      throws ProductBusinessException;
+      throws BusinessException;
 }

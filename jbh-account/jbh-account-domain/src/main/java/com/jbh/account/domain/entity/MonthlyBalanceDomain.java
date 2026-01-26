@@ -1,15 +1,15 @@
 package com.jbh.account.domain.entity;
 
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.isNotZero;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.isZero;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.withJBHDecimals;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.isNotZero;
+import static com.jbh.commons.util.JbhMoneyUtils.isZero;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.account.domain.calculators.MoneyGrowthCalculator;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.account.domain.vo.ProductId;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.Objects;
@@ -157,21 +157,19 @@ public class MonthlyBalanceDomain {
     LOG.info("Adjusted Opening Balance {} for next period: {}", this.openingBalance, this.period);
   }
 
-  public void assignMovement(final ProductMovementDomain movement) throws ProductBusinessException {
+  public void assignMovement(final ProductMovementDomain movement) throws BusinessException {
     validateMovementPeriod(movement);
     syncBalancesByMovement(movement);
     recalculateBalances();
   }
 
-  private void validateMovementPeriod(final ProductMovementDomain mvmt)
-      throws ProductBusinessException {
+  private void validateMovementPeriod(final ProductMovementDomain mvmt) throws BusinessException {
     if (mvmt.getMovementDate() == null) {
-      throw new ProductBusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_DATE);
+      throw new BusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_DATE);
     }
     final YearMonth movementPeriod = YearMonth.from(mvmt.getMovementDate());
     if (this.getPeriod().isBefore(movementPeriod) || this.getPeriod().isAfter(movementPeriod)) {
-      throw new ProductBusinessException(
-          BusinessDomainExceptionType.INVALID_MOV_DATE_MONTHLY_PERIOD);
+      throw new BusinessException(BusinessDomainExceptionType.INVALID_MOV_DATE_MONTHLY_PERIOD);
     }
   }
 
@@ -199,7 +197,7 @@ public class MonthlyBalanceDomain {
    * asynchronously and when syncing the current and next monthly balances. The monthly balances are
    * already persisted in the database.
    */
-  public void recalculateBalances() throws ProductBusinessException {
+  public void recalculateBalances() throws BusinessException {
     syncMonthlyNetProfit();
     syncNetGrowthRate();
   }
@@ -222,7 +220,7 @@ public class MonthlyBalanceDomain {
     }
   }
 
-  private void syncNetGrowthRate() throws ProductBusinessException {
+  private void syncNetGrowthRate() throws BusinessException {
     LOG.debug("Syncing Net Growth Rate for account {} and period {}", accountId, period);
     final var movementBalance = getMovementBalance();
     if (this.officialMonthlyReport && isNotZero(monthlyProfitReported)) {
@@ -248,7 +246,7 @@ public class MonthlyBalanceDomain {
       final BigDecimal closingBalance,
       final BigDecimal monthlyProfitReported,
       final BigDecimal incomeWithholdingTaxAmount)
-      throws ProductBusinessException {
+      throws BusinessException {
     setOfficialMonthlyReport(closingBalance, monthlyProfitReported, incomeWithholdingTaxAmount);
     recalculateBalances();
   }

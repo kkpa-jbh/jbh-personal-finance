@@ -1,9 +1,9 @@
 package com.jbh.account.domain.vo.metadata;
 
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
-import com.jbh.account.domain.utils.JbhMoneyUtils;
 import com.jbh.account.domain.vo.ProductMetadataKey;
+import com.jbh.commons.exception.BusinessException;
+import com.jbh.commons.util.JbhMoneyUtils;
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -20,9 +20,9 @@ public final class CreditCardMetadata {
    * Gets the credit limit for credit card accounts.
    *
    * @return BigDecimal credit limit
-   * @throws ProductBusinessException if credit limit is not a BigDecimal
+   * @throws BusinessException if credit limit is not a BigDecimal
    */
-  public BigDecimal getCreditLimit() throws ProductBusinessException {
+  public BigDecimal getCreditLimit() throws BusinessException {
     final Object creditLimit = get(ProductMetadataKey.CREDIT_LIMIT);
 
     if (creditLimit == null) {
@@ -30,7 +30,7 @@ public final class CreditCardMetadata {
     }
 
     if (!(creditLimit instanceof BigDecimal)) {
-      throw new ProductBusinessException(BusinessDomainExceptionType.INVALID_CREDIT_LIMIT_TYPE);
+      throw new BusinessException(BusinessDomainExceptionType.INVALID_CREDIT_LIMIT_TYPE);
     }
     return (BigDecimal) creditLimit;
   }
@@ -43,12 +43,12 @@ public final class CreditCardMetadata {
    * Gets the payment due day for credit card accounts.
    *
    * @return Integer day of month
-   * @throws ProductBusinessException if payment due day is not an Integer
+   * @throws BusinessException if payment due day is not an Integer
    */
-  public Integer getPaymentDueDay() throws ProductBusinessException {
+  public Integer getPaymentDueDay() throws BusinessException {
     final Object dueDay = get(ProductMetadataKey.PAYMENT_DUE_DAY);
     if (dueDay != null && !(dueDay instanceof Integer)) {
-      throw new ProductBusinessException(BusinessDomainExceptionType.INVALID_PAYMENT_DUE_DAY_TYPE);
+      throw new BusinessException(BusinessDomainExceptionType.INVALID_PAYMENT_DUE_DAY_TYPE);
     }
     return (Integer) dueDay;
   }

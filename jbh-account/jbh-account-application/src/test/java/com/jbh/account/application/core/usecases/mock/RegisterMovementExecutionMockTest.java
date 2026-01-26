@@ -3,7 +3,7 @@ package com.jbh.account.application.core.usecases.mock;
 import static com.jbh.account.application.builders.CommandTestBuilder.createMovement;
 import static com.jbh.account.application.builders.CommandTestBuilder.createMovementWithType;
 import static com.jbh.account.application.builders.UseCaseBuilder.movementQueryRepository;
-import static com.jbh.account.domain.utils.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.account.domain.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.account.domain.vo.MovementType.DEPOSIT;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

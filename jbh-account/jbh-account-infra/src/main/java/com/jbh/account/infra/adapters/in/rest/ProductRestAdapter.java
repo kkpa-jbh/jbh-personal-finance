@@ -8,7 +8,6 @@ import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.CreateProductCommand;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductMetadata;
@@ -17,6 +16,7 @@ import com.jbh.account.infra.adapters.in.rest.vo.AddMovementRequest;
 import com.jbh.account.infra.adapters.in.rest.vo.CreateProductRequest;
 import com.jbh.account.infra.adapters.in.rest.vo.FinanceApiRoutes;
 import com.jbh.account.infra.adapters.in.rest.vo.MonthlyBalanceRequest;
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
 import com.jbh.gateway.client.JbhGatewayException;
 import jakarta.enterprise.context.RequestScoped;
@@ -95,7 +95,7 @@ public class ProductRestAdapter extends BaseRestAdapter {
       @RequestBody final CreateProductRequest request,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
-      throws JbhGatewayException, ProductBusinessException, InternalSystemException {
+      throws JbhGatewayException, BusinessException, InternalSystemException {
     log.info("Creating Product for user {}", authorizationHeader);
 
     final UUID userId = findUserId(authorizationHeader);
@@ -148,7 +148,7 @@ public class ProductRestAdapter extends BaseRestAdapter {
       @RequestBody final AddMovementRequest request,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
-      throws JbhGatewayException, ProductBusinessException, InternalSystemException {
+      throws JbhGatewayException, BusinessException, InternalSystemException {
 
     if (request == null) {
       throw new IllegalArgumentException("Command cannot be null");
@@ -207,7 +207,7 @@ public class ProductRestAdapter extends BaseRestAdapter {
       @RequestBody final MonthlyBalanceRequest request,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
-      throws JbhGatewayException, ProductBusinessException, InternalSystemException {
+      throws JbhGatewayException, BusinessException, InternalSystemException {
 
     request.validate();
 

@@ -1,6 +1,7 @@
 package com.jbh.account.application.core.ports.input;
 
 import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.account.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceProfitStrategy;
@@ -8,16 +9,15 @@ import com.jbh.account.application.core.services.monthlybalance.MonthlyBalanceSe
 import com.jbh.account.application.core.services.monthlybalance.ReportedProfitStrategy;
 import com.jbh.account.application.core.services.monthlybalance.UnreportedProfitStrategy;
 import com.jbh.account.application.core.services.movements.AccountMovementApplicationService;
-import com.jbh.account.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.account.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.domain.entity.MonthlyBalanceDomain;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
-import com.jbh.account.domain.vo.ProductId;
-import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
+import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.domain.vo.ProductPK;
+import com.jbh.commons.exception.BusinessException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -57,7 +57,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
    * @param accountId
    * @param addMonthlyBalanceCommand
    * @return
-   * @throws ProductBusinessException
+   * @throws BusinessException
    */
   @Override
   public MonthlyBalanceDTO registerOfficialMonthlyBalance(
@@ -65,7 +65,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
       final UUID userId,
       final ProductId accountId,
       final AddMonthlyBalanceCommand addMonthlyBalanceCommand)
-      throws ProductBusinessException {
+      throws BusinessException {
 
     // Command validation
     addMonthlyBalanceCommand.validate();
@@ -124,15 +124,15 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
   }
 
   private void validatePeriod(final LocalDate runningDate, final YearMonth periodToRegister)
-      throws ProductBusinessException {
+      throws BusinessException {
     if (!periodToRegister.isBefore(YearMonth.from(runningDate))) {
-      throw new ProductBusinessException(
+      throw new BusinessException(
           BusinessApplicationExceptionType.MONTHLY_BALANCE_PERIOD_NOT_IN_PAST);
     }
   }
 
   private void validateConsecutiveMonthlyBalances(
-      final ProductId accountId, final YearMonth periodToRegister) throws ProductBusinessException {
+      final ProductId accountId, final YearMonth periodToRegister) throws BusinessException {
 
     log.debug("Validating consecutive balances for period {}", periodToRegister);
 
@@ -142,7 +142,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
       final YearMonth lastOfficialReportPeriod = lastOfficialReport.get().period();
 
       if (!periodToRegister.equals(lastOfficialReportPeriod.plusMonths(1))) {
-        throw new ProductBusinessException(
+        throw new BusinessException(
             BusinessApplicationExceptionType.MONTHLY_BALANCE_NOT_CONSECUTIVE,
             lastOfficialReportPeriod);
       }

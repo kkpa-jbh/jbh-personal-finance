@@ -10,11 +10,11 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.domain.entity.MovementCategoryDomain;
 import com.jbh.account.domain.entity.ProductDomain;
 import com.jbh.account.domain.entity.ProductMovementDomain;
-import com.jbh.account.domain.exceptions.GenericSpecificationException;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.MovementType;
 import com.jbh.account.domain.vo.ProductId;
+import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -36,7 +36,7 @@ public class AccountServiceTest {
   }
 
   @Test
-  public void shouldSyncMultiBalances() throws ProductBusinessException {
+  public void shouldSyncMultiBalances() throws BusinessException {
     int totalMovements = 2;
     final var accountMovementBalance = new BigDecimal("100.00");
     final var accountCurrentBalance = new BigDecimal("100.00");
@@ -95,7 +95,7 @@ public class AccountServiceTest {
 
     try {
       movDomain.validate();
-    } catch (final ProductBusinessException e) {
+    } catch (final BusinessException e) {
       throw new GenericSpecificationException(e.getMessage());
     }
 
@@ -103,7 +103,7 @@ public class AccountServiceTest {
   }
 
   @Test
-  public void shouldSyncSingleBalance() throws ProductBusinessException {
+  public void shouldSyncSingleBalance() throws BusinessException {
     final var movementBalance = new BigDecimal("100.00");
     final var currentBalance = new BigDecimal("200.00");
     final ProductDomain accountDomain =

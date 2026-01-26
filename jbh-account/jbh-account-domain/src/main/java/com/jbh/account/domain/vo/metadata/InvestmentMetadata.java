@@ -1,7 +1,7 @@
 package com.jbh.account.domain.vo.metadata;
 
-import com.jbh.account.domain.utils.JbhMoneyUtils;
 import com.jbh.account.domain.vo.ProductMetadataKey;
+import com.jbh.commons.util.JbhMoneyUtils;
 import java.math.BigDecimal;
 import java.util.Map;
 
@@ -23,6 +23,10 @@ public final class InvestmentMetadata {
     return (String) get(ProductMetadataKey.BROKER_NAME);
   }
 
+  private Object get(final ProductMetadataKey key) {
+    return data.get(key);
+  }
+
   /**
    * Gets the commission rate for investment accounts.
    *
@@ -30,6 +34,11 @@ public final class InvestmentMetadata {
    */
   public BigDecimal getCommissionRate() {
     return getDecimal(ProductMetadataKey.COMMISSION_RATE);
+  }
+
+  private BigDecimal getDecimal(final ProductMetadataKey key) {
+    final Object result = get(key);
+    return result instanceof BigDecimal ? (BigDecimal) result : BigDecimal.ZERO;
   }
 
   /**
@@ -41,6 +50,14 @@ public final class InvestmentMetadata {
     put(ProductMetadataKey.BROKER_NAME, brokerName);
   }
 
+  private void put(final ProductMetadataKey key, final Object value) {
+    if (value instanceof BigDecimal) {
+      data.put(key, JbhMoneyUtils.withJBHDecimals((BigDecimal) value));
+      return;
+    }
+    data.put(key, value);
+  }
+
   /**
    * Sets the commission rate.
    *
@@ -48,22 +65,5 @@ public final class InvestmentMetadata {
    */
   public void putCommissionRate(final BigDecimal commissionRate) {
     put(ProductMetadataKey.COMMISSION_RATE, commissionRate);
-  }
-
-  private Object get(final ProductMetadataKey key) {
-    return data.get(key);
-  }
-
-  private BigDecimal getDecimal(final ProductMetadataKey key) {
-    final Object result = get(key);
-    return result instanceof BigDecimal ? (BigDecimal) result : BigDecimal.ZERO;
-  }
-
-  private void put(final ProductMetadataKey key, final Object value) {
-    if (value instanceof BigDecimal) {
-      data.put(key, JbhMoneyUtils.withJBHDecimals((BigDecimal) value));
-      return;
-    }
-    data.put(key, value);
   }
 }
