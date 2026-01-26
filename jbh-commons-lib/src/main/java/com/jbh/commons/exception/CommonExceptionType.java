@@ -4,7 +4,6 @@ import com.jbh.commons.util.JbhStringUtils;
 
 public enum CommonExceptionType implements BusinessExceptionType {
   INVALID_PERCENTAGE("Percentage must be between 0 and 100", "Porcentaje debe estar entre 0 y 100");
-  ;
 
   private final String en;
   private final String es;

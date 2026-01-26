@@ -7,11 +7,20 @@ import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.AccountMovementMetadata;
 import com.jbh.account.domain.vo.MovementType;
 import com.jbh.account.domain.vo.ProductId;
+import com.jbh.account.domain.vo.ProductMetadata;
+import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.util.UUID;
 
 public class EntityBuilder {
+
+  public static ProductDomain buildProductTestObject(
+      final String name, final ProductType type, final UUID userId, final ProductMetadata metadata)
+      throws ProductBusinessException {
+    return ProductDomain.withMinimumDataForCreation(name, type, userId, metadata);
+  }
 
   public static MonthlyBalanceDomain withInitialDataForNextMonth(
       final ProductId accountId,

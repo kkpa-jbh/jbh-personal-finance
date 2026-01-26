@@ -23,8 +23,8 @@ import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.usecases.LiquidateAccountUseCase;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.ProductBusinessException;
-import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.domain.vo.ProductMetadata;
+import com.jbh.account.domain.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -83,7 +83,7 @@ public class RegisterCDTMovementITTest {
   void createAccounts() throws ProductBusinessException {
     final LocalDate mvmDate = period.atDay(1);
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.getCdt().putMaturityDate(period.plusMonths(1).atDay(1));
+    metadata.findCDTMetadata().putMaturityDate(period.plusMonths(1).atDay(1));
     cdtAccount =
         createAccountUseCase.execute(CommandTestBuilder.createCDTCommand(userId, name, metadata));
     assertNotNull(cdtAccount);
@@ -157,11 +157,11 @@ public class RegisterCDTMovementITTest {
             .build();
     assertAccount(expectedCDTAccount, updatedCDTAccount.get());
     assertTrue(
-        updatedCDTAccount.get().metadata().getCommon().isFullyWithdrawn(),
+        updatedCDTAccount.get().metadata().findCommonMetadata().isFullyWithdrawn(),
         "Is not Fully withdrawn");
     assertEquals(
         mvmDate,
-        updatedCDTAccount.get().metadata().getCommon().getFullyWithdrawnDate(),
+        updatedCDTAccount.get().metadata().findCommonMetadata().getFullyWithdrawnDate(),
         "There is not fully withdrawn date");
     UseCaseBuilder.delayTests();
 

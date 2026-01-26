@@ -67,7 +67,7 @@ public final class CommonMetadata {
 
   private BigDecimal getDecimal(final ProductMetadataKey key) {
     final Object result = get(key);
-    return result instanceof BigDecimal ? (BigDecimal) result : BigDecimal.ZERO;
+    return com.jbh.commons.util.JbhMoneyUtils.toDecimal(result);
   }
 
   /**

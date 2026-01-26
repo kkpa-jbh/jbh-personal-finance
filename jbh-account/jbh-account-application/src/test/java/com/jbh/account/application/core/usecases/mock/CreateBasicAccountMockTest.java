@@ -9,14 +9,14 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.jbh.account.application.core.dto.ProductDTO;
-import com.jbh.account.application.core.ports.input.CreateAccountInputPort;
+import com.jbh.account.application.core.ports.input.CreateProductInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.services.account.AccountServiceImpl;
 import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.vo.commands.CreateProductCommand;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.domain.vo.ProductType;
 import java.util.UUID;
@@ -41,7 +41,7 @@ public class CreateBasicAccountMockTest {
 
     accountService = new AccountServiceImpl(accountRepository);
 
-    useCase = new CreateAccountInputPort(accountService);
+    useCase = new CreateProductInputPort(accountService);
   }
 
   @Test

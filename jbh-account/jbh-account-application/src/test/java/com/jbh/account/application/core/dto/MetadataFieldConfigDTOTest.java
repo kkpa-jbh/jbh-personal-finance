@@ -10,8 +10,8 @@ class MetadataFieldConfigDTOTest {
 
   @Test
   void shouldCreateDTOWithAllFields() {
-    MetadataFieldConfigDTO dto =
-        new MetadataFieldConfigDTO("TEST_KEY", "STRING", true, "0", "100");
+    final MetadataFieldConfigDTO dto =
+        new MetadataFieldConfigDTO("TEST_KEY", "STRING", true, "0", "100", "");
 
     assertEquals("TEST_KEY", dto.key());
     assertEquals("STRING", dto.valueType());
@@ -22,8 +22,8 @@ class MetadataFieldConfigDTOTest {
 
   @Test
   void shouldCreateDTOWithNullMinMax() {
-    MetadataFieldConfigDTO dto =
-        new MetadataFieldConfigDTO("TEST_KEY", "DATE", false, null, null);
+    final MetadataFieldConfigDTO dto =
+        new MetadataFieldConfigDTO("TEST_KEY", "DATE", false, null, null, "");
 
     assertEquals("TEST_KEY", dto.key());
     assertEquals("DATE", dto.valueType());

@@ -96,6 +96,11 @@
   </build>
 
   <dependencies>
+    <dependency>
+      <artifactId>jbh-commons-lib</artifactId>
+      <groupId>com.jbh</groupId>
+    </dependency>
+
     <!-- Add Lombok Dependency -->
     <dependency>
       <artifactId>lombok</artifactId>

@@ -30,7 +30,7 @@ class CdtAccountMetricsCalculatorTest {
     final BigDecimal movementBalance = new BigDecimal("-5000.00");
 
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.getCommon().putIsFullyWithdrawn(true);
+    metadata.findCommonMetadata().putIsFullyWithdrawn(true);
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCdtProductWithBalance(
@@ -69,7 +69,7 @@ class CdtAccountMetricsCalculatorTest {
     final BigDecimal currentBalance = JBH_ZERO;
 
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.getCommon().putIsFullyWithdrawn(true);
+    metadata.findCommonMetadata().putIsFullyWithdrawn(true);
 
     final ProductDomain accountDomain =
         AccountDomainTestBuilder.createCdtProductWithBalance(

@@ -31,7 +31,7 @@ public class CdtAccountCreationValidator extends BaseAccountCreationValidator
   private void validateMaturityDate(final ProductMetadata metadata)
       throws ProductBusinessException {
     if (metadata.hasKey(ProductMetadataKey.MATURITY_DATE)) {
-      metadata.getCdt().getMaturityDate();
+      metadata.findCDTMetadata().getMaturityDate();
     }
   }
 

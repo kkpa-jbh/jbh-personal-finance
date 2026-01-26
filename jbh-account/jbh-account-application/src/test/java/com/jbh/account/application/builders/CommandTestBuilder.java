@@ -4,13 +4,13 @@ import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.CreateProductCommand;
 import com.jbh.account.application.core.vo.commands.ExternalAccountInfoVO;
 import com.jbh.account.application.core.vo.commands.LiquidateAccountCommand;
-import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.MovementType;
 import com.jbh.account.domain.vo.ProductMetadata;
 import com.jbh.account.domain.vo.ProductMetadataKey;
+import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.domain.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -87,8 +87,8 @@ public class CommandTestBuilder {
       final BigDecimal creditLimit,
       final Integer paymentDueDay) {
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.getCreditCard().putCreditLimit(creditLimit);
-    metadata.getCreditCard().putPaymentDueDay(paymentDueDay);
+    metadata.findCreditCardMetadata().putCreditLimit(creditLimit);
+    metadata.findCreditCardMetadata().putPaymentDueDay(paymentDueDay);
     return new CreateProductCommand(userId, name, ProductType.CREDIT_CARD, metadata);
   }
 
@@ -109,21 +109,21 @@ public class CommandTestBuilder {
 
   public static CreateProductCommand createMockLoanCommand(final UUID userId, final String name) {
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.getLoan().putPrincipalAmount(new BigDecimal("10000"));
-    metadata.getLoan().putTotalAmountPaid(new BigDecimal("2000"));
-    metadata.getLoan().putPayoffAmountToday(new BigDecimal("8500"));
+    metadata.findLoanMetadata().putPrincipalAmount(new BigDecimal("10000"));
+    metadata.findLoanMetadata().putTotalAmountPaid(new BigDecimal("2000"));
+    metadata.findLoanMetadata().putPayoffAmountToday(new BigDecimal("8500"));
     return new CreateProductCommand(userId, name, ProductType.LOAN, metadata);
   }
 
   public static CreateProductCommand createMockRealStateCommand(final UUID userId) {
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.getRealEstate().putPurchaseDate(LocalDate.now());
-    metadata.getRealEstate().putPurchasePrice(new BigDecimal("100000"));
-    metadata.getRealEstate().putPropertySize(new BigDecimal("100"));
-    metadata.getRealEstate().putFinancedAmount(new BigDecimal("80000"));
-    metadata.getRealEstate().putDownPaymentAmount(new BigDecimal("20000"));
-    metadata.getRealEstate().putDownPaymentPercentage(new BigDecimal("20"));
-    metadata.getRealEstate().putDownPaymentPaidToDate(new BigDecimal("0"));
+    metadata.findRealEstateMetadata().putPurchaseDate(LocalDate.now());
+    metadata.findRealEstateMetadata().putPurchasePrice(new BigDecimal("100000"));
+    metadata.findRealEstateMetadata().putPropertySize(new BigDecimal("100"));
+    metadata.findRealEstateMetadata().putFinancedAmount(new BigDecimal("80000"));
+    metadata.findRealEstateMetadata().putDownPaymentAmount(new BigDecimal("20000"));
+    metadata.findRealEstateMetadata().putDownPaymentPercentage(new BigDecimal("20"));
+    metadata.findRealEstateMetadata().putDownPaymentPaidToDate(new BigDecimal("0"));
     return new CreateProductCommand(
         userId, "Real State Account", ProductType.REAL_ESTATE_INVESTMENT, metadata);
   }
@@ -139,8 +139,8 @@ public class CommandTestBuilder {
   public static CreateProductCommand createInvestmentCommand(
       final UUID userId, final String name, final String brokerName) {
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.getInvestment().putBrokerName(brokerName);
-    metadata.getInvestment().putCommissionRate(new BigDecimal("1.2"));
+    metadata.findInvestmentMetadata().putBrokerName(brokerName);
+    metadata.findInvestmentMetadata().putCommissionRate(new BigDecimal("1.2"));
     return new CreateProductCommand(userId, name, ProductType.INVESTMENT, metadata);
   }
 

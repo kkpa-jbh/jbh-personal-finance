@@ -3,7 +3,7 @@ package com.jbh.account.application.builders;
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.core.ports.input.AddMovementInputPort;
 import com.jbh.account.application.core.ports.input.AddTransferJbhAccountsInputPort;
-import com.jbh.account.application.core.ports.input.CreateAccountInputPort;
+import com.jbh.account.application.core.ports.input.CreateProductInputPort;
 import com.jbh.account.application.core.ports.input.FindMonthlyBalanceInputPort;
 import com.jbh.account.application.core.ports.input.LiquidateAccountInputPort;
 import com.jbh.account.application.core.ports.input.RegisterMonthlyBalanceInputPort;
@@ -60,7 +60,7 @@ public class UseCaseBuilder {
   // Use Cases
 
   public static CreateProductUseCase buildCreateAccountUseCase() {
-    return new CreateAccountInputPort(buildAccountService());
+    return new CreateProductInputPort(buildAccountService());
   }
 
   public static AccountService buildAccountService() {

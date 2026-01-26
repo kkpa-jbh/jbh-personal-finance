@@ -95,26 +95,35 @@ public class ProductDomain {
    * @param name Account name
    * @param type Account type
    * @param userId User ID
-   * @param metadata Account metadata (ProductMetadata instance)
+   * @param inputMetadata Account inputMetadata (ProductMetadata instance)
    * @return AccountDomain instance
    * @throws ProductBusinessException if validation fails based on account type requirements
    */
   public static ProductDomain withMinimumDataForCreation(
-      final String name, final ProductType type, final UUID userId, final ProductMetadata metadata)
+      final String name,
+      final ProductType type,
+      final UUID userId,
+      final ProductMetadata inputMetadata)
       throws ProductBusinessException {
 
-    // Use provided metadata or create empty if null
-    final ProductMetadata productMetadata = metadata != null ? metadata : ProductMetadata.empty();
+    // Use provided inputMetadata or create empty if null
+    final ProductMetadata productMetadata =
+        inputMetadata != null ? inputMetadata : ProductMetadata.empty();
 
-    // Validate metadata based on account type BEFORE creating the domain object
+    // Validate inputMetadata based on account type BEFORE creating the domain object
     validateMetadata(type, productMetadata);
 
     // Only create the object if validation passes
     final ProductDomain accountDomain = new ProductDomain(name, type, userId);
 
-    // Set metadata if provided
+    // Set inputMetadata if provided
     if (!productMetadata.isEmpty()) {
       accountDomain.metadata = productMetadata;
+    }
+
+    // Setting Current Balance with Common initial balance inputMetadata
+    if (productMetadata.hasKey(ProductMetadataKey.COMMON_INITIAL_BALANCE)) {
+      accountDomain.currentBalance = productMetadata.findCommonMetadata().getInitialBalance();
     }
 
     return accountDomain;
@@ -192,7 +201,7 @@ public class ProductDomain {
 
     if (hasValidBalance()) {
       if (checkIfFullyWithdrawn(currentBalance, movementAmount)) {
-        metadata.getCommon().putFullyWithdrawn(newAccountMovement.getMovementDate());
+        metadata.findCommonMetadata().putFullyWithdrawn(newAccountMovement.getMovementDate());
       }
     }
 
@@ -215,7 +224,7 @@ public class ProductDomain {
   }
 
   private void putInitialBalanceMetadata(final BigDecimal initialBalance) {
-    metadata.getCommon().putInitialBalance(initialBalance);
+    metadata.findCommonMetadata().putInitialBalance(initialBalance);
   }
 
   private boolean hasValidBalance() {
@@ -258,7 +267,7 @@ public class ProductDomain {
   }
 
   public boolean isFullyWithdrawn() {
-    return metadata.getCommon().isFullyWithdrawn();
+    return metadata.findCommonMetadata().isFullyWithdrawn();
   }
 
   public boolean hasMetadata(final ProductMetadataKey key) {

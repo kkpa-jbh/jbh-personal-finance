@@ -2,10 +2,12 @@ package com.jbh.account.infra.adapters.exceptions;
 
 import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.infra.adapters.in.rest.vo.ApiResponse;
+import com.jbh.commons.exception.InternalSystemException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 import java.util.List;
+import org.jboss.resteasy.reactive.RestResponse.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +26,10 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
 
     if (exception instanceof final ProductBusinessException accountBusinessException) {
       return handleAccountBusinessException(accountBusinessException);
+    }
+
+    if (exception instanceof final InternalSystemException internalSystemException) {
+      return handleInternalSystemException(internalSystemException);
     }
 
     if (exception instanceof final IllegalArgumentException illegalArgumentException) {
@@ -49,6 +55,17 @@ public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
     return Response.status(422) // HTTP 422 - Unprocessable Entity
         .entity(errorResponse)
         .build();
+  }
+
+  private Response handleInternalSystemException(final InternalSystemException exception) {
+    final String errorMessage = exception.getMessage();
+
+    final ApiResponse<Void> errorResponse =
+        ApiResponse.withErrorCode(errorMessage, exception.getErrorCode());
+
+    LOG.warn("Internal exception: {}", errorMessage);
+
+    return Response.status(Status.UNAUTHORIZED).entity(errorResponse).build();
   }
 
   private Response handleIllegalArgumentException(final IllegalArgumentException exception) {

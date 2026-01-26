@@ -7,10 +7,11 @@ import com.jbh.account.application.core.usecases.AddMovementsUploadedFileUseCase
 import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
 import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductId;
-import com.jbh.account.infra.adapters.in.rest.vo.FinanceApiRoutes;
 import com.jbh.account.infra.adapters.in.rest.vo.AddMovementsUploadedFileRequest;
 import com.jbh.account.infra.adapters.in.rest.vo.ApiResponse;
+import com.jbh.account.infra.adapters.in.rest.vo.FinanceApiRoutes;
 import com.jbh.account.infra.adapters.in.service.ExcelMovementReaderService;
+import com.jbh.commons.exception.InternalSystemException;
 import com.jbh.gateway.client.JbhGatewayException;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.ws.rs.Consumes;
@@ -42,13 +43,13 @@ import org.slf4j.LoggerFactory;
 @RequestScoped
 @Path(FinanceApiRoutes.PRODUCTS_API_PATH)
 @Tag(name = "Upload movements to an account", description = "Register multiple movements")
-public class AccountUploadFileRestAdapter extends BaseRestAdapter {
+public class ProductUploadFileRestAdapter extends BaseRestAdapter {
 
   private final ExcelMovementReaderService excelMovementReaderService;
   private final AddMovementsUploadedFileUseCase addUploadedMvmntsUseCase;
-  private final Logger log = LoggerFactory.getLogger(AccountUploadFileRestAdapter.class);
+  private final Logger log = LoggerFactory.getLogger(ProductUploadFileRestAdapter.class);
 
-  public AccountUploadFileRestAdapter(
+  public ProductUploadFileRestAdapter(
       final AddMovementsUploadedFileUseCase addUploadedMvmntsUseCase,
       final ExcelMovementReaderService excelMovementReaderService) {
     this.excelMovementReaderService = excelMovementReaderService;
@@ -101,7 +102,7 @@ public class AccountUploadFileRestAdapter extends BaseRestAdapter {
           final UUID accountId,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
-      throws JbhGatewayException, ProductBusinessException {
+      throws JbhGatewayException, ProductBusinessException, InternalSystemException {
     log.info("Uploading excel file {}", authorizationHeader);
 
     final UUID userId = findUserId(authorizationHeader);

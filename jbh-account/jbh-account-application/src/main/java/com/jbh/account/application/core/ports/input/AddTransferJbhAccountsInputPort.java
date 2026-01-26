@@ -8,13 +8,13 @@ import com.jbh.account.application.core.services.movements.AccountMovementApplic
 import com.jbh.account.application.core.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.AddTransferCommand;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.account.domain.vo.ProductPK;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.MovementType;
+import com.jbh.account.domain.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.slf4j.Logger;
@@ -100,7 +100,8 @@ public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUs
       throws ProductBusinessException {
     if (toAccountDTO.isLoan()) {
       final BigDecimal movementAmount = movementCommandTo.totalAmount();
-      final BigDecimal pendingToPaid = toAccountDTO.metadata().getLoan().getPayoffAmountToday();
+      final BigDecimal pendingToPaid =
+          toAccountDTO.metadata().findLoanMetadata().getPayoffAmountToday();
 
       if (movementAmount.compareTo(pendingToPaid) > 0) {
         throw new ProductBusinessException(

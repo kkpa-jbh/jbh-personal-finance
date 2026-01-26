@@ -12,9 +12,9 @@ import java.util.EnumMap;
 import java.util.Map;
 
 /**
- * Value Object that encapsulates product metadata and provides type-safe access to metadata
- * fields. This VO can be used across all layers (domain, application, infrastructure) in the
- * hexagonal architecture without breaking layer isolation.
+ * Value Object that encapsulates product metadata and provides type-safe access to metadata fields.
+ * This VO can be used across all layers (domain, application, infrastructure) in the hexagonal
+ * architecture without breaking layer isolation.
  *
  * <p>This class uses composition to organize metadata by product type, reducing the number of
  * public methods and improving cohesion. Access type-specific metadata through fluent accessors:
@@ -98,7 +98,7 @@ public final class ProductMetadata {
    *
    * @return CommonMetadata instance
    */
-  public CommonMetadata getCommon() {
+  public CommonMetadata findCommonMetadata() {
     if (common == null) {
       common = new CommonMetadata(data);
     }
@@ -110,7 +110,7 @@ public final class ProductMetadata {
    *
    * @return RealEstateMetadata instance
    */
-  public RealEstateMetadata getRealEstate() {
+  public RealEstateMetadata findRealEstateMetadata() {
     if (realEstate == null) {
       realEstate = new RealEstateMetadata(data);
     }
@@ -122,7 +122,7 @@ public final class ProductMetadata {
    *
    * @return LoanMetadata instance
    */
-  public LoanMetadata getLoan() {
+  public LoanMetadata findLoanMetadata() {
     if (loan == null) {
       loan = new LoanMetadata(data);
     }
@@ -134,7 +134,7 @@ public final class ProductMetadata {
    *
    * @return CreditCardMetadata instance
    */
-  public CreditCardMetadata getCreditCard() {
+  public CreditCardMetadata findCreditCardMetadata() {
     if (creditCard == null) {
       creditCard = new CreditCardMetadata(data);
     }
@@ -146,7 +146,7 @@ public final class ProductMetadata {
    *
    * @return InvestmentMetadata instance
    */
-  public InvestmentMetadata getInvestment() {
+  public InvestmentMetadata findInvestmentMetadata() {
     if (investment == null) {
       investment = new InvestmentMetadata(data);
     }
@@ -158,7 +158,7 @@ public final class ProductMetadata {
    *
    * @return CdtMetadata instance
    */
-  public CdtMetadata getCdt() {
+  public CdtMetadata findCDTMetadata() {
     if (cdt == null) {
       cdt = new CdtMetadata(data);
     }

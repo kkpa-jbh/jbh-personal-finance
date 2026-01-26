@@ -31,7 +31,7 @@ public class RealEstateProductCreationValidator extends BaseAccountCreationValid
     }
 
     // Validate Percentage
-    final var realEstate = metadata.getRealEstate();
+    final var realEstate = metadata.findRealEstateMetadata();
     JbhMoneyUtils.validatePercentage(realEstate.getDownPaymentPercentage());
 
     if (!metadata.hasKey(REAL_ESTATE_DOWN_PAYMENT_AMOUNT)) {

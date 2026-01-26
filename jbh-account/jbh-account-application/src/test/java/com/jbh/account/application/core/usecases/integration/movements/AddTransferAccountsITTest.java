@@ -25,10 +25,10 @@ import com.jbh.account.application.core.vo.commands.AddTransferCommand;
 import com.jbh.account.application.core.vo.commands.UpdateMetadataProductCommand;
 import com.jbh.account.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.account.domain.exceptions.ProductBusinessException;
-import com.jbh.account.domain.vo.ProductPK;
 import com.jbh.account.domain.vo.IncomeCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.ProductMetadata;
+import com.jbh.account.domain.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -103,9 +103,9 @@ public class AddTransferAccountsITTest {
             createBasicAccountCommand(toUserId, toAccountName, DEFAULT_ACCOUNT_TYPE));
     toAccountPK = new ProductPK(toUserId, toAccount.id());
 
-    loanMetadata.getLoan().putPrincipalAmount(new BigDecimal("1000.00"));
-    loanMetadata.getLoan().putTotalAmountPaid(LOAN_TOTAL_AMOUNT_PAID_INITIAL);
-    loanMetadata.getLoan().putPayoffAmountToday(new BigDecimal(PAYOFF_TODAY_INITIAL));
+    loanMetadata.findLoanMetadata().putPrincipalAmount(new BigDecimal("1000.00"));
+    loanMetadata.findLoanMetadata().putTotalAmountPaid(LOAN_TOTAL_AMOUNT_PAID_INITIAL);
+    loanMetadata.findLoanMetadata().putPayoffAmountToday(new BigDecimal(PAYOFF_TODAY_INITIAL));
     loanAccount =
         createAccountUseCase.execute(createLoanCommand(toUserId, "Loan Account", loanMetadata));
     assertNotNull(loanAccount);
@@ -222,7 +222,7 @@ public class AddTransferAccountsITTest {
 
     final ProductDTO loanAccountUpdated = accountService.findAccountOrThrow(loanAccount.id());
     assertEquals(
-        loanAccountUpdated.metadata().getLoan().getTotalAmountPaid(),
+        loanAccountUpdated.metadata().findLoanMetadata().getTotalAmountPaid(),
         withJBHDecimals(LOAN_TOTAL_AMOUNT_PAID_INITIAL.add(transferAmount)));
 
     final Optional<MonthlyBalanceDTO> monthlyBalanceLoan =
@@ -252,14 +252,14 @@ public class AddTransferAccountsITTest {
     final var payoffAmount = new BigDecimal("300");
     final ProductPK loanAccountPK = new ProductPK(loanAccount.userId(), loanAccount.id());
     final ProductMetadata loanMetadata = ProductMetadata.empty();
-    loanMetadata.getLoan().putPayoffAmountToday(payoffAmount);
-    loanMetadata.getLoan().putPrincipalAmount(LOAN_TOTAL_AMOUNT_PAID_INITIAL);
+    loanMetadata.findLoanMetadata().putPayoffAmountToday(payoffAmount);
+    loanMetadata.findLoanMetadata().putPrincipalAmount(LOAN_TOTAL_AMOUNT_PAID_INITIAL);
     final UpdateMetadataProductCommand command = new UpdateMetadataProductCommand(loanMetadata);
     updateProductUseCase.replaceMetadata(loanAccountPK, command);
 
     final ProductDTO loanAccountUpdated = accountService.findAccountOrThrow(loanAccount.id());
     assertEquals(
-        loanAccountUpdated.metadata().getLoan().getPayoffAmountToday(),
+        loanAccountUpdated.metadata().findLoanMetadata().getPayoffAmountToday(),
         withJBHDecimals(payoffAmount));
   }
 
@@ -275,7 +275,11 @@ public class AddTransferAccountsITTest {
     final ProductDTO initialLoanAccount = accountService.findAccountOrThrow(loanAccount.id());
 
     final var transferAmount =
-        initialLoanAccount.metadata().getLoan().getPayoffAmountToday().add(new BigDecimal("50"));
+        initialLoanAccount
+            .metadata()
+            .findLoanMetadata()
+            .getPayoffAmountToday()
+            .add(new BigDecimal("50"));
 
     assertThrows(
         ProductBusinessException.class,
@@ -299,7 +303,8 @@ public class AddTransferAccountsITTest {
 
     final ProductDTO initialLoanAccount = accountService.findAccountOrThrow(loanAccount.id());
 
-    final var transferAmount = initialLoanAccount.metadata().getLoan().getPayoffAmountToday();
+    final var transferAmount =
+        initialLoanAccount.metadata().findLoanMetadata().getPayoffAmountToday();
 
     transferUseCase.addTransfer(
         fromAccountPK,
@@ -310,7 +315,7 @@ public class AddTransferAccountsITTest {
 
     final ProductDTO loanAccountUpdated = accountService.findAccountOrThrow(loanAccount.id());
     assertEquals(
-        loanAccountUpdated.metadata().getLoan().getTotalAmountPaid(),
+        loanAccountUpdated.metadata().findLoanMetadata().getTotalAmountPaid(),
         withJBHDecimals((transferAmount)));
 
     final Optional<MonthlyBalanceDTO> monthlyBalanceLoan =

@@ -153,7 +153,7 @@ class LoanAccountMetricsCalculatorTest {
   void shouldUpdateMetadataWhenLoanTotalAmountPaidExists() {
     // Given
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.getLoan().putTotalAmountPaid(new BigDecimal("1000.00"));
+    metadata.findLoanMetadata().putTotalAmountPaid(new BigDecimal("1000.00"));
 
     final ProductDomain loanProduct =
         AccountDomainTestBuilder.createLoanProduct(userId, "Test Loan", metadata);
@@ -173,14 +173,14 @@ class LoanAccountMetricsCalculatorTest {
 
     // Then
     assertNotNull(result);
-    assertEquals(new BigDecimal("500.00"), result.getLoan().getTotalAmountPaid());
+    assertEquals(new BigDecimal("500.00"), result.findLoanMetadata().getTotalAmountPaid());
   }
 
   @Test
   void shouldUpdateMetadataWithPositiveMovementAmount() {
     // Given
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.getLoan().putTotalAmountPaid(new BigDecimal("2000.00"));
+    metadata.findLoanMetadata().putTotalAmountPaid(new BigDecimal("2000.00"));
 
     final ProductDomain loanProduct =
         AccountDomainTestBuilder.createLoanProduct(userId, "Test Loan", metadata);
@@ -200,7 +200,7 @@ class LoanAccountMetricsCalculatorTest {
 
     // Then
     assertNotNull(result);
-    assertEquals(new BigDecimal("3000.00"), result.getLoan().getTotalAmountPaid());
+    assertEquals(new BigDecimal("3000.00"), result.findLoanMetadata().getTotalAmountPaid());
   }
 
   @Test
@@ -233,7 +233,7 @@ class LoanAccountMetricsCalculatorTest {
   void shouldUpdateMetadataWithZeroInitialAmount() {
     // Given
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.getLoan().putTotalAmountPaid(JBH_ZERO);
+    metadata.findLoanMetadata().putTotalAmountPaid(JBH_ZERO);
 
     final ProductDomain loanProduct =
         AccountDomainTestBuilder.createLoanProduct(userId, "Test Loan", metadata);
@@ -253,14 +253,14 @@ class LoanAccountMetricsCalculatorTest {
 
     // Then
     assertNotNull(result);
-    assertEquals(new BigDecimal("-250.00"), result.getLoan().getTotalAmountPaid());
+    assertEquals(new BigDecimal("-250.00"), result.findLoanMetadata().getTotalAmountPaid());
   }
 
   @Test
   void shouldUpdateMetadataWithLargeMovementAmount() {
     // Given
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.getLoan().putTotalAmountPaid(new BigDecimal("50000.00"));
+    metadata.findLoanMetadata().putTotalAmountPaid(new BigDecimal("50000.00"));
 
     final ProductDomain loanProduct =
         AccountDomainTestBuilder.createLoanProduct(userId, "Test Loan", metadata);
@@ -280,14 +280,14 @@ class LoanAccountMetricsCalculatorTest {
 
     // Then
     assertNotNull(result);
-    assertEquals(new BigDecimal("25000.00"), result.getLoan().getTotalAmountPaid());
+    assertEquals(new BigDecimal("25000.00"), result.findLoanMetadata().getTotalAmountPaid());
   }
 
   @Test
   void shouldHandleDecimalPrecisionInMetadataUpdate() {
     // Given
     final ProductMetadata metadata = ProductMetadata.empty();
-    metadata.getLoan().putTotalAmountPaid(new BigDecimal("1000.123456"));
+    metadata.findLoanMetadata().putTotalAmountPaid(new BigDecimal("1000.123456"));
 
     final ProductDomain loanProduct =
         AccountDomainTestBuilder.createLoanProduct(userId, "Test Loan", metadata);
@@ -308,6 +308,6 @@ class LoanAccountMetricsCalculatorTest {
     // Then
     assertNotNull(result);
     // Result should be rounded to 2 decimal places by withJBHDecimals
-    assertEquals(new BigDecimal("499.47"), result.getLoan().getTotalAmountPaid());
+    assertEquals(new BigDecimal("499.47"), result.findLoanMetadata().getTotalAmountPaid());
   }
 }

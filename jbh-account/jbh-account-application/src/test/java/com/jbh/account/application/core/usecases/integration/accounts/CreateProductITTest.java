@@ -21,8 +21,8 @@ import com.jbh.account.application.core.mappers.AccountMapper;
 import com.jbh.account.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.vo.commands.CreateProductCommand;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ExpenseCategory;
 import com.jbh.account.domain.vo.MovementCategoryDTO;
 import com.jbh.account.domain.vo.ProductMetadata;
@@ -226,24 +226,24 @@ public class CreateProductITTest {
         () -> createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata)));
 
     final var expected = new BigDecimal("100.00");
-    metadata.getLoan().putPrincipalAmount(expected);
+    metadata.findLoanMetadata().putPrincipalAmount(expected);
     assertThrows(
         ProductBusinessException.class,
         () -> createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata)));
 
-    metadata.getLoan().putTotalAmountPaid(expected);
+    metadata.findLoanMetadata().putTotalAmountPaid(expected);
     assertThrows(
         ProductBusinessException.class,
         () -> createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata)));
 
-    metadata.getLoan().putPayoffAmountToday(expected);
+    metadata.findLoanMetadata().putPayoffAmountToday(expected);
     final ProductDTO createdLoan =
         createAccountUseCase.execute(createLoanCommand(userId, "Bancolombia", metadata));
 
     assertNotNull(createdLoan);
-    assertEquals(expected, createdLoan.metadata().getLoan().getPrincipalAmount());
-    assertEquals(expected, createdLoan.metadata().getLoan().getTotalAmountPaid());
-    assertEquals(expected, createdLoan.metadata().getLoan().getPayoffAmountToday());
+    assertEquals(expected, createdLoan.metadata().findLoanMetadata().getPrincipalAmount());
+    assertEquals(expected, createdLoan.metadata().findLoanMetadata().getTotalAmountPaid());
+    assertEquals(expected, createdLoan.metadata().findLoanMetadata().getPayoffAmountToday());
   }
 
   @Test
@@ -254,23 +254,23 @@ public class CreateProductITTest {
     assertNotNull(error);
 
     // Adding PURCHASE_DATE
-    metadata.getRealEstate().putPurchaseDate(LocalDate.now());
+    metadata.findRealEstateMetadata().putPurchaseDate(LocalDate.now());
     error = assertThrows(ProductBusinessException.class, () -> createRealEstateProduct(metadata));
 
     // Adding REAL_ESTATE_PURCHASE_PRICE
-    metadata.getRealEstate().putPurchasePrice(new BigDecimal(1000));
+    metadata.findRealEstateMetadata().putPurchasePrice(new BigDecimal(1000));
     error = assertThrows(ProductBusinessException.class, () -> createRealEstateProduct(metadata));
 
     // Adding REAL_ESTATE_PROPERTY_SIZE
-    metadata.getRealEstate().putPropertySize(new BigDecimal("100.00"));
+    metadata.findRealEstateMetadata().putPropertySize(new BigDecimal("100.00"));
     error = assertThrows(ProductBusinessException.class, () -> createRealEstateProduct(metadata));
 
     // Adding REAL_ESTATE_FINANCED_AMOUNT
-    metadata.getRealEstate().putFinancedAmount(BigDecimal.ONE);
+    metadata.findRealEstateMetadata().putFinancedAmount(BigDecimal.ONE);
     error = assertThrows(ProductBusinessException.class, () -> createRealEstateProduct(metadata));
 
     // Adding REAL_ESTATE_DOWN_PAYMENT_PERCENTAGE
-    metadata.getRealEstate().putDownPaymentPercentage(new BigDecimal("171.00"));
+    metadata.findRealEstateMetadata().putDownPaymentPercentage(new BigDecimal("171.00"));
     error = assertThrows(ProductBusinessException.class, () -> createRealEstateProduct(metadata));
 
     assertNotNull(error);
@@ -287,25 +287,26 @@ public class CreateProductITTest {
     final ProductMetadata metadata = ProductMetadata.empty();
 
     // Adding PURCHASE_DATE
-    metadata.getRealEstate().putPurchaseDate(LocalDate.now());
+    metadata.findRealEstateMetadata().putPurchaseDate(LocalDate.now());
 
     // Adding REAL_ESTATE_PURCHASE_PRICE
-    metadata.getRealEstate().putPurchasePrice(new BigDecimal(1000));
+    metadata.findRealEstateMetadata().putPurchasePrice(new BigDecimal(1000));
 
     // Adding REAL_ESTATE_PROPERTY_SIZE
-    metadata.getRealEstate().putPropertySize(new BigDecimal("100.00"));
+    metadata.findRealEstateMetadata().putPropertySize(new BigDecimal("100.00"));
 
     // Adding REAL_ESTATE_FINANCED_AMOUNT
-    metadata.getRealEstate().putFinancedAmount(BigDecimal.ONE);
+    metadata.findRealEstateMetadata().putFinancedAmount(BigDecimal.ONE);
 
     // Adding REAL_ESTATE_DOWN_PAYMENT_PERCENTAGE
-    metadata.getRealEstate().putDownPaymentPercentage(new BigDecimal("30.00"));
+    metadata.findRealEstateMetadata().putDownPaymentPercentage(new BigDecimal("30.00"));
 
     // Adding REAL_ESTATE_DOWN_PAYMENT_PAID_TO_DATE
-    metadata.getRealEstate().putDownPaymentPaidToDate(BigDecimal.ONE);
+    metadata.findRealEstateMetadata().putDownPaymentPaidToDate(BigDecimal.ONE);
 
     final ProductDTO realEstateAccount = createRealEstateProduct(metadata);
     assertNotNull(realEstateAccount);
-    assertEquals(metadata.getRealEstate().getDownPaymentAmount(), new BigDecimal("30000.00"));
+    assertEquals(
+        metadata.findRealEstateMetadata().getDownPaymentAmount(), new BigDecimal("30000.00"));
   }
 }

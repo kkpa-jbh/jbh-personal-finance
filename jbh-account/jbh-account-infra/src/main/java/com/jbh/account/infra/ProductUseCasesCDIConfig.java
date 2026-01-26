@@ -4,7 +4,7 @@ import com.jbh.account.application.acid.UnitOfWork;
 import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.core.ports.input.AddMovementInputPort;
 import com.jbh.account.application.core.ports.input.AddMovementsUploadedFileInputPort;
-import com.jbh.account.application.core.ports.input.CreateAccountInputPort;
+import com.jbh.account.application.core.ports.input.CreateProductInputPort;
 import com.jbh.account.application.core.ports.input.FindMonthlyBalanceInputPort;
 import com.jbh.account.application.core.ports.input.GetProductMetadataConfigInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
@@ -31,7 +31,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 @ApplicationScoped
-@RegisterForReflection(targets = {CreateAccountInputPort.class, AddMovementInputPort.class})
+@RegisterForReflection(targets = {CreateProductInputPort.class, AddMovementInputPort.class})
 public class ProductUseCasesCDIConfig {
 
   @Inject AccountRepository accountRepository;
@@ -52,8 +52,8 @@ public class ProductUseCasesCDIConfig {
 
   @Produces
   @ApplicationScoped
-  public CreateAccountInputPort registeringCreateAccountUseCase() {
-    return new CreateAccountInputPort(accountService());
+  public CreateProductInputPort registeringCreateAccountUseCase() {
+    return new CreateProductInputPort(accountService());
   }
 
   @Produces

@@ -47,8 +47,8 @@
 
         <!-- Quarkus Maven Plugin -->
         <plugin>
-          <groupId>io.quarkus.platform</groupId>
           <artifactId>quarkus-maven-plugin</artifactId>
+          <groupId>io.quarkus.platform</groupId>
           <version>${quarkus.version}</version>
         </plugin>
 
@@ -192,12 +192,13 @@
   <!-- PROPERTIES -->
   <!-- =============================================== -->
   <modules>
+    <module>jbh-commons-lib</module>
     <module>jbh-account</module>
     <module>jbh-notification</module>
 
     <!-- Assembly module last to ensure all dependencies are built -->
     <module>jbh-z-assembly</module>
-    <module>jbh-commons-lib</module>
+
   </modules>
 
   <!-- =============================================== -->

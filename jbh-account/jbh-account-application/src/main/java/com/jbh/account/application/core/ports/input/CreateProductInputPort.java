@@ -6,18 +6,18 @@ import com.jbh.account.application.core.services.account.AccountService;
 import com.jbh.account.application.core.usecases.CreateProductUseCase;
 import com.jbh.account.application.core.vo.commands.CreateProductCommand;
 import com.jbh.account.domain.entity.ProductDomain;
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.GenericSpecificationException;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.vo.ProductMetadata;
 import org.slf4j.Logger;
 
-public class CreateAccountInputPort implements CreateProductUseCase {
+public class CreateProductInputPort implements CreateProductUseCase {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CreateAccountInputPort.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CreateProductInputPort.class);
 
   private final AccountService accountService;
 
-  public CreateAccountInputPort(final AccountService accountService) {
+  public CreateProductInputPort(final AccountService accountService) {
     this.accountService = accountService;
   }
 

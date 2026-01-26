@@ -31,13 +31,13 @@ public class LoanAccountMetricsCalculator extends BaseAccountMetricsCalculator
   public ProductMetadata updateMetadata(
       final ProductDomain productDomain, final ProductMovementDomain movement) {
     final ProductMetadata loanMetadata = productDomain.getMetadata();
-    BigDecimal totalAmountPaid = loanMetadata.getLoan().getTotalAmountPaid();
+    BigDecimal totalAmountPaid = loanMetadata.findLoanMetadata().getTotalAmountPaid();
 
     final BigDecimal loanAmountPaid = movement.getMovementAmount();
     if (loanAmountPaid != null) {
       totalAmountPaid = totalAmountPaid.add(loanAmountPaid);
       totalAmountPaid = withJBHDecimals(totalAmountPaid);
-      loanMetadata.getLoan().putTotalAmountPaid(totalAmountPaid);
+      loanMetadata.findLoanMetadata().putTotalAmountPaid(totalAmountPaid);
     }
     return loanMetadata;
   }

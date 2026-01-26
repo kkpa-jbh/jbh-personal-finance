@@ -17,6 +17,7 @@ import com.jbh.account.infra.adapters.in.rest.vo.AddMovementRequest;
 import com.jbh.account.infra.adapters.in.rest.vo.CreateProductRequest;
 import com.jbh.account.infra.adapters.in.rest.vo.FinanceApiRoutes;
 import com.jbh.account.infra.adapters.in.rest.vo.MonthlyBalanceRequest;
+import com.jbh.commons.exception.InternalSystemException;
 import com.jbh.gateway.client.JbhGatewayException;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -94,17 +95,20 @@ public class ProductRestAdapter extends BaseRestAdapter {
       @RequestBody final CreateProductRequest request,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
-      throws JbhGatewayException, ProductBusinessException {
+      throws JbhGatewayException, ProductBusinessException, InternalSystemException {
     log.info("Creating Product for user {}", authorizationHeader);
 
     final UUID userId = findUserId(authorizationHeader);
 
-    final ProductDTO ProductDTO =
+    final ProductDTO createdProduct =
         createProductUseCase.execute(
             new CreateProductCommand(
-                userId, request.name(), request.type(), ProductMetadata.empty()));
+                userId,
+                request.name(),
+                request.type(),
+                ProductMetadata.fromMap(request.metadata())));
 
-    return Response.ok(ProductDTO).build();
+    return Response.ok(createdProduct).build();
   }
 
   @POST
@@ -144,7 +148,7 @@ public class ProductRestAdapter extends BaseRestAdapter {
       @RequestBody final AddMovementRequest request,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
-      throws JbhGatewayException, ProductBusinessException {
+      throws JbhGatewayException, ProductBusinessException, InternalSystemException {
 
     if (request == null) {
       throw new IllegalArgumentException("Command cannot be null");
@@ -203,7 +207,7 @@ public class ProductRestAdapter extends BaseRestAdapter {
       @RequestBody final MonthlyBalanceRequest request,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
-      throws JbhGatewayException, ProductBusinessException {
+      throws JbhGatewayException, ProductBusinessException, InternalSystemException {
 
     request.validate();
 

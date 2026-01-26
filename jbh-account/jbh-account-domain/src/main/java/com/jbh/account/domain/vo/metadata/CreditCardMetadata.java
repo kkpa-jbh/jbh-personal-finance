@@ -1,7 +1,7 @@
 package com.jbh.account.domain.vo.metadata;
 
-import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
+import com.jbh.account.domain.exceptions.ProductBusinessException;
 import com.jbh.account.domain.utils.JbhMoneyUtils;
 import com.jbh.account.domain.vo.ProductMetadataKey;
 import java.math.BigDecimal;
@@ -24,10 +24,19 @@ public final class CreditCardMetadata {
    */
   public BigDecimal getCreditLimit() throws ProductBusinessException {
     final Object creditLimit = get(ProductMetadataKey.CREDIT_LIMIT);
+
+    if (creditLimit == null) {
+      return null;
+    }
+
     if (!(creditLimit instanceof BigDecimal)) {
       throw new ProductBusinessException(BusinessDomainExceptionType.INVALID_CREDIT_LIMIT_TYPE);
     }
     return (BigDecimal) creditLimit;
+  }
+
+  private Object get(final ProductMetadataKey key) {
+    return data.get(key);
   }
 
   /**
@@ -38,7 +47,7 @@ public final class CreditCardMetadata {
    */
   public Integer getPaymentDueDay() throws ProductBusinessException {
     final Object dueDay = get(ProductMetadataKey.PAYMENT_DUE_DAY);
-    if (!(dueDay instanceof Integer)) {
+    if (dueDay != null && !(dueDay instanceof Integer)) {
       throw new ProductBusinessException(BusinessDomainExceptionType.INVALID_PAYMENT_DUE_DAY_TYPE);
     }
     return (Integer) dueDay;
@@ -53,6 +62,14 @@ public final class CreditCardMetadata {
     put(ProductMetadataKey.CREDIT_LIMIT, creditLimit);
   }
 
+  private void put(final ProductMetadataKey key, final Object value) {
+    if (value instanceof BigDecimal) {
+      data.put(key, JbhMoneyUtils.withJBHDecimals((BigDecimal) value));
+      return;
+    }
+    data.put(key, value);
+  }
+
   /**
    * Sets the payment due day.
    *
@@ -60,17 +77,5 @@ public final class CreditCardMetadata {
    */
   public void putPaymentDueDay(final Integer paymentDueDay) {
     put(ProductMetadataKey.PAYMENT_DUE_DAY, paymentDueDay);
-  }
-
-  private Object get(final ProductMetadataKey key) {
-    return data.get(key);
-  }
-
-  private void put(final ProductMetadataKey key, final Object value) {
-    if (value instanceof BigDecimal) {
-      data.put(key, JbhMoneyUtils.withJBHDecimals((BigDecimal) value));
-      return;
-    }
-    data.put(key, value);
   }
 }

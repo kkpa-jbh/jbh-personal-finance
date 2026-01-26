@@ -33,7 +33,7 @@ public class CreditCardAccountCreationValidator extends BaseAccountCreationValid
       throw new ProductBusinessException(BusinessDomainExceptionType.MISSING_CREDIT_LIMIT);
     }
 
-    final BigDecimal creditLimit = metadata.getCreditCard().getCreditLimit();
+    final BigDecimal creditLimit = metadata.findCreditCardMetadata().getCreditLimit();
 
     if (creditLimit.compareTo(BigDecimal.ZERO) <= 0) {
       throw new ProductBusinessException(BusinessDomainExceptionType.INVALID_CREDIT_LIMIT_VALUE);
@@ -46,7 +46,7 @@ public class CreditCardAccountCreationValidator extends BaseAccountCreationValid
       throw new ProductBusinessException(BusinessDomainExceptionType.MISSING_PAYMENT_DUE_DAY);
     }
 
-    final Object paymentDueDay = metadata.getCreditCard().getPaymentDueDay();
+    final Object paymentDueDay = metadata.findCreditCardMetadata().getPaymentDueDay();
     if (!(paymentDueDay instanceof Integer)) {
       throw new ProductBusinessException(BusinessDomainExceptionType.INVALID_PAYMENT_DUE_DAY_TYPE);
     }
@@ -64,7 +64,7 @@ public class CreditCardAccountCreationValidator extends BaseAccountCreationValid
     final var metadata = productDomain.getMetadata();
     validateCreditLimit(metadata);
 
-    final BigDecimal creditLimit = metadata.getCreditCard().getCreditLimit();
+    final BigDecimal creditLimit = metadata.findCreditCardMetadata().getCreditLimit();
 
     // Check if there is enough credit in the account
     final var movementAmount = movement.getMovementAmount();

@@ -10,8 +10,7 @@ public enum ProductType {
   LOAN("Loan", "Préstamo"),
   CREDIT_CARD("Credit Card", "Tarjeta de Crédito"),
   INVESTMENT("Investment", "Inversión"),
-  CDT("Certificate of Deposit", "CDT")
-  ;
+  CDT("Certificate of Deposit (CDT)", "CDT");
 
   private static final List<ProductType> ADDING_MOVEMENTS_PRODUCTS_ALLOWED =
       List.of(SAVINGS, CREDIT_CARD, INVESTMENT, CDT);

@@ -6,6 +6,4 @@ public enum MetadataValueType {
   BIGDECIMAL,
   DATE,
   BOOLEAN;
-
-  MetadataValueType() {}
 }

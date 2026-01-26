@@ -1,7 +1,7 @@
 package com.jbh.commons.util;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.CommonExceptionType;
-import com.jbh.commons.exception.ProductBusinessException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -56,21 +56,24 @@ public final class JbhMoneyUtils {
     if (value == null) {
       return null;
     }
+    BigDecimal valueAsDecimal = null;
     if (value instanceof BigDecimal) {
-      return (BigDecimal) value;
+      valueAsDecimal = (BigDecimal) value;
     }
-    return new BigDecimal(value.toString());
+    valueAsDecimal = new BigDecimal(value.toString());
+
+    return withJBHDecimals(valueAsDecimal);
   }
 
   public static void validatePercentage(final BigDecimal percentage)
-      throws ProductBusinessException {
+      throws BusinessException {
     if (percentage == null) {
       return;
     }
     if (percentage.signum() < 0
         || percentage.compareTo(BigDecimal.ZERO) <= 0
         || percentage.compareTo(new BigDecimal("100")) > 0) {
-      throw new ProductBusinessException(
+      throw new BusinessException(
           CommonExceptionType.INVALID_PERCENTAGE, percentage.toString());
     }
   }
