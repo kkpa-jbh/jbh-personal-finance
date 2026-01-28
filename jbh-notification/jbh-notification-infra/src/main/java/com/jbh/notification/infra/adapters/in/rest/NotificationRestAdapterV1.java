@@ -31,108 +31,103 @@ import org.slf4j.LoggerFactory;
 
 @RequestScoped
 @Path(NotificationRoutes.NOTIFICATIONS_API_PATH_V1)
-@Tag(name = "Notification Operations", description = "Endpoints for sending and managing notifications")
+@Tag(
+    name = "Notification Operations",
+    description = "Endpoints for sending and managing notifications")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class NotificationRestAdapterV1 {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NotificationRestAdapterV1.class);
+  private static final Logger LOG = LoggerFactory.getLogger(NotificationRestAdapterV1.class);
 
-    private final NotificationServicePort notificationService;
+  private final NotificationServicePort notificationService;
 
-    @Inject
-    public NotificationRestAdapterV1(final NotificationServicePort notificationService) {
-        this.notificationService = notificationService;
-    }
+  @Inject
+  public NotificationRestAdapterV1(final NotificationServicePort notificationService) {
+    this.notificationService = notificationService;
+  }
 
-    @POST
-    @Operation(
-        summary = "Send a notification",
-        description = "Sends a notification of the specified type (EMAIL, SMS, PUSH, IN_APP) to the recipient"
-    )
-    @APIResponses({
-        @APIResponse(
-            responseCode = "200",
-            description = "Notification sent successfully",
-            content = @Content(
+  @POST
+  @Operation(
+      summary = "Send a notification",
+      description =
+          "Sends a notification of the specified type (EMAIL, SMS, PUSH, IN_APP) to the recipient")
+  @APIResponses({
+    @APIResponse(
+        responseCode = "200",
+        description = "Notification sent successfully",
+        content =
+            @Content(
                 mediaType = MediaType.APPLICATION_JSON,
-                schema = @Schema(implementation = NotificationResponse.class)
-            )
-        ),
-        @APIResponse(
-            responseCode = "400",
-            description = "Invalid request data"
-        ),
-        @APIResponse(
-            responseCode = "500",
-            description = "Internal server error"
-        )
-    })
-    public Response sendNotification(
-            @Parameter(
-                description = "Type of notification to send",
-                required = false,
-                schema = @Schema(
-                    enumeration = {"EMAIL", "SMS", "PUSH", "IN_APP"},
-                    defaultValue = "EMAIL"
-                )
-            )
-            @QueryParam("type")
-            @DefaultValue("EMAIL")
-            final NotificationType type,
+                schema = @Schema(implementation = NotificationResponse.class))),
+    @APIResponse(responseCode = "400", description = "Invalid request data"),
+    @APIResponse(responseCode = "500", description = "Internal server error")
+  })
+  public Response sendNotification(
+      @Parameter(
+              description = "Type of notification to send",
+              required = false,
+              schema =
+                  @Schema(
+                      enumeration = {"EMAIL", "SMS", "PUSH", "IN_APP"},
+                      defaultValue = "EMAIL"))
+          @QueryParam("type")
+          @DefaultValue("EMAIL")
+          final NotificationType type,
+      @RequestBody(
+              description = "Notification details",
+              required = true,
+              content = @Content(schema = @Schema(implementation = SendNotificationRequest.class)))
+          @Valid
+          final SendNotificationRequest request) {
 
-            @RequestBody(
-                description = "Notification details",
-                required = true,
-                content = @Content(schema = @Schema(implementation = SendNotificationRequest.class))
-            )
-            @Valid
-            final SendNotificationRequest request) {
-
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Received request to send {} notification to recipient: {} Request {}",
-                type, request.recipientId(), request);
-        }
-
-        final NotificationDTO notificationDTO = mapRequestToDTO(request);
-        final NotificationDTO result = notificationService.sendNotification(notificationDTO, type);
-        final NotificationResponse response = mapDTOToResponse(result);
-
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Notification {} processed successfully", result.id());
-        }
-
-        return Response.ok(ApiResponse.success(response, "Notification processed successfully")).build();
+    if (LOG.isInfoEnabled()) {
+      LOG.info(
+          "Received request to send {} notification to recipient: {} Request {}",
+          type,
+          request.recipientId(),
+          request);
     }
 
-    private NotificationDTO mapRequestToDTO(final SendNotificationRequest request) {
-        return NotificationDTO.builder()
-            .recipientId(request.recipientId())
-            .recipientEmail(request.recipientEmail())
-            .senderUserId(request.senderUserId())
-            .senderEmail(request.senderEmail())
-            .subject(request.subject())
-            .message(request.message())
-            .emailTemplate(request.emailTemplate())
-            .metadata(request.metadata())
-            .build();
+    final NotificationDTO notificationDTO = mapRequestToDTO(request);
+    final NotificationDTO result = notificationService.sendNotification(notificationDTO, type);
+    final NotificationResponse response = mapDTOToResponse(result);
+
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Notification {} processed successfully", result.id());
     }
 
-    private NotificationResponse mapDTOToResponse(final NotificationDTO dto) {
-        return new NotificationResponse(
-            dto.id(),
-            dto.recipientId(),
-            dto.recipientEmail(),
-            dto.senderUserId(),
-            dto.senderEmail(),
-            dto.subject(),
-            dto.message(),
-            dto.notificationType(),
-            dto.status(),
-            dto.read(),
-            dto.metadata(),
-            dto.sentAt(),
-            dto.createdAt()
-        );
-    }
+    return Response.ok(ApiResponse.success(response, "Notification processed successfully"))
+        .build();
+  }
+
+  private NotificationDTO mapRequestToDTO(final SendNotificationRequest request) {
+    return NotificationDTO.builder()
+        .recipientId(request.recipientId())
+        .recipientEmail(request.recipientEmail())
+        .senderUserId(request.senderUserId())
+        .senderEmail(request.senderEmail())
+        .subject(request.subject())
+        .message(request.message())
+        .emailTemplate(request.emailTemplate())
+        .metadata(request.metadata())
+        .build();
+  }
+
+  private NotificationResponse mapDTOToResponse(final NotificationDTO dto) {
+    return new NotificationResponse(
+        dto.id(),
+        dto.recipientId(),
+        dto.recipientEmail(),
+        dto.senderUserId(),
+        dto.senderEmail(),
+        dto.subject(),
+        dto.message(),
+        dto.notificationType(),
+        dto.status(),
+        dto.read(),
+        dto.metadata(),
+        dto.sentAt(),
+        dto.createdAt());
+  }
 }
