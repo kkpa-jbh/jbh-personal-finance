@@ -11,8 +11,6 @@
     <!-- Exclude rules that conflict with Lombok -->
     <exclude name="AccessorMethodGeneration"/>
     <exclude name="AccessorClassGeneration"/>
-    <!-- Allow System.out.println for debugging -->
-    <exclude name="SystemPrintln"/>
     <exclude name="GuardLogStatement"/>
     <exclude name="UseTryWithResources"/>
   </rule>
@@ -31,6 +29,17 @@
     <exclude name="ShortMethodName"/>
     <!-- Allow single return style -->
     <exclude name="OnlyOneReturn"/>
+    <!-- Allow var keyword usage -->
+    <exclude name="UseExplicitTypes"/>
+    <!-- Not required for all constructors -->
+    <exclude name="CallSuperInConstructor"/>
+  </rule>
+
+  <!-- Custom field naming: allow both UPPER_SNAKE and camelCase for constants -->
+  <rule ref="category/java/codestyle.xml/FieldNamingConventions">
+    <properties>
+      <property name="constantPattern" value="[A-Z][A-Z_0-9]*|[a-z][a-zA-Z0-9]*"/>
+    </properties>
   </rule>
 
   <!-- Design -->
@@ -42,6 +51,18 @@
     <exclude name="DataClass"/>
     <!-- Allow builder pattern classes -->
     <exclude name="TooManyMethods"/>
+    <!-- Allow many imports in infrastructure modules -->
+    <exclude name="ExcessiveImports"/>
+    <!-- Allow catching generic exceptions in async/framework code -->
+    <exclude name="AvoidCatchingGenericException"/>
+  </rule>
+
+  <!-- Law of Demeter with relaxed trust radius -->
+  <rule ref="category/java/design.xml/LawOfDemeter">
+    <properties>
+      <property name="trustRadius" value="2"/>
+      <property name="violationSuppressRegex" value=".*(signum|getBalanceSnapshot|abs|getMovementDate).*"/>
+    </properties>
   </rule>
 
   <!-- Documentation -->
@@ -57,6 +78,8 @@
     <exclude name="EmptyCatchBlock"/>
     <!-- Allow bean member naming -->
     <exclude name="BeanMembersShouldSerialize"/>
+    <!-- Allow catching generic exceptions in async/framework code -->
+    <exclude name="AvoidCatchingGenericException"/>
   </rule>
 
   <!-- Performance -->

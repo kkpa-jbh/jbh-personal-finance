@@ -56,6 +56,9 @@
         <plugin>
           <artifactId>maven-pmd-plugin</artifactId>
           <configuration>
+            <excludes>
+              <exclude>**/logging/**/*.java</exclude>
+            </excludes>
             <failOnViolation>${pmd.failOnViolation}</failOnViolation>
             <printFailingErrors>true</printFailingErrors>
             <rulesets>

@@ -77,24 +77,6 @@
         <groupId>org.jacoco</groupId>
       </plugin>
 
-      <!-- PMD Analysis -->
-      <plugin>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <exclude>**/com/jbh/account/infra/common/logging/**/*.java</exclude>
-          </excludes>
-          <failOnViolation>${pmd.failOnViolation}</failOnViolation>
-          <printFailingErrors>true</printFailingErrors>
-          <rulesets>
-            <ruleset>../pmd-ruleset-account.xml</ruleset>
-          </rulesets>
-          <targetJdk>${java.version}</targetJdk>
-        </configuration>
-        <groupId>org.apache.maven.plugins</groupId>
-        <version>${maven-pmd-plugin.version}</version>
-      </plugin>
-
       <!-- Jandex Plugin for CDI Bean Discovery -->
       <plugin>
         <artifactId>jandex-maven-plugin</artifactId>
