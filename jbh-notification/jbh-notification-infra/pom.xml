@@ -3,7 +3,49 @@
   xmlns="http://maven.apache.org/POM/4.0.0"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <artifactId>jbh-notification-infra</artifactId>
+
+  <build>
+    <plugins>
+      <!-- Lombok annotation processor -->
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <artifactId>lombok</artifactId>
+              <groupId>org.projectlombok</groupId>
+              <version>${lombok.version}</version>
+            </path>
+          </annotationProcessorPaths>
+        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <version>3.13.0</version>
+      </plugin>
+
+      <!-- Jandex Plugin for CDI Bean Discovery -->
+      <plugin>
+        <artifactId>jandex-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>jandex</goal>
+            </goals>
+            <id>make-index</id>
+          </execution>
+        </executions>
+        <groupId>io.smallrye</groupId>
+      </plugin>
+    </plugins>
+  </build>
+
   <dependencies>
+    <!-- Notification Contracts -->
+    <dependency>
+      <artifactId>jbh-notification-contracts</artifactId>
+      <groupId>com.jbh</groupId>
+      <version>${project.version}</version>
+    </dependency>
+
     <dependency>
       <artifactId>quarkus-arc</artifactId>
       <groupId>io.quarkus</groupId>
@@ -29,6 +71,12 @@
       <artifactId>quarkus-hibernate-orm-panache</artifactId>
       <groupId>io.quarkus</groupId>
     </dependency>
+    <!-- JSONB support for Hibernate -->
+    <dependency>
+      <artifactId>quarkus-hibernate-types</artifactId>
+      <groupId>io.quarkiverse.hibernatetypes</groupId>
+      <version>2.2.0</version>
+    </dependency>
     <dependency>
       <artifactId>quarkus-jdbc-postgresql</artifactId>
       <groupId>io.quarkus</groupId>
@@ -38,7 +86,47 @@
       <groupId>io.quarkus</groupId>
     </dependency>
 
+    <!-- Email/Mailer -->
+    <dependency>
+      <artifactId>quarkus-mailer</artifactId>
+      <groupId>io.quarkus</groupId>
+    </dependency>
+
+    <!-- Validation -->
+    <dependency>
+      <artifactId>quarkus-hibernate-validator</artifactId>
+      <groupId>io.quarkus</groupId>
+    </dependency>
+
+    <!-- Qute Templating Engine for HTML emails -->
+    <dependency>
+      <artifactId>quarkus-qute</artifactId>
+      <groupId>io.quarkus</groupId>
+    </dependency>
+
+    <!-- Lombok -->
+    <dependency>
+      <artifactId>lombok</artifactId>
+      <groupId>org.projectlombok</groupId>
+      <scope>provided</scope>
+    </dependency>
+
     <!-- Test Dependencies -->
+    <dependency>
+      <artifactId>quarkus-junit5</artifactId>
+      <groupId>io.quarkus</groupId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <artifactId>junit-jupiter</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <artifactId>junit-jupiter-params</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <scope>test</scope>
+    </dependency>
 
   </dependencies>
 

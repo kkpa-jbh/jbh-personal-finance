@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="{locale}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{msg.teamInvitationSubject}</title>
+    <!--[if mso]>
+    <noscript>
+        <xml>
+            <o:OfficeDocumentSettings>
+                <o:PixelsPerInch>96</o:PixelsPerInch>
+            </o:OfficeDocumentSettings>
+        </xml>
+    </noscript>
+    <![endif]-->
+    <style type="text/css">
+        /* Reset styles */
+        body, table, td, p, a, li, blockquote {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+        img {
+            -ms-interpolation-mode: bicubic;
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+        }
+        /* Mobile responsive */
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 100% !important;
+                padding: 10px !important;
+            }
+            .content {
+                padding: 20px !important;
+            }
+            .button {
+                width: 100% !important;
+            }
+        }
+    </style>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f7f8fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+    <!-- Wrapper Table -->
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f7f8fa;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <!-- Main Container -->
+                <table role="presentation" class="container" cellpadding="0" cellspacing="0" width="600" style="max-width: 600px;">
+
+                    <!-- Header with Logo -->
+                    <tr>
+                        <td align="center" style="padding-bottom: 30px;">
+                            <!-- Logo placeholder: Add your logo at /resources/images/jbh-logo.png -->
+                            <img src="{baseUrl}/assets/images/jbh-logo.png"
+                                 alt="JBH Finance"
+                                 width="120"
+                                 style="display: block; max-width: 120px; height: auto;"
+                                 onerror="this.style.display='none'">
+                            <!-- Fallback text logo if image doesn't load -->
+                            <div style="font-size: 32px; font-weight: 700; color: #667eea; letter-spacing: -1px;">
+                                JBH
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Main Content Card -->
+                    <tr>
+                        <td>
+                            <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+
+                                <!-- Gradient Header Bar -->
+                                <tr>
+                                    <td style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 8px; border-radius: 12px 12px 0 0;"></td>
+                                </tr>
+
+                                <!-- Content -->
+                                <tr>
+                                    <td class="content" style="padding: 40px 50px;">
+
+                                        <!-- Greeting -->
+                                        <h1 style="margin: 0 0 20px 0; font-size: 24px; font-weight: 600; color: #2d3748;">
+                                            {msg.teamInvitationGreeting}
+                                        </h1>
+
+                                        <!-- Intro -->
+                                        <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #2d3748;">
+                                            {msg.teamInvitationIntro.raw}
+                                        </p>
+
+                                        <!-- Team Info Box -->
+                                        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="margin: 25px 0; background-color: #f7f8fa; border-radius: 8px; border-left: 4px solid #667eea;">
+                                            <tr>
+                                                <td style="padding: 20px;">
+                                                    <p style="margin: 0 0 8px 0; font-size: 14px; color: #718096;">
+                                                        {msg.teamInvitationTeamName}
+                                                    </p>
+                                                    <p style="margin: 0 0 15px 0; font-size: 18px; font-weight: 600; color: #2d3748;">
+                                                        {teamName}
+                                                    </p>
+                                                    <p style="margin: 0 0 8px 0; font-size: 14px; color: #718096;">
+                                                        {msg.teamInvitationInvitedBy}
+                                                    </p>
+                                                    <p style="margin: 0; font-size: 16px; color: #2d3748;">
+                                                        {inviterName}
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                        <!-- Body -->
+                                        <p style="margin: 0 0 20px 0; font-size: 16px; line-height: 1.6; color: #2d3748;">
+                                            {msg.teamInvitationBody}
+                                        </p>
+
+                                        <!-- CTA Intro -->
+                                        <p style="margin: 0 0 30px 0; font-size: 16px; line-height: 1.6; color: #2d3748;">
+                                            {msg.teamInvitationCtaIntro}
+                                        </p>
+
+                                        <!-- CTA Button -->
+                                        <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td align="center">
+                                                    <a href="{acceptUrl}"
+                                                       class="button"
+                                                       style="display: inline-block;
+                                                              padding: 16px 40px;
+                                                              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                                              color: #ffffff;
+                                                              font-size: 16px;
+                                                              font-weight: 600;
+                                                              text-decoration: none;
+                                                              border-radius: 8px;
+                                                              box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);">
+                                                        {msg.teamInvitationButton}
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
+
+                                        <!-- Closing -->
+                                        <p style="margin: 35px 0 5px 0; font-size: 16px; line-height: 1.6; color: #2d3748;">
+                                            {msg.teamInvitationClosing}
+                                        </p>
+
+                                        <!-- Signature -->
+                                        <p style="margin: 0; font-size: 16px; font-weight: 600; color: #667eea;">
+                                            {msg.teamInvitationSignature}
+                                        </p>
+
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding: 30px 20px; text-align: center;">
+                            <p style="margin: 0 0 10px 0; font-size: 13px; color: #718096;">
+                                {msg.commonFooterText}
+                            </p>
+                            <p style="margin: 0; font-size: 12px; color: #a0aec0;">
+                                {msg.commonUnsubscribe}
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

@@ -3,7 +3,7 @@ package com.jbh.account.infra.adapters.in.rest;
 import com.jbh.account.infra.gateway.GatewayClientFactory;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
-import com.jbh.commons.util.JsonUtils;
+import com.jbh.commons.util.JbhJsonUtils;
 import com.jbh.gateway.client.JbhGatewayException;
 import com.jbh.gateway.client.JbhHttpResponse;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -33,7 +33,7 @@ public class BaseRestAdapter {
       if (gatewayResponse.getStatusCode() == Status.UNAUTHORIZED.getStatusCode()) {
         final Optional<String> body = gatewayResponse.getBody();
         if (body.isPresent()) {
-          final Map<String, String> bodyMap = JsonUtils.jsonToMap(body.get());
+          final Map<String, String> bodyMap = JbhJsonUtils.jsonToMap(body.get());
           throw new InternalSystemException(bodyMap.get("message"), bodyMap.get("error_code"));
         }
       }

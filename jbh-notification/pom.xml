@@ -32,29 +32,12 @@
         <!-- Maven Enforcer Plugin for dependency management -->
         <plugin>
           <artifactId>maven-enforcer-plugin</artifactId>
-          <groupId>org.apache.maven.plugins</groupId>
-          <version>${maven-enforcer-plugin.version}</version>
           <configuration>
             <rules>
               <!-- Ensure minimum Maven version -->
-              <requireMavenVersion>
-                <version>[3.8.1,)</version>
-                <message>Maven 3.8.1 or higher is required for this project</message>
-              </requireMavenVersion>
-              
+              <banDuplicatePomDependencyVersions/>
+
               <!-- Ensure minimum Java version -->
-              <requireJavaVersion>
-                <version>[21,)</version>
-                <message>Java 21 or higher is required for this project</message>
-              </requireJavaVersion>
-              
-              <!-- Prevent dependency convergence issues -->
-              <dependencyConvergence />
-              
-              <!-- Ensure no duplicate dependencies -->
-              <banDuplicatePomDependencyVersions />
-              
-              <!-- Ban specific vulnerable dependencies (example) -->
               <bannedDependencies>
                 <excludes>
                   <exclude>log4j:log4j:*:jar:compile</exclude>
@@ -62,8 +45,25 @@
                 </excludes>
                 <message>These dependencies are banned due to security vulnerabilities or conflicts</message>
               </bannedDependencies>
+
+              <!-- Prevent dependency convergence issues -->
+              <dependencyConvergence/>
+
+              <!-- Ensure no duplicate dependencies -->
+              <requireJavaVersion>
+                <message>Java 21 or higher is required for this project</message>
+                <version>[21,)</version>
+              </requireJavaVersion>
+
+              <!-- Ban specific vulnerable dependencies (example) -->
+              <requireMavenVersion>
+                <message>Maven 3.8.1 or higher is required for this project</message>
+                <version>[3.8.1,)</version>
+              </requireMavenVersion>
             </rules>
           </configuration>
+          <groupId>org.apache.maven.plugins</groupId>
+          <version>${maven-enforcer-plugin.version}</version>
         </plugin>
       </plugins>
 
@@ -97,16 +97,16 @@
       <!-- Maven Enforcer Plugin - runs during validate phase -->
       <plugin>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <groupId>org.apache.maven.plugins</groupId>
         <executions>
           <execution>
-            <id>enforce-rules</id>
             <goals>
               <goal>enforce</goal>
             </goals>
+            <id>enforce-rules</id>
             <phase>validate</phase>
           </execution>
         </executions>
+        <groupId>org.apache.maven.plugins</groupId>
       </plugin>
 
     </plugins>
@@ -118,9 +118,16 @@
       <groupId>io.quarkus</groupId>
     </dependency>
 
+    <dependency>
+      <artifactId>jbh-commons-lib</artifactId>
+      <groupId>com.jbh</groupId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+
   </dependencies>
   <modelVersion>4.0.0</modelVersion>
   <modules>
+    <module>jbh-notification-contracts</module>
     <module>jbh-notification-infra</module>
   </modules>
 
