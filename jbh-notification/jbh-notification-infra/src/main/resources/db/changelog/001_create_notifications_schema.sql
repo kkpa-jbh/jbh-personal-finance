@@ -16,13 +16,12 @@ CREATE TABLE notifications.notification
 
     -- Notification content
     subject           VARCHAR(500)             NOT NULL,
-    message           TEXT                     NOT NULL,
+    message           TEXT,
 
     -- Classification and status
     notification_type VARCHAR(50)              NOT NULL,
     template          VARCHAR(50),
     status            VARCHAR(50)              NOT NULL DEFAULT 'PENDING',
-    read              BOOLEAN                  NOT NULL DEFAULT FALSE,
 
     -- Flexible metadata storage
     metadata          JSONB,

@@ -24,8 +24,15 @@
 
   <dependencies>
     <dependency>
-      <artifactId>jakarta.validation-api</artifactId>
-      <groupId>jakarta.validation</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <artifactId>assertj-core</artifactId>
+      <groupId>org.assertj</groupId>
+      <version>3.25.3</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

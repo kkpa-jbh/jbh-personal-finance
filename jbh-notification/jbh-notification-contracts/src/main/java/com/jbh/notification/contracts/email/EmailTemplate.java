@@ -1,9 +1,5 @@
-package com.jbh.notification.contracts;
+package com.jbh.notification.contracts.email;
 
-/**
- * Enumeration of available email templates.
- * Each template corresponds to a Qute template file in resources/templates/emails/
- */
 public enum EmailTemplate {
 
     TEAM_INVITATION("team-invitation", "email.team-invitation.subject"),

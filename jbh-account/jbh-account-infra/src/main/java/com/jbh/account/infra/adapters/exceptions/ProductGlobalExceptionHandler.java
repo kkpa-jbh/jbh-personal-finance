@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
  * objects with appropriate HTTP status codes.
  */
 @Provider
-public class GlobalExceptionHandler implements ExceptionMapper<Exception> {
+public class ProductGlobalExceptionHandler implements ExceptionMapper<Exception> {
 
-  private static final Logger LOG = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ProductGlobalExceptionHandler.class);
 
   @Override
   public Response toResponse(final Exception exception) {

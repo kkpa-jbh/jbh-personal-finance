@@ -1,6 +1,6 @@
 package com.jbh.notification.infra.dto;
 
-import com.jbh.notification.contracts.EmailTemplate;
+import com.jbh.notification.contracts.email.EmailTemplate;
 import com.jbh.notification.contracts.NotificationType;
 import com.jbh.notification.infra.persistence.NotificationStatus;
 import java.time.LocalDateTime;

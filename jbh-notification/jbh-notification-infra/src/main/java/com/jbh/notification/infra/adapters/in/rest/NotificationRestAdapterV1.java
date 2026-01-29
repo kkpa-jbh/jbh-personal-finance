@@ -2,6 +2,7 @@ package com.jbh.notification.infra.adapters.in.rest;
 
 import com.jbh.notification.contracts.NotificationType;
 import com.jbh.notification.contracts.SendNotificationRequest;
+import com.jbh.notification.contracts.validation.NotificationValidationException;
 import com.jbh.notification.infra.adapters.in.rest.vo.ApiResponse;
 import com.jbh.notification.infra.adapters.in.rest.vo.NotificationResponse;
 import com.jbh.notification.infra.adapters.in.rest.vo.NotificationRoutes;
@@ -89,8 +90,12 @@ public class NotificationRestAdapterV1 {
           request);
     }
 
-    final NotificationDTO notificationDTO = mapRequestToDTO(request);
-    final NotificationDTO result = notificationService.sendNotification(notificationDTO, type);
+    final NotificationDTO result;
+    try {
+      result = notificationService.sendNotification(request, type);
+    } catch (final NotificationValidationException e) {
+      return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
+    }
     final NotificationResponse response = mapDTOToResponse(result);
 
     if (LOG.isInfoEnabled()) {
@@ -98,19 +103,6 @@ public class NotificationRestAdapterV1 {
     }
 
     return Response.ok(ApiResponse.success(response, "Notification processed successfully"))
-        .build();
-  }
-
-  private NotificationDTO mapRequestToDTO(final SendNotificationRequest request) {
-    return NotificationDTO.builder()
-        .recipientId(request.recipientId())
-        .recipientEmail(request.recipientEmail())
-        .senderUserId(request.senderUserId())
-        .senderEmail(request.senderEmail())
-        .subject(request.subject())
-        .message(request.message())
-        .emailTemplate(request.emailTemplate())
-        .metadata(request.metadata())
         .build();
   }
 

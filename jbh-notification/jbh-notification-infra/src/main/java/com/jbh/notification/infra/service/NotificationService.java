@@ -1,10 +1,13 @@
 package com.jbh.notification.infra.service;
 
 import com.jbh.commons.util.JbhJsonUtils;
-import com.jbh.notification.contracts.EmailMetadata;
-import com.jbh.notification.contracts.EmailTemplate;
 import com.jbh.notification.contracts.NotificationType;
+import com.jbh.notification.contracts.SendNotificationRequest;
+import com.jbh.notification.contracts.email.EmailTemplate;
+import com.jbh.notification.contracts.validation.NotificationValidationException;
+import com.jbh.notification.contracts.validation.NotificationValidator;
 import com.jbh.notification.infra.dto.NotificationDTO;
+import com.jbh.notification.infra.email.EmailMetadata;
 import com.jbh.notification.infra.email.EmailRequest;
 import com.jbh.notification.infra.email.EmailTemplateService;
 import com.jbh.notification.infra.persistence.NotificationStatus;
@@ -43,14 +46,18 @@ public class NotificationService implements NotificationServicePort {
   /**
    * Sends a notification of the specified type.
    *
-   * @param notification the notification data
+   * @param request the notification data
    * @param type the type of notification to send
    * @return the saved notification
    */
   @Override
   public NotificationDTO sendNotification(
-      final NotificationDTO notification, final NotificationType type) {
+      final SendNotificationRequest request, final NotificationType type)
+      throws NotificationValidationException {
 
+    NotificationValidator.validate(type, request);
+
+    final NotificationDTO notification = mapRequestToDTO(request);
     if (LOG.isInfoEnabled()) {
       LOG.info("Processing {} notification for recipient: {}", type, notification.recipientEmail());
     }
@@ -79,6 +86,19 @@ public class NotificationService implements NotificationServicePort {
     }
 
     return processNotificationByType(savedNotification, type);
+  }
+
+  private NotificationDTO mapRequestToDTO(final SendNotificationRequest request) {
+    return NotificationDTO.builder()
+        .recipientId(request.recipientId())
+        .recipientEmail(request.recipientEmail())
+        .senderUserId(request.senderUserId())
+        .senderEmail(request.senderEmail())
+        .subject(request.subject())
+        .message(request.message())
+        .emailTemplate(request.emailTemplate())
+        .metadata(request.metadata())
+        .build();
   }
 
   private NotificationDTO processNotificationByType(

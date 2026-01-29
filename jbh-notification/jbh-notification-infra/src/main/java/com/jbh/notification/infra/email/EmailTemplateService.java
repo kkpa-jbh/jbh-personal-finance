@@ -1,7 +1,6 @@
 package com.jbh.notification.infra.email;
 
-import com.jbh.notification.contracts.EmailMetadata;
-import com.jbh.notification.contracts.EmailTemplate;
+import com.jbh.notification.contracts.email.EmailTemplate;
 import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
 import io.quarkus.qute.i18n.Localized;
