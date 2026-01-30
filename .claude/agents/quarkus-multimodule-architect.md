@@ -94,3 +94,29 @@ Always try to apply the following principles:
 - Design for potential future microservice extraction
 - SRP principle: A component should have only one reason to change
 - Use of JPMS. Be sure which clases need to be exported.
+
+### Liquibase Configuration
+
+When creating a new module with database support, follow this naming convention for Liquibase changelog files:
+
+- **File name format:** `{schema-name}-db-master.xml` (e.g., `acctmgmt-db-master.xml`, `userprefs-db-master.xml`)
+- **DO NOT use** the default `changeLog-master.xml` name as it causes conflicts when multiple modules are loaded
+- **Property format:** `quarkus.liquibase.{datasource}.change-log=db/{schema-name}-db-master.xml`
+
+Example for a new module with schema `mymodule`:
+```properties
+quarkus.liquibase.mymodule.change-log=db/mymodule-db-master.xml
+```
+
+### Makefile Updates for New Modules
+
+When creating a new module with database support, you MUST update the following files:
+
+1. **Create module Makefile:** `jbh-{module-name}/{ModuleName}.mk` (copy from existing module and update schema name)
+2. **Update root Makefile:** Add the new module to:
+   - Module directories section (`{MODULE}_DIR = jbh-{module-name}`)
+   - `.PHONY` declarations
+   - `create-all-schemas`, `drop-all-schemas`, `check-all-connections` targets
+   - Add module-specific targets (`{module}-help`, `{module}-create-schema`, etc.)
+   - Add schema export target (`export-{module}-schema`)
+3. **Update export-schema.sh:** Add the new schema to the `all` case and the individual schema case statement

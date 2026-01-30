@@ -70,6 +70,7 @@ case "$SCHEMA" in
         echo -e "${GREEN}Exporting all schemas...${NC}"
         export_schema "acctmgmt"
         export_schema "notification"
+        export_schema "userprefs"
 
         # Create combined schema file with existing schemas only
         combined_file="$OUTPUT_DIR/all-schemas.sql"
@@ -89,12 +90,12 @@ case "$SCHEMA" in
         } > "$combined_file"
         echo -e "${GREEN}✓ Combined schema exported to: ${combined_file}${NC}"
         ;;
-    "acctmgmt"|"notification")
+    "acctmgmt"|"notification"|"userprefs")
         export_schema "$SCHEMA"
         ;;
     *)
         echo -e "${RED}Unknown schema: ${SCHEMA}${NC}"
-        echo "Usage: $0 [all|acctmgmt|notification] [output_dir]"
+        echo "Usage: $0 [all|acctmgmt|notification|userprefs] [output_dir]"
         exit 1
         ;;
 esac
