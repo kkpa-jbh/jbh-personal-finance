@@ -85,7 +85,6 @@ public class NotificationEntity extends PanacheEntityBase {
     entity.setNotificationType(dto.notificationType());
     entity.setTemplate(dto.emailTemplate());
     entity.setStatus(dto.status() != null ? dto.status() : NotificationStatus.PENDING);
-    entity.setRead(dto.read() != null ? dto.read() : Boolean.FALSE);
     entity.setMetadata(dto.metadata());
     entity.setSentAt(dto.sentAt());
     entity.setCreatedAt(dto.createdAt());
@@ -119,7 +118,6 @@ public class NotificationEntity extends PanacheEntityBase {
         .notificationType(notificationType)
         .emailTemplate(template)
         .status(status)
-        .read(read)
         .metadata(metadata)
         .sentAt(sentAt)
         .createdAt(createdAt)

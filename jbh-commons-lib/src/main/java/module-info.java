@@ -1,5 +1,6 @@
 module jbh.commons {
   // Public API (explicitly exported)
+  exports com.jbh.commons.api;
   exports com.jbh.commons.util;
   exports com.jbh.commons.exception;
 

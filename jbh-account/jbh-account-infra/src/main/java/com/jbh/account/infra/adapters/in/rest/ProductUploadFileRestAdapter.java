@@ -7,7 +7,7 @@ import com.jbh.account.application.core.usecases.AddMovementsUploadedFileUseCase
 import com.jbh.account.application.core.vo.commands.AddMovementUploadedFileCommand;
 import com.jbh.account.domain.vo.ProductId;
 import com.jbh.account.infra.adapters.in.rest.vo.AddMovementsUploadedFileRequest;
-import com.jbh.account.infra.adapters.in.rest.vo.ApiResponse;
+import com.jbh.commons.api.ApiResponse;
 import com.jbh.account.infra.adapters.in.rest.vo.FinanceApiRoutes;
 import com.jbh.account.infra.adapters.in.service.ExcelMovementReaderService;
 import com.jbh.commons.exception.BusinessException;

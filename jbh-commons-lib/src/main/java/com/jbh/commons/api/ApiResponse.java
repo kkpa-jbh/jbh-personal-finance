@@ -1,13 +1,18 @@
-package com.jbh.notification.infra.adapters.in.rest.vo;
+package com.jbh.commons.api;
 
 import java.util.List;
 
+/**
+ * Standard API response wrapper for consistent response format across all modules.
+ *
+ * @param <T> The type of data being returned
+ */
 public record ApiResponse<T>(
-    boolean success,
-    T data,
-    String message,
-    List<String> errors,
-    String errorCode) {
+        boolean success,
+        T data,
+        String message,
+        List<String> errors,
+        String errorCode) {
 
     public static <T> ApiResponse<T> success(final T data, final String message) {
         return new ApiResponse<>(true, data, message, null, null);

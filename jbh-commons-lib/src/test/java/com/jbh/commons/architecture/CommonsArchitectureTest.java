@@ -29,6 +29,7 @@ class CommonsArchitectureTest {
       noClasses()
           .should()
           .resideOutsideOfPackages(
+              "com.jbh.commons.api..",
               "com.jbh.commons.exception..",
               "com.jbh.commons.util..",
               "com.jbh.commons.time..",

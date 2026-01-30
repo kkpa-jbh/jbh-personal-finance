@@ -3,7 +3,7 @@ package com.jbh.notification.infra.adapters.in.rest;
 import com.jbh.notification.contracts.NotificationType;
 import com.jbh.notification.contracts.SendNotificationRequest;
 import com.jbh.notification.contracts.validation.NotificationValidationException;
-import com.jbh.notification.infra.adapters.in.rest.vo.ApiResponse;
+import com.jbh.commons.api.ApiResponse;
 import com.jbh.notification.infra.adapters.in.rest.vo.NotificationResponse;
 import com.jbh.notification.infra.adapters.in.rest.vo.NotificationRoutes;
 import com.jbh.notification.infra.dto.NotificationDTO;

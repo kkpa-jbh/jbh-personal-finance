@@ -1,6 +1,6 @@
 package com.jbh.account.infra.adapters.exceptions;
 
-import com.jbh.account.infra.adapters.in.rest.vo.ApiResponse;
+import com.jbh.commons.api.ApiResponse;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
 import jakarta.ws.rs.core.Response;

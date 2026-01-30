@@ -1,7 +1,7 @@
 package com.jbh.notification.infra.dto;
 
-import com.jbh.notification.contracts.email.EmailTemplate;
 import com.jbh.notification.contracts.NotificationType;
+import com.jbh.notification.contracts.email.EmailTemplate;
 import com.jbh.notification.infra.persistence.NotificationStatus;
 import java.time.LocalDateTime;
 import java.util.Map;
@@ -19,11 +19,8 @@ public record NotificationDTO(
     String message,
     NotificationType notificationType,
     NotificationStatus status,
-    Boolean read,
     EmailTemplate emailTemplate,
     Map<String, Object> metadata,
     LocalDateTime sentAt,
     LocalDateTime createdAt,
-    LocalDateTime updatedAt
-) {
-}
+    LocalDateTime updatedAt) {}

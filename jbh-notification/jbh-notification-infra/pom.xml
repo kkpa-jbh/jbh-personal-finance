@@ -46,6 +46,13 @@
       <version>${project.version}</version>
     </dependency>
 
+    <!-- Commons Library -->
+    <dependency>
+      <artifactId>jbh-commons-lib</artifactId>
+      <groupId>com.jbh</groupId>
+      <version>${project.version}</version>
+    </dependency>
+
     <dependency>
       <artifactId>quarkus-arc</artifactId>
       <groupId>io.quarkus</groupId>

@@ -83,7 +83,7 @@ Located in: `jbh-account-infra/src/main/resources/logback-spring.xml`
 
 **Key Features:**
 
-- **MDC Support**: Tracks `trackingId`, `userId`, `accountId`, `transactionId`, `module`
+- **MDC Support**: Tracks `trackingId`, `userId`, `productId`, `module`
 - **Multiple Appenders**: Console, File, JSON, Async
 - **Rolling Policy**: Time-based with size limits
 - **Profile-based Configuration**: Different settings for dev/test/prod

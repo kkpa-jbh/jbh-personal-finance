@@ -3,7 +3,7 @@ package com.jbh.account.infra.adapters.exceptions;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.jbh.account.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.account.infra.adapters.in.rest.vo.ApiResponse;
+import com.jbh.commons.api.ApiResponse;
 import com.jbh.commons.exception.BusinessException;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;

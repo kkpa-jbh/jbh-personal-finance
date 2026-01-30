@@ -75,7 +75,6 @@ public class NotificationService implements NotificationServicePort {
             .message(notification.message())
             .notificationType(type)
             .status(NotificationStatus.PENDING)
-            .read(Boolean.FALSE)
             .emailTemplate(notification.emailTemplate())
             .metadata(notification.metadata())
             .build();
@@ -230,7 +229,6 @@ public class NotificationService implements NotificationServicePort {
         .message(notification.message())
         .notificationType(notification.notificationType())
         .status(NotificationStatus.SENT)
-        .read(notification.read())
         .emailTemplate(notification.emailTemplate())
         .metadata(notification.metadata())
         .sentAt(LocalDateTime.now())
