@@ -23,10 +23,10 @@ across modules.
 ```
 jbh-personal-finance/
 ├── pom.xml                    # Root POM with logging dependencies
-├── jbh-account/
-│   ├── jbh-account-domain/    # SLF4J API only
-│   ├── jbh-account-application/ # SLF4J API + Utility classes
-│   └── jbh-account-infra/     # Full logging implementation
+├── jbh-products/
+│   ├── jbh-products-domain/    # SLF4J API only
+│   ├── jbh-products-application/ # SLF4J API + Utility classes
+│   └── jbh-products-infra/     # Full logging implementation
 └── jbh-notification/
     └── jbh-notification-infra/ # Full logging implementation
 ```
@@ -79,7 +79,7 @@ Each module includes the SLF4J API dependency:
 
 ### Logback Configuration (`logback-spring.xml`)
 
-Located in: `jbh-account-infra/src/main/resources/logback-spring.xml`
+Located in: `jbh-products-infra/src/main/resources/logback-spring.xml`
 
 **Key Features:**
 
@@ -100,7 +100,7 @@ Located in: `jbh-account-infra/src/main/resources/logback-spring.xml`
 
 **Purpose**: Manage MDC values for request context tracking
 
-**Location**: `logging.common.com.jbh.account.application.LoggingContext`
+**Location**: `logging.common.com.jbh.products.application.LoggingContext`
 
 **Key Methods:**
 
@@ -142,7 +142,7 @@ accountId("acc-789")
 
 **Purpose**: Create loggers with structured logging support
 
-**Location**: `logging.common.com.jbh.account.application.LoggerFactory`
+**Location**: `logging.common.com.jbh.products.application.LoggerFactory`
 
 **Usage:**
 
@@ -158,7 +158,7 @@ private static final StructuredLogger structuredLogger =
 
 **Purpose**: Automatically set up logging context for HTTP requests
 
-**Location**: `logging.common.com.jbh.account.infra.LoggingFilter`
+**Location**: `logging.common.com.jbh.products.infra.LoggingFilter`
 
 **Features:**
 
@@ -172,7 +172,7 @@ private static final StructuredLogger structuredLogger =
 ### 1. Basic Logging in Domain Layer
 
 ```java
-package com.jbh.accounts_mgmt.accounts.domain;
+package com.jbh.productss_mgmt.accounts.domain;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -195,10 +195,10 @@ public class AccountDomain {
 ### 2. Application Layer with Full Context
 
 ```java
-package com.jbh.account_app.accounts.ports.input;
+package com.jbh.products_app.accounts.ports.input;
 
-import logging.common.com.jbh.account.application.LoggerFactory;
-import logging.common.com.jbh.account.application.LoggingContext;
+import logging.common.com.jbh.products.application.LoggerFactory;
+import logging.common.com.jbh.products.application.LoggingContext;
 
 public class AddTransactionInputPort {
 
@@ -231,10 +231,10 @@ public class AddTransactionInputPort {
 ### 3. Infrastructure Layer with HTTP Context
 
 ```java
-package com.jbh.account_infra.controllers;
+package com.jbh.products_infra.controllers;
 
-import logging.common.com.jbh.account.application.LoggerFactory;
-import logging.common.com.jbh.account.application.LoggingContext;
+import logging.common.com.jbh.products.application.LoggerFactory;
+import logging.common.com.jbh.products.application.LoggingContext;
 
 @RestController
 public class AccountController {

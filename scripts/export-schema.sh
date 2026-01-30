@@ -68,7 +68,7 @@ export_schema() {
 case "$SCHEMA" in
     "all")
         echo -e "${GREEN}Exporting all schemas...${NC}"
-        export_schema "acctmgmt"
+        export_schema "productmgmt"
         export_schema "notification"
         export_schema "userprefs"
 
@@ -90,12 +90,12 @@ case "$SCHEMA" in
         } > "$combined_file"
         echo -e "${GREEN}✓ Combined schema exported to: ${combined_file}${NC}"
         ;;
-    "acctmgmt"|"notification"|"userprefs")
+    "productmgmt"|"notification"|"userprefs")
         export_schema "$SCHEMA"
         ;;
     *)
         echo -e "${RED}Unknown schema: ${SCHEMA}${NC}"
-        echo "Usage: $0 [all|acctmgmt|notification|userprefs] [output_dir]"
+        echo "Usage: $0 [all|productmgmt|notification|userprefs] [output_dir]"
         exit 1
         ;;
 esac

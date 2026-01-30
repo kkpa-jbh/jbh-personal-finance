@@ -4,8 +4,8 @@ infrastructure modules declare what they need, assembly provides runtime.
 
 jbh-personal-finance/           (Root Parent)
 ├── pom.xml
-├── jbh-account/               (Business Module)
-│ └── jbh-account-infra/
+├── jbh-products/               (Business Module)
+│ └── jbh-products-infra/
 └── jbh-assembly/              (Assembly Child ✅)
 └── pom.xml
 
@@ -53,7 +53,7 @@ What the Assembly Module DOES NOT Do:
 This is a modular monolith - a single deployable application (jbh-z-assembly) that contains multiple modules. In Consul, you should register one service (the whole application),
 not separate services per module.
 
-The modules (jbh-account, jbh-notification) are internal packages, not independent microservices. They share:
+The modules (jbh-products, jbh-notification) are internal packages, not independent microservices. They share:
 
 - Same JVM process
 - Same port (7777)
@@ -81,6 +81,6 @@ The modules (jbh-account, jbh-notification) are internal packages, not independe
 
 ## Why One Service (Not Per Module)
 
-Since this is a modular monolith, all modules (jbh-account, jbh-notification) run in the same JVM on port 7777. They're not separate deployable services, so only one Consul
+Since this is a modular monolith, all modules (jbh-products, jbh-notification) run in the same JVM on port 7777. They're not separate deployable services, so only one Consul
 registration is needed in jbh-z-assembly. 
                                                                                

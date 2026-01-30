@@ -99,7 +99,7 @@ Always try to apply the following principles:
 
 When creating a new module with database support, follow this naming convention for Liquibase changelog files:
 
-- **File name format:** `{schema-name}-db-master.xml` (e.g., `acctmgmt-db-master.xml`, `userprefs-db-master.xml`)
+- **File name format:** `{schema-name}-db-master.xml` (e.g., `productmgmt-db-master.xml`, `userprefs-db-master.xml`)
 - **DO NOT use** the default `changeLog-master.xml` name as it causes conflicts when multiple modules are loaded
 - **Property format:** `quarkus.liquibase.{datasource}.change-log=db/{schema-name}-db-master.xml`
 

@@ -1,0 +1,17 @@
+package com.jbh.products.application.core.usecases.utils;
+
+import com.jbh.products.application.acid.UnitOfWork;
+import java.util.function.Supplier;
+
+public class UnitOfWorkTest implements UnitOfWork {
+
+  @Override
+  public void execute(final Runnable action) {
+    action.run();
+  }
+
+  @Override
+  public <T> T executeWithResult(final Supplier<T> action) {
+    return action.get();
+  }
+}

@@ -2,7 +2,7 @@
 # Root Makefile for managing all module schemas
 
 # Module directories
-ACCOUNT_DIR = jbh-account
+PRODUCTS_DIR = jbh-products
 NOTIFICATION_DIR = jbh-notification
 PREFERENCES_DIR = jbh-preferences
 
@@ -13,10 +13,10 @@ BLUE = \033[0;34m
 RED = \033[0;31m
 NC = \033[0m # No Color
 
-.PHONY: help account-help notification-help preferences-help
+.PHONY: help product-help notification-help preferences-help
 .PHONY: create-all-schemas drop-all-schemas recreate-all-schemas check-all-connections
-.PHONY: export-all-schemas export-account-schema export-notification-schema export-preferences-schema
-.PHONY: account-create-schema account-drop-schema account-recreate-schema account-check-connection
+.PHONY: export-all-schemas export-product-schema export-notification-schema export-preferences-schema
+.PHONY: product-create-schema product-drop-schema product-recreate-schema product-check-connection
 .PHONY: notification-create-schema notification-drop-schema notification-recreate-schema notification-check-connection
 .PHONY: preferences-create-schema preferences-drop-schema preferences-recreate-schema preferences-check-connection
 
@@ -31,14 +31,14 @@ help: ## Show this help message
 	@echo ""
 	@echo "${BLUE}Usage Examples:${NC}"
 	@echo "  make help                     # Show this help"
-	@echo "  make account-help             # Show account module help"
+	@echo "  make product-help             # Show products module help"
 	@echo "  make create-all-schemas       # Create all schemas"
-	@echo "  make account-create-schema    # Create only account schema"
+	@echo "  make product-create-schema    # Create only products schema"
 
 # Global operations
 create-all-schemas: ## Create all module schemas
 	@echo "${GREEN}Creating all schemas...${NC}"
-	@cd $(ACCOUNT_DIR) && $(MAKE) -f Account.mk create-schema
+	@cd $(PRODUCTS_DIR) && $(MAKE) -f Products.mk create-schema
 	@cd $(NOTIFICATION_DIR) && $(MAKE) -f Notification.mk create-schema
 	@cd $(PREFERENCES_DIR) && $(MAKE) -f Preferences.mk create-schema
 	@echo "${GREEN}All schemas created successfully.${NC}"
@@ -48,7 +48,7 @@ drop-all-schemas: ## Drop all module schemas (WARNING: Deletes all data)
 	@read -p "Are you sure you want to continue? (y/N): " confirm && \
 		if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
 			echo "${GREEN}Dropping all schemas...${NC}"; \
-			(cd $(ACCOUNT_DIR) && $(MAKE) -f Account.mk drop-schema); \
+			(cd $(PRODUCTS_DIR) && $(MAKE) -f Products.mk drop-schema); \
 			(cd $(NOTIFICATION_DIR) && $(MAKE) -f Notification.mk drop-schema); \
 			(cd $(PREFERENCES_DIR) && $(MAKE) -f Preferences.mk drop-schema); \
 			echo "${GREEN}All schemas dropped successfully.${NC}"; \
@@ -60,14 +60,14 @@ recreate-all-schemas: drop-all-schemas create-all-schemas ## Drop and recreate a
 
 check-all-connections: ## Test all database connections
 	@echo "${GREEN}Testing all database connections...${NC}"
-	@cd $(ACCOUNT_DIR) && $(MAKE) -f Account.mk check-connection
+	@cd $(PRODUCTS_DIR) && $(MAKE) -f Products.mk check-connection
 	@cd $(NOTIFICATION_DIR) && $(MAKE) -f Notification.mk check-connection
 	@cd $(PREFERENCES_DIR) && $(MAKE) -f Preferences.mk check-connection
 
 # Module help commands
-account-help: ## Show account module help
-	@echo "${BLUE}Account Module Commands:${NC}"
-	@cd $(ACCOUNT_DIR) && $(MAKE) -f Account.mk help
+product-help: ## Show products module help
+	@echo "${BLUE}Products Module Commands:${NC}"
+	@cd $(PRODUCTS_DIR) && $(MAKE) -f Products.mk help
 
 notification-help: ## Show notification module help
 	@echo "${BLUE}Notification Module Commands:${NC}"
@@ -77,18 +77,18 @@ preferences-help: ## Show preferences module help
 	@echo "${BLUE}Preferences Module Commands:${NC}"
 	@cd $(PREFERENCES_DIR) && $(MAKE) -f Preferences.mk help
 
-# Account module commands
-account-create-schema: ## Create account module schema
-	@cd $(ACCOUNT_DIR) && $(MAKE) -f Account.mk create-schema
+# Products module commands
+product-create-schema: ## Create products module schema
+	@cd $(PRODUCTS_DIR) && $(MAKE) -f Products.mk create-schema
 
-account-drop-schema: ## Drop account module schema
-	@cd $(ACCOUNT_DIR) && $(MAKE) -f Account.mk drop-schema
+product-drop-schema: ## Drop products module schema
+	@cd $(PRODUCTS_DIR) && $(MAKE) -f Products.mk drop-schema
 
-account-recreate-schema: ## Recreate account module schema
-	@cd $(ACCOUNT_DIR) && $(MAKE) -f Account.mk recreate-schema
+product-recreate-schema: ## Recreate products module schema
+	@cd $(PRODUCTS_DIR) && $(MAKE) -f Products.mk recreate-schema
 
-account-check-connection: ## Test account database connection
-	@cd $(ACCOUNT_DIR) && $(MAKE) -f Account.mk check-connection
+product-check-connection: ## Test products database connection
+	@cd $(PRODUCTS_DIR) && $(MAKE) -f Products.mk check-connection
 
 # Notification module commands
 notification-create-schema: ## Create notification module schema
@@ -121,9 +121,9 @@ export-all-schemas: ## Export all database schemas to docs/database-schemas
 	@echo "${GREEN}Exporting all database schemas...${NC}"
 	@./scripts/export-schema.sh all
 
-export-account-schema: ## Export account schema to docs/database-schemas
-	@echo "${GREEN}Exporting account schema...${NC}"
-	@./scripts/export-schema.sh acctmgmt
+export-product-schema: ## Export products schema to docs/database-schemas
+	@echo "${GREEN}Exporting products schema...${NC}"
+	@./scripts/export-schema.sh productmgmt
 
 export-notification-schema: ## Export notification schema to docs/database-schemas
 	@echo "${GREEN}Exporting notification schema...${NC}"

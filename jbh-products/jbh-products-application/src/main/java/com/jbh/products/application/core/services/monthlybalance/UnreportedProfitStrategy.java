@@ -1,0 +1,37 @@
+package com.jbh.products.application.core.services.monthlybalance;
+
+import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.products.application.core.services.account.AccountService;
+import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
+import com.jbh.products.domain.vo.ProductPK;
+import com.jbh.commons.exception.BusinessException;
+
+public class UnreportedProfitStrategy implements MonthlyBalanceProfitStrategy {
+
+  private final MonthlyBalanceService monthlyBalanceService;
+  private final AccountService accountService;
+
+  public UnreportedProfitStrategy(
+      final MonthlyBalanceService monthlyBalanceService, final AccountService accountService) {
+    this.monthlyBalanceService = monthlyBalanceService;
+    this.accountService = accountService;
+  }
+
+  @Override
+  public MonthlyBalanceDTO registerOfficialMonthlyBalance(
+      final ProductPK accountPK,
+      final MonthlyBalanceDTO monthlyBalanceDomain,
+      final AddMonthlyBalanceCommand command)
+      throws BusinessException {
+
+    final MonthlyBalanceDTO savedMonthlyReported =
+        monthlyBalanceService.updateOfficialReportedBalance(monthlyBalanceDomain, command);
+
+    if (monthlyBalanceService.isLastOfficialReport(savedMonthlyReported)) {
+      accountService.updateClosingBalances(
+          accountPK.accountId(), savedMonthlyReported.closingBalance());
+    }
+
+    return savedMonthlyReported;
+  }
+}

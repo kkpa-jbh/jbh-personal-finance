@@ -27,7 +27,7 @@ Each infrastructure module defines its own `ApiConstants` class with a `BASE_PAT
 
 | Module | Constant | Value |
 |--------|----------|-------|
-| `jbh-account-infra` | `BASE_API_PATH` | `/jbh-api/finance` |
+| `jbh-products-infra` | `BASE_API_PATH` | `/jbh-api/finance` |
 | `jbh-notification-infra` | `BASE_PATH` | `/jbh-api/notifications` |
 
 ### Benefits

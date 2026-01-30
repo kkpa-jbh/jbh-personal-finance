@@ -24,7 +24,7 @@ Benefits of This Approach:
 
 ## Overview
 
-The Maven Enforcer Plugin has been configured at the module parent level (`jbh-account` and `jbh-notification`) to
+The Maven Enforcer Plugin has been configured at the module parent level (`jbh-products` and `jbh-notification`) to
 provide dependency governance and build consistency across the multi-module Quarkus project.
 
 ## What is the Maven Enforcer Plugin?
@@ -36,7 +36,7 @@ dependency management.
 
 ## Strategic Placement
 
-The plugin is configured in the **module parent POMs** (`jbh-account/pom.xml` and `jbh-notification/pom.xml`) rather
+The plugin is configured in the **module parent POMs** (`jbh-products/pom.xml` and `jbh-notification/pom.xml`) rather
 than the root POM. This architectural decision supports:
 
 ### Benefits of Module-Level Configuration:

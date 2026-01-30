@@ -51,6 +51,5 @@ CREATE TABLE notifications.notification
 -- Indexes for common query patterns
 CREATE INDEX idx_notification_recipient_id ON notifications.notification (recipient_id);
 CREATE INDEX idx_notification_recipient_id_status ON notifications.notification (recipient_id, status);
-CREATE INDEX idx_notification_recipient_id_read ON notifications.notification (recipient_id, read);
 CREATE INDEX idx_notification_created_at ON notifications.notification (created_at DESC);
 CREATE INDEX idx_notification_type_status ON notifications.notification (notification_type, status);

@@ -20,15 +20,15 @@ make export-all-schemas
 
 This will create schema files in `docs/database-schemas/`:
 
-- `acctmgmt-schema.sql` - Account management schema
+- `productmgmt-schema.sql` - Products management schema
 - `notification-schema.sql` - Notification schema
 - `all-schemas.sql` - Combined file with all schemas
 
 ### Export Individual Schema
 
 ```bash
-# Export only account schema
-make export-account-schema
+# Export only products schema
+make export-product-schema
 
 # Export only notification schema
 make export-notification-schema
@@ -43,7 +43,7 @@ You can also run the export script directly:
 ./scripts/export-schema.sh all
 
 # Export specific schema
-./scripts/export-schema.sh acctmgmt
+./scripts/export-schema.sh productmgmt
 ./scripts/export-schema.sh notification
 
 # Export to custom directory

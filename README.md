@@ -10,13 +10,13 @@ Global commands:
 
 Module-specific help:
 
-- make account-help - Shows account module help
+- make product-help - Shows products module help
 - make notification-help - Shows notification module help
 
 Individual module commands:
 
-- make account-create-schema - Creates only account schema
-- make account-drop-schema - Drops only account schema
+- make product-create-schema - Creates only products schema
+- make product-drop-schema - Drops only products schema
 - make notification-create-schema - Creates only notification schema
 - make notification-drop-schema - Drops only notification schema
 
@@ -55,7 +55,7 @@ module.
       <dependencies>
           <dependency>
               <groupId>com.example</groupId>
-              <artifactId>jbh-account-infrastructure</artifactId>
+              <artifactId>jbh-products-infrastructure</artifactId>
           </dependency>
           <dependency>
               <groupId>com.example</groupId>
@@ -72,17 +72,17 @@ module.
 ```bash
 jbh-personal-finance/
 ├── pom.xml                                 (Root Parent)
-├── jbh-account/
+├── jbh-products/
 │   ├── pom.xml                            (Module A Parent)
-│   ├── jbh-account-domain/
+│   ├── jbh-products-domain/
 │   │   ├── pom.xml
-│   │   └── src/main/java/com/jbh/finance/jbh-account/domain/
-│   ├── jbh-account-application/
+│   │   └── src/main/java/com/jbh/finance/jbh-products/domain/
+│   ├── jbh-products-application/
 │   │   ├── pom.xml
-│   │   └── src/main/java/com/jbh/finance/jbh-account/application/
-│   └── jbh-account-infra/
+│   │   └── src/main/java/com/jbh/finance/jbh-products/application/
+│   └── jbh-products-infra/
 │       ├── pom.xml
-│       └── src/main/java/com/jbh/finance/jbh-account/infra/
+│       └── src/main/java/com/jbh/finance/jbh-products/infra/
 ├── module-b/
 │   ├── pom.xml                            (Module B Parent)
 │   ├── b-domain/
@@ -150,7 +150,7 @@ endpoints and CDI beans won't be discovered at runtime.
 
 1. **Build Time**: Each infrastructure module creates its own Jandex index
    ```
-   jbh-account-infra.jar → contains META-INF/jandex.idx
+   jbh-products-infra.jar → contains META-INF/jandex.idx
    jbh-transaction-infra.jar → contains META-INF/jandex.idx
    ```
 
@@ -158,7 +158,7 @@ endpoints and CDI beans won't be discovered at runtime.
    ```
    Startup:
    ├── Scan assembly JAR → finds AssemblyApplication
-   ├── Scan jbh-account-infra.jar → finds GreetingResource ✅
+   ├── Scan jbh-products-infra.jar → finds GreetingResource ✅
    └── Register all beans from all indices
    ```
 
@@ -203,18 +203,18 @@ This workflow ensures the module exists before other modules try to depend on it
 
 1. Parent pom dependencies in root dependencyManagement:
 
-The jbh-account parent pom dependency in root pom.xml:65-69 is NOT necessary and should be removed. Here's why:
+The jbh-products parent pom dependency in root pom.xml:65-69 is NOT necessary and should be removed. Here's why:
 
 - Parent poms (<packaging>pom</packaging>) don't produce JARs
 - They're only for aggregation and inheritance
 - Only actual JAR/WAR modules should be in dependencyManagement
 
-2. When adding new submodules like jbh-account-domain, jbh-account-application:
+2. When adding new submodules like jbh-products-domain, jbh-products-application:
 
 Root pom dependencyManagement: Add entries for modules that will be used as dependencies:
 <dependency>
 <groupId>com.jbh</groupId>
-<artifactId>jbh-account-domain</artifactId>
+<artifactId>jbh-products-domain</artifactId>
 <version>${project.version}</version>
 </dependency>
 
@@ -309,12 +309,12 @@ Run on all modules:
 mvn clean compile pmd:pmd
 
 Run on specific module:
-mvn pmd:pmd -pl jbh-account
+mvn pmd:pmd -pl jbh-products
 
 Report Locations
 
 - Root: target/site/pmd.html
-- Per module: jbh-account/target/site/pmd.html, jbh-notification/target/site/pmd.html
+- Per module: jbh-products/target/site/pmd.html, jbh-notification/target/site/pmd.html
 
 Integration Options
 
@@ -344,7 +344,7 @@ All modules:
 mvn clean compile spotbugs:spotbugs
 
 Specific module:
-mvn spotbugs:spotbugs -pl jbh-account
+mvn spotbugs:spotbugs -pl jbh-products
 
 Combined Static Analysis
 
