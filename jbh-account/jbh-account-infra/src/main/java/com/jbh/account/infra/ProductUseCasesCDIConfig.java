@@ -5,6 +5,7 @@ import com.jbh.account.application.async.AsyncTaskExecutorImpl;
 import com.jbh.account.application.core.ports.input.AddMovementInputPort;
 import com.jbh.account.application.core.ports.input.AddMovementsUploadedFileInputPort;
 import com.jbh.account.application.core.ports.input.CreateProductInputPort;
+import com.jbh.account.application.core.ports.input.FindActiveProductsInputPort;
 import com.jbh.account.application.core.ports.input.FindMonthlyBalanceInputPort;
 import com.jbh.account.application.core.ports.input.GetProductMetadataConfigInputPort;
 import com.jbh.account.application.core.ports.output.AccountRepository;
@@ -20,6 +21,7 @@ import com.jbh.account.application.core.services.movements.AccountMovementApplic
 import com.jbh.account.application.core.services.movements.AccountMovementApplicationServiceImpl;
 import com.jbh.account.application.core.services.movements.AccountMovementService;
 import com.jbh.account.application.core.services.movements.AccountMovementServiceImpl;
+import com.jbh.account.application.core.usecases.FindActiveProductsUseCase;
 import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.account.application.core.usecases.GetProductMetadataConfigUseCase;
 import com.jbh.account.application.movements.ports.output.AccountMovementQueryRepository;
@@ -31,7 +33,12 @@ import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
 @ApplicationScoped
-@RegisterForReflection(targets = {CreateProductInputPort.class, AddMovementInputPort.class})
+@RegisterForReflection(
+    targets = {
+      CreateProductInputPort.class,
+      AddMovementInputPort.class,
+      FindActiveProductsInputPort.class
+    })
 public class ProductUseCasesCDIConfig {
 
   @Inject AccountRepository accountRepository;
@@ -122,5 +129,11 @@ public class ProductUseCasesCDIConfig {
   @ApplicationScoped
   public ProductMetadataConfigRegistry productMetadataConfigRegistry() {
     return new ProductMetadataConfigRegistry();
+  }
+
+  @Produces
+  @ApplicationScoped
+  public FindActiveProductsUseCase findActiveProductsUseCase() {
+    return new FindActiveProductsInputPort(accountRepository);
   }
 }

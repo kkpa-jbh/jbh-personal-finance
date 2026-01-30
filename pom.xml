@@ -160,6 +160,12 @@
         <version>${project.version}</version>
       </dependency>
 
+      <dependency>
+        <artifactId>jbh-preferences-infra</artifactId>
+        <groupId>com.jbh</groupId>
+        <version>${project.version}</version>
+      </dependency>
+
       <!-- Lombok for boilerplate code reduction -->
       <dependency>
         <artifactId>lombok</artifactId>
@@ -198,6 +204,7 @@
     <module>jbh-commons-lib</module>
     <module>jbh-account</module>
     <module>jbh-notification</module>
+    <module>jbh-preferences</module>
 
     <!-- Assembly module last to ensure all dependencies are built -->
     <module>jbh-z-assembly</module>

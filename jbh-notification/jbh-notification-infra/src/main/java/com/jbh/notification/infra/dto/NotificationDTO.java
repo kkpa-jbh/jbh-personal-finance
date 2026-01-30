@@ -19,6 +19,7 @@ public record NotificationDTO(
     String message,
     NotificationType notificationType,
     NotificationStatus status,
+    boolean read,
     EmailTemplate emailTemplate,
     Map<String, Object> metadata,
     LocalDateTime sentAt,

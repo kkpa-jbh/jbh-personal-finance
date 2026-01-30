@@ -37,4 +37,11 @@ public class AccountJPARepository implements PanacheRepository<AccountJPAEntity>
   public Optional<AccountJPAEntity> findByAccountId(final UUID accountId) {
     return find("id", accountId).firstResultOptional();
   }
+
+  public List<AccountJPAEntity> findActiveByUserId(final UUID userId) {
+    return find(
+            "userId = :userId and isActive = :active",
+            Parameters.with("userId", userId).and("active", true))
+        .list();
+  }
 }

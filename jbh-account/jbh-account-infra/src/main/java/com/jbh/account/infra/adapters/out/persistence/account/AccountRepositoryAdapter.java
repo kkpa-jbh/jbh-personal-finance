@@ -6,6 +6,7 @@ import com.jbh.account.domain.vo.ProductId;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -32,6 +33,14 @@ public class AccountRepositoryAdapter implements AccountRepository {
   public Optional<ProductDTO> findByAccountId(final ProductId accountId) {
     final Optional<AccountJPAEntity> foundAccount = jpaRepo.findByAccountId(accountId.value());
     return foundAccount.map(AccountJPAEntity::toDTO);
+  }
+
+  @Override
+  public List<ProductDTO> findActiveByUserId(final UUID userId) {
+    if (userId == null) {
+      throw new IllegalArgumentException("User ID cannot be null");
+    }
+    return jpaRepo.findActiveByUserId(userId).stream().map(AccountJPAEntity::toDTO).toList();
   }
 
   @Override

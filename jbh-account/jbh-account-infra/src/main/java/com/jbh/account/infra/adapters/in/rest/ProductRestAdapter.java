@@ -5,6 +5,7 @@ import com.jbh.account.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.usecases.AddMovementUseCase;
 import com.jbh.account.application.core.usecases.CreateProductUseCase;
+import com.jbh.account.application.core.usecases.FindActiveProductsUseCase;
 import com.jbh.account.application.core.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.account.application.core.vo.commands.AddMovementCommand;
 import com.jbh.account.application.core.vo.commands.CreateProductCommand;
@@ -38,7 +39,11 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings({"PMD.UnnecessaryAnnotationValueElement", "PMD.CallSuperInConstructor"})
+@SuppressWarnings({
+  "PMD.UnnecessaryAnnotationValueElement",
+  "PMD.CallSuperInConstructor",
+  "PMD.AvoidDuplicateLiterals"
+})
 @RequestScoped
 @Path(FinanceApiRoutes.PRODUCTS_API_PATH)
 @Tag(name = "Product Operations", description = "Product management operations")
@@ -48,15 +53,18 @@ public class ProductRestAdapter extends BaseRestAdapter {
   private final CreateProductUseCase createProductUseCase;
   private final AddMovementUseCase addMovementUseCase;
   private final FindMonthlyBalanceUseCase findMonthlyBalanceUseCase;
+  private final FindActiveProductsUseCase findActiveProductsUseCase;
 
   @Inject
   public ProductRestAdapter(
       final CreateProductUseCase createProductUseCase,
       final AddMovementUseCase addMovementUseCase,
-      final FindMonthlyBalanceUseCase findMonthlyBalanceUseCase) {
+      final FindMonthlyBalanceUseCase findMonthlyBalanceUseCase,
+      final FindActiveProductsUseCase findActiveProductsUseCase) {
     this.addMovementUseCase = addMovementUseCase;
     this.createProductUseCase = createProductUseCase;
     this.findMonthlyBalanceUseCase = findMonthlyBalanceUseCase;
+    this.findActiveProductsUseCase = findActiveProductsUseCase;
   }
 
   @POST
@@ -220,5 +228,43 @@ public class ProductRestAdapter extends BaseRestAdapter {
             request.endPeriod());
 
     return Response.ok(monthlyBalances).build();
+  }
+
+  @GET
+  @Path("/")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Get active products",
+      description = "Retrieves all active products for the authenticated user")
+  @APIResponses(
+      value = {
+        @APIResponse(
+            responseCode = "200",
+            description = "Active products retrieved successfully",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ProductDTO.class))),
+        @APIResponse(
+            responseCode = "401",
+            description = "Unauthorized",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class)))
+      })
+  @SecurityRequirement(name = "JWT")
+  public Response getActiveProducts(
+      @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
+          final String authorizationHeader)
+      throws JbhGatewayException, BusinessException, InternalSystemException {
+
+    final UUID userId = findUserId(authorizationHeader);
+
+    log.info("Finding active products for user {}", userId);
+
+    final List<ProductDTO> activeProducts = findActiveProductsUseCase.findActiveByUserId(userId);
+
+    return Response.ok(activeProducts).build();
   }
 }

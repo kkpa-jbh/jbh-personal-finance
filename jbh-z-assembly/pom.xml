@@ -84,6 +84,11 @@
       <groupId>com.jbh</groupId>
     </dependency>
 
+    <dependency>
+      <artifactId>jbh-preferences-infra</artifactId>
+      <groupId>com.jbh</groupId>
+    </dependency>
+
 
     <!-- Test Dependencies -->
     <dependency>

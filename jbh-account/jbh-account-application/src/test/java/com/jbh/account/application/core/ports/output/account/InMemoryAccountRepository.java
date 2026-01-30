@@ -4,6 +4,7 @@ import com.jbh.account.application.core.dto.ProductDTO;
 import com.jbh.account.application.core.ports.output.AccountRepository;
 import com.jbh.account.domain.vo.ProductId;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,6 +37,13 @@ public class InMemoryAccountRepository implements AccountRepository {
   @Override
   public Optional<ProductDTO> findByAccountId(final ProductId accountId) {
     return Optional.ofNullable(storage.get(accountId.value()));
+  }
+
+  @Override
+  public List<ProductDTO> findActiveByUserId(final UUID userId) {
+    return storage.values().stream()
+        .filter(product -> product.userId().equals(userId) && product.isActive())
+        .toList();
   }
 
   @Override
