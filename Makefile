@@ -48,9 +48,9 @@ drop-all-schemas: ## Drop all module schemas (WARNING: Deletes all data)
 	@read -p "Are you sure you want to continue? (y/N): " confirm && \
 		if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
 			echo "${GREEN}Dropping all schemas...${NC}"; \
-			cd $(ACCOUNT_DIR) && $(MAKE) -f Account.mk drop-schema; \
-			cd $(NOTIFICATION_DIR) && $(MAKE) -f Notification.mk drop-schema; \
-			cd $(PREFERENCES_DIR) && $(MAKE) -f Preferences.mk drop-schema; \
+			(cd $(ACCOUNT_DIR) && $(MAKE) -f Account.mk drop-schema); \
+			(cd $(NOTIFICATION_DIR) && $(MAKE) -f Notification.mk drop-schema); \
+			(cd $(PREFERENCES_DIR) && $(MAKE) -f Preferences.mk drop-schema); \
 			echo "${GREEN}All schemas dropped successfully.${NC}"; \
 		else \
 			echo "Operation cancelled."; \
