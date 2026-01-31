@@ -52,7 +52,7 @@ public final class JbhMoneyUtils {
     return totalAmount != null && totalAmount.signum() < 0;
   }
 
-  public static BigDecimal toDecimal(final Object value) {
+  public static BigDecimal toJBHDecimal(final Object value) {
     BigDecimal valueAsDecimal = null;
     if (value == null) {
       return valueAsDecimal;
@@ -76,5 +76,9 @@ public final class JbhMoneyUtils {
         || percentage.compareTo(new BigDecimal("100")) > 0) {
       throw new BusinessException(CommonExceptionType.INVALID_PERCENTAGE, percentage.toString());
     }
+  }
+
+  public static boolean isNotNumber(final Object creditLimit) {
+    return !(creditLimit instanceof Number);
   }
 }

@@ -1,8 +1,8 @@
 package com.jbh.products.domain.vo.metadata;
 
-import com.jbh.products.domain.vo.ProductMetadataKey;
 import com.jbh.commons.util.JbhBooleanUtils;
 import com.jbh.commons.util.JbhMoneyUtils;
+import com.jbh.products.domain.vo.ProductMetadataKey;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,7 +12,7 @@ import java.util.Map;
  * Common metadata shared across all product types. Handles fully withdrawn status and initial
  * balance information.
  */
-public final class CommonMetadata {
+public final class CommonMetadata extends BaseMetadata {
 
   private final Map<ProductMetadataKey, Object> data;
 
@@ -34,7 +34,7 @@ public final class CommonMetadata {
     return data.containsKey(key);
   }
 
-  private Object get(final ProductMetadataKey key) {
+  protected Object get(final ProductMetadataKey key) {
     return data.get(key);
   }
 
@@ -63,11 +63,6 @@ public final class CommonMetadata {
    */
   public BigDecimal getInitialBalance() {
     return getDecimal(ProductMetadataKey.COMMON_INITIAL_BALANCE);
-  }
-
-  private BigDecimal getDecimal(final ProductMetadataKey key) {
-    final Object result = get(key);
-    return JbhMoneyUtils.toDecimal(result);
   }
 
   /**

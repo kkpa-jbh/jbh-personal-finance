@@ -214,6 +214,17 @@ standards of the project and follow the best practices.
 
 ### Component Structure
 
+#### Project Structure Overview
+
+```diagram
+src/app/
+├── core/domain/          # Models, repositories, use-cases
+├── core/infrastructure/  # API, persistence, implementations
+├── features/             # Lazy-loaded feature modules (pages,components)
+├── shared/               # Reusable components, pipes, directives,utilities
+└── theme/                # custom-components.scss (single source)
+```
+
 Create the following components:
 
 1. **List Component**: Display all {entities}
@@ -235,7 +246,8 @@ Create the following components:
 - The error handling is already implemented, Do not mention it.
 - Do not suggest adding unit tests. The project does not support that.
 - The application only supports EN and ES languages. Be aware about the translations with good grammar.
-- Generate a text at the end to tell the AI Assistant that feel free to ask any question.
+- Generate a text at the end to tell the AI Assistant that feel free to ask any question, or something that needs
+  to be confirmed.
 ````
 
 ## Workflow Steps

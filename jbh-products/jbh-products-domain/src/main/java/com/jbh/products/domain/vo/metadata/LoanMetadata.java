@@ -1,12 +1,12 @@
 package com.jbh.products.domain.vo.metadata;
 
-import com.jbh.products.domain.vo.ProductMetadataKey;
 import com.jbh.commons.util.JbhMoneyUtils;
+import com.jbh.products.domain.vo.ProductMetadataKey;
 import java.math.BigDecimal;
 import java.util.Map;
 
 /** Metadata specific to loan products. */
-public final class LoanMetadata {
+public final class LoanMetadata extends BaseMetadata {
 
   private final Map<ProductMetadataKey, Object> data;
 
@@ -23,12 +23,7 @@ public final class LoanMetadata {
     return getDecimal(ProductMetadataKey.LOAN_PRINCIPAL_AMOUNT);
   }
 
-  private BigDecimal getDecimal(final ProductMetadataKey key) {
-    final Object result = get(key);
-    return result instanceof BigDecimal ? (BigDecimal) result : BigDecimal.ZERO;
-  }
-
-  private Object get(final ProductMetadataKey key) {
+  protected Object get(final ProductMetadataKey key) {
     return data.get(key);
   }
 

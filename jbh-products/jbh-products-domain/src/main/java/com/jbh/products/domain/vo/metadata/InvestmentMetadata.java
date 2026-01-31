@@ -1,12 +1,12 @@
 package com.jbh.products.domain.vo.metadata;
 
-import com.jbh.products.domain.vo.ProductMetadataKey;
 import com.jbh.commons.util.JbhMoneyUtils;
+import com.jbh.products.domain.vo.ProductMetadataKey;
 import java.math.BigDecimal;
 import java.util.Map;
 
 /** Metadata specific to investment products. */
-public final class InvestmentMetadata {
+public final class InvestmentMetadata extends BaseMetadata {
 
   private final Map<ProductMetadataKey, Object> data;
 
@@ -23,7 +23,7 @@ public final class InvestmentMetadata {
     return (String) get(ProductMetadataKey.BROKER_NAME);
   }
 
-  private Object get(final ProductMetadataKey key) {
+  protected Object get(final ProductMetadataKey key) {
     return data.get(key);
   }
 
@@ -34,11 +34,6 @@ public final class InvestmentMetadata {
    */
   public BigDecimal getCommissionRate() {
     return getDecimal(ProductMetadataKey.COMMISSION_RATE);
-  }
-
-  private BigDecimal getDecimal(final ProductMetadataKey key) {
-    final Object result = get(key);
-    return result instanceof BigDecimal ? (BigDecimal) result : BigDecimal.ZERO;
   }
 
   /**

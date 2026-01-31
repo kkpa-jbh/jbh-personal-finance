@@ -118,7 +118,7 @@ public class UserPreferencesRestAdapter {
       throws BusinessException, JbhGatewayException, InternalSystemException {
 
     final UUID userId = baseRestAdapter.findUserId(authorizationHeader);
-    LOG.debug("Updating preferences for user: {}", userId);
+    LOG.debug("Updating preferences {} for user: {}", request, userId);
 
     final UserPreferencesDTO updated =
         updatePreferencesUseCase.execute(userId, request.toCommand());

@@ -1,15 +1,15 @@
 package com.jbh.products.domain.vo.metadata;
 
-import com.jbh.products.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.products.domain.vo.ProductMetadataKey;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.util.JbhMoneyUtils;
+import com.jbh.products.domain.exceptions.BusinessDomainExceptionType;
+import com.jbh.products.domain.vo.ProductMetadataKey;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 
 /** Metadata specific to CDT (Certificate of Deposit) products. */
-public final class CdtMetadata {
+public final class CdtMetadata extends BaseMetadata {
 
   private final Map<ProductMetadataKey, Object> data;
 
@@ -31,7 +31,7 @@ public final class CdtMetadata {
     return (LocalDate) maturityDate;
   }
 
-  private Object get(final ProductMetadataKey key) {
+  protected Object get(final ProductMetadataKey key) {
     return data.get(key);
   }
 
@@ -60,11 +60,6 @@ public final class CdtMetadata {
    */
   public BigDecimal getCommissionRate() {
     return getDecimal(ProductMetadataKey.COMMISSION_RATE);
-  }
-
-  private BigDecimal getDecimal(final ProductMetadataKey key) {
-    final Object result = get(key);
-    return result instanceof BigDecimal ? (BigDecimal) result : BigDecimal.ZERO;
   }
 
   /**

@@ -1,13 +1,13 @@
 package com.jbh.products.domain.vo.metadata;
 
-import com.jbh.products.domain.vo.ProductMetadataKey;
 import com.jbh.commons.util.JbhMoneyUtils;
+import com.jbh.products.domain.vo.ProductMetadataKey;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
 
 /** Metadata specific to real estate investment products. */
-public final class RealEstateMetadata {
+public final class RealEstateMetadata extends BaseMetadata {
 
   private final Map<ProductMetadataKey, Object> data;
 
@@ -24,7 +24,7 @@ public final class RealEstateMetadata {
     return (LocalDate) get(ProductMetadataKey.REAL_ESTATE_PURCHASE_DATE);
   }
 
-  private Object get(final ProductMetadataKey key) {
+  protected Object get(final ProductMetadataKey key) {
     return data.get(key);
   }
 
@@ -35,11 +35,6 @@ public final class RealEstateMetadata {
    */
   public BigDecimal getPurchasePrice() {
     return getDecimal(ProductMetadataKey.REAL_ESTATE_PURCHASE_PRICE);
-  }
-
-  private BigDecimal getDecimal(final ProductMetadataKey key) {
-    final Object result = get(key);
-    return result instanceof BigDecimal ? (BigDecimal) result : BigDecimal.ZERO;
   }
 
   /**

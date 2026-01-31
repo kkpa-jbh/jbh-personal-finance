@@ -1,14 +1,14 @@
 package com.jbh.products.domain.vo.metadata;
 
-import com.jbh.products.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.products.domain.vo.ProductMetadataKey;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.util.JbhMoneyUtils;
+import com.jbh.products.domain.exceptions.BusinessDomainExceptionType;
+import com.jbh.products.domain.vo.ProductMetadataKey;
 import java.math.BigDecimal;
 import java.util.Map;
 
 /** Metadata specific to credit card products. */
-public final class CreditCardMetadata {
+public final class CreditCardMetadata extends BaseMetadata {
 
   private final Map<ProductMetadataKey, Object> data;
 
@@ -29,13 +29,13 @@ public final class CreditCardMetadata {
       return null;
     }
 
-    if (!(creditLimit instanceof BigDecimal)) {
+    if (JbhMoneyUtils.isNotNumber(creditLimit)) {
       throw new BusinessException(BusinessDomainExceptionType.INVALID_CREDIT_LIMIT_TYPE);
     }
-    return (BigDecimal) creditLimit;
+    return JbhMoneyUtils.toJBHDecimal(creditLimit);
   }
 
-  private Object get(final ProductMetadataKey key) {
+  protected Object get(final ProductMetadataKey key) {
     return data.get(key);
   }
 
