@@ -8,7 +8,7 @@ description: Generate frontend (FE) instructions to create/update a component ba
 ## Purpose
 
 Automatically generate comprehensive frontend development instructions based on backend API specifications, eliminating the need to manually write requirements for each CRUD
-component.
+component. The instructions should be created in a new file under the folder `docs/fe-instructions/{module-name}` with a markdown format file. Version the file name.
 
 ## When to Use - Auto Trigger Patterns
 
@@ -63,13 +63,13 @@ If user provides an endpoint without code:
 
 - ❓ Ask: "What operations should this support? (default: full CRUD)"
 - ❓ Ask: "Can you share the request/response object structures?"
-- ❓ Or: "Should I search for the API documentation?"
+- ❓ Or: "Should I search for the API documentation?""
 
 ## Project-Specific Standards
 
 ### Authentication
 
-- Always include JWT token in requests
+- Always include JWT token in requests as it's currently working right now (with interceptors)
 - Target platforms: Desktop, Android, iOS
 - Use responsive design principles
 
@@ -78,7 +78,6 @@ If user provides an endpoint without code:
 - Follow existing form component patterns in the project
 - Use project's validation library
 - Consistent error message display
-- Loading states during submission
 - Success/error feedback to user
 
 ### API Integration Pattern
@@ -113,7 +112,6 @@ When operations are not specified, assume full CRUD:
 
 - List view: GET `{basePath}` (returns array)
 - Detail view: GET `{basePath}/{id}` (returns single object)
-- Loading states
 - Empty state handling
 - Error handling
 
@@ -136,6 +134,9 @@ Generate instructions in this format for Claude Code:
 
 ````markdown
 # Frontend Component: {EntityName}
+
+These are the details about the API(s) to call. Follow the current       
+standards of the project and follow the best practices.
 
 ## API Specification
 
@@ -193,7 +194,8 @@ Generate instructions in this format for Claude Code:
 
 ### Authentication
 
-- Send JWT token in Authorization header: `Bearer ${token}`
+- Send JWT token as it's currently working right now. (with interceptors)
+- Handle responses as it's currently working right now (with interceptors)
 
 ### Form Implementation
 
@@ -206,7 +208,7 @@ Generate instructions in this format for Claude Code:
 
 ### Multi-Platform Requirements
 
-- Design must work on Desktop, Android, and iOS
+- Design must work on Desktop, Android, and iOS with ionic/capacitor, etc.
 - Use responsive breakpoints
 - Consider mobile keyboard behavior for forms
 
@@ -221,15 +223,19 @@ Create the following components:
 
 ### API Integration
 
-- Create repository adapter implementing the standard interface
-- Handle loading states (show spinner/skeleton)
-- Handle error states (show error message)
-- Handle empty states (show "no items" message)
-- Implement proper error transformation from API responses
+- Create/Update the repository adapter implementing the current standard of the project.
+- Keep the existing structure of the repository layer.
+- Do not suggest any code
 
 ## Additional Notes
 
 {Any specific business rules or edge cases from the API}
+
+- Do not implement state management
+- The error handling is already implemented, Do not mention it.
+- Do not suggest adding unit tests. The project does not support that.
+- The application only supports EN and ES languages. Be aware about the translations with good grammar.
+- Generate a text at the end to tell the AI Assistant that feel free to ask any question.
 ````
 
 ## Workflow Steps
@@ -291,7 +297,8 @@ Always output:
 
 ## Success Criteria
 
-The generated instructions should allow Claude Code to:
+- IMPORTANT: The generated instructions should be created in a new file under the folder `docs/fe-instructions/{module-name}` with a markdown format file. Version the file name.
+- The generated instructions should allow Claude Code to:
 
 - ✅ Create all necessary components without clarification
 - ✅ Implement all CRUD operations correctly
