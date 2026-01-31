@@ -1,8 +1,8 @@
 package com.jbh.notification.contracts;
 
 public enum NotificationType {
-    EMAIL,
-    SMS,
-    PUSH,
-    IN_APP
+  EMAIL,
+  SMS,
+  PUSH, // Notification sent to the user's device
+  IN_APP
 }
