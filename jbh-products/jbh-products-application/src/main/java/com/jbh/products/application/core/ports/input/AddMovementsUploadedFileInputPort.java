@@ -1,5 +1,6 @@
 package com.jbh.products.application.core.ports.input;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.acid.UnitOfWork;
 import com.jbh.products.application.common.logging.LoggerFactory;
 import com.jbh.products.application.core.dto.AddMultipleBasicMovementDTO;
@@ -7,14 +8,13 @@ import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.mappers.MovementMapper;
 import com.jbh.products.application.core.services.MonthlyBalanceSyncForUploadedMovements;
-import com.jbh.products.application.core.services.account.AccountService;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.products.application.core.vo.commands.AddMovementUploadedFileCommand;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.products.domain.entity.ProductDomain;
 import com.jbh.products.domain.entity.ProductMovementDomain;
 import com.jbh.products.domain.vo.ProductId;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,12 +27,12 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
       LoggerFactory.getLogger(AddMovementsUploadedFileInputPort.class);
 
   private final AccountMovementWriterRepository movementRepo;
-  private final AccountService accountService;
+  private final ProductsService accountService;
   private final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService;
   private final UnitOfWork unitOfWork;
 
   public AddMovementsUploadedFileInputPort(
-      final AccountService accountService,
+      final ProductsService accountService,
       final AccountMovementWriterRepository movementRepo,
       final UnitOfWork unitOfWork,
       final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService) {
@@ -99,7 +99,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
 
   private ProductDomain findAccountOrElseThrow(final UUID userId, final ProductId accountId)
       throws BusinessException {
-    final ProductDTO accountDTO = accountService.findByUserAndAccountId(userId, accountId);
+    final ProductDTO accountDTO = accountService.findByUserAndProductId(userId, accountId);
 
     return accountDTO.toDomain();
   }

@@ -1,5 +1,6 @@
 package com.jbh.products.application.core.services.account;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
@@ -7,9 +8,9 @@ import com.jbh.products.domain.entity.ProductDomain;
 import com.jbh.products.domain.entity.ProductMovementDomain;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -17,10 +18,10 @@ import java.util.UUID;
  *
  * <p>Like a Repository abstraction.
  */
-public interface AccountService {
-  ProductDTO findByUserAndAccountId(UUID userId, ProductId accountId) throws BusinessException;
+public interface ProductsService {
+  ProductDTO findByUserAndProductId(UUID userId, ProductId accountId) throws BusinessException;
 
-  ProductDTO findAccountOrThrow(ProductId accountId);
+  ProductDTO findProductOrThrow(ProductId accountId);
 
   ProductDTO save(ProductDTO account);
 
@@ -65,4 +66,8 @@ public interface AccountService {
   ProductDTO syncByUploadedMovements(
       ProductDomain accountDomain, List<ProductMovementDomain> uploadedMovements)
       throws BusinessException;
+
+  List<ProductDTO> findActiveByUserId(UUID userId);
+
+  Optional<ProductDTO> findProductById(ProductId productId);
 }

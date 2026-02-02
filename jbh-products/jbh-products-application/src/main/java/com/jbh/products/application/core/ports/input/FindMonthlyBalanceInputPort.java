@@ -2,22 +2,22 @@ package com.jbh.products.application.core.ports.input;
 
 import static com.jbh.products.application.core.exceptions.BusinessApplicationExceptionType.INVALID_RANGE_DATES_FOR_MONTHLY_BALANCES;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.products.application.core.services.account.AccountService;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.products.application.core.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.products.domain.vo.ProductPK;
-import com.jbh.commons.exception.BusinessException;
 import java.time.YearMonth;
 import java.util.List;
 
 public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
 
   private final MonthlyBalanceService monthlyBalanceService;
-  private final AccountService accountService;
+  private final ProductsService accountService;
 
   public FindMonthlyBalanceInputPort(
-      final MonthlyBalanceService monthlyBalanceService, final AccountService accountService) {
+      final MonthlyBalanceService monthlyBalanceService, final ProductsService accountService) {
     this.monthlyBalanceService = monthlyBalanceService;
     this.accountService = accountService;
   }
@@ -39,7 +39,7 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
       throw new BusinessException(INVALID_RANGE_DATES_FOR_MONTHLY_BALANCES);
     }
 
-    accountService.findByUserAndAccountId(accountPK.userId(), accountPK.accountId());
+    accountService.findByUserAndProductId(accountPK.userId(), accountPK.accountId());
 
     return monthlyBalanceService.findByAccountAndPeriods(accountPK, startPeriod, endPeriod);
   }

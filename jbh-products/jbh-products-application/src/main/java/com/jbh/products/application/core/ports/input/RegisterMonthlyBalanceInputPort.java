@@ -1,9 +1,10 @@
 package com.jbh.products.application.core.ports.input;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.products.application.core.mappers.MonthlyBalanceMapper;
-import com.jbh.products.application.core.services.account.AccountService;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceProfitStrategy;
 import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.products.application.core.services.monthlybalance.ReportedProfitStrategy;
@@ -17,7 +18,6 @@ import com.jbh.products.domain.vo.IncomeCategory;
 import com.jbh.products.domain.vo.MovementCategoryDTO;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
-import com.jbh.commons.exception.BusinessException;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -31,12 +31,12 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
   private static final Logger log = LoggerFactory.getLogger(RegisterMonthlyBalanceInputPort.class);
 
   private final MonthlyBalanceService monthlyBalanceService;
-  private final AccountService accountService;
+  private final ProductsService accountService;
   private final AccountMovementApplicationService accountMovementService;
 
   public RegisterMonthlyBalanceInputPort(
       final MonthlyBalanceService monthlyBalanceService,
-      final AccountService accountService,
+      final ProductsService accountService,
       final AccountMovementApplicationService accountMovementService) {
     this.accountMovementService = accountMovementService;
     this.accountService = accountService;

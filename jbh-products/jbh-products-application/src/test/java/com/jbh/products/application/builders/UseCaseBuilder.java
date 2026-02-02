@@ -14,8 +14,8 @@ import com.jbh.products.application.core.ports.output.monthlybalance.AccountMont
 import com.jbh.products.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
 import com.jbh.products.application.core.ports.output.movement.InMemoryAccountMovementQueryRepository;
 import com.jbh.products.application.core.ports.output.movement.InMemoryAccountMovementRepository;
-import com.jbh.products.application.core.services.account.AccountService;
-import com.jbh.products.application.core.services.account.AccountServiceImpl;
+import com.jbh.products.application.core.services.account.ProductServiceImpl;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.products.application.core.services.movements.AccountMovementApplicationServiceImpl;
@@ -63,8 +63,8 @@ public class UseCaseBuilder {
     return new CreateProductInputPort(buildAccountService());
   }
 
-  public static AccountService buildAccountService() {
-    return new AccountServiceImpl(getAccountRepository());
+  public static ProductsService buildAccountService() {
+    return new ProductServiceImpl(getAccountRepository());
   }
 
   public static InMemoryAccountRepository getAccountRepository() {

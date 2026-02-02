@@ -1,17 +1,17 @@
 package com.jbh.products.application.core.ports.input;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.core.dto.AddBasicMovementDTO;
 import com.jbh.products.application.core.dto.LiquidationResultDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.mappers.MovementMapper;
-import com.jbh.products.application.core.services.account.AccountService;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.services.movements.AccountMovementApplicationService;
 import com.jbh.products.application.core.usecases.LiquidateAccountUseCase;
 import com.jbh.products.application.core.vo.commands.LiquidateAccountCommand;
 import com.jbh.products.domain.vo.AccountMovementMetadata;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
-import com.jbh.commons.exception.BusinessException;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +20,11 @@ public class LiquidateAccountInputPort implements LiquidateAccountUseCase {
 
   private static final Logger LOG = LoggerFactory.getLogger(LiquidateAccountInputPort.class);
 
-  private final AccountService accountService;
+  private final ProductsService accountService;
   private final AccountMovementApplicationService movementApplicationService;
 
   public LiquidateAccountInputPort(
-      final AccountService accountService,
+      final ProductsService accountService,
       final AccountMovementApplicationService movementApplicationService) {
     this.accountService = accountService;
     this.movementApplicationService = movementApplicationService;
@@ -43,7 +43,7 @@ public class LiquidateAccountInputPort implements LiquidateAccountUseCase {
     ProductDTO toInternalAccount = null;
     if (liquidationCommand.toInternalAccount().isPresent()) {
       final var internalAccountId = liquidationCommand.toInternalAccount().get().accountId();
-      toInternalAccount = accountService.findAccountOrThrow(internalAccountId);
+      toInternalAccount = accountService.findProductOrThrow(internalAccountId);
       movementDTO.metadata().putTargetInternalAccount(toInternalAccount.toDomain());
     }
 

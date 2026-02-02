@@ -1,27 +1,27 @@
 package com.jbh.products.application.core.ports.input;
 
+import com.jbh.commons.exception.BusinessException;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.products.application.core.dto.AddBasicMovementDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.exceptions.BusinessApplicationExceptionType;
-import com.jbh.products.application.core.services.account.AccountService;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.services.movements.AccountMovementApplicationService;
 import com.jbh.products.application.core.usecases.AddMovementUseCase;
 import com.jbh.products.application.core.vo.commands.AddMovementCommand;
-import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
 import com.jbh.products.domain.vo.ProductType;
-import com.jbh.commons.exception.BusinessException;
 import java.util.UUID;
 
 public class AddMovementInputPort implements AddMovementUseCase {
 
   private final AccountMovementApplicationService accountMovementService;
-  private final AccountService accountService;
+  private final ProductsService accountService;
 
   public AddMovementInputPort(
       final AccountMovementApplicationService accountMovementService,
-      final AccountService accountService) {
+      final ProductsService accountService) {
     this.accountService = accountService;
     this.accountMovementService = accountMovementService;
   }
@@ -37,7 +37,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
 
     movementCommand.validate();
 
-    final ProductDTO productDTO = accountService.findByUserAndAccountId(userId, accountId);
+    final ProductDTO productDTO = accountService.findByUserAndProductId(userId, accountId);
     final ProductType productType = productDTO.type();
 
     if (!productType.addingMovementsProductsAllowed().contains(productType)) {

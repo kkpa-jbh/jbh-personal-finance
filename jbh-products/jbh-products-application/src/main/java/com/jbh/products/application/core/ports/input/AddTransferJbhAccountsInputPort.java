@@ -1,9 +1,10 @@
 package com.jbh.products.application.core.ports.input;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.mappers.AccountMapper;
 import com.jbh.products.application.core.mappers.MovementMapper;
-import com.jbh.products.application.core.services.account.AccountService;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.services.movements.AccountMovementApplicationService;
 import com.jbh.products.application.core.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.products.application.core.vo.commands.AddMovementCommand;
@@ -14,7 +15,6 @@ import com.jbh.products.domain.vo.IncomeCategory;
 import com.jbh.products.domain.vo.MovementCategoryDTO;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductPK;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.slf4j.Logger;
@@ -24,10 +24,10 @@ public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUs
 
   private static final Logger LOG = LoggerFactory.getLogger(AddTransferJbhAccountsInputPort.class);
   private final AccountMovementApplicationService accountMovementService;
-  private final AccountService accountService;
+  private final ProductsService accountService;
 
   public AddTransferJbhAccountsInputPort(
-      final AccountService accountService,
+      final ProductsService accountService,
       final AccountMovementApplicationService accountMovementService) {
 
     this.accountService = accountService;
@@ -43,9 +43,9 @@ public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUs
     final LocalDate transferDate = transferCommand.transferDate();
     final BigDecimal transferAmount = transferCommand.totalAmount();
 
-    final ProductDTO fromAccountDTO = accountService.findAccountOrThrow(fromAccount.accountId());
+    final ProductDTO fromAccountDTO = accountService.findProductOrThrow(fromAccount.accountId());
     final ProductDTO toAccountDTO =
-        accountService.findAccountOrThrow(transferCommand.toAccount().accountId());
+        accountService.findProductOrThrow(transferCommand.toAccount().accountId());
 
     final var fromAccountName = fromAccountDTO.name();
     final var toAccountName = toAccountDTO.name();

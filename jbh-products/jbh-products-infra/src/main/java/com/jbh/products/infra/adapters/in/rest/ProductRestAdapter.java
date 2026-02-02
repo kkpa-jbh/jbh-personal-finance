@@ -1,31 +1,41 @@
 package com.jbh.products.infra.adapters.in.rest;
 
+import com.jbh.commons.exception.BusinessException;
+import com.jbh.commons.exception.InternalSystemException;
+import com.jbh.gateway.client.JbhGatewayException;
 import com.jbh.products.application.core.dto.AddBasicMovementDTO;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.usecases.AddMovementUseCase;
 import com.jbh.products.application.core.usecases.CreateProductUseCase;
-import com.jbh.products.application.core.usecases.FindActiveProductsUseCase;
+import com.jbh.products.application.core.usecases.DeleteProductUseCase;
+import com.jbh.products.application.core.usecases.EditProductUseCase;
 import com.jbh.products.application.core.usecases.FindMonthlyBalanceUseCase;
+import com.jbh.products.application.core.usecases.FindProductsUseCase;
+import com.jbh.products.application.core.usecases.UpdateProductStatusUseCase;
 import com.jbh.products.application.core.vo.commands.AddMovementCommand;
 import com.jbh.products.application.core.vo.commands.CreateProductCommand;
+import com.jbh.products.application.core.vo.commands.DeleteProductCommand;
+import com.jbh.products.application.core.vo.commands.EditProductCommand;
+import com.jbh.products.application.core.vo.commands.FindProductCommand;
+import com.jbh.products.application.core.vo.commands.UpdateProductStatusCommand;
 import com.jbh.products.domain.vo.MovementCategoryDTO;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductMetadata;
 import com.jbh.products.domain.vo.ProductPK;
 import com.jbh.products.infra.adapters.in.rest.vo.AddMovementRequest;
 import com.jbh.products.infra.adapters.in.rest.vo.CreateProductRequest;
+import com.jbh.products.infra.adapters.in.rest.vo.EditProductRequest;
+import com.jbh.products.infra.adapters.in.rest.vo.UpdateProductStatusRequest;
 import com.jbh.products.infra.adapters.in.rest.vo.FinanceApiRoutes;
 import com.jbh.products.infra.adapters.in.rest.vo.MonthlyBalanceRequest;
-import com.jbh.commons.exception.BusinessException;
-import com.jbh.commons.exception.InternalSystemException;
-import com.jbh.gateway.client.JbhGatewayException;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.eclipse.microprofile.openapi.annotations.*;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -53,18 +63,27 @@ public class ProductRestAdapter extends BaseRestAdapter {
   private final CreateProductUseCase createProductUseCase;
   private final AddMovementUseCase addMovementUseCase;
   private final FindMonthlyBalanceUseCase findMonthlyBalanceUseCase;
-  private final FindActiveProductsUseCase findActiveProductsUseCase;
+  private final FindProductsUseCase findProductsUseCase;
+  private final EditProductUseCase editProductUseCase;
+  private final DeleteProductUseCase deleteProductUseCase;
+  private final UpdateProductStatusUseCase updateProductStatusUseCase;
 
   @Inject
   public ProductRestAdapter(
       final CreateProductUseCase createProductUseCase,
       final AddMovementUseCase addMovementUseCase,
       final FindMonthlyBalanceUseCase findMonthlyBalanceUseCase,
-      final FindActiveProductsUseCase findActiveProductsUseCase) {
+      final FindProductsUseCase findProductsUseCase,
+      final EditProductUseCase editProductUseCase,
+      final DeleteProductUseCase deleteProductUseCase,
+      final UpdateProductStatusUseCase updateProductStatusUseCase) {
     this.addMovementUseCase = addMovementUseCase;
     this.createProductUseCase = createProductUseCase;
     this.findMonthlyBalanceUseCase = findMonthlyBalanceUseCase;
-    this.findActiveProductsUseCase = findActiveProductsUseCase;
+    this.findProductsUseCase = findProductsUseCase;
+    this.editProductUseCase = editProductUseCase;
+    this.deleteProductUseCase = deleteProductUseCase;
+    this.updateProductStatusUseCase = updateProductStatusUseCase;
   }
 
   @POST
@@ -263,8 +282,223 @@ public class ProductRestAdapter extends BaseRestAdapter {
 
     log.info("Finding active products for user {}", userId);
 
-    final List<ProductDTO> activeProducts = findActiveProductsUseCase.findActiveByUserId(userId);
+    final List<ProductDTO> activeProducts = findProductsUseCase.findActiveByUserId(userId);
 
     return Response.ok(activeProducts).build();
+  }
+
+  @PUT
+  @Path("/{productId}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Edit a Product", description = "Updates an existing Product")
+  @APIResponses(
+      value = {
+        @APIResponse(
+            responseCode = "200",
+            description = "Product updated successfully",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ProductDTO.class))),
+        @APIResponse(
+            responseCode = "400",
+            description = "Invalid request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class))),
+        @APIResponse(
+            responseCode = "401",
+            description = "Unauthorized",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class))),
+        @APIResponse(
+            responseCode = "404",
+            description = "Product not found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class)))
+      })
+  @SecurityRequirement(name = "JWT")
+  public Response editProduct(
+      @PathParam("productId") final UUID productId,
+      @RequestBody final EditProductRequest request,
+      @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
+          final String authorizationHeader)
+      throws JbhGatewayException, BusinessException, InternalSystemException {
+
+    final UUID userId = findUserId(authorizationHeader);
+
+    log.info("Editing Product {} for user {}", productId, userId);
+
+    final EditProductCommand command =
+        new EditProductCommand(
+            userId,
+            ProductId.of(productId),
+            request.name(),
+            ProductMetadata.fromMap(request.metadata()));
+
+    final ProductDTO editedProduct = editProductUseCase.execute(command);
+
+    return Response.ok(editedProduct).build();
+  }
+
+  @DELETE
+  @Path("/{productId}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Delete a Product (soft delete)",
+      description = "Soft deletes a Product by setting it as inactive")
+  @APIResponses(
+      value = {
+        @APIResponse(responseCode = "204", description = "Product deleted successfully"),
+        @APIResponse(
+            responseCode = "400",
+            description = "Invalid request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class))),
+        @APIResponse(
+            responseCode = "401",
+            description = "Unauthorized",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class))),
+        @APIResponse(
+            responseCode = "404",
+            description = "Product not found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class)))
+      })
+  @SecurityRequirement(name = "JWT")
+  public Response deleteProduct(
+      @PathParam("productId") final UUID productId,
+      @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
+          final String authorizationHeader)
+      throws JbhGatewayException, BusinessException, InternalSystemException {
+
+    final UUID userId = findUserId(authorizationHeader);
+
+    log.info("Deleting Product {} for user {}", productId, userId);
+
+    final DeleteProductCommand command = new DeleteProductCommand(userId, ProductId.of(productId));
+
+    deleteProductUseCase.execute(command);
+
+    return Response.noContent().build();
+  }
+
+  @GET
+  @Path("/{productId}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Find a Product by ID", description = "Find products by ID")
+  @APIResponses(
+      value = {
+        @APIResponse(responseCode = "200", description = "Product found"),
+        @APIResponse(
+            responseCode = "400",
+            description = "Invalid request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class))),
+        @APIResponse(
+            responseCode = "401",
+            description = "Unauthorized",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class))),
+        @APIResponse(
+            responseCode = "404",
+            description = "Product not found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class)))
+      })
+  @SecurityRequirement(name = "JWT")
+  public Response findProductById(
+      @PathParam("productId") final UUID productId,
+      @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
+          final String authorizationHeader)
+      throws JbhGatewayException, BusinessException, InternalSystemException {
+
+    log.info("Finding product by ID {}", productId);
+
+    final UUID userId = findUserId(authorizationHeader);
+
+    final Optional<ProductDTO> foundProduct =
+        findProductsUseCase.findProductById(
+            new FindProductCommand(userId, ProductId.of(productId)));
+    return foundProduct.isPresent()
+        ? Response.ok(foundProduct.get()).build()
+        : Response.status(Response.Status.NOT_FOUND).build();
+  }
+
+  @PATCH
+  @Path("/{productId}/status")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Update Product status",
+      description = "Partially updates a Product's active status (activate or deactivate)")
+  @APIResponses(
+      value = {
+        @APIResponse(
+            responseCode = "200",
+            description = "Product status updated successfully",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = ProductDTO.class))),
+        @APIResponse(
+            responseCode = "400",
+            description = "Invalid request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class))),
+        @APIResponse(
+            responseCode = "401",
+            description = "Unauthorized",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class))),
+        @APIResponse(
+            responseCode = "404",
+            description = "Product not found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class)))
+      })
+  @SecurityRequirement(name = "JWT")
+  public Response updateProductStatus(
+      @PathParam("productId") final UUID productId,
+      @RequestBody final UpdateProductStatusRequest request,
+      @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
+          final String authorizationHeader)
+      throws JbhGatewayException, BusinessException, InternalSystemException {
+
+    final UUID userId = findUserId(authorizationHeader);
+
+    log.info("Updating Product {} status to {} for user {}", productId, request.active(), userId);
+
+    final UpdateProductStatusCommand command =
+        new UpdateProductStatusCommand(userId, ProductId.of(productId), request.active());
+
+    final ProductDTO updatedProduct = updateProductStatusUseCase.execute(command);
+
+    return Response.ok(updatedProduct).build();
   }
 }

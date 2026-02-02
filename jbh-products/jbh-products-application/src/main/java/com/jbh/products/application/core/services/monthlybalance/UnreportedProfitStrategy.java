@@ -1,18 +1,18 @@
 package com.jbh.products.application.core.services.monthlybalance;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.products.application.core.services.account.AccountService;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.products.domain.vo.ProductPK;
-import com.jbh.commons.exception.BusinessException;
 
 public class UnreportedProfitStrategy implements MonthlyBalanceProfitStrategy {
 
   private final MonthlyBalanceService monthlyBalanceService;
-  private final AccountService accountService;
+  private final ProductsService accountService;
 
   public UnreportedProfitStrategy(
-      final MonthlyBalanceService monthlyBalanceService, final AccountService accountService) {
+      final MonthlyBalanceService monthlyBalanceService, final ProductsService accountService) {
     this.monthlyBalanceService = monthlyBalanceService;
     this.accountService = accountService;
   }

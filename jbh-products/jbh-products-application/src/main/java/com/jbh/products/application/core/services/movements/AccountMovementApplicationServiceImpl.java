@@ -1,15 +1,16 @@
 package com.jbh.products.application.core.services.movements;
 
-import static com.jbh.products.domain.vo.MovementType.WITHDRAWAL;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
+import static com.jbh.products.domain.vo.MovementType.WITHDRAWAL;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.acid.UnitOfWork;
 import com.jbh.products.application.core.dto.AddBasicMovementDTO;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.mappers.MovementMapper;
-import com.jbh.products.application.core.services.account.AccountService;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.products.application.core.validation.product_type.ProductMovementValidatorFactory;
 import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
@@ -21,7 +22,6 @@ import com.jbh.products.domain.vo.MovementCategoryDTO;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -35,7 +35,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
       LoggerFactory.getLogger(AccountMovementApplicationServiceImpl.class);
 
   private final AccountMovementService accountMovementService;
-  private final AccountService accountService;
+  private final ProductsService accountService;
   private final MonthlyBalanceService monthlyBalanceService;
   private final UnitOfWork unitOfWork;
 
@@ -43,7 +43,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
 
   public AccountMovementApplicationServiceImpl(
       final AccountMovementService accountMovementService,
-      final AccountService accountService,
+      final ProductsService accountService,
       final MonthlyBalanceService monthlyBalanceService,
       final UnitOfWork unitOfWork) {
     this.unitOfWork = unitOfWork;

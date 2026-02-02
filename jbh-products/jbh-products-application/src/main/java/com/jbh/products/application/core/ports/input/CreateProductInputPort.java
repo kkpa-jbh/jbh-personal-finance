@@ -1,23 +1,23 @@
 package com.jbh.products.application.core.ports.input;
 
+import com.jbh.commons.exception.BusinessException;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.products.application.common.logging.LoggerFactory;
 import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.application.core.services.account.AccountService;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.usecases.CreateProductUseCase;
 import com.jbh.products.application.core.vo.commands.CreateProductCommand;
 import com.jbh.products.domain.entity.ProductDomain;
 import com.jbh.products.domain.vo.ProductMetadata;
-import com.jbh.commons.exception.BusinessException;
-import com.jbh.commons.exception.GenericSpecificationException;
 import org.slf4j.Logger;
 
 public class CreateProductInputPort implements CreateProductUseCase {
 
   private static final Logger LOG = LoggerFactory.getLogger(CreateProductInputPort.class);
 
-  private final AccountService accountService;
+  private final ProductsService accountService;
 
-  public CreateProductInputPort(final AccountService accountService) {
+  public CreateProductInputPort(final ProductsService accountService) {
     this.accountService = accountService;
   }
 

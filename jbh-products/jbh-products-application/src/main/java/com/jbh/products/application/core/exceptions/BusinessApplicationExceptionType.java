@@ -49,7 +49,12 @@ public enum BusinessApplicationExceptionType implements BusinessExceptionType {
       "El periodo de la cuenta no es consecutivo. La última periodo fue: %s"),
   SNAPSHOT_AFTER_OFFICIAL_REPORT(
       "Cannot add a snapshot after the monthly balance was officially reported",
-      "No se puede añadir un snapshot después de que el balance anual fue reportado");
+      "No se puede añadir un snapshot después de que el balance anual fue reportado"),
+  PRODUCT_NOT_ACTIVE(
+      "Product is not active and cannot be modified",
+      "El producto no está activo y no puede ser modificado"),
+  PRODUCT_ALREADY_DELETED(
+      "Product has already been deleted", "El producto ya ha sido eliminado");
 
   private final String en;
   private final String es;

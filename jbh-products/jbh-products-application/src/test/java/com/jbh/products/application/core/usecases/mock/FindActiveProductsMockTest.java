@@ -9,8 +9,8 @@ import static org.mockito.Mockito.when;
 
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.ports.input.FindActiveProductsInputPort;
-import com.jbh.products.application.core.ports.output.AccountRepository;
-import com.jbh.products.application.core.usecases.FindActiveProductsUseCase;
+import com.jbh.products.application.core.services.account.ProductsService;
+import com.jbh.products.application.core.usecases.FindProductsUseCase;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductType;
 import java.util.Collections;
@@ -24,8 +24,8 @@ import org.mockito.MockitoAnnotations;
 public class FindActiveProductsMockTest {
 
   private static final UUID TEST_USER_ID = UUID.randomUUID();
-  private FindActiveProductsUseCase useCase;
-  @Mock private AccountRepository accountRepository;
+  private FindProductsUseCase useCase;
+  @Mock private ProductsService accountRepository;
 
   @BeforeEach
   public void setUp() {

@@ -1,9 +1,9 @@
 package com.jbh.products.application.core.usecases.mock;
 
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.products.application.builders.CommandTestBuilder.createMovement;
 import static com.jbh.products.application.builders.CommandTestBuilder.createMovementWithType;
 import static com.jbh.products.application.builders.UseCaseBuilder.movementQueryRepository;
-import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.products.domain.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.products.domain.vo.MovementType.DEPOSIT;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -23,12 +23,12 @@ import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.mappers.AccountMapper;
 import com.jbh.products.application.core.ports.input.AddMovementInputPort;
-import com.jbh.products.application.core.ports.output.AccountRepository;
+import com.jbh.products.application.core.ports.output.ProductRepository;
 import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.products.application.core.services.MonthlyBalanceSyncForUploadedMovements;
-import com.jbh.products.application.core.services.account.AccountService;
-import com.jbh.products.application.core.services.account.AccountServiceImpl;
+import com.jbh.products.application.core.services.account.ProductServiceImpl;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.products.application.core.services.movements.AccountMovementApplicationService;
 import com.jbh.products.application.core.services.movements.AccountMovementApplicationServiceImpl;
@@ -38,9 +38,9 @@ import com.jbh.products.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.products.application.core.vo.commands.AddMovementCommand;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.products.domain.entity.ProductDomain;
-import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.IncomeCategory;
 import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -63,12 +63,12 @@ public class RegisterMovementExecutionMockTest {
       MovementCategoryDTO.withType(IncomeCategory.OTHER);
   static UUID userId = UUID.randomUUID();
   private static AccountMovementApplicationService accountMovementService;
-  private static AccountService accountService;
+  private static ProductsService accountService;
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   private final Logger log = LoggerFactory.getLogger(RegisterMovementExecutionMockTest.class);
   MonthlyBalanceSyncForUploadedMovements monthlyBalanceAsyncTask;
   LocalDate movementDate = LocalDate.now();
-  @Mock private AccountRepository accountRepository;
+  @Mock private ProductRepository accountRepository;
   @Mock private AccountMovementWriterRepository accountMovementRepository;
   @Mock private AccountMonthlyBalanceQueryRepo accountMonthlyBalanceRepository;
   @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
@@ -80,7 +80,7 @@ public class RegisterMovementExecutionMockTest {
 
     MockitoAnnotations.openMocks(this);
 
-    accountService = new AccountServiceImpl(accountRepository);
+    accountService = new ProductServiceImpl(accountRepository);
 
     monthlyBalanceService =
         new MonthlyBalanceServiceImpl(
@@ -112,16 +112,16 @@ public class RegisterMovementExecutionMockTest {
     final ProductDomain accountDomain = withId(accountId);
 
     final var dto = Optional.of(AccountMapper.toDTO(accountDomain));
-    when(accountRepository.findByUserAndAccountId(userId, accountId)).thenReturn(dto);
+    when(accountRepository.findByUserAndProductId(userId, accountId)).thenReturn(dto);
 
-    when(accountRepository.findByAccountId(accountId)).thenReturn(dto);
+    when(accountRepository.findByProductId(accountId)).thenReturn(dto);
 
     // When & Then
     final AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
     assertDoesNotThrow(
         () -> mvmtResponse.set(useCaseInstanceTest.addMovement(userId, accountId, request)));
 
-    verify(accountRepository, times(2)).findByUserAndAccountId(userId, accountId);
+    verify(accountRepository, times(2)).findByUserAndProductId(userId, accountId);
     verify(accountMovementRepository).save((MovementDTO) any());
     verify(accountRepository).save(any());
 
@@ -170,9 +170,9 @@ public class RegisterMovementExecutionMockTest {
         AccountEntityBuilder.withBasicMovementForExisting(
             accountId, userId, existingAccountPpalBalance, new BigDecimal("190.00"));
 
-    when(accountRepository.findByUserAndAccountId(userId, accountId))
+    when(accountRepository.findByUserAndProductId(userId, accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
-    when(accountRepository.findByAccountId(accountId))
+    when(accountRepository.findByProductId(accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
 
     // When & Then
@@ -180,7 +180,7 @@ public class RegisterMovementExecutionMockTest {
     assertDoesNotThrow(
         () -> mvmtResponse.set(useCaseInstanceTest.addMovement(userId, accountId, request)));
 
-    verify(accountRepository, times(2)).findByUserAndAccountId(userId, accountId);
+    verify(accountRepository, times(2)).findByUserAndProductId(userId, accountId);
     verify(accountMovementRepository).save((MovementDTO) any());
     verify(accountRepository).save(any());
 
@@ -212,9 +212,9 @@ public class RegisterMovementExecutionMockTest {
         AccountEntityBuilder.withBasicMovementForExisting(
             accountId, userId, existingMovBalance, new BigDecimal("12689712.00"));
 
-    when(accountRepository.findByUserAndAccountId(userId, accountId))
+    when(accountRepository.findByUserAndProductId(userId, accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
-    when(accountRepository.findByAccountId(accountId))
+    when(accountRepository.findByProductId(accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
 
     // When & Then
@@ -222,7 +222,7 @@ public class RegisterMovementExecutionMockTest {
     assertDoesNotThrow(
         () -> mvmtResponse.set(useCaseInstanceTest.addMovement(userId, accountId, request)));
 
-    verify(accountRepository, times(2)).findByUserAndAccountId(userId, accountId);
+    verify(accountRepository, times(2)).findByUserAndProductId(userId, accountId);
     verify(accountMovementRepository).save((MovementDTO) any());
     verify(accountRepository).save((ProductDTO) any());
 
@@ -253,9 +253,9 @@ public class RegisterMovementExecutionMockTest {
 
     final ProductDomain accountDomain = withId(accountId);
 
-    when(accountRepository.findByUserAndAccountId(userId, accountId))
+    when(accountRepository.findByUserAndProductId(userId, accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
-    when(accountRepository.findByAccountId(accountId))
+    when(accountRepository.findByProductId(accountId))
         .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
 
     final int existingEntries = 10;

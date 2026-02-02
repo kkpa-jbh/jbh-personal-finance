@@ -8,17 +8,17 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.jbh.commons.exception.BusinessException;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.ports.input.CreateProductInputPort;
-import com.jbh.products.application.core.ports.output.AccountRepository;
-import com.jbh.products.application.core.services.account.AccountService;
-import com.jbh.products.application.core.services.account.AccountServiceImpl;
+import com.jbh.products.application.core.ports.output.ProductRepository;
+import com.jbh.products.application.core.services.account.ProductServiceImpl;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.usecases.CreateProductUseCase;
 import com.jbh.products.application.core.vo.commands.CreateProductCommand;
-import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductType;
-import com.jbh.commons.exception.BusinessException;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,14 +32,14 @@ public class CreateBasicAccountMockTest {
   final ProductType type = ProductType.SAVINGS;
   final String testAccountName = "Test Account";
   private CreateProductUseCase useCase;
-  private AccountService accountService;
-  @Mock private AccountRepository accountRepository;
+  private ProductsService accountService;
+  @Mock private ProductRepository accountRepository;
 
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    accountService = new AccountServiceImpl(accountRepository);
+    accountService = new ProductServiceImpl(accountRepository);
 
     useCase = new CreateProductInputPort(accountService);
   }

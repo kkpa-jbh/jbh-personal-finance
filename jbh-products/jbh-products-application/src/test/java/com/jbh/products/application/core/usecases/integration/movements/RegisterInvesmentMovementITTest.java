@@ -1,19 +1,20 @@
 package com.jbh.products.application.core.usecases.integration.movements;
 
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.products.application.builders.CommandTestBuilder.createInvestmentCommand;
 import static com.jbh.products.application.builders.CommandTestBuilder.createLiquidateCommandToExternal;
 import static com.jbh.products.application.builders.UseCaseBuilder.delayTests;
 import static com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.products.domain.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.products.domain.vo.MovementType.WITHDRAWAL;
-import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.builders.UseCaseBuilder;
 import com.jbh.products.application.core.dto.LiquidationResultDTO;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
@@ -34,7 +35,6 @@ import com.jbh.products.domain.vo.IncomeCategory;
 import com.jbh.products.domain.vo.MovementCategoryDTO;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductId;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -136,7 +136,7 @@ public class RegisterInvesmentMovementITTest {
     addMovementUseCase.addMovement(userId, acciCuentaId, acciCuentaUpdate);
 
     inMemoryAccountRepo
-        .findByAccountId(acciCuentaId)
+        .findByProductId(acciCuentaId)
         .ifPresent(
             updatedAcciCuenta -> {
               assertEquals(withJBHDecimals(acciCuentaBalance), updatedAcciCuenta.currentBalance());
@@ -151,7 +151,7 @@ public class RegisterInvesmentMovementITTest {
     addMovementUseCase.addMovement(userId, fondoAccionesId, fondoAccionesUpdate);
 
     inMemoryAccountRepo
-        .findByAccountId(fondoAccionesId)
+        .findByProductId(fondoAccionesId)
         .ifPresent(
             updatedFondoAcciones -> {
               assertEquals(
@@ -173,7 +173,7 @@ public class RegisterInvesmentMovementITTest {
     addMovementUseCase.addMovement(userId, acciCuentaId, acciCuentaUpdate);
 
     inMemoryAccountRepo
-        .findByAccountId(acciCuentaId)
+        .findByProductId(acciCuentaId)
         .ifPresent(
             updatedAcciCuenta -> {
               assertEquals(
@@ -189,7 +189,7 @@ public class RegisterInvesmentMovementITTest {
     addMovementUseCase.addMovement(userId, fondoAccionesId, fondoAccionesUpdate);
 
     inMemoryAccountRepo
-        .findByAccountId(fondoAccionesId)
+        .findByProductId(fondoAccionesId)
         .ifPresent(
             updatedFondoAcciones -> {
               assertEquals(
@@ -235,7 +235,7 @@ public class RegisterInvesmentMovementITTest {
     addMovementUseCase.addMovement(userId, acciCuentaId, acciCuentaUpdate);
 
     inMemoryAccountRepo
-        .findByAccountId(acciCuentaId)
+        .findByProductId(acciCuentaId)
         .ifPresent(
             updatedAcciCuenta -> {
               assertEquals(withJBHDecimals(acciCuentaBalance), updatedAcciCuenta.currentBalance());
@@ -266,7 +266,7 @@ public class RegisterInvesmentMovementITTest {
     addMovementUseCase.addMovement(userId, fondoAccionesId, fondoAccionesUpdate);
 
     inMemoryAccountRepo
-        .findByAccountId(fondoAccionesId)
+        .findByProductId(fondoAccionesId)
         .ifPresent(
             updatedFondoAcciones -> {
               assertEquals(
@@ -280,7 +280,7 @@ public class RegisterInvesmentMovementITTest {
   @Order(99)
   void shouldWithDrawalAllMoneySuccessfully() throws BusinessException {
     final LocalDate withdrawalDate = YearMonth.of(2025, 11).atDay(1);
-    final ProductDTO account = inMemoryAccountRepo.findByAccountId(acciCuentaId).orElse(null);
+    final ProductDTO account = inMemoryAccountRepo.findByProductId(acciCuentaId).orElse(null);
     final BigDecimal currentBalance = account.currentBalance();
 
     final AddMovementCommand withdrawal =
@@ -310,7 +310,7 @@ public class RegisterInvesmentMovementITTest {
     delayTests();
 
     final ProductDTO updatedAccount =
-        inMemoryAccountRepo.findByAccountId(acciCuentaId).orElse(null);
+        inMemoryAccountRepo.findByProductId(acciCuentaId).orElse(null);
     assertNotNull(updatedAccount);
     // assertEquals(new BigDecimal("1.31"), updatedAccount.netGrowthRate());
     assertTrue(updatedAccount.netProfitBalance().compareTo(BigDecimal.ZERO) > 0);

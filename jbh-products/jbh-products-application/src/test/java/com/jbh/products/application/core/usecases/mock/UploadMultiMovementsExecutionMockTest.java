@@ -1,12 +1,12 @@
 package com.jbh.products.application.core.usecases.mock;
 
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.products.application.builders.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.products.application.core.mappers.MonthlyBalanceMapper.toDomain;
 import static com.jbh.products.application.core.usecases.integration.monthlybalance.IgnoreOption.IGNORE_MONTHLY_PROFIT;
 import static com.jbh.products.application.core.usecases.integration.monthlybalance.IgnoreOption.IGNORE_OPENING_BALANCE;
 import static com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
-import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,6 +16,7 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.acid.UnitOfWork;
 import com.jbh.products.application.async.AsyncTaskExecutorImpl;
 import com.jbh.products.application.builders.AccountEntityBuilder;
@@ -26,11 +27,11 @@ import com.jbh.products.application.core.dto.AddMultipleBasicMovementDTO;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.ports.input.AddMovementsUploadedFileInputPort;
-import com.jbh.products.application.core.ports.output.AccountRepository;
+import com.jbh.products.application.core.ports.output.ProductRepository;
 import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.products.application.core.services.MonthlyBalanceSyncForUploadedMovements;
-import com.jbh.products.application.core.services.account.AccountService;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.products.application.core.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.products.application.core.usecases.CreateProductUseCase;
@@ -41,7 +42,6 @@ import com.jbh.products.domain.entity.MonthlyBalanceDomain;
 import com.jbh.products.domain.entity.ProductDomain;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductType;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -73,8 +73,8 @@ public class UploadMultiMovementsExecutionMockTest {
       AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
   private static CreateProductUseCase createAccountUseCase;
   private static ProductDTO currentAccount;
-  private static AccountService accountService;
-  private static AccountRepository accountRepository;
+  private static ProductsService accountService;
+  private static ProductRepository accountRepository;
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   private final Logger log = LoggerFactory.getLogger(UploadMultiMovementsExecutionMockTest.class);
   MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService;
@@ -456,7 +456,7 @@ public class UploadMultiMovementsExecutionMockTest {
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
 
     // Assert account net growth rate
-    final ProductDTO accountDTO = accountService.findAccountOrThrow(accountId);
+    final ProductDTO accountDTO = accountService.findProductOrThrow(accountId);
     assertEquals(numberOf("10.28"), accountDTO.netGrowthRate());
     assertNotNull(accountDTO.metadata());
     assertTrue(accountDTO.isFullyWithdrawn());

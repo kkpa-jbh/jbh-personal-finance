@@ -1,14 +1,15 @@
 package com.jbh.products.application.core.usecases.integration.monthlybalance;
 
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.products.application.builders.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
-import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.builders.EntityTestBuilder;
 import com.jbh.products.application.builders.UseCaseBuilder;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
@@ -29,7 +30,6 @@ import com.jbh.products.domain.vo.IncomeCategory;
 import com.jbh.products.domain.vo.MovementCategoryDTO;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductType;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -111,7 +111,7 @@ public class AddMovementsAfterMonthlyReportedTest {
 
     verify(accountMovementRepository).save(any(MovementDTO.class));
 
-    finalExpectedAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
+    finalExpectedAccountBalance = inMemoryAccountRepo.findByProductId(accountId).get();
     assertEquals(initialBalance, finalExpectedAccountBalance.currentBalance(), "Account Balance");
     assertEquals(initialBalance, finalExpectedAccountBalance.movementBalance(), "Movement Balance");
 
@@ -133,7 +133,7 @@ public class AddMovementsAfterMonthlyReportedTest {
     assertEquals(command.monthlyProfitReported(), officialReportedBalance.monthlyReportedProfit());
     assertEquals(command.monthlyProfitReported(), officialReportedBalance.monthlyNetProfit());
 
-    finalExpectedAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
+    finalExpectedAccountBalance = inMemoryAccountRepo.findByProductId(accountId).get();
     assertEquals(
         command.closingBalance(), finalExpectedAccountBalance.currentBalance(), "Account Balance");
     assertEquals(
@@ -169,7 +169,7 @@ public class AddMovementsAfterMonthlyReportedTest {
         currentMonthlyBalance.netGrowthRate().compareTo(officialReportedBalance.netGrowthRate())
             > 0);
 
-    final ProductDTO currentAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
+    final ProductDTO currentAccountBalance = inMemoryAccountRepo.findByProductId(accountId).get();
     assertEquals(
         finalExpectedAccountBalance.currentBalance(),
         currentAccountBalance.currentBalance(),
@@ -233,7 +233,7 @@ public class AddMovementsAfterMonthlyReportedTest {
         currentMonthlyBalance.netGrowthRate().compareTo(officialReportedBalance.netGrowthRate())
             < 0);
 
-    final ProductDTO currentAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
+    final ProductDTO currentAccountBalance = inMemoryAccountRepo.findByProductId(accountId).get();
     assertEquals(
         finalExpectedAccountBalance.currentBalance(),
         currentAccountBalance.currentBalance(),

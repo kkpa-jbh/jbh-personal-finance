@@ -1,21 +1,21 @@
 package com.jbh.products.application.core.services.account;
 
-import static com.jbh.products.application.core.mappers.AccountMapper.toDTO;
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.products.application.core.mappers.AccountMapper.toDTO;
 
+import com.jbh.commons.exception.BusinessException;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.products.application.core.mappers.MovementMapper;
-import com.jbh.products.application.core.ports.output.AccountRepository;
+import com.jbh.products.application.core.ports.output.ProductRepository;
 import com.jbh.products.domain.entity.ProductDomain;
 import com.jbh.products.domain.entity.ProductMovementDomain;
 import com.jbh.products.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -27,18 +27,18 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AccountServiceImpl implements AccountService {
+public class ProductServiceImpl implements ProductsService {
 
-  private final AccountRepository accountRepo;
+  private final ProductRepository accountRepo;
 
-  private final Logger log = LoggerFactory.getLogger(AccountServiceImpl.class);
+  private final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
 
-  public AccountServiceImpl(final AccountRepository accountRepo) {
+  public ProductServiceImpl(final ProductRepository accountRepo) {
     this.accountRepo = accountRepo;
   }
 
   @Override
-  public ProductDTO findByUserAndAccountId(final UUID userId, final ProductId accountId)
+  public ProductDTO findByUserAndProductId(final UUID userId, final ProductId accountId)
       throws BusinessException {
 
     if (userId == null) {
@@ -52,7 +52,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     return accountRepo
-        .findByUserAndAccountId(userId, accountId)
+        .findByUserAndProductId(userId, accountId)
         .orElseThrow(
             () -> {
               log.error(
@@ -63,13 +63,13 @@ public class AccountServiceImpl implements AccountService {
   }
 
   @Override
-  public ProductDTO findAccountOrThrow(final ProductId accountId) {
+  public ProductDTO findProductOrThrow(final ProductId accountId) {
     return findByAccountId(accountId)
         .orElseThrow(() -> new IllegalArgumentException("Account not found"));
   }
 
   private Optional<ProductDTO> findByAccountId(final ProductId accountId) {
-    return accountRepo.findByAccountId(accountId);
+    return accountRepo.findByProductId(accountId);
   }
 
   @Override
@@ -201,11 +201,21 @@ public class AccountServiceImpl implements AccountService {
     return toDTO(accountDomain);
   }
 
+  @Override
+  public List<ProductDTO> findActiveByUserId(final UUID userId) {
+    return accountRepo.findActiveByUserId(userId);
+  }
+
+  @Override
+  public Optional<ProductDTO> findProductById(final ProductId productId) {
+    return accountRepo.findByProductId(productId);
+  }
+
   private ProductDomain findDomainOrThrow(final ProductPK accountPK) throws BusinessException {
     final UUID userId = accountPK.userId();
     final ProductId accountId = accountPK.accountId();
 
-    final ProductDTO accountDTO = findByUserAndAccountId(userId, accountId);
+    final ProductDTO accountDTO = findByUserAndProductId(userId, accountId);
 
     return accountDTO.toDomain();
   }

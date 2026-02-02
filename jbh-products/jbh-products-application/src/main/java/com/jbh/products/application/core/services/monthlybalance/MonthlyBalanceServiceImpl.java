@@ -1,9 +1,10 @@
 package com.jbh.products.application.core.services.monthlybalance;
 
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.products.application.core.mappers.MonthlyBalanceMapper.toDTO;
 import static com.jbh.products.application.core.mappers.MonthlyBalanceMapper.toDomain;
-import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.async.AsyncTaskExecutor;
 import com.jbh.products.application.async.vo.AsyncTask;
 import com.jbh.products.application.async.vo.AsyncTaskType;
@@ -15,7 +16,7 @@ import com.jbh.products.application.core.mappers.MonthlyBalanceMapper;
 import com.jbh.products.application.core.mappers.MovementMapper;
 import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
-import com.jbh.products.application.core.services.account.AccountService;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.validation.movement_type.MovementTypeValidatorStrategy;
 import com.jbh.products.application.core.validation.movement_type.MovementValidationStrategyFactory;
 import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
@@ -23,7 +24,6 @@ import com.jbh.products.domain.entity.MonthlyBalanceDomain;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -46,14 +46,14 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   private final AccountMonthlyBalanceQueryRepo queryRepo;
   private final AccountMonthlyBalanceWriterRepository writerRepo;
   private final AsyncTaskExecutor asyncTaskExecutor;
-  private final AccountService accountService;
+  private final ProductsService accountService;
   private final MovementValidationStrategyFactory movValidationStrategyFactory;
 
   public MonthlyBalanceServiceImpl(
       final AccountMonthlyBalanceQueryRepo monthlyBalanceRepo,
       final AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepo,
       final AsyncTaskExecutor asyncTaskExecutor,
-      final AccountService accountService) {
+      final ProductsService accountService) {
     this.writerRepo = monthlyBalanceWriterRepo;
     this.queryRepo = monthlyBalanceRepo;
     this.asyncTaskExecutor = asyncTaskExecutor;

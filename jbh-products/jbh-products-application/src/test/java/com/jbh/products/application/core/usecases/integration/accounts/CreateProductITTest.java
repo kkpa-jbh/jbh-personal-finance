@@ -13,6 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.jbh.commons.exception.BusinessException;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.products.application.builders.AccountEntityBuilder;
 import com.jbh.products.application.builders.CommandTestBuilder;
 import com.jbh.products.application.builders.UseCaseBuilder;
@@ -21,12 +23,10 @@ import com.jbh.products.application.core.mappers.AccountMapper;
 import com.jbh.products.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.products.application.core.usecases.CreateProductUseCase;
 import com.jbh.products.application.core.vo.commands.CreateProductCommand;
-import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.products.domain.vo.ExpenseCategory;
 import com.jbh.products.domain.vo.MovementCategoryDTO;
 import com.jbh.products.domain.vo.ProductMetadata;
 import com.jbh.products.domain.vo.ProductType;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -169,7 +169,7 @@ public class CreateProductITTest {
             mvmDate, personalExpense1, MovementCategoryDTO.withType(ExpenseCategory.PERSONAL)));
 
     ProductDTO updatedAccount =
-        inMemoryAccountRepo.findByAccountId(creditCardAccountDTO.id()).get();
+        inMemoryAccountRepo.findByProductId(creditCardAccountDTO.id()).get();
     assertNotNull(updatedAccount);
     var expectedAccountBuilder =
         AccountEntityBuilder.withBuilder(
@@ -195,7 +195,7 @@ public class CreateProductITTest {
             publicServicesExpense1,
             MovementCategoryDTO.withType(ExpenseCategory.PUBLIC_SERVICES)));
 
-    updatedAccount = inMemoryAccountRepo.findByAccountId(creditCardAccountDTO.id()).get();
+    updatedAccount = inMemoryAccountRepo.findByProductId(creditCardAccountDTO.id()).get();
 
     expectedAccountBuilder =
         AccountEntityBuilder.withBuilder(

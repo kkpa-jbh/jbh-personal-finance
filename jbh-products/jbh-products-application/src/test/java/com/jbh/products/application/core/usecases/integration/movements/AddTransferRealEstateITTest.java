@@ -2,17 +2,17 @@ package com.jbh.products.application.core.usecases.integration.movements;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.builders.CommandTestBuilder;
 import com.jbh.products.application.builders.UseCaseBuilder;
 import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.application.core.services.account.AccountService;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.products.application.core.usecases.AddMovementUseCase;
 import com.jbh.products.application.core.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.products.application.core.usecases.CreateProductUseCase;
 import com.jbh.products.application.core.usecases.UpdateProductUseCase;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.commons.exception.BusinessException;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -28,7 +28,7 @@ public class AddTransferRealEstateITTest {
   @Mock private static AccountMovementWriterRepository accountMovementRepository;
   private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
-  private static AccountService accountService;
+  private static ProductsService accountService;
   private static MonthlyBalanceService monthlyBalanceService;
   private static UpdateProductUseCase updateProductUseCase;
   private static AddTransferJbhAccountsUseCase transferUseCase;

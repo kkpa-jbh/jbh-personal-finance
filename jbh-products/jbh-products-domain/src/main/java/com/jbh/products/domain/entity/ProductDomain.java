@@ -287,4 +287,27 @@ public class ProductDomain {
     validateMetadata(this.type, productMetadata);
     this.metadata = ProductMetadata.fromMap(productMetadata.getData());
   }
+
+  public void setName(final String name) {
+    if (name == null || name.isBlank()) {
+      throw new IllegalArgumentException("Product name cannot be null or blank");
+    }
+    this.name = name;
+    this.updatedAt = LocalDateTime.now();
+  }
+
+  public void deactivate() {
+    this.isActive = false;
+    this.updatedAt = LocalDateTime.now();
+  }
+
+  public void activate() {
+    this.isActive = true;
+    this.updatedAt = LocalDateTime.now();
+  }
+
+  public void setActive(final boolean active) {
+    this.isActive = active;
+    this.updatedAt = LocalDateTime.now();
+  }
 }

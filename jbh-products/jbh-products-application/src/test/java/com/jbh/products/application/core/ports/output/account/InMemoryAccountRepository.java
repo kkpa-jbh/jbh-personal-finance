@@ -1,7 +1,7 @@
 package com.jbh.products.application.core.ports.output.account;
 
 import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.application.core.ports.output.AccountRepository;
+import com.jbh.products.application.core.ports.output.ProductRepository;
 import com.jbh.products.domain.vo.ProductId;
 import java.util.HashMap;
 import java.util.List;
@@ -11,13 +11,13 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InMemoryAccountRepository implements AccountRepository {
+public class InMemoryAccountRepository implements ProductRepository {
 
   private static final Logger log = LoggerFactory.getLogger(InMemoryAccountRepository.class);
   private final Map<UUID, ProductDTO> storage = new HashMap<>();
 
   @Override
-  public Optional<ProductDTO> findByUserAndAccountId(final UUID userId, final ProductId accountId) {
+  public Optional<ProductDTO> findByUserAndProductId(final UUID userId, final ProductId accountId) {
     final ProductDTO account = storage.get(accountId.value());
     if (account != null && account.userId().equals(userId)) {
       return Optional.of(account);
@@ -35,7 +35,7 @@ public class InMemoryAccountRepository implements AccountRepository {
   }
 
   @Override
-  public Optional<ProductDTO> findByAccountId(final ProductId accountId) {
+  public Optional<ProductDTO> findByProductId(final ProductId accountId) {
     return Optional.ofNullable(storage.get(accountId.value()));
   }
 

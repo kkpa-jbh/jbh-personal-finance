@@ -1,14 +1,15 @@
 package com.jbh.products.application.core.usecases.integration.movements;
 
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.products.application.builders.CommandTestBuilder.createInitialBalance;
 import static com.jbh.products.application.core.usecases.utils.AccountITUtils.assertAccount;
-import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.builders.AccountEntityBuilder;
 import com.jbh.products.application.builders.CommandTestBuilder;
 import com.jbh.products.application.builders.UseCaseBuilder;
@@ -24,7 +25,6 @@ import com.jbh.products.application.core.usecases.LiquidateAccountUseCase;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.products.domain.vo.ProductMetadata;
 import com.jbh.products.domain.vo.ProductPK;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -92,7 +92,7 @@ public class RegisterCDTMovementITTest {
     addMovementUseCase.addMovement(
         userId, cdtAccount.id(), createInitialBalance(mvmDate, CDT_INITIAL_BALANCE));
 
-    final ProductDTO updatedAccount = inMemoryAccountRepo.findByAccountId(cdtAccount.id()).get();
+    final ProductDTO updatedAccount = inMemoryAccountRepo.findByProductId(cdtAccount.id()).get();
     assertNotNull(updatedAccount);
 
     final var expectedAccountBuilder =
@@ -145,7 +145,7 @@ public class RegisterCDTMovementITTest {
     UseCaseBuilder.delayTests();
 
     final Optional<ProductDTO> updatedCDTAccount =
-        inMemoryAccountRepo.findByAccountId(cdtAccount.id());
+        inMemoryAccountRepo.findByProductId(cdtAccount.id());
 
     final ProductDTO expectedCDTAccount =
         ProductDTO.defaultBuilder(userId, cdtAccount.id(), cdtAccount.name(), cdtAccount.type())
@@ -170,7 +170,7 @@ public class RegisterCDTMovementITTest {
     assertFalse(cdtAccountMonthlyBalanceOpt.isPresent());
 
     final Optional<ProductDTO> updatedInternalAccount =
-        inMemoryAccountRepo.findByAccountId(internalAccount.id());
+        inMemoryAccountRepo.findByProductId(internalAccount.id());
     assertTrue(updatedInternalAccount.isPresent());
 
     final Optional<MonthlyBalanceDTO> internalAccountMonthlyBalance =

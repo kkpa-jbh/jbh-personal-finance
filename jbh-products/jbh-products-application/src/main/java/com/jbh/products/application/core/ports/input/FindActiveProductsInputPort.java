@@ -1,17 +1,19 @@
 package com.jbh.products.application.core.ports.input;
 
 import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.application.core.ports.output.AccountRepository;
-import com.jbh.products.application.core.usecases.FindActiveProductsUseCase;
+import com.jbh.products.application.core.services.account.ProductsService;
+import com.jbh.products.application.core.usecases.FindProductsUseCase;
+import com.jbh.products.application.core.vo.commands.FindProductCommand;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-public class FindActiveProductsInputPort implements FindActiveProductsUseCase {
+public class FindActiveProductsInputPort implements FindProductsUseCase {
 
-  private final AccountRepository accountRepository;
+  private final ProductsService accountService;
 
-  public FindActiveProductsInputPort(final AccountRepository accountRepository) {
-    this.accountRepository = accountRepository;
+  public FindActiveProductsInputPort(final ProductsService accountService) {
+    this.accountService = accountService;
   }
 
   @Override
@@ -19,6 +21,11 @@ public class FindActiveProductsInputPort implements FindActiveProductsUseCase {
     if (userId == null) {
       throw new IllegalArgumentException("User ID cannot be null");
     }
-    return accountRepository.findActiveByUserId(userId);
+    return accountService.findActiveByUserId(userId);
+  }
+
+  @Override
+  public Optional<ProductDTO> findProductById(final FindProductCommand findProductCommand) {
+    return accountService.findProductById(findProductCommand.productId());
   }
 }

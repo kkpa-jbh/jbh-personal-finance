@@ -1,11 +1,11 @@
 package com.jbh.products.application.core.usecases.integration.monthlybalance;
 
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.products.application.builders.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.products.application.builders.TestDataFactory.getAddMonthlyBalanceCommandsWithProfit;
 import static com.jbh.products.application.builders.UseCaseBuilder.DEFAULT_ACCOUNT_NAME;
 import static com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
-import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -14,6 +14,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.builders.EntityTestBuilder;
 import com.jbh.products.application.builders.UseCaseBuilder;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
@@ -34,7 +35,6 @@ import com.jbh.products.domain.vo.IncomeCategory;
 import com.jbh.products.domain.vo.MovementCategoryDTO;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductType;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -147,7 +147,7 @@ public class RegisterMonthlyReportedProfitITTest {
   }
 
   private static void refreshActualAccountBalance() {
-    finalAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
+    finalAccountBalance = inMemoryAccountRepo.findByProductId(accountId).get();
   }
 
   @Test
@@ -789,7 +789,7 @@ public class RegisterMonthlyReportedProfitITTest {
     assertMonthlyBalance(nextMonthBalance, finalReported202410);
 
     // Check that account balance is not updated
-    final var currentAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
+    final var currentAccountBalance = inMemoryAccountRepo.findByProductId(accountId).get();
     assertEquals(
         currentAccountBalance.currentBalance(),
         finalAccountBalance.currentBalance(),

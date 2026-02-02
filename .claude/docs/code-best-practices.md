@@ -25,6 +25,8 @@ Always try to apply the following principles:
 
 - SRP (Single Responsability Principle)
 - SOLID
+- The repositories should only be included into service classes.
+- The Input port classes should have dependency of services rather than repositories.
 
 ### Documentation
 

@@ -1,12 +1,13 @@
 package com.jbh.products.application.core.services.movements;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.core.dto.AddBasicMovementDTO;
 import com.jbh.products.application.core.dto.MovementDTO;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.products.application.core.vo.commands.AddMovementCommand;
 import com.jbh.products.domain.vo.AccountMovementMetadata;
 import com.jbh.products.domain.vo.ProductPK;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -15,9 +16,8 @@ public interface AccountMovementApplicationService {
   /**
    * It creates a deposit movement for the next month with the dividends(monthly profit reported).
    * It creates a withdrawal movement for the next month with the income withholding tax
-   * amount(Retefuente). @See {@link
-   * com.jbh.products.application.core.services.account.AccountService#syncByMovement( ProductPK,
-   * MovementDTO, boolean isMonthOfficiallyReported)}
+   * amount(Retefuente). @See {@link ProductsService#syncByMovement( ProductPK, MovementDTO, boolean
+   * isMonthOfficiallyReported)}
    *
    * <p>It will update the monthly balance for the next month
    *

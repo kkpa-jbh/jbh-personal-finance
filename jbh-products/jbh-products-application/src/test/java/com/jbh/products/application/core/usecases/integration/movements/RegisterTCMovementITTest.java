@@ -1,13 +1,14 @@
 package com.jbh.products.application.core.usecases.integration.movements;
 
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.products.application.builders.CommandTestBuilder.createDepositIncome;
 import static com.jbh.products.application.builders.CommandTestBuilder.createPersonalExpense;
 import static com.jbh.products.application.core.usecases.utils.AccountITUtils.assertAccount;
 import static com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
-import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.builders.AccountEntityBuilder;
 import com.jbh.products.application.builders.CommandTestBuilder;
 import com.jbh.products.application.builders.EntityTestBuilder;
@@ -22,7 +23,6 @@ import com.jbh.products.application.core.usecases.CreateProductUseCase;
 import com.jbh.products.application.core.usecases.integration.monthlybalance.RegisterMonthlyReportedWithoutProfitITTest;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.products.domain.vo.ProductMetadata;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -90,7 +90,7 @@ public class RegisterTCMovementITTest {
         userId, creditCardAccount.id(), createPersonalExpense(mvmDate, personalExpense));
 
     final ProductDTO updatedAccount =
-        inMemoryAccountRepo.findByAccountId(creditCardAccount.id()).get();
+        inMemoryAccountRepo.findByProductId(creditCardAccount.id()).get();
     assertNotNull(updatedAccount);
 
     final var expectedAccountBuilder =
@@ -116,7 +116,7 @@ public class RegisterTCMovementITTest {
         userId, creditCardAccount.id(), createPersonalExpense(mvmDate, personalExpense));
 
     final ProductDTO updatedAccount =
-        inMemoryAccountRepo.findByAccountId(creditCardAccount.id()).get();
+        inMemoryAccountRepo.findByProductId(creditCardAccount.id()).get();
     assertNotNull(updatedAccount);
 
     final var expectedAccountBuilder =
@@ -142,7 +142,7 @@ public class RegisterTCMovementITTest {
         userId, creditCardAccount.id(), createDepositIncome(mvmDate, personalExpense));
 
     final ProductDTO updatedAccount =
-        inMemoryAccountRepo.findByAccountId(creditCardAccount.id()).get();
+        inMemoryAccountRepo.findByProductId(creditCardAccount.id()).get();
     assertNotNull(updatedAccount);
 
     final var expectedAccountBuilder =
@@ -189,7 +189,7 @@ public class RegisterTCMovementITTest {
         userId, creditCardAccount.id(), createPersonalExpense(mvmDate, personalExpense));
 
     final ProductDTO updatedAccount =
-        inMemoryAccountRepo.findByAccountId(creditCardAccount.id()).get();
+        inMemoryAccountRepo.findByProductId(creditCardAccount.id()).get();
     assertNotNull(updatedAccount);
 
     final var expectedAccountBuilder =
@@ -248,7 +248,7 @@ public class RegisterTCMovementITTest {
         userId, creditCardAccount.id(), createDepositIncome(mvmDate, personalExpense));
 
     final ProductDTO updatedAccount =
-        inMemoryAccountRepo.findByAccountId(creditCardAccount.id()).get();
+        inMemoryAccountRepo.findByProductId(creditCardAccount.id()).get();
     assertNotNull(updatedAccount);
 
     final var expectedAccountBuilder =

@@ -5,15 +5,18 @@ import com.jbh.products.application.async.AsyncTaskExecutorImpl;
 import com.jbh.products.application.core.ports.input.AddMovementInputPort;
 import com.jbh.products.application.core.ports.input.AddMovementsUploadedFileInputPort;
 import com.jbh.products.application.core.ports.input.CreateProductInputPort;
+import com.jbh.products.application.core.ports.input.DeleteProductInputPort;
+import com.jbh.products.application.core.ports.input.EditProductInputPort;
 import com.jbh.products.application.core.ports.input.FindActiveProductsInputPort;
 import com.jbh.products.application.core.ports.input.FindMonthlyBalanceInputPort;
 import com.jbh.products.application.core.ports.input.GetProductMetadataConfigInputPort;
-import com.jbh.products.application.core.ports.output.AccountRepository;
+import com.jbh.products.application.core.ports.input.UpdateProductStatusInputPort;
+import com.jbh.products.application.core.ports.output.ProductRepository;
 import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.products.application.core.services.MonthlyBalanceSyncForUploadedMovements;
-import com.jbh.products.application.core.services.account.AccountService;
-import com.jbh.products.application.core.services.account.AccountServiceImpl;
+import com.jbh.products.application.core.services.account.ProductServiceImpl;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.services.metadata.ProductMetadataConfigRegistry;
 import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
@@ -21,9 +24,12 @@ import com.jbh.products.application.core.services.movements.AccountMovementAppli
 import com.jbh.products.application.core.services.movements.AccountMovementApplicationServiceImpl;
 import com.jbh.products.application.core.services.movements.AccountMovementService;
 import com.jbh.products.application.core.services.movements.AccountMovementServiceImpl;
-import com.jbh.products.application.core.usecases.FindActiveProductsUseCase;
+import com.jbh.products.application.core.usecases.DeleteProductUseCase;
+import com.jbh.products.application.core.usecases.EditProductUseCase;
 import com.jbh.products.application.core.usecases.FindMonthlyBalanceUseCase;
+import com.jbh.products.application.core.usecases.FindProductsUseCase;
 import com.jbh.products.application.core.usecases.GetProductMetadataConfigUseCase;
+import com.jbh.products.application.core.usecases.UpdateProductStatusUseCase;
 import com.jbh.products.application.movements.ports.output.AccountMovementQueryRepository;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
 import io.quarkus.runtime.annotations.RegisterForReflection;
@@ -37,11 +43,14 @@ import jakarta.inject.Named;
     targets = {
       CreateProductInputPort.class,
       AddMovementInputPort.class,
-      FindActiveProductsInputPort.class
+      FindActiveProductsInputPort.class,
+      EditProductInputPort.class,
+      DeleteProductInputPort.class,
+      UpdateProductStatusInputPort.class
     })
 public class ProductUseCasesCDIConfig {
 
-  @Inject AccountRepository accountRepository;
+  @Inject ProductRepository accountRepository;
 
   @Inject AccountMovementWriterRepository accountMovementWriterRepo;
 
@@ -57,6 +66,8 @@ public class ProductUseCasesCDIConfig {
   @Named("monthlyBalanceJPARepository")
   AccountMonthlyBalanceQueryRepo monthlyBalanceQueryRepo;
 
+  @Inject ProductsService productsService;
+
   @Produces
   @ApplicationScoped
   public CreateProductInputPort registeringCreateAccountUseCase() {
@@ -65,8 +76,8 @@ public class ProductUseCasesCDIConfig {
 
   @Produces
   @ApplicationScoped
-  public AccountService accountService() {
-    return new AccountServiceImpl(accountRepository);
+  public ProductsService accountService() {
+    return new ProductServiceImpl(accountRepository);
   }
 
   @Produces
@@ -133,7 +144,25 @@ public class ProductUseCasesCDIConfig {
 
   @Produces
   @ApplicationScoped
-  public FindActiveProductsUseCase findActiveProductsUseCase() {
-    return new FindActiveProductsInputPort(accountRepository);
+  public FindProductsUseCase findActiveProductsUseCase() {
+    return new FindActiveProductsInputPort(accountService());
+  }
+
+  @Produces
+  @ApplicationScoped
+  public EditProductUseCase editProductUseCase() {
+    return new EditProductInputPort(accountService());
+  }
+
+  @Produces
+  @ApplicationScoped
+  public DeleteProductUseCase deleteProductUseCase() {
+    return new DeleteProductInputPort(accountService());
+  }
+
+  @Produces
+  @ApplicationScoped
+  public UpdateProductStatusUseCase updateProductStatusUseCase() {
+    return new UpdateProductStatusInputPort(accountService());
   }
 }

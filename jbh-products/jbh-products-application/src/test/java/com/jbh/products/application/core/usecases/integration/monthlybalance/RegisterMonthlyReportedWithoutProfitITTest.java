@@ -1,19 +1,20 @@
 package com.jbh.products.application.core.usecases.integration.monthlybalance;
 
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.products.application.builders.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.products.application.builders.UseCaseBuilder.DEFAULT_ACCOUNT_NAME;
 import static com.jbh.products.application.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
 import static com.jbh.products.application.core.usecases.utils.AccountITUtils.assertAccount;
 import static com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
-import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.builders.UseCaseBuilder;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
@@ -37,7 +38,6 @@ import com.jbh.products.domain.vo.MovementCategoryDTO;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -113,7 +113,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   }
 
   private static void refreshActualAccountBalance() {
-    finalAccountBalance = inMemoryAccountRepo.findByAccountId(accountId).get();
+    finalAccountBalance = inMemoryAccountRepo.findByProductId(accountId).get();
   }
 
   @BeforeEach
@@ -246,7 +246,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             .build();
 
     final ProductDTO persistedAccount =
-        inMemoryAccountRepo.findByUserAndAccountId(userId, accountId).get();
+        inMemoryAccountRepo.findByUserAndProductId(userId, accountId).get();
     assertAccount(
         (expectedAccount),
         persistedAccount,
@@ -324,7 +324,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             .netGrowthRate(withJBHDecimals(new BigDecimal("59.05")))
             .build();
     final ProductDTO persistedAccount =
-        inMemoryAccountRepo.findByUserAndAccountId(userId, accountId).get();
+        inMemoryAccountRepo.findByUserAndProductId(userId, accountId).get();
     assertAccount(expectedAccount, persistedAccount);
 
     addMovement(
@@ -682,7 +682,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             .build();
 
     final ProductDTO persistedAccount =
-        inMemoryAccountRepo.findByUserAndAccountId(userId, accountId).get();
+        inMemoryAccountRepo.findByUserAndProductId(userId, accountId).get();
     assertAccount(expectedAccount, persistedAccount, IgnoreAccountOptions.IGNORE_ACCOUNT_PROFIT);
   }
 

@@ -1,10 +1,10 @@
 package com.jbh.products.application.core.usecases.mock;
 
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.products.application.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
 import static com.jbh.products.application.builders.UseCaseBuilder.movementQueryRepository;
 import static com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
-import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
@@ -12,15 +12,16 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.async.AsyncTaskExecutorImpl;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.ports.input.RegisterMonthlyBalanceInputPort;
-import com.jbh.products.application.core.ports.output.AccountRepository;
+import com.jbh.products.application.core.ports.output.ProductRepository;
 import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
-import com.jbh.products.application.core.services.account.AccountService;
-import com.jbh.products.application.core.services.account.AccountServiceImpl;
+import com.jbh.products.application.core.services.account.ProductServiceImpl;
+import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
 import com.jbh.products.application.core.services.movements.AccountMovementApplicationServiceImpl;
@@ -32,7 +33,6 @@ import com.jbh.products.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.products.domain.vo.ProductId;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -55,8 +55,8 @@ public class RegisterMonthlyBalanceMockTest {
 
   AccountMovementApplicationServiceImpl accountMovementService;
   MonthlyBalanceService monthlyBalanceService;
-  AccountService accountService;
-  @Mock private AccountRepository accountRepository;
+  ProductsService accountService;
+  @Mock private ProductRepository accountRepository;
   @Mock private AccountMovementWriterRepository accountMovementRepository;
   @Mock private AccountMonthlyBalanceQueryRepo monthlyBalanceQueryRepoMock;
   @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
@@ -65,12 +65,12 @@ public class RegisterMonthlyBalanceMockTest {
   void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    when(accountRepository.findByUserAndAccountId(userId, accountId))
+    when(accountRepository.findByUserAndProductId(userId, accountId))
         .thenReturn(
             Optional.of(
                 ProductDTO.defaultBuilder(userId, accountId, "DF", DEFAULT_ACCOUNT_TYPE).build()));
 
-    accountService = new AccountServiceImpl(accountRepository);
+    accountService = new ProductServiceImpl(accountRepository);
 
     final MonthlyBalanceServiceImpl realMonthlyBalanceService =
         new MonthlyBalanceServiceImpl(

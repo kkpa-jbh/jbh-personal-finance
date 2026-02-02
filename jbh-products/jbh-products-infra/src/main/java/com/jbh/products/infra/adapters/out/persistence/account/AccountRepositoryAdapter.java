@@ -1,7 +1,7 @@
 package com.jbh.products.infra.adapters.out.persistence.account;
 
 import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.application.core.ports.output.AccountRepository;
+import com.jbh.products.application.core.ports.output.ProductRepository;
 import com.jbh.products.domain.vo.ProductId;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -13,13 +13,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
-public class AccountRepositoryAdapter implements AccountRepository {
+public class AccountRepositoryAdapter implements ProductRepository {
 
   private static final Logger LOG = LoggerFactory.getLogger(AccountRepositoryAdapter.class);
   @Inject AccountJPARepository jpaRepo;
 
   @Override
-  public Optional<ProductDTO> findByUserAndAccountId(final UUID userId, final ProductId accountId) {
+  public Optional<ProductDTO> findByUserAndProductId(final UUID userId, final ProductId accountId) {
     if (userId == null || accountId == null || accountId.value() == null) {
       throw new IllegalArgumentException("User ID or Account ID cannot be null");
     }
@@ -30,7 +30,7 @@ public class AccountRepositoryAdapter implements AccountRepository {
   }
 
   @Override
-  public Optional<ProductDTO> findByAccountId(final ProductId accountId) {
+  public Optional<ProductDTO> findByProductId(final ProductId accountId) {
     final Optional<AccountJPAEntity> foundAccount = jpaRepo.findByAccountId(accountId.value());
     return foundAccount.map(AccountJPAEntity::toDTO);
   }

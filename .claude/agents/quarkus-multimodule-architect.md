@@ -18,7 +18,6 @@ Your core responsibilities:
 - **Security:** JWT validation through `jbh-iam-service` service port for every module
 - **API Standards:** RESTful APIs with HATEOAS implementation
 - USE OF JPMS Java Platform Module System (JPMS)
--
 
 **Architecture Design:**
 
@@ -104,6 +103,7 @@ When creating a new module with database support, follow this naming convention 
 - **Property format:** `quarkus.liquibase.{datasource}.change-log=db/{schema-name}-db-master.xml`
 
 Example for a new module with schema `mymodule`:
+
 ```properties
 quarkus.liquibase.mymodule.change-log=db/mymodule-db-master.xml
 ```
@@ -114,9 +114,9 @@ When creating a new module with database support, you MUST update the following 
 
 1. **Create module Makefile:** `jbh-{module-name}/{ModuleName}.mk` (copy from existing module and update schema name)
 2. **Update root Makefile:** Add the new module to:
-   - Module directories section (`{MODULE}_DIR = jbh-{module-name}`)
-   - `.PHONY` declarations
-   - `create-all-schemas`, `drop-all-schemas`, `check-all-connections` targets
-   - Add module-specific targets (`{module}-help`, `{module}-create-schema`, etc.)
-   - Add schema export target (`export-{module}-schema`)
+    - Module directories section (`{MODULE}_DIR = jbh-{module-name}`)
+    - `.PHONY` declarations
+    - `create-all-schemas`, `drop-all-schemas`, `check-all-connections` targets
+    - Add module-specific targets (`{module}-help`, `{module}-create-schema`, etc.)
+    - Add schema export target (`export-{module}-schema`)
 3. **Update export-schema.sh:** Add the new schema to the `all` case and the individual schema case statement
