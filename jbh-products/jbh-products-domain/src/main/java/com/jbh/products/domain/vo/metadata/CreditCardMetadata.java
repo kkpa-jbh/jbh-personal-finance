@@ -35,6 +35,7 @@ public final class CreditCardMetadata extends BaseMetadata {
     return JbhMoneyUtils.toJBHDecimal(creditLimit);
   }
 
+  @Override
   protected Object get(final ProductMetadataKey key) {
     return data.get(key);
   }

@@ -18,7 +18,7 @@ public class EmailTemplateService {
 
   private static final Logger LOG = LoggerFactory.getLogger(EmailTemplateService.class);
 
-  private static final String DEFAULT_LOCALE = "en";
+  private static final String DEFAULT_LOCALE_EN = "en";
   private static final String LOCALE_ES = "es";
   private static final String TEMPLATE_VAR_LOCALE = "locale";
   private static final String TEMPLATE_VAR_BASE_URL = "baseUrl";
@@ -85,13 +85,13 @@ public class EmailTemplateService {
 
   private String resolveLocale(final String locale) {
     if (locale == null || locale.isBlank()) {
-      return DEFAULT_LOCALE;
+      return DEFAULT_LOCALE_EN;
     }
     final String normalizedLocale = locale.toLowerCase(Locale.ROOT).trim();
     if (LOCALE_ES.equals(normalizedLocale) || normalizedLocale.startsWith(LOCALE_ES)) {
       return LOCALE_ES;
     }
-    return DEFAULT_LOCALE;
+    return DEFAULT_LOCALE_EN;
   }
 
   private EmailMessages getMessages(final String locale) {

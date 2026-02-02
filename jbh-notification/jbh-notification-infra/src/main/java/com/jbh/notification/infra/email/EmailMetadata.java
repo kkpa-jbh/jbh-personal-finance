@@ -73,4 +73,24 @@ public final class EmailMetadata {
     public Object get(final String key) {
         return data.get(key);
     }
+
+    /**
+     * Returns a new EmailMetadata with the locale set if it was not already present.
+     * This allows user preferences to be used as fallback when locale is not specified in metadata.
+     *
+     * @param locale the locale to set if absent
+     * @return a new EmailMetadata with the locale set, or this instance if locale was present
+     */
+    public EmailMetadata withLocaleIfAbsent(final String locale) {
+        if (locale == null || locale.isBlank()) {
+            return this;
+        }
+        final Object existingLocale = data.get(EmailMetadataKey.LOCALE.getKey());
+        if (existingLocale != null && !String.valueOf(existingLocale).isBlank()) {
+            return this;
+        }
+        final Map<String, Object> newData = new HashMap<>(data);
+        newData.put(EmailMetadataKey.LOCALE.getKey(), locale);
+        return new EmailMetadata(newData);
+    }
 }

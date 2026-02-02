@@ -34,6 +34,7 @@ public final class CommonMetadata extends BaseMetadata {
     return data.containsKey(key);
   }
 
+  @Override
   protected Object get(final ProductMetadataKey key) {
     return data.get(key);
   }

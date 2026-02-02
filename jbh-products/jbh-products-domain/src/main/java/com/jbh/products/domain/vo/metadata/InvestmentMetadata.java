@@ -23,6 +23,7 @@ public final class InvestmentMetadata extends BaseMetadata {
     return (String) get(ProductMetadataKey.BROKER_NAME);
   }
 
+  @Override
   protected Object get(final ProductMetadataKey key) {
     return data.get(key);
   }

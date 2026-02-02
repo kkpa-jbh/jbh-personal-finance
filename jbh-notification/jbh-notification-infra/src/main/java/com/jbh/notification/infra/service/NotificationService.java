@@ -14,6 +14,7 @@ import com.jbh.notification.infra.persistence.NotificationStatus;
 import com.jbh.notification.infra.ports.input.NotificationServicePort;
 import com.jbh.notification.infra.ports.output.EmailSenderPort;
 import com.jbh.notification.infra.ports.output.NotificationRepository;
+import com.jbh.notification.infra.ports.output.UserPreferencesPort;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -28,19 +29,23 @@ public class NotificationService implements NotificationServicePort {
 
   private static final Logger LOG = LoggerFactory.getLogger(NotificationService.class);
   private static final String DEFAULT_SUBJECT = "JBH Notification";
+  private static final String DEFAULT_LANGUAGE = "es";
 
   private final NotificationRepository notificationRepository;
   private final EmailSenderPort emailSenderPort;
   private final EmailTemplateService emailTemplateService;
+  private final UserPreferencesPort userPreferencesPort;
 
   @Inject
   public NotificationService(
       final NotificationRepository notificationRepository,
       final EmailSenderPort emailSenderPort,
-      final EmailTemplateService emailTemplateService) {
+      final EmailTemplateService emailTemplateService,
+      final UserPreferencesPort userPreferencesPort) {
     this.notificationRepository = notificationRepository;
     this.emailSenderPort = emailSenderPort;
     this.emailTemplateService = emailTemplateService;
+    this.userPreferencesPort = userPreferencesPort;
   }
 
   /**
@@ -62,7 +67,9 @@ public class NotificationService implements NotificationServicePort {
       LOG.info("Processing {} notification for recipient: {}", type, notification.recipientEmail());
     }
 
-    final EmailMetadata metadata = EmailMetadata.fromMap(notification.metadata());
+    final String userLanguage = resolveUserLanguage(notification.recipientId());
+    final EmailMetadata metadata =
+        EmailMetadata.fromMap(notification.metadata()).withLocaleIfAbsent(userLanguage);
     final String subject = determineSubject(notification, metadata.getLocale());
 
     final NotificationDTO notificationToSave =
@@ -76,7 +83,7 @@ public class NotificationService implements NotificationServicePort {
             .notificationType(type)
             .status(NotificationStatus.PENDING)
             .emailTemplate(notification.emailTemplate())
-            .metadata(notification.metadata())
+            .metadata(metadata.toMap())
             .build();
 
     final NotificationDTO savedNotification = notificationRepository.save(notificationToSave);
@@ -250,6 +257,15 @@ public class NotificationService implements NotificationServicePort {
             e.getMessage());
       }
     }
+  }
+
+  private String resolveUserLanguage(final UUID userId) {
+    if (userId == null) {
+      return DEFAULT_LANGUAGE;
+    }
+    final String language = userPreferencesPort.getUserLanguage(userId);
+    LOG.debug("Resolved language '{}' for user: {}", language, userId);
+    return language;
   }
 
   private String determineSubject(final NotificationDTO notification, final String locale) {

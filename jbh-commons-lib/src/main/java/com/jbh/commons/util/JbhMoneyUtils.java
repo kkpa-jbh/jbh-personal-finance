@@ -52,12 +52,14 @@ public final class JbhMoneyUtils {
     return totalAmount != null && totalAmount.signum() < 0;
   }
 
+  @SuppressWarnings("PMD.UnusedAssignment")
   public static BigDecimal toJBHDecimal(final Object value) {
-    BigDecimal valueAsDecimal = null;
+
     if (value == null) {
-      return valueAsDecimal;
+      return JBH_ZERO;
     }
 
+    BigDecimal valueAsDecimal = null;
     if (value instanceof BigDecimal) {
       valueAsDecimal = (BigDecimal) value;
     } else {

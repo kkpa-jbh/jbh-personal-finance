@@ -11,5 +11,5 @@ public abstract class BaseMetadata {
     return JbhMoneyUtils.toJBHDecimal(result);
   }
 
-  protected abstract Object get(final ProductMetadataKey key);
+  protected abstract Object get(ProductMetadataKey key);
 }

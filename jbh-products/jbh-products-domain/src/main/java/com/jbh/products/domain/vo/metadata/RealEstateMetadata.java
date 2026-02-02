@@ -24,6 +24,7 @@ public final class RealEstateMetadata extends BaseMetadata {
     return (LocalDate) get(ProductMetadataKey.REAL_ESTATE_PURCHASE_DATE);
   }
 
+  @Override
   protected Object get(final ProductMetadataKey key) {
     return data.get(key);
   }

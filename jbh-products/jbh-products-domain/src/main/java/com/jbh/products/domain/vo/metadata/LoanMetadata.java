@@ -23,6 +23,7 @@ public final class LoanMetadata extends BaseMetadata {
     return getDecimal(ProductMetadataKey.LOAN_PRINCIPAL_AMOUNT);
   }
 
+  @Override
   protected Object get(final ProductMetadataKey key) {
     return data.get(key);
   }

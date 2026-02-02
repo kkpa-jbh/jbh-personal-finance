@@ -5,6 +5,7 @@ module jbh.preferences.infra {
   requires quarkus.hibernate.orm.panache;
   requires quarkus.panache.common;
   requires jbh.preferences.application;
+  requires jbh.preferences.contracts;
   requires org.slf4j;
   requires org.eclipse.microprofile.openapi;
   requires quarkus.core;
@@ -16,6 +17,8 @@ module jbh.preferences.infra {
   requires smallrye.config.core;
   requires com.jbh.gateway;
   requires jbh.commons;
+
+  exports com.jbh.preferences.infra.adapters.out.intermodule;
 
   uses com.jbh.preferences.application.core.ports.input.GetUserPreferencesInputPort;
 }

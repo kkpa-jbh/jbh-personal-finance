@@ -31,6 +31,7 @@ public final class CdtMetadata extends BaseMetadata {
     return (LocalDate) maturityDate;
   }
 
+  @Override
   protected Object get(final ProductMetadataKey key) {
     return data.get(key);
   }
