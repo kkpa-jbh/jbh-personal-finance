@@ -26,9 +26,9 @@ import com.jbh.products.domain.vo.ProductPK;
 import com.jbh.products.infra.adapters.in.rest.vo.AddMovementRequest;
 import com.jbh.products.infra.adapters.in.rest.vo.CreateProductRequest;
 import com.jbh.products.infra.adapters.in.rest.vo.EditProductRequest;
-import com.jbh.products.infra.adapters.in.rest.vo.UpdateProductStatusRequest;
 import com.jbh.products.infra.adapters.in.rest.vo.FinanceApiRoutes;
 import com.jbh.products.infra.adapters.in.rest.vo.MonthlyBalanceRequest;
+import com.jbh.products.infra.adapters.in.rest.vo.UpdateProductStatusRequest;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -236,6 +236,7 @@ public class ProductRestAdapter extends BaseRestAdapter {
           final String authorizationHeader)
       throws JbhGatewayException, BusinessException, InternalSystemException {
 
+    log.info("Getting Monthly Balances {} for product {} ", request, productId);
     request.validate();
 
     final UUID userId = findUserId(authorizationHeader);
@@ -350,9 +351,7 @@ public class ProductRestAdapter extends BaseRestAdapter {
   @DELETE
   @Path("/{productId}")
   @Produces(MediaType.APPLICATION_JSON)
-  @Operation(
-      summary = "Delete a Product (soft delete)",
-      description = "Soft deletes a Product by setting it as inactive")
+  @Operation(summary = "Delete a Product", description = "Drop a product from DB")
   @APIResponses(
       value = {
         @APIResponse(responseCode = "204", description = "Product deleted successfully"),
