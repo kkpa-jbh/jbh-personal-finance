@@ -70,4 +70,6 @@ public interface ProductsService {
   List<ProductDTO> findActiveByUserId(UUID userId);
 
   Optional<ProductDTO> findProductById(ProductId productId);
+
+  void deleteProduct(ProductId productId);
 }

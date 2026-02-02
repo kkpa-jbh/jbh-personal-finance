@@ -15,4 +15,6 @@ public interface ProductRepository {
   List<ProductDTO> findActiveByUserId(UUID userId);
 
   ProductDTO save(ProductDTO account);
+
+  void deleteById(ProductId productId);
 }

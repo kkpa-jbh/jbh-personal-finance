@@ -1,7 +1,7 @@
 package com.jbh.products.application.async;
 
-import com.jbh.products.application.async.vo.AsyncTask;
 import com.jbh.commons.exception.GenericSpecificationException;
+import com.jbh.products.application.async.vo.AsyncTask;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
@@ -51,6 +51,7 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
             }
             future.completeExceptionally(gse);
           } catch (final Exception exception) {
+            exception.printStackTrace();
             LOG.error(
                 "General exception executing async task {}: {}",
                 asyncTask.type(),

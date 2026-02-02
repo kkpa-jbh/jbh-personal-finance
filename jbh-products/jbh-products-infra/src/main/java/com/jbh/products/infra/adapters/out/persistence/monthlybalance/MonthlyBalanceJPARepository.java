@@ -78,7 +78,7 @@ public class MonthlyBalanceJPARepository
     final YearMonth endPeriod = YearMonth.now();
     return find(
             "accountId = :accountId  and period <= :endPeriod order by period asc",
-            Parameters.with(ACCOUNT_ID_PARAM, accountId).and("endPeriod", endPeriod))
+            Parameters.with(ACCOUNT_ID_PARAM, accountId.value()).and("endPeriod", endPeriod))
         .list()
         .stream()
         .map(AccountMonthlyBalanceJPAEntity::toDTO)

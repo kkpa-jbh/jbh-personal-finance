@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
+@Transactional
 public class AccountRepositoryAdapter implements ProductRepository {
 
   private static final Logger LOG = LoggerFactory.getLogger(AccountRepositoryAdapter.class);
@@ -31,6 +32,7 @@ public class AccountRepositoryAdapter implements ProductRepository {
 
   @Override
   public Optional<ProductDTO> findByProductId(final ProductId accountId) {
+    LOG.info("Fetching Product {} from DB", accountId.value());
     final Optional<AccountJPAEntity> foundAccount = jpaRepo.findByAccountId(accountId.value());
     return foundAccount.map(AccountJPAEntity::toDTO);
   }
@@ -57,6 +59,18 @@ public class AccountRepositoryAdapter implements ProductRepository {
     }
 
     return entity.toDTO();
+  }
+
+  @Transactional
+  @Override
+  public void deleteById(final ProductId productId) {
+    final Optional<AccountJPAEntity> foundAccount = jpaRepo.findByAccountId(productId.value());
+
+    if (foundAccount.isEmpty()) {
+      throw new IllegalArgumentException("Product ID not found to delete it");
+    }
+
+    jpaRepo.delete(foundAccount.get());
   }
 
   /*

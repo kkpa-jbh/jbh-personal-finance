@@ -286,6 +286,7 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
           LOG.info("Persisting monthly balances completed successfully {} ", asyncTask);
 
           // Step 3: Update Account Net Growth Rate when is fully withdrawl
+
           if (accountService.isFullyWithdrawn(accountId)) {
             accountService.updateWhenFullyWithdrawn(
                 accountId, findAllByAccountIdUntilNow(accountId));

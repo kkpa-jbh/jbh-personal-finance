@@ -64,12 +64,8 @@ public class ProductServiceImpl implements ProductsService {
 
   @Override
   public ProductDTO findProductOrThrow(final ProductId accountId) {
-    return findByAccountId(accountId)
+    return findProductById(accountId)
         .orElseThrow(() -> new IllegalArgumentException("Account not found"));
-  }
-
-  private Optional<ProductDTO> findByAccountId(final ProductId accountId) {
-    return accountRepo.findByProductId(accountId);
   }
 
   @Override
@@ -100,7 +96,7 @@ public class ProductServiceImpl implements ProductsService {
   }
 
   private ProductDomain findDomainOrThrow(final ProductId accountId) {
-    final Optional<ProductDTO> accountDTO = findByAccountId(accountId);
+    final Optional<ProductDTO> accountDTO = findProductById(accountId);
 
     if (accountDTO.isEmpty()) {
       throw new GenericSpecificationException("Account not found");
@@ -120,6 +116,7 @@ public class ProductServiceImpl implements ProductsService {
 
   @Override
   public boolean isFullyWithdrawn(final ProductId accountId) {
+    log.info("Checking It's product {} fully withdrawn ", accountId.value());
     final ProductDomain accountDomain = findDomainOrThrow(accountId);
     return accountDomain.isFullyWithdrawn();
   }
@@ -208,7 +205,15 @@ public class ProductServiceImpl implements ProductsService {
 
   @Override
   public Optional<ProductDTO> findProductById(final ProductId productId) {
+    log.info("Find product by id {}", productId);
     return accountRepo.findByProductId(productId);
+  }
+
+  @Override
+  public void deleteProduct(final ProductId productId) {
+    log.info("Deleting product...");
+    accountRepo.deleteById(productId);
+    log.warn("Deleted product with id {}", productId);
   }
 
   private ProductDomain findDomainOrThrow(final ProductPK accountPK) throws BusinessException {
