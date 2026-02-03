@@ -4,7 +4,6 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
 import com.jbh.gateway.client.JbhGatewayException;
 import com.jbh.products.application.core.dto.AddBasicMovementDTO;
-import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.usecases.AddMovementUseCase;
 import com.jbh.products.application.core.usecases.CreateProductUseCase;
@@ -22,12 +21,10 @@ import com.jbh.products.application.core.vo.commands.UpdateProductStatusCommand;
 import com.jbh.products.domain.vo.MovementCategoryDTO;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductMetadata;
-import com.jbh.products.domain.vo.ProductPK;
 import com.jbh.products.infra.adapters.in.rest.vo.AddMovementRequest;
 import com.jbh.products.infra.adapters.in.rest.vo.CreateProductRequest;
 import com.jbh.products.infra.adapters.in.rest.vo.EditProductRequest;
 import com.jbh.products.infra.adapters.in.rest.vo.FinanceApiRoutes;
-import com.jbh.products.infra.adapters.in.rest.vo.MonthlyBalanceRequest;
 import com.jbh.products.infra.adapters.in.rest.vo.UpdateProductStatusRequest;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -35,7 +32,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.eclipse.microprofile.openapi.annotations.*;
@@ -63,7 +59,7 @@ public class ProductRestAdapter extends BaseRestAdapter {
   private final Logger log = LoggerFactory.getLogger(ProductRestAdapter.class);
   private final CreateProductUseCase createProductUseCase;
   private final AddMovementUseCase addMovementUseCase;
-  private final FindMonthlyBalanceUseCase findMonthlyBalanceUseCase;
+
   private final FindProductsUseCase findProductsUseCase;
   private final EditProductUseCase editProductUseCase;
   private final DeleteProductUseCase deleteProductUseCase;
@@ -80,7 +76,6 @@ public class ProductRestAdapter extends BaseRestAdapter {
       final UpdateProductStatusUseCase updateProductStatusUseCase) {
     this.addMovementUseCase = addMovementUseCase;
     this.createProductUseCase = createProductUseCase;
-    this.findMonthlyBalanceUseCase = findMonthlyBalanceUseCase;
     this.findProductsUseCase = findProductsUseCase;
     this.editProductUseCase = editProductUseCase;
     this.deleteProductUseCase = deleteProductUseCase;
@@ -198,110 +193,6 @@ public class ProductRestAdapter extends BaseRestAdapter {
         addMovementUseCase.addMovement(userId, ProductId.of(productId), command);
 
     return Response.ok(response).build();
-  }
-
-  @POST
-  @Path(FinanceApiRoutes.PRODUCTS_MONTHLY_BALANCES_API_PATH + "/{productId}")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  @Operation(summary = "Find monthly balances for an Product")
-  @APIResponses(
-      value = {
-        @APIResponse(
-            responseCode = "200",
-            description = "Monthly Balances found",
-            content =
-                @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = String.class))),
-        @APIResponse(
-            responseCode = "400",
-            description = "Invalid command",
-            content =
-                @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = String.class))),
-        @APIResponse(
-            responseCode = "401",
-            description = "Unauthorized",
-            content =
-                @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = String.class)))
-      })
-  @SecurityRequirement(name = "JWT")
-  public Response findMonthlyBalances(
-      @PathParam("productId") final UUID productId,
-      @RequestBody final MonthlyBalanceRequest request,
-      @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
-          final String authorizationHeader)
-      throws JbhGatewayException, BusinessException, InternalSystemException {
-
-    log.info("Getting Monthly Balances {} for product {} ", request, productId);
-    request.validate();
-
-    final UUID userId = findUserId(authorizationHeader);
-
-    final List<MonthlyBalanceDTO> monthlyBalances =
-        findMonthlyBalanceUseCase.findByAccountAndPeriods(
-            new ProductPK(userId, ProductId.of(productId)),
-            request.startPeriod(),
-            request.endPeriod());
-
-    return Response.ok(monthlyBalances).build();
-  }
-
-  @POST
-  @Path(FinanceApiRoutes.PRODUCTS_MONTHLY_BALANCES_API_PATH + "/")
-  @Consumes(MediaType.APPLICATION_JSON)
-  @Produces(MediaType.APPLICATION_JSON)
-  @Operation(
-      summary = "Find monthly balances for all active products",
-      description = "Retrieves monthly balances for all active products within a date range")
-  @APIResponses(
-      value = {
-        @APIResponse(
-            responseCode = "200",
-            description = "Monthly Balances found for all active products",
-            content =
-                @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = Map.class))),
-        @APIResponse(
-            responseCode = "400",
-            description = "Invalid request",
-            content =
-                @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = String.class))),
-        @APIResponse(
-            responseCode = "401",
-            description = "Unauthorized",
-            content =
-                @Content(
-                    mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = String.class)))
-      })
-  @SecurityRequirement(name = "JWT")
-  public Response findAllActiveProductsMonthlyBalances(
-      @RequestBody final MonthlyBalanceRequest request,
-      @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
-          final String authorizationHeader)
-      throws JbhGatewayException, BusinessException, InternalSystemException {
-
-    log.info("Getting Monthly Balances for all active products: {}", request);
-    request.validate();
-
-    final UUID userId = findUserId(authorizationHeader);
-
-    final Map<ProductId, List<MonthlyBalanceDTO>> monthlyBalances =
-        findMonthlyBalanceUseCase.findByActiveProductsAndPeriods(
-            userId, request.startPeriod(), request.endPeriod());
-
-    // Join all collections
-    var allMonthlyBalances = monthlyBalances.values().stream().flatMap(List::stream).toList();
-
-    return Response.ok(allMonthlyBalances).build();
   }
 
   @GET

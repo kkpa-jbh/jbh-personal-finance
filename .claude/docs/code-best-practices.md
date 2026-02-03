@@ -1,9 +1,37 @@
+# CRITICAL RULES
+
+## Code Conventions
+
+1. Boolean Parameter Anti-Pattern (Do not used it on any method). It's only allowed to use it in the constructors.
+2. A method/function should not have more than 3 arguments. Introduce value objects to improve it. (Domain Value Objects)
+   Example: This is a wrong/anti pattern function. It has 4 arguments
+
+```java
+public List<MonthlyBalanceDTO> findByProductIdsAndPeriods(
+    final List<ProductId> productIds, final YearMonth startPeriod, final YearMonth endPeriod, final boolean endPeriodExclusive)
+```
+
+And can be refactored like this:
+
+```java
+// Introducing a domain value object PeriodRange
+
+public List<MonthlyBalanceDTO> findByProductIdsAndPeriod(
+    final List<ProductId> productIds,
+    final PeriodRange periodRange);
+
+// Callers
+findByProductIdsAndPeriod(productIds, PeriodRange.inclusive(start, end));
+```
+
+3. The methods should be self-documenting.
+4. Value Object characteristics: Provide name constructors.
+
 ## Best Practices Enforcement
 
 - SOLID principles application
 - Proper exception handling and logging
 - Performance optimization recommendations
-- Security vulnerability prevention
 - Clean code practices
 - Every module should have a highly cohesion
 - Every single code block generated should use final variables and final arguments.

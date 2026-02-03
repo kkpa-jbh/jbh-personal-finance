@@ -88,7 +88,7 @@ class FindMonthlyBalancesMockTest {
         .thenReturn(expectedBalances);
 
     final Map<ProductId, List<MonthlyBalanceDTO>> result =
-        useCase.findByActiveProductsAndPeriods(TEST_USER_ID, START_PERIOD, END_PERIOD);
+        useCase.findBalanceHistoryBy(TEST_USER_ID, START_PERIOD, END_PERIOD);
 
     assertNotNull(result);
     assertEquals(2, result.size());
@@ -105,7 +105,7 @@ class FindMonthlyBalancesMockTest {
     when(productsService.findActiveByUserId(TEST_USER_ID)).thenReturn(Collections.emptyList());
 
     final Map<ProductId, List<MonthlyBalanceDTO>> result =
-        useCase.findByActiveProductsAndPeriods(TEST_USER_ID, START_PERIOD, END_PERIOD);
+        useCase.findBalanceHistoryBy(TEST_USER_ID, START_PERIOD, END_PERIOD);
 
     assertNotNull(result);
     assertTrue(result.isEmpty());
@@ -119,14 +119,14 @@ class FindMonthlyBalancesMockTest {
   void shouldThrowExceptionWhenStartPeriodIsNull() {
     assertThrows(
         BusinessException.class,
-        () -> useCase.findByActiveProductsAndPeriods(TEST_USER_ID, null, END_PERIOD));
+        () -> useCase.findBalanceHistoryBy(TEST_USER_ID, null, END_PERIOD));
   }
 
   @Test
   void shouldThrowExceptionWhenEndPeriodIsNull() {
     assertThrows(
         BusinessException.class,
-        () -> useCase.findByActiveProductsAndPeriods(TEST_USER_ID, START_PERIOD, null));
+        () -> useCase.findBalanceHistoryBy(TEST_USER_ID, START_PERIOD, null));
   }
 
   @Test
@@ -136,7 +136,7 @@ class FindMonthlyBalancesMockTest {
 
     assertThrows(
         BusinessException.class,
-        () -> useCase.findByActiveProductsAndPeriods(TEST_USER_ID, invalidStart, invalidEnd));
+        () -> useCase.findBalanceHistoryBy(TEST_USER_ID, invalidStart, invalidEnd));
   }
 
   @Test
@@ -145,7 +145,7 @@ class FindMonthlyBalancesMockTest {
 
     assertThrows(
         BusinessException.class,
-        () -> useCase.findByActiveProductsAndPeriods(TEST_USER_ID, START_PERIOD, futureEnd));
+        () -> useCase.findBalanceHistoryBy(TEST_USER_ID, START_PERIOD, futureEnd));
   }
 
   @Test
@@ -181,7 +181,7 @@ class FindMonthlyBalancesMockTest {
         .thenReturn(expectedBalances);
 
     final Map<ProductId, List<MonthlyBalanceDTO>> result =
-        useCase.findByActiveProductsAndPeriods(TEST_USER_ID, START_PERIOD, END_PERIOD);
+        useCase.findBalanceHistoryBy(TEST_USER_ID, START_PERIOD, END_PERIOD);
 
     assertNotNull(result);
     assertEquals(1, result.size());

@@ -19,6 +19,8 @@ module jbh.products.application {
       jbh.z.assembly;
   exports com.jbh.products.application.core.dto to
       jbh.products.infra;
+  exports com.jbh.products.application.core.dto.balancehistory to
+      jbh.products.infra;
   exports com.jbh.products.application.core.vo.commands to
       jbh.products.infra;
   exports com.jbh.products.application.core.services;

@@ -692,7 +692,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     final YearMonth startPeriod = YearMonth.of(2024, 11);
     final YearMonth endPeriod = YearMonth.now();
     final List<MonthlyBalanceDTO> monthlyBalances =
-        findMonthlyBalanceUseCase.findByAccountAndPeriods(
+        findMonthlyBalanceUseCase.findBalanceHistoryBy(
             new ProductPK(userId, accountId), startPeriod, endPeriod);
 
     assertNotNull(monthlyBalances);
@@ -712,7 +712,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     assertThrows(
         BusinessException.class,
         () ->
-            findMonthlyBalanceUseCase.findByAccountAndPeriods(
+            findMonthlyBalanceUseCase.findBalanceHistoryBy(
                 new ProductPK(UUID.randomUUID(), accountId), startPeriod, endPeriod));
   }
 }

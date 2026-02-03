@@ -2,6 +2,7 @@ package com.jbh.products.application.core.dto;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 
+import com.jbh.commons.util.JbhMoneyUtils;
 import com.jbh.products.domain.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -55,5 +56,13 @@ public record MonthlyBalanceDTO(
         .monthlyNetProfit(JBH_ZERO)
         .totalMovements(0)
         .openingBalance(JBH_ZERO);
+  }
+
+  public boolean isProfitable() {
+    return !JbhMoneyUtils.isNegative(monthlyNetProfit);
+  }
+
+  public boolean isLoss() {
+    return JbhMoneyUtils.isNegative(monthlyNetProfit);
   }
 }

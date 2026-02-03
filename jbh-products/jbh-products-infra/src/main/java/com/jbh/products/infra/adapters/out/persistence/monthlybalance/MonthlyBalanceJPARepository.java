@@ -2,6 +2,7 @@ package com.jbh.products.infra.adapters.out.persistence.monthlybalance;
 
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
+import com.jbh.products.domain.vo.PeriodRange;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
@@ -13,13 +14,11 @@ import jakarta.persistence.PersistenceUnit;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 @PersistenceUnit(name = "productmgmt")
@@ -29,6 +28,19 @@ public class MonthlyBalanceJPARepository
     implements PanacheRepository<AccountMonthlyBalanceJPAEntity>, AccountMonthlyBalanceQueryRepo {
 
   private static final String ACCOUNT_ID_PARAM = "accountId";
+
+  public List<MonthlyBalanceDTO> findByAccountAndPeriods(
+      final ProductPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
+    return find(
+            "accountId = :accountId and period >= :startPeriod and period <= :endPeriod order by period asc",
+            Parameters.with(ACCOUNT_ID_PARAM, accountPK.accountId().value())
+                .and("startPeriod", startPeriod)
+                .and("endPeriod", endPeriod))
+        .list()
+        .stream()
+        .map(AccountMonthlyBalanceJPAEntity::toDTO)
+        .toList();
+  }
 
   @Override
   public Optional<MonthlyBalanceDTO> findByAccountIdYearAndMonth(
@@ -60,20 +72,6 @@ public class MonthlyBalanceJPARepository
   public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
       final ProductId accountId, final YearMonth currentPeriod) {
     return findNextFromPeriodInclusiveJPA(accountId, currentPeriod).stream()
-        .map(AccountMonthlyBalanceJPAEntity::toDTO)
-        .toList();
-  }
-
-  @Override
-  public List<MonthlyBalanceDTO> findByAccountAndPeriods(
-      final ProductPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
-    return find(
-            "accountId = :accountId and period >= :startPeriod and period <= :endPeriod order by period asc",
-            Parameters.with(ACCOUNT_ID_PARAM, accountPK.accountId().value())
-                .and("startPeriod", startPeriod)
-                .and("endPeriod", endPeriod))
-        .list()
-        .stream()
         .map(AccountMonthlyBalanceJPAEntity::toDTO)
         .toList();
   }
@@ -129,29 +127,31 @@ public class MonthlyBalanceJPARepository
   }
 
   @Override
-  public Map<ProductId, List<MonthlyBalanceDTO>> findByProductIdsAndPeriods(
-      final List<ProductId> productIds, final YearMonth startPeriod, final YearMonth endPeriod) {
+  public List<MonthlyBalanceDTO> findByProductIdsAndPeriods(
+      final List<ProductId> productIds, final PeriodRange periodRange) {
 
     if (productIds == null || productIds.isEmpty()) {
-      return Collections.emptyMap();
+      return Collections.emptyList();
     }
 
     final List<UUID> productUuids = productIds.stream().map(ProductId::value).toList();
 
     final List<AccountMonthlyBalanceJPAEntity> entities =
         find(
-                "accountId IN :productIds AND period >= :startPeriod AND period <= :endPeriod ORDER BY accountId, period ASC",
+                "accountId IN :productIds AND period >= :startPeriod AND "
+                    + buildEndPeriod(periodRange.isEndPeriodExclusive())
+                    + " ORDER BY accountId, period DESC",
                 Parameters.with("productIds", productUuids)
-                    .and("startPeriod", startPeriod)
-                    .and("endPeriod", endPeriod))
+                    .and("startPeriod", periodRange.getStartPeriod())
+                    .and("endPeriod", periodRange.getEndPeriod()))
             .list();
 
-    final Map<ProductId, List<MonthlyBalanceDTO>> resultMap = new HashMap<>();
-    for (final AccountMonthlyBalanceJPAEntity entity : entities) {
-      final ProductId productId = ProductId.of(entity.getAccountId());
-      resultMap.computeIfAbsent(productId, k -> new ArrayList<>()).add(entity.toDTO());
-    }
+    return entities.stream()
+        .map(AccountMonthlyBalanceJPAEntity::toDTO)
+        .collect(Collectors.toList());
+  }
 
-    return resultMap;
+  private static String buildEndPeriod(final boolean isEndPeriodExclusive) {
+    return isEndPeriodExclusive ? "period < :endPeriod" : "period <= :endPeriod";
   }
 }

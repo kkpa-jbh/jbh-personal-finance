@@ -48,6 +48,18 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
     return new ArrayList<>(storage.values());
   }
 
+  @Override
+  public List<MonthlyBalanceDTO> findByAccountAndPeriods(
+      final ProductPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
+    return storage.values().stream()
+        .filter(balance -> balance.accountId().equals(accountPK.accountId()))
+        .filter(
+            balance ->
+                balance.period().isAfter(startPeriod) && balance.period().isBefore(endPeriod))
+        .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
+        .toList();
+  }
+
   private List<MonthlyBalanceDTO> findByAccountId(final ProductId accountId) {
     return storage.values().stream()
         .filter(balance -> balance.accountId().equals(accountId))
@@ -83,18 +95,6 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
   }
 
   @Override
-  public List<MonthlyBalanceDTO> findByAccountAndPeriods(
-      final ProductPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
-    return storage.values().stream()
-        .filter(balance -> balance.accountId().equals(accountPK.accountId()))
-        .filter(
-            balance ->
-                balance.period().isAfter(startPeriod) && balance.period().isBefore(endPeriod))
-        .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
-        .toList();
-  }
-
-  @Override
   public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final ProductId accountId) {
     return findByAccountId(accountId).stream()
         .filter(balance -> balance.period().isBefore(YearMonth.now().plusMonths(1)))
@@ -124,15 +124,16 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
   }
 
   @Override
-  public Map<ProductId, List<MonthlyBalanceDTO>> findByProductIdsAndPeriods(
+  public List<MonthlyBalanceDTO> findByProductIdsAndPeriods(
       final List<ProductId> productIds, final YearMonth startPeriod, final YearMonth endPeriod) {
 
     if (productIds == null || productIds.isEmpty()) {
-      return new HashMap<>();
+      return new ArrayList<>();
     }
 
     final Map<ProductId, List<MonthlyBalanceDTO>> result = new HashMap<>();
 
+    final List<MonthlyBalanceDTO> allBalances = new ArrayList<>();
     for (final ProductId productId : productIds) {
       final List<MonthlyBalanceDTO> balances =
           storage.values().stream()
@@ -147,8 +148,9 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
       if (!balances.isEmpty()) {
         result.put(productId, balances);
       }
+      allBalances.addAll(balances);
     }
 
-    return result;
+    return allBalances;
   }
 }
