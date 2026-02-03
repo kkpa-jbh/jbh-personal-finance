@@ -9,6 +9,10 @@ These are the details about the API to call. Follow the current standards of the
 
 ---
 
+## Operation: POST - Find ALL Monthly Balances for ALL Products for the authenticated user
+
+- **Endpoint**: `POST /jbh-api/finance/products/monthly-balances/`
+
 ## Operation: POST - Find Monthly Balances by Product
 
 - **Endpoint**: `POST /jbh-api/finance/products/monthly-balances/{productId}`
@@ -95,12 +99,12 @@ Create the following components:
 
 Implement these validations before submitting:
 
-| Field | Validation | Error Message (EN) | Error Message (ES) |
-|-------|------------|-------------------|-------------------|
-| startPeriod | Required | Start period is required | El periodo inicial es requerido |
-| endPeriod | Required | End period is required | El periodo final es requerido |
-| startPeriod | Must be <= endPeriod | Start period must be before or equal to end period | El periodo inicial debe ser anterior o igual al periodo final |
-| endPeriod | Must be <= current month | End period cannot be in the future | El periodo final no puede ser en el futuro |
+| Field       | Validation               | Error Message (EN)                                 | Error Message (ES)                                            |
+|-------------|--------------------------|----------------------------------------------------|---------------------------------------------------------------|
+| startPeriod | Required                 | Start period is required                           | El periodo inicial es requerido                               |
+| endPeriod   | Required                 | End period is required                             | El periodo final es requerido                                 |
+| startPeriod | Must be <= endPeriod     | Start period must be before or equal to end period | El periodo inicial debe ser anterior o igual al periodo final |
+| endPeriod   | Must be <= current month | End period cannot be in the future                 | El periodo final no puede ser en el futuro                    |
 
 ---
 
@@ -111,12 +115,14 @@ Implement these validations before submitting:
 **Purpose**: Allow user to select a date range for querying monthly balances.
 
 **UI Elements**:
+
 - Month/Year picker for Start Period
 - Month/Year picker for End Period
 - "Search" / "Buscar" button
 - Clear/Reset button (optional)
 
 **Behavior**:
+
 - Default range: Last 6 months to current month
 - Validate inputs before enabling submit
 - Show inline validation errors
@@ -127,19 +133,20 @@ Implement these validations before submitting:
 
 **Table Columns**:
 
-| Column Header (EN/ES) | Field | Format |
-|----------------------|-------|--------|
-| Period / Periodo | period | "MMM YYYY" (e.g., "Jan 2024") |
-| Opening / Apertura | openingBalance | Currency |
-| Credits / Créditos | totalCredits | Currency (green) |
-| Debits / Débitos | totalDebits | Currency (red) |
-| Closing / Cierre | closingBalance | Currency |
-| Net Profit / Ganancia Neta | monthlyNetProfit | Currency (+/- color) |
-| Growth Rate / Crecimiento | netGrowthRate | Percentage with +/- |
-| Movements / Movimientos | totalMovements | Number |
-| Withholding Tax / Retención | incomeWithholdingTaxAmount | Currency |
+| Column Header (EN/ES)       | Field                      | Format                        |
+|-----------------------------|----------------------------|-------------------------------|
+| Period / Periodo            | period                     | "MMM YYYY" (e.g., "Jan 2024") |
+| Opening / Apertura          | openingBalance             | Currency                      |
+| Credits / Créditos          | totalCredits               | Currency (green)              |
+| Debits / Débitos            | totalDebits                | Currency (red)                |
+| Closing / Cierre            | closingBalance             | Currency                      |
+| Net Profit / Ganancia Neta  | monthlyNetProfit           | Currency (+/- color)          |
+| Growth Rate / Crecimiento   | netGrowthRate              | Percentage with +/-           |
+| Movements / Movimientos     | totalMovements             | Number                        |
+| Withholding Tax / Retención | incomeWithholdingTaxAmount | Currency                      |
 
 **Features**:
+
 - Sortable columns (by period default, ascending)
 - Responsive horizontal scroll on mobile
 - Summary row at bottom showing totals
@@ -147,6 +154,7 @@ Implement these validations before submitting:
 - Badge for `officialMonthlyReport` rows
 
 **Visual Indicators**:
+
 - Green for positive net profit
 - Red for negative net profit
 - Gray/muted style for gap periods
@@ -189,12 +197,14 @@ The API expects YearMonth in ISO format: `"YYYY-MM"` (e.g., `"2024-01"` for Janu
 ### Gap Periods
 
 Rows where `gapPeriod: true` indicate months with no recorded data. Display these with:
+
 - Muted/gray background color
 - Tooltip: "No data recorded for this period" / "Sin datos registrados para este periodo"
 
 ### Official Monthly Reports
 
 Rows where `officialMonthlyReport: true` indicate verified/official data. Display with:
+
 - Small badge or checkmark icon
 - Tooltip: "Official monthly report" / "Reporte mensual oficial"
 

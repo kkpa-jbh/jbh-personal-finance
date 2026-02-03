@@ -35,6 +35,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.eclipse.microprofile.openapi.annotations.*;
@@ -248,6 +249,59 @@ public class ProductRestAdapter extends BaseRestAdapter {
             request.endPeriod());
 
     return Response.ok(monthlyBalances).build();
+  }
+
+  @POST
+  @Path(FinanceApiRoutes.PRODUCTS_MONTHLY_BALANCES_API_PATH + "/")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Find monthly balances for all active products",
+      description = "Retrieves monthly balances for all active products within a date range")
+  @APIResponses(
+      value = {
+        @APIResponse(
+            responseCode = "200",
+            description = "Monthly Balances found for all active products",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = Map.class))),
+        @APIResponse(
+            responseCode = "400",
+            description = "Invalid request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class))),
+        @APIResponse(
+            responseCode = "401",
+            description = "Unauthorized",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class)))
+      })
+  @SecurityRequirement(name = "JWT")
+  public Response findAllActiveProductsMonthlyBalances(
+      @RequestBody final MonthlyBalanceRequest request,
+      @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
+          final String authorizationHeader)
+      throws JbhGatewayException, BusinessException, InternalSystemException {
+
+    log.info("Getting Monthly Balances for all active products: {}", request);
+    request.validate();
+
+    final UUID userId = findUserId(authorizationHeader);
+
+    final Map<ProductId, List<MonthlyBalanceDTO>> monthlyBalances =
+        findMonthlyBalanceUseCase.findByActiveProductsAndPeriods(
+            userId, request.startPeriod(), request.endPeriod());
+
+    // Join all collections
+    var allMonthlyBalances = monthlyBalances.values().stream().flatMap(List::stream).toList();
+
+    return Response.ok(allMonthlyBalances).build();
   }
 
   @GET

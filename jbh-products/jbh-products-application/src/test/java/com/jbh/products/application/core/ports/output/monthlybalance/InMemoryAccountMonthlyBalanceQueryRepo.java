@@ -122,4 +122,33 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
         .filter(Objects::nonNull)
         .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
+
+  @Override
+  public Map<ProductId, List<MonthlyBalanceDTO>> findByProductIdsAndPeriods(
+      final List<ProductId> productIds, final YearMonth startPeriod, final YearMonth endPeriod) {
+
+    if (productIds == null || productIds.isEmpty()) {
+      return new HashMap<>();
+    }
+
+    final Map<ProductId, List<MonthlyBalanceDTO>> result = new HashMap<>();
+
+    for (final ProductId productId : productIds) {
+      final List<MonthlyBalanceDTO> balances =
+          storage.values().stream()
+              .filter(balance -> balance.accountId().equals(productId))
+              .filter(
+                  balance ->
+                      !balance.period().isBefore(startPeriod)
+                          && !balance.period().isAfter(endPeriod))
+              .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
+              .toList();
+
+      if (!balances.isEmpty()) {
+        result.put(productId, balances);
+      }
+    }
+
+    return result;
+  }
 }

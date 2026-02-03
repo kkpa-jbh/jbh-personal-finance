@@ -60,4 +60,10 @@ public class InMemoryAccountRepository implements ProductRepository {
   public int size() {
     return storage.size();
   }
+
+  @Override
+  public void deleteById(final ProductId productId) {
+    storage.remove(productId.value());
+    log.warn("Deleted product with ID: " + productId);
+  }
 }

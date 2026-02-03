@@ -13,8 +13,13 @@ import jakarta.persistence.PersistenceUnit;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @ApplicationScoped
 @PersistenceUnit(name = "productmgmt")
@@ -121,5 +126,32 @@ public class MonthlyBalanceJPARepository
     } catch (final NoResultException e) {
       return BigDecimal.ZERO;
     }
+  }
+
+  @Override
+  public Map<ProductId, List<MonthlyBalanceDTO>> findByProductIdsAndPeriods(
+      final List<ProductId> productIds, final YearMonth startPeriod, final YearMonth endPeriod) {
+
+    if (productIds == null || productIds.isEmpty()) {
+      return Collections.emptyMap();
+    }
+
+    final List<UUID> productUuids = productIds.stream().map(ProductId::value).toList();
+
+    final List<AccountMonthlyBalanceJPAEntity> entities =
+        find(
+                "accountId IN :productIds AND period >= :startPeriod AND period <= :endPeriod ORDER BY accountId, period ASC",
+                Parameters.with("productIds", productUuids)
+                    .and("startPeriod", startPeriod)
+                    .and("endPeriod", endPeriod))
+            .list();
+
+    final Map<ProductId, List<MonthlyBalanceDTO>> resultMap = new HashMap<>();
+    for (final AccountMonthlyBalanceJPAEntity entity : entities) {
+      final ProductId productId = ProductId.of(entity.getAccountId());
+      resultMap.computeIfAbsent(productId, k -> new ArrayList<>()).add(entity.toDTO());
+    }
+
+    return resultMap;
   }
 }

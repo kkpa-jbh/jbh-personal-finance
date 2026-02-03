@@ -96,6 +96,12 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
   }
 
   @Override
+  public Map<ProductId, List<MonthlyBalanceDTO>> findByProductIdsAndPeriods(
+      final List<ProductId> productIds, final YearMonth startPeriod, final YearMonth endPeriod) {
+    return queryRepo.findByProductIdsAndPeriods(productIds, startPeriod, endPeriod);
+  }
+
+  @Override
   public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final ProductId accountId) {
     // TODO: Check if it's necessary to return until the current period
     return queryRepo.findAllByAccountIdUntilNow(accountId);
