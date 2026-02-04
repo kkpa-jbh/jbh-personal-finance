@@ -1,10 +1,10 @@
 package com.jbh.products.application.core.dto;
 
-import com.jbh.products.domain.vo.ProductId;
-import com.jbh.products.domain.vo.AccountMovementId;
 import com.jbh.products.domain.vo.AccountMovementMetadata;
 import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementId;
 import com.jbh.products.domain.vo.MovementType;
+import com.jbh.products.domain.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,7 +12,7 @@ import lombok.Builder;
 
 @Builder
 public record MovementDTO(
-    AccountMovementId id,
+    MovementId id,
     ProductId accountId,
     MovementType movementType,
     MovementCategoryDTO category,

@@ -6,6 +6,7 @@ import static com.jbh.commons.util.JbhMoneyUtils.isNegativeOrZero;
 import static com.jbh.commons.util.JbhMoneyUtils.isZero;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.domain.calculators.MoneyWeightedReturnCalculator;
 import com.jbh.products.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.products.domain.validation.account.creation.AccountCreationValidatorFactory;
@@ -16,7 +17,6 @@ import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductMetadata;
 import com.jbh.products.domain.vo.ProductMetadataKey;
 import com.jbh.products.domain.vo.ProductType;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -139,7 +139,7 @@ public class ProductDomain {
   }
 
   public void syncBalancesByMovement(
-      final ProductMovementDomain movement, final boolean wasOfficialReport)
+      final MovementDomain movement, final boolean wasOfficialReport)
       throws BusinessException {
     movement.validate();
 
@@ -152,7 +152,7 @@ public class ProductDomain {
     applyMovement(movement, wasOfficialReport);
   }
 
-  public void validateInsufficientNetFlow(final ProductMovementDomain movement)
+  public void validateInsufficientNetFlow(final MovementDomain movement)
       throws BusinessException {
     getValidator(this.type).validateInsufficientNetFlow(this, movement);
   }
@@ -168,7 +168,7 @@ public class ProductDomain {
    * @param wasOfficialReport
    */
   private void applyMovement(
-      final ProductMovementDomain newAccountMovement, final boolean wasOfficialReport)
+      final MovementDomain newAccountMovement, final boolean wasOfficialReport)
       throws BusinessException {
     final BigDecimal movementAmount = newAccountMovement.getMovementAmount();
 
@@ -255,7 +255,7 @@ public class ProductDomain {
     this.netProfitBalance = metricsCalculator.calculateProfitBalance(this);
   }
 
-  private void updateMetadataFields(final ProductMovementDomain movement) {
+  private void updateMetadataFields(final MovementDomain movement) {
     this.metadata = metricsCalculator.updateMetadata(this, movement);
   }
 

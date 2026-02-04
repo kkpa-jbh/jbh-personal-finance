@@ -4,8 +4,8 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
+import com.jbh.products.domain.entity.MovementDomain;
 import com.jbh.products.domain.entity.ProductDomain;
-import com.jbh.products.domain.entity.ProductMovementDomain;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
 import java.math.BigDecimal;
@@ -64,7 +64,7 @@ public interface ProductsService {
       throws BusinessException;
 
   ProductDTO syncByUploadedMovements(
-      ProductDomain accountDomain, List<ProductMovementDomain> uploadedMovements)
+      ProductDomain accountDomain, List<MovementDomain> uploadedMovements)
       throws BusinessException;
 
   List<ProductDTO> findActiveByUserId(UUID userId);

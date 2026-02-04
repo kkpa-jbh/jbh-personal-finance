@@ -1,11 +1,11 @@
 package com.jbh.products.domain.validation.account.creation;
 
+import com.jbh.commons.exception.BusinessException;
+import com.jbh.products.domain.entity.MovementDomain;
 import com.jbh.products.domain.entity.ProductDomain;
-import com.jbh.products.domain.entity.ProductMovementDomain;
 import com.jbh.products.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.products.domain.vo.ProductMetadata;
 import com.jbh.products.domain.vo.ProductMetadataKey;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 
 /**
@@ -58,8 +58,7 @@ public class CreditCardAccountCreationValidator extends BaseAccountCreationValid
 
   @Override
   public void validateInsufficientNetFlow(
-      final ProductDomain productDomain, final ProductMovementDomain movement)
-      throws BusinessException {
+      final ProductDomain productDomain, final MovementDomain movement) throws BusinessException {
     final var metadata = productDomain.getMetadata();
     validateCreditLimit(metadata);
 

@@ -1,10 +1,10 @@
 package com.jbh.products.infra.adapters.out.persistence.movement;
 
 import com.jbh.products.application.core.dto.MovementDTO;
-import com.jbh.products.domain.vo.AccountMovementId;
 import com.jbh.products.domain.vo.AccountMovementMetadata;
 import com.jbh.products.domain.vo.AccountMovementMetadataKey;
 import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementId;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductId;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
@@ -64,20 +64,21 @@ public class MovementJPAEntity extends PanacheEntityBase {
   @Column(name = "created_at", nullable = false, updatable = false)
   public LocalDateTime createdAt;
 
-  public static MovementJPAEntity toEntity(final MovementDTO accountMovement) {
+  public static MovementJPAEntity toEntity(final MovementDTO productMovement) {
     final MovementJPAEntity entity = new MovementJPAEntity();
-    entity.setId(accountMovement.id() != null ? accountMovement.id().value() : null);
+    entity.setId(productMovement.id() != null ? productMovement.id().value() : null);
     entity.setAccountId(
-        accountMovement.accountId() != null ? accountMovement.accountId().value() : null);
-    entity.setMovementType(accountMovement.movementType());
-    entity.setMovementAmount(accountMovement.movementAmount());
-    entity.setMovementDate(accountMovement.movementDate());
-    entity.setBalanceSnapshot(accountMovement.balanceSnapshot());
+        productMovement.accountId() != null ? productMovement.accountId().value() : null);
+    entity.setMovementType(productMovement.movementType());
+    entity.setMovementAmount(productMovement.movementAmount());
+    entity.setMovementDate(productMovement.movementDate());
+    entity.setBalanceSnapshot(productMovement.balanceSnapshot());
     entity.setMetadata(
-        accountMovement.metadata() != null ? accountMovement.metadata().asMap() : null);
-    entity.setCategory(accountMovement.category().getType().getTypeName());
-    entity.setDescription(accountMovement.description());
-    entity.setCreatedAt(accountMovement.createdAt());
+        productMovement.metadata() != null ? productMovement.metadata().asMap() : null);
+    entity.setCategory(productMovement.category().getType().getTypeName());
+    entity.setDescription(productMovement.description());
+    entity.setCreatedAt(productMovement.createdAt());
+    entity.setDescription(productMovement.description());
     return entity;
   }
 
@@ -88,7 +89,7 @@ public class MovementJPAEntity extends PanacheEntityBase {
 
   public MovementDTO toDTO() {
     return MovementDTO.builder()
-        .id(AccountMovementId.of(id))
+        .id(MovementId.of(id))
         .accountId(ProductId.of(accountId))
         .movementType(movementType)
         .category(MovementCategoryDTO.withName(movementType, category))

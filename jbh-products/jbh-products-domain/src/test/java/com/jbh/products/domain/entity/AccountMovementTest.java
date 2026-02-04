@@ -1,23 +1,23 @@
 package com.jbh.products.domain.entity;
 
+import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.products.domain.entity.MovementCategoryDomain.OTHER_INCOME_CATEGORY;
 import static com.jbh.products.domain.entity.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
 import static com.jbh.products.domain.entity.ProductDomainTest.userId;
 import static com.jbh.products.domain.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.products.domain.vo.MovementType.DEPOSIT;
 import static com.jbh.products.domain.vo.MovementType.WITHDRAWAL;
-import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.products.domain.vo.AccountMovementMetadataKey;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductId;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -54,7 +54,7 @@ public class AccountMovementTest {
     final var totalAmount = new BigDecimal("100.00");
     final var balanceSnapshot = new BigDecimal("210.00");
     final var newMovement =
-        ProductMovementDomain.withFileImport(
+        MovementDomain.withFileImport(
             accountDomain.getId(),
             today,
             totalAmount,

@@ -8,16 +8,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jbh.products.domain.vo.AccountMovementId;
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.domain.vo.AccountMovementMetadata;
 import com.jbh.products.domain.vo.ExpenseCategory;
 import com.jbh.products.domain.vo.IncomeCategory;
+import com.jbh.products.domain.vo.MovementId;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductMetadata;
 import com.jbh.products.domain.vo.ProductMetadataKey;
 import com.jbh.products.domain.vo.ProductType;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -574,9 +574,9 @@ public class ProductDomainTest {
     assertNotNull(accountDomain.getId());
 
     final var movementAmount = new BigDecimal("100.00");
-    final ProductMovementDomain movement =
-        new ProductMovementDomain(
-            AccountMovementId.generate(),
+    final MovementDomain movement =
+        new MovementDomain(
+            MovementId.generate(),
             accountDomain.getId(),
             MovementType.DEPOSIT,
             MovementCategoryDomain.withCategoryType(IncomeCategory.OTHER),
@@ -591,9 +591,9 @@ public class ProductDomainTest {
     assertFalse(accountDomain.isFullyWithdrawn());
     assertFalse(accountDomain.hasMetadata(ProductMetadataKey.COMMON_IS_FULLY_WITHDRAWN));
 
-    final ProductMovementDomain withdrawalMovement =
-        new ProductMovementDomain(
-            AccountMovementId.generate(),
+    final MovementDomain withdrawalMovement =
+        new MovementDomain(
+            MovementId.generate(),
             accountDomain.getId(),
             MovementType.WITHDRAWAL,
             MovementCategoryDomain.withCategoryType(ExpenseCategory.SOCIAL_SECURITY),
@@ -609,9 +609,9 @@ public class ProductDomainTest {
     accountDomain.getCreatedAt();
     accountDomain.getMetadata();
 
-    final ProductMovementDomain unknownMovement =
-        new ProductMovementDomain(
-            AccountMovementId.generate(),
+    final MovementDomain unknownMovement =
+        new MovementDomain(
+            MovementId.generate(),
             ProductId.generate(),
             MovementType.DEPOSIT,
             MovementCategoryDomain.withCategoryType(IncomeCategory.OTHER),

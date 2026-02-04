@@ -11,8 +11,8 @@ import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.products.application.core.mappers.MovementMapper;
 import com.jbh.products.application.core.ports.output.ProductRepository;
+import com.jbh.products.domain.entity.MovementDomain;
 import com.jbh.products.domain.entity.ProductDomain;
-import com.jbh.products.domain.entity.ProductMovementDomain;
 import com.jbh.products.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
@@ -169,7 +169,7 @@ public class ProductServiceImpl implements ProductsService {
 
   private void syncAccountDomainBalanceByMovement(
       final ProductDomain accountDomain,
-      final ProductMovementDomain movement,
+      final MovementDomain movement,
       final boolean isMonthOfficiallyReported)
       throws BusinessException {
     accountDomain.syncBalancesByMovement(movement, isMonthOfficiallyReported);
@@ -177,16 +177,16 @@ public class ProductServiceImpl implements ProductsService {
 
   @Override
   public ProductDTO syncByUploadedMovements(
-      final ProductDomain accountDomain, final List<ProductMovementDomain> uploadedMovements)
+      final ProductDomain accountDomain, final List<MovementDomain> uploadedMovements)
       throws BusinessException {
 
     if (uploadedMovements == null || uploadedMovements.isEmpty()) {
       throw new BusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENTS);
     }
-    final List<ProductMovementDomain> filteredMovements =
+    final List<MovementDomain> filteredMovements =
         uploadedMovements.stream().filter(Objects::nonNull).toList();
 
-    for (final ProductMovementDomain movement : filteredMovements) {
+    for (final MovementDomain movement : filteredMovements) {
       try {
         syncAccountDomainBalanceByMovement(accountDomain, movement, false);
       } catch (final BusinessException ex) {

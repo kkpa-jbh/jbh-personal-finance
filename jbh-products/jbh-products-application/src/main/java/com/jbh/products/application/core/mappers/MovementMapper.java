@@ -6,7 +6,7 @@ import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.application.core.vo.commands.AddMovementCommand;
 import com.jbh.products.application.core.vo.commands.LiquidateAccountCommand;
 import com.jbh.products.domain.entity.MovementCategoryDomain;
-import com.jbh.products.domain.entity.ProductMovementDomain;
+import com.jbh.products.domain.entity.MovementDomain;
 import com.jbh.products.domain.vo.AccountMovementMetadata;
 import com.jbh.products.domain.vo.ExpenseCategory;
 import com.jbh.products.domain.vo.MovementCategoryDTO;
@@ -18,12 +18,12 @@ public final class MovementMapper {
 
   private MovementMapper() {}
 
-  public static ProductMovementDomain toDomain(final MovementDTO dto) {
+  public static MovementDomain toDomain(final MovementDTO dto) {
     if (dto == null) {
       return null;
     }
 
-    return new ProductMovementDomain(
+    return new MovementDomain(
         dto.id(),
         dto.accountId(),
         dto.movementType(),
@@ -47,8 +47,8 @@ public final class MovementMapper {
     final MovementType movementType = command.movementType();
     totalAmount = movementType == WITHDRAWAL ? totalAmount.negate() : totalAmount;
 
-    final ProductMovementDomain newMovement =
-        new ProductMovementDomain(
+    final MovementDomain newMovement =
+        new MovementDomain(
             accountId,
             movementType,
             command.entryDate(),
@@ -60,7 +60,7 @@ public final class MovementMapper {
     return toDTO(newMovement);
   }
 
-  public static MovementDTO toDTO(final ProductMovementDomain domain) {
+  public static MovementDTO toDTO(final MovementDomain domain) {
     if (domain == null) {
       return null;
     }
@@ -93,8 +93,8 @@ public final class MovementMapper {
 
     final AccountMovementMetadata metadata = AccountMovementMetadata.createEmpty();
 
-    final ProductMovementDomain newMovement =
-        new ProductMovementDomain(
+    final MovementDomain newMovement =
+        new MovementDomain(
             accountId,
             WITHDRAWAL,
             command.liquidatedDate(),

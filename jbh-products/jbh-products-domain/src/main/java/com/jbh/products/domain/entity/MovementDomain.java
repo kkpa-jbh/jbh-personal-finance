@@ -2,17 +2,17 @@ package com.jbh.products.domain.entity;
 
 import static com.jbh.products.domain.entity.MovementCategoryDomain.withCategoryType;
 
-import com.jbh.products.domain.exceptions.BusinessDomainExceptionType;
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
-import com.jbh.products.domain.vo.AccountMovementId;
+import com.jbh.commons.util.JbhMoneyUtils;
+import com.jbh.products.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.products.domain.vo.AccountMovementMetadata;
 import com.jbh.products.domain.vo.AccountMovementMetadataKey;
 import com.jbh.products.domain.vo.ExpenseCategory;
 import com.jbh.products.domain.vo.IncomeCategory;
+import com.jbh.products.domain.vo.MovementId;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductId;
-import com.jbh.commons.exception.BusinessException;
-import com.jbh.commons.util.JbhMoneyUtils;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,9 +20,9 @@ import lombok.Getter;
 
 @Getter
 @SuppressWarnings({"PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal", "PMD.GodClass"})
-public class ProductMovementDomain {
+public class MovementDomain {
 
-  private final AccountMovementId id;
+  private final MovementId id;
   private final ProductId accountId;
   private final MovementType movementType;
   private final MovementCategoryDomain category;
@@ -37,8 +37,8 @@ public class ProductMovementDomain {
   private final BigDecimal balanceSnapshot;
   private final AccountMovementMetadata metadata;
 
-  public ProductMovementDomain(
-      final AccountMovementId id,
+  public MovementDomain(
+      final MovementId id,
       final ProductId accountId,
       final MovementType movementType,
       final MovementCategoryDomain category,
@@ -56,7 +56,7 @@ public class ProductMovementDomain {
     this.metadata = metadata;
   }
 
-  public ProductMovementDomain(
+  public MovementDomain(
       final ProductId accountId,
       final MovementType movementType,
       final LocalDate movementDate,
@@ -64,7 +64,7 @@ public class ProductMovementDomain {
       final BigDecimal balanceSnapshot,
       final AccountMovementMetadata metadata,
       final MovementCategoryDomain category) {
-    this.id = AccountMovementId.generate();
+    this.id = MovementId.generate();
     this.accountId = accountId;
     this.movementDate = movementDate;
     this.movementAmount = JbhMoneyUtils.withJBHDecimals(movementAmount);
@@ -75,7 +75,7 @@ public class ProductMovementDomain {
   }
 
   // FIXME Use factory movemtn type and see if this method can be removed
-  public static ProductMovementDomain withFileImport(
+  public static MovementDomain withFileImport(
       final ProductId accountId,
       final LocalDate movementDate,
       final BigDecimal totalAmount,
@@ -91,8 +91,8 @@ public class ProductMovementDomain {
       category = withCategoryType(ExpenseCategory.PERSONAL);
     }
 
-    final ProductMovementDomain movementDomain =
-        new ProductMovementDomain(
+    final MovementDomain movementDomain =
+        new MovementDomain(
             accountId,
             movementType,
             movementDate,

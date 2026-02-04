@@ -10,8 +10,8 @@ import com.jbh.products.application.builders.AccountEntityBuilder;
 import com.jbh.products.application.builders.UseCaseBuilder;
 import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.domain.entity.MovementCategoryDomain;
+import com.jbh.products.domain.entity.MovementDomain;
 import com.jbh.products.domain.entity.ProductDomain;
-import com.jbh.products.domain.entity.ProductMovementDomain;
 import com.jbh.products.domain.vo.AccountMovementMetadata;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductId;
@@ -75,7 +75,7 @@ public class AccountServiceTest {
     assertEquals(new BigDecimal("5.00"), accountDomain.getNetProfitBalance());
   }
 
-  public static ProductMovementDomain with(
+  public static MovementDomain with(
       final ProductId accountId,
       final LocalDate movementDate,
       final BigDecimal totalAmount,
@@ -83,8 +83,8 @@ public class AccountServiceTest {
       final MovementType movementType,
       final MovementCategoryDomain category) {
 
-    final ProductMovementDomain movDomain =
-        new ProductMovementDomain(
+    final MovementDomain movDomain =
+        new MovementDomain(
             accountId,
             movementType,
             movementDate,

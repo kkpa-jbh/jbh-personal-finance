@@ -3,10 +3,10 @@ package com.jbh.products.domain.validation.account.metrics;
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 
-import com.jbh.products.domain.entity.ProductDomain;
-import com.jbh.products.domain.entity.ProductMovementDomain;
-import com.jbh.products.domain.vo.ProductMetadata;
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.products.domain.entity.MovementDomain;
+import com.jbh.products.domain.entity.ProductDomain;
+import com.jbh.products.domain.vo.ProductMetadata;
 import java.math.BigDecimal;
 
 public class LoanAccountMetricsCalculator extends BaseAccountMetricsCalculator
@@ -29,7 +29,7 @@ public class LoanAccountMetricsCalculator extends BaseAccountMetricsCalculator
   @Override
   @SuppressWarnings("PMD.LawOfDemeter")
   public ProductMetadata updateMetadata(
-      final ProductDomain productDomain, final ProductMovementDomain movement) {
+      final ProductDomain productDomain, final MovementDomain movement) {
     final ProductMetadata loanMetadata = productDomain.getMetadata();
     BigDecimal totalAmountPaid = loanMetadata.findLoanMetadata().getTotalAmountPaid();
 

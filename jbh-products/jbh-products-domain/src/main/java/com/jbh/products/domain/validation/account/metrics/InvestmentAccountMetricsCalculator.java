@@ -3,10 +3,10 @@ package com.jbh.products.domain.validation.account.metrics;
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.isNegativeOrZero;
 
-import com.jbh.products.domain.entity.ProductDomain;
-import com.jbh.products.domain.entity.ProductMovementDomain;
-import com.jbh.products.domain.vo.ProductMetadata;
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.products.domain.entity.MovementDomain;
+import com.jbh.products.domain.entity.ProductDomain;
+import com.jbh.products.domain.vo.ProductMetadata;
 import java.math.BigDecimal;
 
 public class InvestmentAccountMetricsCalculator extends BaseAccountMetricsCalculator
@@ -33,7 +33,7 @@ public class InvestmentAccountMetricsCalculator extends BaseAccountMetricsCalcul
 
   @Override
   public ProductMetadata updateMetadata(
-      final ProductDomain productDomain, final ProductMovementDomain movement) {
+      final ProductDomain productDomain, final MovementDomain movement) {
     return productDomain.getMetadata();
   }
 }

@@ -1,9 +1,9 @@
 package com.jbh.products.domain.validation.account.creation;
 
-import com.jbh.products.domain.entity.ProductDomain;
-import com.jbh.products.domain.entity.ProductMovementDomain;
-import com.jbh.products.domain.vo.ProductMetadata;
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.products.domain.entity.MovementDomain;
+import com.jbh.products.domain.entity.ProductDomain;
+import com.jbh.products.domain.vo.ProductMetadata;
 
 /**
  * Strategy interface for validating account creation based on account type.
@@ -31,6 +31,6 @@ public interface ProductCreationValidator {
    * @param movement The movement to validate
    * @throws BusinessException if validation fails with specific error type
    */
-  void validateInsufficientNetFlow(ProductDomain productDomain, ProductMovementDomain movement)
+  void validateInsufficientNetFlow(ProductDomain productDomain, MovementDomain movement)
       throws BusinessException;
 }

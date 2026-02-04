@@ -4,16 +4,16 @@ import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.domain.entity.AccountDomainTestBuilder;
 import com.jbh.products.domain.entity.MovementCategoryDomain;
+import com.jbh.products.domain.entity.MovementDomain;
 import com.jbh.products.domain.entity.ProductDomain;
-import com.jbh.products.domain.entity.ProductMovementDomain;
 import com.jbh.products.domain.vo.AccountMovementMetadata;
 import com.jbh.products.domain.vo.ExpenseCategory;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductMetadata;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -157,8 +157,8 @@ class LoanAccountMetricsCalculatorTest {
     final ProductDomain loanProduct =
         AccountDomainTestBuilder.createLoanProduct(userId, "Test Loan", metadata);
 
-    final ProductMovementDomain movement =
-        new ProductMovementDomain(
+    final MovementDomain movement =
+        new MovementDomain(
             ProductId.generate(),
             MovementType.WITHDRAWAL,
             LocalDate.now(),
@@ -184,8 +184,8 @@ class LoanAccountMetricsCalculatorTest {
     final ProductDomain loanProduct =
         AccountDomainTestBuilder.createLoanProduct(userId, "Test Loan", metadata);
 
-    final ProductMovementDomain movement =
-        new ProductMovementDomain(
+    final MovementDomain movement =
+        new MovementDomain(
             ProductId.generate(),
             MovementType.DEPOSIT,
             LocalDate.now(),
@@ -209,8 +209,8 @@ class LoanAccountMetricsCalculatorTest {
     final ProductDomain loanProduct =
         AccountDomainTestBuilder.createLoanProduct(userId, "Test Loan", metadata);
 
-    final ProductMovementDomain movement =
-        new ProductMovementDomain(
+    final MovementDomain movement =
+        new MovementDomain(
             ProductId.generate(),
             MovementType.WITHDRAWAL,
             LocalDate.now(),
@@ -237,8 +237,8 @@ class LoanAccountMetricsCalculatorTest {
     final ProductDomain loanProduct =
         AccountDomainTestBuilder.createLoanProduct(userId, "Test Loan", metadata);
 
-    final ProductMovementDomain movement =
-        new ProductMovementDomain(
+    final MovementDomain movement =
+        new MovementDomain(
             ProductId.generate(),
             MovementType.WITHDRAWAL,
             LocalDate.now(),
@@ -264,8 +264,8 @@ class LoanAccountMetricsCalculatorTest {
     final ProductDomain loanProduct =
         AccountDomainTestBuilder.createLoanProduct(userId, "Test Loan", metadata);
 
-    final ProductMovementDomain movement =
-        new ProductMovementDomain(
+    final MovementDomain movement =
+        new MovementDomain(
             ProductId.generate(),
             MovementType.WITHDRAWAL,
             LocalDate.now(),
@@ -291,8 +291,8 @@ class LoanAccountMetricsCalculatorTest {
     final ProductDomain loanProduct =
         AccountDomainTestBuilder.createLoanProduct(userId, "Test Loan", metadata);
 
-    final ProductMovementDomain movement =
-        new ProductMovementDomain(
+    final MovementDomain movement =
+        new MovementDomain(
             ProductId.generate(),
             MovementType.WITHDRAWAL,
             LocalDate.now(),
