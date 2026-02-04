@@ -20,7 +20,7 @@ public class AccountMovementRepositoryAdapter implements AccountMovementWriterRe
   @Override
   @Transactional
   public void save(final MovementDTO accountMovement) {
-    final AccountMovementJPAEntity entity = AccountMovementJPAEntity.toEntity(accountMovement);
+    final MovementJPAEntity entity = MovementJPAEntity.toEntity(accountMovement);
     if (entity.getId() == null) {
       throw new IllegalStateException("Account movement ID cannot be null");
     }

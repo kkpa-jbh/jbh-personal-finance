@@ -18,7 +18,7 @@ public final class CdtMetadata extends BaseMetadata {
   }
 
   /**
-   * Gets the maturity date for CDT accounts.
+   * Gets the maturity date for CDT products
    *
    * @return LocalDate maturity date
    * @throws BusinessException if maturity date is not a LocalDate
@@ -37,7 +37,7 @@ public final class CdtMetadata extends BaseMetadata {
   }
 
   /**
-   * Gets the opening date for CDT accounts.
+   * Gets the opening date for CDT products
    *
    * @return LocalDate opening date or null if not set
    */
@@ -46,7 +46,7 @@ public final class CdtMetadata extends BaseMetadata {
   }
 
   /**
-   * Gets the term length in days for CDT accounts.
+   * Gets the term length in days for CDT products
    *
    * @return Integer term length or null if not set
    */

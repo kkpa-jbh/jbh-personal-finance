@@ -1,4 +1,5 @@
-CREATE TABLE productmgmt.accounts
+-- financial instruments/accounts
+CREATE TABLE finance.products
 (
     id                 UUID PRIMARY KEY                  DEFAULT gen_random_uuid(),
     created_at         TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -18,19 +19,19 @@ CREATE TABLE productmgmt.accounts
     CONSTRAINT chk_name_not_empty CHECK (length(trim(name)) > 0)
 );
 
-CREATE INDEX idx_accounts_user_id ON productmgmt.accounts (user_id);
+CREATE INDEX idx_products_user_id ON finance.products (user_id);
 
--- Main account movements table
-CREATE TABLE productmgmt.account_movements
+-- Main product movements table
+CREATE TABLE finance.movements
 (
     id               UUID PRIMARY KEY                  DEFAULT gen_random_uuid(),
     created_at       TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    account_id       UUID                     NOT NULL,
+    product_id       UUID                     NOT NULL,
     category_type    TEXT                     NOT NULL,
     movement_type    TEXT                     NOT NULL,
     movement_amount  DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
     movement_date    DATE                     NOT NULL,
-    balance_snapshot DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
+    balance_snapshot DECIMAL(20, 2)           NULL,
 
     -- Additional useful columns
 
@@ -42,45 +43,45 @@ CREATE TABLE productmgmt.account_movements
     CONSTRAINT chk_movement_date_not_future CHECK (movement_date <= CURRENT_DATE),
 
     -- Foreign key constraint
-    CONSTRAINT fk_account_movements_account_id
-        FOREIGN KEY (account_id) REFERENCES productmgmt.accounts (id) ON DELETE CASCADE
+    CONSTRAINT fk_movements_product_id
+        FOREIGN KEY (product_id) REFERENCES finance.products (id) ON DELETE CASCADE
 );
 
-CREATE INDEX idx_account_movements_account_date ON productmgmt.account_movements
-    (account_id, movement_date DESC);
+CREATE INDEX idx_movements_product_date ON finance.movements
+    (product_id, movement_date DESC);
 
 -- 3. Alternative composite index with movement_type for filtered queries
-CREATE INDEX idx_account_movements_account_date_type ON productmgmt.account_movements
-    (account_id, movement_date DESC, movement_type);
+CREATE INDEX idx_movements_product_date_type ON finance.movements
+    (product_id, movement_date DESC, movement_type);
 
 
 -- Monthly balances table
 -- Create sequence for monthly balance ID
-DROP SEQUENCE IF EXISTS productmgmt.account_monthly_balances_seq;
-CREATE SEQUENCE productmgmt.account_monthly_balances_seq
+DROP SEQUENCE IF EXISTS finance.monthly_balances_seq;
+CREATE SEQUENCE finance.monthly_balances_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-CREATE TABLE productmgmt.account_monthly_balances
+CREATE TABLE finance.monthly_balances
 (
     id                            BIGSERIAL PRIMARY KEY,
     created_at                    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at                    TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    account_id                    UUID                     NOT NULL,
+    product_id                    UUID                     NOT NULL,
     year                          INTEGER                  NOT NULL,
     month                         INTEGER                  NOT NULL,
     period                        DATE                     NOT NULL, -- First day of the month (YYYY-MM-01)
 
-    total_debits                  DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
-    total_credits                 DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
-    movement_balance              DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
-    opening_balance               DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
-    closing_balance               DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
-    monthly_reported_profit       DECIMAL(20, 0),
-    monthly_net_profit            DECIMAL(20, 0)           NOT NULL DEFAULT 0.00,
-    income_withholding_tax_amount DECIMAL(20, 0),
+    total_debits                  DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
+    total_credits                 DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
+    movement_balance              DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
+    opening_balance               DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
+    closing_balance               DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
+    monthly_reported_profit       DECIMAL(20, 2),
+    monthly_net_profit            DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
+    income_withholding_tax_amount DECIMAL(20, 2),
     net_growth_rate               DECIMAL(10, 2)           NOT NULL DEFAULT 0.00,
 
     total_movements               INTEGER                  NOT NULL DEFAULT 0,
@@ -94,20 +95,26 @@ CREATE TABLE productmgmt.account_monthly_balances
     CONSTRAINT chk_total_movements_positive CHECK (total_movements >= 0),
     CONSTRAINT chk_period_first_day CHECK (EXTRACT(DAY FROM period) = 1),
 
-    -- Unique constraint - one record per account per month
-    CONSTRAINT uk_account_monthly_balances_account_yearmonth
-        UNIQUE (account_id, year, month),
+    -- Unique constraint - one record per product per month
+    CONSTRAINT uk_monthly_balances_product_yearmonth
+        UNIQUE (product_id, year, month),
 
-    -- Unique constraint - one record per account per month
-    CONSTRAINT uk_account_monthly_balances_account_period
-        UNIQUE (account_id, period),
+    -- Unique constraint - one record per product per month
+    CONSTRAINT uk_monthly_balances_product_period
+        UNIQUE (product_id, period),
 
     -- Foreign key
-    CONSTRAINT fk_account_monthly_balances_account_id
-        FOREIGN KEY (account_id) REFERENCES productmgmt.accounts (id) ON DELETE CASCADE
+    CONSTRAINT fk_monthly_balances_product_id
+        FOREIGN KEY (product_id) REFERENCES finance.products (id) ON DELETE CASCADE
 );
 
 -- Essential indexes
-CREATE INDEX idx_account_monthly_balances_account_id ON productmgmt.account_monthly_balances (account_id);
-CREATE INDEX idx_account_monthly_balances_account_period ON productmgmt.account_monthly_balances (account_id, period DESC);
-CREATE INDEX idx_account_monthly_balances_gap_period ON productmgmt.account_monthly_balances (account_id) WHERE gap_period = TRUE;
+CREATE INDEX idx_monthly_balances_product_id ON finance.monthly_balances (product_id);
+CREATE INDEX idx_monthly_balances_product_period ON finance.monthly_balances (product_id, period DESC);
+CREATE INDEX idx_monthly_balances_gap_period ON finance.monthly_balances (product_id) WHERE gap_period = TRUE;
+
+
+COMMENT ON TABLE finance.products IS
+    'Financial instruments: bank accounts, investment accounts, credit cards';
+COMMENT ON COLUMN finance.products.movement_balance IS
+    'Sum of all movements (credits - debits)';

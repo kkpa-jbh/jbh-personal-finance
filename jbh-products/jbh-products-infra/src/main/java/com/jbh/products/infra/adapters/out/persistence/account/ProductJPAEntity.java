@@ -26,8 +26,8 @@ import org.hibernate.annotations.Type;
 @Entity
 @Getter
 @Setter
-@Table(name = "accounts", schema = "productmgmt")
-public class AccountJPAEntity extends PanacheEntityBase {
+@Table(name = "products", schema = "finance")
+public class ProductJPAEntity extends PanacheEntityBase {
 
   @Id
   @Column(name = "id")
@@ -68,8 +68,8 @@ public class AccountJPAEntity extends PanacheEntityBase {
   @Column(name = "updated_at", nullable = false)
   private LocalDateTime updatedAt;
 
-  public static AccountJPAEntity toEntity(final ProductDTO account) {
-    final AccountJPAEntity accountJpaEntity = new AccountJPAEntity();
+  public static ProductJPAEntity toEntity(final ProductDTO account) {
+    final ProductJPAEntity accountJpaEntity = new ProductJPAEntity();
     accountJpaEntity.setId(account.id() != null ? account.id().value() : null);
     accountJpaEntity.setName(account.name());
     accountJpaEntity.setType(account.type());

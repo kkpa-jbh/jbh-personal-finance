@@ -46,8 +46,8 @@ public class UserPreferencesJPAEntity extends PanacheEntityBase {
   @Column(name = "savings_goal", precision = 20, scale = 2)
   private BigDecimal savingsGoal = BigDecimal.ZERO;
 
-  @Column(name = "default_account_id")
-  private UUID defaultAccountId;
+  @Column(name = "default_product_id")
+  private UUID defaultProductId;
 
   @Type(JsonBinaryType.class)
   @Column(name = "metadata", columnDefinition = "jsonb")
@@ -67,7 +67,7 @@ public class UserPreferencesJPAEntity extends PanacheEntityBase {
     entity.setDefaultCurrency(
         dto.defaultCurrency() != null ? dto.defaultCurrency() : Currency.defaultCurrency());
     entity.setSavingsGoal(dto.savingsGoal());
-    entity.setDefaultAccountId(dto.defaultAccountId());
+    entity.setDefaultProductId(dto.defaultAccountId());
     entity.setMetadata(dto.metadata() != null ? dto.metadata().getData() : null);
     entity.setCreatedAt(dto.createdAt());
     entity.setUpdatedAt(dto.updatedAt());
@@ -92,7 +92,7 @@ public class UserPreferencesJPAEntity extends PanacheEntityBase {
         .defaultLang(Language.of(defaultLang))
         .defaultCurrency(defaultCurrency)
         .savingsGoal(savingsGoal)
-        .defaultAccountId(defaultAccountId)
+        .defaultAccountId(defaultProductId)
         .metadata(
             metadata != null ? PreferencesMetadata.fromMap(metadata) : PreferencesMetadata.empty())
         .createdAt(createdAt)

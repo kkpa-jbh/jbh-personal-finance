@@ -3,7 +3,7 @@
 Available commands:
 
 - make help - Shows usage instructions and available targets
-- make create-schema - Creates the productmgmt schema
+- make create-schema - Creates the finance schema
 - make drop-schema - Drops the schema with confirmation prompt
 - make recreate-schema - Drops and recreates the schema
 - make check-connection - Tests database connectivity

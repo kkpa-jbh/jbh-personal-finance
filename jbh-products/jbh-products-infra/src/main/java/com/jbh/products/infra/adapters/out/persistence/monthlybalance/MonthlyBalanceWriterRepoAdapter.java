@@ -20,13 +20,13 @@ public class MonthlyBalanceWriterRepoAdapter implements AccountMonthlyBalanceWri
   public List<MonthlyBalanceDTO> saveMultiBalances(
       final List<MonthlyBalanceDTO> accountMonthlyBalance) {
     try {
-      final List<AccountMonthlyBalanceJPAEntity> movementsToPersist =
-          accountMonthlyBalance.stream().map(AccountMonthlyBalanceJPAEntity::of).toList();
+      final List<MonthlyBalanceJPAEntity> movementsToPersist =
+          accountMonthlyBalance.stream().map(MonthlyBalanceJPAEntity::of).toList();
 
       if (CollectionUtils.isNotEmpty(movementsToPersist)) {
-        final List<AccountMonthlyBalanceJPAEntity> newMovementsToPersist =
+        final List<MonthlyBalanceJPAEntity> newMovementsToPersist =
             movementsToPersist.stream().filter(m -> m.getId() == null).toList();
-        final List<AccountMonthlyBalanceJPAEntity> existingMovementsToPersist =
+        final List<MonthlyBalanceJPAEntity> existingMovementsToPersist =
             movementsToPersist.stream().filter(m -> m.getId() != null).toList();
         if (CollectionUtils.isNotEmpty(newMovementsToPersist)) {
           jpaRepo.persist(newMovementsToPersist);
@@ -45,8 +45,7 @@ public class MonthlyBalanceWriterRepoAdapter implements AccountMonthlyBalanceWri
 
   @Override
   public void saveBalance(final MonthlyBalanceDTO accountMonthlyBalance) {
-    final AccountMonthlyBalanceJPAEntity entity =
-        AccountMonthlyBalanceJPAEntity.of(accountMonthlyBalance);
+    final MonthlyBalanceJPAEntity entity = MonthlyBalanceJPAEntity.of(accountMonthlyBalance);
 
     if (entity.getId() == null) {
       jpaRepo.persist(entity);

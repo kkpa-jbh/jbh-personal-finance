@@ -25,16 +25,16 @@ public class AccountRepositoryAdapter implements ProductRepository {
       throw new IllegalArgumentException("User ID or Account ID cannot be null");
     }
 
-    final Optional<AccountJPAEntity> foundAccount =
+    final Optional<ProductJPAEntity> foundAccount =
         jpaRepo.findByAccountId(userId, accountId.value());
-    return foundAccount.map(AccountJPAEntity::toDTO);
+    return foundAccount.map(ProductJPAEntity::toDTO);
   }
 
   @Override
   public Optional<ProductDTO> findByProductId(final ProductId accountId) {
     LOG.info("Fetching Product {} from DB", accountId.value());
-    final Optional<AccountJPAEntity> foundAccount = jpaRepo.findByAccountId(accountId.value());
-    return foundAccount.map(AccountJPAEntity::toDTO);
+    final Optional<ProductJPAEntity> foundAccount = jpaRepo.findByAccountId(accountId.value());
+    return foundAccount.map(ProductJPAEntity::toDTO);
   }
 
   @Override
@@ -42,13 +42,13 @@ public class AccountRepositoryAdapter implements ProductRepository {
     if (userId == null) {
       throw new IllegalArgumentException("User ID cannot be null");
     }
-    return jpaRepo.findActiveByUserId(userId).stream().map(AccountJPAEntity::toDTO).toList();
+    return jpaRepo.findActiveByUserId(userId).stream().map(ProductJPAEntity::toDTO).toList();
   }
 
   @Override
   @Transactional
   public ProductDTO save(final ProductDTO account) {
-    AccountJPAEntity entity = AccountJPAEntity.toEntity(account);
+    ProductJPAEntity entity = ProductJPAEntity.toEntity(account);
 
     // If ID is null, it's a new entity - use persist
     // If ID is set, it's an existing entity - use merge
@@ -64,7 +64,7 @@ public class AccountRepositoryAdapter implements ProductRepository {
   @Transactional
   @Override
   public void deleteById(final ProductId productId) {
-    final Optional<AccountJPAEntity> foundAccount = jpaRepo.findByAccountId(productId.value());
+    final Optional<ProductJPAEntity> foundAccount = jpaRepo.findByAccountId(productId.value());
 
     if (foundAccount.isEmpty()) {
       throw new IllegalArgumentException("Product ID not found to delete it");

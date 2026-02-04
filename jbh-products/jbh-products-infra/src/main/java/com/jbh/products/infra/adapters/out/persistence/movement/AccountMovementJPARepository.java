@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.UUID;
 
 @ApplicationScoped
-@PersistenceUnit(name = "productmgmt")
-public class AccountMovementJPARepository implements PanacheRepository<AccountMovementJPAEntity> {
+@PersistenceUnit(name = "finance")
+public class AccountMovementJPARepository implements PanacheRepository<MovementJPAEntity> {
 
   private static final String ACCOUNT_ID_PARAM = "accountId";
 
@@ -18,7 +18,7 @@ public class AccountMovementJPARepository implements PanacheRepository<AccountMo
     return find("accountId = :accountId", Parameters.with(ACCOUNT_ID_PARAM, accountId))
         .list()
         .stream()
-        .map(AccountMovementJPAEntity::toDTO)
+        .map(MovementJPAEntity::toDTO)
         .toList();
   }
 }

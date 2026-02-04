@@ -28,14 +28,14 @@ import org.hibernate.annotations.Type;
 @Entity
 @Getter
 @Setter
-@Table(name = "account_movements", schema = "productmgmt")
-public class AccountMovementJPAEntity extends PanacheEntityBase {
+@Table(name = "movements", schema = "finance")
+public class MovementJPAEntity extends PanacheEntityBase {
   // Auto generated ID
   @Id
   @Column(name = "id")
   public UUID id;
 
-  @Column(name = "account_id")
+  @Column(name = "product_id")
   public UUID accountId;
 
   @Enumerated(EnumType.STRING)
@@ -64,8 +64,8 @@ public class AccountMovementJPAEntity extends PanacheEntityBase {
   @Column(name = "created_at", nullable = false, updatable = false)
   public LocalDateTime createdAt;
 
-  public static AccountMovementJPAEntity toEntity(final MovementDTO accountMovement) {
-    final AccountMovementJPAEntity entity = new AccountMovementJPAEntity();
+  public static MovementJPAEntity toEntity(final MovementDTO accountMovement) {
+    final MovementJPAEntity entity = new MovementJPAEntity();
     entity.setId(accountMovement.id() != null ? accountMovement.id().value() : null);
     entity.setAccountId(
         accountMovement.accountId() != null ? accountMovement.accountId().value() : null);

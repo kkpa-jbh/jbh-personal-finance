@@ -2,16 +2,16 @@ package com.jbh.products.domain.entity;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductMetadata;
 import com.jbh.products.domain.vo.ProductType;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * Test builder for creating AccountDomain instances with basic movement data for existing accounts.
+ * Test builder for creating AccountDomain instances with basic movement data for existing products
  * This builder is intended for test purposes only and should not be used in production code.
  */
 public class AccountDomainTestBuilder {

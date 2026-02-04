@@ -229,6 +229,10 @@ Check if the component already exists to update it.
 - Use responsive breakpoints
 - Consider mobile keyboard behavior for forms
 
+### CRITICAL RULES
+
+- Check the ### Critical Rules section of the CLAUDE instructions.
+
 ### Component Structure
 
 #### Project Structure Overview
@@ -252,6 +256,7 @@ src/app/
 {Any specific business rules or edge cases from the API}
 
 - Do not implement state management.
+  Do not forget to register the Ionic icons used by the HTML
 - The error handling is already implemented, Do not mention it.
 - Do not suggest adding unit tests. The project does not support that.
 - The application only supports EN and ES languages. Be aware about the translations with good grammar.

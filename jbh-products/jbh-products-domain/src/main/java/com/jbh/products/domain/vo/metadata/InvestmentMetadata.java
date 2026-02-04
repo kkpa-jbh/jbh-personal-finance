@@ -15,7 +15,7 @@ public final class InvestmentMetadata extends BaseMetadata {
   }
 
   /**
-   * Gets the broker name for investment accounts.
+   * Gets the broker name for investment products
    *
    * @return String broker name or null if not set
    */
@@ -29,7 +29,7 @@ public final class InvestmentMetadata extends BaseMetadata {
   }
 
   /**
-   * Gets the commission rate for investment accounts.
+   * Gets the commission rate for investment products
    *
    * @return BigDecimal commission rate or ZERO if not set
    */

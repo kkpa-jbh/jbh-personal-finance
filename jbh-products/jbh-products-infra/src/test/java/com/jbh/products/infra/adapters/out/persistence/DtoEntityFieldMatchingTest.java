@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.infra.adapters.out.persistence.account.AccountJPAEntity;
-import com.jbh.products.infra.adapters.out.persistence.monthlybalance.AccountMonthlyBalanceJPAEntity;
-import com.jbh.products.infra.adapters.out.persistence.movement.AccountMovementJPAEntity;
+import com.jbh.products.infra.adapters.out.persistence.account.ProductJPAEntity;
+import com.jbh.products.infra.adapters.out.persistence.monthlybalance.MonthlyBalanceJPAEntity;
+import com.jbh.products.infra.adapters.out.persistence.movement.MovementJPAEntity;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Set;
@@ -24,7 +24,7 @@ public class DtoEntityFieldMatchingTest {
   public void accountDTO_and_AccountJPAEntity_should_have_matching_fields() {
     // Get field names from both classes
     final Set<String> dtoFields = getFieldNames(ProductDTO.class);
-    final Set<String> entityFields = getFieldNames(AccountJPAEntity.class);
+    final Set<String> entityFields = getFieldNames(ProductJPAEntity.class);
     final String dtoClass = "AccountDTO";
     final String entityClass = "AccountJPAEntity";
 
@@ -76,7 +76,7 @@ public class DtoEntityFieldMatchingTest {
   public void monthlyBalanceDTO_and_MonthlyBalanceJPAEntity_should_have_matching_fields() {
     // Get field names from both classes
     final Set<String> dtoFields = getFieldNames(MonthlyBalanceDTO.class);
-    final Set<String> entityFields = getFieldNames(AccountMonthlyBalanceJPAEntity.class);
+    final Set<String> entityFields = getFieldNames(MonthlyBalanceJPAEntity.class);
     final String dtoClass = "MonthlyBalanceDTO";
     final String entityClass = "AccountMonthlyBalanceJPAEntity";
 
@@ -88,7 +88,7 @@ public class DtoEntityFieldMatchingTest {
   public void movementDTO_and_MovementJPAEntity_should_have_matching_fields() {
     // Get field names from both classes
     final Set<String> dtoFields = getFieldNames(MovementDTO.class);
-    final Set<String> entityFields = getFieldNames(AccountMovementJPAEntity.class);
+    final Set<String> entityFields = getFieldNames(MovementJPAEntity.class);
     final String dtoClass = "MovementDTO";
     final String entityClass = "AccountMovementJPAEntity";
 

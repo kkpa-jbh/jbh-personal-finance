@@ -17,7 +17,7 @@ public final class CreditCardMetadata extends BaseMetadata {
   }
 
   /**
-   * Gets the credit limit for credit card accounts.
+   * Gets the credit limit for credit card products
    *
    * @return BigDecimal credit limit
    * @throws BusinessException if credit limit is not a BigDecimal
@@ -41,7 +41,7 @@ public final class CreditCardMetadata extends BaseMetadata {
   }
 
   /**
-   * Gets the payment due day for credit card accounts.
+   * Gets the payment due day for credit card products
    *
    * @return Integer day of month
    * @throws BusinessException if payment due day is not an Integer

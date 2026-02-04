@@ -23,9 +23,9 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "account_monthly_balances", schema = "productmgmt")
+@Table(name = "monthly_balances", schema = "finance")
 @SuppressWarnings("PMD.TooManyFields")
-public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
+public class MonthlyBalanceJPAEntity extends PanacheEntityBase {
 
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "monthly_balance_seq")
@@ -36,7 +36,7 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
   @Column(name = "id")
   private Long id;
 
-  @Column(name = "account_id")
+  @Column(name = "product_id")
   private UUID accountId;
 
   @Column(name = "year")
@@ -91,8 +91,8 @@ public class AccountMonthlyBalanceJPAEntity extends PanacheEntityBase {
   @Column(name = "updated_at", nullable = false)
   private LocalDateTime updatedAt;
 
-  public static AccountMonthlyBalanceJPAEntity of(final MonthlyBalanceDTO monthlyBalance) {
-    final AccountMonthlyBalanceJPAEntity entity = new AccountMonthlyBalanceJPAEntity();
+  public static MonthlyBalanceJPAEntity of(final MonthlyBalanceDTO monthlyBalance) {
+    final MonthlyBalanceJPAEntity entity = new MonthlyBalanceJPAEntity();
     entity.setId(monthlyBalance.id());
     entity.setAccountId(
         monthlyBalance.accountId() != null ? monthlyBalance.accountId().value() : null);

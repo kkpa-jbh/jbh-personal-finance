@@ -11,7 +11,7 @@ CREATE TABLE userprefs.user_preferences
     default_lang       VARCHAR(10)              NOT NULL DEFAULT 'en',
     default_currency   VARCHAR(10)              NOT NULL DEFAULT 'USD',
     savings_goal       DECIMAL(20, 2)                    DEFAULT 0.00,
-    default_account_id UUID,
+    default_product_id UUID,
     metadata           JSONB,
     created_at         TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at         TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,

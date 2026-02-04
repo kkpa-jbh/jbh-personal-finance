@@ -123,7 +123,7 @@ export-all-schemas: ## Export all database schemas to docs/database-schemas
 
 export-product-schema: ## Export products schema to docs/database-schemas
 	@echo "${GREEN}Exporting products schema...${NC}"
-	@./scripts/export-schema.sh productmgmt
+	@./scripts/export-schema.sh finance
 
 export-notification-schema: ## Export notification schema to docs/database-schemas
 	@echo "${GREEN}Exporting notification schema...${NC}"
