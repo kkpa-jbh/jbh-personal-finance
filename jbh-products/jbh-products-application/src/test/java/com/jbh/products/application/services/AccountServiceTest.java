@@ -91,7 +91,8 @@ public class AccountServiceTest {
             totalAmount,
             balanceSnapshot,
             AccountMovementMetadata.createEmpty(),
-            category);
+            category,
+            null);
 
     try {
       movDomain.validate();

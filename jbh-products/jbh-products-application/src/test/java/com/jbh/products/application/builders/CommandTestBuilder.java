@@ -161,7 +161,7 @@ public class CommandTestBuilder {
       final MovementType movementType,
       final MovementCategoryDTO categoryDTO) {
     return new AddMovementCommand(
-        entryDate, totalAmount, balanceSnapshot, movementType, categoryDTO);
+        entryDate, totalAmount, balanceSnapshot, movementType, categoryDTO, null);
   }
 
   // ==================== AddMovementCommand Factory Methods ====================

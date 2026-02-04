@@ -9,4 +9,5 @@ public record AddMovementRequest(
     BigDecimal totalAmount,
     BigDecimal balanceSnapshot,
     MovementType movementType,
-    String categoryName) {}
+    String categoryName,
+    String description) {}

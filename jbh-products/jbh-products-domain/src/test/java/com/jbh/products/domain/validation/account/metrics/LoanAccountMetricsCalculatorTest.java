@@ -165,7 +165,8 @@ class LoanAccountMetricsCalculatorTest {
             new BigDecimal("-500.00"),
             JBH_ZERO,
             AccountMovementMetadata.createEmpty(),
-            MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL));
+            MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
+            null);
 
     // When
     final ProductMetadata result = calculator.updateMetadata(loanProduct, movement);
@@ -192,7 +193,8 @@ class LoanAccountMetricsCalculatorTest {
             new BigDecimal("1000.00"),
             JBH_ZERO,
             AccountMovementMetadata.createEmpty(),
-            MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL));
+            MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
+            null);
 
     // When
     final ProductMetadata result = calculator.updateMetadata(loanProduct, movement);
@@ -217,7 +219,8 @@ class LoanAccountMetricsCalculatorTest {
             new BigDecimal("-500.00"),
             JBH_ZERO,
             AccountMovementMetadata.createEmpty(),
-            MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL));
+            MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
+            null);
 
     // When
     final ProductMetadata result = calculator.updateMetadata(loanProduct, movement);
@@ -245,7 +248,8 @@ class LoanAccountMetricsCalculatorTest {
             new BigDecimal("-250.00"),
             JBH_ZERO,
             AccountMovementMetadata.createEmpty(),
-            MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL));
+            MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
+            null);
 
     // When
     final ProductMetadata result = calculator.updateMetadata(loanProduct, movement);
@@ -272,7 +276,8 @@ class LoanAccountMetricsCalculatorTest {
             new BigDecimal("-25000.00"),
             JBH_ZERO,
             AccountMovementMetadata.createEmpty(),
-            MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL));
+            MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
+            null);
 
     // When
     final ProductMetadata result = calculator.updateMetadata(loanProduct, movement);
@@ -299,7 +304,8 @@ class LoanAccountMetricsCalculatorTest {
             new BigDecimal("-500.654321"),
             JBH_ZERO,
             AccountMovementMetadata.createEmpty(),
-            MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL));
+            MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
+            null);
 
     // When
     final ProductMetadata result = calculator.updateMetadata(loanProduct, movement);

@@ -31,7 +31,8 @@ public final class MovementMapper {
         dto.movementAmount(),
         dto.movementDate(),
         dto.balanceSnapshot(),
-        dto.metadata());
+        dto.metadata(),
+        dto.description());
   }
 
   /**
@@ -55,7 +56,8 @@ public final class MovementMapper {
             totalAmount,
             command.balanceSnapshot(),
             AccountMovementMetadata.createEmpty(),
-            MovementCategoryDomain.withDTO(command.categoryDTO()));
+            MovementCategoryDomain.withDTO(command.categoryDTO()),
+            command.description());
 
     return toDTO(newMovement);
   }
@@ -74,6 +76,7 @@ public final class MovementMapper {
         .movementDate(domain.getMovementDate())
         .balanceSnapshot(domain.getBalanceSnapshot())
         .metadata(domain.getMetadata())
+        .description(domain.getDescription())
         .build();
   }
 
@@ -101,7 +104,8 @@ public final class MovementMapper {
             totalAmount.negate(),
             BigDecimal.ZERO,
             metadata,
-            MovementCategoryDomain.withDTO(categoryDTO));
+            MovementCategoryDomain.withDTO(categoryDTO),
+            null);
 
     return toDTO(newMovement);
   }

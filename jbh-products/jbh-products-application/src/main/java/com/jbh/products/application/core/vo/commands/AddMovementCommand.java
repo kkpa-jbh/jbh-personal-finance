@@ -14,13 +14,15 @@ import java.time.LocalDate;
  * @param balanceSnapshot Current net flow after the movement (optional)
  * @param movementType The type of movement
  * @param categoryDTO The category of the movement
+ * @param description Optional description for the movement
  */
 public record AddMovementCommand(
     LocalDate entryDate,
     BigDecimal totalAmount,
     BigDecimal balanceSnapshot,
     MovementType movementType,
-    MovementCategoryDTO categoryDTO) {
+    MovementCategoryDTO categoryDTO,
+    String description) {
 
   public AddMovementCommand(
       final LocalDate entryDate,
@@ -28,7 +30,7 @@ public record AddMovementCommand(
       final MovementType movementType,
       final MovementCategoryDTO categoryDTO) {
 
-    this(entryDate, totalAmount, null, movementType, categoryDTO);
+    this(entryDate, totalAmount, null, movementType, categoryDTO, null);
   }
 
   public AddMovementCommand(
@@ -41,7 +43,8 @@ public record AddMovementCommand(
         totalAmount,
         balanceSnapshot,
         MovementType.findByCategory(movementCategoryDTO),
-        movementCategoryDTO);
+        movementCategoryDTO,
+        null);
   }
 
   public AddMovementCommand(
@@ -53,7 +56,14 @@ public record AddMovementCommand(
         totalAmount,
         null,
         MovementType.findByCategory(movementCategoryDTO),
-        movementCategoryDTO);
+        movementCategoryDTO,
+        null);
+  }
+
+  public AddMovementCommand(final LocalDate entryDate, final BigDecimal totalAmount,
+      final BigDecimal balanceSnapshot, final MovementType movementType, final MovementCategoryDTO category) {
+  this (entryDate, totalAmount, balanceSnapshot, movementType, category, null);
+
   }
 
   public void validate() {

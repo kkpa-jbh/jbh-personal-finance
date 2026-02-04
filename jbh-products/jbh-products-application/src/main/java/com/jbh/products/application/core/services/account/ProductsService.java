@@ -64,8 +64,7 @@ public interface ProductsService {
       throws BusinessException;
 
   ProductDTO syncByUploadedMovements(
-      ProductDomain accountDomain, List<MovementDomain> uploadedMovements)
-      throws BusinessException;
+      ProductDomain accountDomain, List<MovementDomain> uploadedMovements) throws BusinessException;
 
   List<ProductDTO> findActiveByUserId(UUID userId);
 

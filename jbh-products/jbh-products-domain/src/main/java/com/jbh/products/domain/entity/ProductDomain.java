@@ -138,8 +138,7 @@ public class ProductDomain {
     return AccountCreationValidatorFactory.getValidator(type);
   }
 
-  public void syncBalancesByMovement(
-      final MovementDomain movement, final boolean wasOfficialReport)
+  public void syncBalancesByMovement(final MovementDomain movement, final boolean wasOfficialReport)
       throws BusinessException {
     movement.validate();
 
@@ -152,8 +151,7 @@ public class ProductDomain {
     applyMovement(movement, wasOfficialReport);
   }
 
-  public void validateInsufficientNetFlow(final MovementDomain movement)
-      throws BusinessException {
+  public void validateInsufficientNetFlow(final MovementDomain movement) throws BusinessException {
     getValidator(this.type).validateInsufficientNetFlow(this, movement);
   }
 

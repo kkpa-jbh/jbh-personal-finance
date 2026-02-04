@@ -36,6 +36,7 @@ public class MovementDomain {
   private final LocalDate movementDate;
   private final BigDecimal balanceSnapshot;
   private final AccountMovementMetadata metadata;
+  private final String description;
 
   public MovementDomain(
       final MovementId id,
@@ -45,7 +46,8 @@ public class MovementDomain {
       final BigDecimal movementAmount,
       final LocalDate movementDate,
       final BigDecimal balanceSnapshot,
-      final AccountMovementMetadata metadata) {
+      final AccountMovementMetadata metadata,
+      final String description) {
     this.id = id;
     this.accountId = accountId;
     this.movementType = movementType;
@@ -54,6 +56,7 @@ public class MovementDomain {
     this.movementDate = movementDate;
     this.balanceSnapshot = JbhMoneyUtils.withJBHDecimals(balanceSnapshot);
     this.metadata = metadata;
+    this.description = description;
   }
 
   public MovementDomain(
@@ -63,15 +66,18 @@ public class MovementDomain {
       final BigDecimal movementAmount,
       final BigDecimal balanceSnapshot,
       final AccountMovementMetadata metadata,
-      final MovementCategoryDomain category) {
-    this.id = MovementId.generate();
-    this.accountId = accountId;
-    this.movementDate = movementDate;
-    this.movementAmount = JbhMoneyUtils.withJBHDecimals(movementAmount);
-    this.movementType = movementType;
-    this.balanceSnapshot = JbhMoneyUtils.withJBHDecimals(balanceSnapshot);
-    this.metadata = metadata;
-    this.category = category;
+      final MovementCategoryDomain category,
+      final String description) {
+    this(
+        MovementId.generate(),
+        accountId,
+        movementType,
+        category,
+        movementAmount,
+        movementDate,
+        balanceSnapshot,
+        metadata,
+        description);
   }
 
   // FIXME Use factory movemtn type and see if this method can be removed
@@ -99,7 +105,8 @@ public class MovementDomain {
             totalAmount,
             balanceSnapshot,
             AccountMovementMetadata.createEmpty(),
-            category);
+            category,
+            null);
 
     movementDomain.validate();
 

@@ -62,7 +62,8 @@ public class EntityBuilder {
             totalAmount,
             balanceSnapshot,
             AccountMovementMetadata.createEmpty(),
-            category);
+            category,
+            null);
 
     try {
       movDomain.validate();

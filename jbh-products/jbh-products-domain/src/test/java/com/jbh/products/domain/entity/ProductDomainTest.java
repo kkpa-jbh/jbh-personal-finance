@@ -583,7 +583,8 @@ public class ProductDomainTest {
             movementAmount,
             LocalDate.now(),
             null,
-            AccountMovementMetadata.createEmpty());
+            AccountMovementMetadata.createEmpty(),
+            null);
 
     accountDomain.syncBalancesByMovement(movement, false);
 
@@ -600,7 +601,8 @@ public class ProductDomainTest {
             new BigDecimal("-100.00"),
             LocalDate.now(),
             JBH_ZERO,
-            AccountMovementMetadata.createEmpty());
+            AccountMovementMetadata.createEmpty(),
+            null);
     accountDomain.syncBalancesByMovement(withdrawalMovement, false);
     assertTrue(accountDomain.isFullyWithdrawn());
     assertTrue(accountDomain.hasMetadata(ProductMetadataKey.COMMON_IS_FULLY_WITHDRAWN));
@@ -618,7 +620,8 @@ public class ProductDomainTest {
             movementAmount,
             LocalDate.now(),
             JBH_ZERO,
-            AccountMovementMetadata.createEmpty());
+            AccountMovementMetadata.createEmpty(),
+            null);
     assertThrows(
         BusinessException.class,
         () -> accountDomain.syncBalancesByMovement(unknownMovement, false));

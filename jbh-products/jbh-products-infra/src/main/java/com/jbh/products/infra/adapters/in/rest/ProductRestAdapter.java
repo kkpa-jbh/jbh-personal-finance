@@ -40,7 +40,7 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings({"PMD.UnnecessaryAnnotationValueElement"})
+@SuppressWarnings({"PMD.UnnecessaryAnnotationValueElement", "PMD.AvoidDuplicateLiterals"})
 @RequestScoped
 @Path(FinanceApiRoutes.PRODUCTS_API_PATH)
 @Tag(name = "Product Operations", description = "Product management operations")

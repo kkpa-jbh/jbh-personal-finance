@@ -101,7 +101,8 @@ public class MovementRestAdapter extends BaseRestAdapter {
             request.totalAmount(),
             request.balanceSnapshot(),
             request.movementType(),
-            MovementCategoryDTO.withName(request.movementType(), request.categoryName()));
+            MovementCategoryDTO.withName(request.movementType(), request.categoryName()),
+            request.description());
 
     final AddBasicMovementDTO response =
         addMovementUseCase.addMovement(userId, ProductId.of(productId), command);

@@ -17,6 +17,4 @@ public record MovementId(UUID value) {
   public static MovementId generate() {
     return new MovementId(UUID.randomUUID());
   }
-
-
 }

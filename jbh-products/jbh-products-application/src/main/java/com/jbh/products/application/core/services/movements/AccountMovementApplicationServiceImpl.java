@@ -203,7 +203,8 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
             dividendsAmount,
             balanceSnapshot,
             MovementType.DEPOSIT,
-            MovementCategoryDTO.withType(IncomeCategory.DIVIDENDS));
+            MovementCategoryDTO.withType(IncomeCategory.DIVIDENDS),
+            null);
 
     addMovementProcessingBalances(accountPK, dividendsMovement);
 
@@ -220,7 +221,8 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
               incomeWithholdingTaxAmount,
               balanceSnapshot,
               WITHDRAWAL,
-              MovementCategoryDTO.withType(ExpenseCategory.RETEFUENTE));
+              MovementCategoryDTO.withType(ExpenseCategory.RETEFUENTE),
+              null);
 
       addMovementProcessingBalances(accountPK, incomeWithholdingTaxMovement);
 

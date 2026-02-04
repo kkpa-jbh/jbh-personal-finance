@@ -3,7 +3,6 @@ package com.jbh.products.application.core.services.movements;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.core.dto.AddBasicMovementDTO;
 import com.jbh.products.application.core.dto.MovementDTO;
-import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.products.application.core.vo.commands.AddMovementCommand;
 import com.jbh.products.domain.vo.AccountMovementMetadata;

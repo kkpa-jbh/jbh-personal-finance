@@ -38,6 +38,7 @@ import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
 
+@SuppressWarnings("PMD.CouplingBetweenObjects")
 @ApplicationScoped
 @RegisterForReflection(
     targets = {

@@ -36,6 +36,7 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
     this.productService = productService;
   }
 
+  @Override
   public List<MonthlyBalanceDTO> findByAccountAndPeriods(
       final ProductPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod)
       throws BusinessException {
