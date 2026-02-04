@@ -135,8 +135,15 @@ Generate instructions in this format for Claude Code:
 ````markdown
 # Frontend Component: {EntityName}
 
+We need to create or update the component for {EntityName}.
+
+If it's a new component, check what might be the best place to put it on the menu based on the context.
+If you don't feel sure, ask the user by providing suggestions.
+
 These are the details about the API(s) to call. Follow the current       
 standards of the project and follow the best practices.
+
+Check if the component already exists to update it.
 
 ## API Specification
 
@@ -205,6 +212,16 @@ standards of the project and follow the best practices.
 - Show loading state during form submission
 - Display success message after successful operation
 - Display error message if operation fails
+- Use decimal/Date/currency directives or pipes where they apply. (Based on the Response Type object)
+- Register all icons used in the component by adding them to ionic.
+- Ask the user if the component needs a button to refresh the info. Follow the pattern for that.
+
+### Directives or Pipes
+
+- Always apply the directive `jbhDecimalFormat` for BigDecimal objects in the API's response.
+- Always apply the `pipe` `jbhDate` for `Date` objects present in the API's response. Check the
+  API response example to know the date format.
+    - Always apply the currency pipe `jbhCurrency` for currency values in the API's response.
 
 ### Multi-Platform Requirements
 
@@ -225,24 +242,16 @@ src/app/
 └── theme/                # custom-components.scss (single source)
 ```
 
-Create the following components:
-
-1. **List Component**: Display all {entities}
-2. **Form Component**: Create/Edit form (reusable)
-3. **Detail Component**: Show single {entity} details
-4. **Delete Dialog**: Confirmation before deletion
-
 ### API Integration
 
 - Create/Update the repository adapter implementing the current standard of the project.
 - Keep the existing structure of the repository layer.
-- Do not suggest any code
 
 ## Additional Notes
 
 {Any specific business rules or edge cases from the API}
 
-- Do not implement state management
+- Do not implement state management.
 - The error handling is already implemented, Do not mention it.
 - Do not suggest adding unit tests. The project does not support that.
 - The application only supports EN and ES languages. Be aware about the translations with good grammar.

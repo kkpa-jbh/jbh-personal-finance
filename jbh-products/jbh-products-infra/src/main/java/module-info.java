@@ -23,7 +23,6 @@ module jbh.products.infra {
   requires com.opencsv;
   requires org.apache.commons.collections4;
   requires jbh.commons;
-  requires jbh.products.infra;
   requires jakarta.cdi;
 
   uses AddMovementInputPort;

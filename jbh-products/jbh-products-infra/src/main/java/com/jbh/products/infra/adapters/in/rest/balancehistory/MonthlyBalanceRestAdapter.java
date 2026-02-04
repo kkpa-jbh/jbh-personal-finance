@@ -3,7 +3,6 @@ package com.jbh.products.infra.adapters.in.rest.balancehistory;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
 import com.jbh.gateway.client.JbhGatewayException;
-import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.dto.balancehistory.BalanceHistoryResponseDTO;
 import com.jbh.products.application.core.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.products.domain.vo.ProductId;
@@ -21,7 +20,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import java.util.List;
+import java.time.YearMonth;
 import java.util.Map;
 import java.util.UUID;
 import org.eclipse.microprofile.openapi.annotations.Operation;
@@ -104,8 +103,8 @@ public class MonthlyBalanceRestAdapter extends BaseRestAdapter {
     final UUID userId = findUserId(authorizationHeader);
 
     final BalanceHistoryResponseDTO balanceHistoryResponse =
-        findMonthlyBalanceUseCase.findBalanceHistoryBy(
-            userId, request.startPeriod(), request.endPeriod());
+        findMonthlyBalanceUseCase.findBalanceHistoryByUser(
+            userId, request.startPeriod(), request.endPeriod(), YearMonth.now());
 
     return Response.ok(balanceHistoryResponse).build();
   }
@@ -152,12 +151,13 @@ public class MonthlyBalanceRestAdapter extends BaseRestAdapter {
 
     final UUID userId = findUserId(authorizationHeader);
 
-    final List<MonthlyBalanceDTO> monthlyBalances =
-        findMonthlyBalanceUseCase.findBalanceHistoryBy(
+    final BalanceHistoryResponseDTO balanceHistoryBy =
+        findMonthlyBalanceUseCase.findHistoryByProduct(
             new ProductPK(userId, ProductId.of(productId)),
             request.startPeriod(),
-            request.endPeriod());
+            request.endPeriod(),
+            YearMonth.now());
 
-    return Response.ok(monthlyBalances).build();
+    return Response.ok(balanceHistoryBy).build();
   }
 }

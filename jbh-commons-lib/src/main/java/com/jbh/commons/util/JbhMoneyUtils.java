@@ -97,7 +97,7 @@ public final class JbhMoneyUtils {
    */
   public static BigDecimal calculatePercentageChange(
       final BigDecimal newValue, final BigDecimal oldValue) {
-    if (oldValue == null || oldValue.equals(BigDecimal.ZERO)) {
+    if (oldValue == null || isZero(oldValue)) {
       return JBH_ZERO;
     }
 

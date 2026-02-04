@@ -12,16 +12,18 @@ public final class PeriodRange {
   private final boolean endPeriodExclusive;
 
   private PeriodRange(
-      final YearMonth startPeriod, final YearMonth endPeriod, final boolean endPeriodExclusive) {
+      final YearMonth startPeriod,
+      final YearMonth inputEndPeriod,
+      final boolean endPeriodExclusive) {
     Objects.requireNonNull(startPeriod, "Start period cannot be null");
-    Objects.requireNonNull(endPeriod, "End period cannot be null");
+    Objects.requireNonNull(inputEndPeriod, "End period cannot be null");
 
-    if (startPeriod.isAfter(endPeriod)) {
+    if (startPeriod.isAfter(inputEndPeriod)) {
       throw new IllegalArgumentException("Start period must be before or equal to end period");
     }
 
     this.startPeriod = startPeriod;
-    this.endPeriod = endPeriod;
+    this.endPeriod = inputEndPeriod;
     this.endPeriodExclusive = endPeriodExclusive;
   }
 
@@ -57,6 +59,13 @@ public final class PeriodRange {
 
   public YearMonth getStartPeriod() {
     return startPeriod;
+  }
+
+  public YearMonth getEndPeriodExclusive() {
+    if (this.endPeriodExclusive) {
+      return endPeriod.minusMonths(1);
+    }
+    return getEndPeriod();
   }
 
   public YearMonth getEndPeriod() {

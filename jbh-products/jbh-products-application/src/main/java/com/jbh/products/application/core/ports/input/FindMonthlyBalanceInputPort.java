@@ -36,6 +36,16 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
     this.productService = productService;
   }
 
+  public List<MonthlyBalanceDTO> findByAccountAndPeriods(
+      final ProductPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod)
+      throws BusinessException {
+
+    validatePeriodRange(startPeriod, endPeriod);
+    productService.findByUserAndProductId(accountPK.userId(), accountPK.accountId());
+
+    return monthlyBalanceService.findByAccountAndPeriods(accountPK, startPeriod, endPeriod);
+  }
+
   @Override
   public BalanceHistoryResponseDTO findHistoryByProduct(
       final ProductPK accountPK,
@@ -49,21 +59,6 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
         productService.findByUserAndProductId(accountPK.userId(), accountPK.accountId());
 
     return findBalanceHistory(startPeriod, endPeriod, today, Collections.singletonList(product));
-  }
-
-  private void validatePeriodRange(final YearMonth startPeriod, final YearMonth endPeriod)
-      throws BusinessException {
-    if (startPeriod == null || endPeriod == null) {
-      throw new BusinessException(INVALID_RANGE_DATES_FOR_MONTHLY_BALANCES);
-    }
-
-    if (startPeriod.isAfter(endPeriod)) {
-      throw new BusinessException(INVALID_RANGE_DATES_FOR_MONTHLY_BALANCES);
-    }
-
-    if (endPeriod.isAfter(YearMonth.now())) {
-      throw new BusinessException(INVALID_RANGE_DATES_FOR_MONTHLY_BALANCES);
-    }
   }
 
   private BalanceHistoryResponseDTO findBalanceHistory(
@@ -89,9 +84,6 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
     }
     // Logic by transforming the fetched data.
 
-    final Map<YearMonth, List<MonthlyBalanceDTO>> balancesByPeriod =
-        allMonthlyBalances.stream().collect(Collectors.groupingBy(MonthlyBalanceDTO::period));
-
     BigDecimal totalBalanceSummary = JBH_ZERO;
 
     BigDecimal firstOpeningBalances = JBH_ZERO;
@@ -103,7 +95,7 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
     final List<MonthlyBalanceResponseDTO> balancesResponse = new ArrayList<>();
 
     for (final MonthlyBalanceDTO monthlyBalance : allMonthlyBalances) {
-      totalBalanceSummary = totalBalanceSummary.add(monthlyBalance.closingBalance());
+
       totalMovementsSummary += monthlyBalance.totalMovements();
 
       final BigDecimal closingBalance = monthlyBalance.closingBalance();
@@ -117,11 +109,10 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
       if (currentPeriod.equals(periodRange.getStartPeriod())) {
         firstOpeningBalances = firstOpeningBalances.add(monthlyBalance.openingBalance());
       }
-      if (currentPeriod.equals(periodRange.getEndPeriod())) {
+      if (currentPeriod.equals(periodRange.getEndPeriodExclusive())) {
         lastClosingBalances = lastClosingBalances.add(monthlyBalance.closingBalance());
+        totalBalanceSummary = totalBalanceSummary.add(monthlyBalance.closingBalance());
       }
-
-      totalMovementsSummary += monthlyBalance.totalMovements();
 
       balancesResponse.add(
           MonthlyBalanceResponseDTO.fromDTO(
@@ -162,5 +153,20 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
 
     final List<ProductDTO> allProducts = productService.findActiveByUserId(userId);
     return findBalanceHistory(startPeriod, inputEndPeriod, today, allProducts);
+  }
+
+  private void validatePeriodRange(final YearMonth startPeriod, final YearMonth endPeriod)
+      throws BusinessException {
+    if (startPeriod == null || endPeriod == null) {
+      throw new BusinessException(INVALID_RANGE_DATES_FOR_MONTHLY_BALANCES);
+    }
+
+    if (startPeriod.isAfter(endPeriod)) {
+      throw new BusinessException(INVALID_RANGE_DATES_FOR_MONTHLY_BALANCES);
+    }
+
+    if (endPeriod.isAfter(YearMonth.now())) {
+      throw new BusinessException(INVALID_RANGE_DATES_FOR_MONTHLY_BALANCES);
+    }
   }
 }

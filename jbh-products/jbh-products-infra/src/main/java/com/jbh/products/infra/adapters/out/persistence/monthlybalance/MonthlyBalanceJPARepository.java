@@ -29,6 +29,7 @@ public class MonthlyBalanceJPARepository
 
   private static final String ACCOUNT_ID_PARAM = "accountId";
 
+  @Override
   public List<MonthlyBalanceDTO> findByAccountAndPeriods(
       final ProductPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
     return find(
@@ -58,34 +59,6 @@ public class MonthlyBalanceJPARepository
   public Optional<MonthlyBalanceDTO> findByAccountIdAndPeriod(
       final ProductId accountId, final YearMonth period) {
     return findByAccountIdYearAndMonth(accountId, period.getYear(), period.getMonthValue());
-  }
-
-  private List<AccountMonthlyBalanceJPAEntity> findNextFromPeriodInclusiveJPA(
-      final ProductId accountId, final YearMonth currentPeriod) {
-    return find(
-            "accountId = :accountId and period >= :period",
-            Parameters.with(ACCOUNT_ID_PARAM, accountId.value()).and("period", currentPeriod))
-        .list();
-  }
-
-  @Override
-  public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
-      final ProductId accountId, final YearMonth currentPeriod) {
-    return findNextFromPeriodInclusiveJPA(accountId, currentPeriod).stream()
-        .map(AccountMonthlyBalanceJPAEntity::toDTO)
-        .toList();
-  }
-
-  @Override
-  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final ProductId accountId) {
-    final YearMonth endPeriod = YearMonth.now();
-    return find(
-            "accountId = :accountId  and period <= :endPeriod order by period asc",
-            Parameters.with(ACCOUNT_ID_PARAM, accountId.value()).and("endPeriod", endPeriod))
-        .list()
-        .stream()
-        .map(AccountMonthlyBalanceJPAEntity::toDTO)
-        .toList();
   }
 
   @Override
@@ -124,6 +97,34 @@ public class MonthlyBalanceJPARepository
     } catch (final NoResultException e) {
       return BigDecimal.ZERO;
     }
+  }
+
+  @Override
+  public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
+      final ProductId accountId, final YearMonth currentPeriod) {
+    return findNextFromPeriodInclusiveJPA(accountId, currentPeriod).stream()
+        .map(AccountMonthlyBalanceJPAEntity::toDTO)
+        .toList();
+  }
+
+  private List<AccountMonthlyBalanceJPAEntity> findNextFromPeriodInclusiveJPA(
+      final ProductId accountId, final YearMonth currentPeriod) {
+    return find(
+            "accountId = :accountId and period >= :period",
+            Parameters.with(ACCOUNT_ID_PARAM, accountId.value()).and("period", currentPeriod))
+        .list();
+  }
+
+  @Override
+  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final ProductId accountId) {
+    final YearMonth endPeriod = YearMonth.now();
+    return find(
+            "accountId = :accountId  and period <= :endPeriod order by period asc",
+            Parameters.with(ACCOUNT_ID_PARAM, accountId.value()).and("endPeriod", endPeriod))
+        .list()
+        .stream()
+        .map(AccountMonthlyBalanceJPAEntity::toDTO)
+        .toList();
   }
 
   @Override

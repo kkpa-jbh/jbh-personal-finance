@@ -3,6 +3,7 @@ package com.jbh.products.application.core.ports.output.monthlybalance;
 import com.jbh.products.application.core.comparator.AccountMonthlyBalanceComparators;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.mappers.MonthlyBalanceMapper;
+import com.jbh.products.domain.vo.PeriodRange;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
 import java.math.BigDecimal;
@@ -48,6 +49,8 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
     return new ArrayList<>(storage.values());
   }
 
+
+
   @Override
   public List<MonthlyBalanceDTO> findByAccountAndPeriods(
       final ProductPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
@@ -56,13 +59,6 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
         .filter(
             balance ->
                 balance.period().isAfter(startPeriod) && balance.period().isBefore(endPeriod))
-        .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
-        .toList();
-  }
-
-  private List<MonthlyBalanceDTO> findByAccountId(final ProductId accountId) {
-    return storage.values().stream()
-        .filter(balance -> balance.accountId().equals(accountId))
         .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
         .toList();
   }
@@ -81,25 +77,6 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
   public Optional<MonthlyBalanceDTO> findByAccountIdAndPeriod(
       final ProductId accountId, final YearMonth period) {
     return findByAccountIdYearAndMonth(accountId, period.getYear(), period.getMonthValue());
-  }
-
-  @Override
-  public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
-      final ProductId accountId, final YearMonth currentPeriod) {
-
-    return storage.values().stream()
-        .filter(balance -> balance.accountId().equals(accountId))
-        .filter(balance -> !balance.period().isBefore(currentPeriod))
-        .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
-        .toList();
-  }
-
-  @Override
-  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final ProductId accountId) {
-    return findByAccountId(accountId).stream()
-        .filter(balance -> balance.period().isBefore(YearMonth.now().plusMonths(1)))
-        .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
-        .toList();
   }
 
   @Override
@@ -124,33 +101,36 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
   }
 
   @Override
-  public List<MonthlyBalanceDTO> findByProductIdsAndPeriods(
-      final List<ProductId> productIds, final YearMonth startPeriod, final YearMonth endPeriod) {
+  public List<MonthlyBalanceDTO> findNextBalancesFromPeriodInclusive(
+      final ProductId accountId, final YearMonth currentPeriod) {
 
-    if (productIds == null || productIds.isEmpty()) {
-      return new ArrayList<>();
-    }
+    return storage.values().stream()
+        .filter(balance -> balance.accountId().equals(accountId))
+        .filter(balance -> !balance.period().isBefore(currentPeriod))
+        .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
+        .toList();
+  }
 
-    final Map<ProductId, List<MonthlyBalanceDTO>> result = new HashMap<>();
+  @Override
+  public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final ProductId accountId) {
+    return findByAccountId(accountId).stream()
+        .filter(balance -> balance.period().isBefore(YearMonth.now().plusMonths(1)))
+        .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
+        .toList();
+  }
 
-    final List<MonthlyBalanceDTO> allBalances = new ArrayList<>();
-    for (final ProductId productId : productIds) {
-      final List<MonthlyBalanceDTO> balances =
-          storage.values().stream()
-              .filter(balance -> balance.accountId().equals(productId))
-              .filter(
-                  balance ->
-                      !balance.period().isBefore(startPeriod)
-                          && !balance.period().isAfter(endPeriod))
-              .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
-              .toList();
+  @Override
+  public List<MonthlyBalanceDTO> findByProductIdsAndPeriods(List<ProductId> productIds, PeriodRange periodRange) {
+    List<MonthlyBalanceDTO> all = new ArrayList<>();
 
-      if (!balances.isEmpty()) {
-        result.put(productId, balances);
-      }
-      allBalances.addAll(balances);
-    }
 
-    return allBalances;
+    return all;
+  }
+
+  private List<MonthlyBalanceDTO> findByAccountId(final ProductId accountId) {
+    return storage.values().stream()
+        .filter(balance -> balance.accountId().equals(accountId))
+        .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
+        .toList();
   }
 }

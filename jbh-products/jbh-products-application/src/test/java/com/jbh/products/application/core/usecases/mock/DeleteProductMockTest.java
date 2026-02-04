@@ -2,7 +2,6 @@ package com.jbh.products.application.core.usecases.mock;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
@@ -51,7 +50,7 @@ public class DeleteProductMockTest {
   }
 
   @Test
-  public void shouldSoftDeleteProduct() throws BusinessException {
+  public void shouldDeleteProduct() throws BusinessException {
     final ProductDomain productDomain = createActiveProduct();
     final ProductDTO productDTO = AccountMapper.toDTO(productDomain);
 
@@ -64,10 +63,7 @@ public class DeleteProductMockTest {
     useCase.execute(command);
 
     final ArgumentCaptor<ProductDTO> captor = ArgumentCaptor.forClass(ProductDTO.class);
-    verify(accountRepository).save(captor.capture());
-
-    final ProductDTO savedProduct = captor.getValue();
-    assertFalse(savedProduct.isActive());
+    verify(accountRepository).deleteById(TEST_PRODUCT_ID);
   }
 
   private ProductDomain createActiveProduct() {
@@ -107,7 +103,7 @@ public class DeleteProductMockTest {
     final ProductDTO productDTO = AccountMapper.toDTO(inactiveProduct);
 
     when(accountRepository.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
-        .thenReturn(Optional.of(productDTO));
+        .thenReturn(Optional.empty());
 
     final DeleteProductCommand command = new DeleteProductCommand(TEST_USER_ID, TEST_PRODUCT_ID);
 
@@ -115,9 +111,8 @@ public class DeleteProductMockTest {
         assertThrows(BusinessException.class, () -> useCase.execute(command));
 
     assertEquals(
-        BusinessApplicationExceptionType.PRODUCT_ALREADY_DELETED.getMessage(),
-        exception.getMessage());
-    verify(accountRepository, never()).save(any(ProductDTO.class));
+        BusinessApplicationExceptionType.PRODUCT_NOT_FOUND.getMessage(), exception.getMessage());
+    verify(accountRepository, never()).deleteById(TEST_PRODUCT_ID);
   }
 
   private ProductDomain createInactiveProduct() {

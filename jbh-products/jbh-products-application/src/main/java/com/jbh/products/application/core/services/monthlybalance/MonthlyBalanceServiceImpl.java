@@ -24,6 +24,7 @@ import com.jbh.products.domain.entity.MonthlyBalanceDomain;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.PeriodRange;
 import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -59,6 +60,12 @@ public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
     this.asyncTaskExecutor = asyncTaskExecutor;
     this.accountService = accountService;
     this.movValidationStrategyFactory = new MovementValidationStrategyFactory();
+  }
+
+  @Override
+  public List<MonthlyBalanceDTO> findByAccountAndPeriods(
+      final ProductPK accountPK, final YearMonth startPeriod, final YearMonth endPeriod) {
+    return queryRepo.findByAccountAndPeriods(accountPK, startPeriod, endPeriod);
   }
 
   @Override
