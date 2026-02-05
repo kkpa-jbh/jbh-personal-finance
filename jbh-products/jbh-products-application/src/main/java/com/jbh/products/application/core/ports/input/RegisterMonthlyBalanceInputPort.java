@@ -88,10 +88,11 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
           "The monthly balanced has not been reported before. Creating Initial Balance Movement");
       accountMovementService.addMovementProcessingBalances(
           new ProductPK(userId, accountId),
-          new AddMovementCommand(
-              addMonthlyBalanceCommand.monthlyPeriod().atDay(1),
-              addMonthlyBalanceCommand.closingBalance(),
-              MovementCategoryDTO.withType(IncomeCategory.INITIAL_BALANCE)));
+          AddMovementCommand.withCategory(
+                  addMonthlyBalanceCommand.monthlyPeriod().atDay(1),
+                  addMonthlyBalanceCommand.closingBalance(),
+                  MovementCategoryDTO.withType(IncomeCategory.INITIAL_BALANCE))
+              .build());
 
       try {
         // FIXME TODO - This is a hack to wait for the async task to be executed and the report is

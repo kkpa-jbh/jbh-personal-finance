@@ -13,7 +13,6 @@ import com.jbh.products.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.products.domain.vo.ExpenseCategory;
 import com.jbh.products.domain.vo.IncomeCategory;
 import com.jbh.products.domain.vo.MovementCategoryDTO;
-import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -57,19 +56,19 @@ public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUs
         transferAmount);
 
     final var movementCommandFrom =
-        new AddMovementCommand(
-            transferDate,
-            transferAmount,
-            MovementType.DEPOSIT,
-            MovementCategoryDTO.withType(IncomeCategory.TRANSFER));
+        AddMovementCommand.withCategory(
+                transferDate,
+                transferAmount,
+                MovementCategoryDTO.withType(IncomeCategory.TRANSFER))
+            .build();
     transferValidationFROM(fromAccountDTO, movementCommandFrom);
 
     final var movementCommandTo =
-        new AddMovementCommand(
-            transferDate,
-            transferAmount,
-            MovementType.WITHDRAWAL,
-            MovementCategoryDTO.withType(ExpenseCategory.TRANSFER));
+        AddMovementCommand.withCategory(
+                transferDate,
+                transferAmount,
+                MovementCategoryDTO.withType(ExpenseCategory.TRANSFER))
+            .build();
     transferValidationTO(toAccountDTO, movementCommandTo);
 
     LOG.info("Registering the deposit movement for the account {}", toAccountName);

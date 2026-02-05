@@ -178,24 +178,7 @@ public class CommandTestBuilder {
       final LocalDate entryDate,
       final BigDecimal totalAmount,
       final MovementCategoryDTO categoryDTO) {
-    return new AddMovementCommand(entryDate, totalAmount, categoryDTO);
-  }
-
-  /**
-   * Creates an AddMovementCommand with balance snapshot (infers movement type from category).
-   *
-   * @param entryDate the date of the movement
-   * @param totalAmount the amount of the movement
-   * @param balanceSnapshot the balance after the movement
-   * @param categoryDTO the category of the movement
-   * @return an AddMovementCommand
-   */
-  public static AddMovementCommand createMovementWithSnapshot(
-      final LocalDate entryDate,
-      final BigDecimal totalAmount,
-      final BigDecimal balanceSnapshot,
-      final MovementCategoryDTO categoryDTO) {
-    return new AddMovementCommand(entryDate, totalAmount, balanceSnapshot, categoryDTO);
+    return AddMovementCommand.withCategory(entryDate, totalAmount, categoryDTO).build();
   }
 
   /**
@@ -212,7 +195,12 @@ public class CommandTestBuilder {
       final BigDecimal totalAmount,
       final MovementType movementType,
       final MovementCategoryDTO categoryDTO) {
-    return new AddMovementCommand(entryDate, totalAmount, movementType, categoryDTO);
+    return AddMovementCommand.builder()
+        .entryDate(entryDate)
+        .totalAmount(totalAmount)
+        .movementType(movementType)
+        .categoryDTO(categoryDTO)
+        .build();
   }
 
   /**
@@ -225,15 +213,17 @@ public class CommandTestBuilder {
    */
   public static AddMovementCommand createIncome(
       final LocalDate date, final BigDecimal amount, final IncomeCategory incomeCategory) {
-    return new AddMovementCommand(date, amount, MovementCategoryDTO.withType(incomeCategory));
+    return AddMovementCommand.withCategory(date, amount, MovementCategoryDTO.withType(incomeCategory))
+        .build();
   }
 
   // ==================== Convenience Methods for Common Scenarios ====================
 
   public static AddMovementCommand createDepositIncome(
       final LocalDate date, final BigDecimal amount) {
-    return new AddMovementCommand(
-        date, amount, MovementCategoryDTO.withType(IncomeCategory.DEPOSIT));
+    return AddMovementCommand.withCategory(
+            date, amount, MovementCategoryDTO.withType(IncomeCategory.DEPOSIT))
+        .build();
   }
 
   /**
@@ -246,13 +236,15 @@ public class CommandTestBuilder {
    */
   public static AddMovementCommand createExpense(
       final LocalDate date, final BigDecimal amount, final ExpenseCategory expenseCategory) {
-    return new AddMovementCommand(date, amount, MovementCategoryDTO.withType(expenseCategory));
+    return AddMovementCommand.withCategory(date, amount, MovementCategoryDTO.withType(expenseCategory))
+        .build();
   }
 
   public static AddMovementCommand createPersonalExpense(
       final LocalDate date, final BigDecimal amount) {
-    return new AddMovementCommand(
-        date, amount, MovementCategoryDTO.withType(ExpenseCategory.PERSONAL));
+    return AddMovementCommand.withCategory(
+            date, amount, MovementCategoryDTO.withType(ExpenseCategory.PERSONAL))
+        .build();
   }
 
   /**
@@ -264,8 +256,9 @@ public class CommandTestBuilder {
    */
   public static AddMovementCommand createInitialBalance(
       final LocalDate date, final BigDecimal amount) {
-    return new AddMovementCommand(
-        date, amount, MovementCategoryDTO.withType(IncomeCategory.INITIAL_BALANCE));
+    return AddMovementCommand.withCategory(
+            date, amount, MovementCategoryDTO.withType(IncomeCategory.INITIAL_BALANCE))
+        .build();
   }
 
   /**
@@ -276,8 +269,9 @@ public class CommandTestBuilder {
    * @return an AddMovementCommand for dividends
    */
   public static AddMovementCommand createDividend(final LocalDate date, final BigDecimal amount) {
-    return new AddMovementCommand(
-        date, amount, MovementCategoryDTO.withType(IncomeCategory.DIVIDENDS));
+    return AddMovementCommand.withCategory(
+            date, amount, MovementCategoryDTO.withType(IncomeCategory.DIVIDENDS))
+        .build();
   }
 
   /**
@@ -289,8 +283,9 @@ public class CommandTestBuilder {
    */
   public static AddMovementCommand createTransferOut(
       final LocalDate date, final BigDecimal amount) {
-    return new AddMovementCommand(
-        date, amount, MovementCategoryDTO.withType(ExpenseCategory.TRANSFER));
+    return AddMovementCommand.withCategory(
+            date, amount, MovementCategoryDTO.withType(ExpenseCategory.TRANSFER))
+        .build();
   }
 
   /**
@@ -301,8 +296,9 @@ public class CommandTestBuilder {
    * @return an AddMovementCommand for transfer in
    */
   public static AddMovementCommand createTransferIn(final LocalDate date, final BigDecimal amount) {
-    return new AddMovementCommand(
-        date, amount, MovementCategoryDTO.withType(IncomeCategory.TRANSFER));
+    return AddMovementCommand.withCategory(
+            date, amount, MovementCategoryDTO.withType(IncomeCategory.TRANSFER))
+        .build();
   }
 
   public static LiquidateAccountCommand createLiquidateCommandToInternal(

@@ -113,12 +113,13 @@ public class RegisterInvesmentMovementITTest {
   @Order(1)
   void initialBalance() throws BusinessException {
     final AddMovementCommand movement =
-        new AddMovementCommand(
-            LocalDate.of(2025, 8, 20),
-            initialBalance,
-            initialBalance,
-            MovementType.DEPOSIT,
-            MovementCategoryDTO.withType(IncomeCategory.INITIAL_BALANCE));
+        AddMovementCommand.withFullControl(
+                LocalDate.of(2025, 8, 20),
+                initialBalance,
+                initialBalance,
+                MovementType.DEPOSIT,
+                MovementCategoryDTO.withType(IncomeCategory.INITIAL_BALANCE))
+            .build();
 
     addMovementUseCase.addMovement(userId, acciCuentaId, movement);
     addMovementUseCase.addMovement(userId, fondoAccionesId, movement);
@@ -131,7 +132,11 @@ public class RegisterInvesmentMovementITTest {
     final var entryDate = LocalDate.of(2025, 9, 22);
 
     final AddMovementCommand acciCuentaUpdate =
-        new AddMovementCommand(entryDate, null, acciCuentaBalance, BALANCE_SNAPSHOT, null);
+        AddMovementCommand.builder()
+            .entryDate(entryDate)
+            .balanceSnapshot(acciCuentaBalance)
+            .movementType(BALANCE_SNAPSHOT)
+            .build();
 
     addMovementUseCase.addMovement(userId, acciCuentaId, acciCuentaUpdate);
 
@@ -147,7 +152,11 @@ public class RegisterInvesmentMovementITTest {
     // Fondo Acciones
     final var fondoAccionesBalance = withJBHDecimals(new BigDecimal("4978356.37"));
     final AddMovementCommand fondoAccionesUpdate =
-        new AddMovementCommand(entryDate, null, fondoAccionesBalance, BALANCE_SNAPSHOT, null);
+        AddMovementCommand.builder()
+            .entryDate(entryDate)
+            .balanceSnapshot(fondoAccionesBalance)
+            .movementType(BALANCE_SNAPSHOT)
+            .build();
     addMovementUseCase.addMovement(userId, fondoAccionesId, fondoAccionesUpdate);
 
     inMemoryAccountRepo
@@ -168,7 +177,11 @@ public class RegisterInvesmentMovementITTest {
     final var entryDate = LocalDate.of(2025, 9, 25);
 
     final AddMovementCommand acciCuentaUpdate =
-        new AddMovementCommand(entryDate, null, finalAcciBalanceSept, BALANCE_SNAPSHOT, null);
+        AddMovementCommand.builder()
+            .entryDate(entryDate)
+            .balanceSnapshot(finalAcciBalanceSept)
+            .movementType(BALANCE_SNAPSHOT)
+            .build();
 
     addMovementUseCase.addMovement(userId, acciCuentaId, acciCuentaUpdate);
 
@@ -185,7 +198,11 @@ public class RegisterInvesmentMovementITTest {
     // Fondo Acciones
     final var fondoAccionesBalance = withJBHDecimals(new BigDecimal("5037174.00"));
     final AddMovementCommand fondoAccionesUpdate =
-        new AddMovementCommand(entryDate, null, fondoAccionesBalance, BALANCE_SNAPSHOT, null);
+        AddMovementCommand.builder()
+            .entryDate(entryDate)
+            .balanceSnapshot(fondoAccionesBalance)
+            .movementType(BALANCE_SNAPSHOT)
+            .build();
     addMovementUseCase.addMovement(userId, fondoAccionesId, fondoAccionesUpdate);
 
     inMemoryAccountRepo
@@ -230,7 +247,11 @@ public class RegisterInvesmentMovementITTest {
     final BigDecimal acciCuentaBalance = withJBHDecimals(new BigDecimal("5065484"));
 
     final AddMovementCommand acciCuentaUpdate =
-        new AddMovementCommand(entryDate, null, acciCuentaBalance, BALANCE_SNAPSHOT, null);
+        AddMovementCommand.builder()
+            .entryDate(entryDate)
+            .balanceSnapshot(acciCuentaBalance)
+            .movementType(BALANCE_SNAPSHOT)
+            .build();
 
     addMovementUseCase.addMovement(userId, acciCuentaId, acciCuentaUpdate);
 
@@ -262,7 +283,11 @@ public class RegisterInvesmentMovementITTest {
     // Fondo Acciones
     final var fondoAccionesBalance = withJBHDecimals(new BigDecimal("5072052"));
     final AddMovementCommand fondoAccionesUpdate =
-        new AddMovementCommand(entryDate, null, fondoAccionesBalance, BALANCE_SNAPSHOT, null);
+        AddMovementCommand.builder()
+            .entryDate(entryDate)
+            .balanceSnapshot(fondoAccionesBalance)
+            .movementType(BALANCE_SNAPSHOT)
+            .build();
     addMovementUseCase.addMovement(userId, fondoAccionesId, fondoAccionesUpdate);
 
     inMemoryAccountRepo
@@ -284,12 +309,13 @@ public class RegisterInvesmentMovementITTest {
     final BigDecimal currentBalance = account.currentBalance();
 
     final AddMovementCommand withdrawal =
-        new AddMovementCommand(
-            withdrawalDate,
-            currentBalance,
-            BigDecimal.ZERO,
-            WITHDRAWAL,
-            MovementCategoryDTO.withType(ExpenseCategory.PERSONAL));
+        AddMovementCommand.withFullControl(
+                withdrawalDate,
+                currentBalance,
+                BigDecimal.ZERO,
+                WITHDRAWAL,
+                MovementCategoryDTO.withType(ExpenseCategory.PERSONAL))
+            .build();
 
     assertThrows(
         BusinessException.class,

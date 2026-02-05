@@ -11,12 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
+@SuppressWarnings("PMD.ConfusingTernary")
 public class UserPreferencesRepositoryAdapter implements UserPreferencesRepository {
 
   private static final Logger LOG = LoggerFactory.getLogger(UserPreferencesRepositoryAdapter.class);
 
-  @Inject
-  UserPreferencesJPARepository jpaRepository;
+  @Inject UserPreferencesJPARepository jpaRepository;
 
   @Override
   public Optional<UserPreferencesDTO> findByUserId(final UUID userId) {

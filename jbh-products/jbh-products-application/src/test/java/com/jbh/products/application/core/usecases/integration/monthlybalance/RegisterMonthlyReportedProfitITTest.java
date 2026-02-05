@@ -282,11 +282,12 @@ public class RegisterMonthlyReportedProfitITTest {
       final BigDecimal amount,
       final BigDecimal balanceSnapshot) {
     final AddMovementCommand movement =
-        new AddMovementCommand(
-            LocalDate.of(period.getYear(), period.getMonthValue(), 15),
-            amount,
-            balanceSnapshot,
-            MovementCategoryDTO.withType(categoryType));
+        AddMovementCommand.withBalanceSnapshot(
+                LocalDate.of(period.getYear(), period.getMonthValue(), 15),
+                balanceSnapshot,
+                MovementCategoryDTO.withType(categoryType))
+            .totalAmount(amount)
+            .build();
     try {
       addMovementUseCase.addMovement(userId, accountId, movement);
     } catch (final Exception e) {

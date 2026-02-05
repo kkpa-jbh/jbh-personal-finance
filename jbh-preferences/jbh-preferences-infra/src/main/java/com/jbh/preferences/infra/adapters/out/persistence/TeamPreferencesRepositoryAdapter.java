@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
+@SuppressWarnings("PMD.ConfusingTernary")
 public class TeamPreferencesRepositoryAdapter implements TeamPreferencesRepository {
 
   private static final Logger LOG = LoggerFactory.getLogger(TeamPreferencesRepositoryAdapter.class);

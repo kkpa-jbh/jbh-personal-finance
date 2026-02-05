@@ -1,5 +1,8 @@
 import com.jbh.products.application.core.ports.input.AddMovementInputPort;
 
+/**
+ * Keep organize it by package.
+ */
 module jbh.products.infra {
   requires jakarta.persistence;
   requires jakarta.transaction;

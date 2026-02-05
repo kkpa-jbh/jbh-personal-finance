@@ -194,8 +194,9 @@ public class RegisterMovementValidationMockTest {
     final BigDecimal amount = BigDecimal.ZERO;
 
     final AddMovementCommand request =
-        new AddMovementCommand(
-            movementDate, amount, MovementCategoryDTO.withType(IncomeCategory.OTHER));
+        AddMovementCommand.withCategory(
+                movementDate, amount, MovementCategoryDTO.withType(IncomeCategory.OTHER))
+            .build();
     final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
