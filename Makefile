@@ -131,4 +131,4 @@ export-notification-schema: ## Export notification schema to docs/database-schem
 
 export-preferences-schema: ## Export preferences schema to docs/database-schemas
 	@echo "${GREEN}Exporting preferences schema...${NC}"
-	@./scripts/export-schema.sh userprefs
+	@./scripts/export-schema.sh preferences

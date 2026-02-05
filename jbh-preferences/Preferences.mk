@@ -3,7 +3,7 @@ DB_NAME = jbh_finance
 DB_USER = jbh_admin
 DB_HOST = localhost
 DB_PORT = 5432
-SCHEMA_NAME = userprefs
+SCHEMA_NAME = preferences
 
 # Colors for help output
 GREEN = \033[0;32m

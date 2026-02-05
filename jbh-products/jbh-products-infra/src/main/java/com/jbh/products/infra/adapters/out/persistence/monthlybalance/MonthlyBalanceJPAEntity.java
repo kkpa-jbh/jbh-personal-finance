@@ -31,7 +31,7 @@ public class MonthlyBalanceJPAEntity extends PanacheEntityBase {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "monthly_balance_seq")
   @SequenceGenerator(
       name = "monthly_balance_seq",
-      sequenceName = "account_monthly_balances_id_seq",
+      sequenceName = "monthly_balances_seq",
       allocationSize = 1)
   @Column(name = "id")
   private Long id;
