@@ -15,6 +15,12 @@
 - [Architecture](agents/quarkus-multimodule-architect.md) - Quarkus Multimodule Architect
 - [Code Design](docs/code-best-practices.md) - Code Best Practices
 
+### Database Schema Guidelines
+
+- **One schema per module**: Each module should use a single PostgreSQL schema
+- **No multiple schemas within a module**: Avoid creating multiple schemas (e.g., userprefs + teamprefs) within a single module
+- **Use natural primary keys**: When a natural unique identifier exists (user_id, team_id), use it as the primary key instead of creating a separate UUID id column
+
 ### Current Infrastructure
 
 - **Existing Services:** `jbh-gateway`, `jbh-consul-service-discovery`, `jbh-iam-service` (user authentication)

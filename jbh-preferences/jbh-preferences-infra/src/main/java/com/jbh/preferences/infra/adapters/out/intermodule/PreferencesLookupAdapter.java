@@ -1,10 +1,13 @@
 package com.jbh.preferences.infra.adapters.out.intermodule;
 
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.preferences.application.core.dto.TeamPreferencesDTO;
 import com.jbh.preferences.application.core.dto.UserPreferencesDTO;
+import com.jbh.preferences.application.core.ports.input.GetTeamPreferencesInputPort;
 import com.jbh.preferences.application.core.ports.input.GetUserPreferencesInputPort;
 import com.jbh.preferences.contracts.PreferencesLookupException;
 import com.jbh.preferences.contracts.PreferencesLookupPort;
+import com.jbh.preferences.contracts.TeamPreferencesData;
 import com.jbh.preferences.contracts.UserPreferencesData;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -23,10 +26,14 @@ public class PreferencesLookupAdapter implements PreferencesLookupPort {
   private static final Logger LOG = LoggerFactory.getLogger(PreferencesLookupAdapter.class);
 
   private final GetUserPreferencesInputPort getUserPreferencesInputPort;
+  private final GetTeamPreferencesInputPort getTeamPreferencesInputPort;
 
   @Inject
-  public PreferencesLookupAdapter(final GetUserPreferencesInputPort getUserPreferencesInputPort) {
+  public PreferencesLookupAdapter(
+      final GetUserPreferencesInputPort getUserPreferencesInputPort,
+      final GetTeamPreferencesInputPort getTeamPreferencesInputPort) {
     this.getUserPreferencesInputPort = getUserPreferencesInputPort;
+    this.getTeamPreferencesInputPort = getTeamPreferencesInputPort;
   }
 
   @Override
@@ -60,5 +67,38 @@ public class PreferencesLookupAdapter implements PreferencesLookupPort {
         dto.defaultCurrency().getCode(),
         dto.savingsGoal(),
         dto.defaultAccountId());
+  }
+
+  @Override
+  public TeamPreferencesData getTeamPreferences(final UUID teamId)
+      throws PreferencesLookupException {
+    try {
+      final TeamPreferencesDTO dto = getTeamPreferencesInputPort.execute(teamId);
+      return mapToTeamContractData(dto);
+    } catch (final BusinessException e) {
+      LOG.warn("Failed to get preferences for team {}: {}", teamId, e.getMessage());
+      throw new PreferencesLookupException(
+          "Failed to retrieve preferences for team: " + teamId, teamId, e);
+    }
+  }
+
+  @Override
+  public Optional<TeamPreferencesData> findTeamPreferences(final UUID teamId)
+      throws PreferencesLookupException {
+    try {
+      final TeamPreferencesDTO dto = getTeamPreferencesInputPort.execute(teamId);
+      return Optional.of(mapToTeamContractData(dto));
+    } catch (final BusinessException e) {
+      LOG.debug("Preferences not found for team {}: {}", teamId, e.getMessage());
+      return Optional.empty();
+    }
+  }
+
+  private TeamPreferencesData mapToTeamContractData(final TeamPreferencesDTO dto) {
+    return new TeamPreferencesData(
+        dto.teamId(),
+        dto.defaultCurrency().getCode(),
+        dto.savingsGoal(),
+        dto.lastModifiedBy());
   }
 }

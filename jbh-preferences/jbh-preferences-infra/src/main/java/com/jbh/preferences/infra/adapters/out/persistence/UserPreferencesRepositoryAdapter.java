@@ -36,8 +36,7 @@ public class UserPreferencesRepositoryAdapter implements UserPreferencesReposito
 
     UserPreferencesJPAEntity entity = UserPreferencesJPAEntity.toEntity(preferences);
 
-    if (entity.getId() == null) {
-      entity.setId(UUID.randomUUID());
+    if (!jpaRepository.existsByUserId(entity.getUserId())) {
       jpaRepository.persist(entity);
       LOG.debug("Created new preferences for user: {}", entity.getUserId());
     } else {

@@ -3,7 +3,6 @@ package com.jbh.preferences.application.core.dto;
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.preferences.domain.vo.Currency;
-import com.jbh.preferences.domain.vo.Language;
 import com.jbh.preferences.domain.vo.PreferencesMetadata;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -11,30 +10,29 @@ import java.util.UUID;
 import lombok.Builder;
 
 @Builder(builderMethodName = "internalBuilder")
-public record UserPreferencesDTO(
-    UUID userId,
-    Language defaultLang,
+public record TeamPreferencesDTO(
+    UUID teamId,
     Currency defaultCurrency,
     BigDecimal savingsGoal,
-    UUID defaultAccountId,
     PreferencesMetadata metadata,
+    UUID lastModifiedBy,
     LocalDateTime createdAt,
     LocalDateTime updatedAt) {
 
-  public static UserPreferencesDTOBuilder defaultBuilder(final UUID userId) {
+  public static TeamPreferencesDTOBuilder defaultBuilder(final UUID teamId) {
     return internalBuilder()
-        .userId(userId)
-        .defaultLang(Language.DEFAULT)
-        .defaultCurrency(Currency.defaultCurrency())
+        .teamId(teamId)
+        .defaultCurrency(Currency.COP)
         .savingsGoal(JBH_ZERO)
-        .metadata(PreferencesMetadata.empty());
+        .metadata(PreferencesMetadata.empty())
+        .lastModifiedBy(null);
   }
 
-  public static UserPreferencesDTOBuilder builder() {
+  public static TeamPreferencesDTOBuilder builder() {
     return internalBuilder()
-        .defaultLang(Language.DEFAULT)
         .defaultCurrency(Currency.defaultCurrency())
         .savingsGoal(JBH_ZERO)
-        .metadata(PreferencesMetadata.empty());
+        .metadata(PreferencesMetadata.empty())
+        .lastModifiedBy(null);
   }
 }

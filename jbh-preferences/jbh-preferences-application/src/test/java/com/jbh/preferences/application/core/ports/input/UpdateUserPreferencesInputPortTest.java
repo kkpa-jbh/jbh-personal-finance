@@ -10,7 +10,6 @@ import com.jbh.preferences.application.core.vo.commands.UpdatePreferencesCommand
 import com.jbh.preferences.domain.exceptions.PreferencesBusinessExceptionType;
 import com.jbh.preferences.domain.vo.Currency;
 import com.jbh.preferences.domain.vo.Language;
-import com.jbh.preferences.domain.vo.PreferencesId;
 import com.jbh.preferences.domain.vo.PreferencesMetadata;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -48,7 +47,6 @@ class UpdateUserPreferencesInputPortTest {
 
   private UserPreferencesDTO createSampleDTO(final UUID userId) {
     return UserPreferencesDTO.internalBuilder()
-        .id(PreferencesId.generate())
         .userId(userId)
         .defaultLang(Language.DEFAULT)
         .defaultCurrency(Currency.defaultCurrency())
@@ -84,7 +82,6 @@ class UpdateUserPreferencesInputPortTest {
 
   private UserPreferencesDTO createUpdatedDTO(final UUID userId, final UUID accountId) {
     return UserPreferencesDTO.internalBuilder()
-        .id(PreferencesId.generate())
         .userId(userId)
         .defaultLang(Language.ENGLISH)
         .defaultCurrency(Currency.USD)
@@ -146,7 +143,6 @@ class UpdateUserPreferencesInputPortTest {
 
   private UserPreferencesDTO createPartiallyUpdatedDTO(final UUID userId) {
     return UserPreferencesDTO.internalBuilder()
-        .id(PreferencesId.generate())
         .userId(userId)
         .defaultLang(Language.DEFAULT)
         .defaultCurrency(Currency.defaultCurrency())
@@ -175,7 +171,6 @@ class UpdateUserPreferencesInputPortTest {
   private UserPreferencesDTO createDTOWithMetadata(
       final UUID userId, final PreferencesMetadata metadata) {
     return UserPreferencesDTO.internalBuilder()
-        .id(PreferencesId.generate())
         .userId(userId)
         .defaultLang(Language.DEFAULT)
         .defaultCurrency(Currency.defaultCurrency())

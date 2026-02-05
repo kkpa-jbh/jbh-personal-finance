@@ -17,7 +17,6 @@ class UserPreferencesDomainTest {
 
     final UserPreferencesDomain preferences = UserPreferencesDomain.createDefault(userId);
 
-    assertNotNull(preferences.getId());
     assertEquals(userId, preferences.getUserId());
     assertEquals(Language.DEFAULT, preferences.getDefaultLang());
     assertEquals(Currency.COP, preferences.getDefaultCurrency());
@@ -65,7 +64,6 @@ class UserPreferencesDomainTest {
 
     assertNotSame(original, updated);
     assertEquals(Language.SPANISH, updated.getDefaultLang());
-    assertEquals(original.getId(), updated.getId());
     assertEquals(original.getUserId(), updated.getUserId());
     assertEquals(original.getDefaultCurrency(), updated.getDefaultCurrency());
   }
@@ -84,7 +82,6 @@ class UserPreferencesDomainTest {
 
     assertNotSame(original, updated);
     assertEquals(Currency.COP, updated.getDefaultCurrency());
-    assertEquals(original.getId(), updated.getId());
     assertEquals(original.getUserId(), updated.getUserId());
     assertEquals(original.getDefaultLang(), updated.getDefaultLang());
   }

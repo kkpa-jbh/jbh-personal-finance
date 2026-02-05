@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.preferences.application.core.dto.UserPreferencesDTO;
+import com.jbh.preferences.application.core.ports.input.GetTeamPreferencesInputPort;
 import com.jbh.preferences.application.core.ports.input.GetUserPreferencesInputPort;
 import com.jbh.preferences.contracts.PreferencesLookupException;
 import com.jbh.preferences.contracts.UserPreferencesData;
@@ -27,6 +28,9 @@ class PreferencesLookupAdapterTest {
   @Mock
   private GetUserPreferencesInputPort getUserPreferencesInputPort;
 
+  @Mock
+  private GetTeamPreferencesInputPort getTeamPreferencesInputPort;
+
   private PreferencesLookupAdapter adapter;
 
   private static final UUID USER_ID = UUID.randomUUID();
@@ -34,7 +38,7 @@ class PreferencesLookupAdapterTest {
 
   @BeforeEach
   void setUp() {
-    adapter = new PreferencesLookupAdapter(getUserPreferencesInputPort);
+    adapter = new PreferencesLookupAdapter(getUserPreferencesInputPort, getTeamPreferencesInputPort);
   }
 
   @Test

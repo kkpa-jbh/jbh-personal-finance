@@ -8,13 +8,13 @@ import java.util.UUID;
 
 @ApplicationScoped
 @PersistenceUnit(name = "preferences")
-public class UserPreferencesJPARepository implements PanacheRepository<UserPreferencesJPAEntity> {
+public class TeamPreferencesJPARepository implements PanacheRepository<TeamPreferencesJPAEntity> {
 
-  public Optional<UserPreferencesJPAEntity> findByUserId(final UUID userId) {
-    return find("userId", userId).firstResultOptional();
+  public Optional<TeamPreferencesJPAEntity> findByTeamId(final UUID teamId) {
+    return find("teamId", teamId).firstResultOptional();
   }
 
-  public boolean existsByUserId(final UUID userId) {
-    return count("userId", userId) > 0;
+  public boolean existsByTeamId(final UUID teamId) {
+    return count("teamId", teamId) > 0;
   }
 }

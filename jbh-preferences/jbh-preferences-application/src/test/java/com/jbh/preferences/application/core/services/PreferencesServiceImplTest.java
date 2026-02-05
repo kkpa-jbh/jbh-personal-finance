@@ -10,7 +10,6 @@ import com.jbh.preferences.application.core.ports.output.UserPreferencesReposito
 import com.jbh.preferences.application.core.vo.commands.UpdatePreferencesCommand;
 import com.jbh.preferences.domain.vo.Currency;
 import com.jbh.preferences.domain.vo.Language;
-import com.jbh.preferences.domain.vo.PreferencesId;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -47,7 +46,6 @@ class PreferencesServiceImplTest {
 
   private UserPreferencesDTO createSampleDTO(final UUID userId) {
     return UserPreferencesDTO.internalBuilder()
-        .id(PreferencesId.generate())
         .userId(userId)
         .defaultLang(Language.DEFAULT)
         .defaultCurrency(Currency.defaultCurrency())

@@ -64,7 +64,6 @@ public class PreferencesServiceImpl implements PreferencesService {
 
     final UserPreferencesDTO updatedDTO =
         UserPreferencesDTO.internalBuilder()
-            .id(existingPreferences.id())
             .userId(userId)
             .defaultLang(command.defaultLang())
             .defaultCurrency(command.defaultCurrency())
@@ -93,7 +92,6 @@ public class PreferencesServiceImpl implements PreferencesService {
 
   private UserPreferencesDTO toDTO(final UserPreferencesDomain domain) {
     return UserPreferencesDTO.internalBuilder()
-        .id(domain.getId())
         .userId(domain.getUserId())
         .defaultLang(domain.getDefaultLang())
         .defaultCurrency(domain.getDefaultCurrency())

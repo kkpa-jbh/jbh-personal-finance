@@ -9,7 +9,6 @@ import com.jbh.preferences.application.core.services.PreferencesService;
 import com.jbh.preferences.domain.exceptions.PreferencesBusinessExceptionType;
 import com.jbh.preferences.domain.vo.Currency;
 import com.jbh.preferences.domain.vo.Language;
-import com.jbh.preferences.domain.vo.PreferencesId;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -45,7 +44,6 @@ class CreateUserPreferencesInputPortTest {
 
   private UserPreferencesDTO createSampleDTO(final UUID userId) {
     return UserPreferencesDTO.internalBuilder()
-        .id(PreferencesId.generate())
         .userId(userId)
         .defaultLang(Language.DEFAULT)
         .defaultCurrency(Currency.defaultCurrency())

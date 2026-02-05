@@ -4,7 +4,6 @@ import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.isNegative;
 
 import com.jbh.preferences.domain.vo.Currency;
-import com.jbh.preferences.domain.vo.Language;
 import com.jbh.preferences.domain.vo.PreferencesMetadata;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,80 +14,61 @@ import lombok.Getter;
 
 @Getter
 @Builder(builderMethodName = "internalBuilder")
-public final class UserPreferencesDomain {
+public final class TeamPreferencesDomain {
 
-  private final UUID userId;
-  private final Language defaultLang;
+  private final UUID teamId;
   private final Currency defaultCurrency;
   private final BigDecimal savingsGoal;
-  private final UUID defaultAccountId;
   private final PreferencesMetadata metadata;
+  private final UUID lastModifiedBy;
   private final LocalDateTime createdAt;
   private final LocalDateTime updatedAt;
 
-  public static UserPreferencesDomain createDefault(final UUID userId) {
-    Objects.requireNonNull(userId, "User ID cannot be null");
+  public static TeamPreferencesDomain createDefault(final UUID teamId) {
+    Objects.requireNonNull(teamId, "Team ID cannot be null");
 
     return internalBuilder()
-        .userId(userId)
-        .defaultLang(Language.DEFAULT)
+        .teamId(teamId)
         .defaultCurrency(Currency.COP)
         .savingsGoal(JBH_ZERO)
-        .defaultAccountId(null)
         .metadata(PreferencesMetadata.empty())
+        .lastModifiedBy(null)
         .createdAt(LocalDateTime.now())
         .updatedAt(LocalDateTime.now())
         .build();
   }
 
-  public static UserPreferencesDomainBuilder builder(final UUID userId) {
-    Objects.requireNonNull(userId, "User ID cannot be null");
+  public static TeamPreferencesDomainBuilder builder(final UUID teamId) {
+    Objects.requireNonNull(teamId, "Team ID cannot be null");
 
     return internalBuilder()
-        .userId(userId)
-        .defaultLang(Language.DEFAULT)
+        .teamId(teamId)
         .defaultCurrency(Currency.defaultCurrency())
         .savingsGoal(JBH_ZERO)
         .metadata(PreferencesMetadata.empty());
   }
 
-  public UserPreferencesDomain withLanguage(final Language newLanguage) {
-    Objects.requireNonNull(newLanguage, "Language cannot be null");
-    return internalBuilder()
-        .userId(this.userId)
-        .defaultLang(newLanguage)
-        .defaultCurrency(this.defaultCurrency)
-        .savingsGoal(this.savingsGoal)
-        .defaultAccountId(this.defaultAccountId)
-        .metadata(this.metadata)
-        .createdAt(this.createdAt)
-        .updatedAt(LocalDateTime.now())
-        .build();
-  }
-
-  public UserPreferencesDomain withCurrency(final Currency newCurrency) {
+  public TeamPreferencesDomain withCurrency(final Currency newCurrency) {
     Objects.requireNonNull(newCurrency, "Currency cannot be null");
     return internalBuilder()
-        .userId(this.userId)
-        .defaultLang(this.defaultLang)
+        .teamId(this.teamId)
         .defaultCurrency(newCurrency)
         .savingsGoal(this.savingsGoal)
-        .defaultAccountId(this.defaultAccountId)
         .metadata(this.metadata)
+        .lastModifiedBy(this.lastModifiedBy)
         .createdAt(this.createdAt)
         .updatedAt(LocalDateTime.now())
         .build();
   }
 
-  public UserPreferencesDomain withSavingsGoal(final BigDecimal newSavingsGoal) {
+  public TeamPreferencesDomain withSavingsGoal(final BigDecimal newSavingsGoal) {
     validateSavingsGoal(newSavingsGoal);
     return internalBuilder()
-        .userId(this.userId)
-        .defaultLang(this.defaultLang)
+        .teamId(this.teamId)
         .defaultCurrency(this.defaultCurrency)
         .savingsGoal(newSavingsGoal)
-        .defaultAccountId(this.defaultAccountId)
         .metadata(this.metadata)
+        .lastModifiedBy(this.lastModifiedBy)
         .createdAt(this.createdAt)
         .updatedAt(LocalDateTime.now())
         .build();
@@ -100,27 +80,25 @@ public final class UserPreferencesDomain {
     }
   }
 
-  public UserPreferencesDomain withDefaultAccountId(final UUID newDefaultAccountId) {
+  public TeamPreferencesDomain withMetadata(final PreferencesMetadata newMetadata) {
     return internalBuilder()
-        .userId(this.userId)
-        .defaultLang(this.defaultLang)
+        .teamId(this.teamId)
         .defaultCurrency(this.defaultCurrency)
         .savingsGoal(this.savingsGoal)
-        .defaultAccountId(newDefaultAccountId)
-        .metadata(this.metadata)
+        .metadata(newMetadata != null ? newMetadata : PreferencesMetadata.empty())
+        .lastModifiedBy(this.lastModifiedBy)
         .createdAt(this.createdAt)
         .updatedAt(LocalDateTime.now())
         .build();
   }
 
-  public UserPreferencesDomain withMetadata(final PreferencesMetadata newMetadata) {
+  public TeamPreferencesDomain withLastModifiedBy(final UUID newLastModifiedBy) {
     return internalBuilder()
-        .userId(this.userId)
-        .defaultLang(this.defaultLang)
+        .teamId(this.teamId)
         .defaultCurrency(this.defaultCurrency)
         .savingsGoal(this.savingsGoal)
-        .defaultAccountId(this.defaultAccountId)
-        .metadata(newMetadata != null ? newMetadata : PreferencesMetadata.empty())
+        .metadata(this.metadata)
+        .lastModifiedBy(newLastModifiedBy)
         .createdAt(this.createdAt)
         .updatedAt(LocalDateTime.now())
         .build();

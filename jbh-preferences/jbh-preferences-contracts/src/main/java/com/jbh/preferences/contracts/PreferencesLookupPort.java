@@ -4,7 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Port interface for looking up user preferences.
+ * Port interface for looking up user and team preferences.
  * This interface enables inter-module communication without HTTP overhead.
  */
 public interface PreferencesLookupPort {
@@ -44,4 +44,22 @@ public interface PreferencesLookupPort {
       return DEFAULT_LANGUAGE_CODE;
     }
   }
+
+  /**
+   * Retrieves team preferences for the specified team.
+   *
+   * @param teamId the team ID to look up preferences for
+   * @return the team preferences data
+   * @throws PreferencesLookupException if the preferences cannot be retrieved
+   */
+  TeamPreferencesData getTeamPreferences(UUID teamId) throws PreferencesLookupException;
+
+  /**
+   * Finds team preferences if they exist.
+   *
+   * @param teamId the team ID to look up preferences for
+   * @return an Optional containing the preferences if found, empty otherwise
+   * @throws PreferencesLookupException if an error occurs during lookup
+   */
+  Optional<TeamPreferencesData> findTeamPreferences(UUID teamId) throws PreferencesLookupException;
 }
