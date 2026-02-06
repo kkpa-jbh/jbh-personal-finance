@@ -62,7 +62,7 @@ public class UserPreferencesJPAEntity extends PanacheEntityBase {
     entity.setDefaultCurrency(
         dto.defaultCurrency() != null ? dto.defaultCurrency() : Currency.defaultCurrency());
     entity.setSavingsGoal(dto.savingsGoal());
-    entity.setDefaultProductId(dto.defaultAccountId());
+    entity.setDefaultProductId(dto.defaultProductId());
     entity.setMetadata(dto.metadata() != null ? dto.metadata().getData() : null);
     entity.setCreatedAt(dto.createdAt());
     entity.setUpdatedAt(dto.updatedAt());
@@ -86,7 +86,7 @@ public class UserPreferencesJPAEntity extends PanacheEntityBase {
         .defaultLang(Language.of(defaultLang))
         .defaultCurrency(defaultCurrency)
         .savingsGoal(savingsGoal)
-        .defaultAccountId(defaultProductId)
+        .defaultProductId(defaultProductId)
         .metadata(
             metadata != null ? PreferencesMetadata.fromMap(metadata) : PreferencesMetadata.empty())
         .createdAt(createdAt)

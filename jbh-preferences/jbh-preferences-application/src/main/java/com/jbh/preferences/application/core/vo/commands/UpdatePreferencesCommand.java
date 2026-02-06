@@ -11,7 +11,7 @@ public record UpdatePreferencesCommand(
     Language defaultLang,
     Currency defaultCurrency,
     BigDecimal savingsGoal,
-    UUID defaultAccountId,
+    UUID defaultProductId,
     PreferencesMetadata metadata) {
 
   @SuppressWarnings("PMD.UnusedAssignment")

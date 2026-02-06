@@ -1,22 +1,19 @@
 package com.jbh.products.application.core.ports.input;
 
-import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.application.core.dto.balancehistory.BalanceHistoryResponseDTO;
+import com.jbh.products.application.core.dto.balancehistory.BalanceHistoryResponse;
 import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceService;
-import com.jbh.products.domain.vo.PeriodRange;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
 import com.jbh.products.domain.vo.ProductType;
@@ -41,11 +38,9 @@ public class FindMonthlyBalanceInputPortTest {
 
   private FindMonthlyBalanceInputPort inputPort;
 
-  @Mock
-  private MonthlyBalanceService monthlyBalanceService;
+  @Mock private MonthlyBalanceService monthlyBalanceService;
 
-  @Mock
-  private ProductsService productService;
+  @Mock private ProductsService productService;
 
   @BeforeEach
   public void setUp() {
@@ -54,7 +49,7 @@ public class FindMonthlyBalanceInputPortTest {
   }
 
   @Test
-  public void shouldFindByAccountAndPeriods() throws BusinessException {
+  public void shouldFindMonthlyBalancesByProduct() throws BusinessException {
     final ProductPK accountPK = new ProductPK(TEST_USER_ID, TEST_PRODUCT_ID);
     final ProductDTO product = createTestProduct();
 
@@ -66,7 +61,8 @@ public class FindMonthlyBalanceInputPortTest {
     when(monthlyBalanceService.findByAccountAndPeriods(accountPK, START_PERIOD, END_PERIOD))
         .thenReturn(expectedBalances);
 
-    final List<MonthlyBalanceDTO> result = inputPort.findByAccountAndPeriods(accountPK, START_PERIOD, END_PERIOD);
+    final List<MonthlyBalanceDTO> result =
+        inputPort.findMonthlyBalancesByProduct(accountPK, START_PERIOD, END_PERIOD);
 
     assertNotNull(result);
     assertEquals(2, result.size());
@@ -74,13 +70,34 @@ public class FindMonthlyBalanceInputPortTest {
     verify(monthlyBalanceService).findByAccountAndPeriods(accountPK, START_PERIOD, END_PERIOD);
   }
 
+  private ProductDTO createTestProduct() {
+    return ProductDTO.defaultBuilder(
+            TEST_USER_ID, TEST_PRODUCT_ID, "Test Product", ProductType.SAVINGS)
+        .build();
+  }
+
+  private MonthlyBalanceDTO createTestMonthlyBalance(final YearMonth period) {
+    return MonthlyBalanceDTO.defaultBuilder()
+        .accountId(TEST_PRODUCT_ID)
+        .period(period)
+        .year(period.getYear())
+        .month(period.getMonthValue())
+        .openingBalance(new BigDecimal("5000.00"))
+        .closingBalance(new BigDecimal("6000.00"))
+        .monthlyNetProfit(new BigDecimal("1000.00"))
+        .netGrowthRate(new BigDecimal("3.00"))
+        .totalMovements(5)
+        .build();
+  }
+
   @Test
   public void shouldThrowExceptionWhenStartPeriodIsNull() {
     final ProductPK accountPK = new ProductPK(TEST_USER_ID, TEST_PRODUCT_ID);
 
-    final BusinessException exception = assertThrows(
-        BusinessException.class,
-        () -> inputPort.findByAccountAndPeriods(accountPK, null, END_PERIOD));
+    final BusinessException exception =
+        assertThrows(
+            BusinessException.class,
+            () -> inputPort.findMonthlyBalancesByProduct(accountPK, null, END_PERIOD));
 
     assertNotNull(exception);
   }
@@ -89,9 +106,10 @@ public class FindMonthlyBalanceInputPortTest {
   public void shouldThrowExceptionWhenEndPeriodIsNull() {
     final ProductPK accountPK = new ProductPK(TEST_USER_ID, TEST_PRODUCT_ID);
 
-    final BusinessException exception = assertThrows(
-        BusinessException.class,
-        () -> inputPort.findByAccountAndPeriods(accountPK, START_PERIOD, null));
+    final BusinessException exception =
+        assertThrows(
+            BusinessException.class,
+            () -> inputPort.findMonthlyBalancesByProduct(accountPK, START_PERIOD, null));
 
     assertNotNull(exception);
   }
@@ -102,9 +120,12 @@ public class FindMonthlyBalanceInputPortTest {
     final YearMonth invalidStartPeriod = YearMonth.of(2025, 6);
     final YearMonth invalidEndPeriod = YearMonth.of(2025, 1);
 
-    final BusinessException exception = assertThrows(
-        BusinessException.class,
-        () -> inputPort.findByAccountAndPeriods(accountPK, invalidStartPeriod, invalidEndPeriod));
+    final BusinessException exception =
+        assertThrows(
+            BusinessException.class,
+            () ->
+                inputPort.findMonthlyBalancesByProduct(
+                    accountPK, invalidStartPeriod, invalidEndPeriod));
 
     assertNotNull(exception);
   }
@@ -114,15 +135,16 @@ public class FindMonthlyBalanceInputPortTest {
     final ProductPK accountPK = new ProductPK(TEST_USER_ID, TEST_PRODUCT_ID);
     final YearMonth futureEndPeriod = YearMonth.now().plusMonths(2);
 
-    final BusinessException exception = assertThrows(
-        BusinessException.class,
-        () -> inputPort.findByAccountAndPeriods(accountPK, START_PERIOD, futureEndPeriod));
+    final BusinessException exception =
+        assertThrows(
+            BusinessException.class,
+            () -> inputPort.findMonthlyBalancesByProduct(accountPK, START_PERIOD, futureEndPeriod));
 
     assertNotNull(exception);
   }
 
   @Test
-  public void shouldFindHistoryByProduct() throws BusinessException {
+  public void shouldFindBalanceHistoryByProduct() throws BusinessException {
     final ProductPK accountPK = new ProductPK(TEST_USER_ID, TEST_PRODUCT_ID);
     final ProductDTO product = createTestProduct();
 
@@ -132,11 +154,8 @@ public class FindMonthlyBalanceInputPortTest {
     when(productService.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(product);
     when(monthlyBalanceService.findByProductIdsAndPeriods(any(), any())).thenReturn(balances);
 
-    final BalanceHistoryResponseDTO result = inputPort.findHistoryByProduct(
-        accountPK,
-        START_PERIOD,
-        END_PERIOD,
-        TODAY);
+    final BalanceHistoryResponse result =
+        inputPort.findBalanceHistoryByProduct(accountPK, START_PERIOD, END_PERIOD, TODAY);
 
     assertNotNull(result);
     assertNotNull(result.summary());
@@ -150,13 +169,11 @@ public class FindMonthlyBalanceInputPortTest {
     final ProductDTO product = createTestProduct();
 
     when(productService.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(product);
-    when(monthlyBalanceService.findByProductIdsAndPeriods(any(), any())).thenReturn(Collections.emptyList());
+    when(monthlyBalanceService.findByProductIdsAndPeriods(any(), any()))
+        .thenReturn(Collections.emptyList());
 
-    final BalanceHistoryResponseDTO result = inputPort.findHistoryByProduct(
-        accountPK,
-        START_PERIOD,
-        END_PERIOD,
-        TODAY);
+    final BalanceHistoryResponse result =
+        inputPort.findBalanceHistoryByProduct(accountPK, START_PERIOD, END_PERIOD, TODAY);
 
     assertNotNull(result);
     assertNotNull(result.summary());
@@ -174,11 +191,8 @@ public class FindMonthlyBalanceInputPortTest {
     when(productService.findActiveByUserId(TEST_USER_ID)).thenReturn(products);
     when(monthlyBalanceService.findByProductIdsAndPeriods(any(), any())).thenReturn(balances);
 
-    final BalanceHistoryResponseDTO result = inputPort.findBalanceHistoryByUser(
-        TEST_USER_ID,
-        START_PERIOD,
-        END_PERIOD,
-        TODAY);
+    final BalanceHistoryResponse result =
+        inputPort.findBalanceHistoryByUser(TEST_USER_ID, START_PERIOD, END_PERIOD, TODAY);
 
     assertNotNull(result);
     assertNotNull(result.summary());
@@ -190,11 +204,8 @@ public class FindMonthlyBalanceInputPortTest {
   public void shouldReturnEmptyHistoryWhenUserHasNoProducts() throws BusinessException {
     when(productService.findActiveByUserId(TEST_USER_ID)).thenReturn(Collections.emptyList());
 
-    final BalanceHistoryResponseDTO result = inputPort.findBalanceHistoryByUser(
-        TEST_USER_ID,
-        START_PERIOD,
-        END_PERIOD,
-        TODAY);
+    final BalanceHistoryResponse result =
+        inputPort.findBalanceHistoryByUser(TEST_USER_ID, START_PERIOD, END_PERIOD, TODAY);
 
     assertNotNull(result);
     assertNotNull(result.summary());
@@ -207,40 +218,39 @@ public class FindMonthlyBalanceInputPortTest {
     final ProductDTO product = createTestProduct();
     final List<ProductDTO> products = Collections.singletonList(product);
 
-    final MonthlyBalanceDTO balance1 = MonthlyBalanceDTO.defaultBuilder()
-        .accountId(TEST_PRODUCT_ID)
-        .period(START_PERIOD)
-        .year(START_PERIOD.getYear())
-        .month(START_PERIOD.getMonthValue())
-        .openingBalance(new BigDecimal("10000.00"))
-        .closingBalance(new BigDecimal("12000.00"))
-        .monthlyNetProfit(new BigDecimal("2000.00"))
-        .netGrowthRate(new BigDecimal("5.00"))
-        .totalMovements(10)
-        .build();
+    final MonthlyBalanceDTO balance1 =
+        MonthlyBalanceDTO.defaultBuilder()
+            .accountId(TEST_PRODUCT_ID)
+            .period(START_PERIOD)
+            .year(START_PERIOD.getYear())
+            .month(START_PERIOD.getMonthValue())
+            .openingBalance(new BigDecimal("10000.00"))
+            .closingBalance(new BigDecimal("12000.00"))
+            .monthlyNetProfit(new BigDecimal("2000.00"))
+            .netGrowthRate(new BigDecimal("5.00"))
+            .totalMovements(10)
+            .build();
 
-    final MonthlyBalanceDTO balance2 = MonthlyBalanceDTO.defaultBuilder()
-        .accountId(TEST_PRODUCT_ID)
-        .period(END_PERIOD)
-        .year(END_PERIOD.getYear())
-        .month(END_PERIOD.getMonthValue())
-        .openingBalance(new BigDecimal("12000.00"))
-        .closingBalance(new BigDecimal("15000.00"))
-        .monthlyNetProfit(new BigDecimal("3000.00"))
-        .netGrowthRate(new BigDecimal("7.00"))
-        .totalMovements(15)
-        .build();
+    final MonthlyBalanceDTO balance2 =
+        MonthlyBalanceDTO.defaultBuilder()
+            .accountId(TEST_PRODUCT_ID)
+            .period(END_PERIOD)
+            .year(END_PERIOD.getYear())
+            .month(END_PERIOD.getMonthValue())
+            .openingBalance(new BigDecimal("12000.00"))
+            .closingBalance(new BigDecimal("15000.00"))
+            .monthlyNetProfit(new BigDecimal("3000.00"))
+            .netGrowthRate(new BigDecimal("7.00"))
+            .totalMovements(15)
+            .build();
 
     final List<MonthlyBalanceDTO> balances = Arrays.asList(balance1, balance2);
 
     when(productService.findActiveByUserId(TEST_USER_ID)).thenReturn(products);
     when(monthlyBalanceService.findByProductIdsAndPeriods(any(), any())).thenReturn(balances);
 
-    final BalanceHistoryResponseDTO result = inputPort.findBalanceHistoryByUser(
-        TEST_USER_ID,
-        START_PERIOD,
-        END_PERIOD,
-        TODAY);
+    final BalanceHistoryResponse result =
+        inputPort.findBalanceHistoryByUser(TEST_USER_ID, START_PERIOD, END_PERIOD, TODAY);
 
     assertNotNull(result);
     assertNotNull(result.summary());
@@ -251,38 +261,21 @@ public class FindMonthlyBalanceInputPortTest {
   public void shouldThrowExceptionWhenPeriodRangeInvalidForHistoryByProduct() {
     final ProductPK accountPK = new ProductPK(TEST_USER_ID, TEST_PRODUCT_ID);
 
-    final BusinessException exception = assertThrows(
-        BusinessException.class,
-        () -> inputPort.findHistoryByProduct(accountPK, null, END_PERIOD, TODAY));
+    final BusinessException exception =
+        assertThrows(
+            BusinessException.class,
+            () -> inputPort.findBalanceHistoryByProduct(accountPK, null, END_PERIOD, TODAY));
 
     assertNotNull(exception);
   }
 
   @Test
   public void shouldThrowExceptionWhenPeriodRangeInvalidForHistoryByUser() {
-    final BusinessException exception = assertThrows(
-        BusinessException.class,
-        () -> inputPort.findBalanceHistoryByUser(TEST_USER_ID, START_PERIOD, null, TODAY));
+    final BusinessException exception =
+        assertThrows(
+            BusinessException.class,
+            () -> inputPort.findBalanceHistoryByUser(TEST_USER_ID, START_PERIOD, null, TODAY));
 
     assertNotNull(exception);
-  }
-
-  private ProductDTO createTestProduct() {
-    return ProductDTO.defaultBuilder(TEST_USER_ID, TEST_PRODUCT_ID, "Test Product", ProductType.SAVINGS)
-        .build();
-  }
-
-  private MonthlyBalanceDTO createTestMonthlyBalance(final YearMonth period) {
-    return MonthlyBalanceDTO.defaultBuilder()
-        .accountId(TEST_PRODUCT_ID)
-        .period(period)
-        .year(period.getYear())
-        .month(period.getMonthValue())
-        .openingBalance(new BigDecimal("5000.00"))
-        .closingBalance(new BigDecimal("6000.00"))
-        .monthlyNetProfit(new BigDecimal("1000.00"))
-        .netGrowthRate(new BigDecimal("3.00"))
-        .totalMovements(5)
-        .build();
   }
 }

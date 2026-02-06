@@ -3,13 +3,17 @@ package com.jbh.products.infra.adapters.in.rest.balancehistory;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
 import com.jbh.gateway.client.JbhGatewayException;
-import com.jbh.products.application.core.dto.balancehistory.BalanceHistoryResponseDTO;
+import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.products.application.core.dto.balancehistory.BalanceHistoryResponse;
 import com.jbh.products.application.core.usecases.FindMonthlyBalanceUseCase;
+import com.jbh.products.application.core.usecases.RegisterMonthlyBalanceUseCase;
+import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
 import com.jbh.products.infra.adapters.in.rest.BaseRestAdapter;
 import com.jbh.products.infra.adapters.in.rest.vo.FinanceApiRoutes;
 import com.jbh.products.infra.adapters.in.rest.vo.MonthlyBalanceRequest;
+import com.jbh.products.infra.adapters.in.rest.vo.RegisterMonthlyBalanceRequest;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -20,6 +24,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Map;
 import java.util.UUID;
@@ -53,10 +58,14 @@ public class MonthlyBalanceRestAdapter extends BaseRestAdapter {
   private final Logger log = LoggerFactory.getLogger(MonthlyBalanceRestAdapter.class);
 
   private final FindMonthlyBalanceUseCase findMonthlyBalanceUseCase;
+  private final RegisterMonthlyBalanceUseCase registerMonthlyBalanceUseCase;
 
   @Inject
-  public MonthlyBalanceRestAdapter(final FindMonthlyBalanceUseCase findMonthlyBalanceUseCase) {
+  public MonthlyBalanceRestAdapter(
+      final FindMonthlyBalanceUseCase findMonthlyBalanceUseCase,
+      final RegisterMonthlyBalanceUseCase registerMonthlyBalanceUseCase) {
     this.findMonthlyBalanceUseCase = findMonthlyBalanceUseCase;
+    this.registerMonthlyBalanceUseCase = registerMonthlyBalanceUseCase;
   }
 
   @POST
@@ -102,7 +111,7 @@ public class MonthlyBalanceRestAdapter extends BaseRestAdapter {
 
     final UUID userId = findUserId(authorizationHeader);
 
-    final BalanceHistoryResponseDTO balanceHistoryResponse =
+    final BalanceHistoryResponse balanceHistoryResponse =
         findMonthlyBalanceUseCase.findBalanceHistoryByUser(
             userId, request.startPeriod(), request.endPeriod(), YearMonth.now());
 
@@ -151,13 +160,73 @@ public class MonthlyBalanceRestAdapter extends BaseRestAdapter {
 
     final UUID userId = findUserId(authorizationHeader);
 
-    final BalanceHistoryResponseDTO balanceHistoryBy =
-        findMonthlyBalanceUseCase.findHistoryByProduct(
+    final BalanceHistoryResponse balanceHistoryBy =
+        findMonthlyBalanceUseCase.findBalanceHistoryByProduct(
             new ProductPK(userId, ProductId.of(productId)),
             request.startPeriod(),
             request.endPeriod(),
             YearMonth.now());
 
     return Response.ok(balanceHistoryBy).build();
+  }
+
+  @POST
+  @Path("/{productId}/register")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Register official monthly balance",
+      description = "Register official monthly balance report with closing balance and profit")
+  @APIResponses(
+      value = {
+        @APIResponse(
+            responseCode = "200",
+            description = "Monthly balance registered successfully",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = MonthlyBalanceDTO.class))),
+        @APIResponse(
+            responseCode = "400",
+            description = "Invalid request",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class))),
+        @APIResponse(
+            responseCode = "401",
+            description = "Unauthorized",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class)))
+      })
+  @SecurityRequirement(name = "JWT")
+  public Response registerOfficialMonthlyBalance(
+      @PathParam("productId") final UUID productId,
+      @RequestBody final RegisterMonthlyBalanceRequest request,
+      @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
+          final String authorizationHeader)
+      throws JbhGatewayException, BusinessException, InternalSystemException {
+
+    final UUID userId = findUserId(authorizationHeader);
+
+    log.info(
+        "Registering official monthly balance for product {} period {}",
+        productId,
+        request.monthlyPeriod());
+
+    final AddMonthlyBalanceCommand command =
+        new AddMonthlyBalanceCommand(
+            request.monthlyPeriod(),
+            request.closingBalance(),
+            request.monthlyProfitReported(),
+            request.incomeWithholdingTaxAmount());
+
+    final MonthlyBalanceDTO result =
+        registerMonthlyBalanceUseCase.registerOfficialMonthlyBalance(
+            LocalDate.now(), userId, ProductId.of(productId), command);
+
+    return Response.ok(result).build();
   }
 }

@@ -19,11 +19,7 @@ class UserPreferencesDTOTest {
     final LocalDateTime now = LocalDateTime.now();
 
     final UserPreferencesDTO dto =
-        UserPreferencesDTO.builder()
-            .userId(userId)
-            .createdAt(now)
-            .updatedAt(now)
-            .build();
+        UserPreferencesDTO.builder().userId(userId).createdAt(now).updatedAt(now).build();
 
     assertEquals(userId, dto.userId());
     assertEquals(Language.DEFAULT, dto.defaultLang());
@@ -40,10 +36,7 @@ class UserPreferencesDTOTest {
     final LocalDateTime now = LocalDateTime.now();
 
     final UserPreferencesDTO dto =
-        UserPreferencesDTO.defaultBuilder(userId)
-            .createdAt(now)
-            .updatedAt(now)
-            .build();
+        UserPreferencesDTO.defaultBuilder(userId).createdAt(now).updatedAt(now).build();
 
     assertEquals(userId, dto.userId());
     assertEquals(Language.DEFAULT, dto.defaultLang());
@@ -76,7 +69,7 @@ class UserPreferencesDTOTest {
     assertEquals(Language.ENGLISH, dto.defaultLang());
     assertEquals(Currency.USD, dto.defaultCurrency());
     assertEquals(savingsGoal, dto.savingsGoal());
-    assertEquals(accountId, dto.defaultAccountId());
+    assertEquals(accountId, dto.defaultProductId());
     assertEquals(metadata, dto.metadata());
     assertEquals(now, dto.createdAt());
     assertEquals(now, dto.updatedAt());
@@ -112,7 +105,7 @@ class UserPreferencesDTOTest {
             .build();
 
     assertEquals(userId, dto.userId());
-    assertEquals(accountId, dto.defaultAccountId());
+    assertEquals(accountId, dto.defaultProductId());
     assertEquals(Language.ENGLISH, dto.defaultLang());
   }
 
@@ -140,7 +133,7 @@ class UserPreferencesDTOTest {
     assertEquals(Language.SPANISH, dto.defaultLang());
     assertEquals(Currency.COP, dto.defaultCurrency());
     assertEquals(savingsGoal, dto.savingsGoal());
-    assertEquals(accountId, dto.defaultAccountId());
+    assertEquals(accountId, dto.defaultProductId());
     assertEquals(metadata, dto.metadata());
     assertEquals(createdAt, dto.createdAt());
     assertEquals(updatedAt, dto.updatedAt());
@@ -181,8 +174,7 @@ class UserPreferencesDTOTest {
   void record_shouldImplementToString() {
     final UUID userId = UUID.randomUUID();
 
-    final UserPreferencesDTO dto =
-        UserPreferencesDTO.builder().userId(userId).build();
+    final UserPreferencesDTO dto = UserPreferencesDTO.builder().userId(userId).build();
 
     final String toString = dto.toString();
     assertNotNull(toString);

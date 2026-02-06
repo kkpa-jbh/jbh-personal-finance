@@ -17,12 +17,9 @@ class BalanceHistorySummaryTest {
     final BigDecimal avgGrowthRate = new BigDecimal("2.50");
     final int totalMovements = 25;
 
-    final BalanceHistorySummary summary = new BalanceHistorySummary(
-        totalBalance,
-        periodChange,
-        periodChangePercent,
-        avgGrowthRate,
-        totalMovements);
+    final BalanceHistorySummaryResponse summary =
+        new BalanceHistorySummaryResponse(
+            totalBalance, periodChange, periodChangePercent, avgGrowthRate, totalMovements);
 
     assertNotNull(summary);
     assertEquals(totalBalance, summary.totalBalance());
@@ -34,7 +31,7 @@ class BalanceHistorySummaryTest {
 
   @Test
   void shouldCreateEmptySummary() {
-    final BalanceHistorySummary summary = BalanceHistorySummary.empty();
+    final BalanceHistorySummaryResponse summary = BalanceHistorySummaryResponse.empty();
 
     assertNotNull(summary);
     assertEquals(JBH_ZERO, summary.totalBalance());
@@ -52,12 +49,9 @@ class BalanceHistorySummaryTest {
     final BigDecimal avgGrowthRate = new BigDecimal("-3.00");
     final int totalMovements = 10;
 
-    final BalanceHistorySummary summary = new BalanceHistorySummary(
-        totalBalance,
-        periodChange,
-        periodChangePercent,
-        avgGrowthRate,
-        totalMovements);
+    final BalanceHistorySummaryResponse summary =
+        new BalanceHistorySummaryResponse(
+            totalBalance, periodChange, periodChangePercent, avgGrowthRate, totalMovements);
 
     assertNotNull(summary);
     assertEquals(totalBalance, summary.totalBalance());

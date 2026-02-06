@@ -17,8 +17,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Adapter that implements PreferencesLookupPort for inter-module communication.
- * Maps internal DTOs to contract DTOs and wraps internal exceptions.
+ * Adapter that implements PreferencesLookupPort for inter-module communication. Maps internal DTOs
+ * to contract DTOs and wraps internal exceptions.
  */
 @ApplicationScoped
 public class PreferencesLookupAdapter implements PreferencesLookupPort {
@@ -60,15 +60,6 @@ public class PreferencesLookupAdapter implements PreferencesLookupPort {
     }
   }
 
-  private UserPreferencesData mapToContractData(final UserPreferencesDTO dto) {
-    return new UserPreferencesData(
-        dto.userId(),
-        dto.defaultLang().code(),
-        dto.defaultCurrency().getCode(),
-        dto.savingsGoal(),
-        dto.defaultAccountId());
-  }
-
   @Override
   public TeamPreferencesData getTeamPreferences(final UUID teamId)
       throws PreferencesLookupException {
@@ -96,9 +87,15 @@ public class PreferencesLookupAdapter implements PreferencesLookupPort {
 
   private TeamPreferencesData mapToTeamContractData(final TeamPreferencesDTO dto) {
     return new TeamPreferencesData(
-        dto.teamId(),
+        dto.teamId(), dto.defaultCurrency().getCode(), dto.savingsGoal(), dto.lastModifiedBy());
+  }
+
+  private UserPreferencesData mapToContractData(final UserPreferencesDTO dto) {
+    return new UserPreferencesData(
+        dto.userId(),
+        dto.defaultLang().code(),
         dto.defaultCurrency().getCode(),
         dto.savingsGoal(),
-        dto.lastModifiedBy());
+        dto.defaultProductId());
   }
 }

@@ -13,14 +13,14 @@ import java.math.BigDecimal;
  *     grew by this percentage each month
  * @param totalMovements he total number of transactions/movements during the period
  */
-public record BalanceHistorySummary(
+public record BalanceHistorySummaryResponse(
     BigDecimal totalBalance,
     BigDecimal periodChange,
     BigDecimal periodChangePercent,
     BigDecimal avgGrowthRate,
     int totalMovements) {
 
-  public static BalanceHistorySummary empty() {
-    return new BalanceHistorySummary(JBH_ZERO, JBH_ZERO, JBH_ZERO, JBH_ZERO, 0);
+  public static BalanceHistorySummaryResponse empty() {
+    return new BalanceHistorySummaryResponse(JBH_ZERO, JBH_ZERO, JBH_ZERO, JBH_ZERO, 0);
   }
 }

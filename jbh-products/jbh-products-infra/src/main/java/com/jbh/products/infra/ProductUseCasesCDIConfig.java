@@ -4,12 +4,16 @@ import com.jbh.products.application.acid.UnitOfWork;
 import com.jbh.products.application.async.AsyncTaskExecutorImpl;
 import com.jbh.products.application.core.ports.input.AddMovementInputPort;
 import com.jbh.products.application.core.ports.input.AddMovementsUploadedFileInputPort;
+import com.jbh.products.application.core.ports.input.AddTransferJbhAccountsInputPort;
 import com.jbh.products.application.core.ports.input.CreateProductInputPort;
 import com.jbh.products.application.core.ports.input.DeleteProductInputPort;
 import com.jbh.products.application.core.ports.input.EditProductInputPort;
 import com.jbh.products.application.core.ports.input.FindActiveProductsInputPort;
 import com.jbh.products.application.core.ports.input.FindMonthlyBalanceInputPort;
 import com.jbh.products.application.core.ports.input.GetProductMetadataConfigInputPort;
+import com.jbh.products.application.core.ports.input.LiquidateAccountInputPort;
+import com.jbh.products.application.core.ports.input.RegisterMonthlyBalanceInputPort;
+import com.jbh.products.application.core.ports.input.UpdateProductInputPort;
 import com.jbh.products.application.core.ports.input.UpdateProductStatusInputPort;
 import com.jbh.products.application.core.ports.output.ProductRepository;
 import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
@@ -24,12 +28,16 @@ import com.jbh.products.application.core.services.movements.AccountMovementAppli
 import com.jbh.products.application.core.services.movements.AccountMovementApplicationServiceImpl;
 import com.jbh.products.application.core.services.movements.AccountMovementService;
 import com.jbh.products.application.core.services.movements.AccountMovementServiceImpl;
+import com.jbh.products.application.core.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.products.application.core.usecases.DeleteProductUseCase;
 import com.jbh.products.application.core.usecases.EditProductUseCase;
 import com.jbh.products.application.core.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.products.application.core.usecases.FindProductsUseCase;
 import com.jbh.products.application.core.usecases.GetProductMetadataConfigUseCase;
+import com.jbh.products.application.core.usecases.LiquidateAccountUseCase;
+import com.jbh.products.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.products.application.core.usecases.UpdateProductStatusUseCase;
+import com.jbh.products.application.core.usecases.UpdateProductUseCase;
 import com.jbh.products.application.movements.ports.output.AccountMovementQueryRepository;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
 import io.quarkus.runtime.annotations.RegisterForReflection;
@@ -165,5 +173,30 @@ public class ProductUseCasesCDIConfig {
   @ApplicationScoped
   public UpdateProductStatusUseCase updateProductStatusUseCase() {
     return new UpdateProductStatusInputPort(accountService());
+  }
+
+  @Produces
+  @ApplicationScoped
+  public AddTransferJbhAccountsUseCase addTransferJbhAccountsUseCase() {
+    return new AddTransferJbhAccountsInputPort(accountService(), accountMovementServiceApplication());
+  }
+
+  @Produces
+  @ApplicationScoped
+  public LiquidateAccountUseCase liquidateAccountUseCase() {
+    return new LiquidateAccountInputPort(accountService(), accountMovementServiceApplication());
+  }
+
+  @Produces
+  @ApplicationScoped
+  public RegisterMonthlyBalanceUseCase registerMonthlyBalanceUseCase() {
+    return new RegisterMonthlyBalanceInputPort(
+        monthlyBalanceService(), accountService(), accountMovementServiceApplication());
+  }
+
+  @Produces
+  @ApplicationScoped
+  public UpdateProductUseCase updateProductUseCase() {
+    return new UpdateProductInputPort(accountService());
   }
 }

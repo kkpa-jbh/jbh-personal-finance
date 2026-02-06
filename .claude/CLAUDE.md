@@ -10,6 +10,65 @@
 - A method/constructor should not explicitly throw java.lang.Exception.
 - Avoid catching generic exceptions such as NullPointerException, RuntimeException, Exception in try-catch block.
 
+## Use Case Documentation Standard
+
+All Use Case **interfaces** (in `*.application.core.usecases` package) MUST be documented with comprehensive JavaDoc following this structure:
+
+### Class-Level Documentation
+
+```java
+/**
+ * [Technical purpose - what this use case does]
+ *
+ * <p><strong>User Explanation:</strong> "[User-friendly explanation for FE display -
+ * describe the action in simple terms as if explaining to end user]"
+ *
+ * <p><strong>Business Rules:</strong>
+ *
+ * <ul>
+ *   <li>[Key business rule 1]
+ *   <li>[Key business rule 2]
+ *   <li>[Additional rules as needed]
+ * </ul>
+ */
+```
+
+### Method-Level Documentation
+
+```java
+/**
+ * [Brief description of what the method does]
+ *
+ * <p><strong>Validations:</strong>
+ *
+ * <ul>
+ *   <li>[Validation 1 - e.g., "Command cannot be null"]
+ *   <li>[Validation 2 - e.g., "User must own the product"]
+ *   <li>[Additional validations]
+ * </ul>
+ *
+ * <p><strong>Database Operations:</strong>
+ *
+ * <ul>
+ *   <li>INSERT: [Tables/entities created - e.g., "New movement record"]
+ *   <li>UPDATE: [Tables/entities updated - e.g., "Product balance and net flow"]
+ *   <li>DELETE: [Tables/entities deleted - e.g., "Sets deleted_at timestamp"]
+ * </ul>
+ *
+ * @param [param] [description]
+ * @return [description]
+ * @throws BusinessException [when/why exception is thrown]
+ */
+```
+
+### Important Notes
+
+- Document ONLY the use case interface, NOT the implementation (InputPort classes)
+- User Explanation should be written as if speaking directly to the end user
+- Database Operations should list ALL database changes (INSERT/UPDATE/DELETE)
+- For read-only queries, use "SELECT: [what is queried]" or "None (reads from registry)"
+- Validations should include ALL checks performed by the use case
+
 ## Architecture Design
 
 - [Architecture](agents/quarkus-multimodule-architect.md) - Quarkus Multimodule Architect

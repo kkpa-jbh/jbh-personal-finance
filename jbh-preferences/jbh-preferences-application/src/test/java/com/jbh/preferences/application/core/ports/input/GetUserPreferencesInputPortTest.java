@@ -68,7 +68,7 @@ class GetUserPreferencesInputPortTest {
     assertEquals(Language.ENGLISH, result.defaultLang());
     assertEquals(Currency.USD, result.defaultCurrency());
     assertEquals(new BigDecimal("1500.00"), result.savingsGoal());
-    assertEquals(accountId, result.defaultAccountId());
+    assertEquals(accountId, result.defaultProductId());
     assertNotNull(result.metadata());
   }
 

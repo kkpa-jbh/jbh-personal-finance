@@ -250,6 +250,9 @@ src/app/
 
 - Create/Update the repository adapter implementing the current standard of the project.
 - Keep the existing structure of the repository layer.
+- Check if there is already a model with the same attributes/schema to use it. The DTO objects returned by the API
+  are usually mapped to models with suffix `ApiResponse`. Apply same logic for 'Request` objects.
+- If the DTO Response/Request is not mapped, mapped them with the same name of the API DTO Responses/Request.
 
 ## Additional Notes
 

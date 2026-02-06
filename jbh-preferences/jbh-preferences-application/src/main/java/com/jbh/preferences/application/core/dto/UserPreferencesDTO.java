@@ -16,7 +16,7 @@ public record UserPreferencesDTO(
     Language defaultLang,
     Currency defaultCurrency,
     BigDecimal savingsGoal,
-    UUID defaultAccountId,
+    UUID defaultProductId,
     PreferencesMetadata metadata,
     LocalDateTime createdAt,
     LocalDateTime updatedAt) {

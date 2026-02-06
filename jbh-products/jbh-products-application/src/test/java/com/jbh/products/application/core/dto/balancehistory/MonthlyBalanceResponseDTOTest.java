@@ -23,24 +23,26 @@ class MonthlyBalanceResponseDTOTest {
     final UUID userId = UUID.randomUUID();
     final YearMonth period = YearMonth.of(2025, 1);
 
-    final MonthlyBalanceDTO monthlyBalance = MonthlyBalanceDTO.defaultBuilder()
-        .accountId(productId)
-        .period(period)
-        .year(2025)
-        .month(1)
-        .openingBalance(new BigDecimal("10000.00"))
-        .closingBalance(new BigDecimal("12000.00"))
-        .monthlyNetProfit(new BigDecimal("2000.00"))
-        .netGrowthRate(new BigDecimal("5.00"))
-        .totalMovements(15)
-        .gapPeriod(false)
-        .officialMonthlyReport(false)
-        .build();
+    final MonthlyBalanceDTO monthlyBalance =
+        MonthlyBalanceDTO.defaultBuilder()
+            .accountId(productId)
+            .period(period)
+            .year(2025)
+            .month(1)
+            .openingBalance(new BigDecimal("10000.00"))
+            .closingBalance(new BigDecimal("12000.00"))
+            .monthlyNetProfit(new BigDecimal("2000.00"))
+            .netGrowthRate(new BigDecimal("5.00"))
+            .totalMovements(15)
+            .gapPeriod(false)
+            .officialMonthlyReport(false)
+            .build();
 
-    final ProductDTO product = ProductDTO.defaultBuilder(userId, productId, "Test Product", ProductType.SAVINGS)
-        .build();
+    final ProductDTO product =
+        ProductDTO.defaultBuilder(userId, productId, "Test Product", ProductType.SAVINGS).build();
 
-    final MonthlyBalanceResponseDTO response = MonthlyBalanceResponseDTO.fromDTO(monthlyBalance, product);
+    final BalanceHistoryEntryResponse response =
+        BalanceHistoryEntryResponse.fromDTO(monthlyBalance, product);
 
     assertNotNull(response);
     assertEquals(period, response.period());
@@ -63,25 +65,28 @@ class MonthlyBalanceResponseDTOTest {
     final UUID userId = UUID.randomUUID();
     final YearMonth period = YearMonth.of(2025, 2);
 
-    final MonthlyBalanceDTO monthlyBalance = MonthlyBalanceDTO.defaultBuilder()
-        .accountId(productId)
-        .period(period)
-        .year(2025)
-        .month(2)
-        .openingBalance(new BigDecimal("5000.00"))
-        .closingBalance(new BigDecimal("8000.00"))
-        .monthlyNetProfit(new BigDecimal("2500.00"))
-        .monthlyReportedProfit(new BigDecimal("3000.00"))
-        .netGrowthRate(new BigDecimal("10.00"))
-        .totalMovements(20)
-        .gapPeriod(false)
-        .officialMonthlyReport(true)
-        .build();
+    final MonthlyBalanceDTO monthlyBalance =
+        MonthlyBalanceDTO.defaultBuilder()
+            .accountId(productId)
+            .period(period)
+            .year(2025)
+            .month(2)
+            .openingBalance(new BigDecimal("5000.00"))
+            .closingBalance(new BigDecimal("8000.00"))
+            .monthlyNetProfit(new BigDecimal("2500.00"))
+            .monthlyReportedProfit(new BigDecimal("3000.00"))
+            .netGrowthRate(new BigDecimal("10.00"))
+            .totalMovements(20)
+            .gapPeriod(false)
+            .officialMonthlyReport(true)
+            .build();
 
-    final ProductDTO product = ProductDTO.defaultBuilder(userId, productId, "Investment Account", ProductType.INVESTMENT)
-        .build();
+    final ProductDTO product =
+        ProductDTO.defaultBuilder(userId, productId, "Investment Account", ProductType.INVESTMENT)
+            .build();
 
-    final MonthlyBalanceResponseDTO response = MonthlyBalanceResponseDTO.fromDTO(monthlyBalance, product);
+    final BalanceHistoryEntryResponse response =
+        BalanceHistoryEntryResponse.fromDTO(monthlyBalance, product);
 
     assertNotNull(response);
     assertEquals(new BigDecimal("3000.00"), response.profit());
@@ -95,24 +100,27 @@ class MonthlyBalanceResponseDTOTest {
     final UUID userId = UUID.randomUUID();
     final YearMonth period = YearMonth.of(2025, 3);
 
-    final MonthlyBalanceDTO monthlyBalance = MonthlyBalanceDTO.defaultBuilder()
-        .accountId(productId)
-        .period(period)
-        .year(2025)
-        .month(3)
-        .openingBalance(JBH_ZERO)
-        .closingBalance(JBH_ZERO)
-        .monthlyNetProfit(JBH_ZERO)
-        .netGrowthRate(JBH_ZERO)
-        .totalMovements(0)
-        .gapPeriod(true)
-        .officialMonthlyReport(false)
-        .build();
+    final MonthlyBalanceDTO monthlyBalance =
+        MonthlyBalanceDTO.defaultBuilder()
+            .accountId(productId)
+            .period(period)
+            .year(2025)
+            .month(3)
+            .openingBalance(JBH_ZERO)
+            .closingBalance(JBH_ZERO)
+            .monthlyNetProfit(JBH_ZERO)
+            .netGrowthRate(JBH_ZERO)
+            .totalMovements(0)
+            .gapPeriod(true)
+            .officialMonthlyReport(false)
+            .build();
 
-    final ProductDTO product = ProductDTO.defaultBuilder(userId, productId, "Savings Account", ProductType.SAVINGS)
-        .build();
+    final ProductDTO product =
+        ProductDTO.defaultBuilder(userId, productId, "Savings Account", ProductType.SAVINGS)
+            .build();
 
-    final MonthlyBalanceResponseDTO response = MonthlyBalanceResponseDTO.fromDTO(monthlyBalance, product);
+    final BalanceHistoryEntryResponse response =
+        BalanceHistoryEntryResponse.fromDTO(monthlyBalance, product);
 
     assertNotNull(response);
     assertTrue(response.isGapPeriod());
@@ -125,24 +133,27 @@ class MonthlyBalanceResponseDTOTest {
     final UUID userId = UUID.randomUUID();
     final YearMonth period = YearMonth.of(2025, 4);
 
-    final MonthlyBalanceDTO monthlyBalance = MonthlyBalanceDTO.defaultBuilder()
-        .accountId(productId)
-        .period(period)
-        .year(2025)
-        .month(4)
-        .openingBalance(new BigDecimal("10000.00"))
-        .closingBalance(new BigDecimal("9000.00"))
-        .monthlyNetProfit(new BigDecimal("-1000.00"))
-        .netGrowthRate(new BigDecimal("-5.00"))
-        .totalMovements(8)
-        .gapPeriod(false)
-        .officialMonthlyReport(false)
-        .build();
+    final MonthlyBalanceDTO monthlyBalance =
+        MonthlyBalanceDTO.defaultBuilder()
+            .accountId(productId)
+            .period(period)
+            .year(2025)
+            .month(4)
+            .openingBalance(new BigDecimal("10000.00"))
+            .closingBalance(new BigDecimal("9000.00"))
+            .monthlyNetProfit(new BigDecimal("-1000.00"))
+            .netGrowthRate(new BigDecimal("-5.00"))
+            .totalMovements(8)
+            .gapPeriod(false)
+            .officialMonthlyReport(false)
+            .build();
 
-    final ProductDTO product = ProductDTO.defaultBuilder(userId, productId, "Trading Account", ProductType.INVESTMENT)
-        .build();
+    final ProductDTO product =
+        ProductDTO.defaultBuilder(userId, productId, "Trading Account", ProductType.INVESTMENT)
+            .build();
 
-    final MonthlyBalanceResponseDTO response = MonthlyBalanceResponseDTO.fromDTO(monthlyBalance, product);
+    final BalanceHistoryEntryResponse response =
+        BalanceHistoryEntryResponse.fromDTO(monthlyBalance, product);
 
     assertNotNull(response);
     assertEquals(new BigDecimal("-1000.00"), response.profit());
@@ -156,19 +167,22 @@ class MonthlyBalanceResponseDTOTest {
     final ProductId productId = ProductId.generate();
     final YearMonth period = YearMonth.of(2025, 5);
 
-    final MonthlyBalanceResponseDTO response = new MonthlyBalanceResponseDTO(
-        period,
-        new BigDecimal("15000.00"),
-        new BigDecimal("16000.00"),
-        new BigDecimal("1000.00"),
-        new BigDecimal("3.00"),
-        12,
-        false,
-        true,
-        productId,
-        "Credit Card",
-        true,
-        false);
+    final BalanceHistoryEntryResponse response =
+        new BalanceHistoryEntryResponse(
+            period,
+            new BigDecimal("15000.00"),
+            new BigDecimal("16000.00"),
+            new BigDecimal("1000.00"),
+            new BigDecimal("3.00"),
+            12,
+            false,
+            true,
+            productId,
+            "Credit Card",
+            true,
+            false,
+            JBH_ZERO,
+            JBH_ZERO);
 
     assertNotNull(response);
     assertEquals(period, response.period());

@@ -17,30 +17,34 @@ class BalanceHistoryResponseDTOTest {
 
   @Test
   void shouldCreateResponseWithAllFields() {
-    final BalanceHistorySummary summary = new BalanceHistorySummary(
-        new BigDecimal("10000.00"),
-        new BigDecimal("1000.00"),
-        new BigDecimal("10.00"),
-        new BigDecimal("2.50"),
-        25);
+    final BalanceHistorySummaryResponse summary =
+        new BalanceHistorySummaryResponse(
+            new BigDecimal("10000.00"),
+            new BigDecimal("1000.00"),
+            new BigDecimal("10.00"),
+            new BigDecimal("2.50"),
+            25);
 
-    final MonthlyBalanceResponseDTO balance1 = new MonthlyBalanceResponseDTO(
-        YearMonth.of(2025, 1),
-        new BigDecimal("9000.00"),
-        new BigDecimal("10000.00"),
-        new BigDecimal("1000.00"),
-        new BigDecimal("2.50"),
-        10,
-        false,
-        false,
-        ProductId.generate(),
-        "Test Product",
-        true,
-        false);
+    final BalanceHistoryEntryResponse balance1 =
+        new BalanceHistoryEntryResponse(
+            YearMonth.of(2025, 1),
+            new BigDecimal("9000.00"),
+            new BigDecimal("10000.00"),
+            new BigDecimal("1000.00"),
+            new BigDecimal("2.50"),
+            10,
+            false,
+            false,
+            ProductId.generate(),
+            "Test Product",
+            true,
+            false,
+            JBH_ZERO,
+            JBH_ZERO);
 
-    final List<MonthlyBalanceResponseDTO> balances = Arrays.asList(balance1);
+    final List<BalanceHistoryEntryResponse> balances = Arrays.asList(balance1);
 
-    final BalanceHistoryResponseDTO response = new BalanceHistoryResponseDTO(summary, balances);
+    final BalanceHistoryResponse response = new BalanceHistoryResponse(summary, balances);
 
     assertNotNull(response);
     assertEquals(summary, response.summary());
@@ -50,7 +54,7 @@ class BalanceHistoryResponseDTOTest {
 
   @Test
   void shouldCreateEmptyResponse() {
-    final BalanceHistoryResponseDTO response = BalanceHistoryResponseDTO.empty();
+    final BalanceHistoryResponse response = BalanceHistoryResponse.empty();
 
     assertNotNull(response);
     assertNotNull(response.summary());
@@ -64,10 +68,9 @@ class BalanceHistoryResponseDTOTest {
 
   @Test
   void shouldCreateResponseWithEmptyBalancesList() {
-    final BalanceHistorySummary summary = BalanceHistorySummary.empty();
-    final BalanceHistoryResponseDTO response = new BalanceHistoryResponseDTO(
-        summary,
-        Collections.emptyList());
+    final BalanceHistorySummaryResponse summary = BalanceHistorySummaryResponse.empty();
+    final BalanceHistoryResponse response =
+        new BalanceHistoryResponse(summary, Collections.emptyList());
 
     assertNotNull(response);
     assertEquals(summary, response.summary());
@@ -76,44 +79,51 @@ class BalanceHistoryResponseDTOTest {
 
   @Test
   void shouldCreateResponseWithMultipleBalances() {
-    final BalanceHistorySummary summary = new BalanceHistorySummary(
-        new BigDecimal("15000.00"),
-        new BigDecimal("2000.00"),
-        new BigDecimal("15.00"),
-        new BigDecimal("3.00"),
-        50);
+    final BalanceHistorySummaryResponse summary =
+        new BalanceHistorySummaryResponse(
+            new BigDecimal("15000.00"),
+            new BigDecimal("2000.00"),
+            new BigDecimal("15.00"),
+            new BigDecimal("3.00"),
+            50);
 
-    final MonthlyBalanceResponseDTO balance1 = new MonthlyBalanceResponseDTO(
-        YearMonth.of(2025, 1),
-        new BigDecimal("10000.00"),
-        new BigDecimal("12000.00"),
-        new BigDecimal("1000.00"),
-        new BigDecimal("2.50"),
-        20,
-        false,
-        false,
-        ProductId.generate(),
-        "Product 1",
-        true,
-        false);
+    final BalanceHistoryEntryResponse balance1 =
+        new BalanceHistoryEntryResponse(
+            YearMonth.of(2025, 1),
+            new BigDecimal("10000.00"),
+            new BigDecimal("12000.00"),
+            new BigDecimal("1000.00"),
+            new BigDecimal("2.50"),
+            20,
+            false,
+            false,
+            ProductId.generate(),
+            "Product 1",
+            true,
+            false,
+            JBH_ZERO,
+            JBH_ZERO);
 
-    final MonthlyBalanceResponseDTO balance2 = new MonthlyBalanceResponseDTO(
-        YearMonth.of(2025, 2),
-        new BigDecimal("12000.00"),
-        new BigDecimal("15000.00"),
-        new BigDecimal("1000.00"),
-        new BigDecimal("3.50"),
-        30,
-        false,
-        true,
-        ProductId.generate(),
-        "Product 2",
-        true,
-        false);
+    final BalanceHistoryEntryResponse balance2 =
+        new BalanceHistoryEntryResponse(
+            YearMonth.of(2025, 2),
+            new BigDecimal("12000.00"),
+            new BigDecimal("15000.00"),
+            new BigDecimal("1000.00"),
+            new BigDecimal("3.50"),
+            30,
+            false,
+            true,
+            ProductId.generate(),
+            "Product 2",
+            true,
+            false,
+            JBH_ZERO,
+            JBH_ZERO);
 
-    final List<MonthlyBalanceResponseDTO> balances = Arrays.asList(balance1, balance2);
+    final List<BalanceHistoryEntryResponse> balances = Arrays.asList(balance1, balance2);
 
-    final BalanceHistoryResponseDTO response = new BalanceHistoryResponseDTO(summary, balances);
+    final BalanceHistoryResponse response = new BalanceHistoryResponse(summary, balances);
 
     assertNotNull(response);
     assertEquals(summary, response.summary());
