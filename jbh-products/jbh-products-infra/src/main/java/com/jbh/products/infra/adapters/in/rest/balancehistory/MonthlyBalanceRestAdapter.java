@@ -100,7 +100,7 @@ public class MonthlyBalanceRestAdapter extends BaseRestAdapter {
                     schema = @Schema(implementation = String.class)))
       })
   @SecurityRequirement(name = "JWT")
-  public Response findAllActiveProductsMonthlyBalances(
+  public Response findBalanceHistoryForUserActiveProducts(
       @RequestBody final MonthlyBalanceRequest request,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
@@ -148,7 +148,7 @@ public class MonthlyBalanceRestAdapter extends BaseRestAdapter {
                     schema = @Schema(implementation = String.class)))
       })
   @SecurityRequirement(name = "JWT")
-  public Response findMonthlyBalances(
+  public Response findBalanceHistoryByProductId(
       @PathParam("productId") final UUID productId,
       @RequestBody final MonthlyBalanceRequest request,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
@@ -160,14 +160,14 @@ public class MonthlyBalanceRestAdapter extends BaseRestAdapter {
 
     final UUID userId = findUserId(authorizationHeader);
 
-    final BalanceHistoryResponse balanceHistoryBy =
+    final BalanceHistoryResponse balanceHistoryByProduct =
         findMonthlyBalanceUseCase.findBalanceHistoryByProduct(
             new ProductPK(userId, ProductId.of(productId)),
             request.startPeriod(),
             request.endPeriod(),
             YearMonth.now());
 
-    return Response.ok(balanceHistoryBy).build();
+    return Response.ok(balanceHistoryByProduct).build();
   }
 
   @POST
