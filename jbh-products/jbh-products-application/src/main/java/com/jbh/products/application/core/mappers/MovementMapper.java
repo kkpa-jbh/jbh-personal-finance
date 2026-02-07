@@ -9,7 +9,7 @@ import com.jbh.products.domain.entity.MovementCategoryDomain;
 import com.jbh.products.domain.entity.MovementDomain;
 import com.jbh.products.domain.vo.AccountMovementMetadata;
 import com.jbh.products.domain.vo.ExpenseCategory;
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductId;
 import java.math.BigDecimal;
@@ -91,8 +91,8 @@ public final class MovementMapper {
   public static MovementDTO fromCommand(
       final ProductId accountId, final LiquidateAccountCommand command) {
     final BigDecimal totalAmount = command.currentBalance();
-    final MovementCategoryDTO categoryDTO =
-        MovementCategoryDTO.withType(ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT);
+    final MovementCategoryVO categoryDTO =
+        MovementCategoryVO.withType(ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT);
 
     final AccountMovementMetadata metadata = AccountMovementMetadata.createEmpty();
 

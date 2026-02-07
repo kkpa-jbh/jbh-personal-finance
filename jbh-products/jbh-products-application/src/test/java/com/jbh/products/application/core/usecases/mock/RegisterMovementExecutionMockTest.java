@@ -39,7 +39,7 @@ import com.jbh.products.application.core.vo.commands.AddMovementCommand;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.products.domain.entity.ProductDomain;
 import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 import com.jbh.products.domain.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -59,8 +59,8 @@ import org.slf4j.LoggerFactory;
 
 public class RegisterMovementExecutionMockTest {
 
-  public static final MovementCategoryDTO OTHER_INCOME_CATEGORY =
-      MovementCategoryDTO.withType(IncomeCategory.OTHER);
+  public static final MovementCategoryVO OTHER_INCOME_CATEGORY =
+      MovementCategoryVO.withType(IncomeCategory.OTHER);
   static UUID userId = UUID.randomUUID();
   private static AccountMovementApplicationService accountMovementService;
   private static ProductsService accountService;

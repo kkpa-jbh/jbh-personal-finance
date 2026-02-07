@@ -6,7 +6,7 @@ import com.jbh.products.application.core.vo.commands.ExternalAccountInfoVO;
 import com.jbh.products.application.core.vo.commands.LiquidateAccountCommand;
 import com.jbh.products.domain.vo.ExpenseCategory;
 import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductMetadata;
 import com.jbh.products.domain.vo.ProductMetadataKey;
@@ -159,7 +159,7 @@ public class CommandTestBuilder {
       final BigDecimal totalAmount,
       final BigDecimal balanceSnapshot,
       final MovementType movementType,
-      final MovementCategoryDTO categoryDTO) {
+      final MovementCategoryVO categoryDTO) {
     return new AddMovementCommand(
         entryDate, totalAmount, balanceSnapshot, movementType, categoryDTO, null);
   }
@@ -177,7 +177,7 @@ public class CommandTestBuilder {
   public static AddMovementCommand createMovement(
       final LocalDate entryDate,
       final BigDecimal totalAmount,
-      final MovementCategoryDTO categoryDTO) {
+      final MovementCategoryVO categoryDTO) {
     return AddMovementCommand.withCategory(entryDate, totalAmount, categoryDTO).build();
   }
 
@@ -194,7 +194,7 @@ public class CommandTestBuilder {
       final LocalDate entryDate,
       final BigDecimal totalAmount,
       final MovementType movementType,
-      final MovementCategoryDTO categoryDTO) {
+      final MovementCategoryVO categoryDTO) {
     return AddMovementCommand.builder()
         .entryDate(entryDate)
         .totalAmount(totalAmount)
@@ -213,7 +213,8 @@ public class CommandTestBuilder {
    */
   public static AddMovementCommand createIncome(
       final LocalDate date, final BigDecimal amount, final IncomeCategory incomeCategory) {
-    return AddMovementCommand.withCategory(date, amount, MovementCategoryDTO.withType(incomeCategory))
+    return AddMovementCommand.withCategory(
+            date, amount, MovementCategoryVO.withType(incomeCategory))
         .build();
   }
 
@@ -222,7 +223,7 @@ public class CommandTestBuilder {
   public static AddMovementCommand createDepositIncome(
       final LocalDate date, final BigDecimal amount) {
     return AddMovementCommand.withCategory(
-            date, amount, MovementCategoryDTO.withType(IncomeCategory.DEPOSIT))
+            date, amount, MovementCategoryVO.withType(IncomeCategory.DEPOSIT))
         .build();
   }
 
@@ -236,14 +237,15 @@ public class CommandTestBuilder {
    */
   public static AddMovementCommand createExpense(
       final LocalDate date, final BigDecimal amount, final ExpenseCategory expenseCategory) {
-    return AddMovementCommand.withCategory(date, amount, MovementCategoryDTO.withType(expenseCategory))
+    return AddMovementCommand.withCategory(
+            date, amount, MovementCategoryVO.withType(expenseCategory))
         .build();
   }
 
   public static AddMovementCommand createPersonalExpense(
       final LocalDate date, final BigDecimal amount) {
     return AddMovementCommand.withCategory(
-            date, amount, MovementCategoryDTO.withType(ExpenseCategory.PERSONAL))
+            date, amount, MovementCategoryVO.withType(ExpenseCategory.PERSONAL))
         .build();
   }
 
@@ -257,7 +259,7 @@ public class CommandTestBuilder {
   public static AddMovementCommand createInitialBalance(
       final LocalDate date, final BigDecimal amount) {
     return AddMovementCommand.withCategory(
-            date, amount, MovementCategoryDTO.withType(IncomeCategory.INITIAL_BALANCE))
+            date, amount, MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE))
         .build();
   }
 
@@ -270,7 +272,7 @@ public class CommandTestBuilder {
    */
   public static AddMovementCommand createDividend(final LocalDate date, final BigDecimal amount) {
     return AddMovementCommand.withCategory(
-            date, amount, MovementCategoryDTO.withType(IncomeCategory.DIVIDENDS))
+            date, amount, MovementCategoryVO.withType(IncomeCategory.DIVIDENDS))
         .build();
   }
 
@@ -284,7 +286,7 @@ public class CommandTestBuilder {
   public static AddMovementCommand createTransferOut(
       final LocalDate date, final BigDecimal amount) {
     return AddMovementCommand.withCategory(
-            date, amount, MovementCategoryDTO.withType(ExpenseCategory.TRANSFER))
+            date, amount, MovementCategoryVO.withType(ExpenseCategory.TRANSFER))
         .build();
   }
 
@@ -297,7 +299,7 @@ public class CommandTestBuilder {
    */
   public static AddMovementCommand createTransferIn(final LocalDate date, final BigDecimal amount) {
     return AddMovementCommand.withCategory(
-            date, amount, MovementCategoryDTO.withType(IncomeCategory.TRANSFER))
+            date, amount, MovementCategoryVO.withType(IncomeCategory.TRANSFER))
         .build();
   }
 

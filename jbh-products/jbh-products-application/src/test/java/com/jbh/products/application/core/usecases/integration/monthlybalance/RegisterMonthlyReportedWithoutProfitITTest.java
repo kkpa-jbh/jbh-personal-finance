@@ -34,7 +34,7 @@ import com.jbh.products.application.core.vo.commands.AddMovementCommand;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.products.domain.vo.ExpenseCategory;
 import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
@@ -151,7 +151,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
         AddMovementCommand.withCategory(
                 LocalDate.of(2024, 11, 15),
                 withJBHDecimals(salaryAmountNov24),
-                MovementCategoryDTO.withType(IncomeCategory.SALARY))
+                MovementCategoryVO.withType(IncomeCategory.SALARY))
             .build();
     addMovement(salaryMovement);
 
@@ -258,7 +258,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
         AddMovementCommand.withCategory(
                 LocalDate.of(2024, 12, 15),
                 withJBHDecimals(salaryAmountDec24),
-                MovementCategoryDTO.withType(IncomeCategory.SALARY))
+                MovementCategoryVO.withType(IncomeCategory.SALARY))
             .build();
     addMovement(salaryMovement);
 
@@ -333,7 +333,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
         AddMovementCommand.withCategory(
                 LocalDate.of(2025, 1, 15),
                 withJBHDecimals(salaryAmountJan25),
-                MovementCategoryDTO.withType(IncomeCategory.SALARY))
+                MovementCategoryVO.withType(IncomeCategory.SALARY))
             .build());
 
     final AddMonthlyBalanceCommand command =
@@ -392,7 +392,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             .entryDate(LocalDate.of(2025, 2, 1))
             .totalAmount(withJBHDecimals(ssAmount))
             .movementType(MovementType.WITHDRAWAL)
-            .categoryDTO(MovementCategoryDTO.withType(ExpenseCategory.SOCIAL_SECURITY))
+            .categoryDTO(MovementCategoryVO.withType(ExpenseCategory.SOCIAL_SECURITY))
             .build();
 
     expensesFeb25 = expensesFeb25.add(ssAmount);
@@ -405,7 +405,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             .entryDate(LocalDate.of(2025, 2, 10))
             .totalAmount(withJBHDecimals(publicSrvAmount))
             .movementType(MovementType.WITHDRAWAL)
-            .categoryDTO(MovementCategoryDTO.withType(ExpenseCategory.PUBLIC_SERVICES))
+            .categoryDTO(MovementCategoryVO.withType(ExpenseCategory.PUBLIC_SERVICES))
             .build();
     expensesFeb25 = expensesFeb25.add(publicSrvAmount);
     addMovement(publicServiceMovement);
@@ -416,7 +416,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
         AddMovementCommand.withCategory(
                 LocalDate.of(2025, 2, 15),
                 withJBHDecimals(personalAmount),
-                MovementCategoryDTO.withType(ExpenseCategory.PERSONAL))
+                MovementCategoryVO.withType(ExpenseCategory.PERSONAL))
             .build();
     expensesFeb25 = expensesFeb25.add(personalAmount);
     addMovement(personalMovement);
@@ -426,7 +426,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
         AddMovementCommand.withCategory(
                 LocalDate.of(2025, 2, 15),
                 withJBHDecimals(salaryAmountFeb25),
-                MovementCategoryDTO.withType(IncomeCategory.SALARY))
+                MovementCategoryVO.withType(IncomeCategory.SALARY))
             .build();
     addMovement(salaryMovement);
 
@@ -489,7 +489,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
         AddMovementCommand.withCategory(
                 LocalDate.of(2025, 2, 26),
                 withJBHDecimals(newAmount),
-                MovementCategoryDTO.withType(ExpenseCategory.PUBLIC_SERVICES))
+                MovementCategoryVO.withType(ExpenseCategory.PUBLIC_SERVICES))
             .build();
     expensesFeb25 = expensesFeb25.add(newAmount);
     addMovement(newMovementAfterClosedMonthlyBalance);
@@ -518,7 +518,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
         AddMovementCommand.withCategory(
                 LocalDate.of(2025, 2, 26),
                 withJBHDecimals(fiftyMillionsExpenses),
-                MovementCategoryDTO.withType(ExpenseCategory.PERSONAL))
+                MovementCategoryVO.withType(ExpenseCategory.PERSONAL))
             .build();
     Assertions.assertThrows(
         RuntimeException.class, () -> addMovement(fiftyMillionsExpensesCommand));
@@ -537,7 +537,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
         AddMovementCommand.withCategory(
                 LocalDate.of(monthlyPeriod.getYear(), monthlyPeriod.getMonthValue(), 15),
                 withJBHDecimals(salaryAmountMar25),
-                MovementCategoryDTO.withType(IncomeCategory.SALARY))
+                MovementCategoryVO.withType(IncomeCategory.SALARY))
             .build());
 
     final AddMonthlyBalanceCommand command =
@@ -596,7 +596,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
         AddMovementCommand.withCategory(
                 LocalDate.of(monthlyPeriod.getYear(), monthlyPeriod.getMonthValue(), 15),
                 withJBHDecimals(salaryAmountApr25),
-                MovementCategoryDTO.withType(IncomeCategory.SALARY))
+                MovementCategoryVO.withType(IncomeCategory.SALARY))
             .build());
 
     final AddMonthlyBalanceCommand command = createMonthlyBalanceCommand(monthlyPeriod, null);
@@ -630,7 +630,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
         AddMovementCommand.withCategory(
                 LocalDate.of(monthlyPeriod.getYear(), monthlyPeriod.getMonthValue(), 15),
                 withJBHDecimals(salaryAmountMay25),
-                MovementCategoryDTO.withType(IncomeCategory.SALARY))
+                MovementCategoryVO.withType(IncomeCategory.SALARY))
             .build());
 
     final AddMonthlyBalanceCommand command = createMonthlyBalanceCommand(monthlyPeriod, null);

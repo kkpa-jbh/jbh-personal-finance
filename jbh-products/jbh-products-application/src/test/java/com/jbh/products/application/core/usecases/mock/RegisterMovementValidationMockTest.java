@@ -42,7 +42,7 @@ import com.jbh.products.application.movements.ports.output.AccountMovementWriter
 import com.jbh.products.domain.entity.ProductDomain;
 import com.jbh.products.domain.vo.ExpenseCategory;
 import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 import com.jbh.products.domain.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -55,8 +55,8 @@ import org.mockito.MockitoAnnotations;
 
 public class RegisterMovementValidationMockTest {
 
-  public static final MovementCategoryDTO PERSONAL_EXPENSE =
-      MovementCategoryDTO.withType(ExpenseCategory.PERSONAL);
+  public static final MovementCategoryVO PERSONAL_EXPENSE =
+      MovementCategoryVO.withType(ExpenseCategory.PERSONAL);
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   MonthlyBalanceService monthlyBalanceService;
   @Mock private ProductRepository accountRepository;
@@ -195,7 +195,7 @@ public class RegisterMovementValidationMockTest {
 
     final AddMovementCommand request =
         AddMovementCommand.withCategory(
-                movementDate, amount, MovementCategoryDTO.withType(IncomeCategory.OTHER))
+                movementDate, amount, MovementCategoryVO.withType(IncomeCategory.OTHER))
             .build();
     final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);

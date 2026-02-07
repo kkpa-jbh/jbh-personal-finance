@@ -32,7 +32,7 @@ import com.jbh.products.application.movements.ports.output.AccountMovementWriter
 import com.jbh.products.domain.vo.CategoryType;
 import com.jbh.products.domain.vo.ExpenseCategory;
 import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductType;
 import java.math.BigDecimal;
@@ -285,7 +285,7 @@ public class RegisterMonthlyReportedProfitITTest {
         AddMovementCommand.withBalanceSnapshot(
                 LocalDate.of(period.getYear(), period.getMonthValue(), 15),
                 balanceSnapshot,
-                MovementCategoryDTO.withType(categoryType))
+                MovementCategoryVO.withType(categoryType))
             .totalAmount(amount)
             .build();
     try {

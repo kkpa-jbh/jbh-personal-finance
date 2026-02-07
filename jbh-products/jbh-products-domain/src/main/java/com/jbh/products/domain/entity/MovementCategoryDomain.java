@@ -4,7 +4,7 @@ import com.jbh.products.domain.vo.CategorySource;
 import com.jbh.products.domain.vo.CategoryType;
 import com.jbh.products.domain.vo.ExpenseCategory;
 import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 
 @SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
 public class MovementCategoryDomain {
@@ -28,7 +28,7 @@ public class MovementCategoryDomain {
     return categoryType;
   }
 
-  public static MovementCategoryDomain withDTO(final MovementCategoryDTO movementCategoryDTO) {
+  public static MovementCategoryDomain withDTO(final MovementCategoryVO movementCategoryDTO) {
     if (movementCategoryDTO == null) {
       return null;
     }

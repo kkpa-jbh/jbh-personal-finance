@@ -18,7 +18,7 @@ import com.jbh.products.application.core.vo.commands.AddMovementCommand;
 import com.jbh.products.domain.vo.AccountMovementMetadata;
 import com.jbh.products.domain.vo.ExpenseCategory;
 import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
@@ -203,7 +203,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
             dividendsAmount,
             balanceSnapshot,
             MovementType.DEPOSIT,
-            MovementCategoryDTO.withType(IncomeCategory.DIVIDENDS),
+            MovementCategoryVO.withType(IncomeCategory.DIVIDENDS),
             null);
 
     addMovementProcessingBalances(accountPK, dividendsMovement);
@@ -221,7 +221,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
               incomeWithholdingTaxAmount,
               balanceSnapshot,
               WITHDRAWAL,
-              MovementCategoryDTO.withType(ExpenseCategory.RETEFUENTE),
+              MovementCategoryVO.withType(ExpenseCategory.RETEFUENTE),
               null);
 
       addMovementProcessingBalances(accountPK, incomeWithholdingTaxMovement);

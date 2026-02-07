@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.jbh.products.domain.vo.ExpenseCategory;
 import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 import com.jbh.products.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,10 +21,10 @@ class AddMovementCommandTest {
   private static final LocalDate TEST_DATE = LocalDate.of(2024, 1, 15);
   private static final BigDecimal TEST_AMOUNT = new BigDecimal("100.00");
   private static final BigDecimal TEST_SNAPSHOT = new BigDecimal("500.00");
-  private static final MovementCategoryDTO INCOME_CATEGORY =
-      MovementCategoryDTO.withType(IncomeCategory.SALARY);
-  private static final MovementCategoryDTO EXPENSE_CATEGORY =
-      MovementCategoryDTO.withType(ExpenseCategory.PERSONAL);
+  private static final MovementCategoryVO INCOME_CATEGORY =
+      MovementCategoryVO.withType(IncomeCategory.SALARY);
+  private static final MovementCategoryVO EXPENSE_CATEGORY =
+      MovementCategoryVO.withType(ExpenseCategory.PERSONAL);
 
   @Nested
   @DisplayName("Builder Construction Tests")

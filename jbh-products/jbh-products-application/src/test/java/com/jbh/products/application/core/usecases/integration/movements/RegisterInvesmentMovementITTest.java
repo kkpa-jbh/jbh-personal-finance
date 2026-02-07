@@ -32,7 +32,7 @@ import com.jbh.products.application.core.vo.commands.LiquidateAccountCommand;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.products.domain.vo.ExpenseCategory;
 import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductId;
 import java.math.BigDecimal;
@@ -118,7 +118,7 @@ public class RegisterInvesmentMovementITTest {
                 initialBalance,
                 initialBalance,
                 MovementType.DEPOSIT,
-                MovementCategoryDTO.withType(IncomeCategory.INITIAL_BALANCE))
+                MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE))
             .build();
 
     addMovementUseCase.addMovement(userId, acciCuentaId, movement);
@@ -314,7 +314,7 @@ public class RegisterInvesmentMovementITTest {
                 currentBalance,
                 BigDecimal.ZERO,
                 WITHDRAWAL,
-                MovementCategoryDTO.withType(ExpenseCategory.PERSONAL))
+                MovementCategoryVO.withType(ExpenseCategory.PERSONAL))
             .build();
 
     assertThrows(

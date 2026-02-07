@@ -15,7 +15,7 @@ import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.products.application.core.vo.commands.AddMovementCommand;
 import com.jbh.products.domain.entity.MonthlyBalanceDomain;
 import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
 import java.time.Duration;
@@ -91,7 +91,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
           AddMovementCommand.withCategory(
                   addMonthlyBalanceCommand.monthlyPeriod().atDay(1),
                   addMonthlyBalanceCommand.closingBalance(),
-                  MovementCategoryDTO.withType(IncomeCategory.INITIAL_BALANCE))
+                  MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE))
               .build());
 
       try {

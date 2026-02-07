@@ -1,6 +1,6 @@
 package com.jbh.products.application.core.vo.commands;
 
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 import com.jbh.products.domain.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -50,33 +50,32 @@ public record AddMovementCommand(
     BigDecimal totalAmount,
     BigDecimal balanceSnapshot,
     MovementType movementType,
-    MovementCategoryDTO categoryDTO,
+    MovementCategoryVO categoryDTO,
     String description) {
 
   /**
    * @deprecated Use {@link #builder()} or convenience builders like {@link #withCategory(LocalDate,
-   *     BigDecimal, MovementCategoryDTO)} instead
+   *     BigDecimal, MovementCategoryVO)} instead
    */
   @Deprecated(since = "2026-02-05", forRemoval = true)
   public AddMovementCommand(
       final LocalDate entryDate,
       final BigDecimal totalAmount,
       final MovementType movementType,
-      final MovementCategoryDTO categoryDTO) {
+      final MovementCategoryVO categoryDTO) {
 
     this(entryDate, totalAmount, null, movementType, categoryDTO, null);
   }
 
   /**
-   * @deprecated Use {@link #withBalanceSnapshot(LocalDate, BigDecimal, MovementCategoryDTO)}
-   *     instead
+   * @deprecated Use {@link #withBalanceSnapshot(LocalDate, BigDecimal, MovementCategoryVO)} instead
    */
   @Deprecated(since = "2026-02-05", forRemoval = true)
   public AddMovementCommand(
       final LocalDate entryDate,
       final BigDecimal totalAmount,
       final BigDecimal balanceSnapshot,
-      final MovementCategoryDTO movementCategoryDTO) {
+      final MovementCategoryVO movementCategoryDTO) {
     this(
         entryDate,
         totalAmount,
@@ -87,13 +86,13 @@ public record AddMovementCommand(
   }
 
   /**
-   * @deprecated Use {@link #withCategory(LocalDate, BigDecimal, MovementCategoryDTO)} instead
+   * @deprecated Use {@link #withCategory(LocalDate, BigDecimal, MovementCategoryVO)} instead
    */
   @Deprecated(since = "2026-02-05", forRemoval = true)
   public AddMovementCommand(
       final LocalDate entryDate,
       final BigDecimal totalAmount,
-      final MovementCategoryDTO movementCategoryDTO) {
+      final MovementCategoryVO movementCategoryDTO) {
     this(
         entryDate,
         totalAmount,
@@ -105,7 +104,7 @@ public record AddMovementCommand(
 
   /**
    * @deprecated Use {@link #withFullControl(LocalDate, BigDecimal, BigDecimal, MovementType,
-   *     MovementCategoryDTO)} instead
+   *     MovementCategoryVO)} instead
    */
   @Deprecated(since = "2026-02-05", forRemoval = true)
   public AddMovementCommand(
@@ -113,7 +112,7 @@ public record AddMovementCommand(
       final BigDecimal totalAmount,
       final BigDecimal balanceSnapshot,
       final MovementType movementType,
-      final MovementCategoryDTO category) {
+      final MovementCategoryVO category) {
     this(entryDate, totalAmount, balanceSnapshot, movementType, category, null);
   }
 
@@ -138,7 +137,7 @@ public record AddMovementCommand(
   public static MovementCommandBuilder withCategory(
       final LocalDate entryDate,
       final BigDecimal totalAmount,
-      final MovementCategoryDTO categoryDTO) {
+      final MovementCategoryVO categoryDTO) {
     return new MovementCommandBuilder()
         .entryDate(entryDate)
         .totalAmount(totalAmount)
@@ -159,7 +158,7 @@ public record AddMovementCommand(
   public static MovementCommandBuilder withBalanceSnapshot(
       final LocalDate entryDate,
       final BigDecimal balanceSnapshot,
-      final MovementCategoryDTO categoryDTO) {
+      final MovementCategoryVO categoryDTO) {
     return new MovementCommandBuilder()
         .entryDate(entryDate)
         .balanceSnapshot(balanceSnapshot)
@@ -183,7 +182,7 @@ public record AddMovementCommand(
       final BigDecimal totalAmount,
       final BigDecimal balanceSnapshot,
       final MovementType movementType,
-      final MovementCategoryDTO categoryDTO) {
+      final MovementCategoryVO categoryDTO) {
     return new MovementCommandBuilder()
         .entryDate(entryDate)
         .totalAmount(totalAmount)
@@ -233,7 +232,7 @@ public record AddMovementCommand(
     private BigDecimal totalAmount;
     private BigDecimal balanceSnapshot;
     private MovementType movementType;
-    private MovementCategoryDTO categoryDTO;
+    private MovementCategoryVO categoryDTO;
     private String description;
 
     private MovementCommandBuilder() {}
@@ -258,7 +257,7 @@ public record AddMovementCommand(
       return this;
     }
 
-    public MovementCommandBuilder categoryDTO(final MovementCategoryDTO categoryDTO) {
+    public MovementCommandBuilder categoryDTO(final MovementCategoryVO categoryDTO) {
       this.categoryDTO = categoryDTO;
       return this;
     }

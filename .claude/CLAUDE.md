@@ -74,6 +74,131 @@ All Use Case **interfaces** (in `*.application.core.usecases` package) MUST be d
 - [Architecture](agents/quarkus-multimodule-architect.md) - Quarkus Multimodule Architect
 - [Code Design](docs/code-best-practices.md) - Code Best Practices
 
+### Hexagonal Architecture - API Object Placement
+
+**CRITICAL RULE:** Request and Response objects belong in the **infra** module, NOT the application module.
+
+#### Module Responsibilities:
+
+**Application Module (`jbh-xxx-application`):**
+- **DTOs**: Internal data transfer objects for business logic
+  - Package: `*.application.core.dto`
+  - Used between services, use cases, and repositories
+  - Never exposed directly in API responses
+  - Examples: `ProductDTO`, `MonthlyBalanceDTO`
+
+**Infrastructure Module (`jbh-xxx-infra`):**
+
+**REST API Package Structure (Feature-Based Organization):**
+
+The REST API layer is organized by **feature/bounded context** (vertical slices) rather than technical role:
+
+```
+com.jbh.products.infra.adapters.in.rest/
+├── product/
+│   ├── ProductRestAdapter.java
+│   ├── ProductConfigRestAdapter.java
+│   ├── request/
+│   │   ├── CreateProductRequest.java
+│   │   ├── EditProductRequest.java
+│   │   └── UpdateProductMetadataRequest.java
+│   └── response/
+│       ├── ProductResponse.java
+│       └── ProductTypeResponse.java
+├── movement/
+│   ├── MovementRestAdapter.java
+│   ├── TransferRestAdapter.java
+│   ├── request/
+│   │   ├── AddMovementRequest.java
+│   │   └── AddTransferRequest.java
+│   └── response/
+│       ├── MovementResponse.java
+│       └── AddBasicMovementResponse.java
+├── balancehistory/
+│   ├── MonthlyBalanceRestAdapter.java
+│   ├── request/
+│   │   └── MonthlyBalanceRequest.java
+│   └── response/
+│       └── MonthlyBalanceResponse.java
+├── category/
+│   ├── ExpenseCategoryRestAdapter.java
+│   ├── IncomeCategoryRestAdapter.java
+│   └── response/
+│       └── CategoryResponse.java
+└── common/
+    ├── BaseRestAdapter.java
+    ├── FinanceApiRoutes.java
+    └── ApiConstants.java
+```
+
+**Package Guidelines:**
+- **Feature packages** (product/, movement/, balancehistory/, category/): Group related REST adapters with their contracts
+- **request/**: API input contracts specific to the feature
+- **response/**: API output contracts specific to the feature
+- **common/**: Shared base classes and constants used across features
+
+**Response Objects**:
+- Package: `*.infra.adapters.in.rest.<feature>.response`
+- Used only as controller method return types
+- Map from internal DTOs using `fromDTO()` factory methods
+- Examples: `ProductResponse`, `MonthlyBalanceResponse`
+- **Naming Convention**: Must use `*Response` suffix, NEVER `*DTO`
+
+**Request Objects**:
+- Package: `*.infra.adapters.in.rest.<feature>.request`
+- Used only as controller method parameters
+- Examples: `CreateProductRequest`, `MonthlyBalanceRequest`
+- **Naming Convention**: Must use `*Request` suffix
+
+**Entities**: Database persistence objects
+- Package: `*.infra.adapters.out.persistence.entity`
+- Never exposed outside persistence layer
+- Examples: `ProductEntity`, `MonthlyBalanceEntity`
+
+#### Mapping Pattern:
+
+```java
+// In infra module - Response object
+package com.jbh.products.infra.adapters.in.rest.product.response;
+
+import com.jbh.products.application.core.dto.ProductDTO;
+
+public record ProductResponse(...) {
+  public static ProductResponse fromDTO(final ProductDTO dto) {
+    return new ProductResponse(...);
+  }
+}
+
+// In controller
+package com.jbh.products.infra.adapters.in.rest.product;
+
+import com.jbh.products.infra.adapters.in.rest.product.response.ProductResponse;
+import com.jbh.products.infra.adapters.in.rest.product.request.CreateProductRequest;
+
+@Path("/products")
+public class ProductRestAdapter {
+  @GET
+  public ProductResponse getProduct() {
+    ProductDTO dto = service.getProduct(); // DTO from application layer
+    return ProductResponse.fromDTO(dto);   // Convert to Response for API
+  }
+}
+```
+
+**Why feature-based organization?**
+- **High cohesion**: Everything related to a feature is together
+- **Easy navigation**: "I need product APIs? Go to `product/`"
+- **Independent changes**: Modify one feature without touching others
+- **Team ownership**: Teams can own entire vertical slices
+- **Aligns with DDD**: Matches bounded contexts
+- **Microservices-ready**: Each folder could become a separate service
+
+**Why separate DTOs from Responses?**
+- DTOs contain business logic and can change with domain requirements
+- Response objects define stable API contracts for external consumers
+- Infra layer handles all external communication (HTTP, DB, messaging)
+- Application layer remains pure business logic, unaware of HTTP/JSON concerns
+
 ### Database Schema Guidelines
 
 - **One schema per module**: Each module should use a single PostgreSQL schema

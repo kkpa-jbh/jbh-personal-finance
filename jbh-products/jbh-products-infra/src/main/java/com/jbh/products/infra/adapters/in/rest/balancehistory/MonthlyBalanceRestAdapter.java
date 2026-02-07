@@ -10,10 +10,11 @@ import com.jbh.products.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.products.domain.vo.ProductId;
 import com.jbh.products.domain.vo.ProductPK;
-import com.jbh.products.infra.adapters.in.rest.BaseRestAdapter;
-import com.jbh.products.infra.adapters.in.rest.vo.FinanceApiRoutes;
-import com.jbh.products.infra.adapters.in.rest.vo.MonthlyBalanceRequest;
-import com.jbh.products.infra.adapters.in.rest.vo.RegisterMonthlyBalanceRequest;
+import com.jbh.products.infra.adapters.in.rest.common.BaseRestAdapter;
+import com.jbh.products.infra.adapters.in.rest.balancehistory.response.MonthlyBalanceResponse;
+import com.jbh.products.infra.adapters.in.rest.common.FinanceApiRoutes;
+import com.jbh.products.infra.adapters.in.rest.balancehistory.request.MonthlyBalanceRequest;
+import com.jbh.products.infra.adapters.in.rest.balancehistory.request.RegisterMonthlyBalanceRequest;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -185,7 +186,7 @@ public class MonthlyBalanceRestAdapter extends BaseRestAdapter {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = MonthlyBalanceDTO.class))),
+                    schema = @Schema(implementation = MonthlyBalanceResponse.class))),
         @APIResponse(
             responseCode = "400",
             description = "Invalid request",
@@ -227,6 +228,6 @@ public class MonthlyBalanceRestAdapter extends BaseRestAdapter {
         registerMonthlyBalanceUseCase.registerOfficialMonthlyBalance(
             LocalDate.now(), userId, ProductId.of(productId), command);
 
-    return Response.ok(result).build();
+    return Response.ok(MonthlyBalanceResponse.fromDTO(result)).build();
   }
 }

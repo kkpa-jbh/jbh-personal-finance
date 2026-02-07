@@ -12,7 +12,7 @@ import com.jbh.products.application.core.vo.commands.AddTransferCommand;
 import com.jbh.products.domain.exceptions.BusinessDomainExceptionType;
 import com.jbh.products.domain.vo.ExpenseCategory;
 import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 import com.jbh.products.domain.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -57,17 +57,13 @@ public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUs
 
     final var movementCommandFrom =
         AddMovementCommand.withCategory(
-                transferDate,
-                transferAmount,
-                MovementCategoryDTO.withType(IncomeCategory.TRANSFER))
+                transferDate, transferAmount, MovementCategoryVO.withType(IncomeCategory.TRANSFER))
             .build();
     transferValidationFROM(fromAccountDTO, movementCommandFrom);
 
     final var movementCommandTo =
         AddMovementCommand.withCategory(
-                transferDate,
-                transferAmount,
-                MovementCategoryDTO.withType(ExpenseCategory.TRANSFER))
+                transferDate, transferAmount, MovementCategoryVO.withType(ExpenseCategory.TRANSFER))
             .build();
     transferValidationTO(toAccountDTO, movementCommandTo);
 

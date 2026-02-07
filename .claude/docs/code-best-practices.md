@@ -40,7 +40,7 @@ These rules must be followed when generating or reviewing backend code.
 
 ---
 
-### 2. Internal Data Transfer Objects (Application / Service Layer)
+### 2. Internal Data Transfer Objects (Application Submodules)
 
 #### Purpose
 
@@ -73,6 +73,7 @@ These rules must be followed when generating or reviewing backend code.
 
 - Represents data received from API clients
 - Defines the input API contract
+- Only present in the jbh-xxxx-infra modules.
 
 #### Naming Convention
 
@@ -100,6 +101,7 @@ These rules must be followed when generating or reviewing backend code.
 - Represents data returned to API clients
 - Defines the public API contract
 - Optimized for client consumption
+- Only present in the jbh-xxxx-infra modules.
 
 #### Naming Convention
 

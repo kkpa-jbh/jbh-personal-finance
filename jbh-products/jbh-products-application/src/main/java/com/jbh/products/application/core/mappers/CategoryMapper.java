@@ -1,20 +1,20 @@
 package com.jbh.products.application.core.mappers;
 
 import com.jbh.products.domain.entity.MovementCategoryDomain;
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 
 public final class CategoryMapper {
 
   private CategoryMapper() {}
 
-  public static MovementCategoryDTO toDTO(final MovementCategoryDomain domain) {
+  public static MovementCategoryVO toDTO(final MovementCategoryDomain domain) {
     if (domain == null) {
       return null;
     }
-    return MovementCategoryDTO.withType(domain.getType());
+    return MovementCategoryVO.withType(domain.getType());
   }
 
-  public static MovementCategoryDomain toDomain(final MovementCategoryDTO dto) {
+  public static MovementCategoryDomain toDomain(final MovementCategoryVO dto) {
     if (dto == null) {
       return null;
     }

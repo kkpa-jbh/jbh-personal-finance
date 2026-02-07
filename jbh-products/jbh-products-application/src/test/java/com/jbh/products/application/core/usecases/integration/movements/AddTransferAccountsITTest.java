@@ -26,7 +26,7 @@ import com.jbh.products.application.core.vo.commands.AddTransferCommand;
 import com.jbh.products.application.core.vo.commands.UpdateMetadataProductCommand;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
 import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 import com.jbh.products.domain.vo.ProductMetadata;
 import com.jbh.products.domain.vo.ProductPK;
 import java.math.BigDecimal;
@@ -114,14 +114,14 @@ public class AddTransferAccountsITTest {
         AddMovementCommand.withCategory(
                 createdAccountsPeriod.atDay(1),
                 withJBHDecimals(new BigDecimal("1000")),
-                MovementCategoryDTO.withType(IncomeCategory.INITIAL_BALANCE))
+                MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE))
             .build();
 
     final AddMovementCommand toAccountInitialBalance =
         AddMovementCommand.withCategory(
                 createdAccountsPeriod.atDay(2),
                 withJBHDecimals(new BigDecimal("2000")),
-                MovementCategoryDTO.withType(IncomeCategory.INITIAL_BALANCE))
+                MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE))
             .build();
 
     // Execute movements concurrently to simulate different users adding movements at the same time

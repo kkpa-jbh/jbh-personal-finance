@@ -24,7 +24,7 @@ import com.jbh.products.application.core.ports.output.account.InMemoryAccountRep
 import com.jbh.products.application.core.usecases.CreateProductUseCase;
 import com.jbh.products.application.core.vo.commands.CreateProductCommand;
 import com.jbh.products.domain.vo.ExpenseCategory;
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 import com.jbh.products.domain.vo.ProductMetadata;
 import com.jbh.products.domain.vo.ProductType;
 import java.math.BigDecimal;
@@ -166,7 +166,7 @@ public class CreateProductITTest {
         userId,
         creditCardAccountDTO.id(),
         CommandTestBuilder.createMovement(
-            mvmDate, personalExpense1, MovementCategoryDTO.withType(ExpenseCategory.PERSONAL)));
+            mvmDate, personalExpense1, MovementCategoryVO.withType(ExpenseCategory.PERSONAL)));
 
     ProductDTO updatedAccount =
         inMemoryAccountRepo.findByProductId(creditCardAccountDTO.id()).get();
@@ -193,7 +193,7 @@ public class CreateProductITTest {
         CommandTestBuilder.createMovement(
             mvmDate.plus(1, ChronoUnit.DAYS),
             publicServicesExpense1,
-            MovementCategoryDTO.withType(ExpenseCategory.PUBLIC_SERVICES)));
+            MovementCategoryVO.withType(ExpenseCategory.PUBLIC_SERVICES)));
 
     updatedAccount = inMemoryAccountRepo.findByProductId(creditCardAccountDTO.id()).get();
 

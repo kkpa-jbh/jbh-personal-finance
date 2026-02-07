@@ -3,7 +3,7 @@ package com.jbh.products.infra.adapters.out.persistence.movement;
 import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.domain.vo.AccountMovementMetadata;
 import com.jbh.products.domain.vo.AccountMovementMetadataKey;
-import com.jbh.products.domain.vo.MovementCategoryDTO;
+import com.jbh.products.domain.vo.MovementCategoryVO;
 import com.jbh.products.domain.vo.MovementId;
 import com.jbh.products.domain.vo.MovementType;
 import com.jbh.products.domain.vo.ProductId;
@@ -92,7 +92,7 @@ public class MovementJPAEntity extends PanacheEntityBase {
         .id(MovementId.of(id))
         .accountId(ProductId.of(accountId))
         .movementType(movementType)
-        .category(MovementCategoryDTO.withName(movementType, category))
+        .category(MovementCategoryVO.withName(movementType, category))
         .movementAmount(movementAmount)
         .movementDate(movementDate)
         .balanceSnapshot(balanceSnapshot)

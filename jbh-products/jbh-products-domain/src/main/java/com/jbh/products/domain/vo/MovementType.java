@@ -28,7 +28,7 @@ public enum MovementType {
     return movementType;
   }
 
-  public static MovementType findByCategory(final MovementCategoryDTO movementCategoryDTO) {
+  public static MovementType findByCategory(final MovementCategoryVO movementCategoryDTO) {
     if (movementCategoryDTO == null) {
       throw new IllegalArgumentException("Category cannot be null");
     }
