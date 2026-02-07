@@ -4,7 +4,7 @@ import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.exceptions.BusinessApplicationExceptionType;
 import com.jbh.products.application.core.services.movements.AccountMovementService;
-import com.jbh.products.domain.vo.IncomeCategory;
+import com.jbh.products.domain.movement.vo.IncomeCategory;
 import com.jbh.commons.exception.BusinessException;
 
 @SuppressWarnings({

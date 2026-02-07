@@ -1,7 +1,7 @@
 package com.jbh.products.application.services;
 
-import static com.jbh.products.domain.entity.MovementCategoryDomain.OTHER_INCOME_CATEGORY;
-import static com.jbh.products.domain.entity.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
+import static com.jbh.products.domain.movement.MovementCategoryDomain.OTHER_INCOME_CATEGORY;
+import static com.jbh.products.domain.movement.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.jbh.commons.exception.BusinessException;
@@ -9,12 +9,12 @@ import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.products.application.builders.AccountEntityBuilder;
 import com.jbh.products.application.builders.UseCaseBuilder;
 import com.jbh.products.application.core.services.account.ProductsService;
-import com.jbh.products.domain.entity.MovementCategoryDomain;
-import com.jbh.products.domain.entity.MovementDomain;
-import com.jbh.products.domain.entity.ProductDomain;
-import com.jbh.products.domain.vo.AccountMovementMetadata;
-import com.jbh.products.domain.vo.MovementType;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.movement.MovementCategoryDomain;
+import com.jbh.products.domain.movement.MovementDomain;
+import com.jbh.products.domain.movement.vo.AccountMovementMetadata;
+import com.jbh.products.domain.movement.vo.MovementType;
+import com.jbh.products.domain.product.ProductDomain;
+import com.jbh.products.domain.product.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;

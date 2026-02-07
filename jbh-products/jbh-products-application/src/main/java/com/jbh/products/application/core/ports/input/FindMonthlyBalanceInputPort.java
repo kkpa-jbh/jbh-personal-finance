@@ -13,9 +13,9 @@ import com.jbh.products.application.core.dto.balancehistory.BalanceHistorySummar
 import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceService;
 import com.jbh.products.application.core.usecases.FindMonthlyBalanceUseCase;
-import com.jbh.products.domain.vo.PeriodRange;
-import com.jbh.products.domain.vo.ProductId;
-import com.jbh.products.domain.vo.ProductPK;
+import com.jbh.products.domain.shared.vo.PeriodRange;
+import com.jbh.products.domain.product.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.ArrayList;

@@ -2,7 +2,7 @@ package com.jbh.products.infra.adapters.exceptions;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.jbh.products.domain.exceptions.BusinessDomainExceptionType;
+import com.jbh.products.domain.shared.exceptions.BusinessDomainExceptionType;
 import com.jbh.commons.api.ApiResponse;
 import com.jbh.commons.exception.BusinessException;
 import jakarta.ws.rs.core.Response;

@@ -78,7 +78,7 @@ class GetUserPreferencesInputPortTest {
         .defaultLang(Language.ENGLISH)
         .defaultCurrency(Currency.USD)
         .savingsGoal(new BigDecimal("1500.00"))
-        .defaultAccountId(accountId)
+        .defaultProductId(accountId)
         .metadata(PreferencesMetadata.empty().with("theme", "dark"))
         .createdAt(LocalDateTime.now())
         .updatedAt(LocalDateTime.now())

@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
 import com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.List;

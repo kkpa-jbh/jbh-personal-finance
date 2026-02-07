@@ -1,7 +1,7 @@
 package com.jbh.products.application.core.ports.output;
 
 import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductId;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

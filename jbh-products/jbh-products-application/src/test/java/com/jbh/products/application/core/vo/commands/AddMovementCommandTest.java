@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.jbh.products.domain.vo.ExpenseCategory;
-import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryVO;
-import com.jbh.products.domain.vo.MovementType;
+import com.jbh.products.domain.movement.vo.ExpenseCategory;
+import com.jbh.products.domain.movement.vo.IncomeCategory;
+import com.jbh.products.domain.movement.vo.MovementCategoryVO;
+import com.jbh.products.domain.movement.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;

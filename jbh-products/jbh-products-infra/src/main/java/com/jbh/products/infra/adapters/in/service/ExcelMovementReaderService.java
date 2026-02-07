@@ -2,8 +2,8 @@ package com.jbh.products.infra.adapters.in.service;
 
 import static com.jbh.commons.util.JbhStringUtils.isBlank;
 
-import com.jbh.products.infra.adapters.in.rest.vo.AddMovementsUploadedFileRequest;
 import com.jbh.commons.util.JbhStringUtils;
+import com.jbh.products.infra.adapters.in.rest.product.request.AddMovementsUploadedFileRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import java.io.InputStream;

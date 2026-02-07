@@ -6,9 +6,9 @@ import com.jbh.products.application.core.mappers.AccountMapper;
 import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.usecases.UpdateProductUseCase;
 import com.jbh.products.application.core.vo.commands.UpdateMetadataProductCommand;
-import com.jbh.products.domain.entity.ProductDomain;
-import com.jbh.products.domain.vo.ProductMetadata;
-import com.jbh.products.domain.vo.ProductPK;
+import com.jbh.products.domain.product.ProductDomain;
+import com.jbh.products.domain.product.vo.ProductMetadata;
+import com.jbh.products.domain.product.vo.ProductPK;
 
 public class UpdateProductInputPort implements UpdateProductUseCase {
 

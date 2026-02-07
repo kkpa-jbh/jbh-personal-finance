@@ -22,7 +22,7 @@ import com.jbh.products.application.core.usecases.AddMovementUseCase;
 import com.jbh.products.application.core.usecases.CreateProductUseCase;
 import com.jbh.products.application.core.usecases.integration.monthlybalance.RegisterMonthlyReportedWithoutProfitITTest;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.products.domain.vo.ProductMetadata;
+import com.jbh.products.domain.product.vo.ProductMetadata;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;

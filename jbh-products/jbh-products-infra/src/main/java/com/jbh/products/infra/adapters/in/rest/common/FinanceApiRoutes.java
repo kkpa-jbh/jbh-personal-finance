@@ -1,6 +1,6 @@
 package com.jbh.products.infra.adapters.in.rest.common;
 
-import static com.jbh.products.infra.adapters.in.rest.vo.ApiConstants.BASE_API_PATH;
+import static com.jbh.products.infra.adapters.in.rest.common.ApiConstants.BASE_API_PATH;
 
 @SuppressWarnings("PMD.LongVariable")
 public class FinanceApiRoutes {

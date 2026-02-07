@@ -8,8 +8,8 @@ import com.jbh.products.application.core.dto.balancehistory.BalanceHistoryRespon
 import com.jbh.products.application.core.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.products.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
-import com.jbh.products.domain.vo.ProductId;
-import com.jbh.products.domain.vo.ProductPK;
+import com.jbh.products.domain.product.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductPK;
 import com.jbh.products.infra.adapters.in.rest.common.BaseRestAdapter;
 import com.jbh.products.infra.adapters.in.rest.balancehistory.response.MonthlyBalanceResponse;
 import com.jbh.products.infra.adapters.in.rest.common.FinanceApiRoutes;

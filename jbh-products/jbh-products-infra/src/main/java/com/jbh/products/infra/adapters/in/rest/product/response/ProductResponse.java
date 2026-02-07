@@ -1,9 +1,9 @@
 package com.jbh.products.infra.adapters.in.rest.product.response;
 
 import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.domain.vo.ProductId;
-import com.jbh.products.domain.vo.ProductMetadata;
-import com.jbh.products.domain.vo.ProductType;
+import com.jbh.products.domain.product.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductMetadata;
+import com.jbh.products.domain.product.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;

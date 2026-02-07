@@ -59,7 +59,7 @@ class UserPreferencesDTOTest {
             .defaultLang(Language.ENGLISH)
             .defaultCurrency(Currency.USD)
             .savingsGoal(savingsGoal)
-            .defaultAccountId(accountId)
+            .defaultProductId(accountId)
             .metadata(metadata)
             .createdAt(now)
             .updatedAt(now)
@@ -100,7 +100,7 @@ class UserPreferencesDTOTest {
 
     final UserPreferencesDTO dto =
         UserPreferencesDTO.defaultBuilder(userId)
-            .defaultAccountId(accountId)
+            .defaultProductId(accountId)
             .defaultLang(Language.ENGLISH)
             .build();
 

@@ -3,7 +3,7 @@ package com.jbh.products.application.core.validation.product_type;
 import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.exceptions.BusinessApplicationExceptionType;
-import com.jbh.products.domain.vo.IncomeCategory;
+import com.jbh.products.domain.movement.vo.IncomeCategory;
 import com.jbh.commons.exception.BusinessException;
 
 public class LoanMovementValidator implements ProductMovementValidator {

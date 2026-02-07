@@ -1,7 +1,7 @@
 package com.jbh.products.application.core.usecases;
 
 import com.jbh.products.application.core.vo.commands.UpdateMetadataProductCommand;
-import com.jbh.products.domain.vo.ProductPK;
+import com.jbh.products.domain.product.vo.ProductPK;
 import com.jbh.commons.exception.BusinessException;
 
 /**

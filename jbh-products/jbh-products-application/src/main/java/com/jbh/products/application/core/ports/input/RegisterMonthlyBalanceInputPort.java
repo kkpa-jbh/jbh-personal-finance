@@ -13,11 +13,11 @@ import com.jbh.products.application.core.services.movements.AccountMovementAppli
 import com.jbh.products.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.products.application.core.vo.commands.AddMovementCommand;
-import com.jbh.products.domain.entity.MonthlyBalanceDomain;
-import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryVO;
-import com.jbh.products.domain.vo.ProductId;
-import com.jbh.products.domain.vo.ProductPK;
+import com.jbh.products.domain.monthlybalance.MonthlyBalanceDomain;
+import com.jbh.products.domain.movement.vo.IncomeCategory;
+import com.jbh.products.domain.movement.vo.MovementCategoryVO;
+import com.jbh.products.domain.product.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductPK;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;

@@ -2,7 +2,7 @@ package com.jbh.products.application.core.ports.output.movement;
 
 import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.application.movements.ports.output.AccountMovementQueryRepository;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

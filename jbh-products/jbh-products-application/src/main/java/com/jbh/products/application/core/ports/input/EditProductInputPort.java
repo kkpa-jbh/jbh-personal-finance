@@ -9,7 +9,7 @@ import com.jbh.products.application.core.mappers.AccountMapper;
 import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.usecases.EditProductUseCase;
 import com.jbh.products.application.core.vo.commands.EditProductCommand;
-import com.jbh.products.domain.entity.ProductDomain;
+import com.jbh.products.domain.product.ProductDomain;
 import org.slf4j.Logger;
 
 public class EditProductInputPort implements EditProductUseCase {

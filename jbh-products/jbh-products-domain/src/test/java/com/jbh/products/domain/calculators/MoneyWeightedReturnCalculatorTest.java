@@ -2,6 +2,7 @@ package com.jbh.products.domain.calculators;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.jbh.products.domain.product.service.calculators.MoneyWeightedReturnCalculator;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;

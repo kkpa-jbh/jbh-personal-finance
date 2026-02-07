@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.jbh.commons.exception.GenericSpecificationException;
-import com.jbh.products.domain.vo.ProductId;
-import com.jbh.products.domain.vo.ProductMetadata;
-import com.jbh.products.domain.vo.ProductMetadataKey;
+import com.jbh.products.domain.product.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductMetadata;
+import com.jbh.products.domain.product.vo.ProductMetadataKey;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;

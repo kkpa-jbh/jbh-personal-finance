@@ -1,7 +1,7 @@
 package com.jbh.products.application.core.mappers;
 
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.products.domain.entity.MonthlyBalanceDomain;
+import com.jbh.products.domain.monthlybalance.MonthlyBalanceDomain;
 
 public final class MonthlyBalanceMapper {
 

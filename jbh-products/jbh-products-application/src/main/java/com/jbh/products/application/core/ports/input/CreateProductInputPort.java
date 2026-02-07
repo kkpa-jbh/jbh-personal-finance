@@ -7,8 +7,8 @@ import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.usecases.CreateProductUseCase;
 import com.jbh.products.application.core.vo.commands.CreateProductCommand;
-import com.jbh.products.domain.entity.ProductDomain;
-import com.jbh.products.domain.vo.ProductMetadata;
+import com.jbh.products.domain.product.ProductDomain;
+import com.jbh.products.domain.product.vo.ProductMetadata;
 import org.slf4j.Logger;
 
 public class CreateProductInputPort implements CreateProductUseCase {

@@ -3,7 +3,7 @@ package com.jbh.products.application.core.usecases;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.dto.balancehistory.BalanceHistoryResponse;
-import com.jbh.products.domain.vo.ProductPK;
+import com.jbh.products.domain.product.vo.ProductPK;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;

@@ -1,6 +1,6 @@
 package com.jbh.products.infra.adapters.in.rest.product;
 
-import com.jbh.products.infra.adapters.in.rest.product.response.ProductTypeResponse;
+import com.jbh.products.domain.product.vo.ProductType;
 import com.jbh.products.infra.adapters.in.rest.common.FinanceApiRoutes;
 import com.jbh.products.infra.adapters.in.rest.product.response.ProductTypeResponse;
 import jakarta.enterprise.context.RequestScoped;
@@ -9,6 +9,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.Arrays;
 import java.util.List;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -44,7 +45,7 @@ public class ProductTypeRestAdapter {
       })
   public Response getAllProductTypes() {
     LOG.debug("Retrieving all product types");
-    final List<ProductTypeDTO> productTypes = ProductTypeDTO.allProductTypes();
+    final List<ProductType> productTypes = Arrays.stream(ProductType.values()).toList();
     LOG.info("Returning {} product types", productTypes.size());
     return Response.ok(productTypes.stream().map(ProductTypeResponse::fromDTO).toList()).build();
   }

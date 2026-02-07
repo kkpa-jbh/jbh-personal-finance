@@ -3,9 +3,10 @@ package com.jbh.products.domain.entity;
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.commons.exception.BusinessException;
-import com.jbh.products.domain.vo.ProductId;
-import com.jbh.products.domain.vo.ProductMetadata;
-import com.jbh.products.domain.vo.ProductType;
+import com.jbh.products.domain.product.ProductDomain;
+import com.jbh.products.domain.product.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductMetadata;
+import com.jbh.products.domain.product.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;

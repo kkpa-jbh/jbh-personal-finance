@@ -1,10 +1,10 @@
 package com.jbh.products.infra.adapters.in.rest.product;
 
-import static com.jbh.products.infra.adapters.in.rest.vo.FinanceApiRoutes.PRODUCTS_API_PATH;
+import static com.jbh.products.infra.adapters.in.rest.common.FinanceApiRoutes.PRODUCTS_API_PATH;
 
 import com.jbh.products.application.core.dto.MetadataFieldConfigDTO;
 import com.jbh.products.application.core.usecases.GetProductMetadataConfigUseCase;
-import com.jbh.products.domain.vo.ProductType;
+import com.jbh.products.domain.product.vo.ProductType;
 import com.jbh.products.infra.adapters.in.rest.product.response.MetadataFieldConfigResponse;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;

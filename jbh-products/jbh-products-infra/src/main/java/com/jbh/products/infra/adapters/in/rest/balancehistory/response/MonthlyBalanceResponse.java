@@ -1,7 +1,7 @@
 package com.jbh.products.infra.adapters.in.rest.balancehistory.response;
 
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.YearMonth;

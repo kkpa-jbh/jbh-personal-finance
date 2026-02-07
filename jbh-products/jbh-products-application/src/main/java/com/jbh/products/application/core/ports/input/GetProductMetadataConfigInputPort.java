@@ -3,7 +3,7 @@ package com.jbh.products.application.core.ports.input;
 import com.jbh.products.application.core.dto.MetadataFieldConfigDTO;
 import com.jbh.products.application.core.services.metadata.ProductMetadataConfigRegistry;
 import com.jbh.products.application.core.usecases.GetProductMetadataConfigUseCase;
-import com.jbh.products.domain.vo.ProductType;
+import com.jbh.products.domain.product.vo.ProductType;
 import java.util.List;
 
 public class GetProductMetadataConfigInputPort implements GetProductMetadataConfigUseCase {

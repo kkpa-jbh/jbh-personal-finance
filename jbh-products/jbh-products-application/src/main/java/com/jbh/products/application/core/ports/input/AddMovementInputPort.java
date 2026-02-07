@@ -9,9 +9,9 @@ import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.services.movements.AccountMovementApplicationService;
 import com.jbh.products.application.core.usecases.AddMovementUseCase;
 import com.jbh.products.application.core.vo.commands.AddMovementCommand;
-import com.jbh.products.domain.vo.ProductId;
-import com.jbh.products.domain.vo.ProductPK;
-import com.jbh.products.domain.vo.ProductType;
+import com.jbh.products.domain.product.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductPK;
+import com.jbh.products.domain.product.vo.ProductType;
 import java.util.UUID;
 
 public class AddMovementInputPort implements AddMovementUseCase {

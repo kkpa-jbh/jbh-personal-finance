@@ -1,8 +1,8 @@
 package com.jbh.products.application.core.vo.commands;
 
 import com.jbh.commons.exception.GenericSpecificationException;
-import com.jbh.products.domain.vo.ProductMetadata;
-import com.jbh.products.domain.vo.ProductType;
+import com.jbh.products.domain.product.vo.ProductMetadata;
+import com.jbh.products.domain.product.vo.ProductType;
 import java.util.UUID;
 
 public record CreateProductCommand(

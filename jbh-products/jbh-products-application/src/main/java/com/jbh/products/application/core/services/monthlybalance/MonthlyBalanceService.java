@@ -5,7 +5,7 @@ import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
 import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
 import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductId;
 import com.jbh.commons.exception.BusinessException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

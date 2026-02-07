@@ -3,7 +3,7 @@ package com.jbh.products.application.core.vo.commands;
 import static com.jbh.commons.util.JbhMoneyUtils.isZero;
 
 import com.jbh.commons.exception.GenericSpecificationException;
-import com.jbh.products.domain.vo.ProductPK;
+import com.jbh.products.domain.product.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;

@@ -1,7 +1,7 @@
 package com.jbh.products.application.core.vo.commands;
 
 import com.jbh.products.application.core.exceptions.BusinessApplicationExceptionType;
-import com.jbh.products.domain.vo.ProductPK;
+import com.jbh.products.domain.product.vo.ProductPK;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.util.JbhMoneyUtils;
 import java.math.BigDecimal;

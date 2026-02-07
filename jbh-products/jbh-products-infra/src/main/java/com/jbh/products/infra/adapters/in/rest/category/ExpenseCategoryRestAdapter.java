@@ -1,6 +1,6 @@
 package com.jbh.products.infra.adapters.in.rest.category;
 
-import com.jbh.products.infra.adapters.in.rest.category.response.CategoryResponse;
+import com.jbh.products.domain.movement.vo.ExpenseCategory;
 import com.jbh.products.infra.adapters.in.rest.category.response.CategoryResponse;
 import com.jbh.products.infra.adapters.in.rest.common.FinanceApiRoutes;
 import jakarta.enterprise.context.RequestScoped;
@@ -9,6 +9,7 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.Arrays;
 import java.util.List;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
@@ -44,7 +45,7 @@ public class ExpenseCategoryRestAdapter {
       })
   public Response getAllExpenseCategories() {
     LOG.debug("Retrieving all expense categories");
-    final List<CategoryDTO> categories = CategoryDTO.allExpenseCategories();
+    final List<ExpenseCategory> categories = Arrays.stream(ExpenseCategory.values()).toList();
     LOG.info("Returning {} expense categories", categories.size());
     return Response.ok(categories.stream().map(CategoryResponse::fromDTO).toList()).build();
   }

@@ -2,7 +2,7 @@ package com.jbh.products.application.core.ports.output.account;
 
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.ports.output.ProductRepository;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductId;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

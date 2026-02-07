@@ -30,7 +30,7 @@ import com.jbh.products.application.core.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.products.application.core.usecases.UpdateProductUseCase;
 import com.jbh.products.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.products.domain.vo.ProductType;
+import com.jbh.products.domain.product.vo.ProductType;
 
 public class UseCaseBuilder {
 

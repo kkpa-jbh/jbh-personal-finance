@@ -1,17 +1,17 @@
 package com.jbh.products.application.core.mappers;
 
-import static com.jbh.products.domain.vo.MovementType.WITHDRAWAL;
+import static com.jbh.products.domain.movement.vo.MovementType.WITHDRAWAL;
 
 import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.application.core.vo.commands.AddMovementCommand;
 import com.jbh.products.application.core.vo.commands.LiquidateAccountCommand;
-import com.jbh.products.domain.entity.MovementCategoryDomain;
-import com.jbh.products.domain.entity.MovementDomain;
-import com.jbh.products.domain.vo.AccountMovementMetadata;
-import com.jbh.products.domain.vo.ExpenseCategory;
-import com.jbh.products.domain.vo.MovementCategoryVO;
-import com.jbh.products.domain.vo.MovementType;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.movement.MovementCategoryDomain;
+import com.jbh.products.domain.movement.MovementDomain;
+import com.jbh.products.domain.movement.vo.AccountMovementMetadata;
+import com.jbh.products.domain.movement.vo.ExpenseCategory;
+import com.jbh.products.domain.movement.vo.MovementCategoryVO;
+import com.jbh.products.domain.movement.vo.MovementType;
+import com.jbh.products.domain.product.vo.ProductId;
 import java.math.BigDecimal;
 
 public final class MovementMapper {

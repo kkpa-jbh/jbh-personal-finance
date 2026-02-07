@@ -1,10 +1,10 @@
 package com.jbh.products.infra.adapters.out.persistence.account;
 
 import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.domain.vo.ProductId;
-import com.jbh.products.domain.vo.ProductMetadata;
-import com.jbh.products.domain.vo.ProductMetadataKey;
-import com.jbh.products.domain.vo.ProductType;
+import com.jbh.products.domain.product.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductMetadata;
+import com.jbh.products.domain.product.vo.ProductMetadataKey;
+import com.jbh.products.domain.product.vo.ProductType;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;

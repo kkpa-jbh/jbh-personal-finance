@@ -25,20 +25,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class PreferencesLookupAdapterTest {
 
-  @Mock
-  private GetUserPreferencesInputPort getUserPreferencesInputPort;
-
-  @Mock
-  private GetTeamPreferencesInputPort getTeamPreferencesInputPort;
-
-  private PreferencesLookupAdapter adapter;
-
   private static final UUID USER_ID = UUID.randomUUID();
   private static final UUID ACCOUNT_ID = UUID.randomUUID();
+  @Mock private GetUserPreferencesInputPort getUserPreferencesInputPort;
+  @Mock private GetTeamPreferencesInputPort getTeamPreferencesInputPort;
+  private PreferencesLookupAdapter adapter;
 
   @BeforeEach
   void setUp() {
-    adapter = new PreferencesLookupAdapter(getUserPreferencesInputPort, getTeamPreferencesInputPort);
+    adapter =
+        new PreferencesLookupAdapter(getUserPreferencesInputPort, getTeamPreferencesInputPort);
   }
 
   @Test
@@ -56,11 +52,22 @@ class PreferencesLookupAdapterTest {
     assertThat(result.defaultAccountId()).isEqualTo(ACCOUNT_ID);
   }
 
+  private UserPreferencesDTO createTestDto() {
+    return UserPreferencesDTO.builder()
+        .userId(USER_ID)
+        .defaultLang(Language.ENGLISH)
+        .defaultCurrency(Currency.USD)
+        .savingsGoal(new BigDecimal("1000.00"))
+        .defaultProductId(ACCOUNT_ID)
+        .build();
+  }
+
   @Test
   void getPreferences_shouldThrowPreferencesLookupException_whenBusinessExceptionOccurs()
       throws Exception {
     when(getUserPreferencesInputPort.execute(USER_ID))
-        .thenThrow(new BusinessException(PreferencesBusinessExceptionType.PREFERENCES_NOT_FOUND, USER_ID));
+        .thenThrow(
+            new BusinessException(PreferencesBusinessExceptionType.PREFERENCES_NOT_FOUND, USER_ID));
 
     assertThatThrownBy(() -> adapter.getPreferences(USER_ID))
         .isInstanceOf(PreferencesLookupException.class)
@@ -71,7 +78,8 @@ class PreferencesLookupAdapterTest {
   @Test
   void getPreferences_exceptionShouldContainUserId_whenThrown() throws Exception {
     when(getUserPreferencesInputPort.execute(USER_ID))
-        .thenThrow(new BusinessException(PreferencesBusinessExceptionType.PREFERENCES_NOT_FOUND, USER_ID));
+        .thenThrow(
+            new BusinessException(PreferencesBusinessExceptionType.PREFERENCES_NOT_FOUND, USER_ID));
 
     try {
       adapter.getPreferences(USER_ID);
@@ -96,7 +104,8 @@ class PreferencesLookupAdapterTest {
   @Test
   void findPreferences_shouldReturnEmpty_whenBusinessExceptionOccurs() throws Exception {
     when(getUserPreferencesInputPort.execute(USER_ID))
-        .thenThrow(new BusinessException(PreferencesBusinessExceptionType.PREFERENCES_NOT_FOUND, USER_ID));
+        .thenThrow(
+            new BusinessException(PreferencesBusinessExceptionType.PREFERENCES_NOT_FOUND, USER_ID));
 
     final Optional<UserPreferencesData> result = adapter.findPreferences(USER_ID);
 
@@ -116,20 +125,11 @@ class PreferencesLookupAdapterTest {
   @Test
   void getLanguageCode_shouldReturnDefault_whenExceptionOccurs() throws Exception {
     when(getUserPreferencesInputPort.execute(USER_ID))
-        .thenThrow(new BusinessException(PreferencesBusinessExceptionType.PREFERENCES_NOT_FOUND, USER_ID));
+        .thenThrow(
+            new BusinessException(PreferencesBusinessExceptionType.PREFERENCES_NOT_FOUND, USER_ID));
 
     final String result = adapter.getLanguageCode(USER_ID);
 
     assertThat(result).isEqualTo("es");
-  }
-
-  private UserPreferencesDTO createTestDto() {
-    return UserPreferencesDTO.builder()
-        .userId(USER_ID)
-        .defaultLang(Language.ENGLISH)
-        .defaultCurrency(Currency.USD)
-        .savingsGoal(new BigDecimal("1000.00"))
-        .defaultAccountId(ACCOUNT_ID)
-        .build();
   }
 }

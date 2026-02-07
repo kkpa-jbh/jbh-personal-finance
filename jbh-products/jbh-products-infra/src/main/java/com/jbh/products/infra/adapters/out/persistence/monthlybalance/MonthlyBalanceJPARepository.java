@@ -2,9 +2,9 @@ package com.jbh.products.infra.adapters.out.persistence.monthlybalance;
 
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
-import com.jbh.products.domain.vo.PeriodRange;
-import com.jbh.products.domain.vo.ProductId;
-import com.jbh.products.domain.vo.ProductPK;
+import com.jbh.products.domain.shared.vo.PeriodRange;
+import com.jbh.products.domain.product.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductPK;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;

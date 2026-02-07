@@ -2,7 +2,7 @@ package com.jbh.products.infra.adapters.out.persistence.movement;
 
 import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.application.movements.ports.output.AccountMovementQueryRepository;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductId;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.util.List;

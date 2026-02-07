@@ -3,7 +3,7 @@ package com.jbh.products.application.core.validation.product_type;
 import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.exceptions.BusinessApplicationExceptionType;
-import com.jbh.products.domain.vo.ExpenseCategory;
+import com.jbh.products.domain.movement.vo.ExpenseCategory;
 import com.jbh.commons.exception.BusinessException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

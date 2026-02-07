@@ -4,10 +4,11 @@ import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.jbh.products.domain.entity.AccountDomainTestBuilder;
-import com.jbh.products.domain.entity.ProductDomain;
-import com.jbh.products.domain.vo.ProductMetadata;
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.products.domain.entity.AccountDomainTestBuilder;
+import com.jbh.products.domain.product.ProductDomain;
+import com.jbh.products.domain.product.service.metrics.CdtAccountMetricsCalculator;
+import com.jbh.products.domain.product.vo.ProductMetadata;
 import java.math.BigDecimal;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;

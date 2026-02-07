@@ -2,7 +2,7 @@ package com.jbh.products.application.core.validation.product_type;
 
 import com.jbh.products.application.core.services.movements.AccountMovementService;
 import com.jbh.commons.exception.GenericSpecificationException;
-import com.jbh.products.domain.vo.ProductType;
+import com.jbh.products.domain.product.vo.ProductType;
 import java.util.Map;
 
 @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.LawOfDemeter"})

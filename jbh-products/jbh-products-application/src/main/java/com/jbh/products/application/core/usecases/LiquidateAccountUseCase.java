@@ -2,7 +2,7 @@ package com.jbh.products.application.core.usecases;
 
 import com.jbh.products.application.core.dto.LiquidationResultDTO;
 import com.jbh.products.application.core.vo.commands.LiquidateAccountCommand;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductId;
 import com.jbh.commons.exception.BusinessException;
 import java.util.UUID;
 

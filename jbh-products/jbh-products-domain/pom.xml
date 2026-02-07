@@ -28,7 +28,7 @@
                 <rule>
                   <element>CLASS</element>
                   <excludes>
-                    <exclude>com.jbh.products.domain.vo.*</exclude>
+                    <exclude>com.jbh.products.domain.*.vo.*</exclude>
                     <exclude>com.jbh.products.domain.exceptions.*</exclude>
                     <exclude>com.jbh.products.domain.entity.*Builder*</exclude>
                   </excludes>
@@ -48,9 +48,9 @@
                 <rule>
                   <element>BUNDLE</element>
                   <excludes>
-                    <exclude>com.jbh.products.domain.vo.*</exclude>
-                    <exclude>com.jbh.products.domain.exceptions.*</exclude>
-                    <exclude>com.jbh.products.domain.entity.*Builder*</exclude>
+                    <exclude>com.jbh.products.domain.*.vo.*</exclude>
+                    <exclude>com.jbh.products.domain.*.exceptions.*</exclude>
+                    <exclude>com.jbh.products.domain.*.entity.*Builder*</exclude>
                   </excludes>
                   <limits>
                     <limit>

@@ -3,7 +3,7 @@ package com.jbh.products.application.core.services.movements;
 import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.application.movements.ports.output.AccountMovementQueryRepository;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductId;
 import java.util.List;
 
 public class AccountMovementServiceImpl implements AccountMovementService {

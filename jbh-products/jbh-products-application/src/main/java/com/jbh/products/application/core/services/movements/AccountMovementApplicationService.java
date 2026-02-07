@@ -5,8 +5,8 @@ import com.jbh.products.application.core.dto.AddBasicMovementDTO;
 import com.jbh.products.application.core.dto.MovementDTO;
 import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.products.application.core.vo.commands.AddMovementCommand;
-import com.jbh.products.domain.vo.AccountMovementMetadata;
-import com.jbh.products.domain.vo.ProductPK;
+import com.jbh.products.domain.movement.vo.AccountMovementMetadata;
+import com.jbh.products.domain.product.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 

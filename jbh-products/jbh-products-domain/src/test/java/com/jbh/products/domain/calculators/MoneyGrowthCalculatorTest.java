@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.products.domain.monthlybalance.service.MoneyGrowthCalculator;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 

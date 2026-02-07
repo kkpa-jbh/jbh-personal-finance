@@ -5,8 +5,8 @@ import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.services.account.ProductsService;
 import com.jbh.products.application.core.services.movements.AccountMovementApplicationService;
 import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
-import com.jbh.products.domain.vo.ProductId;
-import com.jbh.products.domain.vo.ProductPK;
+import com.jbh.products.domain.product.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductPK;
 import java.math.BigDecimal;
 
 public class ReportedProfitStrategy implements MonthlyBalanceProfitStrategy {

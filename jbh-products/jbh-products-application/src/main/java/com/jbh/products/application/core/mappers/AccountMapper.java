@@ -1,7 +1,7 @@
 package com.jbh.products.application.core.mappers;
 
 import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.domain.entity.ProductDomain;
+import com.jbh.products.domain.product.ProductDomain;
 
 public final class AccountMapper {
 

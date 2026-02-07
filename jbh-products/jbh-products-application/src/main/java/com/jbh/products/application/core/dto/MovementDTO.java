@@ -1,10 +1,10 @@
 package com.jbh.products.application.core.dto;
 
-import com.jbh.products.domain.vo.AccountMovementMetadata;
-import com.jbh.products.domain.vo.MovementCategoryVO;
-import com.jbh.products.domain.vo.MovementId;
-import com.jbh.products.domain.vo.MovementType;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.movement.vo.AccountMovementMetadata;
+import com.jbh.products.domain.movement.vo.MovementCategoryVO;
+import com.jbh.products.domain.movement.vo.MovementId;
+import com.jbh.products.domain.movement.vo.MovementType;
+import com.jbh.products.domain.product.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

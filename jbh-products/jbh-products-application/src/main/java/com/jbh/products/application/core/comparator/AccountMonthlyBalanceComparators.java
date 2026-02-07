@@ -1,6 +1,6 @@
 package com.jbh.products.application.core.comparator;
 
-import com.jbh.products.domain.entity.MonthlyBalanceDomain;
+import com.jbh.products.domain.monthlybalance.MonthlyBalanceDomain;
 import java.util.Comparator;
 import java.util.UUID;
 

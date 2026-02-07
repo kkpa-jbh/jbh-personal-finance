@@ -1,7 +1,5 @@
 package com.jbh.products.infra.adapters.in.rest.product;
 
-import com.jbh.products.infra.adapters.in.rest.common.BaseRestAdapter;
-
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
 import com.jbh.gateway.client.JbhGatewayException;
@@ -18,15 +16,16 @@ import com.jbh.products.application.core.vo.commands.EditProductCommand;
 import com.jbh.products.application.core.vo.commands.FindProductCommand;
 import com.jbh.products.application.core.vo.commands.UpdateMetadataProductCommand;
 import com.jbh.products.application.core.vo.commands.UpdateProductStatusCommand;
-import com.jbh.products.domain.vo.ProductId;
-import com.jbh.products.domain.vo.ProductMetadata;
-import com.jbh.products.domain.vo.ProductPK;
-import com.jbh.products.infra.adapters.in.rest.product.response.ProductResponse;
+import com.jbh.products.domain.product.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductMetadata;
+import com.jbh.products.domain.product.vo.ProductPK;
+import com.jbh.products.infra.adapters.in.rest.common.BaseRestAdapter;
+import com.jbh.products.infra.adapters.in.rest.common.FinanceApiRoutes;
 import com.jbh.products.infra.adapters.in.rest.product.request.CreateProductRequest;
 import com.jbh.products.infra.adapters.in.rest.product.request.EditProductRequest;
-import com.jbh.products.infra.adapters.in.rest.common.FinanceApiRoutes;
 import com.jbh.products.infra.adapters.in.rest.product.request.UpdateProductMetadataRequest;
 import com.jbh.products.infra.adapters.in.rest.product.request.UpdateProductStatusRequest;
+import com.jbh.products.infra.adapters.in.rest.product.response.ProductResponse;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -47,7 +46,11 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings({"PMD.UnnecessaryAnnotationValueElement", "PMD.AvoidDuplicateLiterals"})
+@SuppressWarnings({
+  "PMD.UnnecessaryAnnotationValueElement",
+  "PMD.AvoidDuplicateLiterals",
+  "PMD.CouplingBetweenObjects"
+})
 @RequestScoped
 @Path(FinanceApiRoutes.PRODUCTS_API_PATH)
 @Tag(name = "Product Operations", description = "Product management operations")

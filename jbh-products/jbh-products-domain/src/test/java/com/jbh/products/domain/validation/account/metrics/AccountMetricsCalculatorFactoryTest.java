@@ -4,17 +4,23 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.jbh.products.domain.vo.ProductType;
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.products.domain.product.service.metrics.CdtAccountMetricsCalculator;
+import com.jbh.products.domain.product.service.metrics.CreditCardAccountMetricsCalculator;
+import com.jbh.products.domain.product.service.metrics.InvestmentAccountMetricsCalculator;
+import com.jbh.products.domain.product.service.metrics.ProductMetricsCalculator;
+import com.jbh.products.domain.product.service.metrics.ProductMetricsCalculatorFactory;
+import com.jbh.products.domain.product.service.metrics.SavingsAccountMetricsCalculator;
+import com.jbh.products.domain.product.vo.ProductType;
 import org.junit.jupiter.api.Test;
 
-class AccountMetricsCalculatorFactoryTest {
+class ProductMetricsCalculatorFactoryTest {
 
   @Test
   void shouldGetSavingsAccountMetricsCalculator() throws BusinessException {
     // When
     final ProductMetricsCalculator calculator =
-        AccountMetricsCalculatorFactory.getCalculator(ProductType.SAVINGS);
+        ProductMetricsCalculatorFactory.getCalculator(ProductType.SAVINGS);
 
     // Then
     assertNotNull(calculator);
@@ -25,7 +31,7 @@ class AccountMetricsCalculatorFactoryTest {
   void shouldGetCreditCardAccountMetricsCalculator() throws BusinessException {
     // When
     final ProductMetricsCalculator calculator =
-        AccountMetricsCalculatorFactory.getCalculator(ProductType.CREDIT_CARD);
+        ProductMetricsCalculatorFactory.getCalculator(ProductType.CREDIT_CARD);
 
     // Then
     assertNotNull(calculator);
@@ -36,7 +42,7 @@ class AccountMetricsCalculatorFactoryTest {
   void shouldGetInvestmentAccountMetricsCalculator() throws BusinessException {
     // When
     final ProductMetricsCalculator calculator =
-        AccountMetricsCalculatorFactory.getCalculator(ProductType.INVESTMENT);
+        ProductMetricsCalculatorFactory.getCalculator(ProductType.INVESTMENT);
 
     // Then
     assertNotNull(calculator);
@@ -47,7 +53,7 @@ class AccountMetricsCalculatorFactoryTest {
   void shouldGetCdtAccountMetricsCalculator() throws BusinessException {
     // When
     final ProductMetricsCalculator calculator =
-        AccountMetricsCalculatorFactory.getCalculator(ProductType.CDT);
+        ProductMetricsCalculatorFactory.getCalculator(ProductType.CDT);
 
     // Then
     assertNotNull(calculator);
@@ -57,7 +63,7 @@ class AccountMetricsCalculatorFactoryTest {
   @Test
   void shouldThrowExceptionWhenTryingToInstantiateFactory() throws Exception {
     // Given
-    final var constructor = AccountMetricsCalculatorFactory.class.getDeclaredConstructor();
+    final var constructor = ProductMetricsCalculatorFactory.class.getDeclaredConstructor();
     constructor.setAccessible(true);
 
     // When/Then

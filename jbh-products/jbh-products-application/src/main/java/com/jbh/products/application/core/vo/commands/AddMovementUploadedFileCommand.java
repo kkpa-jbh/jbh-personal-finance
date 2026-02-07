@@ -1,6 +1,6 @@
 package com.jbh.products.application.core.vo.commands;
 
-import com.jbh.products.domain.vo.MovementType;
+import com.jbh.products.domain.movement.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 

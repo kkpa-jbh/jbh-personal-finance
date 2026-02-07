@@ -3,10 +3,10 @@ package com.jbh.products.application.core.dto;
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.products.application.core.mappers.AccountMapper;
-import com.jbh.products.domain.entity.ProductDomain;
-import com.jbh.products.domain.vo.ProductId;
-import com.jbh.products.domain.vo.ProductMetadata;
-import com.jbh.products.domain.vo.ProductType;
+import com.jbh.products.domain.product.ProductDomain;
+import com.jbh.products.domain.product.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductMetadata;
+import com.jbh.products.domain.product.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;

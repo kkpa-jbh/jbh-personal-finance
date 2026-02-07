@@ -3,7 +3,7 @@ package com.jbh.products.application.core.dto;
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.commons.util.JbhMoneyUtils;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.YearMonth;

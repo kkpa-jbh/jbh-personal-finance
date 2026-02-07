@@ -1,7 +1,7 @@
 package com.jbh.products.application.core.services.movements;
 
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
-import static com.jbh.products.domain.vo.MovementType.WITHDRAWAL;
+import static com.jbh.products.domain.movement.vo.MovementType.WITHDRAWAL;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.acid.UnitOfWork;
@@ -15,13 +15,13 @@ import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceS
 import com.jbh.products.application.core.validation.product_type.ProductMovementValidatorFactory;
 import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.products.application.core.vo.commands.AddMovementCommand;
-import com.jbh.products.domain.vo.AccountMovementMetadata;
-import com.jbh.products.domain.vo.ExpenseCategory;
-import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryVO;
-import com.jbh.products.domain.vo.MovementType;
-import com.jbh.products.domain.vo.ProductId;
-import com.jbh.products.domain.vo.ProductPK;
+import com.jbh.products.domain.movement.vo.AccountMovementMetadata;
+import com.jbh.products.domain.movement.vo.ExpenseCategory;
+import com.jbh.products.domain.movement.vo.IncomeCategory;
+import com.jbh.products.domain.movement.vo.MovementCategoryVO;
+import com.jbh.products.domain.movement.vo.MovementType;
+import com.jbh.products.domain.product.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;

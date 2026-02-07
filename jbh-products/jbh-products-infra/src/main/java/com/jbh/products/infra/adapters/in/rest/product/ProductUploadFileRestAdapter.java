@@ -1,20 +1,19 @@
 package com.jbh.products.infra.adapters.in.rest.product;
 
-import com.jbh.products.infra.adapters.in.rest.common.BaseRestAdapter;
-
-import static com.jbh.products.infra.adapters.in.rest.vo.FinanceApiRoutes.MOVEMENTS_INBULK_API;
 import static com.jbh.commons.util.JbhStringUtils.toLowerCase;
+import static com.jbh.products.infra.adapters.in.rest.common.FinanceApiRoutes.MOVEMENTS_INBULK_API;
 
-import com.jbh.products.application.core.usecases.AddMovementsUploadedFileUseCase;
-import com.jbh.products.application.core.vo.commands.AddMovementUploadedFileCommand;
-import com.jbh.products.domain.vo.ProductId;
-import com.jbh.products.infra.adapters.in.rest.product.request.AddMovementsUploadedFileRequest;
 import com.jbh.commons.api.ApiResponse;
-import com.jbh.products.infra.adapters.in.rest.common.FinanceApiRoutes;
-import com.jbh.products.infra.adapters.in.service.ExcelMovementReaderService;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
 import com.jbh.gateway.client.JbhGatewayException;
+import com.jbh.products.application.core.usecases.AddMovementsUploadedFileUseCase;
+import com.jbh.products.application.core.vo.commands.AddMovementUploadedFileCommand;
+import com.jbh.products.domain.product.vo.ProductId;
+import com.jbh.products.infra.adapters.in.rest.common.BaseRestAdapter;
+import com.jbh.products.infra.adapters.in.rest.common.FinanceApiRoutes;
+import com.jbh.products.infra.adapters.in.rest.product.request.AddMovementsUploadedFileRequest;
+import com.jbh.products.infra.adapters.in.service.ExcelMovementReaderService;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.FormParam;

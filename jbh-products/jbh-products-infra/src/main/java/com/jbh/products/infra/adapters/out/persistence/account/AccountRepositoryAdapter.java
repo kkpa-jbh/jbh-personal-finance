@@ -2,7 +2,7 @@ package com.jbh.products.infra.adapters.out.persistence.account;
 
 import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.ports.output.ProductRepository;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductId;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;

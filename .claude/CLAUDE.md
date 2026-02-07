@@ -81,11 +81,84 @@ All Use Case **interfaces** (in `*.application.core.usecases` package) MUST be d
 #### Module Responsibilities:
 
 **Application Module (`jbh-xxx-application`):**
-- **DTOs**: Internal data transfer objects for business logic
-  - Package: `*.application.core.dto`
-  - Used between services, use cases, and repositories
-  - Never exposed directly in API responses
-  - Examples: `ProductDTO`, `MonthlyBalanceDTO`
+
+All application modules MUST follow this **feature-based structure**:
+
+```
+com.jbh.xxx.application/
+├── acid/                      # ACID transaction management (UnitOfWork)
+├── async/                     # Async task execution framework
+├── common/                    # Common utilities (logging, factories)
+├── feature/                   # Business features parent package
+│   ├── <feature-name>/        # Feature bounded context (e.g., product, movement)
+│   │   ├── dto/               # Internal DTOs for this feature
+│   │   ├── ports/
+│   │   │   ├── input/         # Input ports (use case interfaces)
+│   │   │   └── output/        # Output ports (repository interfaces)
+│   │   ├── usecases/          # Use case implementations
+│   │   ├── services/          # Domain services for this feature
+│   │   ├── mappers/           # Mappers (Domain ↔ DTO)
+│   │   ├── validation/        # Feature-specific validators
+│   │   └── commands/          # Command objects for this feature
+│   └── ...                    # Other features
+└── shared/                    # Shared business concerns
+    ├── exceptions/            # Application-level exceptions
+    └── validation/            # Shared validators
+```
+
+**Package Organization Rules:**
+
+1. **Cross-Cutting Infrastructure** (acid/, async/, common/):
+   - Technical services used across all features
+   - Examples: UnitOfWork, AsyncTaskExecutor, LoggingContext
+   - NEVER put business logic here
+
+2. **Feature Packages** (feature/<feature-name>/):
+   - Each feature is a vertical slice (bounded context)
+   - Contains ALL business logic for that feature
+   - Self-contained with clear boundaries
+   - Microservices-ready (can be extracted easily)
+   - Examples: `feature/product/`, `feature/movement/`, `feature/reporting/`
+
+3. **Shared Business** (shared/):
+   - Business-level code used by multiple features
+   - Examples: BusinessException, CommandValidator
+   - NOT for infrastructure concerns
+
+**Feature Package Internal Structure:**
+```
+feature/<feature-name>/
+├── dto/              # Data Transfer Objects for this feature only
+├── ports/
+│   ├── input/        # Use case interfaces (input ports)
+│   └── output/       # Repository interfaces (output ports)
+├── usecases/         # Use case implementations
+├── services/         # Domain services specific to this feature
+├── mappers/          # Domain ↔ DTO mappers for this feature
+├── validation/       # Feature-specific validators
+└── commands/         # Command objects for this feature
+```
+
+**Naming Conventions:**
+- Feature packages: lowercase, singular (e.g., `product`, `movement`, `user`)
+- Use case interfaces: `*InputPort` (e.g., `CreateProductInputPort`)
+- Use case implementations: `*UseCase` (e.g., `CreateProductUseCase`)
+- DTOs: `*DTO` (e.g., `ProductDTO`)
+- Commands: `*Command` (e.g., `CreateProductCommand`)
+- Mappers: `<Entity>Mapper` (e.g., `ProductMapper`)
+
+**Module Exports (module-info.java):**
+```java
+// Export feature public APIs
+exports com.jbh.xxx.application.feature.<feature>.dto;
+exports com.jbh.xxx.application.feature.<feature>.ports.input;
+exports com.jbh.xxx.application.feature.<feature>.usecases;
+
+// Export shared public APIs
+exports com.jbh.xxx.application.shared.exceptions;
+
+// Do NOT export: services, validation, commands, mappers, ports.output
+```
 
 **Infrastructure Module (`jbh-xxx-infra`):**
 
@@ -161,7 +234,7 @@ com.jbh.products.infra.adapters.in.rest/
 // In infra module - Response object
 package com.jbh.products.infra.adapters.in.rest.product.response;
 
-import com.jbh.products.application.core.dto.ProductDTO;
+import com.jbh.products.application.feature.product.dto.ProductDTO;
 
 public record ProductResponse(...) {
   public static ProductResponse fromDTO(final ProductDTO dto) {
@@ -174,12 +247,13 @@ package com.jbh.products.infra.adapters.in.rest.product;
 
 import com.jbh.products.infra.adapters.in.rest.product.response.ProductResponse;
 import com.jbh.products.infra.adapters.in.rest.product.request.CreateProductRequest;
+import com.jbh.products.application.feature.product.ports.input.CreateProductInputPort;
 
 @Path("/products")
 public class ProductRestAdapter {
   @GET
   public ProductResponse getProduct() {
-    ProductDTO dto = service.getProduct(); // DTO from application layer
+    ProductDTO dto = service.getProduct(); // DTO from application feature layer
     return ProductResponse.fromDTO(dto);   // Convert to Response for API
   }
 }

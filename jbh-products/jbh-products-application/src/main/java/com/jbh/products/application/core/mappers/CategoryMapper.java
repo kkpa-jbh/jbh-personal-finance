@@ -1,7 +1,7 @@
 package com.jbh.products.application.core.mappers;
 
-import com.jbh.products.domain.entity.MovementCategoryDomain;
-import com.jbh.products.domain.vo.MovementCategoryVO;
+import com.jbh.products.domain.movement.MovementCategoryDomain;
+import com.jbh.products.domain.movement.vo.MovementCategoryVO;
 
 public final class CategoryMapper {
 

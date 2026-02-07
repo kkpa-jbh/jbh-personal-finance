@@ -1,12 +1,12 @@
 package com.jbh.products.domain.entity;
 
-import static com.jbh.products.domain.entity.MovementCategoryDomain.OTHER_INCOME_CATEGORY;
-import static com.jbh.products.domain.entity.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
-import static com.jbh.products.domain.vo.MovementType.BALANCE_SNAPSHOT;
-import static com.jbh.products.domain.vo.MovementType.DEPOSIT;
-import static com.jbh.products.domain.vo.MovementType.WITHDRAWAL;
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
+import static com.jbh.products.domain.movement.MovementCategoryDomain.OTHER_INCOME_CATEGORY;
+import static com.jbh.products.domain.movement.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
+import static com.jbh.products.domain.movement.vo.MovementType.BALANCE_SNAPSHOT;
+import static com.jbh.products.domain.movement.vo.MovementType.DEPOSIT;
+import static com.jbh.products.domain.movement.vo.MovementType.WITHDRAWAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -14,8 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jbh.products.domain.vo.ProductId;
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.products.domain.monthlybalance.MonthlyBalanceDomain;
+import com.jbh.products.domain.product.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;

@@ -39,11 +39,11 @@ import com.jbh.products.application.core.services.movements.AccountMovementServi
 import com.jbh.products.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.products.application.core.vo.commands.AddMovementCommand;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.products.domain.entity.ProductDomain;
-import com.jbh.products.domain.vo.ExpenseCategory;
-import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryVO;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.product.ProductDomain;
+import com.jbh.products.domain.movement.vo.ExpenseCategory;
+import com.jbh.products.domain.movement.vo.IncomeCategory;
+import com.jbh.products.domain.movement.vo.MovementCategoryVO;
+import com.jbh.products.domain.product.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;

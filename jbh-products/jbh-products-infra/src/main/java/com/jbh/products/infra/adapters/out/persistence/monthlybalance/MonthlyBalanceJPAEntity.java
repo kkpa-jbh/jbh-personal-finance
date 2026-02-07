@@ -1,7 +1,7 @@
 package com.jbh.products.infra.adapters.out.persistence.monthlybalance;
 
 import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductId;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;

@@ -9,11 +9,11 @@ import com.jbh.products.application.core.services.movements.AccountMovementAppli
 import com.jbh.products.application.core.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.products.application.core.vo.commands.AddMovementCommand;
 import com.jbh.products.application.core.vo.commands.AddTransferCommand;
-import com.jbh.products.domain.exceptions.BusinessDomainExceptionType;
-import com.jbh.products.domain.vo.ExpenseCategory;
-import com.jbh.products.domain.vo.IncomeCategory;
-import com.jbh.products.domain.vo.MovementCategoryVO;
-import com.jbh.products.domain.vo.ProductPK;
+import com.jbh.products.domain.shared.exceptions.BusinessDomainExceptionType;
+import com.jbh.products.domain.movement.vo.ExpenseCategory;
+import com.jbh.products.domain.movement.vo.IncomeCategory;
+import com.jbh.products.domain.movement.vo.MovementCategoryVO;
+import com.jbh.products.domain.product.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.slf4j.Logger;

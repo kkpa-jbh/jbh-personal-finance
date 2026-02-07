@@ -32,7 +32,7 @@ import com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils;
 import com.jbh.products.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
 import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.products.domain.vo.ProductId;
+import com.jbh.products.domain.product.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
