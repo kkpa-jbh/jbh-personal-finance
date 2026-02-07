@@ -1,9 +1,9 @@
 package com.jbh.products.application.builders;
 
-import com.jbh.products.application.core.vo.commands.AddMovementCommand;
-import com.jbh.products.application.core.vo.commands.CreateProductCommand;
-import com.jbh.products.application.core.vo.commands.ExternalAccountInfoVO;
-import com.jbh.products.application.core.vo.commands.LiquidateAccountCommand;
+import com.jbh.products.application.feature.movement.commands.AddMovementCommand;
+import com.jbh.products.application.feature.movement.commands.ExternalAccountInfoVO;
+import com.jbh.products.application.feature.movement.commands.LiquidateAccountCommand;
+import com.jbh.products.application.feature.product.commands.CreateProductCommand;
 import com.jbh.products.domain.movement.vo.ExpenseCategory;
 import com.jbh.products.domain.movement.vo.IncomeCategory;
 import com.jbh.products.domain.movement.vo.MovementCategoryVO;

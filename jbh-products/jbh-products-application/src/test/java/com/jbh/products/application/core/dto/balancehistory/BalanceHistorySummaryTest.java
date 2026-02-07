@@ -4,6 +4,7 @@ import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.jbh.products.application.feature.monthlybalance.dto.balancehistory.BalanceHistorySummaryResponse;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 

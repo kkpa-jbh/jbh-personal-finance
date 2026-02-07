@@ -1,6 +1,6 @@
 package com.jbh.products.infra.adapters.in.rest.product.request;
 
-import com.jbh.products.application.core.vo.commands.AddMovementUploadedFileCommand;
+import com.jbh.products.application.feature.movement.commands.AddMovementUploadedFileCommand;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 

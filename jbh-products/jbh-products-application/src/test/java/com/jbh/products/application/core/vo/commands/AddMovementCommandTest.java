@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.jbh.products.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.products.domain.movement.vo.ExpenseCategory;
 import com.jbh.products.domain.movement.vo.IncomeCategory;
 import com.jbh.products.domain.movement.vo.MovementCategoryVO;

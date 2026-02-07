@@ -1,15 +1,14 @@
 package com.jbh.products.application.core.ports.output.movement;
 
-import com.jbh.products.application.core.dto.MovementDTO;
-import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
+import com.jbh.products.application.feature.movement.dto.MovementDTO;
+import com.jbh.products.application.feature.movement.ports.output.AccountMovementWriterRepository;
 import java.util.List;
 
 public class InMemoryAccountMovementRepository implements AccountMovementWriterRepository {
 
   private final InMemoryAccountMovementQueryRepository queryRepo;
 
-  public InMemoryAccountMovementRepository(
-      final InMemoryAccountMovementQueryRepository queryRepo) {
+  public InMemoryAccountMovementRepository(final InMemoryAccountMovementQueryRepository queryRepo) {
     this.queryRepo = queryRepo;
   }
 

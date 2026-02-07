@@ -3,7 +3,7 @@
 - A category to classify an income as CDT INCOME
 - The default category is UNKNOWN.
 
-# ACCOUNTS
+# PRODUCTS
 
 ## 1. CREDIT CARD
 

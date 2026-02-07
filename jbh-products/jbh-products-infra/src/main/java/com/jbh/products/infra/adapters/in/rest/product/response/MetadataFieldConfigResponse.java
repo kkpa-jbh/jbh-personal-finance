@@ -1,6 +1,6 @@
 package com.jbh.products.infra.adapters.in.rest.product.response;
 
-import com.jbh.products.application.core.dto.MetadataFieldConfigDTO;
+import com.jbh.products.application.feature.product.dto.MetadataFieldConfigDTO;
 
 public record MetadataFieldConfigResponse(
     String key,

@@ -1,11 +1,11 @@
 package com.jbh.products.application.builders;
 
-import static com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
+import static com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 
-import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
-import com.jbh.products.application.core.vo.commands.AddMovementUploadedFileCommand;
-import com.jbh.products.application.core.vo.commands.MonthlyBalanceCommandVO;
+import com.jbh.products.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
+import com.jbh.products.application.feature.monthlybalance.commands.MonthlyBalanceCommandVO;
+import com.jbh.products.application.feature.movement.commands.AddMovementUploadedFileCommand;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;

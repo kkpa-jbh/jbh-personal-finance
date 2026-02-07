@@ -2,9 +2,9 @@ package com.jbh.products.infra.adapters.out.persistence;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.products.application.core.dto.MovementDTO;
-import com.jbh.products.application.core.dto.ProductDTO;
+import com.jbh.products.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
+import com.jbh.products.application.feature.movement.dto.MovementDTO;
+import com.jbh.products.application.feature.product.dto.ProductDTO;
 import com.jbh.products.infra.adapters.out.persistence.account.ProductJPAEntity;
 import com.jbh.products.infra.adapters.out.persistence.monthlybalance.MonthlyBalanceJPAEntity;
 import com.jbh.products.infra.adapters.out.persistence.movement.MovementJPAEntity;

@@ -1,4 +1,4 @@
-import com.jbh.products.application.core.ports.input.AddMovementInputPort;
+import com.jbh.products.application.feature.movement.ports.input.AddMovementInputPort;
 
 /**
  * Keep organize it by package.

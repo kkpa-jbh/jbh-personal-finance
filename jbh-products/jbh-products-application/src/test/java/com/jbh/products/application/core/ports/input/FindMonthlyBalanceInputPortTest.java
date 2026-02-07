@@ -9,11 +9,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.jbh.commons.exception.BusinessException;
-import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.application.core.dto.balancehistory.BalanceHistoryResponse;
-import com.jbh.products.application.core.services.account.ProductsService;
-import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceService;
+import com.jbh.products.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
+import com.jbh.products.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryResponse;
+import com.jbh.products.application.feature.monthlybalance.ports.input.FindMonthlyBalanceInputPort;
+import com.jbh.products.application.feature.monthlybalance.services.MonthlyBalanceService;
+import com.jbh.products.application.feature.product.dto.ProductDTO;
+import com.jbh.products.application.feature.product.services.ProductsService;
 import com.jbh.products.domain.product.vo.ProductId;
 import com.jbh.products.domain.product.vo.ProductPK;
 import com.jbh.products.domain.product.vo.ProductType;

@@ -13,15 +13,14 @@ import com.jbh.products.application.builders.AccountEntityBuilder;
 import com.jbh.products.application.builders.CommandTestBuilder;
 import com.jbh.products.application.builders.EntityTestBuilder;
 import com.jbh.products.application.builders.UseCaseBuilder;
-import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.application.core.mappers.AccountMapper;
 import com.jbh.products.application.core.ports.output.account.InMemoryAccountRepository;
-import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceService;
-import com.jbh.products.application.core.usecases.AddMovementUseCase;
-import com.jbh.products.application.core.usecases.CreateProductUseCase;
-import com.jbh.products.application.core.usecases.integration.monthlybalance.RegisterMonthlyReportedWithoutProfitITTest;
-import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
+import com.jbh.products.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
+import com.jbh.products.application.feature.monthlybalance.services.MonthlyBalanceService;
+import com.jbh.products.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.products.application.feature.movement.usecases.AddMovementUseCase;
+import com.jbh.products.application.feature.product.dto.ProductDTO;
+import com.jbh.products.application.feature.product.mappers.ProductMapper;
+import com.jbh.products.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.products.domain.product.vo.ProductMetadata;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -43,8 +42,7 @@ public class RegisterTCMovementITTest {
 
   public static final BigDecimal CREDIT_LIMIT = new BigDecimal("1000.00");
   static final UUID userId = UUID.randomUUID();
-  private static final Logger LOG =
-      LoggerFactory.getLogger(RegisterMonthlyReportedWithoutProfitITTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RegisterTCMovementITTest.class);
   private static final InMemoryAccountRepository inMemoryAccountRepo =
       UseCaseBuilder.getAccountRepository();
   private static final String name = "CREDIT CARD";
@@ -102,7 +100,7 @@ public class RegisterTCMovementITTest {
             creditCardAccount.name(),
             creditCardAccount.type());
 
-    final ProductDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
+    final ProductDTO expectedAccount = ProductMapper.toDTO(expectedAccountBuilder.build());
 
     assertAccount(expectedAccount, updatedAccount);
   }
@@ -128,7 +126,7 @@ public class RegisterTCMovementITTest {
             creditCardAccount.name(),
             creditCardAccount.type());
 
-    final ProductDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
+    final ProductDTO expectedAccount = ProductMapper.toDTO(expectedAccountBuilder.build());
 
     assertAccount(expectedAccount, updatedAccount);
   }
@@ -154,7 +152,7 @@ public class RegisterTCMovementITTest {
             creditCardAccount.name(),
             creditCardAccount.type());
 
-    final ProductDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
+    final ProductDTO expectedAccount = ProductMapper.toDTO(expectedAccountBuilder.build());
 
     assertAccount(expectedAccount, updatedAccount);
 
@@ -201,7 +199,7 @@ public class RegisterTCMovementITTest {
             creditCardAccount.name(),
             creditCardAccount.type());
 
-    final ProductDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
+    final ProductDTO expectedAccount = ProductMapper.toDTO(expectedAccountBuilder.build());
 
     assertAccount(expectedAccount, updatedAccount);
 
@@ -260,7 +258,7 @@ public class RegisterTCMovementITTest {
             creditCardAccount.name(),
             creditCardAccount.type());
 
-    final ProductDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
+    final ProductDTO expectedAccount = ProductMapper.toDTO(expectedAccountBuilder.build());
 
     assertAccount(expectedAccount, updatedAccount);
 

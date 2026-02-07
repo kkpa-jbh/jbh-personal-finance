@@ -6,7 +6,6 @@
 - [X] Add TC movements and deposits until closing one
 - [] CDT cash flows until closing one [Move To Account, Renegotiate, Pay to Third party]
 - [] Adjust API responses to return ApiResponse wrapper
-- [] API to fetch the monthly balances for a given account and period
 - [] API to fetch the movements for a given account and period categorized by income or expense
 
 # TESTS TO DO

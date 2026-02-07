@@ -6,8 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.products.application.core.dto.ProductDTO;
+import com.jbh.products.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
+import com.jbh.products.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryEntryResponse;
+import com.jbh.products.application.feature.product.dto.ProductDTO;
 import com.jbh.products.domain.product.vo.ProductId;
 import com.jbh.products.domain.product.vo.ProductType;
 import java.math.BigDecimal;

@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.application.core.ports.input.FindActiveProductsInputPort;
-import com.jbh.products.application.core.services.account.ProductsService;
-import com.jbh.products.application.core.usecases.FindProductsUseCase;
+import com.jbh.products.application.feature.product.dto.ProductDTO;
+import com.jbh.products.application.feature.product.ports.input.FindActiveProductsInputPort;
+import com.jbh.products.application.feature.product.services.ProductsService;
+import com.jbh.products.application.feature.product.usecases.FindProductsUseCase;
 import com.jbh.products.domain.product.vo.ProductId;
 import com.jbh.products.domain.product.vo.ProductType;
 import java.util.Collections;

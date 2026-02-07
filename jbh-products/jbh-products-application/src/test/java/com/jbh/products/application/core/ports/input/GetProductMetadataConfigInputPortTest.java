@@ -4,8 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.jbh.products.application.core.dto.MetadataFieldConfigDTO;
-import com.jbh.products.application.core.services.metadata.ProductMetadataConfigRegistry;
+import com.jbh.products.application.feature.product.dto.MetadataFieldConfigDTO;
+import com.jbh.products.application.feature.product.ports.input.GetProductMetadataConfigInputPort;
+import com.jbh.products.application.feature.product.services.metadata.ProductMetadataConfigRegistry;
 import com.jbh.products.domain.product.vo.ProductType;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,13 +18,13 @@ class GetProductMetadataConfigInputPortTest {
 
   @BeforeEach
   void setUp() {
-    ProductMetadataConfigRegistry registry = new ProductMetadataConfigRegistry();
+    final ProductMetadataConfigRegistry registry = new ProductMetadataConfigRegistry();
     inputPort = new GetProductMetadataConfigInputPort(registry);
   }
 
   @Test
   void shouldReturnConfigurationForValidProductType() {
-    List<MetadataFieldConfigDTO> result = inputPort.execute(ProductType.LOAN);
+    final List<MetadataFieldConfigDTO> result = inputPort.execute(ProductType.LOAN);
 
     assertNotNull(result);
     assertFalse(result.isEmpty());
@@ -36,8 +37,8 @@ class GetProductMetadataConfigInputPortTest {
 
   @Test
   void shouldReturnConfigurationForAllProductTypes() {
-    for (ProductType productType : ProductType.values()) {
-      List<MetadataFieldConfigDTO> result = inputPort.execute(productType);
+    for (final ProductType productType : ProductType.values()) {
+      final List<MetadataFieldConfigDTO> result = inputPort.execute(productType);
       assertNotNull(result);
     }
   }

@@ -12,15 +12,15 @@ import static org.mockito.Mockito.when;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
-import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.application.core.exceptions.BusinessApplicationExceptionType;
-import com.jbh.products.application.core.mappers.AccountMapper;
-import com.jbh.products.application.core.ports.input.UpdateProductStatusInputPort;
-import com.jbh.products.application.core.ports.output.ProductRepository;
-import com.jbh.products.application.core.services.account.ProductServiceImpl;
-import com.jbh.products.application.core.services.account.ProductsService;
-import com.jbh.products.application.core.usecases.UpdateProductStatusUseCase;
-import com.jbh.products.application.core.vo.commands.UpdateProductStatusCommand;
+import com.jbh.products.application.feature.product.commands.UpdateProductStatusCommand;
+import com.jbh.products.application.feature.product.dto.ProductDTO;
+import com.jbh.products.application.feature.product.mappers.ProductMapper;
+import com.jbh.products.application.feature.product.ports.input.UpdateProductStatusInputPort;
+import com.jbh.products.application.feature.product.ports.output.ProductRepository;
+import com.jbh.products.application.feature.product.services.ProductServiceImpl;
+import com.jbh.products.application.feature.product.services.ProductsService;
+import com.jbh.products.application.feature.product.usecases.UpdateProductStatusUseCase;
+import com.jbh.products.application.shared.exceptions.BusinessApplicationExceptionType;
 import com.jbh.products.domain.product.ProductDomain;
 import com.jbh.products.domain.product.vo.ProductId;
 import com.jbh.products.domain.product.vo.ProductMetadata;
@@ -54,7 +54,7 @@ class UpdateProductStatusMockTest {
   @Test
   void shouldDeactivateActiveProduct() throws BusinessException {
     final ProductDomain productDomain = createActiveProduct();
-    final ProductDTO productDTO = AccountMapper.toDTO(productDomain);
+    final ProductDTO productDTO = ProductMapper.toDTO(productDomain);
 
     when(accountRepository.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
         .thenReturn(Optional.of(productDTO));
@@ -73,10 +73,26 @@ class UpdateProductStatusMockTest {
     assertFalse(result.isActive());
   }
 
+  private ProductDomain createActiveProduct() {
+    return new ProductDomain(
+        TEST_PRODUCT_ID,
+        PRODUCT_NAME,
+        ProductType.SAVINGS,
+        TEST_USER_ID,
+        JBH_ZERO,
+        JBH_ZERO,
+        JBH_ZERO,
+        true,
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        JBH_ZERO,
+        ProductMetadata.empty());
+  }
+
   @Test
   void shouldActivateInactiveProduct() throws BusinessException {
     final ProductDomain productDomain = createInactiveProduct();
-    final ProductDTO productDTO = AccountMapper.toDTO(productDomain);
+    final ProductDTO productDTO = ProductMapper.toDTO(productDomain);
 
     when(accountRepository.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
         .thenReturn(Optional.of(productDTO));
@@ -95,10 +111,26 @@ class UpdateProductStatusMockTest {
     assertTrue(result.isActive());
   }
 
+  private ProductDomain createInactiveProduct() {
+    return new ProductDomain(
+        TEST_PRODUCT_ID,
+        PRODUCT_NAME,
+        ProductType.SAVINGS,
+        TEST_USER_ID,
+        JBH_ZERO,
+        JBH_ZERO,
+        JBH_ZERO,
+        false,
+        LocalDateTime.now(),
+        LocalDateTime.now(),
+        JBH_ZERO,
+        ProductMetadata.empty());
+  }
+
   @Test
   void shouldNotSaveWhenStatusAlreadyMatches() throws BusinessException {
     final ProductDomain productDomain = createActiveProduct();
-    final ProductDTO productDTO = AccountMapper.toDTO(productDomain);
+    final ProductDTO productDTO = ProductMapper.toDTO(productDomain);
 
     when(accountRepository.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
         .thenReturn(Optional.of(productDTO));
@@ -145,37 +177,5 @@ class UpdateProductStatusMockTest {
   @Test
   void shouldThrowWhenCommandIsNull() {
     assertThrows(GenericSpecificationException.class, () -> useCase.execute(null));
-  }
-
-  private ProductDomain createActiveProduct() {
-    return new ProductDomain(
-        TEST_PRODUCT_ID,
-        PRODUCT_NAME,
-        ProductType.SAVINGS,
-        TEST_USER_ID,
-        JBH_ZERO,
-        JBH_ZERO,
-        JBH_ZERO,
-        true,
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-        JBH_ZERO,
-        ProductMetadata.empty());
-  }
-
-  private ProductDomain createInactiveProduct() {
-    return new ProductDomain(
-        TEST_PRODUCT_ID,
-        PRODUCT_NAME,
-        ProductType.SAVINGS,
-        TEST_USER_ID,
-        JBH_ZERO,
-        JBH_ZERO,
-        JBH_ZERO,
-        false,
-        LocalDateTime.now(),
-        LocalDateTime.now(),
-        JBH_ZERO,
-        ProductMetadata.empty());
   }
 }

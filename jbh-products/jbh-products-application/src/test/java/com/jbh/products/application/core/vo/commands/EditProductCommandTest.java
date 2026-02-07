@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.jbh.commons.exception.GenericSpecificationException;
+import com.jbh.products.application.feature.product.commands.EditProductCommand;
 import com.jbh.products.domain.product.vo.ProductId;
 import com.jbh.products.domain.product.vo.ProductMetadata;
 import com.jbh.products.domain.product.vo.ProductMetadataKey;
@@ -63,7 +64,8 @@ public class EditProductCommandTest {
         assertThrows(
             GenericSpecificationException.class,
             () -> new EditProductCommand(VALID_USER_ID, VALID_PRODUCT_ID, null, null));
-    assertEquals("At least one of name or metadata must be provided for edit", exception.getMessage());
+    assertEquals(
+        "At least one of name or metadata must be provided for edit", exception.getMessage());
   }
 
   @Test
@@ -72,7 +74,8 @@ public class EditProductCommandTest {
         assertThrows(
             GenericSpecificationException.class,
             () -> new EditProductCommand(VALID_USER_ID, VALID_PRODUCT_ID, "   ", null));
-    assertEquals("At least one of name or metadata must be provided for edit", exception.getMessage());
+    assertEquals(
+        "At least one of name or metadata must be provided for edit", exception.getMessage());
   }
 
   @Test
@@ -81,7 +84,8 @@ public class EditProductCommandTest {
         assertThrows(
             GenericSpecificationException.class,
             () -> new EditProductCommand(VALID_USER_ID, VALID_PRODUCT_ID, "", null));
-    assertEquals("At least one of name or metadata must be provided for edit", exception.getMessage());
+    assertEquals(
+        "At least one of name or metadata must be provided for edit", exception.getMessage());
   }
 
   @Test
@@ -89,8 +93,11 @@ public class EditProductCommandTest {
     final GenericSpecificationException exception =
         assertThrows(
             GenericSpecificationException.class,
-            () -> new EditProductCommand(VALID_USER_ID, VALID_PRODUCT_ID, null, ProductMetadata.empty()));
-    assertEquals("At least one of name or metadata must be provided for edit", exception.getMessage());
+            () ->
+                new EditProductCommand(
+                    VALID_USER_ID, VALID_PRODUCT_ID, null, ProductMetadata.empty()));
+    assertEquals(
+        "At least one of name or metadata must be provided for edit", exception.getMessage());
   }
 
   @Test

@@ -4,16 +4,16 @@ import static com.jbh.products.application.builders.CommandTestBuilder.createDep
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.builders.CommandTestBuilder;
 import com.jbh.products.application.builders.UseCaseBuilder;
-import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.ports.output.account.InMemoryAccountRepository;
-import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceService;
-import com.jbh.products.application.core.usecases.AddMovementUseCase;
-import com.jbh.products.application.core.usecases.CreateProductUseCase;
-import com.jbh.products.application.core.usecases.LiquidateAccountUseCase;
-import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.commons.exception.BusinessException;
+import com.jbh.products.application.feature.monthlybalance.services.MonthlyBalanceService;
+import com.jbh.products.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.products.application.feature.movement.usecases.AddMovementUseCase;
+import com.jbh.products.application.feature.movement.usecases.LiquidateAccountUseCase;
+import com.jbh.products.application.feature.product.dto.ProductDTO;
+import com.jbh.products.application.feature.product.usecases.CreateProductUseCase;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.UUID;

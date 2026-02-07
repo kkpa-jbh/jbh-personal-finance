@@ -17,26 +17,26 @@ import static org.mockito.Mockito.when;
 import com.jbh.products.application.acid.UnitOfWork;
 import com.jbh.products.application.async.AsyncTaskExecutorImpl;
 import com.jbh.products.application.builders.AccountEntityBuilder;
-import com.jbh.products.application.core.dto.AddBasicMovementDTO;
-import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.products.application.core.dto.MovementDTO;
-import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.application.core.mappers.AccountMapper;
-import com.jbh.products.application.core.ports.input.AddMovementInputPort;
-import com.jbh.products.application.core.ports.output.ProductRepository;
-import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
-import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
-import com.jbh.products.application.core.services.MonthlyBalanceSyncForUploadedMovements;
-import com.jbh.products.application.core.services.account.ProductServiceImpl;
-import com.jbh.products.application.core.services.account.ProductsService;
-import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
-import com.jbh.products.application.core.services.movements.AccountMovementApplicationService;
-import com.jbh.products.application.core.services.movements.AccountMovementApplicationServiceImpl;
-import com.jbh.products.application.core.services.movements.AccountMovementService;
-import com.jbh.products.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.products.application.core.usecases.utils.UnitOfWorkTest;
-import com.jbh.products.application.core.vo.commands.AddMovementCommand;
-import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
+import com.jbh.products.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
+import com.jbh.products.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
+import com.jbh.products.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
+import com.jbh.products.application.feature.monthlybalance.services.MonthlyBalanceServiceImpl;
+import com.jbh.products.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
+import com.jbh.products.application.feature.movement.commands.AddMovementCommand;
+import com.jbh.products.application.feature.movement.dto.AddBasicMovementDTO;
+import com.jbh.products.application.feature.movement.dto.MovementDTO;
+import com.jbh.products.application.feature.movement.ports.input.AddMovementInputPort;
+import com.jbh.products.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.products.application.feature.movement.services.AccountMovementApplicationService;
+import com.jbh.products.application.feature.movement.services.AccountMovementApplicationServiceImpl;
+import com.jbh.products.application.feature.movement.services.AccountMovementService;
+import com.jbh.products.application.feature.movement.services.AccountMovementServiceImpl;
+import com.jbh.products.application.feature.product.dto.ProductDTO;
+import com.jbh.products.application.feature.product.mappers.ProductMapper;
+import com.jbh.products.application.feature.product.ports.output.ProductRepository;
+import com.jbh.products.application.feature.product.services.ProductServiceImpl;
+import com.jbh.products.application.feature.product.services.ProductsService;
 import com.jbh.products.domain.movement.vo.IncomeCategory;
 import com.jbh.products.domain.movement.vo.MovementCategoryVO;
 import com.jbh.products.domain.product.ProductDomain;
@@ -111,7 +111,7 @@ public class RegisterMovementExecutionMockTest {
         createMovementWithType(movementDate, amount, DEPOSIT, OTHER_INCOME_CATEGORY);
     final ProductDomain accountDomain = withId(accountId);
 
-    final var dto = Optional.of(AccountMapper.toDTO(accountDomain));
+    final var dto = Optional.of(ProductMapper.toDTO(accountDomain));
     when(accountRepository.findByUserAndProductId(userId, accountId)).thenReturn(dto);
 
     when(accountRepository.findByProductId(accountId)).thenReturn(dto);
@@ -171,9 +171,9 @@ public class RegisterMovementExecutionMockTest {
             accountId, userId, existingAccountPpalBalance, new BigDecimal("190.00"));
 
     when(accountRepository.findByUserAndProductId(userId, accountId))
-        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+        .thenReturn(Optional.of(ProductMapper.toDTO(accountDomain)));
     when(accountRepository.findByProductId(accountId))
-        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+        .thenReturn(Optional.of(ProductMapper.toDTO(accountDomain)));
 
     // When & Then
     final AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
@@ -213,9 +213,9 @@ public class RegisterMovementExecutionMockTest {
             accountId, userId, existingMovBalance, new BigDecimal("12689712.00"));
 
     when(accountRepository.findByUserAndProductId(userId, accountId))
-        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+        .thenReturn(Optional.of(ProductMapper.toDTO(accountDomain)));
     when(accountRepository.findByProductId(accountId))
-        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+        .thenReturn(Optional.of(ProductMapper.toDTO(accountDomain)));
 
     // When & Then
     final AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
@@ -254,9 +254,9 @@ public class RegisterMovementExecutionMockTest {
     final ProductDomain accountDomain = withId(accountId);
 
     when(accountRepository.findByUserAndProductId(userId, accountId))
-        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+        .thenReturn(Optional.of(ProductMapper.toDTO(accountDomain)));
     when(accountRepository.findByProductId(accountId))
-        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+        .thenReturn(Optional.of(ProductMapper.toDTO(accountDomain)));
 
     final int existingEntries = 10;
     final BigDecimal existingTotalDebits = new BigDecimal("1000.00");

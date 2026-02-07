@@ -2,7 +2,7 @@ package com.jbh.products.application.core.usecases.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.jbh.products.application.core.dto.ProductDTO;
+import com.jbh.products.application.feature.product.dto.ProductDTO;
 
 public class AccountITUtils {
 

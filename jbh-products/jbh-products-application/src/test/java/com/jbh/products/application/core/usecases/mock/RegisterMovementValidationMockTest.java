@@ -21,28 +21,28 @@ import com.jbh.commons.util.JbhMoneyUtils;
 import com.jbh.products.application.acid.UnitOfWork;
 import com.jbh.products.application.async.AsyncTaskExecutorImpl;
 import com.jbh.products.application.builders.AccountEntityBuilder;
-import com.jbh.products.application.core.dto.MovementDTO;
-import com.jbh.products.application.core.mappers.AccountMapper;
-import com.jbh.products.application.core.ports.input.AddMovementInputPort;
-import com.jbh.products.application.core.ports.output.ProductRepository;
-import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceQueryRepo;
-import com.jbh.products.application.core.ports.output.monthlybalance.AccountMonthlyBalanceWriterRepository;
-import com.jbh.products.application.core.services.MonthlyBalanceSyncForUploadedMovements;
-import com.jbh.products.application.core.services.account.ProductServiceImpl;
-import com.jbh.products.application.core.services.account.ProductsService;
-import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceService;
-import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceServiceImpl;
-import com.jbh.products.application.core.services.movements.AccountMovementApplicationService;
-import com.jbh.products.application.core.services.movements.AccountMovementApplicationServiceImpl;
-import com.jbh.products.application.core.services.movements.AccountMovementService;
-import com.jbh.products.application.core.services.movements.AccountMovementServiceImpl;
 import com.jbh.products.application.core.usecases.utils.UnitOfWorkTest;
-import com.jbh.products.application.core.vo.commands.AddMovementCommand;
-import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
-import com.jbh.products.domain.product.ProductDomain;
+import com.jbh.products.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
+import com.jbh.products.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
+import com.jbh.products.application.feature.monthlybalance.services.MonthlyBalanceService;
+import com.jbh.products.application.feature.monthlybalance.services.MonthlyBalanceServiceImpl;
+import com.jbh.products.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
+import com.jbh.products.application.feature.movement.commands.AddMovementCommand;
+import com.jbh.products.application.feature.movement.dto.MovementDTO;
+import com.jbh.products.application.feature.movement.ports.input.AddMovementInputPort;
+import com.jbh.products.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.products.application.feature.movement.services.AccountMovementApplicationService;
+import com.jbh.products.application.feature.movement.services.AccountMovementApplicationServiceImpl;
+import com.jbh.products.application.feature.movement.services.AccountMovementService;
+import com.jbh.products.application.feature.movement.services.AccountMovementServiceImpl;
+import com.jbh.products.application.feature.product.mappers.ProductMapper;
+import com.jbh.products.application.feature.product.ports.output.ProductRepository;
+import com.jbh.products.application.feature.product.services.ProductServiceImpl;
+import com.jbh.products.application.feature.product.services.ProductsService;
 import com.jbh.products.domain.movement.vo.ExpenseCategory;
 import com.jbh.products.domain.movement.vo.IncomeCategory;
 import com.jbh.products.domain.movement.vo.MovementCategoryVO;
+import com.jbh.products.domain.product.ProductDomain;
 import com.jbh.products.domain.product.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -214,9 +214,9 @@ public class RegisterMovementValidationMockTest {
   private void mockAccount(
       final UUID userId, final ProductId accountId, final ProductDomain accountDomain) {
     when(accountRepository.findByProductId(accountId))
-        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+        .thenReturn(Optional.of(ProductMapper.toDTO(accountDomain)));
     when(accountRepository.findByUserAndProductId(userId, accountId))
-        .thenReturn(Optional.of(AccountMapper.toDTO(accountDomain)));
+        .thenReturn(Optional.of(ProductMapper.toDTO(accountDomain)));
   }
 
   @Test
@@ -262,7 +262,7 @@ public class RegisterMovementValidationMockTest {
         () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
 
     verify(accountMovementRepository, never()).save((MovementDTO) any());
-    verify(accountRepository, never()).save(AccountMapper.toDTO(accountDomain));
+    verify(accountRepository, never()).save(ProductMapper.toDTO(accountDomain));
   }
 
   @Test
@@ -287,6 +287,6 @@ public class RegisterMovementValidationMockTest {
         () -> registerSimpleMovementInputPort.addMovement(userId, accountId, request));
 
     verify(accountMovementRepository, never()).save((MovementDTO) any());
-    verify(accountRepository, never()).save(AccountMapper.toDTO(accountDomain));
+    verify(accountRepository, never()).save(ProductMapper.toDTO(accountDomain));
   }
 }

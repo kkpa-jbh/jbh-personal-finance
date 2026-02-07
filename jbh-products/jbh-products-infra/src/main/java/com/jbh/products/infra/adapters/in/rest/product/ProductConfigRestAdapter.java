@@ -2,8 +2,8 @@ package com.jbh.products.infra.adapters.in.rest.product;
 
 import static com.jbh.products.infra.adapters.in.rest.common.FinanceApiRoutes.PRODUCTS_API_PATH;
 
-import com.jbh.products.application.core.dto.MetadataFieldConfigDTO;
-import com.jbh.products.application.core.usecases.GetProductMetadataConfigUseCase;
+import com.jbh.products.application.feature.product.dto.MetadataFieldConfigDTO;
+import com.jbh.products.application.feature.product.usecases.GetProductMetadataConfigUseCase;
 import com.jbh.products.domain.product.vo.ProductType;
 import com.jbh.products.infra.adapters.in.rest.product.response.MetadataFieldConfigResponse;
 import jakarta.enterprise.context.RequestScoped;

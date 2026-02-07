@@ -21,5 +21,5 @@ How do we model the different types of products?
 
 ### Decision
 
-1. Core products table (common fields) + account_metadata JSONB column
+1. Core products table (common fields) + metadata JSONB column
 2. Posible Materialized View to aggregate the data

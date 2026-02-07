@@ -1,7 +1,7 @@
 package com.jbh.products.infra.adapters.out.persistence.movement;
 
-import com.jbh.products.application.core.dto.MovementDTO;
-import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
+import com.jbh.products.application.feature.movement.dto.MovementDTO;
+import com.jbh.products.application.feature.movement.ports.output.AccountMovementWriterRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;

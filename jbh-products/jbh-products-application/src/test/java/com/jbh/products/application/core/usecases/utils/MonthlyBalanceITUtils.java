@@ -2,10 +2,10 @@ package com.jbh.products.application.core.usecases.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.usecases.integration.monthlybalance.IgnoreOption;
-import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
-import com.jbh.products.application.core.vo.commands.MonthlyBalanceCommandVO;
+import com.jbh.products.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
+import com.jbh.products.application.feature.monthlybalance.commands.MonthlyBalanceCommandVO;
+import com.jbh.products.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 

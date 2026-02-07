@@ -1,6 +1,6 @@
 package com.jbh.products.infra.adapters.out.persistence.movement;
 
-import com.jbh.products.application.core.dto.MovementDTO;
+import com.jbh.products.application.feature.movement.dto.MovementDTO;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;

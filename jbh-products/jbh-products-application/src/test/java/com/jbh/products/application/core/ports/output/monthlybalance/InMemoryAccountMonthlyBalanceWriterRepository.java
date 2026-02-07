@@ -1,6 +1,7 @@
 package com.jbh.products.application.core.ports.output.monthlybalance;
 
-import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
+import com.jbh.products.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
+import com.jbh.products.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
 import java.util.List;
 
 public class InMemoryAccountMonthlyBalanceWriterRepository

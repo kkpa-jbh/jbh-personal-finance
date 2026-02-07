@@ -2,9 +2,9 @@ package com.jbh.products.application.core.usecases.integration.monthlybalance;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
 import com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils;
+import com.jbh.products.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.products.domain.product.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.YearMonth;

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.jbh.commons.exception.GenericSpecificationException;
+import com.jbh.products.application.feature.product.commands.FindProductCommand;
 import com.jbh.products.domain.product.vo.ProductId;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,8 @@ public class FindProductCommandTest {
 
   @Test
   public void shouldCreateCommandWithValidParameters() {
-    final FindProductCommand command = assertDoesNotThrow(
-        () -> new FindProductCommand(VALID_USER_ID, VALID_PRODUCT_ID));
+    final FindProductCommand command =
+        assertDoesNotThrow(() -> new FindProductCommand(VALID_USER_ID, VALID_PRODUCT_ID));
 
     assertNotNull(command);
     assertEquals(VALID_USER_ID, command.userId());
@@ -27,27 +28,27 @@ public class FindProductCommandTest {
 
   @Test
   public void shouldThrowWhenUserIdIsNull() {
-    final GenericSpecificationException exception = assertThrows(
-        GenericSpecificationException.class,
-        () -> new FindProductCommand(null, VALID_PRODUCT_ID));
+    final GenericSpecificationException exception =
+        assertThrows(
+            GenericSpecificationException.class,
+            () -> new FindProductCommand(null, VALID_PRODUCT_ID));
 
     assertEquals("User ID cannot be null", exception.getMessage());
   }
 
   @Test
   public void shouldThrowWhenProductIdIsNull() {
-    final GenericSpecificationException exception = assertThrows(
-        GenericSpecificationException.class,
-        () -> new FindProductCommand(VALID_USER_ID, null));
+    final GenericSpecificationException exception =
+        assertThrows(
+            GenericSpecificationException.class, () -> new FindProductCommand(VALID_USER_ID, null));
 
     assertEquals("Product ID cannot be null", exception.getMessage());
   }
 
   @Test
   public void shouldThrowWhenBothParametersAreNull() {
-    final GenericSpecificationException exception = assertThrows(
-        GenericSpecificationException.class,
-        () -> new FindProductCommand(null, null));
+    final GenericSpecificationException exception =
+        assertThrows(GenericSpecificationException.class, () -> new FindProductCommand(null, null));
 
     assertEquals("User ID cannot be null", exception.getMessage());
   }

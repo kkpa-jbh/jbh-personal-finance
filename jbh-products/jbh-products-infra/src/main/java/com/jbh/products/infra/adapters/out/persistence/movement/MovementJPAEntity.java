@@ -1,6 +1,6 @@
 package com.jbh.products.infra.adapters.out.persistence.movement;
 
-import com.jbh.products.application.core.dto.MovementDTO;
+import com.jbh.products.application.feature.movement.dto.MovementDTO;
 import com.jbh.products.domain.movement.vo.AccountMovementMetadata;
 import com.jbh.products.domain.movement.vo.AccountMovementMetadataKey;
 import com.jbh.products.domain.movement.vo.MovementCategoryVO;

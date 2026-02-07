@@ -18,11 +18,11 @@ import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.products.application.builders.AccountEntityBuilder;
 import com.jbh.products.application.builders.CommandTestBuilder;
 import com.jbh.products.application.builders.UseCaseBuilder;
-import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.application.core.mappers.AccountMapper;
 import com.jbh.products.application.core.ports.output.account.InMemoryAccountRepository;
-import com.jbh.products.application.core.usecases.CreateProductUseCase;
-import com.jbh.products.application.core.vo.commands.CreateProductCommand;
+import com.jbh.products.application.feature.product.commands.CreateProductCommand;
+import com.jbh.products.application.feature.product.dto.ProductDTO;
+import com.jbh.products.application.feature.product.mappers.ProductMapper;
+import com.jbh.products.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.products.domain.movement.vo.ExpenseCategory;
 import com.jbh.products.domain.movement.vo.MovementCategoryVO;
 import com.jbh.products.domain.product.vo.ProductMetadata;
@@ -180,7 +180,7 @@ public class CreateProductITTest {
             creditCardAccountDTO.name(),
             creditCardType);
 
-    ProductDTO expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
+    ProductDTO expectedAccount = ProductMapper.toDTO(expectedAccountBuilder.build());
 
     assertAccount(expectedAccount, updatedAccount);
 
@@ -206,7 +206,7 @@ public class CreateProductITTest {
             creditCardAccountDTO.name(),
             creditCardType);
 
-    expectedAccount = AccountMapper.toDTO(expectedAccountBuilder.build());
+    expectedAccount = ProductMapper.toDTO(expectedAccountBuilder.build());
 
     assertAccount(expectedAccount, updatedAccount);
   }

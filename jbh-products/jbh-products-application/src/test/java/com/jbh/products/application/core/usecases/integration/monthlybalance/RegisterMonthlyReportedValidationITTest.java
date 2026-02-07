@@ -1,21 +1,21 @@
 package com.jbh.products.application.core.usecases.integration.monthlybalance;
 
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.products.application.builders.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
-import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.builders.UseCaseBuilder;
-import com.jbh.products.application.core.dto.ProductDTO;
 import com.jbh.products.application.core.ports.output.account.InMemoryAccountRepository;
-import com.jbh.products.application.core.services.monthlybalance.MonthlyBalanceService;
-import com.jbh.products.application.core.usecases.CreateProductUseCase;
-import com.jbh.products.application.core.usecases.RegisterMonthlyBalanceUseCase;
-import com.jbh.products.application.core.vo.commands.AddMonthlyBalanceCommand;
-import com.jbh.products.application.core.vo.commands.MonthlyBalanceCommandVO;
-import com.jbh.products.application.movements.ports.output.AccountMovementWriterRepository;
+import com.jbh.products.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
+import com.jbh.products.application.feature.monthlybalance.commands.MonthlyBalanceCommandVO;
+import com.jbh.products.application.feature.monthlybalance.services.MonthlyBalanceService;
+import com.jbh.products.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
+import com.jbh.products.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.products.application.feature.product.dto.ProductDTO;
+import com.jbh.products.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.products.domain.product.vo.ProductId;
 import com.jbh.products.domain.product.vo.ProductType;
-import com.jbh.commons.exception.BusinessException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;

@@ -5,7 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jbh.products.application.core.dto.MetadataFieldConfigDTO;
+import com.jbh.products.application.feature.product.dto.MetadataFieldConfigDTO;
+import com.jbh.products.application.feature.product.services.metadata.ProductMetadataConfigRegistry;
 import com.jbh.products.domain.product.vo.ProductType;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,7 +1,7 @@
 package com.jbh.products.application.core.ports.output.movement;
 
-import com.jbh.products.application.core.dto.MovementDTO;
-import com.jbh.products.application.movements.ports.output.AccountMovementQueryRepository;
+import com.jbh.products.application.feature.movement.dto.MovementDTO;
+import com.jbh.products.application.feature.movement.ports.output.AccountMovementQueryRepository;
 import com.jbh.products.domain.product.vo.ProductId;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,14 +17,14 @@ public class InMemoryAccountMovementQueryRepository implements AccountMovementQu
       LoggerFactory.getLogger(InMemoryAccountMovementQueryRepository.class);
   private final Map<UUID, MovementDTO> storage = new HashMap<>();
 
-  public void save(final MovementDTO accountMovement) {
-    storage.put(accountMovement.id().value(), accountMovement);
-    log.warn("Saved Movement " + accountMovement);
-  }
-
   public void saveAll(final List<MovementDTO> newMovements) {
     newMovements.forEach(this::save);
     log.warn("Saved {} movements", newMovements.size());
+  }
+
+  public void save(final MovementDTO accountMovement) {
+    storage.put(accountMovement.id().value(), accountMovement);
+    log.warn("Saved Movement " + accountMovement);
   }
 
   @Override

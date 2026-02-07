@@ -10,15 +10,15 @@ import static org.mockito.Mockito.when;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
-import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.application.core.exceptions.BusinessApplicationExceptionType;
-import com.jbh.products.application.core.mappers.AccountMapper;
-import com.jbh.products.application.core.ports.input.DeleteProductInputPort;
-import com.jbh.products.application.core.ports.output.ProductRepository;
-import com.jbh.products.application.core.services.account.ProductServiceImpl;
-import com.jbh.products.application.core.services.account.ProductsService;
-import com.jbh.products.application.core.usecases.DeleteProductUseCase;
-import com.jbh.products.application.core.vo.commands.DeleteProductCommand;
+import com.jbh.products.application.feature.product.commands.DeleteProductCommand;
+import com.jbh.products.application.feature.product.dto.ProductDTO;
+import com.jbh.products.application.feature.product.mappers.ProductMapper;
+import com.jbh.products.application.feature.product.ports.input.DeleteProductInputPort;
+import com.jbh.products.application.feature.product.ports.output.ProductRepository;
+import com.jbh.products.application.feature.product.services.ProductServiceImpl;
+import com.jbh.products.application.feature.product.services.ProductsService;
+import com.jbh.products.application.feature.product.usecases.DeleteProductUseCase;
+import com.jbh.products.application.shared.exceptions.BusinessApplicationExceptionType;
 import com.jbh.products.domain.product.ProductDomain;
 import com.jbh.products.domain.product.vo.ProductId;
 import com.jbh.products.domain.product.vo.ProductMetadata;
@@ -52,7 +52,7 @@ public class DeleteProductMockTest {
   @Test
   public void shouldDeleteProduct() throws BusinessException {
     final ProductDomain productDomain = createActiveProduct();
-    final ProductDTO productDTO = AccountMapper.toDTO(productDomain);
+    final ProductDTO productDTO = ProductMapper.toDTO(productDomain);
 
     when(accountRepository.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
         .thenReturn(Optional.of(productDTO));
@@ -100,7 +100,7 @@ public class DeleteProductMockTest {
   @Test
   public void shouldThrowWhenProductAlreadyDeleted() {
     final ProductDomain inactiveProduct = createInactiveProduct();
-    final ProductDTO productDTO = AccountMapper.toDTO(inactiveProduct);
+    final ProductDTO productDTO = ProductMapper.toDTO(inactiveProduct);
 
     when(accountRepository.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
         .thenReturn(Optional.empty());

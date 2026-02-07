@@ -8,7 +8,7 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.products.application.builders.AccountEntityBuilder;
 import com.jbh.products.application.builders.UseCaseBuilder;
-import com.jbh.products.application.core.services.account.ProductsService;
+import com.jbh.products.application.feature.product.services.ProductsService;
 import com.jbh.products.domain.movement.MovementCategoryDomain;
 import com.jbh.products.domain.movement.MovementDomain;
 import com.jbh.products.domain.movement.vo.AccountMovementMetadata;

@@ -1,11 +1,12 @@
 package com.jbh.products.application.core.ports.output.monthlybalance;
 
-import com.jbh.products.application.core.comparator.AccountMonthlyBalanceComparators;
-import com.jbh.products.application.core.dto.MonthlyBalanceDTO;
-import com.jbh.products.application.core.mappers.MonthlyBalanceMapper;
-import com.jbh.products.domain.shared.vo.PeriodRange;
+import com.jbh.products.application.feature.monthlybalance.comparator.AccountMonthlyBalanceComparators;
+import com.jbh.products.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
+import com.jbh.products.application.feature.monthlybalance.mappers.MonthlyBalanceMapper;
+import com.jbh.products.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
 import com.jbh.products.domain.product.vo.ProductId;
 import com.jbh.products.domain.product.vo.ProductPK;
+import com.jbh.products.domain.shared.vo.PeriodRange;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -48,8 +49,6 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
   public List<MonthlyBalanceDTO> findAll() {
     return new ArrayList<>(storage.values());
   }
-
-
 
   @Override
   public List<MonthlyBalanceDTO> findByAccountAndPeriods(
@@ -120,9 +119,9 @@ public class InMemoryAccountMonthlyBalanceQueryRepo implements AccountMonthlyBal
   }
 
   @Override
-  public List<MonthlyBalanceDTO> findByProductIdsAndPeriods(List<ProductId> productIds, PeriodRange periodRange) {
-    List<MonthlyBalanceDTO> all = new ArrayList<>();
-
+  public List<MonthlyBalanceDTO> findByProductIdsAndPeriods(
+      final List<ProductId> productIds, final PeriodRange periodRange) {
+    final List<MonthlyBalanceDTO> all = new ArrayList<>();
 
     return all;
   }

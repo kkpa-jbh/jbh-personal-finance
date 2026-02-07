@@ -1,6 +1,6 @@
 package com.jbh.products.infra.adapters.in.rest.movement.response;
 
-import com.jbh.products.application.core.dto.AddBasicMovementDTO;
+import com.jbh.products.application.feature.movement.dto.AddBasicMovementDTO;
 import com.jbh.products.infra.adapters.in.rest.balancehistory.response.MonthlyBalanceResponse;
 import com.jbh.products.infra.adapters.in.rest.product.response.ProductResponse;
 

@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.jbh.products.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.products.domain.product.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,12 +21,13 @@ class MonthlyBalanceDTOTest {
     final ProductId accountId = ProductId.generate();
     final YearMonth period = YearMonth.of(2025, 1);
 
-    final MonthlyBalanceDTO dto = MonthlyBalanceDTO.defaultBuilder()
-        .accountId(accountId)
-        .period(period)
-        .year(period.getYear())
-        .month(period.getMonthValue())
-        .build();
+    final MonthlyBalanceDTO dto =
+        MonthlyBalanceDTO.defaultBuilder()
+            .accountId(accountId)
+            .period(period)
+            .year(period.getYear())
+            .month(period.getMonthValue())
+            .build();
 
     assertNotNull(dto);
     assertEquals(accountId, dto.accountId());
@@ -47,11 +49,8 @@ class MonthlyBalanceDTOTest {
     final YearMonth period = YearMonth.of(2025, 2);
     final BigDecimal closingBalance = new BigDecimal("5000.00");
 
-    final MonthlyBalanceDTO dto = MonthlyBalanceDTO.withInitialDataForNextMonth(
-        accountId,
-        period,
-        closingBalance,
-        false);
+    final MonthlyBalanceDTO dto =
+        MonthlyBalanceDTO.withInitialDataForNextMonth(accountId, period, closingBalance, false);
 
     assertNotNull(dto);
     assertEquals(accountId, dto.accountId());
@@ -68,11 +67,8 @@ class MonthlyBalanceDTOTest {
     final YearMonth period = YearMonth.of(2025, 3);
     final BigDecimal closingBalance = new BigDecimal("10000.00");
 
-    final MonthlyBalanceDTO dto = MonthlyBalanceDTO.withInitialDataForNextMonth(
-        accountId,
-        period,
-        closingBalance,
-        true);
+    final MonthlyBalanceDTO dto =
+        MonthlyBalanceDTO.withInitialDataForNextMonth(accountId, period, closingBalance, true);
 
     assertNotNull(dto);
     assertTrue(dto.gapPeriod());
@@ -80,13 +76,14 @@ class MonthlyBalanceDTOTest {
 
   @Test
   void shouldReturnTrueForIsProfitableWhenProfitIsPositive() {
-    final MonthlyBalanceDTO dto = MonthlyBalanceDTO.defaultBuilder()
-        .accountId(ProductId.generate())
-        .period(YearMonth.of(2025, 1))
-        .year(2025)
-        .month(1)
-        .monthlyNetProfit(new BigDecimal("500.00"))
-        .build();
+    final MonthlyBalanceDTO dto =
+        MonthlyBalanceDTO.defaultBuilder()
+            .accountId(ProductId.generate())
+            .period(YearMonth.of(2025, 1))
+            .year(2025)
+            .month(1)
+            .monthlyNetProfit(new BigDecimal("500.00"))
+            .build();
 
     assertTrue(dto.isProfitable());
     assertFalse(dto.isLoss());
@@ -94,13 +91,14 @@ class MonthlyBalanceDTOTest {
 
   @Test
   void shouldReturnTrueForIsProfitableWhenProfitIsZero() {
-    final MonthlyBalanceDTO dto = MonthlyBalanceDTO.defaultBuilder()
-        .accountId(ProductId.generate())
-        .period(YearMonth.of(2025, 1))
-        .year(2025)
-        .month(1)
-        .monthlyNetProfit(JBH_ZERO)
-        .build();
+    final MonthlyBalanceDTO dto =
+        MonthlyBalanceDTO.defaultBuilder()
+            .accountId(ProductId.generate())
+            .period(YearMonth.of(2025, 1))
+            .year(2025)
+            .month(1)
+            .monthlyNetProfit(JBH_ZERO)
+            .build();
 
     assertTrue(dto.isProfitable());
     assertFalse(dto.isLoss());
@@ -108,13 +106,14 @@ class MonthlyBalanceDTOTest {
 
   @Test
   void shouldReturnTrueForIsLossWhenProfitIsNegative() {
-    final MonthlyBalanceDTO dto = MonthlyBalanceDTO.defaultBuilder()
-        .accountId(ProductId.generate())
-        .period(YearMonth.of(2025, 1))
-        .year(2025)
-        .month(1)
-        .monthlyNetProfit(new BigDecimal("-500.00"))
-        .build();
+    final MonthlyBalanceDTO dto =
+        MonthlyBalanceDTO.defaultBuilder()
+            .accountId(ProductId.generate())
+            .period(YearMonth.of(2025, 1))
+            .year(2025)
+            .month(1)
+            .monthlyNetProfit(new BigDecimal("-500.00"))
+            .build();
 
     assertTrue(dto.isLoss());
     assertFalse(dto.isProfitable());
@@ -126,27 +125,28 @@ class MonthlyBalanceDTOTest {
     final YearMonth period = YearMonth.of(2025, 1);
     final LocalDateTime now = LocalDateTime.now();
 
-    final MonthlyBalanceDTO dto = MonthlyBalanceDTO.defaultBuilder()
-        .id(1L)
-        .accountId(accountId)
-        .year(2025)
-        .month(1)
-        .period(period)
-        .netGrowthRate(new BigDecimal("2.50"))
-        .totalDebits(new BigDecimal("1000.00"))
-        .totalCredits(new BigDecimal("3000.00"))
-        .movementBalance(new BigDecimal("2000.00"))
-        .openingBalance(new BigDecimal("5000.00"))
-        .closingBalance(new BigDecimal("7000.00"))
-        .monthlyNetProfit(new BigDecimal("2000.00"))
-        .totalMovements(15)
-        .gapPeriod(false)
-        .officialMonthlyReport(true)
-        .monthlyReportedProfit(new BigDecimal("1900.00"))
-        .incomeWithholdingTaxAmount(new BigDecimal("100.00"))
-        .createdAt(now)
-        .updatedAt(now)
-        .build();
+    final MonthlyBalanceDTO dto =
+        MonthlyBalanceDTO.defaultBuilder()
+            .id(1L)
+            .accountId(accountId)
+            .year(2025)
+            .month(1)
+            .period(period)
+            .netGrowthRate(new BigDecimal("2.50"))
+            .totalDebits(new BigDecimal("1000.00"))
+            .totalCredits(new BigDecimal("3000.00"))
+            .movementBalance(new BigDecimal("2000.00"))
+            .openingBalance(new BigDecimal("5000.00"))
+            .closingBalance(new BigDecimal("7000.00"))
+            .monthlyNetProfit(new BigDecimal("2000.00"))
+            .totalMovements(15)
+            .gapPeriod(false)
+            .officialMonthlyReport(true)
+            .monthlyReportedProfit(new BigDecimal("1900.00"))
+            .incomeWithholdingTaxAmount(new BigDecimal("100.00"))
+            .createdAt(now)
+            .updatedAt(now)
+            .build();
 
     assertNotNull(dto);
     assertEquals(1L, dto.id());
@@ -172,18 +172,19 @@ class MonthlyBalanceDTOTest {
 
   @Test
   void shouldCreateDTOWithNullOptionalFields() {
-    final MonthlyBalanceDTO dto = MonthlyBalanceDTO.defaultBuilder()
-        .accountId(ProductId.generate())
-        .period(YearMonth.of(2025, 1))
-        .year(2025)
-        .month(1)
-        .id(null)
-        .netGrowthRate(null)
-        .incomeWithholdingTaxAmount(null)
-        .monthlyReportedProfit(null)
-        .createdAt(null)
-        .updatedAt(null)
-        .build();
+    final MonthlyBalanceDTO dto =
+        MonthlyBalanceDTO.defaultBuilder()
+            .accountId(ProductId.generate())
+            .period(YearMonth.of(2025, 1))
+            .year(2025)
+            .month(1)
+            .id(null)
+            .netGrowthRate(null)
+            .incomeWithholdingTaxAmount(null)
+            .monthlyReportedProfit(null)
+            .createdAt(null)
+            .updatedAt(null)
+            .build();
 
     assertNotNull(dto);
     assertNull(dto.id());

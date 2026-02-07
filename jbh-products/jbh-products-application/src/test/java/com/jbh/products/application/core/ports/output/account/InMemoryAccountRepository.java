@@ -1,7 +1,7 @@
 package com.jbh.products.application.core.ports.output.account;
 
-import com.jbh.products.application.core.dto.ProductDTO;
-import com.jbh.products.application.core.ports.output.ProductRepository;
+import com.jbh.products.application.feature.product.dto.ProductDTO;
+import com.jbh.products.application.feature.product.ports.output.ProductRepository;
 import com.jbh.products.domain.product.vo.ProductId;
 import java.util.HashMap;
 import java.util.List;
