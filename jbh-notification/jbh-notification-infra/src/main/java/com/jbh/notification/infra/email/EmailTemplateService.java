@@ -83,11 +83,12 @@ public class EmailTemplateService {
         .build();
   }
 
+  @SuppressWarnings("IMPROPER_UNICODE")
   private String resolveLocale(final String locale) {
     if (locale == null || locale.isBlank()) {
       return DEFAULT_LOCALE_EN;
     }
-    final String normalizedLocale = locale.toLowerCase(Locale.ROOT).trim();
+    final String normalizedLocale = locale.toLowerCase(Locale.ROOT).strip();
     if (LOCALE_ES.equals(normalizedLocale) || normalizedLocale.startsWith(LOCALE_ES)) {
       return LOCALE_ES;
     }
@@ -95,7 +96,7 @@ public class EmailTemplateService {
   }
 
   private EmailMessages getMessages(final String locale) {
-    return LOCALE_ES.equalsIgnoreCase(locale) ? messagesEs : messagesEn;
+    return LOCALE_ES.equals(locale) ? messagesEs : messagesEn;
   }
 
   private String buildAcceptUrl(final String teamId) {

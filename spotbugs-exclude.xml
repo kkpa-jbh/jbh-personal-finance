@@ -65,4 +65,37 @@
     </Or>
   </Match>
 
+  <!-- Allow format string manipulation in exception messages - intentional template formatting -->
+  <Match>
+    <Bug pattern="FORMAT_STRING_MANIPULATION"/>
+    <Class name="com.jbh.commons.exception.BusinessExceptionType"/>
+  </Match>
+
+  <!-- Allow format string manipulation in utility - intentional i18n message formatting -->
+  <Match>
+    <Bug pattern="FORMAT_STRING_MANIPULATION"/>
+    <Class name="com.jbh.commons.util.JbhStringUtils"/>
+  </Match>
+
+  <!-- Allow hard-coded password pattern in password masking method - false positive -->
+  <Match>
+    <Bug pattern="HARD_CODE_PASSWORD"/>
+    <Class name="com.jbh.notification.infra.config.MailerConfigLogger"/>
+    <Method name="maskPassword"/>
+  </Match>
+
+  <!-- Allow Unicode operations with explicit Locale.ROOT in EmailTemplateService -->
+  <Match>
+    <Bug pattern="IMPROPER_UNICODE"/>
+    <Class name="com.jbh.notification.infra.email.EmailTemplateService"/>
+    <Method name="resolveLocale"/>
+  </Match>
+
+  <!-- Allow Unicode operations with explicit Locale.ROOT in Currency enum -->
+  <Match>
+    <Bug pattern="IMPROPER_UNICODE"/>
+    <Class name="com.jbh.preferences.domain.vo.Currency"/>
+    <Method name="fromCode"/>
+  </Match>
+
 </FindBugsFilter>

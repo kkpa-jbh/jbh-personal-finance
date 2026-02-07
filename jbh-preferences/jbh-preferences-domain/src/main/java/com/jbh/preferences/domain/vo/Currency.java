@@ -1,5 +1,6 @@
 package com.jbh.preferences.domain.vo;
 
+@SuppressWarnings("IMPROPER_UNICODE")
 public enum Currency {
   COP("Colombian Peso", "COP"),
   USD("US Dollar", "USD");
@@ -12,12 +13,14 @@ public enum Currency {
     this.code = code;
   }
 
+  @SuppressWarnings("IMPROPER_UNICODE")
   public static Currency fromCode(final String code) {
     if (code == null) {
       return defaultCurrency();
     }
+    final String normalizedCode = code.toUpperCase(java.util.Locale.ROOT);
     for (final Currency currency : values()) {
-      if (currency.code.equals(code.toUpperCase(java.util.Locale.ROOT))) {
+      if (currency.code.equals(normalizedCode)) {
         return currency;
       }
     }

@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("PMD.AvoidPrintStackTrace")
 public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
 
   private static final Logger LOG = LoggerFactory.getLogger(AsyncTaskExecutorImpl.class);
@@ -52,7 +51,6 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
             }
             future.completeExceptionally(gse);
           } catch (final Exception exception) {
-            exception.printStackTrace();
             LOG.error(
                 "General exception executing async task {}: {}",
                 asyncTask.type(),
