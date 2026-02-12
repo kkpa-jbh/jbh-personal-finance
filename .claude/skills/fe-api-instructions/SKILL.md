@@ -218,7 +218,33 @@ Check if the component already exists to update it.
 
 ### Directives or Pipes
 
-- Always apply the directive `jbhDecimalFormat` for BigDecimal objects in the API's response.
+- Pipes (|) for displaying values in templates
+- Directives ([]) ONLY for <input> form elements
+
+"Directives vs Pipes for Formatting"
+
+Complete guidance with:
+
+Key Points:
+
+- ❌ Directives require NgControl - ONLY work on form inputs
+- ✅ Pipes are for displaying values - use in tables, cards, spans
+
+Examples:
+
+```
+  <!-- ❌ WRONG - Causes NG0201 error -->
+<span [jbhDecimalFormat]="value"></span>
+
+  <!-- ✅ CORRECT - Pipe for display -->
+<span>{{ value | jbhCurrency }}</span>
+
+  <!-- ✅ CORRECT - Directive on input -->
+<input [jbhDecimalFormat]="2" formControlName="amount" />
+```
+
+- Always apply the pipe `jbhCurrency` for BigDecimal objects in the API's response when displaying values.
+- Apply the directive for input bigdecimal controls to send to the API as request.
 - Always apply the `pipe` `jbhDate` for `Date` objects present in the API's response. Check the
   API response example to know the date format.
     - Always apply the currency pipe `jbhCurrency` for currency values in the API's response.
