@@ -5,21 +5,23 @@ import java.time.LocalDateTime;
 import java.util.EnumMap;
 import java.util.Map;
 
-public final class AccountMovementMetadata {
+public final class MovementMetadata {
 
   private final Map<AccountMovementMetadataKey, Object> data;
 
-  private AccountMovementMetadata(final Map<AccountMovementMetadataKey, Object> data) {
+  private MovementMetadata(final Map<AccountMovementMetadataKey, Object> data) {
     this.data =
-        (data != null) ? new EnumMap<>(data) : new EnumMap<>(AccountMovementMetadataKey.class);
+        (data != null && !data.isEmpty())
+            ? new EnumMap<>(data)
+            : new EnumMap<>(AccountMovementMetadataKey.class);
   }
 
-  public static AccountMovementMetadata createEmpty() {
-    return new AccountMovementMetadata(new EnumMap<>(AccountMovementMetadataKey.class));
+  public static MovementMetadata createEmpty() {
+    return new MovementMetadata(new EnumMap<>(AccountMovementMetadataKey.class));
   }
 
-  public static AccountMovementMetadata of(final Map<AccountMovementMetadataKey, Object> data) {
-    return new AccountMovementMetadata(data);
+  public static MovementMetadata of(final Map<AccountMovementMetadataKey, Object> data) {
+    return new MovementMetadata(data);
   }
 
   public Map<AccountMovementMetadataKey, Object> asMap() {

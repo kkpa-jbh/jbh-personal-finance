@@ -28,17 +28,9 @@
 - The CDT is only closed when the user withdraws the money in the fixed period (Receiving it in a saving account to transfering it to a third party)
 - A reminder will be sent to the user to notify that the CDT is due.
 
-# USE CASES
+## USE CASES
 
-## 1. ADD MOVEMENT USE CASE
-
-### CDT
-
-- To register the CDT payment to a third party.
-- Once the payment is registered, the CDT account should be closed/inactive/finished.
-- ALL CDT `Must` have a RETEFUENTE movement.
-
-## 2. ADD TRANSFER ACCOUNTS
+### 2. ADD TRANSFER ACCOUNTS
 
 - The user can add a transfer between two existing accounts.
 - The user can create a transfer to pay a credit-card bill.
@@ -50,6 +42,28 @@
   ### CREDIT CARD
 
     - The deposits are always done via `transfer` movements (From saving account to credit card account).
+
+# MOVEMENTS
+
+## USE CASES
+
+## 1. ADD MOVEMENT USE CASE
+
+The user is able to add movements to any product it does not matter if it's in the past.
+That should produce a cascade of synchronizations on the products balances along with the monthly balances.
+
+### CDT
+
+- To register the CDT payment to a third party.
+- Once the payment is registered, the CDT account should be closed/inactive/finished.
+- ALL CDT `Must` have a RETEFUENTE movement.
+
+## 2. FIND MOVEMENTS USE CASE
+
+### 2.1 FIND MOVEMENTS BY PRODUCT
+
+- The product should be associated with the user.
+- The use case returns the latest movements done in the last 3 months.
 
 # REMINDERS
 

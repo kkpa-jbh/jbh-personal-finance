@@ -11,10 +11,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.domain.movement.MovementCategoryDomain;
 import com.jbh.finance.domain.movement.MovementDomain;
-import com.jbh.finance.domain.movement.vo.AccountMovementMetadata;
 import com.jbh.finance.domain.movement.vo.ExpenseCategory;
 import com.jbh.finance.domain.movement.vo.IncomeCategory;
 import com.jbh.finance.domain.movement.vo.MovementId;
+import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
@@ -586,7 +586,7 @@ public class ProductDomainTest {
             movementAmount,
             LocalDate.now(),
             null,
-            AccountMovementMetadata.createEmpty(),
+            MovementMetadata.createEmpty(),
             null);
 
     accountDomain.syncBalancesByMovement(movement, false);
@@ -604,7 +604,7 @@ public class ProductDomainTest {
             new BigDecimal("-100.00"),
             LocalDate.now(),
             JBH_ZERO,
-            AccountMovementMetadata.createEmpty(),
+            MovementMetadata.createEmpty(),
             null);
     accountDomain.syncBalancesByMovement(withdrawalMovement, false);
     assertTrue(accountDomain.isFullyWithdrawn());
@@ -623,7 +623,7 @@ public class ProductDomainTest {
             movementAmount,
             LocalDate.now(),
             JBH_ZERO,
-            AccountMovementMetadata.createEmpty(),
+            MovementMetadata.createEmpty(),
             null);
     assertThrows(
         BusinessException.class,

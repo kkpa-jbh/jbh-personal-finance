@@ -1,9 +1,9 @@
 package com.jbh.finance.infra.adapters.in.rest.movement.response;
 
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
-import com.jbh.finance.domain.movement.vo.AccountMovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.movement.vo.MovementId;
+import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import java.math.BigDecimal;
@@ -18,7 +18,7 @@ public record MovementResponse(
     BigDecimal movementAmount,
     LocalDate movementDate,
     BigDecimal balanceSnapshot,
-    AccountMovementMetadata metadata,
+    MovementMetadata metadata,
     LocalDateTime createdAt,
     String description) {
   public static MovementResponse fromDTO(final MovementDTO dto) {

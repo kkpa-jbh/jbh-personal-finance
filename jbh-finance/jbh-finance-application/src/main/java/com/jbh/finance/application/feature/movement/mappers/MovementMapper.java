@@ -2,14 +2,14 @@ package com.jbh.finance.application.feature.movement.mappers;
 
 import static com.jbh.finance.domain.movement.vo.MovementType.WITHDRAWAL;
 
-import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.commands.LiquidateAccountCommand;
+import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.domain.movement.MovementCategoryDomain;
 import com.jbh.finance.domain.movement.MovementDomain;
-import com.jbh.finance.domain.movement.vo.AccountMovementMetadata;
 import com.jbh.finance.domain.movement.vo.ExpenseCategory;
 import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
+import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import java.math.BigDecimal;
@@ -55,7 +55,7 @@ public final class MovementMapper {
             command.entryDate(),
             totalAmount,
             command.balanceSnapshot(),
-            AccountMovementMetadata.createEmpty(),
+            MovementMetadata.createEmpty(),
             MovementCategoryDomain.withDTO(command.categoryDTO()),
             command.description());
 
@@ -94,7 +94,7 @@ public final class MovementMapper {
     final MovementCategoryVO categoryDTO =
         MovementCategoryVO.withType(ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT);
 
-    final AccountMovementMetadata metadata = AccountMovementMetadata.createEmpty();
+    final MovementMetadata metadata = MovementMetadata.createEmpty();
 
     final MovementDomain newMovement =
         new MovementDomain(

@@ -14,14 +14,16 @@ import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonth
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementsUploadedFileInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.AddTransferJbhAccountsInputPort;
+import com.jbh.finance.application.feature.movement.ports.input.FindMovementsByProductInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.LiquidateAccountInputPort;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementQueryRepository;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementQueryRepository;
 import com.jbh.finance.application.feature.movement.services.AccountMovementServiceImpl;
 import com.jbh.finance.application.feature.movement.services.MovementApplicationService;
 import com.jbh.finance.application.feature.movement.services.MovementApplicationServiceImpl;
 import com.jbh.finance.application.feature.movement.services.MovementService;
 import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhAccountsUseCase;
+import com.jbh.finance.application.feature.movement.usecases.FindMovementsUseCase;
 import com.jbh.finance.application.feature.movement.usecases.LiquidateAccountUseCase;
 import com.jbh.finance.application.feature.product.ports.input.CreateProductInputPort;
 import com.jbh.finance.application.feature.product.ports.input.DeleteProductInputPort;
@@ -63,7 +65,7 @@ public class ProductUseCasesCDIConfig {
 
   @Inject AccountMovementWriterRepository accountMovementWriterRepo;
 
-  @Inject AccountMovementQueryRepository accountMovementQueryRepo;
+  @Inject MovementQueryRepository accountMovementQueryRepo;
 
   @Inject UnitOfWork unitOfWork;
 
@@ -80,26 +82,26 @@ public class ProductUseCasesCDIConfig {
   @Produces
   @ApplicationScoped
   public CreateProductInputPort registeringCreateAccountUseCase() {
-    return new CreateProductInputPort(accountService());
+    return new CreateProductInputPort(productsService());
   }
 
   @Produces
   @ApplicationScoped
-  public ProductsService accountService() {
+  public ProductsService productsService() {
     return new ProductServiceImpl(accountRepository);
   }
 
   @Produces
   @ApplicationScoped
   public AddMovementInputPort registeringAddMovementUseCase() {
-    return new AddMovementInputPort(accountMovementServiceApplication(), accountService());
+    return new AddMovementInputPort(accountMovementServiceApplication(), productsService());
   }
 
   @Produces
   @ApplicationScoped
   public MovementApplicationService accountMovementServiceApplication() {
     return new MovementApplicationServiceImpl(
-        accountMovementService(), accountService(), monthlyBalanceService(), unitOfWork);
+        accountMovementService(), productsService(), monthlyBalanceService(), unitOfWork);
   }
 
   @Produces
@@ -114,14 +116,14 @@ public class ProductUseCasesCDIConfig {
         monthlyBalanceQueryRepo,
         monthlyBalanceWriterRepo,
         new AsyncTaskExecutorImpl(),
-        accountService());
+        productsService());
   }
 
   @Produces
   @ApplicationScoped
   public AddMovementsUploadedFileInputPort registeringAddMovementsUploadedFileUseCase() {
     return new AddMovementsUploadedFileInputPort(
-        accountService(),
+        productsService(),
         accountMovementWriterRepo,
         unitOfWork,
         uploadedMovementsBalanceSynchronizer());
@@ -136,7 +138,7 @@ public class ProductUseCasesCDIConfig {
   @Produces
   @ApplicationScoped
   public FindMonthlyBalanceUseCase findMonthlyBalanceUseCase() {
-    return new FindMonthlyBalanceInputPort(monthlyBalanceService(), accountService());
+    return new FindMonthlyBalanceInputPort(monthlyBalanceService(), productsService());
   }
 
   @Produces
@@ -154,50 +156,56 @@ public class ProductUseCasesCDIConfig {
   @Produces
   @ApplicationScoped
   public FindProductsUseCase findActiveProductsUseCase() {
-    return new FindActiveProductsInputPort(accountService());
+    return new FindActiveProductsInputPort(productsService());
   }
 
   @Produces
   @ApplicationScoped
   public EditProductUseCase editProductUseCase() {
-    return new EditProductInputPort(accountService());
+    return new EditProductInputPort(productsService());
   }
 
   @Produces
   @ApplicationScoped
   public DeleteProductUseCase deleteProductUseCase() {
-    return new DeleteProductInputPort(accountService());
+    return new DeleteProductInputPort(productsService());
   }
 
   @Produces
   @ApplicationScoped
   public UpdateProductStatusUseCase updateProductStatusUseCase() {
-    return new UpdateProductStatusInputPort(accountService());
+    return new UpdateProductStatusInputPort(productsService());
   }
 
   @Produces
   @ApplicationScoped
   public AddTransferJbhAccountsUseCase addTransferJbhAccountsUseCase() {
     return new AddTransferJbhAccountsInputPort(
-        accountService(), accountMovementServiceApplication());
+        productsService(), accountMovementServiceApplication());
   }
 
   @Produces
   @ApplicationScoped
   public LiquidateAccountUseCase liquidateAccountUseCase() {
-    return new LiquidateAccountInputPort(accountService(), accountMovementServiceApplication());
+    return new LiquidateAccountInputPort(productsService(), accountMovementServiceApplication());
   }
 
   @Produces
   @ApplicationScoped
   public RegisterMonthlyBalanceUseCase registerMonthlyBalanceUseCase() {
     return new RegisterMonthlyBalanceInputPort(
-        monthlyBalanceService(), accountService(), accountMovementServiceApplication());
+        monthlyBalanceService(), productsService(), accountMovementServiceApplication());
   }
 
   @Produces
   @ApplicationScoped
   public UpdateProductUseCase updateProductUseCase() {
-    return new UpdateProductInputPort(accountService());
+    return new UpdateProductInputPort(productsService());
+  }
+
+  @Produces
+  @ApplicationScoped
+  public FindMovementsUseCase findMovementsByProductUseCase() {
+    return new FindMovementsByProductInputPort(accountMovementQueryRepo, productsService());
   }
 }

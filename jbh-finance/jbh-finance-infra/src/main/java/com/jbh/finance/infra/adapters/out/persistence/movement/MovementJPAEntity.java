@@ -1,10 +1,10 @@
 package com.jbh.finance.infra.adapters.out.persistence.movement;
 
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
-import com.jbh.finance.domain.movement.vo.AccountMovementMetadata;
 import com.jbh.finance.domain.movement.vo.AccountMovementMetadataKey;
 import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.movement.vo.MovementId;
+import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
@@ -99,7 +99,7 @@ public class MovementJPAEntity extends PanacheEntityBase {
         .movementAmount(movementAmount)
         .movementDate(movementDate)
         .balanceSnapshot(balanceSnapshot)
-        .metadata(metadata != null ? AccountMovementMetadata.of(metadata) : null)
+        .metadata(metadata != null ? MovementMetadata.of(metadata) : null)
         .createdAt(createdAt)
         .description(description)
         .build();

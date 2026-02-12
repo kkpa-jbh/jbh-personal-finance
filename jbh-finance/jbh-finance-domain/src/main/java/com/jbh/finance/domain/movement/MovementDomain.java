@@ -5,11 +5,11 @@ import static com.jbh.finance.domain.movement.MovementCategoryDomain.withCategor
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.commons.util.JbhMoneyUtils;
-import com.jbh.finance.domain.movement.vo.AccountMovementMetadata;
 import com.jbh.finance.domain.movement.vo.AccountMovementMetadataKey;
 import com.jbh.finance.domain.movement.vo.ExpenseCategory;
 import com.jbh.finance.domain.movement.vo.IncomeCategory;
 import com.jbh.finance.domain.movement.vo.MovementId;
+import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.shared.exceptions.BusinessDomainExceptionType;
@@ -35,7 +35,7 @@ public class MovementDomain {
 
   private final LocalDate movementDate;
   private final BigDecimal balanceSnapshot;
-  private final AccountMovementMetadata metadata;
+  private final MovementMetadata metadata;
   private final String description;
 
   public MovementDomain(
@@ -44,7 +44,7 @@ public class MovementDomain {
       final LocalDate movementDate,
       final BigDecimal movementAmount,
       final BigDecimal balanceSnapshot,
-      final AccountMovementMetadata metadata,
+      final MovementMetadata metadata,
       final MovementCategoryDomain category,
       final String description) {
     this(
@@ -67,7 +67,7 @@ public class MovementDomain {
       final BigDecimal movementAmount,
       final LocalDate movementDate,
       final BigDecimal balanceSnapshot,
-      final AccountMovementMetadata metadata,
+      final MovementMetadata metadata,
       final String description) {
     this.id = id;
     this.accountId = accountId;
@@ -104,7 +104,7 @@ public class MovementDomain {
             movementDate,
             totalAmount,
             balanceSnapshot,
-            AccountMovementMetadata.createEmpty(),
+            MovementMetadata.createEmpty(),
             category,
             null);
 

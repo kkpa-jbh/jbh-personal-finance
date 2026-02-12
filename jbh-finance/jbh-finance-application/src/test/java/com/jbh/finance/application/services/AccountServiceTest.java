@@ -11,7 +11,7 @@ import com.jbh.finance.application.builders.UseCaseBuilder;
 import com.jbh.finance.application.feature.product.services.ProductsService;
 import com.jbh.finance.domain.movement.MovementCategoryDomain;
 import com.jbh.finance.domain.movement.MovementDomain;
-import com.jbh.finance.domain.movement.vo.AccountMovementMetadata;
+import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
@@ -90,7 +90,7 @@ public class AccountServiceTest {
             movementDate,
             totalAmount,
             balanceSnapshot,
-            AccountMovementMetadata.createEmpty(),
+            MovementMetadata.createEmpty(),
             category,
             null);
 

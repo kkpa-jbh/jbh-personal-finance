@@ -8,8 +8,8 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.domain.entity.AccountDomainTestBuilder;
 import com.jbh.finance.domain.movement.MovementCategoryDomain;
 import com.jbh.finance.domain.movement.MovementDomain;
-import com.jbh.finance.domain.movement.vo.AccountMovementMetadata;
 import com.jbh.finance.domain.movement.vo.ExpenseCategory;
+import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.service.metrics.LoanAccountMetricsCalculator;
@@ -165,7 +165,7 @@ class LoanAccountMetricsCalculatorTest {
             LocalDate.now(),
             new BigDecimal("-500.00"),
             JBH_ZERO,
-            AccountMovementMetadata.createEmpty(),
+            MovementMetadata.createEmpty(),
             MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
             null);
 
@@ -193,7 +193,7 @@ class LoanAccountMetricsCalculatorTest {
             LocalDate.now(),
             new BigDecimal("1000.00"),
             JBH_ZERO,
-            AccountMovementMetadata.createEmpty(),
+            MovementMetadata.createEmpty(),
             MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
             null);
 
@@ -219,7 +219,7 @@ class LoanAccountMetricsCalculatorTest {
             LocalDate.now(),
             new BigDecimal("-500.00"),
             JBH_ZERO,
-            AccountMovementMetadata.createEmpty(),
+            MovementMetadata.createEmpty(),
             MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
             null);
 
@@ -248,7 +248,7 @@ class LoanAccountMetricsCalculatorTest {
             LocalDate.now(),
             new BigDecimal("-250.00"),
             JBH_ZERO,
-            AccountMovementMetadata.createEmpty(),
+            MovementMetadata.createEmpty(),
             MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
             null);
 
@@ -276,7 +276,7 @@ class LoanAccountMetricsCalculatorTest {
             LocalDate.now(),
             new BigDecimal("-25000.00"),
             JBH_ZERO,
-            AccountMovementMetadata.createEmpty(),
+            MovementMetadata.createEmpty(),
             MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
             null);
 
@@ -304,7 +304,7 @@ class LoanAccountMetricsCalculatorTest {
             LocalDate.now(),
             new BigDecimal("-500.654321"),
             JBH_ZERO,
-            AccountMovementMetadata.createEmpty(),
+            MovementMetadata.createEmpty(),
             MovementCategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
             null);
 

@@ -7,7 +7,7 @@ import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.finance.domain.monthlybalance.MonthlyBalanceDomain;
 import com.jbh.finance.domain.movement.MovementCategoryDomain;
 import com.jbh.finance.domain.movement.MovementDomain;
-import com.jbh.finance.domain.movement.vo.AccountMovementMetadata;
+import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
@@ -65,7 +65,7 @@ public class EntityBuilder {
             movementDate,
             totalAmount,
             balanceSnapshot,
-            AccountMovementMetadata.createEmpty(),
+            MovementMetadata.createEmpty(),
             category,
             null);
 

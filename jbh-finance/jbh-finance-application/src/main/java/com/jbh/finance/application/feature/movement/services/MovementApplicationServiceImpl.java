@@ -15,10 +15,10 @@ import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.services.ProductsService;
 import com.jbh.finance.application.feature.product.validation.product_type.ProductMovementValidatorFactory;
-import com.jbh.finance.domain.movement.vo.AccountMovementMetadata;
 import com.jbh.finance.domain.movement.vo.ExpenseCategory;
 import com.jbh.finance.domain.movement.vo.IncomeCategory;
 import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
+import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
@@ -123,7 +123,7 @@ public class MovementApplicationServiceImpl implements MovementApplicationServic
           monthlyProfitReported,
           nextMonthBalance,
           incomeWithholdingTaxAmount,
-          AccountMovementMetadata.createEmpty());
+          MovementMetadata.createEmpty());
     }
   }
 
@@ -194,7 +194,7 @@ public class MovementApplicationServiceImpl implements MovementApplicationServic
       final BigDecimal dividendsAmount,
       final BigDecimal balanceSnapshot,
       final BigDecimal incomeWithholdingTaxAmount,
-      final AccountMovementMetadata metadata)
+      final MovementMetadata metadata)
       throws BusinessException {
     final AddMovementCommand dividendsMovement =
         new AddMovementCommand(

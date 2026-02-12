@@ -5,7 +5,7 @@ import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBal
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
-import com.jbh.finance.domain.movement.vo.AccountMovementMetadata;
+import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.product.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -55,6 +55,6 @@ public interface MovementApplicationService {
       BigDecimal dividendsAmount,
       BigDecimal balanceSnapshot,
       BigDecimal incomeWithholdingTaxAmount,
-      AccountMovementMetadata metadata)
+      MovementMetadata metadata)
       throws BusinessException;
 }

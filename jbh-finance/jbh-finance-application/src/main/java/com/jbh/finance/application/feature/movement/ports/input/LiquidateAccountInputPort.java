@@ -9,7 +9,7 @@ import com.jbh.finance.application.feature.movement.services.MovementApplication
 import com.jbh.finance.application.feature.movement.usecases.LiquidateAccountUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.services.ProductsService;
-import com.jbh.finance.domain.movement.vo.AccountMovementMetadata;
+import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
 import java.util.UUID;
@@ -71,7 +71,7 @@ public class LiquidateAccountInputPort implements LiquidateAccountUseCase {
       final var transferDate = liquidationCommand.liquidatedDate();
 
       final ProductPK accountPK = new ProductPK(toInternalAccount.userId(), internalAccountId);
-      final AccountMovementMetadata metadata = AccountMovementMetadata.createEmpty();
+      final MovementMetadata metadata = MovementMetadata.createEmpty();
       metadata.putInvestmentIncomeAccount(syncedAccountDTO.toDomain());
       movementApplicationService.addDividendsMovement(
           accountPK, transferDate, totalAmount, null, null, metadata);
