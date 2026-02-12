@@ -3,22 +3,22 @@ package com.jbh.finance.application.feature.monthlybalance.services;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.movement.services.MovementApplicationService;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.movement.services.ProcessMovementService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
 import java.math.BigDecimal;
 
 public class ReportedProfitStrategy implements MonthlyBalanceProfitStrategy {
 
-  private final MonthlyBalanceService monthlyBalanceService;
-  private final ProductsService accountService;
-  private final MovementApplicationService movementApplicationService;
+  private final MonthlyBalanceLifecycleService monthlyBalanceService;
+  private final ProductLifecycleService accountService;
+  private final ProcessMovementService movementApplicationService;
 
   public ReportedProfitStrategy(
-      final MonthlyBalanceService monthlyBalanceService,
-      final ProductsService accountService,
-      final MovementApplicationService movementApplicationService) {
+      final MonthlyBalanceLifecycleService monthlyBalanceService,
+      final ProductLifecycleService accountService,
+      final ProcessMovementService movementApplicationService) {
     this.movementApplicationService = movementApplicationService;
     this.accountService = accountService;
     this.monthlyBalanceService = monthlyBalanceService;

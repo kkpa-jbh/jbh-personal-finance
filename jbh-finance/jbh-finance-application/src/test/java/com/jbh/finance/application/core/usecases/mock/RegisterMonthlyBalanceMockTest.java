@@ -21,17 +21,17 @@ import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.ports.input.RegisterMonthlyBalanceInputPort;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceServiceImpl;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
-import com.jbh.finance.application.feature.movement.services.AccountMovementServiceImpl;
-import com.jbh.finance.application.feature.movement.services.MovementApplicationServiceImpl;
-import com.jbh.finance.application.feature.movement.services.MovementService;
+import com.jbh.finance.application.feature.movement.services.MovementLifecycleService;
+import com.jbh.finance.application.feature.movement.services.MovementLifecycleServiceImpl;
+import com.jbh.finance.application.feature.movement.services.ProcessMovementServiceImpl;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.ports.output.ProductRepository;
-import com.jbh.finance.application.feature.product.services.ProductServiceImpl;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleServiceImpl;
 import com.jbh.finance.domain.product.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -53,9 +53,9 @@ public class RegisterMonthlyBalanceMockTest {
   final LocalDate runningDate = LocalDate.now();
   RegisterMonthlyBalanceUseCase useCaseInstanceTest;
 
-  MovementApplicationServiceImpl accountMovementService;
-  MonthlyBalanceService monthlyBalanceService;
-  ProductsService accountService;
+  ProcessMovementServiceImpl accountMovementService;
+  MonthlyBalanceLifecycleService monthlyBalanceService;
+  ProductLifecycleService accountService;
   @Mock private ProductRepository accountRepository;
   @Mock private AccountMovementWriterRepository accountMovementRepository;
   @Mock private AccountMonthlyBalanceQueryRepo monthlyBalanceQueryRepoMock;
@@ -70,20 +70,20 @@ public class RegisterMonthlyBalanceMockTest {
             Optional.of(
                 ProductDTO.defaultBuilder(userId, accountId, "DF", DEFAULT_ACCOUNT_TYPE).build()));
 
-    accountService = new ProductServiceImpl(accountRepository);
+    accountService = new ProductLifecycleServiceImpl(accountRepository);
 
-    final MonthlyBalanceServiceImpl realMonthlyBalanceService =
-        new MonthlyBalanceServiceImpl(
+    final MonthlyBalanceLifecycleServiceImpl realMonthlyBalanceService =
+        new MonthlyBalanceLifecycleServiceImpl(
             monthlyBalanceQueryRepoMock,
             monthlyBalanceWriterRepoMock,
             new AsyncTaskExecutorImpl(),
             accountService);
 
-    final MovementService coreAccountMovementService =
-        new AccountMovementServiceImpl(accountMovementRepository, movementQueryRepository);
+    final MovementLifecycleService coreAccountMovementService =
+        new MovementLifecycleServiceImpl(accountMovementRepository, movementQueryRepository);
 
     accountMovementService =
-        new MovementApplicationServiceImpl(
+        new ProcessMovementServiceImpl(
             coreAccountMovementService,
             accountService,
             realMonthlyBalanceService,

@@ -27,7 +27,7 @@ import com.jbh.finance.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceServiceImpl;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.finance.application.feature.movement.commands.AddMovementUploadedFileCommand;
 import com.jbh.finance.application.feature.movement.dto.AddMultipleBasicMovementDTO;
@@ -36,7 +36,7 @@ import com.jbh.finance.application.feature.movement.ports.output.AccountMovement
 import com.jbh.finance.application.feature.movement.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.ports.output.ProductRepository;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.domain.monthlybalance.MonthlyBalanceDomain;
 import com.jbh.finance.domain.product.ProductDomain;
@@ -73,7 +73,7 @@ public class UploadMultiMovementsExecutionMockTest {
       AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
   private static CreateProductUseCase createAccountUseCase;
   private static ProductDTO currentAccount;
-  private static ProductsService accountService;
+  private static ProductLifecycleService accountService;
   private static ProductRepository accountRepository;
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   private final Logger log = LoggerFactory.getLogger(UploadMultiMovementsExecutionMockTest.class);
@@ -82,7 +82,7 @@ public class UploadMultiMovementsExecutionMockTest {
   @Mock private AccountMonthlyBalanceQueryRepo accountMonthlyBalanceQueryRepo;
   @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
   private AddMovementsUploadedFileUseCase useCaseInstanceTest;
-  private MonthlyBalanceServiceImpl monthlyBalanceService;
+  private MonthlyBalanceLifecycleServiceImpl monthlyBalanceService;
 
   @BeforeEach
   void setUp() {
@@ -95,7 +95,7 @@ public class UploadMultiMovementsExecutionMockTest {
     accountService.save(accountDomain);
 
     monthlyBalanceService =
-        new MonthlyBalanceServiceImpl(
+        new MonthlyBalanceLifecycleServiceImpl(
             accountMonthlyBalanceQueryRepo,
             monthlyBalanceWriterRepoMock,
             new AsyncTaskExecutorImpl(),

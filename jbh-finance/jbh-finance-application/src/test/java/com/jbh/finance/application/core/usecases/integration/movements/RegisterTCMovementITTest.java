@@ -15,7 +15,7 @@ import com.jbh.finance.application.builders.UseCaseBuilder;
 import com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder;
 import com.jbh.finance.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
@@ -51,7 +51,7 @@ public class RegisterTCMovementITTest {
   private static AddMovementUseCase addMovementUseCase;
   @Mock private static AccountMovementWriterRepository accountMovementRepository;
   private static ProductDTO creditCardAccount;
-  private MonthlyBalanceService monthlyBalanceService;
+  private MonthlyBalanceLifecycleService monthlyBalanceService;
 
   @BeforeAll
   static void beforeAll() {

@@ -11,7 +11,7 @@ import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.domain.movement.MovementDomain;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
@@ -27,12 +27,12 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
       LoggerFactory.getLogger(AddMovementsUploadedFileInputPort.class);
 
   private final AccountMovementWriterRepository movementRepo;
-  private final ProductsService accountService;
+  private final ProductLifecycleService accountService;
   private final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService;
   private final UnitOfWork unitOfWork;
 
   public AddMovementsUploadedFileInputPort(
-      final ProductsService accountService,
+      final ProductLifecycleService accountService,
       final AccountMovementWriterRepository movementRepo,
       final UnitOfWork unitOfWork,
       final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService) {

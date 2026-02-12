@@ -4,14 +4,14 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.mappers.MonthlyBalanceMapper;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceProfitStrategy;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
 import com.jbh.finance.application.feature.monthlybalance.services.ReportedProfitStrategy;
 import com.jbh.finance.application.feature.monthlybalance.services.UnreportedProfitStrategy;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
-import com.jbh.finance.application.feature.movement.services.MovementApplicationService;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.movement.services.ProcessMovementService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
 import com.jbh.finance.domain.monthlybalance.MonthlyBalanceDomain;
 import com.jbh.finance.domain.movement.vo.IncomeCategory;
@@ -31,14 +31,14 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
 
   private static final Logger log = LoggerFactory.getLogger(RegisterMonthlyBalanceInputPort.class);
 
-  private final MonthlyBalanceService monthlyBalanceService;
-  private final ProductsService accountService;
-  private final MovementApplicationService accountMovementService;
+  private final MonthlyBalanceLifecycleService monthlyBalanceService;
+  private final ProductLifecycleService accountService;
+  private final ProcessMovementService accountMovementService;
 
   public RegisterMonthlyBalanceInputPort(
-      final MonthlyBalanceService monthlyBalanceService,
-      final ProductsService accountService,
-      final MovementApplicationService accountMovementService) {
+      final MonthlyBalanceLifecycleService monthlyBalanceService,
+      final ProductLifecycleService accountService,
+      final ProcessMovementService accountMovementService) {
     this.accountMovementService = accountMovementService;
     this.accountService = accountService;
     this.monthlyBalanceService = monthlyBalanceService;

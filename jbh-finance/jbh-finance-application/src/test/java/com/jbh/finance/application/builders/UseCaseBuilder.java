@@ -10,24 +10,24 @@ import com.jbh.finance.application.feature.monthlybalance.ports.input.FindMonthl
 import com.jbh.finance.application.feature.monthlybalance.ports.input.RegisterMonthlyBalanceInputPort;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceServiceImpl;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.AddTransferJbhAccountsInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.LiquidateAccountInputPort;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
-import com.jbh.finance.application.feature.movement.services.AccountMovementServiceImpl;
-import com.jbh.finance.application.feature.movement.services.MovementApplicationServiceImpl;
-import com.jbh.finance.application.feature.movement.services.MovementService;
+import com.jbh.finance.application.feature.movement.services.MovementLifecycleService;
+import com.jbh.finance.application.feature.movement.services.MovementLifecycleServiceImpl;
+import com.jbh.finance.application.feature.movement.services.ProcessMovementServiceImpl;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.finance.application.feature.movement.usecases.LiquidateAccountUseCase;
 import com.jbh.finance.application.feature.product.ports.input.CreateProductInputPort;
 import com.jbh.finance.application.feature.product.ports.input.UpdateProductInputPort;
-import com.jbh.finance.application.feature.product.services.ProductServiceImpl;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleServiceImpl;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.application.feature.product.usecases.UpdateProductUseCase;
 import com.jbh.finance.domain.product.vo.ProductType;
@@ -63,8 +63,8 @@ public class UseCaseBuilder {
     return new CreateProductInputPort(buildAccountService());
   }
 
-  public static ProductsService buildAccountService() {
-    return new ProductServiceImpl(getAccountRepository());
+  public static ProductLifecycleService buildAccountService() {
+    return new ProductLifecycleServiceImpl(getAccountRepository());
   }
 
   public static InMemoryAccountRepository getAccountRepository() {
@@ -111,22 +111,22 @@ public class UseCaseBuilder {
         buildAccountService(), buildAccountMovementApplicationService(accountMovementRepository));
   }
 
-  public static MovementApplicationServiceImpl buildAccountMovementApplicationService(
+  public static ProcessMovementServiceImpl buildAccountMovementApplicationService(
       final AccountMovementWriterRepository accountMovementRepository) {
-    return new MovementApplicationServiceImpl(
+    return new ProcessMovementServiceImpl(
         buildAccountMovementService(accountMovementRepository),
         buildAccountService(),
         buildMonthlyBalanceService(),
         new UnitOfWorkTest());
   }
 
-  public static MovementService buildAccountMovementService(
+  public static MovementLifecycleService buildAccountMovementService(
       final AccountMovementWriterRepository accountMovementRepository) {
-    return new AccountMovementServiceImpl(accountMovementRepository, movementQueryRepository);
+    return new MovementLifecycleServiceImpl(accountMovementRepository, movementQueryRepository);
   }
 
-  public static MonthlyBalanceService buildMonthlyBalanceService() {
-    return new MonthlyBalanceServiceImpl(
+  public static MonthlyBalanceLifecycleService buildMonthlyBalanceService() {
+    return new MonthlyBalanceLifecycleServiceImpl(
         monthlyBalanceInMemoQuery,
         monthlyBalanceInMemoWriter,
         new AsyncTaskExecutorImpl(),

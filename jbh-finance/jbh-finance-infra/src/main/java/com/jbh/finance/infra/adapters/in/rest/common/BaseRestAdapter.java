@@ -21,6 +21,11 @@ public class BaseRestAdapter {
 
   protected UUID findUserId(final String authorizationHeader)
       throws JbhGatewayException, BusinessException, InternalSystemException {
+
+    if (authorizationHeader == null) {
+      throw new InternalSystemException("Unathenticated user", "No user found");
+    }
+
     final UUID userId;
     final JbhHttpResponse gatewayResponse =
         gatewayClientFactory

@@ -3,10 +3,10 @@ package com.jbh.finance.application.feature.movement.ports.input;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
-import com.jbh.finance.application.feature.movement.ports.output.MovementQueryRepository;
+import com.jbh.finance.application.feature.movement.services.MovementLifecycleService;
 import com.jbh.finance.application.feature.movement.usecases.FindMovementsUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.domain.product.vo.ProductId;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -14,17 +14,17 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
-public class FindMovementsByProductInputPort implements FindMovementsUseCase {
+public class FindMovementsInputPort implements FindMovementsUseCase {
 
   private static final int DEFAULT_MONTHS_BACK = 3;
 
-  private final MovementQueryRepository movementQueryRepository;
-  private final ProductsService productsService;
+  private final MovementLifecycleService movementService;
+  private final ProductLifecycleService productsService;
 
-  public FindMovementsByProductInputPort(
-      final MovementQueryRepository movementQueryRepository,
-      final ProductsService productsService) {
-    this.movementQueryRepository = movementQueryRepository;
+  public FindMovementsInputPort(
+      final MovementLifecycleService movementService,
+      final ProductLifecycleService productsService) {
+    this.movementService = movementService;
     this.productsService = productsService;
   }
 
@@ -52,8 +52,7 @@ public class FindMovementsByProductInputPort implements FindMovementsUseCase {
 
     // Query movements within period
     final List<MovementDTO> movements =
-        movementQueryRepository.findByUserAndProductIdWithinPeriod(
-            userId, productId, startDate, endDate);
+        movementService.getByUserAndProductIdWithinPeriod(userId, productId, startDate, endDate);
 
     // Sort descending by movement date (newest first)
     return movements.stream()

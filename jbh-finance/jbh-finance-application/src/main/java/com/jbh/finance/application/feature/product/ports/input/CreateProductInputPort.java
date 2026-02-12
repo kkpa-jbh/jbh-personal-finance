@@ -3,10 +3,10 @@ package com.jbh.finance.application.feature.product.ports.input;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.finance.application.common.logging.LoggerFactory;
-import com.jbh.finance.application.feature.product.dto.ProductDTO;
-import com.jbh.finance.application.feature.product.services.ProductsService;
-import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.application.feature.product.commands.CreateProductCommand;
+import com.jbh.finance.application.feature.product.dto.ProductDTO;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
+import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
 import org.slf4j.Logger;
@@ -15,9 +15,9 @@ public class CreateProductInputPort implements CreateProductUseCase {
 
   private static final Logger LOG = LoggerFactory.getLogger(CreateProductInputPort.class);
 
-  private final ProductsService accountService;
+  private final ProductLifecycleService accountService;
 
-  public CreateProductInputPort(final ProductsService accountService) {
+  public CreateProductInputPort(final ProductLifecycleService accountService) {
     this.accountService = accountService;
   }
 

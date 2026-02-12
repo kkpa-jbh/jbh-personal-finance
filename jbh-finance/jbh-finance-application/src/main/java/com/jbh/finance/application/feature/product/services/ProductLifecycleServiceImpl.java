@@ -7,15 +7,15 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
-import com.jbh.finance.application.feature.product.dto.ProductDTO;
-import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
 import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
+import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.ports.output.ProductRepository;
+import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
 import com.jbh.finance.domain.movement.MovementDomain;
 import com.jbh.finance.domain.product.ProductDomain;
-import com.jbh.finance.domain.shared.exceptions.BusinessDomainExceptionType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
+import com.jbh.finance.domain.shared.exceptions.BusinessDomainExceptionType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -27,13 +27,13 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProductServiceImpl implements ProductsService {
+public class ProductLifecycleServiceImpl implements ProductLifecycleService {
 
   private final ProductRepository accountRepo;
 
-  private final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
+  private final Logger log = LoggerFactory.getLogger(ProductLifecycleServiceImpl.class);
 
-  public ProductServiceImpl(final ProductRepository accountRepo) {
+  public ProductLifecycleServiceImpl(final ProductRepository accountRepo) {
     this.accountRepo = accountRepo;
   }
 

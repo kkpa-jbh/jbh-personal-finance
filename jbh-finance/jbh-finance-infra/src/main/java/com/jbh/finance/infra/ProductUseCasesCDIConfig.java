@@ -6,22 +6,22 @@ import com.jbh.finance.application.feature.monthlybalance.ports.input.FindMonthl
 import com.jbh.finance.application.feature.monthlybalance.ports.input.RegisterMonthlyBalanceInputPort;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceServiceImpl;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.finance.application.feature.monthlybalance.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementsUploadedFileInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.AddTransferJbhAccountsInputPort;
-import com.jbh.finance.application.feature.movement.ports.input.FindMovementsByProductInputPort;
+import com.jbh.finance.application.feature.movement.ports.input.FindMovementsInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.LiquidateAccountInputPort;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
 import com.jbh.finance.application.feature.movement.ports.output.MovementQueryRepository;
-import com.jbh.finance.application.feature.movement.services.AccountMovementServiceImpl;
-import com.jbh.finance.application.feature.movement.services.MovementApplicationService;
-import com.jbh.finance.application.feature.movement.services.MovementApplicationServiceImpl;
-import com.jbh.finance.application.feature.movement.services.MovementService;
+import com.jbh.finance.application.feature.movement.services.MovementLifecycleService;
+import com.jbh.finance.application.feature.movement.services.MovementLifecycleServiceImpl;
+import com.jbh.finance.application.feature.movement.services.ProcessMovementService;
+import com.jbh.finance.application.feature.movement.services.ProcessMovementServiceImpl;
 import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.finance.application.feature.movement.usecases.FindMovementsUseCase;
 import com.jbh.finance.application.feature.movement.usecases.LiquidateAccountUseCase;
@@ -33,8 +33,8 @@ import com.jbh.finance.application.feature.product.ports.input.GetProductMetadat
 import com.jbh.finance.application.feature.product.ports.input.UpdateProductInputPort;
 import com.jbh.finance.application.feature.product.ports.input.UpdateProductStatusInputPort;
 import com.jbh.finance.application.feature.product.ports.output.ProductRepository;
-import com.jbh.finance.application.feature.product.services.ProductServiceImpl;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleServiceImpl;
 import com.jbh.finance.application.feature.product.services.metadata.ProductMetadataConfigRegistry;
 import com.jbh.finance.application.feature.product.usecases.DeleteProductUseCase;
 import com.jbh.finance.application.feature.product.usecases.EditProductUseCase;
@@ -77,7 +77,7 @@ public class ProductUseCasesCDIConfig {
   @Named("monthlyBalanceJPARepository")
   AccountMonthlyBalanceQueryRepo monthlyBalanceQueryRepo;
 
-  @Inject ProductsService productsService;
+  @Inject ProductLifecycleService productsService;
 
   @Produces
   @ApplicationScoped
@@ -87,8 +87,8 @@ public class ProductUseCasesCDIConfig {
 
   @Produces
   @ApplicationScoped
-  public ProductsService productsService() {
-    return new ProductServiceImpl(accountRepository);
+  public ProductLifecycleService productsService() {
+    return new ProductLifecycleServiceImpl(accountRepository);
   }
 
   @Produces
@@ -99,20 +99,20 @@ public class ProductUseCasesCDIConfig {
 
   @Produces
   @ApplicationScoped
-  public MovementApplicationService accountMovementServiceApplication() {
-    return new MovementApplicationServiceImpl(
-        accountMovementService(), productsService(), monthlyBalanceService(), unitOfWork);
+  public ProcessMovementService accountMovementServiceApplication() {
+    return new ProcessMovementServiceImpl(
+        movementService(), productsService(), monthlyBalanceService(), unitOfWork);
   }
 
   @Produces
-  public MovementService accountMovementService() {
-    return new AccountMovementServiceImpl(accountMovementWriterRepo, accountMovementQueryRepo);
+  public MovementLifecycleService movementService() {
+    return new MovementLifecycleServiceImpl(accountMovementWriterRepo, accountMovementQueryRepo);
   }
 
   @Produces
   @ApplicationScoped
-  public MonthlyBalanceService monthlyBalanceService() {
-    return new MonthlyBalanceServiceImpl(
+  public MonthlyBalanceLifecycleService monthlyBalanceService() {
+    return new MonthlyBalanceLifecycleServiceImpl(
         monthlyBalanceQueryRepo,
         monthlyBalanceWriterRepo,
         new AsyncTaskExecutorImpl(),
@@ -206,6 +206,6 @@ public class ProductUseCasesCDIConfig {
   @Produces
   @ApplicationScoped
   public FindMovementsUseCase findMovementsByProductUseCase() {
-    return new FindMovementsByProductInputPort(accountMovementQueryRepo, productsService());
+    return new FindMovementsInputPort(movementService(), productsService());
   }
 }

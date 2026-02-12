@@ -18,7 +18,7 @@ import java.util.UUID;
  *
  * <p>Like a Repository abstraction.
  */
-public interface ProductsService {
+public interface ProductLifecycleService {
   ProductDTO findByUserAndProductId(UUID userId, ProductId accountId) throws BusinessException;
 
   ProductDTO findProductOrThrow(ProductId accountId);

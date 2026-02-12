@@ -15,12 +15,12 @@ public class AccountMovementRepositoryQueryAdapter implements MovementQueryRepos
   @Inject AccountMovementJPARepository jpaRepo;
 
   @Override
-  public List<MovementDTO> findByAccountId(final ProductId accountId) {
+  public List<MovementDTO> getByAccountId(final ProductId accountId) {
     return jpaRepo.findByAccountId(accountId.value());
   }
 
   @Override
-  public List<MovementDTO> findByUserAndProductIdWithinPeriod(
+  public List<MovementDTO> getByUserAndProductIdWithinPeriod(
       final UUID userId,
       final ProductId productId,
       final LocalDate startDate,

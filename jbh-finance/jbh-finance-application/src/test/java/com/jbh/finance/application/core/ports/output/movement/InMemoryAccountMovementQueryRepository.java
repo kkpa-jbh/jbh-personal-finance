@@ -29,7 +29,7 @@ public class InMemoryAccountMovementQueryRepository implements MovementQueryRepo
   }
 
   @Override
-  public List<MovementDTO> findByAccountId(final ProductId accountId) {
+  public List<MovementDTO> getByAccountId(final ProductId accountId) {
     return storage.values().stream()
         .filter(movement -> movement.accountId().equals(accountId))
         .sorted((m1, m2) -> m1.movementDate().compareTo(m2.movementDate()))
@@ -37,7 +37,7 @@ public class InMemoryAccountMovementQueryRepository implements MovementQueryRepo
   }
 
   @Override
-  public List<MovementDTO> findByUserAndProductIdWithinPeriod(
+  public List<MovementDTO> getByUserAndProductIdWithinPeriod(
       final UUID userId,
       final ProductId productId,
       final LocalDate startDate,

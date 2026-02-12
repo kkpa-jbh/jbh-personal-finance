@@ -24,7 +24,7 @@ import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBal
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
@@ -93,7 +93,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   static ProductDTO createdAccount;
   static ProductId accountId;
   @Mock private static AccountMovementWriterRepository accountMovementRepository;
-  private static MonthlyBalanceService monthlyBalanceService;
+  private static MonthlyBalanceLifecycleService monthlyBalanceService;
   private static RegisterMonthlyBalanceUseCase useCaseTest;
   ;
   private static AddMovementUseCase addMovementUseCase;

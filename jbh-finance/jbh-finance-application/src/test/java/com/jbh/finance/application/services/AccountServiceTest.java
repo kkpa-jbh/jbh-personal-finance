@@ -8,7 +8,7 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.finance.application.builders.AccountEntityBuilder;
 import com.jbh.finance.application.builders.UseCaseBuilder;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.domain.movement.MovementCategoryDomain;
 import com.jbh.finance.domain.movement.MovementDomain;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 public class AccountServiceTest {
 
   static UUID userId = UUID.randomUUID();
-  private static ProductsService accountService;
+  private static ProductLifecycleService accountService;
   ProductDomain accountDomain;
   LocalDate today = LocalDate.now();
 

@@ -21,12 +21,12 @@ import com.jbh.finance.application.builders.commands.AddMovementCommandTestBuild
 import com.jbh.finance.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
-import com.jbh.finance.application.feature.movement.services.MovementApplicationServiceImpl;
+import com.jbh.finance.application.feature.movement.services.ProcessMovementServiceImpl;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
@@ -67,7 +67,7 @@ public class RegisterMonthlyReportedProfitITTest {
   static ProductDTO createdAccount;
   static ProductId accountId;
   static int commandIndex = -1;
-  static MonthlyBalanceService monthlyBalanceService;
+  static MonthlyBalanceLifecycleService monthlyBalanceService;
   private static MonthlyBalanceDTO finalReported20249;
   private static ProductDTO finalAccountBalance;
   private static MonthlyBalanceDTO finalReported202410;
@@ -78,7 +78,7 @@ public class RegisterMonthlyReportedProfitITTest {
   BigDecimal FIRST_BALANCE_ZERO = withJBHDecimals(new BigDecimal("1000"));
   List<AddMonthlyBalanceCommand> monthlyCommands =
       getAddMonthlyBalanceCommandsWithProfit(initialPeriod, FIRST_BALANCE_ZERO);
-  MovementApplicationServiceImpl accountMovementService;
+  ProcessMovementServiceImpl accountMovementService;
   private AddMovementUseCase addMovementUseCase;
 
   @BeforeAll

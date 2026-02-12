@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.ports.input.FindActiveProductsInputPort;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.application.feature.product.usecases.FindProductsUseCase;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductType;
@@ -25,7 +25,7 @@ public class FindActiveProductsMockTest {
 
   private static final UUID TEST_USER_ID = UUID.randomUUID();
   private FindProductsUseCase useCase;
-  @Mock private ProductsService accountRepository;
+  @Mock private ProductLifecycleService accountRepository;
 
   @BeforeEach
   public void setUp() {

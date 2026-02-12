@@ -6,16 +6,16 @@ import static com.jbh.finance.application.shared.exceptions.BusinessApplicationE
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.util.JbhMoneyUtils;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryEntryResponse;
 import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryResponse;
 import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistorySummaryResponse;
-import com.jbh.finance.application.feature.product.services.ProductsService;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.usecases.FindMonthlyBalanceUseCase;
-import com.jbh.finance.domain.shared.vo.PeriodRange;
+import com.jbh.finance.application.feature.product.dto.ProductDTO;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
+import com.jbh.finance.domain.shared.vo.PeriodRange;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -27,11 +27,12 @@ import java.util.stream.Collectors;
 
 public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
 
-  private final MonthlyBalanceService monthlyBalanceService;
-  private final ProductsService productService;
+  private final MonthlyBalanceLifecycleService monthlyBalanceService;
+  private final ProductLifecycleService productService;
 
   public FindMonthlyBalanceInputPort(
-      final MonthlyBalanceService monthlyBalanceService, final ProductsService productService) {
+      final MonthlyBalanceLifecycleService monthlyBalanceService,
+      final ProductLifecycleService productService) {
     this.monthlyBalanceService = monthlyBalanceService;
     this.productService = productService;
   }

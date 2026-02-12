@@ -17,8 +17,8 @@ import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.mappers.ProductMapper;
 import com.jbh.finance.application.feature.product.ports.input.UpdateProductStatusInputPort;
 import com.jbh.finance.application.feature.product.ports.output.ProductRepository;
-import com.jbh.finance.application.feature.product.services.ProductServiceImpl;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleServiceImpl;
 import com.jbh.finance.application.feature.product.usecases.UpdateProductStatusUseCase;
 import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
 import com.jbh.finance.domain.product.ProductDomain;
@@ -41,13 +41,13 @@ class UpdateProductStatusMockTest {
   private static final String PRODUCT_NAME = "Test Product";
 
   private UpdateProductStatusUseCase useCase;
-  private ProductsService accountService;
+  private ProductLifecycleService accountService;
   @Mock private ProductRepository accountRepository;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    accountService = new ProductServiceImpl(accountRepository);
+    accountService = new ProductLifecycleServiceImpl(accountRepository);
     useCase = new UpdateProductStatusInputPort(accountService);
   }
 

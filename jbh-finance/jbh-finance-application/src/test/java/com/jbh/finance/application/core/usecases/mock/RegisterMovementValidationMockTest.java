@@ -24,21 +24,21 @@ import com.jbh.finance.application.builders.AccountEntityBuilder;
 import com.jbh.finance.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceServiceImpl;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementInputPort;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
-import com.jbh.finance.application.feature.movement.services.AccountMovementServiceImpl;
-import com.jbh.finance.application.feature.movement.services.MovementApplicationService;
-import com.jbh.finance.application.feature.movement.services.MovementApplicationServiceImpl;
-import com.jbh.finance.application.feature.movement.services.MovementService;
+import com.jbh.finance.application.feature.movement.services.MovementLifecycleService;
+import com.jbh.finance.application.feature.movement.services.MovementLifecycleServiceImpl;
+import com.jbh.finance.application.feature.movement.services.ProcessMovementService;
+import com.jbh.finance.application.feature.movement.services.ProcessMovementServiceImpl;
 import com.jbh.finance.application.feature.product.mappers.ProductMapper;
 import com.jbh.finance.application.feature.product.ports.output.ProductRepository;
-import com.jbh.finance.application.feature.product.services.ProductServiceImpl;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleServiceImpl;
 import com.jbh.finance.domain.movement.vo.ExpenseCategory;
 import com.jbh.finance.domain.movement.vo.IncomeCategory;
 import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
@@ -58,21 +58,22 @@ public class RegisterMovementValidationMockTest {
   public static final MovementCategoryVO PERSONAL_EXPENSE =
       MovementCategoryVO.withType(ExpenseCategory.PERSONAL);
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
-  MonthlyBalanceService monthlyBalanceService;
+  MonthlyBalanceLifecycleService monthlyBalanceService;
   @Mock private ProductRepository accountRepository;
   @Mock private AccountMovementWriterRepository accountMovementRepository;
   @Mock private AccountMonthlyBalanceQueryRepo accountMonthlyBalanceRepository;
   @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
   private AddMovementInputPort registerSimpleMovementInputPort;
-  private MovementApplicationService accountMovementService;
+  private ProcessMovementService accountMovementService;
 
   @BeforeEach
   void setUp() {
     MockitoAnnotations.openMocks(this);
-    final ProductsService accountService = new ProductServiceImpl(accountRepository);
+    final ProductLifecycleService accountService =
+        new ProductLifecycleServiceImpl(accountRepository);
 
     monthlyBalanceService =
-        new MonthlyBalanceServiceImpl(
+        new MonthlyBalanceLifecycleServiceImpl(
             accountMonthlyBalanceRepository,
             monthlyBalanceWriterRepoMock,
             new AsyncTaskExecutorImpl(),
@@ -81,11 +82,11 @@ public class RegisterMovementValidationMockTest {
     final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService =
         new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
 
-    final MovementService coreAccountMovementService =
-        new AccountMovementServiceImpl(accountMovementRepository, movementQueryRepository);
+    final MovementLifecycleService coreAccountMovementService =
+        new MovementLifecycleServiceImpl(accountMovementRepository, movementQueryRepository);
 
     accountMovementService =
-        new MovementApplicationServiceImpl(
+        new ProcessMovementServiceImpl(
             coreAccountMovementService,
             accountService,
             monthlyBalanceService,

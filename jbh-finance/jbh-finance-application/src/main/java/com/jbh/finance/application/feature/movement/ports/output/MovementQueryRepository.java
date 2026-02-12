@@ -8,8 +8,8 @@ import java.util.UUID;
 
 public interface MovementQueryRepository {
 
-  List<MovementDTO> findByAccountId(ProductId accountId);
+  List<MovementDTO> getByAccountId(ProductId accountId);
 
-  List<MovementDTO> findByUserAndProductIdWithinPeriod(
+  List<MovementDTO> getByUserAndProductIdWithinPeriod(
       UUID userId, ProductId productId, LocalDate startDate, LocalDate endDate);
 }

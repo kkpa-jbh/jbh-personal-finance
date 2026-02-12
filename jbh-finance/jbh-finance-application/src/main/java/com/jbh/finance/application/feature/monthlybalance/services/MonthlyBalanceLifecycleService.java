@@ -1,16 +1,16 @@
 package com.jbh.finance.application.feature.monthlybalance.services;
 
+import com.jbh.commons.exception.BusinessException;
+import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
-import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
+import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.domain.product.vo.ProductId;
-import com.jbh.commons.exception.BusinessException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public interface MonthlyBalanceService
+public interface MonthlyBalanceLifecycleService
     extends AccountMonthlyBalanceQueryRepo, AccountMonthlyBalanceWriterRepository {
 
   void validateNewMovementForOfficialMonthlyReport(MovementDTO movementDTO)

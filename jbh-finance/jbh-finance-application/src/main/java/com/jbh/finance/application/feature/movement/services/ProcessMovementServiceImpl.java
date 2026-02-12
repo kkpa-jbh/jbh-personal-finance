@@ -7,13 +7,13 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.acid.UnitOfWork;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.application.feature.product.validation.product_type.ProductMovementValidatorFactory;
 import com.jbh.finance.domain.movement.vo.ExpenseCategory;
 import com.jbh.finance.domain.movement.vo.IncomeCategory;
@@ -30,27 +30,27 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MovementApplicationServiceImpl implements MovementApplicationService {
-  private static final Logger log = LoggerFactory.getLogger(MovementApplicationServiceImpl.class);
+public class ProcessMovementServiceImpl implements ProcessMovementService {
+  private static final Logger log = LoggerFactory.getLogger(ProcessMovementServiceImpl.class);
 
-  private final MovementService movementService;
-  private final ProductsService productsService;
-  private final MonthlyBalanceService monthlyBalanceService;
+  private final MovementLifecycleService movementLifecycleService;
+  private final ProductLifecycleService productLifecycleService;
+  private final MonthlyBalanceLifecycleService monthlyBalanceService;
   private final UnitOfWork unitOfWork;
 
   private final ProductMovementValidatorFactory movementValidatorFactory;
 
-  public MovementApplicationServiceImpl(
-      final MovementService movementService,
-      final ProductsService productsService,
-      final MonthlyBalanceService monthlyBalanceService,
+  public ProcessMovementServiceImpl(
+      final MovementLifecycleService movementLifecycleService,
+      final ProductLifecycleService productLifecycleService,
+      final MonthlyBalanceLifecycleService monthlyBalanceService,
       final UnitOfWork unitOfWork) {
     this.unitOfWork = unitOfWork;
-    this.productsService = productsService;
+    this.productLifecycleService = productLifecycleService;
     this.monthlyBalanceService = monthlyBalanceService;
-    this.movementService = movementService;
+    this.movementLifecycleService = movementLifecycleService;
 
-    movementValidatorFactory = new ProductMovementValidatorFactory(movementService);
+    movementValidatorFactory = new ProductMovementValidatorFactory(movementLifecycleService);
   }
 
   // TODO: Move this out of the service. This service should be responsible of
@@ -165,7 +165,7 @@ public class MovementApplicationServiceImpl implements MovementApplicationServic
     final ProductId accountId = accountPK.accountId();
 
     final ProductDTO syncedAccountDTO =
-        productsService.syncByMovement(
+        productLifecycleService.syncByMovement(
             new ProductPK(userId, accountId), movementDTO, isMonthOfficiallyReported);
 
     validateMovementByProductType(syncedAccountDTO, movementDTO);
@@ -174,7 +174,7 @@ public class MovementApplicationServiceImpl implements MovementApplicationServic
         () -> {
           log.info("Persisting Movement {} ", movementDTO.movementDate());
           persistMovementDTO(movementDTO);
-          productsService.save(syncedAccountDTO);
+          productLifecycleService.save(syncedAccountDTO);
           log.info("Movement and Account {} persisted successfully", syncedAccountDTO.name());
         });
 
@@ -255,6 +255,6 @@ public class MovementApplicationServiceImpl implements MovementApplicationServic
   }
 
   private void persistMovementDTO(final MovementDTO movementDTO) {
-    movementService.save(movementDTO);
+    movementLifecycleService.save(movementDTO);
   }
 }

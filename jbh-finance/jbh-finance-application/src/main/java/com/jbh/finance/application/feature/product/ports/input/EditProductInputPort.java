@@ -3,12 +3,12 @@ package com.jbh.finance.application.feature.product.ports.input;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.finance.application.common.logging.LoggerFactory;
-import com.jbh.finance.application.feature.product.dto.ProductDTO;
-import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
-import com.jbh.finance.application.feature.product.mappers.ProductMapper;
-import com.jbh.finance.application.feature.product.services.ProductsService;
-import com.jbh.finance.application.feature.product.usecases.EditProductUseCase;
 import com.jbh.finance.application.feature.product.commands.EditProductCommand;
+import com.jbh.finance.application.feature.product.dto.ProductDTO;
+import com.jbh.finance.application.feature.product.mappers.ProductMapper;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
+import com.jbh.finance.application.feature.product.usecases.EditProductUseCase;
+import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
 import com.jbh.finance.domain.product.ProductDomain;
 import org.slf4j.Logger;
 
@@ -16,9 +16,9 @@ public class EditProductInputPort implements EditProductUseCase {
 
   private static final Logger LOG = LoggerFactory.getLogger(EditProductInputPort.class);
 
-  private final ProductsService accountService;
+  private final ProductLifecycleService accountService;
 
-  public EditProductInputPort(final ProductsService accountService) {
+  public EditProductInputPort(final ProductLifecycleService accountService) {
     this.accountService = accountService;
   }
 

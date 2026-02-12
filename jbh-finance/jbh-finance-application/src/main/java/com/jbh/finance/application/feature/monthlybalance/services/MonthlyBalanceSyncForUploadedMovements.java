@@ -22,9 +22,10 @@ public class MonthlyBalanceSyncForUploadedMovements {
   private static final Logger LOG =
       LoggerFactory.getLogger(MonthlyBalanceSyncForUploadedMovements.class);
 
-  private final MonthlyBalanceService monthlyBalanceService;
+  private final MonthlyBalanceLifecycleService monthlyBalanceService;
 
-  public MonthlyBalanceSyncForUploadedMovements(final MonthlyBalanceService monthlyBalanceService) {
+  public MonthlyBalanceSyncForUploadedMovements(
+      final MonthlyBalanceLifecycleService monthlyBalanceService) {
     this.monthlyBalanceService = monthlyBalanceService;
   }
 

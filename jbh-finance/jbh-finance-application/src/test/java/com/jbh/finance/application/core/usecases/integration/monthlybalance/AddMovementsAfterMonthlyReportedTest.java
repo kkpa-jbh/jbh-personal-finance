@@ -17,7 +17,7 @@ import com.jbh.finance.application.core.ports.output.account.InMemoryAccountRepo
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.commands.MonthlyBalanceCommandVO;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
@@ -64,7 +64,7 @@ public class AddMovementsAfterMonthlyReportedTest {
   static CreateProductUseCase createAccountUseCase;
   static ProductDTO createdAccount;
   static ProductId accountId;
-  static MonthlyBalanceService monthlyBalanceService;
+  static MonthlyBalanceLifecycleService monthlyBalanceService;
   static YearMonth reportedPeriod = YearMonth.of(2024, 7);
   static MonthlyBalanceCommandVO reportedPeriodAmounts =
       new MonthlyBalanceCommandVO(

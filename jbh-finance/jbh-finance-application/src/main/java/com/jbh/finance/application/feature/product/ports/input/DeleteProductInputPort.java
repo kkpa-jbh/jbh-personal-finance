@@ -3,20 +3,20 @@ package com.jbh.finance.application.feature.product.ports.input;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.finance.application.common.logging.LoggerFactory;
-import com.jbh.finance.application.feature.product.dto.ProductDTO;
-import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
-import com.jbh.finance.application.feature.product.services.ProductsService;
-import com.jbh.finance.application.feature.product.usecases.DeleteProductUseCase;
 import com.jbh.finance.application.feature.product.commands.DeleteProductCommand;
+import com.jbh.finance.application.feature.product.dto.ProductDTO;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
+import com.jbh.finance.application.feature.product.usecases.DeleteProductUseCase;
+import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
 import org.slf4j.Logger;
 
 public class DeleteProductInputPort implements DeleteProductUseCase {
 
   private static final Logger LOG = LoggerFactory.getLogger(DeleteProductInputPort.class);
 
-  private final ProductsService productsService;
+  private final ProductLifecycleService productsService;
 
-  public DeleteProductInputPort(final ProductsService productsService) {
+  public DeleteProductInputPort(final ProductLifecycleService productsService) {
     this.productsService = productsService;
   }
 

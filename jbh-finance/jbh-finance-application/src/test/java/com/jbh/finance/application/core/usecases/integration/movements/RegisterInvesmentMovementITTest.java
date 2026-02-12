@@ -20,13 +20,13 @@ import com.jbh.finance.application.builders.commands.AddMovementCommandTestBuild
 import com.jbh.finance.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.finance.application.core.usecases.integration.monthlybalance.RegisterMonthlyReportedWithoutProfitITTest;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.commands.ExternalAccountInfoVO;
 import com.jbh.finance.application.feature.movement.commands.LiquidateAccountCommand;
 import com.jbh.finance.application.feature.movement.dto.LiquidationResultDTO;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
-import com.jbh.finance.application.feature.movement.services.MovementApplicationServiceImpl;
+import com.jbh.finance.application.feature.movement.services.ProcessMovementServiceImpl;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.movement.usecases.LiquidateAccountUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
@@ -68,8 +68,8 @@ public class RegisterInvesmentMovementITTest {
   private static ProductId fondoAccionesId;
   private static BigDecimal finalAcciBalanceSept;
   private final BigDecimal initialBalance = withJBHDecimals(new BigDecimal("5000000"));
-  private MonthlyBalanceService monthlyBalanceService;
-  private MovementApplicationServiceImpl accountMovementApplicationService;
+  private MonthlyBalanceLifecycleService monthlyBalanceService;
+  private ProcessMovementServiceImpl accountMovementApplicationService;
 
   @BeforeAll
   static void beforeAll() {

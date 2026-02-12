@@ -9,7 +9,7 @@ import com.jbh.finance.application.builders.UseCaseBuilder;
 import com.jbh.finance.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.commands.MonthlyBalanceCommandVO;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
@@ -39,7 +39,7 @@ public class RegisterMonthlyReportedValidationITTest {
   private static final String ACCOUNT_REPORTED = "Reported";
   private static final YearMonth reportedPeriod = YearMonth.of(2024, 7);
   private static final LocalDate runningDate = LocalDate.now();
-  private static MonthlyBalanceService monthlyBalanceService;
+  private static MonthlyBalanceLifecycleService monthlyBalanceService;
   private static InMemoryAccountRepository inMemoryAccountRepo;
   private static RegisterMonthlyBalanceUseCase useCaseTest;
   private static CreateProductUseCase createAccountUseCase;

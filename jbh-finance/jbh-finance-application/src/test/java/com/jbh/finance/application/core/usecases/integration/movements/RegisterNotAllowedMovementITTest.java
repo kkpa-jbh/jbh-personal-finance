@@ -8,7 +8,7 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.builders.CommandTestBuilder;
 import com.jbh.finance.application.builders.UseCaseBuilder;
 import com.jbh.finance.application.core.ports.output.account.InMemoryAccountRepository;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.movement.usecases.LiquidateAccountUseCase;
@@ -32,7 +32,7 @@ public class RegisterNotAllowedMovementITTest {
   private static ProductDTO cdtAccount;
   private static ProductDTO internalAccount;
   private static LiquidateAccountUseCase liquidateAccountUseCase;
-  private MonthlyBalanceService monthlyBalanceService;
+  private MonthlyBalanceLifecycleService monthlyBalanceService;
 
   @BeforeAll
   static void beforeAll() {

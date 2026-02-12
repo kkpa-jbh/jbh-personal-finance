@@ -10,13 +10,13 @@ import static org.mockito.Mockito.when;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
+import com.jbh.finance.application.feature.product.commands.CreateProductCommand;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.ports.input.CreateProductInputPort;
 import com.jbh.finance.application.feature.product.ports.output.ProductRepository;
-import com.jbh.finance.application.feature.product.services.ProductServiceImpl;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleServiceImpl;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
-import com.jbh.finance.application.feature.product.commands.CreateProductCommand;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductType;
 import java.util.UUID;
@@ -32,14 +32,14 @@ public class CreateBasicAccountMockTest {
   final ProductType type = ProductType.SAVINGS;
   final String testAccountName = "Test Account";
   private CreateProductUseCase useCase;
-  private ProductsService accountService;
+  private ProductLifecycleService accountService;
   @Mock private ProductRepository accountRepository;
 
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    accountService = new ProductServiceImpl(accountRepository);
+    accountService = new ProductLifecycleServiceImpl(accountRepository);
 
     useCase = new CreateProductInputPort(accountService);
   }

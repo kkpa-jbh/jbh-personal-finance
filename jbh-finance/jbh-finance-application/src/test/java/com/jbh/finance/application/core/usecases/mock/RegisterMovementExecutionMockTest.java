@@ -21,22 +21,22 @@ import com.jbh.finance.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceServiceImpl;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementInputPort;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
-import com.jbh.finance.application.feature.movement.services.AccountMovementServiceImpl;
-import com.jbh.finance.application.feature.movement.services.MovementApplicationService;
-import com.jbh.finance.application.feature.movement.services.MovementApplicationServiceImpl;
-import com.jbh.finance.application.feature.movement.services.MovementService;
+import com.jbh.finance.application.feature.movement.services.MovementLifecycleService;
+import com.jbh.finance.application.feature.movement.services.MovementLifecycleServiceImpl;
+import com.jbh.finance.application.feature.movement.services.ProcessMovementService;
+import com.jbh.finance.application.feature.movement.services.ProcessMovementServiceImpl;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.mappers.ProductMapper;
 import com.jbh.finance.application.feature.product.ports.output.ProductRepository;
-import com.jbh.finance.application.feature.product.services.ProductServiceImpl;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleServiceImpl;
 import com.jbh.finance.domain.movement.vo.IncomeCategory;
 import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.product.ProductDomain;
@@ -62,8 +62,8 @@ public class RegisterMovementExecutionMockTest {
   public static final MovementCategoryVO OTHER_INCOME_CATEGORY =
       MovementCategoryVO.withType(IncomeCategory.OTHER);
   static UUID userId = UUID.randomUUID();
-  private static MovementApplicationService accountMovementService;
-  private static ProductsService accountService;
+  private static ProcessMovementService accountMovementService;
+  private static ProductLifecycleService accountService;
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   private final Logger log = LoggerFactory.getLogger(RegisterMovementExecutionMockTest.class);
   MonthlyBalanceSyncForUploadedMovements monthlyBalanceAsyncTask;
@@ -73,28 +73,28 @@ public class RegisterMovementExecutionMockTest {
   @Mock private AccountMonthlyBalanceQueryRepo accountMonthlyBalanceRepository;
   @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
   private AddMovementInputPort useCaseInstanceTest;
-  private MonthlyBalanceServiceImpl monthlyBalanceService;
+  private MonthlyBalanceLifecycleServiceImpl monthlyBalanceService;
 
   @BeforeEach
   void setUp() {
 
     MockitoAnnotations.openMocks(this);
 
-    accountService = new ProductServiceImpl(accountRepository);
+    accountService = new ProductLifecycleServiceImpl(accountRepository);
 
     monthlyBalanceService =
-        new MonthlyBalanceServiceImpl(
+        new MonthlyBalanceLifecycleServiceImpl(
             accountMonthlyBalanceRepository,
             monthlyBalanceWriterRepoMock,
             new AsyncTaskExecutorImpl(),
             accountService);
     monthlyBalanceAsyncTask = new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
 
-    final MovementService coreAccountMovementService =
-        new AccountMovementServiceImpl(accountMovementRepository, movementQueryRepository);
+    final MovementLifecycleService coreAccountMovementService =
+        new MovementLifecycleServiceImpl(accountMovementRepository, movementQueryRepository);
 
     accountMovementService =
-        new MovementApplicationServiceImpl(
+        new ProcessMovementServiceImpl(
             coreAccountMovementService, accountService, monthlyBalanceService, unitOfWork);
     useCaseInstanceTest = new AddMovementInputPort(accountMovementService, accountService);
   }

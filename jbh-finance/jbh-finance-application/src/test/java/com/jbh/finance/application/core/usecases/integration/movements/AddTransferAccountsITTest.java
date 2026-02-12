@@ -14,7 +14,7 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.builders.UseCaseBuilder;
 import com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.commands.AddTransferCommand;
 import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
@@ -23,7 +23,7 @@ import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.finance.application.feature.product.commands.UpdateMetadataProductCommand;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.application.feature.product.usecases.UpdateProductUseCase;
 import com.jbh.finance.domain.movement.vo.IncomeCategory;
@@ -65,8 +65,8 @@ public class AddTransferAccountsITTest {
   @Mock private static AccountMovementWriterRepository accountMovementRepository;
   private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
-  private static ProductsService accountService;
-  private static MonthlyBalanceService monthlyBalanceService;
+  private static ProductLifecycleService accountService;
+  private static MonthlyBalanceLifecycleService monthlyBalanceService;
   private static UpdateProductUseCase updateProductUseCase;
 
   @BeforeEach

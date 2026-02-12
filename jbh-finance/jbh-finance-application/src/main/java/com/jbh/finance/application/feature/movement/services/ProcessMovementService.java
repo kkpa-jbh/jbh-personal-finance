@@ -10,7 +10,7 @@ import com.jbh.finance.domain.product.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public interface MovementApplicationService {
+public interface ProcessMovementService {
 
   /**
    * It creates a deposit movement for the next month with the dividends(monthly profit reported).

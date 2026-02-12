@@ -12,9 +12,9 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryResponse;
 import com.jbh.finance.application.feature.monthlybalance.ports.input.FindMonthlyBalanceInputPort;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
 import com.jbh.finance.domain.product.vo.ProductType;
@@ -39,9 +39,9 @@ public class FindMonthlyBalanceInputPortTest {
 
   private FindMonthlyBalanceInputPort inputPort;
 
-  @Mock private MonthlyBalanceService monthlyBalanceService;
+  @Mock private MonthlyBalanceLifecycleService monthlyBalanceService;
 
-  @Mock private ProductsService productService;
+  @Mock private ProductLifecycleService productService;
 
   @BeforeEach
   public void setUp() {

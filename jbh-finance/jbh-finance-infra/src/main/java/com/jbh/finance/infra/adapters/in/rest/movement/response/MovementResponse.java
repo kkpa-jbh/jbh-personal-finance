@@ -20,7 +20,8 @@ public record MovementResponse(
     BigDecimal balanceSnapshot,
     MovementMetadata metadata,
     LocalDateTime createdAt,
-    String description) {
+    String description,
+    boolean canBeRemoved) {
   public static MovementResponse fromDTO(final MovementDTO dto) {
     return new MovementResponse(
         dto.id(),
@@ -32,6 +33,7 @@ public record MovementResponse(
         dto.balanceSnapshot(),
         dto.metadata(),
         dto.createdAt(),
-        dto.description());
+        dto.description(),
+        dto.isToRemoval());
   }
 }

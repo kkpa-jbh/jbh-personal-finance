@@ -1,3 +1,59 @@
+# Services Names
+
+| Layer                 | Naming Style                                        |
+|-----------------------|-----------------------------------------------------|
+| Application Lifecycle | `UserLifecycleService`                              |
+| Application Workflow  | `RegisterUserService`                               |
+| Domain Service        | `PricingService`, `FraudDetector`, `DiscountPolicy` |
+| Entity                | `User`, `Order`, `Invoice`                          |
+| Repository Port       | `UserRepository`                                    |
+
+## Domain Module
+
+Domain services must be named after business capabilities, not technical roles.
+
+Use:
+
+```
+<BusinessCapability>Service
+```
+
+What to avoid
+
+```
+UserService
+OrderService
+EntityService
+UserManager
+UserHelper
+UserDomainService
+```
+
+## Application Module
+
+### Golden Rule
+
+- If a method name sounds like a SQL operation → it belongs in Lifecycle.
+
+- If a method name sounds like a business sentence → it belongs in Workflow.
+
+### Naming Strategy
+
+- Use `Lifecycle` for CRUD operations over entities.
+
+```
+UserLifecycleService
+ProductLifecycleService
+```
+
+- Use `UseCase-driven` naming for workflows services. Workflows should express business meaning, not retrieval mechanics.
+
+```
+RegisterUserService
+PlaceOrderService
+ApproveLoanService
+```
+
 # CRUD Operation Prefixes
 
 ## Create Operations

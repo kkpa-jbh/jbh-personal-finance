@@ -8,23 +8,23 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.async.AsyncTaskExecutor;
 import com.jbh.finance.application.async.vo.AsyncTask;
 import com.jbh.finance.application.async.vo.AsyncTaskType;
+import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.comparator.AccountMonthlyBalanceComparators;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.movement.dto.MovementDTO;
-import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
 import com.jbh.finance.application.feature.monthlybalance.mappers.MonthlyBalanceMapper;
-import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
-import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.movement.dto.MovementDTO;
+import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
 import com.jbh.finance.application.feature.movement.validation.movement_type.MovementTypeValidatorStrategy;
 import com.jbh.finance.application.feature.movement.validation.movement_type.MovementValidationStrategyFactory;
-import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
+import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
 import com.jbh.finance.domain.monthlybalance.MonthlyBalanceDomain;
 import com.jbh.finance.domain.movement.vo.MovementType;
-import com.jbh.finance.domain.shared.vo.PeriodRange;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
+import com.jbh.finance.domain.shared.vo.PeriodRange;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -42,19 +42,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("PMD.CouplingBetweenObjects")
-public class MonthlyBalanceServiceImpl implements MonthlyBalanceService {
-  private static final Logger LOG = LoggerFactory.getLogger(MonthlyBalanceServiceImpl.class);
+public class MonthlyBalanceLifecycleServiceImpl implements MonthlyBalanceLifecycleService {
+  private static final Logger LOG =
+      LoggerFactory.getLogger(MonthlyBalanceLifecycleServiceImpl.class);
   private final AccountMonthlyBalanceQueryRepo queryRepo;
   private final AccountMonthlyBalanceWriterRepository writerRepo;
   private final AsyncTaskExecutor asyncTaskExecutor;
-  private final ProductsService accountService;
+  private final ProductLifecycleService accountService;
   private final MovementValidationStrategyFactory movValidationStrategyFactory;
 
-  public MonthlyBalanceServiceImpl(
+  public MonthlyBalanceLifecycleServiceImpl(
       final AccountMonthlyBalanceQueryRepo monthlyBalanceRepo,
       final AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepo,
       final AsyncTaskExecutor asyncTaskExecutor,
-      final ProductsService accountService) {
+      final ProductLifecycleService accountService) {
     this.writerRepo = monthlyBalanceWriterRepo;
     this.queryRepo = monthlyBalanceRepo;
     this.asyncTaskExecutor = asyncTaskExecutor;
