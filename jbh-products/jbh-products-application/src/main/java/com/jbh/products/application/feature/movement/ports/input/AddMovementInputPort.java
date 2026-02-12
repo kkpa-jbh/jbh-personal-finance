@@ -2,13 +2,13 @@ package com.jbh.products.application.feature.movement.ports.input;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
+import com.jbh.products.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.products.application.feature.movement.dto.AddBasicMovementDTO;
-import com.jbh.products.application.feature.product.dto.ProductDTO;
-import com.jbh.products.application.shared.exceptions.BusinessApplicationExceptionType;
-import com.jbh.products.application.feature.product.services.ProductsService;
 import com.jbh.products.application.feature.movement.services.AccountMovementApplicationService;
 import com.jbh.products.application.feature.movement.usecases.AddMovementUseCase;
-import com.jbh.products.application.feature.movement.commands.AddMovementCommand;
+import com.jbh.products.application.feature.product.dto.ProductDTO;
+import com.jbh.products.application.feature.product.services.ProductsService;
+import com.jbh.products.application.shared.exceptions.BusinessApplicationExceptionType;
 import com.jbh.products.domain.product.vo.ProductId;
 import com.jbh.products.domain.product.vo.ProductPK;
 import com.jbh.products.domain.product.vo.ProductType;
@@ -21,14 +21,14 @@ public class AddMovementInputPort implements AddMovementUseCase {
 
   public AddMovementInputPort(
       final AccountMovementApplicationService accountMovementService,
-      final ProductsService accountService) {
-    this.accountService = accountService;
+      final ProductsService productsService) {
+    this.accountService = productsService;
     this.accountMovementService = accountMovementService;
   }
 
   @Override
   public AddBasicMovementDTO addMovement(
-      final UUID userId, final ProductId accountId, final AddMovementCommand movementCommand)
+      final UUID userId, final ProductId productId, final AddMovementCommand movementCommand)
       throws BusinessException {
 
     if (userId == null) {
@@ -37,7 +37,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
 
     movementCommand.validate();
 
-    final ProductDTO productDTO = accountService.findByUserAndProductId(userId, accountId);
+    final ProductDTO productDTO = accountService.findByUserAndProductId(userId, productId);
     final ProductType productType = productDTO.type();
 
     if (!productType.addingMovementsProductsAllowed().contains(productType)) {
@@ -48,7 +48,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
     final AddBasicMovementDTO addBasicMovementDTO;
     addBasicMovementDTO =
         accountMovementService.addMovementProcessingBalances(
-            new ProductPK(userId, accountId), movementCommand);
+            new ProductPK(userId, productId), movementCommand);
 
     return addBasicMovementDTO;
   }

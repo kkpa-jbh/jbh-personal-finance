@@ -1,21 +1,22 @@
 package com.jbh.products.application.feature.monthlybalance.ports.input;
 
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.products.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.products.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.products.application.shared.exceptions.BusinessApplicationExceptionType;
 import com.jbh.products.application.feature.monthlybalance.mappers.MonthlyBalanceMapper;
-import com.jbh.products.application.feature.product.services.ProductsService;
 import com.jbh.products.application.feature.monthlybalance.services.MonthlyBalanceProfitStrategy;
 import com.jbh.products.application.feature.monthlybalance.services.MonthlyBalanceService;
 import com.jbh.products.application.feature.monthlybalance.services.ReportedProfitStrategy;
 import com.jbh.products.application.feature.monthlybalance.services.UnreportedProfitStrategy;
-import com.jbh.products.application.feature.movement.services.AccountMovementApplicationService;
 import com.jbh.products.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
-import com.jbh.products.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.products.application.feature.movement.commands.AddMovementCommand;
+import com.jbh.products.application.feature.movement.services.AccountMovementApplicationService;
+import com.jbh.products.application.feature.product.services.ProductsService;
+import com.jbh.products.application.shared.exceptions.BusinessApplicationExceptionType;
 import com.jbh.products.domain.monthlybalance.MonthlyBalanceDomain;
 import com.jbh.products.domain.movement.vo.IncomeCategory;
 import com.jbh.products.domain.movement.vo.MovementCategoryVO;
+import com.jbh.products.domain.movement.vo.MovementType;
 import com.jbh.products.domain.product.vo.ProductId;
 import com.jbh.products.domain.product.vo.ProductPK;
 import java.time.Duration;
@@ -86,13 +87,17 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
     if (monthlyBalanceDomain == null) {
       log.info(
           "The monthly balanced has not been reported before. Creating Initial Balance Movement");
+      final AddMovementCommand movementCommand =
+          new AddMovementCommand(
+              addMonthlyBalanceCommand.monthlyPeriod().atDay(1),
+              addMonthlyBalanceCommand.closingBalance(),
+              null,
+              MovementType.DEPOSIT,
+              MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE),
+              null);
+
       accountMovementService.addMovementProcessingBalances(
-          new ProductPK(userId, accountId),
-          AddMovementCommand.withCategory(
-                  addMonthlyBalanceCommand.monthlyPeriod().atDay(1),
-                  addMonthlyBalanceCommand.closingBalance(),
-                  MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE))
-              .build());
+          new ProductPK(userId, accountId), movementCommand);
 
       try {
         // FIXME TODO - This is a hack to wait for the async task to be executed and the report is

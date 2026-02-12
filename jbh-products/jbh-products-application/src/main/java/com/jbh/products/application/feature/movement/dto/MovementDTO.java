@@ -38,14 +38,10 @@ public record MovementDTO(
   }
 
   public boolean isWithdrawalType() {
-    return movementType == MovementType.WITHDRAWAL;
-  }
-
-  public boolean isDepositType() {
-    return movementType == MovementType.DEPOSIT;
+    return movementType.isWithdrawal();
   }
 
   public boolean isBalanceSnapshot() {
-    return movementType == MovementType.BALANCE_SNAPSHOT;
+    return movementType.isBalanceSnapshot();
   }
 }

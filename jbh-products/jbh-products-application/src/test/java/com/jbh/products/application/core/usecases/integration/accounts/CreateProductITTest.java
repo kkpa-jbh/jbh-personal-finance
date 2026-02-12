@@ -8,6 +8,7 @@ import static com.jbh.products.application.builders.CommandTestBuilder.createLoa
 import static com.jbh.products.application.builders.CommandTestBuilder.createRealEstateCommand;
 import static com.jbh.products.application.builders.UseCaseBuilder.addMovementUseCase;
 import static com.jbh.products.application.builders.UseCaseBuilder.delayTests;
+import static com.jbh.products.application.builders.commands.AddMovementCommandTestBuilder.withCategory;
 import static com.jbh.products.application.core.usecases.utils.AccountITUtils.assertAccount;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.products.application.builders.AccountEntityBuilder;
-import com.jbh.products.application.builders.CommandTestBuilder;
 import com.jbh.products.application.builders.UseCaseBuilder;
+import com.jbh.products.application.builders.commands.AddMovementCommandTestBuilder;
 import com.jbh.products.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.products.application.feature.product.commands.CreateProductCommand;
 import com.jbh.products.application.feature.product.dto.ProductDTO;
@@ -25,6 +26,7 @@ import com.jbh.products.application.feature.product.mappers.ProductMapper;
 import com.jbh.products.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.products.domain.movement.vo.ExpenseCategory;
 import com.jbh.products.domain.movement.vo.MovementCategoryVO;
+import com.jbh.products.domain.movement.vo.MovementType;
 import com.jbh.products.domain.product.vo.ProductMetadata;
 import com.jbh.products.domain.product.vo.ProductType;
 import java.math.BigDecimal;
@@ -165,8 +167,12 @@ public class CreateProductITTest {
     addMovementUseCase.addMovement(
         userId,
         creditCardAccountDTO.id(),
-        CommandTestBuilder.createMovement(
-            mvmDate, personalExpense1, MovementCategoryVO.withType(ExpenseCategory.PERSONAL)));
+        AddMovementCommandTestBuilder.createMovement(
+            mvmDate,
+            personalExpense1,
+            null,
+            MovementType.WITHDRAWAL,
+            MovementCategoryVO.withType(ExpenseCategory.PERSONAL)));
 
     ProductDTO updatedAccount =
         inMemoryAccountRepo.findByProductId(creditCardAccountDTO.id()).get();
@@ -190,7 +196,7 @@ public class CreateProductITTest {
     addMovementUseCase.addMovement(
         userId,
         creditCardAccountDTO.id(),
-        CommandTestBuilder.createMovement(
+        withCategory(
             mvmDate.plus(1, ChronoUnit.DAYS),
             publicServicesExpense1,
             MovementCategoryVO.withType(ExpenseCategory.PUBLIC_SERVICES)));

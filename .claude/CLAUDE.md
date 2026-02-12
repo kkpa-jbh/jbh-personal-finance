@@ -302,3 +302,81 @@ public class ProductRestAdapter {
 - **Security:** JWT with RS256 signing
 - **Service Discovery:** Consul integration
 - **API Gateway:** Quarkus-based routing
+
+### Jandex Indexing Strategy (Hexagonal Architecture Compliance)
+
+**CRITICAL:** Maintain framework-agnostic domain/application layers while enabling Quarkus CDI and reflection.
+
+#### Two-Tier Indexing Approach:
+
+**1. Infrastructure Modules (`*-infra`) - Jandex Plugin:**
+```xml
+<!-- In jbh-xxx-infra/pom.xml -->
+<plugin>
+  <groupId>io.smallrye</groupId>
+  <artifactId>jandex-maven-plugin</artifactId>
+  <executions>
+    <execution>
+      <id>make-index</id>
+      <goals>
+        <goal>jandex</goal>
+      </goals>
+    </execution>
+  </executions>
+</plugin>
+```
+
+**Purpose:** Index CDI beans for runtime discovery:
+- REST endpoints (`@Path`, `@GET`, etc.)
+- Services (`@ApplicationScoped`, `@RequestScoped`)
+- Repositories, adapters, and infrastructure components
+
+**Result:** Each infra JAR contains `META-INF/jandex.idx`
+
+**2. Domain/Application Modules - `quarkus.index-dependency` Configuration:**
+```properties
+# In jbh-z-assembly/src/main/resources/application.properties
+quarkus.index-dependency.products-domain.group-id=com.jbh
+quarkus.index-dependency.products-domain.artifact-id=jbh-products-domain
+quarkus.index-dependency.products-application.group-id=com.jbh
+quarkus.index-dependency.products-application.artifact-id=jbh-products-application
+# ... repeat for each domain/application module
+```
+
+**Purpose:** Index non-CDI classes for OpenAPI/Swagger and reflection:
+- DTOs (Data Transfer Objects)
+- VOs (Value Objects)
+- Domain entities
+- Command objects
+
+**Result:** Domain/application modules remain framework-agnostic (NO Quarkus dependencies)
+
+#### Why This Matters:
+
+| Aspect | Benefit |
+|--------|---------|
+| **Hexagonal Architecture** | Domain/application layers have ZERO infrastructure dependencies |
+| **Framework Independence** | Can switch from Quarkus to Spring without touching business logic |
+| **Clean Architecture** | Infrastructure concerns isolated to infra/assembly layers |
+| **CDI Discovery** | Infra beans properly discovered at runtime |
+| **OpenAPI Generation** | DTOs/VOs indexed for Swagger documentation |
+| **Native Compilation** | All classes properly registered for GraalVM reflection |
+
+#### Module Dependency Rules:
+
+**❌ NEVER allow in domain/application modules:**
+- Quarkus dependencies (`io.quarkus.*`)
+- Spring dependencies (`org.springframework.*`)
+- JAX-RS annotations (`jakarta.ws.rs.*`)
+- CDI annotations in domain objects
+- Any framework-specific code
+
+**✅ ONLY allow in domain/application modules:**
+- JDK standard library
+- Domain-specific libraries (validation, money types)
+- SLF4J API (logging facade only)
+- Test dependencies (JUnit, Mockito)
+
+**✅ Infrastructure dependencies belong in:**
+- `*-infra` modules (Quarkus, JAX-RS, Hibernate, etc.)
+- `jbh-z-assembly` module (Quarkus bootstrap, configuration)

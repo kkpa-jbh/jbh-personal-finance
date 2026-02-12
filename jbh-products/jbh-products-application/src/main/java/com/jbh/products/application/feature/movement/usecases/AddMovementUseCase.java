@@ -1,9 +1,9 @@
 package com.jbh.products.application.feature.movement.usecases;
 
-import com.jbh.products.application.feature.movement.dto.AddBasicMovementDTO;
-import com.jbh.products.application.feature.movement.commands.AddMovementCommand;
-import com.jbh.products.domain.product.vo.ProductId;
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.products.application.feature.movement.commands.AddMovementCommand;
+import com.jbh.products.application.feature.movement.dto.AddBasicMovementDTO;
+import com.jbh.products.domain.product.vo.ProductId;
 import java.util.UUID;
 
 /**
@@ -43,12 +43,12 @@ public interface AddMovementUseCase {
    * </ul>
    *
    * @param userId the user who owns the product
-   * @param accountId the product ID where the movement will be added
+   * @param productId the product ID where the movement will be added
    * @param movementCommand contains movement details (date, amount, category, metadata)
    * @return DTO containing the created movement and updated product information
    * @throws BusinessException if validation fails or product type doesn't allow movements
    */
   AddBasicMovementDTO addMovement(
-      UUID userId, ProductId accountId, AddMovementCommand movementCommand)
+      UUID userId, ProductId productId, AddMovementCommand movementCommand)
       throws BusinessException;
 }

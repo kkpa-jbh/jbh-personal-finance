@@ -113,22 +113,13 @@ jbh-personal-finance/
     └── application.properties
 ```
 
-## CDI Bean Discovery with Jandex
+## Jandex Indexing Strategy (Hexagonal Architecture)
 
-### Why Jandex Plugin is Required
+Quarkus requires **Jandex indexing** for CDI discovery and reflection. In a hexagonal architecture, we use a **two-tier approach** to keep domain/application layers framework-agnostic.
 
-Quarkus uses **Jandex indexing** for CDI bean discovery in modular projects. Without proper indexing, your REST
-endpoints and CDI beans won't be discovered at runtime.
+### 1. CDI Bean Discovery (Infrastructure Modules)
 
-### Plugin Placement Strategy
-
-**❌ Don't put Jandex in Assembly/Root POM:**
-
-- Assembly can only index its own classes
-- Cannot retroactively index dependency JARs
-- Each JAR needs its own `META-INF/jandex.idx` file
-
-**✅ Put Jandex in Infrastructure Modules:**
+**✅ Use Jandex Plugin in `*-infra` Modules:**
 
 ```xml
 <!-- In each *-infra module pom.xml -->
@@ -146,30 +137,90 @@ endpoints and CDI beans won't be discovered at runtime.
 </plugin>
 ```
 
+**Purpose:** Index CDI beans for runtime discovery:
+- REST endpoints (`@Path`, `@GET`)
+- Services (`@ApplicationScoped`)
+- Repositories, adapters
+
+**Result:**
+```
+jbh-products-infra.jar → contains META-INF/jandex.idx ✅
+jbh-preferences-infra.jar → contains META-INF/jandex.idx ✅
+```
+
+**Why NOT in Assembly/Root?**
+- Assembly can only index its own classes
+- Cannot retroactively index dependency JARs
+- Each JAR needs its own `META-INF/jandex.idx`
+
+---
+
+### 2. DTOs/VOs Indexing (Domain/Application Modules)
+
+**✅ Use `quarkus.index-dependency` in Assembly Configuration:**
+
+```properties
+# In jbh-z-assembly/src/main/resources/application.properties
+quarkus.index-dependency.products-domain.group-id=com.jbh
+quarkus.index-dependency.products-domain.artifact-id=jbh-products-domain
+quarkus.index-dependency.products-application.group-id=com.jbh
+quarkus.index-dependency.products-application.artifact-id=jbh-products-application
+# ... repeat for preferences, notification, etc.
+```
+
+**Purpose:** Index non-CDI classes for OpenAPI/Swagger and reflection:
+- DTOs (Data Transfer Objects)
+- VOs (Value Objects)
+- Domain entities
+- Command objects
+
+**Result:** Domain/application modules stay **framework-agnostic** (NO Quarkus dependencies) ✅
+
+**❌ DON'T use Jandex plugin in domain/application modules:**
+- Violates hexagonal architecture
+- Couples business logic to Quarkus
+- Makes it harder to switch frameworks (e.g., Quarkus → Spring)
+
+---
+
+### Comparison: Plugin vs Configuration
+
+| Approach | Location | Purpose | Creates JAR Index? | Framework Coupling? |
+|----------|----------|---------|-------------------|---------------------|
+| **Jandex Plugin** | `*-infra` modules | CDI bean discovery | Yes ✅ | Yes (acceptable in infra) |
+| **`quarkus.index-dependency`** | Assembly config | DTO/VO reflection | No (runtime indexing) | No ✅ (keeps domain clean) |
+
+---
+
 ### How It Works
 
-1. **Build Time**: Each infrastructure module creates its own Jandex index
+1. **Build Time**: Infrastructure modules create their own indexes
    ```
-   jbh-products-infra.jar → contains META-INF/jandex.idx
-   jbh-transaction-infra.jar → contains META-INF/jandex.idx
+   jbh-products-infra.jar → META-INF/jandex.idx (REST endpoints, services)
+   jbh-products-domain.jar → NO index (framework-agnostic)
+   jbh-products-application.jar → NO index (framework-agnostic)
    ```
 
-2. **Runtime**: Quarkus assembly scans all dependency JARs
+2. **Runtime**: Quarkus assembly performs two scans:
    ```
    Startup:
-   ├── Scan assembly JAR → finds AssemblyApplication
-   ├── Scan jbh-products-infra.jar → finds GreetingResource ✅
-   └── Register all beans from all indices
+   ├── Scan infra JARs → finds REST endpoints, services ✅
+   ├── Check quarkus.index-dependency config → indexes DTOs/VOs at runtime ✅
+   └── Register all beans + enable OpenAPI for DTOs
    ```
 
-3. **Result**: All REST endpoints and CDI beans are properly discovered
+3. **Result**:
+   - All REST endpoints and CDI beans discovered ✅
+   - OpenAPI/Swagger includes DTO schemas ✅
+   - Domain/application remain framework-agnostic ✅
 
-### Best Practice
+---
+
+### Best Practice: Version Management
 
 Manage plugin versions in root POM, use in infrastructure modules:
 
 ```xml
-
 <!-- Root pom.xml - Version Management -->
 <pluginManagement>
   <plugin>
@@ -179,14 +230,30 @@ Manage plugin versions in root POM, use in infrastructure modules:
   </plugin>
 </pluginManagement>
 
-  <!-- Infrastructure module pom.xml - Usage -->
+<!-- Infrastructure module pom.xml - Usage -->
 <plugin>
-<groupId>io.smallrye</groupId>
-<artifactId>jandex-maven-plugin</artifactId>
-<!-- Inherits version from parent -->
-<executions>...</executions>
+  <groupId>io.smallrye</groupId>
+  <artifactId>jandex-maven-plugin</artifactId>
+  <!-- Inherits version from parent -->
+  <executions>...</executions>
 </plugin>
 ```
+
+---
+
+### Module Dependency Rules (Hexagonal Architecture)
+
+**❌ NEVER in domain/application modules:**
+- `io.quarkus.*` dependencies
+- `org.springframework.*` dependencies
+- `jakarta.ws.rs.*` (JAX-RS)
+- Jandex Maven plugin
+
+**✅ ONLY in domain/application modules:**
+- JDK standard library
+- Domain-specific libraries
+- SLF4J API (logging facade)
+- Test dependencies (JUnit, Mockito)
 
 # ADDING NEW MODULES TO THE ASSEMBLY
 

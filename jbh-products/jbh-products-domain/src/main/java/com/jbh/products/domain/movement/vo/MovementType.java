@@ -16,6 +16,13 @@ public enum MovementType {
    */
   BALANCE_SNAPSHOT;
 
+  /**
+   * Total Amount value is the first citizen. Otherwise, Balance Snapshot is the second citizen.
+   *
+   * @param totalAmount
+   * @param balanceSnapshot
+   * @return
+   */
   public static MovementType findByTotalAmountAndBalanceSnapshot(
       final BigDecimal totalAmount, final BigDecimal balanceSnapshot) {
     MovementType movementType = null;
@@ -41,5 +48,9 @@ public enum MovementType {
 
   public boolean isWithdrawal() {
     return this == WITHDRAWAL;
+  }
+
+  public boolean isBalanceSnapshot() {
+    return this == BALANCE_SNAPSHOT;
   }
 }

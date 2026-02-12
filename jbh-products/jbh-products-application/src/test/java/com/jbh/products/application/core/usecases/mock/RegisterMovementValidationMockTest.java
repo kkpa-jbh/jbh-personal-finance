@@ -1,9 +1,9 @@
 package com.jbh.products.application.core.usecases.mock;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.products.application.builders.CommandTestBuilder.createExpense;
-import static com.jbh.products.application.builders.CommandTestBuilder.createMovement;
 import static com.jbh.products.application.builders.UseCaseBuilder.movementQueryRepository;
+import static com.jbh.products.application.builders.commands.AddMovementCommandTestBuilder.createExpense;
+import static com.jbh.products.application.builders.commands.AddMovementCommandTestBuilder.withCategory;
 import static com.jbh.products.application.core.usecases.mock.RegisterMovementExecutionMockTest.OTHER_INCOME_CATEGORY;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -121,7 +121,7 @@ public class RegisterMovementValidationMockTest {
     final UUID userId = UUID.randomUUID();
     final ProductId accountId = ProductId.generate();
     final BigDecimal amount = new BigDecimal("100.00");
-    final AddMovementCommand request = createMovement(null, amount, PERSONAL_EXPENSE);
+    final AddMovementCommand request = withCategory(null, amount, PERSONAL_EXPENSE);
 
     // When & Then
     final IllegalArgumentException exception =
@@ -152,7 +152,7 @@ public class RegisterMovementValidationMockTest {
     final ProductId accountId = ProductId.generate();
     final LocalDate movementDate = LocalDate.now();
 
-    final AddMovementCommand request = createMovement(movementDate, null, OTHER_INCOME_CATEGORY);
+    final AddMovementCommand request = withCategory(movementDate, null, OTHER_INCOME_CATEGORY);
 
     // When & Then
     final IllegalArgumentException exception =
@@ -171,7 +171,7 @@ public class RegisterMovementValidationMockTest {
     final LocalDate movementDate = LocalDate.now();
     final BigDecimal amount = new BigDecimal("100.00");
 
-    final AddMovementCommand request = createMovement(movementDate, amount, OTHER_INCOME_CATEGORY);
+    final AddMovementCommand request = withCategory(movementDate, amount, OTHER_INCOME_CATEGORY);
 
     when(accountRepository.findByUserAndProductId(userId, accountId)).thenReturn(Optional.empty());
     when(accountRepository.findByProductId(accountId)).thenReturn(Optional.empty());
@@ -194,9 +194,7 @@ public class RegisterMovementValidationMockTest {
     final BigDecimal amount = BigDecimal.ZERO;
 
     final AddMovementCommand request =
-        AddMovementCommand.withCategory(
-                movementDate, amount, MovementCategoryVO.withType(IncomeCategory.OTHER))
-            .build();
+        withCategory(movementDate, amount, MovementCategoryVO.withType(IncomeCategory.OTHER));
     final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
@@ -227,7 +225,7 @@ public class RegisterMovementValidationMockTest {
     final LocalDate movementDate = LocalDate.now().minusDays(30);
     final BigDecimal amount = new BigDecimal("100.00");
 
-    final AddMovementCommand request = createMovement(movementDate, amount, OTHER_INCOME_CATEGORY);
+    final AddMovementCommand request = withCategory(movementDate, amount, OTHER_INCOME_CATEGORY);
     final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 

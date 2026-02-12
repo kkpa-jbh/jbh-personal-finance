@@ -1,7 +1,7 @@
 package com.jbh.products.application.core.usecases.integration.movements;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.products.application.builders.CommandTestBuilder.createInitialBalance;
+import static com.jbh.products.application.builders.commands.AddMovementCommandTestBuilder.createInitialBalance;
 import static com.jbh.products.application.core.usecases.utils.AccountITUtils.assertAccount;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;

@@ -4,7 +4,6 @@ import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.products.domain.movement.MovementCategoryDomain.OTHER_INCOME_CATEGORY;
 import static com.jbh.products.domain.movement.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
-import static com.jbh.products.domain.movement.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.products.domain.movement.vo.MovementType.DEPOSIT;
 import static com.jbh.products.domain.movement.vo.MovementType.WITHDRAWAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.domain.monthlybalance.MonthlyBalanceDomain;
+import com.jbh.products.domain.movement.vo.MovementType;
 import com.jbh.products.domain.product.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,6 +26,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 public class AccountMonthlyBalanceDomainTest {
+
+  private static final MovementType BALANCE_SNAPSHOT_TESTSCOPE = MovementType.BALANCE_SNAPSHOT;
   MonthlyBalanceDomain ceroMonthlyBalance;
   MonthlyBalanceDomain oneHundredMonthlyBalance;
   LocalDate today = LocalDate.now();
@@ -398,7 +400,12 @@ public class AccountMonthlyBalanceDomainTest {
     final var initBalanceSnapshot = new BigDecimal("2105192.00");
     accountMonthlyBalance.assignMovement(
         EntityBuilder.with(
-            accountId, initBalanceDate, null, initBalanceSnapshot, BALANCE_SNAPSHOT, null));
+            accountId,
+            initBalanceDate,
+            null,
+            initBalanceSnapshot,
+            BALANCE_SNAPSHOT_TESTSCOPE,
+            null));
 
     assertEquals(initBalanceSnapshot, accountMonthlyBalance.getClosingBalance());
     assertEquals(initBalancePeriod, accountMonthlyBalance.getPeriod());
@@ -419,7 +426,12 @@ public class AccountMonthlyBalanceDomainTest {
         () -> {
           accountMonthlyBalance.assignMovement(
               EntityBuilder.with(
-                  accountId, septBalanceDate, null, septBalanceSnapshot, BALANCE_SNAPSHOT, null));
+                  accountId,
+                  septBalanceDate,
+                  null,
+                  septBalanceSnapshot,
+                  BALANCE_SNAPSHOT_TESTSCOPE,
+                  null));
         });
   }
 }

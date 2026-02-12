@@ -39,27 +39,6 @@ public class MovementDomain {
   private final String description;
 
   public MovementDomain(
-      final MovementId id,
-      final ProductId accountId,
-      final MovementType movementType,
-      final MovementCategoryDomain category,
-      final BigDecimal movementAmount,
-      final LocalDate movementDate,
-      final BigDecimal balanceSnapshot,
-      final AccountMovementMetadata metadata,
-      final String description) {
-    this.id = id;
-    this.accountId = accountId;
-    this.movementType = movementType;
-    this.category = category;
-    this.movementAmount = JbhMoneyUtils.withJBHDecimals(movementAmount);
-    this.movementDate = movementDate;
-    this.balanceSnapshot = JbhMoneyUtils.withJBHDecimals(balanceSnapshot);
-    this.metadata = metadata;
-    this.description = description;
-  }
-
-  public MovementDomain(
       final ProductId accountId,
       final MovementType movementType,
       final LocalDate movementDate,
@@ -78,6 +57,27 @@ public class MovementDomain {
         balanceSnapshot,
         metadata,
         description);
+  }
+
+  public MovementDomain(
+      final MovementId id,
+      final ProductId accountId,
+      final MovementType movementType,
+      final MovementCategoryDomain category,
+      final BigDecimal movementAmount,
+      final LocalDate movementDate,
+      final BigDecimal balanceSnapshot,
+      final AccountMovementMetadata metadata,
+      final String description) {
+    this.id = id;
+    this.accountId = accountId;
+    this.movementType = movementType;
+    this.category = category;
+    this.movementAmount = JbhMoneyUtils.withJBHDecimals(movementAmount);
+    this.movementDate = movementDate;
+    this.balanceSnapshot = JbhMoneyUtils.withJBHDecimals(balanceSnapshot);
+    this.metadata = metadata;
+    this.description = description;
   }
 
   // FIXME Use factory movemtn type and see if this method can be removed
@@ -134,7 +134,7 @@ public class MovementDomain {
     if (movementType == null) {
       throw new BusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_TYPE);
     }
-    if (movementType == MovementType.BALANCE_SNAPSHOT && category != null) {
+    if (movementType.isBalanceSnapshot() && category != null) {
       throw new BusinessException(BusinessDomainExceptionType.INVALID_CATEGORY_BALANCE_SNAPSHOT);
     }
   }

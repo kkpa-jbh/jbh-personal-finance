@@ -1,10 +1,12 @@
 package com.jbh.products.application.core.vo.commands;
 
+import static com.jbh.products.application.builders.commands.AddMovementCommandTestBuilder.withBalanceSnapshot;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.jbh.products.application.builders.commands.AddMovementCommandTestBuilder;
 import com.jbh.products.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.products.domain.movement.vo.ExpenseCategory;
 import com.jbh.products.domain.movement.vo.IncomeCategory;
@@ -56,7 +58,7 @@ class AddMovementCommandTest {
     @DisplayName("Should build command with category auto-derivation")
     void shouldBuildWithCategoryAutoDerivedType() {
       final AddMovementCommand command =
-          AddMovementCommand.withCategory(TEST_DATE, TEST_AMOUNT, INCOME_CATEGORY).build();
+          AddMovementCommandTestBuilder.withCategory(TEST_DATE, TEST_AMOUNT, INCOME_CATEGORY);
 
       assertEquals(TEST_DATE, command.entryDate());
       assertEquals(TEST_AMOUNT, command.totalAmount());
@@ -67,28 +69,10 @@ class AddMovementCommandTest {
     }
 
     @Test
-    @DisplayName("Should build command with category and description")
-    void shouldBuildWithCategoryAndDescription() {
-      final AddMovementCommand command =
-          AddMovementCommand.withCategory(TEST_DATE, TEST_AMOUNT, INCOME_CATEGORY)
-              .description("Monthly salary")
-              .build();
-
-      assertEquals(TEST_DATE, command.entryDate());
-      assertEquals(TEST_AMOUNT, command.totalAmount());
-      assertEquals(MovementType.DEPOSIT, command.movementType());
-      assertEquals(INCOME_CATEGORY, command.categoryDTO());
-      assertEquals("Monthly salary", command.description());
-    }
-
-    @Test
     @DisplayName("Should build command with balance snapshot")
     void shouldBuildWithBalanceSnapshot() {
       final AddMovementCommand command =
-          AddMovementCommand.withBalanceSnapshot(TEST_DATE, TEST_SNAPSHOT, EXPENSE_CATEGORY)
-              .totalAmount(TEST_AMOUNT)
-              .build();
-
+          withBalanceSnapshot(TEST_DATE, TEST_SNAPSHOT, EXPENSE_CATEGORY, TEST_AMOUNT);
       assertEquals(TEST_DATE, command.entryDate());
       assertEquals(TEST_AMOUNT, command.totalAmount());
       assertEquals(TEST_SNAPSHOT, command.balanceSnapshot());
@@ -97,27 +81,10 @@ class AddMovementCommandTest {
     }
 
     @Test
-    @DisplayName("Should build command with full control")
-    void shouldBuildWithFullControl() {
-      final AddMovementCommand command =
-          AddMovementCommand.withFullControl(
-                  TEST_DATE, TEST_AMOUNT, TEST_SNAPSHOT, MovementType.DEPOSIT, INCOME_CATEGORY)
-              .description("Full control test")
-              .build();
-
-      assertEquals(TEST_DATE, command.entryDate());
-      assertEquals(TEST_AMOUNT, command.totalAmount());
-      assertEquals(TEST_SNAPSHOT, command.balanceSnapshot());
-      assertEquals(MovementType.DEPOSIT, command.movementType());
-      assertEquals(INCOME_CATEGORY, command.categoryDTO());
-      assertEquals("Full control test", command.description());
-    }
-
-    @Test
     @DisplayName("Should auto-derive WITHDRAWAL type from expense category")
     void shouldAutoDeriveWithdrawalType() {
       final AddMovementCommand command =
-          AddMovementCommand.withCategory(TEST_DATE, TEST_AMOUNT, EXPENSE_CATEGORY).build();
+          AddMovementCommandTestBuilder.withCategory(TEST_DATE, TEST_AMOUNT, EXPENSE_CATEGORY);
 
       assertEquals(MovementType.WITHDRAWAL, command.movementType());
     }
@@ -126,7 +93,7 @@ class AddMovementCommandTest {
     @DisplayName("Should auto-derive DEPOSIT type from income category")
     void shouldAutoDeriveDepositType() {
       final AddMovementCommand command =
-          AddMovementCommand.withCategory(TEST_DATE, TEST_AMOUNT, INCOME_CATEGORY).build();
+          AddMovementCommandTestBuilder.withCategory(TEST_DATE, TEST_AMOUNT, INCOME_CATEGORY);
 
       assertEquals(MovementType.DEPOSIT, command.movementType());
     }
@@ -201,7 +168,7 @@ class AddMovementCommandTest {
     @DisplayName("Should pass validation with valid total amount only")
     void shouldPassValidationWithTotalAmountOnly() {
       final AddMovementCommand command =
-          AddMovementCommand.withCategory(TEST_DATE, TEST_AMOUNT, INCOME_CATEGORY).build();
+          AddMovementCommandTestBuilder.withCategory(TEST_DATE, TEST_AMOUNT, INCOME_CATEGORY);
 
       command.validate();
 
@@ -213,7 +180,7 @@ class AddMovementCommandTest {
     @DisplayName("Should pass validation with valid balance snapshot only")
     void shouldPassValidationWithBalanceSnapshotOnly() {
       final AddMovementCommand command =
-          AddMovementCommand.withBalanceSnapshot(TEST_DATE, TEST_SNAPSHOT, INCOME_CATEGORY).build();
+          withBalanceSnapshot(TEST_DATE, TEST_SNAPSHOT, INCOME_CATEGORY, null);
 
       command.validate();
 
@@ -225,9 +192,7 @@ class AddMovementCommandTest {
     @DisplayName("Should pass validation with both amounts")
     void shouldPassValidationWithBothAmounts() {
       final AddMovementCommand command =
-          AddMovementCommand.withBalanceSnapshot(TEST_DATE, TEST_SNAPSHOT, INCOME_CATEGORY)
-              .totalAmount(TEST_AMOUNT)
-              .build();
+          withBalanceSnapshot(TEST_DATE, TEST_SNAPSHOT, INCOME_CATEGORY, TEST_AMOUNT);
 
       command.validate();
 
@@ -239,77 +204,11 @@ class AddMovementCommandTest {
     @DisplayName("Should pass validation with zero total amount")
     void shouldPassValidationWithZeroTotalAmount() {
       final AddMovementCommand command =
-          AddMovementCommand.withCategory(TEST_DATE, BigDecimal.ZERO, INCOME_CATEGORY).build();
+          AddMovementCommandTestBuilder.withCategory(TEST_DATE, BigDecimal.ZERO, INCOME_CATEGORY);
 
       command.validate();
 
       assertEquals(0, command.totalAmount().compareTo(BigDecimal.ZERO));
-    }
-  }
-
-  @Nested
-  @DisplayName("Backward Compatibility Tests")
-  class BackwardCompatibilityTests {
-
-    @Test
-    @DisplayName("Deprecated 3-param constructor should still work")
-    @SuppressWarnings("deprecation")
-    void deprecatedConstructor3ParamsShouldWork() {
-      final AddMovementCommand command =
-          new AddMovementCommand(TEST_DATE, TEST_AMOUNT, INCOME_CATEGORY);
-
-      assertEquals(TEST_DATE, command.entryDate());
-      assertEquals(TEST_AMOUNT, command.totalAmount());
-      assertEquals(INCOME_CATEGORY, command.categoryDTO());
-      assertEquals(MovementType.DEPOSIT, command.movementType());
-      assertNull(command.balanceSnapshot());
-      assertNull(command.description());
-    }
-
-    @Test
-    @DisplayName("Deprecated 4-param constructor with type should still work")
-    @SuppressWarnings("deprecation")
-    void deprecatedConstructor4ParamsWithTypeShouldWork() {
-      final AddMovementCommand command =
-          new AddMovementCommand(TEST_DATE, TEST_AMOUNT, MovementType.DEPOSIT, INCOME_CATEGORY);
-
-      assertEquals(TEST_DATE, command.entryDate());
-      assertEquals(TEST_AMOUNT, command.totalAmount());
-      assertEquals(MovementType.DEPOSIT, command.movementType());
-      assertEquals(INCOME_CATEGORY, command.categoryDTO());
-      assertNull(command.balanceSnapshot());
-      assertNull(command.description());
-    }
-
-    @Test
-    @DisplayName("Deprecated 4-param constructor with snapshot should still work")
-    @SuppressWarnings("deprecation")
-    void deprecatedConstructor4ParamsWithSnapshotShouldWork() {
-      final AddMovementCommand command =
-          new AddMovementCommand(TEST_DATE, TEST_AMOUNT, TEST_SNAPSHOT, INCOME_CATEGORY);
-
-      assertEquals(TEST_DATE, command.entryDate());
-      assertEquals(TEST_AMOUNT, command.totalAmount());
-      assertEquals(TEST_SNAPSHOT, command.balanceSnapshot());
-      assertEquals(INCOME_CATEGORY, command.categoryDTO());
-      assertEquals(MovementType.DEPOSIT, command.movementType());
-      assertNull(command.description());
-    }
-
-    @Test
-    @DisplayName("Deprecated 5-param constructor should still work")
-    @SuppressWarnings("deprecation")
-    void deprecatedConstructor5ParamsShouldWork() {
-      final AddMovementCommand command =
-          new AddMovementCommand(
-              TEST_DATE, TEST_AMOUNT, TEST_SNAPSHOT, MovementType.DEPOSIT, INCOME_CATEGORY);
-
-      assertEquals(TEST_DATE, command.entryDate());
-      assertEquals(TEST_AMOUNT, command.totalAmount());
-      assertEquals(TEST_SNAPSHOT, command.balanceSnapshot());
-      assertEquals(MovementType.DEPOSIT, command.movementType());
-      assertEquals(INCOME_CATEGORY, command.categoryDTO());
-      assertNull(command.description());
     }
   }
 
@@ -335,35 +234,10 @@ class AddMovementCommandTest {
     }
 
     @Test
-    @DisplayName("Should allow overriding builder values")
-    void shouldAllowOverridingBuilderValues() {
-      final AddMovementCommand command =
-          AddMovementCommand.withCategory(TEST_DATE, TEST_AMOUNT, INCOME_CATEGORY)
-              .movementType(MovementType.WITHDRAWAL)
-              .build();
-
-      assertEquals(MovementType.WITHDRAWAL, command.movementType());
-    }
-
-    @Test
-    @DisplayName("Should allow adding optional description to withCategory builder")
-    void shouldAllowAddingDescriptionToWithCategoryBuilder() {
-      final AddMovementCommand command =
-          AddMovementCommand.withCategory(TEST_DATE, TEST_AMOUNT, INCOME_CATEGORY)
-              .description("Added later")
-              .build();
-
-      assertEquals("Added later", command.description());
-    }
-
-    @Test
     @DisplayName("Should allow adding total amount to withBalanceSnapshot builder")
     void shouldAllowAddingTotalAmountToWithBalanceSnapshotBuilder() {
       final AddMovementCommand command =
-          AddMovementCommand.withBalanceSnapshot(TEST_DATE, TEST_SNAPSHOT, INCOME_CATEGORY)
-              .totalAmount(TEST_AMOUNT)
-              .build();
-
+          withBalanceSnapshot(TEST_DATE, TEST_SNAPSHOT, INCOME_CATEGORY, TEST_AMOUNT);
       assertEquals(TEST_AMOUNT, command.totalAmount());
       assertEquals(TEST_SNAPSHOT, command.balanceSnapshot());
     }

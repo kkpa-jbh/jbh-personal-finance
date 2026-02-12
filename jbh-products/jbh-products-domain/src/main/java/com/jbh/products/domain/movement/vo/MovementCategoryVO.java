@@ -2,6 +2,7 @@ package com.jbh.products.domain.movement.vo;
 
 import com.jbh.products.domain.movement.MovementCategoryDomain;
 
+@SuppressWarnings("PMD.CyclomaticComplexity")
 public class MovementCategoryVO extends MovementCategoryDomain {
 
   public MovementCategoryVO(final CategoryType categoryType) {
@@ -12,10 +13,20 @@ public class MovementCategoryVO extends MovementCategoryDomain {
     return new MovementCategoryVO(categoryType);
   }
 
+  // TODO Check why this method is used.
   public static MovementCategoryVO withName(
       final MovementType movementType, final String categoryName) {
-    if (movementType == null || categoryName == null) {
+    if (movementType == null && categoryName == null) {
       throw new IllegalArgumentException("MovementType and categoryName cannot be null");
+    }
+
+    if (movementType == null) {
+      throw new IllegalArgumentException("MovementType cannot be null");
+    }
+
+    // Balance snapshot does not have category.
+    if (movementType.isBalanceSnapshot()) {
+      return null;
     }
 
     final CategoryType categoryType;

@@ -1,10 +1,9 @@
 package com.jbh.products.application.core.usecases.mock;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.products.application.builders.CommandTestBuilder.createMovement;
-import static com.jbh.products.application.builders.CommandTestBuilder.createMovementWithType;
 import static com.jbh.products.application.builders.UseCaseBuilder.movementQueryRepository;
-import static com.jbh.products.domain.movement.vo.MovementType.BALANCE_SNAPSHOT;
+import static com.jbh.products.application.builders.commands.AddMovementCommandTestBuilder.createMovement;
+import static com.jbh.products.application.builders.commands.AddMovementCommandTestBuilder.createMovementWithType;
 import static com.jbh.products.domain.movement.vo.MovementType.DEPOSIT;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,6 +16,7 @@ import static org.mockito.Mockito.when;
 import com.jbh.products.application.acid.UnitOfWork;
 import com.jbh.products.application.async.AsyncTaskExecutorImpl;
 import com.jbh.products.application.builders.AccountEntityBuilder;
+import com.jbh.products.application.core.usecases.utils.MovementTypeUtils;
 import com.jbh.products.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.products.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
@@ -164,7 +164,8 @@ public class RegisterMovementExecutionMockTest {
     final BigDecimal balanceSnashot = new BigDecimal("200.00");
     final BigDecimal existingAccountPpalBalance = new BigDecimal("100.00");
     final AddMovementCommand request =
-        createMovement(movementDate, null, balanceSnashot, BALANCE_SNAPSHOT, null);
+        createMovement(
+            movementDate, null, balanceSnashot, MovementTypeUtils.BALANCE_SNAPSHOT_TESTSCOPE, null);
 
     final ProductDomain accountDomain =
         AccountEntityBuilder.withBasicMovementForExisting(

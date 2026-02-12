@@ -36,21 +36,7 @@
     </dependency>
   </dependencies>
 
-  <build>
-    <plugins>
-      <plugin>
-        <artifactId>jandex-maven-plugin</artifactId>
-        <executions>
-          <execution>
-            <goals>
-              <goal>jandex</goal>
-            </goals>
-            <id>make-index</id>
-          </execution>
-        </executions>
-        <groupId>io.smallrye</groupId>
-      </plugin>
-    </plugins>
-  </build>
+  <!-- No build plugins: Contracts remain framework-agnostic -->
+  <!-- Indexed via quarkus.index-dependency in assembly module -->
 
 </project>

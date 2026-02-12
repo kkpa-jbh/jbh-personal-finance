@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.builders.UseCaseBuilder;
+import com.jbh.products.application.builders.commands.AddMovementCommandTestBuilder;
 import com.jbh.products.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.feature.monthlybalance.services.MonthlyBalanceService;
 import com.jbh.products.application.feature.movement.commands.AddMovementCommand;
@@ -111,18 +112,16 @@ public class AddTransferAccountsITTest {
     assertNotNull(loanAccount);
 
     final AddMovementCommand fromAccountInitialBalance =
-        AddMovementCommand.withCategory(
-                createdAccountsPeriod.atDay(1),
-                withJBHDecimals(new BigDecimal("1000")),
-                MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE))
-            .build();
+        AddMovementCommandTestBuilder.withCategory(
+            createdAccountsPeriod.atDay(1),
+            withJBHDecimals(new BigDecimal("1000")),
+            MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE));
 
     final AddMovementCommand toAccountInitialBalance =
-        AddMovementCommand.withCategory(
-                createdAccountsPeriod.atDay(2),
-                withJBHDecimals(new BigDecimal("2000")),
-                MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE))
-            .build();
+        AddMovementCommandTestBuilder.withCategory(
+            createdAccountsPeriod.atDay(2),
+            withJBHDecimals(new BigDecimal("2000")),
+            MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE));
 
     // Execute movements concurrently to simulate different users adding movements at the same time
     final ExecutorService executorService = Executors.newFixedThreadPool(2);

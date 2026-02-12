@@ -4,7 +4,6 @@ import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.products.domain.entity.ProductDomainTest.userId;
 import static com.jbh.products.domain.movement.MovementCategoryDomain.OTHER_INCOME_CATEGORY;
 import static com.jbh.products.domain.movement.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
-import static com.jbh.products.domain.movement.vo.MovementType.BALANCE_SNAPSHOT;
 import static com.jbh.products.domain.movement.vo.MovementType.DEPOSIT;
 import static com.jbh.products.domain.movement.vo.MovementType.WITHDRAWAL;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -17,6 +16,7 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.products.domain.movement.MovementDomain;
 import com.jbh.products.domain.movement.vo.AccountMovementMetadataKey;
+import com.jbh.products.domain.movement.vo.MovementType;
 import com.jbh.products.domain.product.ProductDomain;
 import com.jbh.products.domain.product.vo.ProductId;
 import java.math.BigDecimal;
@@ -28,7 +28,7 @@ import org.junit.jupiter.api.Test;
 public class AccountMovementTest {
   ProductDomain accountCeroBalance;
   ProductDomain account100Balance;
-
+  MovementType BALANCE_SNAPSHOT_TESTSCOPE = MovementType.BALANCE_SNAPSHOT;
   LocalDate today = LocalDate.now();
   LocalDateTime importedAt = LocalDateTime.now();
 
@@ -60,14 +60,14 @@ public class AccountMovementTest {
             today,
             totalAmount,
             balanceSnapshot,
-            BALANCE_SNAPSHOT,
+            BALANCE_SNAPSHOT_TESTSCOPE,
             importedAt);
 
     assertTrue(newMovement.hasMetadata(AccountMovementMetadataKey.FILE_IMPORTED_AT_TAG));
     assertTrue(newMovement.hasMetadata(AccountMovementMetadataKey.FILE_IMPORTED_AT_TAG));
     assertEquals(
         importedAt, newMovement.getMetadataField(AccountMovementMetadataKey.FILE_IMPORTED_AT_TAG));
-    assertEquals(BALANCE_SNAPSHOT, newMovement.getMovementType());
+    assertEquals(BALANCE_SNAPSHOT_TESTSCOPE, newMovement.getMovementType());
   }
 
   @Test
@@ -95,9 +95,14 @@ public class AccountMovementTest {
     final var balanceSnapshot = new BigDecimal("200.00");
     final var newMovement =
         EntityBuilder.with(
-            account100Balance.getId(), today, totalAmount, balanceSnapshot, BALANCE_SNAPSHOT, null);
+            account100Balance.getId(),
+            today,
+            totalAmount,
+            balanceSnapshot,
+            BALANCE_SNAPSHOT_TESTSCOPE,
+            null);
 
-    assertEquals(BALANCE_SNAPSHOT, newMovement.getMovementType());
+    assertEquals(BALANCE_SNAPSHOT_TESTSCOPE, newMovement.getMovementType());
 
     assertEquals(balanceSnapshot, newMovement.getBalanceSnapshot());
     assertEquals(today, newMovement.getMovementDate());
@@ -135,7 +140,12 @@ public class AccountMovementTest {
     assertDoesNotThrow(
         () ->
             EntityBuilder.with(
-                accountCeroBalance.getId(), today, JBH_ZERO, null, BALANCE_SNAPSHOT, null));
+                accountCeroBalance.getId(),
+                today,
+                JBH_ZERO,
+                null,
+                BALANCE_SNAPSHOT_TESTSCOPE,
+                null));
     assertDoesNotThrow(
         () ->
             EntityBuilder.with(

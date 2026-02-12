@@ -1,6 +1,6 @@
 package com.jbh.products.application.core.usecases.integration.movements;
 
-import static com.jbh.products.application.builders.CommandTestBuilder.createDepositIncome;
+import static com.jbh.products.application.builders.commands.AddMovementCommandTestBuilder.createDepositIncome;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

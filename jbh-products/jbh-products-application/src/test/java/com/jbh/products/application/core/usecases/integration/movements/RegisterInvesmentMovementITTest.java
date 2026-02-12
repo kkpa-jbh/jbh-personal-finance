@@ -6,8 +6,8 @@ import static com.jbh.products.application.builders.CommandTestBuilder.createInv
 import static com.jbh.products.application.builders.CommandTestBuilder.createLiquidateCommandToExternal;
 import static com.jbh.products.application.builders.UseCaseBuilder.delayTests;
 import static com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
-import static com.jbh.products.domain.movement.vo.MovementType.BALANCE_SNAPSHOT;
-import static com.jbh.products.domain.movement.vo.MovementType.WITHDRAWAL;
+import static com.jbh.products.application.core.usecases.utils.MovementTypeUtils.BALANCE_SNAPSHOT_TESTSCOPE;
+import static com.jbh.products.application.core.usecases.utils.MovementTypeUtils.WITHDRAWAL_TESTSCOPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.builders.UseCaseBuilder;
+import com.jbh.products.application.builders.commands.AddMovementCommandTestBuilder;
 import com.jbh.products.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.products.application.core.usecases.integration.monthlybalance.RegisterMonthlyReportedWithoutProfitITTest;
 import com.jbh.products.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
@@ -113,14 +114,12 @@ public class RegisterInvesmentMovementITTest {
   @Order(1)
   void initialBalance() throws BusinessException {
     final AddMovementCommand movement =
-        AddMovementCommand.withFullControl(
-                LocalDate.of(2025, 8, 20),
-                initialBalance,
-                initialBalance,
-                MovementType.DEPOSIT,
-                MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE))
-            .build();
-
+        AddMovementCommandTestBuilder.createMovement(
+            LocalDate.of(2025, 8, 20),
+            initialBalance,
+            initialBalance,
+            MovementType.DEPOSIT,
+            MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE));
     addMovementUseCase.addMovement(userId, acciCuentaId, movement);
     addMovementUseCase.addMovement(userId, fondoAccionesId, movement);
   }
@@ -135,7 +134,7 @@ public class RegisterInvesmentMovementITTest {
         AddMovementCommand.builder()
             .entryDate(entryDate)
             .balanceSnapshot(acciCuentaBalance)
-            .movementType(BALANCE_SNAPSHOT)
+            .movementType(BALANCE_SNAPSHOT_TESTSCOPE)
             .build();
 
     addMovementUseCase.addMovement(userId, acciCuentaId, acciCuentaUpdate);
@@ -155,7 +154,7 @@ public class RegisterInvesmentMovementITTest {
         AddMovementCommand.builder()
             .entryDate(entryDate)
             .balanceSnapshot(fondoAccionesBalance)
-            .movementType(BALANCE_SNAPSHOT)
+            .movementType(BALANCE_SNAPSHOT_TESTSCOPE)
             .build();
     addMovementUseCase.addMovement(userId, fondoAccionesId, fondoAccionesUpdate);
 
@@ -180,7 +179,7 @@ public class RegisterInvesmentMovementITTest {
         AddMovementCommand.builder()
             .entryDate(entryDate)
             .balanceSnapshot(finalAcciBalanceSept)
-            .movementType(BALANCE_SNAPSHOT)
+            .movementType(BALANCE_SNAPSHOT_TESTSCOPE)
             .build();
 
     addMovementUseCase.addMovement(userId, acciCuentaId, acciCuentaUpdate);
@@ -201,7 +200,7 @@ public class RegisterInvesmentMovementITTest {
         AddMovementCommand.builder()
             .entryDate(entryDate)
             .balanceSnapshot(fondoAccionesBalance)
-            .movementType(BALANCE_SNAPSHOT)
+            .movementType(BALANCE_SNAPSHOT_TESTSCOPE)
             .build();
     addMovementUseCase.addMovement(userId, fondoAccionesId, fondoAccionesUpdate);
 
@@ -250,7 +249,7 @@ public class RegisterInvesmentMovementITTest {
         AddMovementCommand.builder()
             .entryDate(entryDate)
             .balanceSnapshot(acciCuentaBalance)
-            .movementType(BALANCE_SNAPSHOT)
+            .movementType(BALANCE_SNAPSHOT_TESTSCOPE)
             .build();
 
     addMovementUseCase.addMovement(userId, acciCuentaId, acciCuentaUpdate);
@@ -286,7 +285,7 @@ public class RegisterInvesmentMovementITTest {
         AddMovementCommand.builder()
             .entryDate(entryDate)
             .balanceSnapshot(fondoAccionesBalance)
-            .movementType(BALANCE_SNAPSHOT)
+            .movementType(BALANCE_SNAPSHOT_TESTSCOPE)
             .build();
     addMovementUseCase.addMovement(userId, fondoAccionesId, fondoAccionesUpdate);
 
@@ -309,13 +308,12 @@ public class RegisterInvesmentMovementITTest {
     final BigDecimal currentBalance = account.currentBalance();
 
     final AddMovementCommand withdrawal =
-        AddMovementCommand.withFullControl(
-                withdrawalDate,
-                currentBalance,
-                BigDecimal.ZERO,
-                WITHDRAWAL,
-                MovementCategoryVO.withType(ExpenseCategory.PERSONAL))
-            .build();
+        AddMovementCommandTestBuilder.createMovement(
+            withdrawalDate,
+            currentBalance,
+            BigDecimal.ZERO,
+            WITHDRAWAL_TESTSCOPE,
+            MovementCategoryVO.withType(ExpenseCategory.PERSONAL));
 
     assertThrows(
         BusinessException.class,

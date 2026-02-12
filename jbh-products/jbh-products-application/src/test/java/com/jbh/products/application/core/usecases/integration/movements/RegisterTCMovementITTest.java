@@ -1,8 +1,7 @@
 package com.jbh.products.application.core.usecases.integration.movements;
 
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
-import static com.jbh.products.application.builders.CommandTestBuilder.createDepositIncome;
-import static com.jbh.products.application.builders.CommandTestBuilder.createPersonalExpense;
+import static com.jbh.products.application.builders.commands.AddMovementCommandTestBuilder.createPersonalExpense;
 import static com.jbh.products.application.core.usecases.utils.AccountITUtils.assertAccount;
 import static com.jbh.products.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -13,6 +12,7 @@ import com.jbh.products.application.builders.AccountEntityBuilder;
 import com.jbh.products.application.builders.CommandTestBuilder;
 import com.jbh.products.application.builders.EntityTestBuilder;
 import com.jbh.products.application.builders.UseCaseBuilder;
+import com.jbh.products.application.builders.commands.AddMovementCommandTestBuilder;
 import com.jbh.products.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.products.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.products.application.feature.monthlybalance.services.MonthlyBalanceService;
@@ -137,7 +137,9 @@ public class RegisterTCMovementITTest {
     final LocalDate mvmDate = period.atDay(10);
     final var personalExpense = new BigDecimal("200.00");
     addMovementUseCase.addMovement(
-        userId, creditCardAccount.id(), createDepositIncome(mvmDate, personalExpense));
+        userId,
+        creditCardAccount.id(),
+        AddMovementCommandTestBuilder.createDepositIncome(mvmDate, personalExpense));
 
     final ProductDTO updatedAccount =
         inMemoryAccountRepo.findByProductId(creditCardAccount.id()).get();
@@ -243,7 +245,9 @@ public class RegisterTCMovementITTest {
     final LocalDate mvmDate = currentPeriod.atDay(10);
     final var personalExpense = new BigDecimal("800.00");
     addMovementUseCase.addMovement(
-        userId, creditCardAccount.id(), createDepositIncome(mvmDate, personalExpense));
+        userId,
+        creditCardAccount.id(),
+        AddMovementCommandTestBuilder.createDepositIncome(mvmDate, personalExpense));
 
     final ProductDTO updatedAccount =
         inMemoryAccountRepo.findByProductId(creditCardAccount.id()).get();

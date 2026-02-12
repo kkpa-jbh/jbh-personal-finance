@@ -1,19 +1,20 @@
 package com.jbh.products.application.feature.movement.ports.input;
 
 import com.jbh.commons.exception.BusinessException;
-import com.jbh.products.application.feature.product.dto.ProductDTO;
-import com.jbh.products.application.feature.product.mappers.ProductMapper;
-import com.jbh.products.application.feature.movement.mappers.MovementMapper;
-import com.jbh.products.application.feature.product.services.ProductsService;
-import com.jbh.products.application.feature.movement.services.AccountMovementApplicationService;
-import com.jbh.products.application.feature.movement.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.products.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.products.application.feature.movement.commands.AddTransferCommand;
-import com.jbh.products.domain.shared.exceptions.BusinessDomainExceptionType;
+import com.jbh.products.application.feature.movement.mappers.MovementMapper;
+import com.jbh.products.application.feature.movement.services.AccountMovementApplicationService;
+import com.jbh.products.application.feature.movement.usecases.AddTransferJbhAccountsUseCase;
+import com.jbh.products.application.feature.product.dto.ProductDTO;
+import com.jbh.products.application.feature.product.mappers.ProductMapper;
+import com.jbh.products.application.feature.product.services.ProductsService;
 import com.jbh.products.domain.movement.vo.ExpenseCategory;
 import com.jbh.products.domain.movement.vo.IncomeCategory;
 import com.jbh.products.domain.movement.vo.MovementCategoryVO;
+import com.jbh.products.domain.movement.vo.MovementType;
 import com.jbh.products.domain.product.vo.ProductPK;
+import com.jbh.products.domain.shared.exceptions.BusinessDomainExceptionType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.slf4j.Logger;
@@ -55,16 +56,33 @@ public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUs
         toAccountDTO.name(),
         transferAmount);
 
+    final MovementCategoryVO incomeTransferCategory =
+        MovementCategoryVO.withType(IncomeCategory.TRANSFER);
+    final MovementType movementType = MovementType.findByCategory(incomeTransferCategory);
+
     final var movementCommandFrom =
-        AddMovementCommand.withCategory(
-                transferDate, transferAmount, MovementCategoryVO.withType(IncomeCategory.TRANSFER))
-            .build();
+        new AddMovementCommand(
+            transferDate,
+            transferAmount,
+            null,
+            movementType,
+            incomeTransferCategory,
+            "Transfer from " + fromAccountName + " to " + toAccountName);
     transferValidationFROM(fromAccountDTO, movementCommandFrom);
 
+    final MovementCategoryVO expenseTransferCategory =
+        MovementCategoryVO.withType(ExpenseCategory.TRANSFER);
+    final MovementType expenseTransferMovementType =
+        MovementType.findByCategory(expenseTransferCategory);
     final var movementCommandTo =
-        AddMovementCommand.withCategory(
-                transferDate, transferAmount, MovementCategoryVO.withType(ExpenseCategory.TRANSFER))
-            .build();
+        new AddMovementCommand(
+            transferDate,
+            transferAmount,
+            null,
+            expenseTransferMovementType,
+            expenseTransferCategory,
+            "Transfer from " + fromAccountName + " to " + toAccountName);
+
     transferValidationTO(toAccountDTO, movementCommandTo);
 
     LOG.info("Registering the deposit movement for the account {}", toAccountName);

@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.products.application.builders.EntityTestBuilder;
 import com.jbh.products.application.builders.UseCaseBuilder;
+import com.jbh.products.application.builders.commands.AddMovementCommandTestBuilder;
 import com.jbh.products.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.products.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.products.application.feature.monthlybalance.commands.MonthlyBalanceCommandVO;
@@ -187,12 +188,11 @@ public class AddMovementsAfterMonthlyReportedTest {
       final BigDecimal amount,
       final BigDecimal balanceSnapshot) {
     final AddMovementCommand movement =
-        AddMovementCommand.withBalanceSnapshot(
-                LocalDate.of(period.getYear(), period.getMonthValue(), 15),
-                balanceSnapshot,
-                MovementCategoryVO.withType(categoryType))
-            .totalAmount(amount)
-            .build();
+        AddMovementCommandTestBuilder.withBalanceSnapshot(
+            LocalDate.of(period.getYear(), period.getMonthValue(), 15),
+            balanceSnapshot,
+            MovementCategoryVO.withType(categoryType),
+            amount);
     try {
       addMovementUseCase.addMovement(userId, accountId, movement);
     } catch (final Exception e) {
