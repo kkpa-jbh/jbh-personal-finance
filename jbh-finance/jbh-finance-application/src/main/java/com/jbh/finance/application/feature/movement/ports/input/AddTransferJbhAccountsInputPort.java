@@ -4,7 +4,7 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.commands.AddTransferCommand;
 import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
-import com.jbh.finance.application.feature.movement.services.AccountMovementApplicationService;
+import com.jbh.finance.application.feature.movement.services.MovementApplicationService;
 import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.mappers.ProductMapper;
@@ -23,12 +23,12 @@ import org.slf4j.LoggerFactory;
 public class AddTransferJbhAccountsInputPort implements AddTransferJbhAccountsUseCase {
 
   private static final Logger LOG = LoggerFactory.getLogger(AddTransferJbhAccountsInputPort.class);
-  private final AccountMovementApplicationService accountMovementService;
+  private final MovementApplicationService accountMovementService;
   private final ProductsService accountService;
 
   public AddTransferJbhAccountsInputPort(
       final ProductsService accountService,
-      final AccountMovementApplicationService accountMovementService) {
+      final MovementApplicationService accountMovementService) {
 
     this.accountService = accountService;
     this.accountMovementService = accountMovementService;

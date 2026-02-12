@@ -1,14 +1,14 @@
 package com.jbh.finance.application.feature.movement.ports.input;
 
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.finance.application.feature.movement.commands.LiquidateAccountCommand;
 import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
 import com.jbh.finance.application.feature.movement.dto.LiquidationResultDTO;
-import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
-import com.jbh.finance.application.feature.product.services.ProductsService;
-import com.jbh.finance.application.feature.movement.services.AccountMovementApplicationService;
+import com.jbh.finance.application.feature.movement.services.MovementApplicationService;
 import com.jbh.finance.application.feature.movement.usecases.LiquidateAccountUseCase;
-import com.jbh.finance.application.feature.movement.commands.LiquidateAccountCommand;
+import com.jbh.finance.application.feature.product.dto.ProductDTO;
+import com.jbh.finance.application.feature.product.services.ProductsService;
 import com.jbh.finance.domain.movement.vo.AccountMovementMetadata;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
@@ -21,11 +21,11 @@ public class LiquidateAccountInputPort implements LiquidateAccountUseCase {
   private static final Logger LOG = LoggerFactory.getLogger(LiquidateAccountInputPort.class);
 
   private final ProductsService accountService;
-  private final AccountMovementApplicationService movementApplicationService;
+  private final MovementApplicationService movementApplicationService;
 
   public LiquidateAccountInputPort(
       final ProductsService accountService,
-      final AccountMovementApplicationService movementApplicationService) {
+      final MovementApplicationService movementApplicationService) {
     this.accountService = accountService;
     this.movementApplicationService = movementApplicationService;
   }

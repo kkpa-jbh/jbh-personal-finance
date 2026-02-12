@@ -351,9 +351,9 @@ public class ProductRestAdapter {
 ```properties
 # In jbh-z-assembly/src/main/resources/application.properties
 quarkus.index-dependency.products-domain.group-id=com.jbh
-quarkus.index-dependency.products-domain.artifact-id=jbh-products-domain
+quarkus.index-dependency.products-domain.artifact-id=jbh-finance-domain
 quarkus.index-dependency.products-application.group-id=com.jbh
-quarkus.index-dependency.products-application.artifact-id=jbh-products-application
+quarkus.index-dependency.products-application.artifact-id=jbh-finance-application
 # ... repeat for each domain/application module
 ```
 

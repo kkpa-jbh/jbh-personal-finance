@@ -18,9 +18,9 @@ import com.jbh.finance.application.feature.movement.ports.input.AddMovementInput
 import com.jbh.finance.application.feature.movement.ports.input.AddTransferJbhAccountsInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.LiquidateAccountInputPort;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
-import com.jbh.finance.application.feature.movement.services.AccountMovementApplicationServiceImpl;
-import com.jbh.finance.application.feature.movement.services.AccountMovementService;
 import com.jbh.finance.application.feature.movement.services.AccountMovementServiceImpl;
+import com.jbh.finance.application.feature.movement.services.MovementApplicationServiceImpl;
+import com.jbh.finance.application.feature.movement.services.MovementService;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.finance.application.feature.movement.usecases.LiquidateAccountUseCase;
@@ -111,16 +111,16 @@ public class UseCaseBuilder {
         buildAccountService(), buildAccountMovementApplicationService(accountMovementRepository));
   }
 
-  public static AccountMovementApplicationServiceImpl buildAccountMovementApplicationService(
+  public static MovementApplicationServiceImpl buildAccountMovementApplicationService(
       final AccountMovementWriterRepository accountMovementRepository) {
-    return new AccountMovementApplicationServiceImpl(
+    return new MovementApplicationServiceImpl(
         buildAccountMovementService(accountMovementRepository),
         buildAccountService(),
         buildMonthlyBalanceService(),
         new UnitOfWorkTest());
   }
 
-  public static AccountMovementService buildAccountMovementService(
+  public static MovementService buildAccountMovementService(
       final AccountMovementWriterRepository accountMovementRepository) {
     return new AccountMovementServiceImpl(accountMovementRepository, movementQueryRepository);
   }

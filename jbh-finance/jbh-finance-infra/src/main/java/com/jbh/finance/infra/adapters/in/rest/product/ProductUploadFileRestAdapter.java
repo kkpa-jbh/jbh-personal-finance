@@ -42,7 +42,7 @@ import org.slf4j.LoggerFactory;
 
 @SuppressWarnings({"PMD.UnnecessaryAnnotationValueElement", "PMD.CallSuperInConstructor"})
 @RequestScoped
-@Path(FinanceApiRoutes.PRODUCTS_API_PATH)
+@Path(FinanceApiRoutes.PRODUCTS_API_PATH + MOVEMENTS_INBULK_API)
 @Tag(name = "Upload movements to an account", description = "Register multiple movements")
 public class ProductUploadFileRestAdapter extends BaseRestAdapter {
 
@@ -58,7 +58,6 @@ public class ProductUploadFileRestAdapter extends BaseRestAdapter {
   }
 
   @POST
-  @Path(MOVEMENTS_INBULK_API)
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(
@@ -104,7 +103,7 @@ public class ProductUploadFileRestAdapter extends BaseRestAdapter {
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
       throws JbhGatewayException, BusinessException, InternalSystemException {
-    log.info("Uploading excel file {}", authorizationHeader);
+    log.info("Uploading excel file");
 
     final UUID userId = findUserId(authorizationHeader);
 

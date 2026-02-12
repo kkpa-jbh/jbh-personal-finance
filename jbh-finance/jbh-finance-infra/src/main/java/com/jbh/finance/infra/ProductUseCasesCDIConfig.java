@@ -17,10 +17,10 @@ import com.jbh.finance.application.feature.movement.ports.input.AddTransferJbhAc
 import com.jbh.finance.application.feature.movement.ports.input.LiquidateAccountInputPort;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementQueryRepository;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
-import com.jbh.finance.application.feature.movement.services.AccountMovementApplicationService;
-import com.jbh.finance.application.feature.movement.services.AccountMovementApplicationServiceImpl;
-import com.jbh.finance.application.feature.movement.services.AccountMovementService;
 import com.jbh.finance.application.feature.movement.services.AccountMovementServiceImpl;
+import com.jbh.finance.application.feature.movement.services.MovementApplicationService;
+import com.jbh.finance.application.feature.movement.services.MovementApplicationServiceImpl;
+import com.jbh.finance.application.feature.movement.services.MovementService;
 import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhAccountsUseCase;
 import com.jbh.finance.application.feature.movement.usecases.LiquidateAccountUseCase;
 import com.jbh.finance.application.feature.product.ports.input.CreateProductInputPort;
@@ -97,13 +97,13 @@ public class ProductUseCasesCDIConfig {
 
   @Produces
   @ApplicationScoped
-  public AccountMovementApplicationService accountMovementServiceApplication() {
-    return new AccountMovementApplicationServiceImpl(
+  public MovementApplicationService accountMovementServiceApplication() {
+    return new MovementApplicationServiceImpl(
         accountMovementService(), accountService(), monthlyBalanceService(), unitOfWork);
   }
 
   @Produces
-  public AccountMovementService accountMovementService() {
+  public MovementService accountMovementService() {
     return new AccountMovementServiceImpl(accountMovementWriterRepo, accountMovementQueryRepo);
   }
 

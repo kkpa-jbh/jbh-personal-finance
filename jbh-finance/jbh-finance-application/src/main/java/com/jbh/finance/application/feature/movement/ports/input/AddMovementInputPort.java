@@ -4,7 +4,7 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
-import com.jbh.finance.application.feature.movement.services.AccountMovementApplicationService;
+import com.jbh.finance.application.feature.movement.services.MovementApplicationService;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.services.ProductsService;
@@ -16,11 +16,11 @@ import java.util.UUID;
 
 public class AddMovementInputPort implements AddMovementUseCase {
 
-  private final AccountMovementApplicationService accountMovementService;
+  private final MovementApplicationService accountMovementService;
   private final ProductsService accountService;
 
   public AddMovementInputPort(
-      final AccountMovementApplicationService accountMovementService,
+      final MovementApplicationService accountMovementService,
       final ProductsService productsService) {
     this.accountService = productsService;
     this.accountMovementService = accountMovementService;

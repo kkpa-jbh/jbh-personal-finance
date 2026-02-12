@@ -28,10 +28,10 @@ import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementInputPort;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
-import com.jbh.finance.application.feature.movement.services.AccountMovementApplicationService;
-import com.jbh.finance.application.feature.movement.services.AccountMovementApplicationServiceImpl;
-import com.jbh.finance.application.feature.movement.services.AccountMovementService;
 import com.jbh.finance.application.feature.movement.services.AccountMovementServiceImpl;
+import com.jbh.finance.application.feature.movement.services.MovementApplicationService;
+import com.jbh.finance.application.feature.movement.services.MovementApplicationServiceImpl;
+import com.jbh.finance.application.feature.movement.services.MovementService;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.mappers.ProductMapper;
 import com.jbh.finance.application.feature.product.ports.output.ProductRepository;
@@ -62,7 +62,7 @@ public class RegisterMovementExecutionMockTest {
   public static final MovementCategoryVO OTHER_INCOME_CATEGORY =
       MovementCategoryVO.withType(IncomeCategory.OTHER);
   static UUID userId = UUID.randomUUID();
-  private static AccountMovementApplicationService accountMovementService;
+  private static MovementApplicationService accountMovementService;
   private static ProductsService accountService;
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   private final Logger log = LoggerFactory.getLogger(RegisterMovementExecutionMockTest.class);
@@ -90,11 +90,11 @@ public class RegisterMovementExecutionMockTest {
             accountService);
     monthlyBalanceAsyncTask = new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
 
-    final AccountMovementService coreAccountMovementService =
+    final MovementService coreAccountMovementService =
         new AccountMovementServiceImpl(accountMovementRepository, movementQueryRepository);
 
     accountMovementService =
-        new AccountMovementApplicationServiceImpl(
+        new MovementApplicationServiceImpl(
             coreAccountMovementService, accountService, monthlyBalanceService, unitOfWork);
     useCaseInstanceTest = new AddMovementInputPort(accountMovementService, accountService);
   }

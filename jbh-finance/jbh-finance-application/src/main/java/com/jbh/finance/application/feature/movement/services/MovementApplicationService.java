@@ -10,7 +10,7 @@ import com.jbh.finance.domain.product.vo.ProductPK;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public interface AccountMovementApplicationService {
+public interface MovementApplicationService {
 
   /**
    * It creates a deposit movement for the next month with the dividends(monthly profit reported).
@@ -23,14 +23,14 @@ public interface AccountMovementApplicationService {
    * <p>For each movement, it will update the account current balance and net profit. <p<The monthly
    * balance for the next mont will be synced.
    *
-   * @param accountPK
+   * @param productPK
    * @param nextMonthlyBalanceCommand The command with the monthly balance for the next month. The
    *     closing balance should include the monthly profit reported and the income withholding tax
    *     amount.
    * @throws BusinessException
    */
   void addDividendsMovementForNextMonth(
-      ProductPK accountPK, AddMonthlyBalanceCommand nextMonthlyBalanceCommand)
+      ProductPK productPK, AddMonthlyBalanceCommand nextMonthlyBalanceCommand)
       throws BusinessException;
 
   /**

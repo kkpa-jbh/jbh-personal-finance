@@ -13,7 +13,7 @@ NC = \033[0m # No Color
 .PHONY: help create-schema drop-schema recreate-schema
 
 help: ## Show this help message
-	@echo "${GREEN}JBH Products Database Schema Management${NC}"
+	@echo "${GREEN}JBH Finance Database Schema Management${NC}"
 	@echo ""
 	@echo "${YELLOW}Available targets:${NC}"
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  ${GREEN}%-15s${NC} %s\n", $$1, $$2}' $(MAKEFILE_LIST)

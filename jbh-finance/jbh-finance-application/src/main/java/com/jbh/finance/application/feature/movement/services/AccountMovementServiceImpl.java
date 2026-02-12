@@ -6,7 +6,7 @@ import com.jbh.finance.application.feature.movement.ports.output.AccountMovement
 import com.jbh.finance.domain.product.vo.ProductId;
 import java.util.List;
 
-public class AccountMovementServiceImpl implements AccountMovementService {
+public class AccountMovementServiceImpl implements MovementService {
   private final AccountMovementWriterRepository movementWriterRepo;
   private final AccountMovementQueryRepository movementQueryRepo;
 

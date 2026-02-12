@@ -26,7 +26,7 @@ import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonth
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
-import com.jbh.finance.application.feature.movement.services.AccountMovementApplicationServiceImpl;
+import com.jbh.finance.application.feature.movement.services.MovementApplicationServiceImpl;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
@@ -78,7 +78,7 @@ public class RegisterMonthlyReportedProfitITTest {
   BigDecimal FIRST_BALANCE_ZERO = withJBHDecimals(new BigDecimal("1000"));
   List<AddMonthlyBalanceCommand> monthlyCommands =
       getAddMonthlyBalanceCommandsWithProfit(initialPeriod, FIRST_BALANCE_ZERO);
-  AccountMovementApplicationServiceImpl accountMovementService;
+  MovementApplicationServiceImpl accountMovementService;
   private AddMovementUseCase addMovementUseCase;
 
   @BeforeAll

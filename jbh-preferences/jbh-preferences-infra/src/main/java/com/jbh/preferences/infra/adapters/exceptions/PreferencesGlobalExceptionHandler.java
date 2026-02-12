@@ -3,6 +3,7 @@ package com.jbh.preferences.infra.adapters.exceptions;
 import com.jbh.commons.api.ApiResponse;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
+import jakarta.ws.rs.NotSupportedException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
@@ -31,6 +32,10 @@ public class PreferencesGlobalExceptionHandler implements ExceptionMapper<Except
 
     if (exception instanceof final IllegalArgumentException illegalArgumentException) {
       return handleIllegalArgumentException(illegalArgumentException);
+    }
+
+    if (exception instanceof final NotSupportedException notSupportedException) {
+      return handleNotSupportedException(notSupportedException);
     }
 
     return handleGenericException(exception);
@@ -69,6 +74,18 @@ public class PreferencesGlobalExceptionHandler implements ExceptionMapper<Except
     LOG.warn("Illegal argument: {}", errorMessage);
 
     return Response.status(Response.Status.BAD_REQUEST).entity(errorResponse).build();
+  }
+
+  private Response handleNotSupportedException(final NotSupportedException exception) {
+    final String errorMessage =
+        "Invalid Content-Type header. For file uploads, ensure Content-Type is set to"
+            + " 'multipart/form-data'. Error: "
+            + exception.getMessage();
+    final ApiResponse<Void> errorResponse = ApiResponse.error(errorMessage);
+
+    LOG.warn("Content-Type mismatch: {}", errorMessage);
+
+    return Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE).entity(errorResponse).build();
   }
 
   private Response handleGenericException(final Exception exception) {

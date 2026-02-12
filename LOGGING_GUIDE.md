@@ -23,10 +23,10 @@ across modules.
 ```
 jbh-personal-finance/
 ├── pom.xml                    # Root POM with logging dependencies
-├── jbh-products/
-│   ├── jbh-products-domain/    # SLF4J API only
-│   ├── jbh-products-application/ # SLF4J API + Utility classes
-│   └── jbh-products-infra/     # Full logging implementation
+├── jbh-finance/
+│   ├── jbh-finance-domain/    # SLF4J API only
+│   ├── jbh-finance-application/ # SLF4J API + Utility classes
+│   └── jbh-finance-infra/     # Full logging implementation
 └── jbh-notification/
     └── jbh-notification-infra/ # Full logging implementation
 ```
@@ -79,7 +79,7 @@ Each module includes the SLF4J API dependency:
 
 ### Logback Configuration (`logback-spring.xml`)
 
-Located in: `jbh-products-infra/src/main/resources/logback-spring.xml`
+Located in: `jbh-finance-infra/src/main/resources/logback-spring.xml`
 
 **Key Features:**
 

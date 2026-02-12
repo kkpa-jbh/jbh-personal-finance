@@ -27,7 +27,7 @@ CREATE TABLE finance.movements
     id               UUID PRIMARY KEY                  DEFAULT gen_random_uuid(),
     created_at       TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     product_id       UUID                     NOT NULL,
-    category_type    TEXT                     NOT NULL,
+    category_type    TEXT                     NULL,
     movement_type    TEXT                     NOT NULL,
     movement_amount  DECIMAL(20, 2)           NOT NULL DEFAULT 0.00,
     movement_date    DATE                     NOT NULL,

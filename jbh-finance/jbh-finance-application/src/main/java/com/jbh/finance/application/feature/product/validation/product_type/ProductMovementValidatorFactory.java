@@ -1,7 +1,7 @@
 package com.jbh.finance.application.feature.product.validation.product_type;
 
-import com.jbh.finance.application.feature.movement.services.AccountMovementService;
 import com.jbh.commons.exception.GenericSpecificationException;
+import com.jbh.finance.application.feature.movement.services.MovementService;
 import com.jbh.finance.domain.product.vo.ProductType;
 import java.util.Map;
 
@@ -9,7 +9,7 @@ import java.util.Map;
 public class ProductMovementValidatorFactory {
   final Map<ProductType, ProductMovementValidator> validators;
 
-  public ProductMovementValidatorFactory(final AccountMovementService accountMovementService) {
+  public ProductMovementValidatorFactory(final MovementService accountMovementService) {
 
     validators =
         Map.of(

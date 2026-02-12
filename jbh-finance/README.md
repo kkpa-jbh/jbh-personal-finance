@@ -9,7 +9,7 @@ Available commands:
 - make check-connection - Tests database connectivity
 
 Usage:
-cd jbh-products
+cd jbh-finance
 make -f Products.mk help
 make -f Products.mk create-schema
 make -f Products.mk drop-schema

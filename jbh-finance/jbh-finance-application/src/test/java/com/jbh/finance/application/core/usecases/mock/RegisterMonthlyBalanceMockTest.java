@@ -25,9 +25,9 @@ import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanc
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
-import com.jbh.finance.application.feature.movement.services.AccountMovementApplicationServiceImpl;
-import com.jbh.finance.application.feature.movement.services.AccountMovementService;
 import com.jbh.finance.application.feature.movement.services.AccountMovementServiceImpl;
+import com.jbh.finance.application.feature.movement.services.MovementApplicationServiceImpl;
+import com.jbh.finance.application.feature.movement.services.MovementService;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.ports.output.ProductRepository;
 import com.jbh.finance.application.feature.product.services.ProductServiceImpl;
@@ -53,7 +53,7 @@ public class RegisterMonthlyBalanceMockTest {
   final LocalDate runningDate = LocalDate.now();
   RegisterMonthlyBalanceUseCase useCaseInstanceTest;
 
-  AccountMovementApplicationServiceImpl accountMovementService;
+  MovementApplicationServiceImpl accountMovementService;
   MonthlyBalanceService monthlyBalanceService;
   ProductsService accountService;
   @Mock private ProductRepository accountRepository;
@@ -79,11 +79,11 @@ public class RegisterMonthlyBalanceMockTest {
             new AsyncTaskExecutorImpl(),
             accountService);
 
-    final AccountMovementService coreAccountMovementService =
+    final MovementService coreAccountMovementService =
         new AccountMovementServiceImpl(accountMovementRepository, movementQueryRepository);
 
     accountMovementService =
-        new AccountMovementApplicationServiceImpl(
+        new MovementApplicationServiceImpl(
             coreAccountMovementService,
             accountService,
             realMonthlyBalanceService,

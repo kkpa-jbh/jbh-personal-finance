@@ -2,7 +2,7 @@
 # Root Makefile for managing all module schemas
 
 # Module directories
-PRODUCTS_DIR = jbh-products
+Finance_DIR = jbh-finance
 NOTIFICATION_DIR = jbh-notification
 PREFERENCES_DIR = jbh-preferences
 
@@ -31,14 +31,14 @@ help: ## Show this help message
 	@echo ""
 	@echo "${BLUE}Usage Examples:${NC}"
 	@echo "  make help                     # Show this help"
-	@echo "  make product-help             # Show products module help"
+	@echo "  make product-help             # Show Finance module help"
 	@echo "  make create-all-schemas       # Create all schemas"
-	@echo "  make product-create-schema    # Create only products schema"
+	@echo "  make product-create-schema    # Create only Finance schema"
 
 # Global operations
 create-all-schemas: ## Create all module schemas
 	@echo "${GREEN}Creating all schemas...${NC}"
-	@cd $(PRODUCTS_DIR) && $(MAKE) -f Products.mk create-schema
+	@cd $(Finance_DIR) && $(MAKE) -f Finance.mk create-schema
 	@cd $(NOTIFICATION_DIR) && $(MAKE) -f Notification.mk create-schema
 	@cd $(PREFERENCES_DIR) && $(MAKE) -f Preferences.mk create-schema
 	@echo "${GREEN}All schemas created successfully.${NC}"
@@ -48,7 +48,7 @@ drop-all-schemas: ## Drop all module schemas (WARNING: Deletes all data)
 	@read -p "Are you sure you want to continue? (y/N): " confirm && \
 		if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
 			echo "${GREEN}Dropping all schemas...${NC}"; \
-			(cd $(PRODUCTS_DIR) && $(MAKE) -f Products.mk drop-schema); \
+			(cd $(Finance_DIR) && $(MAKE) -f Finance.mk drop-schema); \
 			(cd $(NOTIFICATION_DIR) && $(MAKE) -f Notification.mk drop-schema); \
 			(cd $(PREFERENCES_DIR) && $(MAKE) -f Preferences.mk drop-schema); \
 			echo "${GREEN}All schemas dropped successfully.${NC}"; \
@@ -60,14 +60,14 @@ recreate-all-schemas: drop-all-schemas create-all-schemas ## Drop and recreate a
 
 check-all-connections: ## Test all database connections
 	@echo "${GREEN}Testing all database connections...${NC}"
-	@cd $(PRODUCTS_DIR) && $(MAKE) -f Products.mk check-connection
+	@cd $(Finance_DIR) && $(MAKE) -f Finance.mk check-connection
 	@cd $(NOTIFICATION_DIR) && $(MAKE) -f Notification.mk check-connection
 	@cd $(PREFERENCES_DIR) && $(MAKE) -f Preferences.mk check-connection
 
 # Module help commands
-product-help: ## Show products module help
-	@echo "${BLUE}Products Module Commands:${NC}"
-	@cd $(PRODUCTS_DIR) && $(MAKE) -f Products.mk help
+product-help: ## Show Finance module help
+	@echo "${BLUE}Finance Module Commands:${NC}"
+	@cd $(Finance_DIR) && $(MAKE) -f Finance.mk help
 
 notification-help: ## Show notification module help
 	@echo "${BLUE}Notification Module Commands:${NC}"
@@ -77,18 +77,18 @@ preferences-help: ## Show preferences module help
 	@echo "${BLUE}Preferences Module Commands:${NC}"
 	@cd $(PREFERENCES_DIR) && $(MAKE) -f Preferences.mk help
 
-# Products module commands
-product-create-schema: ## Create products module schema
-	@cd $(PRODUCTS_DIR) && $(MAKE) -f Products.mk create-schema
+# Finance module commands
+product-create-schema: ## Create Finance module schema
+	@cd $(Finance_DIR) && $(MAKE) -f Finance.mk create-schema
 
-product-drop-schema: ## Drop products module schema
-	@cd $(PRODUCTS_DIR) && $(MAKE) -f Products.mk drop-schema
+product-drop-schema: ## Drop Finance module schema
+	@cd $(Finance_DIR) && $(MAKE) -f Finance.mk drop-schema
 
-product-recreate-schema: ## Recreate products module schema
-	@cd $(PRODUCTS_DIR) && $(MAKE) -f Products.mk recreate-schema
+product-recreate-schema: ## Recreate Finance module schema
+	@cd $(Finance_DIR) && $(MAKE) -f Finance.mk recreate-schema
 
-product-check-connection: ## Test products database connection
-	@cd $(PRODUCTS_DIR) && $(MAKE) -f Products.mk check-connection
+product-check-connection: ## Test Finance database connection
+	@cd $(Finance_DIR) && $(MAKE) -f Finance.mk check-connection
 
 # Notification module commands
 notification-create-schema: ## Create notification module schema
@@ -121,8 +121,8 @@ export-all-schemas: ## Export all database schemas to docs/database-schemas
 	@echo "${GREEN}Exporting all database schemas...${NC}"
 	@./scripts/export-schema.sh all
 
-export-product-schema: ## Export products schema to docs/database-schemas
-	@echo "${GREEN}Exporting products schema...${NC}"
+export-product-schema: ## Export Finance schema to docs/database-schemas
+	@echo "${GREEN}Exporting Finance schema...${NC}"
 	@./scripts/export-schema.sh finance
 
 export-notification-schema: ## Export notification schema to docs/database-schemas

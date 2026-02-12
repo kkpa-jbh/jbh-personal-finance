@@ -10,7 +10,7 @@ import com.jbh.finance.application.feature.monthlybalance.services.ReportedProfi
 import com.jbh.finance.application.feature.monthlybalance.services.UnreportedProfitStrategy;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
-import com.jbh.finance.application.feature.movement.services.AccountMovementApplicationService;
+import com.jbh.finance.application.feature.movement.services.MovementApplicationService;
 import com.jbh.finance.application.feature.product.services.ProductsService;
 import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
 import com.jbh.finance.domain.monthlybalance.MonthlyBalanceDomain;
@@ -33,12 +33,12 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
 
   private final MonthlyBalanceService monthlyBalanceService;
   private final ProductsService accountService;
-  private final AccountMovementApplicationService accountMovementService;
+  private final MovementApplicationService accountMovementService;
 
   public RegisterMonthlyBalanceInputPort(
       final MonthlyBalanceService monthlyBalanceService,
       final ProductsService accountService,
-      final AccountMovementApplicationService accountMovementService) {
+      final MovementApplicationService accountMovementService) {
     this.accountMovementService = accountMovementService;
     this.accountService = accountService;
     this.monthlyBalanceService = monthlyBalanceService;

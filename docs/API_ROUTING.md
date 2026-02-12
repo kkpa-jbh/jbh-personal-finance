@@ -16,6 +16,7 @@ quarkus.rest.path=/jbh-api/finance
 ```
 
 If we used this global setting:
+
 - **All modules** would share the same `/jbh-api/finance` prefix
 - The notification module's `/test-notification` endpoint would become `/jbh-api/finance/test-notification`
 - Domain boundaries become blurred in the API structure
@@ -25,10 +26,10 @@ If we used this global setting:
 
 Each infrastructure module defines its own `ApiConstants` class with a `BASE_PATH` or `BASE_API_PATH` constant:
 
-| Module | Constant | Value |
-|--------|----------|-------|
-| `jbh-products-infra` | `BASE_API_PATH` | `/jbh-api/finance` |
-| `jbh-notification-infra` | `BASE_PATH` | `/jbh-api/notifications` |
+| Module                   | Constant        | Value                    |
+|--------------------------|-----------------|--------------------------|
+| `jbh-finance-infra`      | `BASE_API_PATH` | `/jbh-api/finance`       |
+| `jbh-notification-infra` | `BASE_PATH`     | `/jbh-api/notifications` |
 
 ### Benefits
 
@@ -58,18 +59,21 @@ When creating a new infrastructure module:
 package com.jbh.newmodule;
 
 public final class ApiConstants {
-    public static final String BASE_PATH = "/jbh-api/{domain-name}";
 
-    private ApiConstants() {}
+  public static final String BASE_PATH = "/jbh-api/{domain-name}";
+
+  private ApiConstants() {
+  }
 }
 ```
 
 2. Reference this constant in your REST adapters:
 
 ```java
+
 @Path(ApiConstants.BASE_PATH + "/resource")
 public class MyRestAdapter {
-    // ...
+  // ...
 }
 ```
 
@@ -77,7 +81,8 @@ public class MyRestAdapter {
 
 ```java
 public class MyModuleRoutes {
-    public static final String RESOURCE_PATH = ApiConstants.BASE_PATH + "/resource";
-    public static final String OTHER_PATH = ApiConstants.BASE_PATH + "/other";
+
+  public static final String RESOURCE_PATH = ApiConstants.BASE_PATH + "/resource";
+  public static final String OTHER_PATH = ApiConstants.BASE_PATH + "/other";
 }
 ```

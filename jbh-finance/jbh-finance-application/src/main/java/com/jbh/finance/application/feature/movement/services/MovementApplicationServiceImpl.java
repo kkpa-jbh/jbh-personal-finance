@@ -5,16 +5,16 @@ import static com.jbh.finance.domain.movement.vo.MovementType.WITHDRAWAL;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.acid.UnitOfWork;
-import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
-import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.movement.dto.MovementDTO;
-import com.jbh.finance.application.feature.product.dto.ProductDTO;
-import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
-import com.jbh.finance.application.feature.product.services.ProductsService;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
-import com.jbh.finance.application.feature.product.validation.product_type.ProductMovementValidatorFactory;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
+import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceService;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
+import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
+import com.jbh.finance.application.feature.movement.dto.MovementDTO;
+import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
+import com.jbh.finance.application.feature.product.dto.ProductDTO;
+import com.jbh.finance.application.feature.product.services.ProductsService;
+import com.jbh.finance.application.feature.product.validation.product_type.ProductMovementValidatorFactory;
 import com.jbh.finance.domain.movement.vo.AccountMovementMetadata;
 import com.jbh.finance.domain.movement.vo.ExpenseCategory;
 import com.jbh.finance.domain.movement.vo.IncomeCategory;
@@ -30,42 +30,41 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AccountMovementApplicationServiceImpl implements AccountMovementApplicationService {
-  private static final Logger log =
-      LoggerFactory.getLogger(AccountMovementApplicationServiceImpl.class);
+public class MovementApplicationServiceImpl implements MovementApplicationService {
+  private static final Logger log = LoggerFactory.getLogger(MovementApplicationServiceImpl.class);
 
-  private final AccountMovementService accountMovementService;
-  private final ProductsService accountService;
+  private final MovementService movementService;
+  private final ProductsService productsService;
   private final MonthlyBalanceService monthlyBalanceService;
   private final UnitOfWork unitOfWork;
 
   private final ProductMovementValidatorFactory movementValidatorFactory;
 
-  public AccountMovementApplicationServiceImpl(
-      final AccountMovementService accountMovementService,
-      final ProductsService accountService,
+  public MovementApplicationServiceImpl(
+      final MovementService movementService,
+      final ProductsService productsService,
       final MonthlyBalanceService monthlyBalanceService,
       final UnitOfWork unitOfWork) {
     this.unitOfWork = unitOfWork;
-    this.accountService = accountService;
+    this.productsService = productsService;
     this.monthlyBalanceService = monthlyBalanceService;
-    this.accountMovementService = accountMovementService;
+    this.movementService = movementService;
 
-    movementValidatorFactory = new ProductMovementValidatorFactory(accountMovementService);
+    movementValidatorFactory = new ProductMovementValidatorFactory(movementService);
   }
 
   // TODO: Move this out of the service. This service should be responsible of
   // adding the dividends generically
   @Override
   public void addDividendsMovementForNextMonth(
-      final ProductPK accountPK, final AddMonthlyBalanceCommand nextMonthlyBalanceCommand)
+      final ProductPK productPK, final AddMonthlyBalanceCommand nextMonthlyBalanceCommand)
       throws BusinessException {
     if (nextMonthlyBalanceCommand == null) {
       log.warn("No monthly balance to add dividends movement");
       return;
     }
 
-    final var accountId = accountPK.accountId();
+    final var accountId = productPK.accountId();
     final var period = nextMonthlyBalanceCommand.monthlyPeriod().plusMonths(1).atDay(1);
     final var monthlyProfitReported =
         withJBHDecimals(nextMonthlyBalanceCommand.monthlyProfitReported());
@@ -119,7 +118,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
        */
 
       addDividendsMovement(
-          accountPK,
+          productPK,
           period,
           monthlyProfitReported,
           nextMonthBalance,
@@ -166,7 +165,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
     final ProductId accountId = accountPK.accountId();
 
     final ProductDTO syncedAccountDTO =
-        accountService.syncByMovement(
+        productsService.syncByMovement(
             new ProductPK(userId, accountId), movementDTO, isMonthOfficiallyReported);
 
     validateMovementByProductType(syncedAccountDTO, movementDTO);
@@ -175,7 +174,7 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
         () -> {
           log.info("Persisting Movement {} ", movementDTO.movementDate());
           persistMovementDTO(movementDTO);
-          accountService.save(syncedAccountDTO);
+          productsService.save(syncedAccountDTO);
           log.info("Movement and Account {} persisted successfully", syncedAccountDTO.name());
         });
 
@@ -256,6 +255,6 @@ public class AccountMovementApplicationServiceImpl implements AccountMovementApp
   }
 
   private void persistMovementDTO(final MovementDTO movementDTO) {
-    accountMovementService.save(movementDTO);
+    movementService.save(movementDTO);
   }
 }

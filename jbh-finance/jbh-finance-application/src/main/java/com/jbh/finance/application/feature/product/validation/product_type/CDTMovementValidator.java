@@ -1,11 +1,11 @@
 package com.jbh.finance.application.feature.product.validation.product_type;
 
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
+import com.jbh.finance.application.feature.movement.services.MovementService;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
-import com.jbh.finance.application.feature.movement.services.AccountMovementService;
 import com.jbh.finance.domain.movement.vo.IncomeCategory;
-import com.jbh.commons.exception.BusinessException;
 
 @SuppressWarnings({
   "PMD.AvoidDeeplyNestedIfStmts",
@@ -13,9 +13,9 @@ import com.jbh.commons.exception.BusinessException;
   "PMD.CollapsibleIfStatements"
 })
 public class CDTMovementValidator implements ProductMovementValidator {
-  private final AccountMovementService accountMovementService;
+  private final MovementService accountMovementService;
 
-  public CDTMovementValidator(final AccountMovementService accountMovementService) {
+  public CDTMovementValidator(final MovementService accountMovementService) {
     this.accountMovementService = accountMovementService;
   }
 

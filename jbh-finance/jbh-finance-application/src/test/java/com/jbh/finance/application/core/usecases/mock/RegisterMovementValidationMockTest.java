@@ -31,10 +31,10 @@ import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementInputPort;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
-import com.jbh.finance.application.feature.movement.services.AccountMovementApplicationService;
-import com.jbh.finance.application.feature.movement.services.AccountMovementApplicationServiceImpl;
-import com.jbh.finance.application.feature.movement.services.AccountMovementService;
 import com.jbh.finance.application.feature.movement.services.AccountMovementServiceImpl;
+import com.jbh.finance.application.feature.movement.services.MovementApplicationService;
+import com.jbh.finance.application.feature.movement.services.MovementApplicationServiceImpl;
+import com.jbh.finance.application.feature.movement.services.MovementService;
 import com.jbh.finance.application.feature.product.mappers.ProductMapper;
 import com.jbh.finance.application.feature.product.ports.output.ProductRepository;
 import com.jbh.finance.application.feature.product.services.ProductServiceImpl;
@@ -64,7 +64,7 @@ public class RegisterMovementValidationMockTest {
   @Mock private AccountMonthlyBalanceQueryRepo accountMonthlyBalanceRepository;
   @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
   private AddMovementInputPort registerSimpleMovementInputPort;
-  private AccountMovementApplicationService accountMovementService;
+  private MovementApplicationService accountMovementService;
 
   @BeforeEach
   void setUp() {
@@ -81,11 +81,11 @@ public class RegisterMovementValidationMockTest {
     final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService =
         new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
 
-    final AccountMovementService coreAccountMovementService =
+    final MovementService coreAccountMovementService =
         new AccountMovementServiceImpl(accountMovementRepository, movementQueryRepository);
 
     accountMovementService =
-        new AccountMovementApplicationServiceImpl(
+        new MovementApplicationServiceImpl(
             coreAccountMovementService,
             accountService,
             monthlyBalanceService,

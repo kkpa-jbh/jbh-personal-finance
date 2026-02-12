@@ -26,7 +26,7 @@ import com.jbh.finance.application.feature.movement.commands.ExternalAccountInfo
 import com.jbh.finance.application.feature.movement.commands.LiquidateAccountCommand;
 import com.jbh.finance.application.feature.movement.dto.LiquidationResultDTO;
 import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
-import com.jbh.finance.application.feature.movement.services.AccountMovementApplicationServiceImpl;
+import com.jbh.finance.application.feature.movement.services.MovementApplicationServiceImpl;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.movement.usecases.LiquidateAccountUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
@@ -69,7 +69,7 @@ public class RegisterInvesmentMovementITTest {
   private static BigDecimal finalAcciBalanceSept;
   private final BigDecimal initialBalance = withJBHDecimals(new BigDecimal("5000000"));
   private MonthlyBalanceService monthlyBalanceService;
-  private AccountMovementApplicationServiceImpl accountMovementApplicationService;
+  private MovementApplicationServiceImpl accountMovementApplicationService;
 
   @BeforeAll
   static void beforeAll() {
