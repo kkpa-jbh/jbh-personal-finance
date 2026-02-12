@@ -109,23 +109,24 @@ com.jbh.xxx.application/
 **Package Organization Rules:**
 
 1. **Cross-Cutting Infrastructure** (acid/, async/, common/):
-   - Technical services used across all features
-   - Examples: UnitOfWork, AsyncTaskExecutor, LoggingContext
-   - NEVER put business logic here
+    - Technical services used across all features
+    - Examples: UnitOfWork, AsyncTaskExecutor, LoggingContext
+    - NEVER put business logic here
 
 2. **Feature Packages** (feature/<feature-name>/):
-   - Each feature is a vertical slice (bounded context)
-   - Contains ALL business logic for that feature
-   - Self-contained with clear boundaries
-   - Microservices-ready (can be extracted easily)
-   - Examples: `feature/product/`, `feature/movement/`, `feature/reporting/`
+    - Each feature is a vertical slice (bounded context)
+    - Contains ALL business logic for that feature
+    - Self-contained with clear boundaries
+    - Microservices-ready (can be extracted easily)
+    - Examples: `feature/product/`, `feature/movement/`, `feature/reporting/`
 
 3. **Shared Business** (shared/):
-   - Business-level code used by multiple features
-   - Examples: BusinessException, CommandValidator
-   - NOT for infrastructure concerns
+    - Business-level code used by multiple features
+    - Examples: BusinessException, CommandValidator
+    - NOT for infrastructure concerns
 
 **Feature Package Internal Structure:**
+
 ```
 feature/<feature-name>/
 ├── dto/              # Data Transfer Objects for this feature only
@@ -140,6 +141,7 @@ feature/<feature-name>/
 ```
 
 **Naming Conventions:**
+
 - Feature packages: lowercase, singular (e.g., `product`, `movement`, `user`)
 - Use case interfaces: `*InputPort` (e.g., `CreateProductInputPort`)
 - Use case implementations: `*UseCase` (e.g., `CreateProductUseCase`)
@@ -148,11 +150,12 @@ feature/<feature-name>/
 - Mappers: `<Entity>Mapper` (e.g., `ProductMapper`)
 
 **Module Exports (module-info.java):**
+
 ```java
 // Export feature public APIs
-exports com.jbh.xxx.application.feature.<feature>.dto;
-exports com.jbh.xxx.application.feature.<feature>.ports.input;
-exports com.jbh.xxx.application.feature.<feature>.usecases;
+exports com.jbh.xxx.application.feature .<feature>.dto;
+exports com.jbh.xxx.application.feature .<feature>.ports.input;
+exports com.jbh.xxx.application.feature .<feature>.usecases;
 
 // Export shared public APIs
 exports com.jbh.xxx.application.shared.exceptions;
@@ -205,12 +208,14 @@ com.jbh.products.infra.adapters.in.rest/
 ```
 
 **Package Guidelines:**
+
 - **Feature packages** (product/, movement/, balancehistory/, category/): Group related REST adapters with their contracts
 - **request/**: API input contracts specific to the feature
 - **response/**: API output contracts specific to the feature
 - **common/**: Shared base classes and constants used across features
 
 **Response Objects**:
+
 - Package: `*.infra.adapters.in.rest.<feature>.response`
 - Used only as controller method return types
 - Map from internal DTOs using `fromDTO()` factory methods
@@ -218,12 +223,14 @@ com.jbh.products.infra.adapters.in.rest/
 - **Naming Convention**: Must use `*Response` suffix, NEVER `*DTO`
 
 **Request Objects**:
+
 - Package: `*.infra.adapters.in.rest.<feature>.request`
 - Used only as controller method parameters
 - Examples: `CreateProductRequest`, `MonthlyBalanceRequest`
 - **Naming Convention**: Must use `*Request` suffix
 
 **Entities**: Database persistence objects
+
 - Package: `*.infra.adapters.out.persistence.entity`
 - Never exposed outside persistence layer
 - Examples: `ProductEntity`, `MonthlyBalanceEntity`
@@ -234,9 +241,10 @@ com.jbh.products.infra.adapters.in.rest/
 // In infra module - Response object
 package com.jbh.products.infra.adapters.in.rest.product.response;
 
-import com.jbh.products.application.feature.product.dto.ProductDTO;
+import dto.product.feature.com.jbh.finance.application.ProductDTO;
 
 public record ProductResponse(...) {
+
   public static ProductResponse fromDTO(final ProductDTO dto) {
     return new ProductResponse(...);
   }
@@ -245,12 +253,13 @@ public record ProductResponse(...) {
 // In controller
 package com.jbh.products.infra.adapters.in.rest.product;
 
-import com.jbh.products.infra.adapters.in.rest.product.response.ProductResponse;
-import com.jbh.products.infra.adapters.in.rest.product.request.CreateProductRequest;
-import com.jbh.products.application.feature.product.ports.input.CreateProductInputPort;
+import response.product.rest.in.adapters.com.jbh.finance.infra.ProductResponse;
+import request.product.rest.in.adapters.com.jbh.finance.infra.CreateProductRequest;
+import input.ports.product.feature.com.jbh.finance.application.CreateProductInputPort;
 
 @Path("/products")
 public class ProductRestAdapter {
+
   @GET
   public ProductResponse getProduct() {
     ProductDTO dto = service.getProduct(); // DTO from application feature layer
@@ -260,6 +269,7 @@ public class ProductRestAdapter {
 ```
 
 **Why feature-based organization?**
+
 - **High cohesion**: Everything related to a feature is together
 - **Easy navigation**: "I need product APIs? Go to `product/`"
 - **Independent changes**: Modify one feature without touching others
@@ -268,6 +278,7 @@ public class ProductRestAdapter {
 - **Microservices-ready**: Each folder could become a separate service
 
 **Why separate DTOs from Responses?**
+
 - DTOs contain business logic and can change with domain requirements
 - Response objects define stable API contracts for external consumers
 - Infra layer handles all external communication (HTTP, DB, messaging)
@@ -310,6 +321,7 @@ public class ProductRestAdapter {
 #### Two-Tier Indexing Approach:
 
 **1. Infrastructure Modules (`*-infra`) - Jandex Plugin:**
+
 ```xml
 <!-- In jbh-xxx-infra/pom.xml -->
 <plugin>
@@ -327,6 +339,7 @@ public class ProductRestAdapter {
 ```
 
 **Purpose:** Index CDI beans for runtime discovery:
+
 - REST endpoints (`@Path`, `@GET`, etc.)
 - Services (`@ApplicationScoped`, `@RequestScoped`)
 - Repositories, adapters, and infrastructure components
@@ -334,6 +347,7 @@ public class ProductRestAdapter {
 **Result:** Each infra JAR contains `META-INF/jandex.idx`
 
 **2. Domain/Application Modules - `quarkus.index-dependency` Configuration:**
+
 ```properties
 # In jbh-z-assembly/src/main/resources/application.properties
 quarkus.index-dependency.products-domain.group-id=com.jbh
@@ -344,6 +358,7 @@ quarkus.index-dependency.products-application.artifact-id=jbh-products-applicati
 ```
 
 **Purpose:** Index non-CDI classes for OpenAPI/Swagger and reflection:
+
 - DTOs (Data Transfer Objects)
 - VOs (Value Objects)
 - Domain entities
@@ -353,18 +368,19 @@ quarkus.index-dependency.products-application.artifact-id=jbh-products-applicati
 
 #### Why This Matters:
 
-| Aspect | Benefit |
-|--------|---------|
-| **Hexagonal Architecture** | Domain/application layers have ZERO infrastructure dependencies |
+| Aspect                     | Benefit                                                           |
+|----------------------------|-------------------------------------------------------------------|
+| **Hexagonal Architecture** | Domain/application layers have ZERO infrastructure dependencies   |
 | **Framework Independence** | Can switch from Quarkus to Spring without touching business logic |
-| **Clean Architecture** | Infrastructure concerns isolated to infra/assembly layers |
-| **CDI Discovery** | Infra beans properly discovered at runtime |
-| **OpenAPI Generation** | DTOs/VOs indexed for Swagger documentation |
-| **Native Compilation** | All classes properly registered for GraalVM reflection |
+| **Clean Architecture**     | Infrastructure concerns isolated to infra/assembly layers         |
+| **CDI Discovery**          | Infra beans properly discovered at runtime                        |
+| **OpenAPI Generation**     | DTOs/VOs indexed for Swagger documentation                        |
+| **Native Compilation**     | All classes properly registered for GraalVM reflection            |
 
 #### Module Dependency Rules:
 
 **❌ NEVER allow in domain/application modules:**
+
 - Quarkus dependencies (`io.quarkus.*`)
 - Spring dependencies (`org.springframework.*`)
 - JAX-RS annotations (`jakarta.ws.rs.*`)
@@ -372,11 +388,13 @@ quarkus.index-dependency.products-application.artifact-id=jbh-products-applicati
 - Any framework-specific code
 
 **✅ ONLY allow in domain/application modules:**
+
 - JDK standard library
 - Domain-specific libraries (validation, money types)
 - SLF4J API (logging facade only)
 - Test dependencies (JUnit, Mockito)
 
 **✅ Infrastructure dependencies belong in:**
+
 - `*-infra` modules (Quarkus, JAX-RS, Hibernate, etc.)
 - `jbh-z-assembly` module (Quarkus bootstrap, configuration)

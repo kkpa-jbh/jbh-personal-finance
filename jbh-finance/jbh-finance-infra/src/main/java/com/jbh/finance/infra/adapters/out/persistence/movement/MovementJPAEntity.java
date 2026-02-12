@@ -1,0 +1,104 @@
+package com.jbh.finance.infra.adapters.out.persistence.movement;
+
+import com.jbh.finance.application.feature.movement.dto.MovementDTO;
+import com.jbh.finance.domain.movement.vo.AccountMovementMetadata;
+import com.jbh.finance.domain.movement.vo.AccountMovementMetadataKey;
+import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
+import com.jbh.finance.domain.movement.vo.MovementId;
+import com.jbh.finance.domain.movement.vo.MovementType;
+import com.jbh.finance.domain.product.vo.ProductId;
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.UUID;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.Type;
+
+@Entity
+@Getter
+@Setter
+@Table(name = "movements", schema = "finance")
+public class MovementJPAEntity extends PanacheEntityBase {
+  // Auto generated ID
+  @Id
+  @Column(name = "id")
+  public UUID id;
+
+  @Column(name = "product_id")
+  public UUID accountId;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "movement_type")
+  public MovementType movementType;
+
+  @Column(name = "category_type")
+  public String category;
+
+  @Column(name = "movement_amount", precision = 20, scale = 2)
+  public BigDecimal movementAmount;
+
+  @Column(name = "movement_date")
+  public LocalDate movementDate;
+
+  @Column(name = "balance_snapshot", precision = 20, scale = 2)
+  public BigDecimal balanceSnapshot;
+
+  @Column(name = "description")
+  public String description;
+
+  @Type(JsonBinaryType.class)
+  @Column(name = "metadata", columnDefinition = "jsonb")
+  public Map<AccountMovementMetadataKey, Object> metadata;
+
+  @Column(name = "created_at", nullable = false, updatable = false)
+  public LocalDateTime createdAt;
+
+  public static MovementJPAEntity toEntity(final MovementDTO productMovement) {
+    final MovementJPAEntity entity = new MovementJPAEntity();
+    entity.setId(productMovement.id() != null ? productMovement.id().value() : null);
+    entity.setAccountId(
+        productMovement.accountId() != null ? productMovement.accountId().value() : null);
+    entity.setMovementType(productMovement.movementType());
+    entity.setMovementAmount(productMovement.movementAmount());
+    entity.setMovementDate(productMovement.movementDate());
+    entity.setBalanceSnapshot(productMovement.balanceSnapshot());
+    entity.setMetadata(
+        productMovement.metadata() != null ? productMovement.metadata().asMap() : null);
+    entity.setCategory(productMovement.category().getType().getTypeName());
+    entity.setDescription(productMovement.description());
+    entity.setCreatedAt(productMovement.createdAt());
+    entity.setDescription(productMovement.description());
+    return entity;
+  }
+
+  @PrePersist
+  protected void onCreate() {
+    createdAt = LocalDateTime.now();
+  }
+
+  public MovementDTO toDTO() {
+    return MovementDTO.builder()
+        .id(MovementId.of(id))
+        .accountId(ProductId.of(accountId))
+        .movementType(movementType)
+        .category(MovementCategoryVO.withName(movementType, category))
+        .movementAmount(movementAmount)
+        .movementDate(movementDate)
+        .balanceSnapshot(balanceSnapshot)
+        .metadata(metadata != null ? AccountMovementMetadata.of(metadata) : null)
+        .createdAt(createdAt)
+        .description(description)
+        .build();
+  }
+}

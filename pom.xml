@@ -148,7 +148,7 @@
       </dependency>
 
       <dependency>
-        <artifactId>jbh-products-infra</artifactId>
+        <artifactId>jbh-finance-infra</artifactId>
         <groupId>com.jbh</groupId>
         <version>${project.version}</version>
       </dependency>
@@ -208,7 +208,7 @@
   <!-- =============================================== -->
   <modules>
     <module>jbh-commons-lib</module>
-    <module>jbh-products</module>
+    <module>jbh-finance</module>
     <module>jbh-notification</module>
     <module>jbh-preferences</module>
 

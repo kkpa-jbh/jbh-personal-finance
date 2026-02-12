@@ -75,7 +75,7 @@
     <!-- Infrastructure Modules -->
     <!-- FIXED: Remove explicit version, use dependency management -->
     <dependency>
-      <artifactId>jbh-products-infra</artifactId>
+      <artifactId>jbh-finance-infra</artifactId>
       <groupId>com.jbh</groupId>
     </dependency>
 

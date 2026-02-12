@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <artifactId>jbh-finance-domain</artifactId>
+  <build>
+    <plugins>
+      <!-- JACOCO -->
+      <plugin>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+            <id>prepare-agent</id>
+          </execution>
+          <execution>
+            <goals>
+              <goal>report</goal>
+            </goals>
+            <id>report</id>
+            <phase>verify</phase>
+          </execution>
+          <execution>
+            <configuration>
+              <rules>
+                <rule>
+                  <element>CLASS</element>
+                  <excludes>
+                    <exclude>com.jbh.finance.domain.*.vo.*</exclude>
+                    <exclude>com.jbh.finance.domain.exceptions.*</exclude>
+                    <exclude>com.jbh.finance.domain.entity.*Builder*</exclude>
+                  </excludes>
+                  <limits>
+                    <limit>
+                      <counter>LINE</counter>
+                      <minimum>${jacoco.line.coverage.minimum}</minimum>
+                      <value>COVEREDRATIO</value>
+                    </limit>
+                    <limit>
+                      <counter>BRANCH</counter>
+                      <minimum>${jacoco.branch.coverage.minimum}</minimum>
+                      <value>COVEREDRATIO</value>
+                    </limit>
+                  </limits>
+                </rule>
+                <rule>
+                  <element>BUNDLE</element>
+                  <excludes>
+                    <exclude>com.jbh.finance.domain.*.vo.*</exclude>
+                    <exclude>com.jbh.finance.domain.*.exceptions.*</exclude>
+                    <exclude>com.jbh.finance.domain.*.entity.*Builder*</exclude>
+                  </excludes>
+                  <limits>
+                    <limit>
+                      <counter>LINE</counter>
+                      <minimum>${jacoco.bundle.line.minimum}</minimum>
+                      <value>COVEREDRATIO</value>
+                    </limit>
+                    <limit>
+                      <counter>BRANCH</counter>
+                      <minimum>${jacoco.bundle.branch.minimum}</minimum>
+                      <value>COVEREDRATIO</value>
+                    </limit>
+                  </limits>
+                </rule>
+              </rules>
+            </configuration>
+            <goals>
+              <goal>check</goal>
+            </goals>
+            <id>jacoco-check</id>
+            <phase>verify</phase>
+          </execution>
+        </executions>
+        <groupId>org.jacoco</groupId>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <artifactId>jbh-commons-lib</artifactId>
+      <groupId>com.jbh</groupId>
+    </dependency>
+
+    <!-- Add Lombok Dependency -->
+    <dependency>
+      <artifactId>lombok</artifactId>
+      <groupId>org.projectlombok</groupId>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Logging Dependencies -->
+    <dependency>
+      <artifactId>slf4j-api</artifactId>
+      <groupId>org.slf4j</groupId>
+    </dependency>
+  </dependencies>
+
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>jbh-finance</artifactId>
+    <groupId>com.jbh</groupId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
+  <properties>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+
+</project>

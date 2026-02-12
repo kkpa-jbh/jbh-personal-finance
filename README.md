@@ -55,7 +55,7 @@ module.
       <dependencies>
           <dependency>
               <groupId>com.example</groupId>
-              <artifactId>jbh-products-infrastructure</artifactId>
+              <artifactId>jbh-finance-infrastructure</artifactId>
           </dependency>
           <dependency>
               <groupId>com.example</groupId>
@@ -72,17 +72,17 @@ module.
 ```bash
 jbh-personal-finance/
 ├── pom.xml                                 (Root Parent)
-├── jbh-products/
+├── jbh-finance/
 │   ├── pom.xml                            (Module A Parent)
-│   ├── jbh-products-domain/
+│   ├── jbh-finance-domain/
 │   │   ├── pom.xml
-│   │   └── src/main/java/com/jbh/finance/jbh-products/domain/
-│   ├── jbh-products-application/
+│   │   └── src/main/java/com/jbh/finance/jbh-finance/domain/
+│   ├── jbh-finance-application/
 │   │   ├── pom.xml
-│   │   └── src/main/java/com/jbh/finance/jbh-products/application/
-│   └── jbh-products-infra/
+│   │   └── src/main/java/com/jbh/finance/jbh-finance/application/
+│   └── jbh-finance-infra/
 │       ├── pom.xml
-│       └── src/main/java/com/jbh/finance/jbh-products/infra/
+│       └── src/main/java/com/jbh/finance/jbh-finance/infra/
 ├── module-b/
 │   ├── pom.xml                            (Module B Parent)
 │   ├── b-domain/
@@ -144,7 +144,7 @@ Quarkus requires **Jandex indexing** for CDI discovery and reflection. In a hexa
 
 **Result:**
 ```
-jbh-products-infra.jar → contains META-INF/jandex.idx ✅
+jbh-finance-infra.jar → contains META-INF/jandex.idx ✅
 jbh-preferences-infra.jar → contains META-INF/jandex.idx ✅
 ```
 
@@ -162,9 +162,9 @@ jbh-preferences-infra.jar → contains META-INF/jandex.idx ✅
 ```properties
 # In jbh-z-assembly/src/main/resources/application.properties
 quarkus.index-dependency.products-domain.group-id=com.jbh
-quarkus.index-dependency.products-domain.artifact-id=jbh-products-domain
+quarkus.index-dependency.products-domain.artifact-id=jbh-finance-domain
 quarkus.index-dependency.products-application.group-id=com.jbh
-quarkus.index-dependency.products-application.artifact-id=jbh-products-application
+quarkus.index-dependency.products-application.artifact-id=jbh-finance-application
 # ... repeat for preferences, notification, etc.
 ```
 
@@ -196,9 +196,9 @@ quarkus.index-dependency.products-application.artifact-id=jbh-products-applicati
 
 1. **Build Time**: Infrastructure modules create their own indexes
    ```
-   jbh-products-infra.jar → META-INF/jandex.idx (REST endpoints, services)
-   jbh-products-domain.jar → NO index (framework-agnostic)
-   jbh-products-application.jar → NO index (framework-agnostic)
+   jbh-finance-infra.jar → META-INF/jandex.idx (REST endpoints, services)
+   jbh-finance-domain.jar → NO index (framework-agnostic)
+   jbh-finance-application.jar → NO index (framework-agnostic)
    ```
 
 2. **Runtime**: Quarkus assembly performs two scans:
@@ -270,18 +270,18 @@ This workflow ensures the module exists before other modules try to depend on it
 
 1. Parent pom dependencies in root dependencyManagement:
 
-The jbh-products parent pom dependency in root pom.xml:65-69 is NOT necessary and should be removed. Here's why:
+The jbh-finance parent pom dependency in root pom.xml:65-69 is NOT necessary and should be removed. Here's why:
 
 - Parent poms (<packaging>pom</packaging>) don't produce JARs
 - They're only for aggregation and inheritance
 - Only actual JAR/WAR modules should be in dependencyManagement
 
-2. When adding new submodules like jbh-products-domain, jbh-products-application:
+2. When adding new submodules like jbh-finance-domain, jbh-finance-application:
 
 Root pom dependencyManagement: Add entries for modules that will be used as dependencies:
 <dependency>
 <groupId>com.jbh</groupId>
-<artifactId>jbh-products-domain</artifactId>
+<artifactId>jbh-finance-domain</artifactId>
 <version>${project.version}</version>
 </dependency>
 
@@ -376,12 +376,12 @@ Run on all modules:
 mvn clean compile pmd:pmd
 
 Run on specific module:
-mvn pmd:pmd -pl jbh-products
+mvn pmd:pmd -pl jbh-finance
 
 Report Locations
 
 - Root: target/site/pmd.html
-- Per module: jbh-products/target/site/pmd.html, jbh-notification/target/site/pmd.html
+- Per module: jbh-finance/target/site/pmd.html, jbh-notification/target/site/pmd.html
 
 Integration Options
 
@@ -411,7 +411,7 @@ All modules:
 mvn clean compile spotbugs:spotbugs
 
 Specific module:
-mvn spotbugs:spotbugs -pl jbh-products
+mvn spotbugs:spotbugs -pl jbh-finance
 
 Combined Static Analysis
 
