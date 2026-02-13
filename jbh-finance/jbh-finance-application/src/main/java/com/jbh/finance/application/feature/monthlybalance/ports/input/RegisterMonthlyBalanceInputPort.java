@@ -48,7 +48,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
    * It worth suggest calling this use case once the next month has started with the profit
    * reported. The user registers a monthly balance once the month has ended. \n It isn't associated
    * with any category. \n The monthly balance can already exist with some movements associated. \n
-   * The monthly profit is provided by the institution account. \n Based on the monthly balances,
+   * The monthly profit is provided by the institution productDTO. \n Based on the monthly balances,
    * this method will calculate the netGrowthRate for the month. This method will also calculate the
    * monthlyExpenses for the month. After syncing the monthly balance, it should update the opening
    * balance of the next month.
@@ -73,7 +73,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
 
     final YearMonth periodToRegister = addMonthlyBalanceCommand.monthlyPeriod();
     log.info(
-        "Registering Official Monthly Balance for account {} on {}", accountId, periodToRegister);
+        "Registering Official Monthly Balance for productDTO {} on {}", accountId, periodToRegister);
 
     validatePeriod(runningDate, periodToRegister);
 
@@ -122,7 +122,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
                 addMonthlyBalanceCommand);
 
     log.info(
-        "Monthly Balance registration completed successfully for account:{} and period: {}",
+        "Monthly Balance registration completed successfully for productDTO:{} and period: {}",
         accountId,
         periodToRegister);
 

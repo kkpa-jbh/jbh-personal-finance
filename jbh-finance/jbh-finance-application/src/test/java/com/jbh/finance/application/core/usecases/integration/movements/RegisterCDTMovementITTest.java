@@ -2,7 +2,7 @@ package com.jbh.finance.application.core.usecases.integration.movements;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder.createInitialBalance;
-import static com.jbh.finance.application.core.usecases.utils.AccountITUtils.assertAccount;
+import static com.jbh.finance.application.core.usecases.utils.ProductITUtils.assertAccount;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -10,16 +10,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.commons.exception.BusinessException;
-import com.jbh.finance.application.builders.AccountEntityBuilder;
 import com.jbh.finance.application.builders.CommandTestBuilder;
+import com.jbh.finance.application.builders.ProductEntityBuilder;
 import com.jbh.finance.application.builders.UseCaseBuilder;
-import com.jbh.finance.application.core.ports.output.account.InMemoryAccountRepository;
+import com.jbh.finance.application.core.ports.output.product.InMemoryProductRepository;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.movement.dto.LiquidationResultDTO;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
-import com.jbh.finance.application.feature.movement.usecases.LiquidateAccountUseCase;
+import com.jbh.finance.application.feature.movement.usecases.LiquidateProductUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.mappers.ProductMapper;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
@@ -47,15 +47,15 @@ public class RegisterCDTMovementITTest {
   private static final Logger LOG = LoggerFactory.getLogger(RegisterCDTMovementITTest.class);
   private static final String name = "CDT";
   private static final YearMonth period = YearMonth.of(2023, 1);
-  private static final InMemoryAccountRepository inMemoryAccountRepo =
+  private static final InMemoryProductRepository inMemoryAccountRepo =
       UseCaseBuilder.getAccountRepository();
   private static final BigDecimal CDT_INITIAL_BALANCE = new BigDecimal("100.00");
   private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
-  private static AccountMovementWriterRepository accountMovementRepository;
+  private static MovementWriterRepository accountMovementRepository;
   private static ProductDTO cdtAccount;
   private static ProductDTO internalAccount;
-  private static LiquidateAccountUseCase liquidateAccountUseCase;
+  private static LiquidateProductUseCase liquidateAccountUseCase;
   private MonthlyBalanceLifecycleService monthlyBalanceService;
 
   @BeforeAll
@@ -96,7 +96,7 @@ public class RegisterCDTMovementITTest {
     assertNotNull(updatedAccount);
 
     final var expectedAccountBuilder =
-        AccountEntityBuilder.withBuilder(
+        ProductEntityBuilder.withBuilder(
             cdtAccount.id(),
             userId,
             CDT_INITIAL_BALANCE,
@@ -108,7 +108,7 @@ public class RegisterCDTMovementITTest {
 
     assertAccount(expectedAccount, updatedAccount);
 
-    // Should not be able to add a new income movement to the account
+    // Should not be able to add a new income movement to the productDTO
     assertThrows(
         BusinessException.class,
         () -> {

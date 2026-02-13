@@ -13,6 +13,7 @@ import lombok.Builder;
 
 @Builder
 @AllArgsConstructor
+@SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
 public class MovementDTO {
 
   private final MovementId id;

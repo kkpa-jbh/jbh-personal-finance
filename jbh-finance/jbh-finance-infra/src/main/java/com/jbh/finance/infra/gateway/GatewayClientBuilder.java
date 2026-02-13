@@ -8,7 +8,7 @@ import jakarta.inject.Inject;
 @ApplicationScoped
 public class GatewayClientBuilder {
 
-  private static final String ACCOUNT_SERVICE_CLIENT = "JBH_PRODUCTS_API";
+  private static final String FINANCE_SERVICE_CLIENT = "JBH_FINANCE_API";
 
   private final JbhGatewayClientConfigProvider configProvider;
 
@@ -20,7 +20,7 @@ public class GatewayClientBuilder {
   public JbhGatewayClientBuilder buildGatewayClient() {
     return JbhGatewayClientBuilder.builder()
         .baseUrl(configProvider.baseUrl())
-        .sourceService(ACCOUNT_SERVICE_CLIENT)
+        .sourceService(FINANCE_SERVICE_CLIENT)
         .build();
   }
 }

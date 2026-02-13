@@ -5,10 +5,10 @@ import com.jbh.finance.infra.adapters.in.rest.balancehistory.response.MonthlyBal
 import com.jbh.finance.infra.adapters.in.rest.product.response.ProductResponse;
 
 public record AddBasicMovementResponse(
-    ProductResponse account, MovementResponse movement, MonthlyBalanceResponse monthlyBalance) {
+    ProductResponse productresponse, MovementResponse movement, MonthlyBalanceResponse monthlyBalance) {
   public static AddBasicMovementResponse fromDTO(final AddBasicMovementDTO dto) {
     return new AddBasicMovementResponse(
-        ProductResponse.fromDTO(dto.account()),
+        ProductResponse.fromDTO(dto.productDTO()),
         MovementResponse.fromDTO(dto.movement()),
         MonthlyBalanceResponse.fromDTO(dto.monthlyBalance()));
   }

@@ -8,7 +8,7 @@ public final class LoggingContext {
 
   public static final String TRACKING_ID = "trackingId";
   public static final String USER_ID = "userId";
-  public static final String ACCOUNT_ID = "accountId";
+  public static final String PRODUCT_ID = "productId";
   public static final String MOVEMENT_ID = "movementId";
   public static final String MODULE = "module";
   public static final String REQUEST_ID = "requestId";
@@ -154,29 +154,29 @@ public final class LoggingContext {
   }
 
   public static <T> T withAccountId(final String accountId, final Supplier<T> action) {
-    final String previousAccountId = getAccountId();
+    final String previousAccountId = getProductId();
     try {
-      setAccountId(accountId);
+      setProductId(accountId);
       return action.get();
     } finally {
       if (previousAccountId != null) {
-        setAccountId(previousAccountId);
+        setProductId(previousAccountId);
       } else {
-        remove(ACCOUNT_ID);
+        remove(PRODUCT_ID);
       }
     }
   }
 
-  public static String getAccountId() {
-    return MDC.get(ACCOUNT_ID);
+  public static String getProductId() {
+    return MDC.get(PRODUCT_ID);
   }
 
-  public static void setAccountId(final String accountId) {
-    MDC.put(ACCOUNT_ID, accountId);
+  public static void setProductId(final String productId) {
+    MDC.put(PRODUCT_ID, productId);
   }
 
   public static void setAccountId(final UUID accountId) {
-    setAccountId(accountId != null ? accountId.toString() : null);
+    setProductId(accountId != null ? accountId.toString() : null);
   }
 
   public static Builder builder() {
@@ -272,7 +272,7 @@ public final class LoggingContext {
         setUserId(userId);
       }
       if (accountId != null) {
-        setAccountId(accountId);
+        setProductId(accountId);
       }
       if (movementId != null) {
         setMovementId(movementId);

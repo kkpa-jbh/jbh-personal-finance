@@ -9,7 +9,7 @@ public enum BusinessApplicationExceptionType implements BusinessExceptionType {
       "Invalid range dates for monthly balances",
       "Rango de fechas no válido para los saldos mensuales"),
   PRODUCT_NOT_FOUND(
-      "Product not found for the given user and account ID",
+      "Product not found for the given user and productDTO ID",
       "Producto no encontrado para el usuario y ID de cuenta proporcionados"),
   INVALID_TRANSFER_RECIPIENT(
       "The transfer recipient is invalid", "El destinatario de la transferencia no es válido"),
@@ -17,7 +17,7 @@ public enum BusinessApplicationExceptionType implements BusinessExceptionType {
       "The amount to transfer is invalid", "El importe a transferir no es válido"),
   INVALID_TRANSFER_DATE("The transfer date is invalid", "La fecha de transferencia no es válida"),
   CDT_MOVEMENTS_EXCEEDED(
-      "There is already a movement for this account", "Ya hay un movimiento para esta cuenta"),
+      "There is already a movement for this productDTO", "Ya hay un movimiento para esta cuenta"),
   CDT_WRONG_INCOME_CATEGORY(
       "The income category is not initial balance",
       "La categoría de ingreso no es balance inicial"),

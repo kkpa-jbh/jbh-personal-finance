@@ -4,12 +4,12 @@
   <!-- Define properties -->
   <appender class="ch.qos.logback.core.ConsoleAppender" name="CONSOLE">
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{trackingId:-NO-TRACKING}] [%X{accountId:-}] [%X{userId:-}] %logger{36} - %msg%n</pattern>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{trackingId:-NO-TRACKING}] [%X{productId:-}] [%X{userId:-}] %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
   <appender class="ch.qos.logback.core.rolling.RollingFileAppender" name="FILE">
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{trackingId:-NO-TRACKING}] [%X{accountId:-}] [%X{userId:-}] [%X{transactionId:-}] [%X{module:-}] %logger{36} -
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{trackingId:-NO-TRACKING}] [%X{productId:-}] [%X{userId:-}] [%X{transactionId:-}] [%X{module:-}] %logger{36} -
         %msg%n
       </pattern>
     </encoder>

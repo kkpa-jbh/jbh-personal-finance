@@ -2,21 +2,21 @@ package com.jbh.finance.application.core.usecases.integration.movements;
 
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder.createPersonalExpense;
-import static com.jbh.finance.application.core.usecases.utils.AccountITUtils.assertAccount;
 import static com.jbh.finance.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
+import static com.jbh.finance.application.core.usecases.utils.ProductITUtils.assertAccount;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.jbh.commons.exception.BusinessException;
-import com.jbh.finance.application.builders.AccountEntityBuilder;
 import com.jbh.finance.application.builders.CommandTestBuilder;
 import com.jbh.finance.application.builders.EntityTestBuilder;
+import com.jbh.finance.application.builders.ProductEntityBuilder;
 import com.jbh.finance.application.builders.UseCaseBuilder;
 import com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder;
-import com.jbh.finance.application.core.ports.output.account.InMemoryAccountRepository;
+import com.jbh.finance.application.core.ports.output.product.InMemoryProductRepository;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.mappers.ProductMapper;
@@ -43,13 +43,13 @@ public class RegisterTCMovementITTest {
   public static final BigDecimal CREDIT_LIMIT = new BigDecimal("1000.00");
   static final UUID userId = UUID.randomUUID();
   private static final Logger LOG = LoggerFactory.getLogger(RegisterTCMovementITTest.class);
-  private static final InMemoryAccountRepository inMemoryAccountRepo =
+  private static final InMemoryProductRepository inMemoryAccountRepo =
       UseCaseBuilder.getAccountRepository();
   private static final String name = "CREDIT CARD";
   private static final YearMonth period = YearMonth.of(2023, 1);
   private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
-  @Mock private static AccountMovementWriterRepository accountMovementRepository;
+  @Mock private static MovementWriterRepository accountMovementRepository;
   private static ProductDTO creditCardAccount;
   private MonthlyBalanceLifecycleService monthlyBalanceService;
 
@@ -92,7 +92,7 @@ public class RegisterTCMovementITTest {
     assertNotNull(updatedAccount);
 
     final var expectedAccountBuilder =
-        AccountEntityBuilder.withBuilder(
+        ProductEntityBuilder.withBuilder(
             creditCardAccount.id(),
             userId,
             personalExpense.negate(),
@@ -118,7 +118,7 @@ public class RegisterTCMovementITTest {
     assertNotNull(updatedAccount);
 
     final var expectedAccountBuilder =
-        AccountEntityBuilder.withBuilder(
+        ProductEntityBuilder.withBuilder(
             creditCardAccount.id(),
             userId,
             new BigDecimal("-900.00"),
@@ -146,7 +146,7 @@ public class RegisterTCMovementITTest {
     assertNotNull(updatedAccount);
 
     final var expectedAccountBuilder =
-        AccountEntityBuilder.withBuilder(
+        ProductEntityBuilder.withBuilder(
             creditCardAccount.id(),
             userId,
             new BigDecimal("-700.00"),
@@ -193,7 +193,7 @@ public class RegisterTCMovementITTest {
     assertNotNull(updatedAccount);
 
     final var expectedAccountBuilder =
-        AccountEntityBuilder.withBuilder(
+        ProductEntityBuilder.withBuilder(
             creditCardAccount.id(),
             userId,
             new BigDecimal("-800.00"),
@@ -254,7 +254,7 @@ public class RegisterTCMovementITTest {
     assertNotNull(updatedAccount);
 
     final var expectedAccountBuilder =
-        AccountEntityBuilder.withBuilder(
+        ProductEntityBuilder.withBuilder(
             creditCardAccount.id(),
             userId,
             new BigDecimal("0.00"),

@@ -12,7 +12,7 @@ import lombok.Builder;
 @Builder(builderMethodName = "notUseThisInternalBuilder")
 public record MonthlyBalanceDTO(
     Long id,
-    ProductId accountId,
+    ProductId productId,
     int year,
     int month,
     YearMonth period,
@@ -38,7 +38,7 @@ public record MonthlyBalanceDTO(
       final boolean gapPeriod) {
 
     return defaultBuilder()
-        .accountId(accountId)
+        .productId(accountId)
         .period(period)
         .year(period.getYear())
         .month(period.getMonthValue())

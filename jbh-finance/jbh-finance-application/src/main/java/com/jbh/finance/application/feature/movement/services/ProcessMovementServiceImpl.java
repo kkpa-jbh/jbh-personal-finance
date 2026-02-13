@@ -64,7 +64,7 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
       return;
     }
 
-    final var accountId = productPK.accountId();
+    final var accountId = productPK.productId();
     final var period = nextMonthlyBalanceCommand.monthlyPeriod().plusMonths(1).atDay(1);
     final var monthlyProfitReported =
         withJBHDecimals(nextMonthlyBalanceCommand.monthlyProfitReported());
@@ -77,7 +77,7 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
 
     if (monthlyProfitReported != null) {
       log.info(
-          "Adding {} dividends movement for account {} and period {} with balance snapshot {}",
+          "Adding {} dividends movement for productDTO {} and period {} with balance snapshot {}",
           monthlyProfitReported,
           accountId,
           period,
@@ -85,7 +85,7 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
 
       // I decided to put the balance snapshot, to make it real with the current balance of the
       // month
-      // taking into account the dividends. This balance snapshot should be the same of the account
+      // taking into productDTO the dividends. This balance snapshot should be the same of the productDTO
       // balance.
 
       /*
@@ -109,9 +109,9 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
         addMovementProcessingBalances(accountPK, incomeWithholdingTaxMovement);
 
         log.info(
-            "Income withholding tax movement {} added successfully for account {} and period {}",
+            "Income withholding tax movement {} added successfully for productDTO {} and period {}",
             incomeWithholdingTaxAmount,
-            accountId,
+            productId,
             period);
       }
 
@@ -134,10 +134,10 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
     // Input validations
     movementCommand.validate();
 
-    final var accountId = accountPK.accountId();
+    final var accountId = accountPK.productId();
 
     log.info(
-        "Analyzing Movement {} for account: {}, {}",
+        "Analyzing Movement {} for productDTO: {}, {}",
         movementCommand.movementType(),
         accountId.value(),
         movementCommand);
@@ -162,7 +162,7 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
     monthlyBalanceService.validateNewMovementForOfficialMonthlyReport(movementDTO);
 
     final UUID userId = accountPK.userId();
-    final ProductId accountId = accountPK.accountId();
+    final ProductId accountId = accountPK.productId();
 
     final ProductDTO syncedAccountDTO =
         productLifecycleService.syncByMovement(
@@ -208,9 +208,9 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
     addMovementProcessingBalances(accountPK, dividendsMovement);
 
     log.info(
-        "Dividends movement {} added successfully for account {} and period {}",
+        "Dividends movement {} added successfully for productDTO {} and period {}",
         dividendsAmount,
-        accountPK.accountId(),
+        accountPK.productId(),
         movementDate);
 
     if (incomeWithholdingTaxAmount != null) {
@@ -226,9 +226,9 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
       addMovementProcessingBalances(accountPK, incomeWithholdingTaxMovement);
 
       log.info(
-          "Income withholding tax movement {} added successfully for account {} and period {}",
+          "Income withholding tax movement {} added successfully for productDTO {} and period {}",
           incomeWithholdingTaxAmount,
-          accountPK.accountId(),
+          accountPK.productId(),
           movementDate);
     }
   }

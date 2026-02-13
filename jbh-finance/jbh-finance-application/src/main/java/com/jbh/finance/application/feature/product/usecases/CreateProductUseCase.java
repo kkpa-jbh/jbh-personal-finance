@@ -5,7 +5,7 @@ import com.jbh.finance.application.feature.product.commands.CreateProductCommand
 import com.jbh.commons.exception.BusinessException;
 
 /**
- * Creates a new financial product (account) in the user's portfolio with type-specific metadata
+ * Creates a new financial product (productDTO) in the user's portfolio with type-specific metadata
  * validation.
  *
  * <p><strong>User Explanation:</strong> "Create a product to add to your portfolio and track its

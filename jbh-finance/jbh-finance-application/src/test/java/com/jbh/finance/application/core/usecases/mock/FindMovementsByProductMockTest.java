@@ -12,7 +12,10 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.ports.input.FindMovementsInputPort;
+import com.jbh.finance.application.feature.movement.ports.output.MovementQueryRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.services.MovementLifecycleService;
+import com.jbh.finance.application.feature.movement.services.MovementLifecycleServiceImpl;
 import com.jbh.finance.application.feature.movement.usecases.FindMovementsUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
@@ -24,6 +27,7 @@ import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.Collections;
 import java.util.List;
@@ -40,13 +44,19 @@ public class FindMovementsByProductMockTest {
 
   private FindMovementsUseCase useCase;
 
-  @Mock private MovementLifecycleService movementQueryRepository;
-  @Mock private ProductLifecycleService productsService;
+  @Mock private MovementQueryRepository movementQueryRepoMock;
+  @Mock private MovementWriterRepository movementWriterRepositoryMock;
+  @Mock private ProductLifecycleService productLifecycleService;
+
+  private MovementLifecycleService movementLifecycleService;
 
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
-    useCase = new FindMovementsInputPort(movementQueryRepository, productsService);
+    movementLifecycleService =
+        new MovementLifecycleServiceImpl(movementWriterRepositoryMock, movementQueryRepoMock);
+
+    useCase = new FindMovementsInputPort(movementLifecycleService, productLifecycleService);
   }
 
   @Test
@@ -64,8 +74,9 @@ public class FindMovementsByProductMockTest {
     final MovementDTO movement3 =
         createMovement(MovementId.generate(), today.minusDays(1), new BigDecimal("50.00"));
 
-    when(productsService.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(product);
-    when(movementQueryRepository.getByUserAndProductIdWithinPeriod(
+    when(productLifecycleService.findOrThrowByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
+        .thenReturn(product);
+    when(movementQueryRepoMock.getByUserAndProductIdWithinPeriod(
             eq(TEST_USER_ID), eq(TEST_PRODUCT_ID), any(LocalDate.class), any(LocalDate.class)))
         .thenReturn(List.of(movement1, movement2, movement3));
 
@@ -80,8 +91,8 @@ public class FindMovementsByProductMockTest {
     assertEquals(movement1.id(), result.get(1).id()); // today - 5
     assertEquals(movement2.id(), result.get(2).id()); // today - 10
 
-    verify(productsService).findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID);
-    verify(movementQueryRepository)
+    verify(productLifecycleService).findOrThrowByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID);
+    verify(movementQueryRepoMock)
         .getByUserAndProductIdWithinPeriod(
             eq(TEST_USER_ID), eq(TEST_PRODUCT_ID), any(LocalDate.class), any(LocalDate.class));
   }
@@ -96,6 +107,7 @@ public class FindMovementsByProductMockTest {
         .movementAmount(amount)
         .movementDate(date)
         .balanceSnapshot(amount)
+        .createdAt(LocalDateTime.now())
         .build();
   }
 
@@ -106,8 +118,9 @@ public class FindMovementsByProductMockTest {
                 TEST_USER_ID, TEST_PRODUCT_ID, "Test Account", ProductType.SAVINGS)
             .build();
 
-    when(productsService.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(product);
-    when(movementQueryRepository.getByUserAndProductIdWithinPeriod(
+    when(productLifecycleService.findOrThrowByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
+        .thenReturn(product);
+    when(movementQueryRepoMock.getByUserAndProductIdWithinPeriod(
             eq(TEST_USER_ID), eq(TEST_PRODUCT_ID), any(LocalDate.class), any(LocalDate.class)))
         .thenReturn(Collections.emptyList());
 
@@ -115,7 +128,7 @@ public class FindMovementsByProductMockTest {
         useCase.findMovementsByProduct(TEST_USER_ID, TEST_PRODUCT_ID, null);
 
     assertNotNull(result);
-    verify(movementQueryRepository)
+    verify(movementQueryRepoMock)
         .getByUserAndProductIdWithinPeriod(
             eq(TEST_USER_ID), eq(TEST_PRODUCT_ID), any(LocalDate.class), any(LocalDate.class));
   }
@@ -127,8 +140,9 @@ public class FindMovementsByProductMockTest {
                 TEST_USER_ID, TEST_PRODUCT_ID, "Test Account", ProductType.SAVINGS)
             .build();
 
-    when(productsService.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(product);
-    when(movementQueryRepository.getByUserAndProductIdWithinPeriod(
+    when(productLifecycleService.findOrThrowByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
+        .thenReturn(product);
+    when(movementQueryRepoMock.getByUserAndProductIdWithinPeriod(
             eq(TEST_USER_ID), eq(TEST_PRODUCT_ID), any(LocalDate.class), any(LocalDate.class)))
         .thenReturn(Collections.emptyList());
 
@@ -136,7 +150,7 @@ public class FindMovementsByProductMockTest {
         useCase.findMovementsByProduct(TEST_USER_ID, TEST_PRODUCT_ID, 0);
 
     assertNotNull(result);
-    verify(movementQueryRepository)
+    verify(movementQueryRepoMock)
         .getByUserAndProductIdWithinPeriod(
             eq(TEST_USER_ID), eq(TEST_PRODUCT_ID), any(LocalDate.class), any(LocalDate.class));
   }
@@ -148,8 +162,9 @@ public class FindMovementsByProductMockTest {
                 TEST_USER_ID, TEST_PRODUCT_ID, "Test Account", ProductType.SAVINGS)
             .build();
 
-    when(productsService.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(product);
-    when(movementQueryRepository.getByUserAndProductIdWithinPeriod(
+    when(productLifecycleService.findOrThrowByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
+        .thenReturn(product);
+    when(movementQueryRepoMock.getByUserAndProductIdWithinPeriod(
             eq(TEST_USER_ID), eq(TEST_PRODUCT_ID), any(LocalDate.class), any(LocalDate.class)))
         .thenReturn(Collections.emptyList());
 
@@ -159,8 +174,8 @@ public class FindMovementsByProductMockTest {
     assertNotNull(result);
     assertEquals(0, result.size());
 
-    verify(productsService).findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID);
-    verify(movementQueryRepository)
+    verify(productLifecycleService).findOrThrowByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID);
+    verify(movementQueryRepoMock)
         .getByUserAndProductIdWithinPeriod(
             eq(TEST_USER_ID), eq(TEST_PRODUCT_ID), any(LocalDate.class), any(LocalDate.class));
   }
@@ -187,14 +202,14 @@ public class FindMovementsByProductMockTest {
 
   @Test
   public void shouldThrowExceptionWhenProductDoesNotExist() throws BusinessException {
-    when(productsService.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
+    when(productLifecycleService.findOrThrowByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
         .thenThrow(new BusinessException(BusinessApplicationExceptionType.PRODUCT_NOT_FOUND));
 
     assertThrows(
         BusinessException.class,
         () -> useCase.findMovementsByProduct(TEST_USER_ID, TEST_PRODUCT_ID, 3));
 
-    verify(productsService).findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID);
+    verify(productLifecycleService).findOrThrowByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID);
   }
 
   @Test
@@ -204,8 +219,9 @@ public class FindMovementsByProductMockTest {
                 TEST_USER_ID, TEST_PRODUCT_ID, "Test Account", ProductType.SAVINGS)
             .build();
 
-    when(productsService.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(product);
-    when(movementQueryRepository.getByUserAndProductIdWithinPeriod(
+    when(productLifecycleService.findOrThrowByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
+        .thenReturn(product);
+    when(movementQueryRepoMock.getByUserAndProductIdWithinPeriod(
             eq(TEST_USER_ID), eq(TEST_PRODUCT_ID), any(LocalDate.class), any(LocalDate.class)))
         .thenReturn(Collections.emptyList());
 
@@ -216,7 +232,7 @@ public class FindMovementsByProductMockTest {
     final LocalDate expectedEndDate = currentMonth.atEndOfMonth();
     final LocalDate expectedStartDate = currentMonth.minusMonths(2).atDay(1);
 
-    verify(movementQueryRepository)
+    verify(movementQueryRepoMock)
         .getByUserAndProductIdWithinPeriod(
             TEST_USER_ID, TEST_PRODUCT_ID, expectedStartDate, expectedEndDate);
   }
@@ -228,8 +244,9 @@ public class FindMovementsByProductMockTest {
                 TEST_USER_ID, TEST_PRODUCT_ID, "Test Account", ProductType.SAVINGS)
             .build();
 
-    when(productsService.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(product);
-    when(movementQueryRepository.getByUserAndProductIdWithinPeriod(
+    when(productLifecycleService.findOrThrowByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
+        .thenReturn(product);
+    when(movementQueryRepoMock.getByUserAndProductIdWithinPeriod(
             eq(TEST_USER_ID), eq(TEST_PRODUCT_ID), any(LocalDate.class), any(LocalDate.class)))
         .thenReturn(Collections.emptyList());
 
@@ -240,7 +257,7 @@ public class FindMovementsByProductMockTest {
     final LocalDate expectedEndDate = currentMonth.atEndOfMonth();
     final LocalDate expectedStartDate = currentMonth.minusMonths(5).atDay(1);
 
-    verify(movementQueryRepository)
+    verify(movementQueryRepoMock)
         .getByUserAndProductIdWithinPeriod(
             TEST_USER_ID, TEST_PRODUCT_ID, expectedStartDate, expectedEndDate);
   }

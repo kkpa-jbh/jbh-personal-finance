@@ -17,18 +17,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.builders.UseCaseBuilder;
 import com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder;
-import com.jbh.finance.application.core.ports.output.account.InMemoryAccountRepository;
+import com.jbh.finance.application.core.ports.output.product.InMemoryProductRepository;
 import com.jbh.finance.application.core.usecases.integration.monthlybalance.RegisterMonthlyReportedWithoutProfitITTest;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
-import com.jbh.finance.application.feature.movement.commands.ExternalAccountInfoVO;
-import com.jbh.finance.application.feature.movement.commands.LiquidateAccountCommand;
+import com.jbh.finance.application.feature.movement.commands.LiquidateProductCommand;
+import com.jbh.finance.application.feature.movement.dto.ExternalProductInfoDTO;
 import com.jbh.finance.application.feature.movement.dto.LiquidationResultDTO;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.services.ProcessMovementServiceImpl;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
-import com.jbh.finance.application.feature.movement.usecases.LiquidateAccountUseCase;
+import com.jbh.finance.application.feature.movement.usecases.LiquidateProductUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.domain.movement.vo.ExpenseCategory;
@@ -56,12 +56,12 @@ public class RegisterInvesmentMovementITTest {
   static final UUID userId = UUID.randomUUID();
   private static final Logger LOG =
       LoggerFactory.getLogger(RegisterMonthlyReportedWithoutProfitITTest.class);
-  private static final InMemoryAccountRepository inMemoryAccountRepo =
+  private static final InMemoryProductRepository inMemoryAccountRepo =
       UseCaseBuilder.getAccountRepository();
   private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
-  private static LiquidateAccountUseCase liquidateAccountUseCase;
-  @Mock private static AccountMovementWriterRepository accountMovementRepository;
+  private static LiquidateProductUseCase liquidateAccountUseCase;
+  @Mock private static MovementWriterRepository accountMovementRepository;
   private static ProductDTO acciCuenta;
   private static ProductId acciCuentaId;
   private static ProductDTO fondoAcciones;
@@ -320,9 +320,9 @@ public class RegisterInvesmentMovementITTest {
         () -> addMovementUseCase.addMovement(userId, acciCuentaId, withdrawal));
 
     final var latestEarning = new BigDecimal("120.00");
-    final LiquidateAccountCommand liquidateCommand =
+    final LiquidateProductCommand liquidateCommand =
         createLiquidateCommandToExternal(
-            new ExternalAccountInfoVO("External Account"),
+            new ExternalProductInfoDTO("External Account"),
             currentBalance.add(latestEarning),
             withdrawalDate);
 

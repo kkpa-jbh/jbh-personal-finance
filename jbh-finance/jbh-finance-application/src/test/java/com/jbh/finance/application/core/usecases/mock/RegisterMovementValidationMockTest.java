@@ -20,17 +20,17 @@ import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.commons.util.JbhMoneyUtils;
 import com.jbh.finance.application.acid.UnitOfWork;
 import com.jbh.finance.application.async.AsyncTaskExecutorImpl;
-import com.jbh.finance.application.builders.AccountEntityBuilder;
+import com.jbh.finance.application.builders.ProductEntityBuilder;
 import com.jbh.finance.application.core.usecases.utils.UnitOfWorkTest;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceQueryRepo;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceWriterRepo;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementInputPort;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.services.MovementLifecycleService;
 import com.jbh.finance.application.feature.movement.services.MovementLifecycleServiceImpl;
 import com.jbh.finance.application.feature.movement.services.ProcessMovementService;
@@ -60,9 +60,9 @@ public class RegisterMovementValidationMockTest {
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   MonthlyBalanceLifecycleService monthlyBalanceService;
   @Mock private ProductRepository accountRepository;
-  @Mock private AccountMovementWriterRepository accountMovementRepository;
-  @Mock private AccountMonthlyBalanceQueryRepo accountMonthlyBalanceRepository;
-  @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
+  @Mock private MovementWriterRepository accountMovementRepository;
+  @Mock private MonthlyBalanceQueryRepo accountMonthlyBalanceRepository;
+  @Mock private MonthlyBalanceWriterRepo monthlyBalanceWriterRepoMock;
   private AddMovementInputPort registerSimpleMovementInputPort;
   private ProcessMovementService accountMovementService;
 
@@ -197,7 +197,7 @@ public class RegisterMovementValidationMockTest {
     final AddMovementCommand request =
         withCategory(movementDate, amount, MovementCategoryVO.withType(IncomeCategory.OTHER));
     final ProductDomain accountDomain =
-        AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
+        ProductEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
     mockAccount(userId, accountId, accountDomain);
 
@@ -228,7 +228,7 @@ public class RegisterMovementValidationMockTest {
 
     final AddMovementCommand request = withCategory(movementDate, amount, OTHER_INCOME_CATEGORY);
     final ProductDomain accountDomain =
-        AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
+        ProductEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
     mockAccount(userId, accountId, accountDomain);
 
@@ -251,7 +251,7 @@ public class RegisterMovementValidationMockTest {
     final AddMovementCommand request =
         createExpense(movementDate, amount, ExpenseCategory.PERSONAL);
     final ProductDomain accountDomain =
-        AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
+        ProductEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
     mockAccount(userId, accountId, accountDomain);
 
@@ -275,7 +275,7 @@ public class RegisterMovementValidationMockTest {
     final AddMovementCommand request =
         createExpense(movementDate, amount, ExpenseCategory.PERSONAL);
     final ProductDomain accountDomain =
-        AccountEntityBuilder.withBasicMovementForExisting(
+        ProductEntityBuilder.withBasicMovementForExisting(
             accountId, userId, new BigDecimal("30.00"), new BigDecimal("30.00"));
 
     mockAccount(userId, accountId, accountDomain);

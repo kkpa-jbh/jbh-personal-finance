@@ -21,18 +21,19 @@ Check if the component already exists to update it.
 - **Endpoint**: `POST /jbh-api/finance/products/transfers/?fromAccountId={uuid}`
 - **Description**: Transfer funds between two JBH accounts owned by the same user
 - **Query Parameter**:
-  - `fromAccountId` (required): Source account ID (UUID)
+    - `fromAccountId` (required): Source account ID (UUID)
 - **Request Body**:
 
 ```typescript
 interface AddTransferRequest {
-  toAccountId: string;        // UUID - Destination account ID
+  toAccountId: string;        // UUID - Destination product ID
   totalAmount: number;        // BigDecimal - Amount to transfer
   transferDate: string;       // LocalDate - Date of transfer (YYYY-MM-DD)
 }
 ```
 
 **Example Request Body**:
+
 ```json
 {
   "toAccountId": "550e8400-e29b-41d4-a716-446655440001",
@@ -105,18 +106,21 @@ src/app/
 ### Form Fields
 
 #### Source Account (fromAccountId)
+
 - **Type**: Dropdown/Select
 - **Label**: "From Account" (EN) / "Desde Cuenta" (ES)
 - **Validation**: Required, must be a valid account owned by the user
 - **Display**: Show account name/description with current balance
 
 #### Destination Account (toAccountId)
+
 - **Type**: Dropdown/Select
 - **Label**: "To Account" (EN) / "Hacia Cuenta" (ES)
 - **Validation**: Required, must be a valid account owned by the user, must be different from source account
 - **Display**: Show account name/description
 
 #### Amount (totalAmount)
+
 - **Type**: Number input with decimal support
 - **Label**: "Amount" (EN) / "Monto" (ES)
 - **Validation**: Required, must be greater than 0, maximum 2 decimal places
@@ -124,6 +128,7 @@ src/app/
 - **Display**: Show currency symbol based on user preferences
 
 #### Transfer Date (transferDate)
+
 - **Type**: Date picker
 - **Label**: "Transfer Date" (EN) / "Fecha de Transferencia" (ES)
 - **Validation**: Required, should not be in the future
@@ -134,30 +139,31 @@ src/app/
 ### UI/UX Recommendations
 
 1. **Account Dropdowns**:
-   - Filter out the selected source account from the destination account dropdown
-   - Show current balance next to source account name
-   - Disable "Transfer" button if source account has insufficient balance
+    - Filter out the selected source account from the destination account dropdown
+    - Show current balance next to source account name
+    - Disable "Transfer" button if source account has insufficient balance
 
 2. **Amount Input**:
-   - Show remaining balance after transfer amount is entered
-   - Highlight in red if amount exceeds available balance
+    - Show remaining balance after transfer amount is entered
+    - Highlight in red if amount exceeds available balance
 
 3. **Success Feedback**:
-   - Show success toast/message: "Transfer completed successfully" (EN) / "Transferencia completada exitosamente" (ES)
-   - Option to navigate back to accounts list or create another transfer
+    - Show success toast/message: "Transfer completed successfully" (EN) / "Transferencia completada exitosamente" (ES)
+    - Option to navigate back to accounts list or create another transfer
 
 4. **Error Handling**:
-   - Display clear error messages for validation failures
-   - Handle 400 errors (invalid request)
-   - Handle 401 errors (unauthorized)
+    - Display clear error messages for validation failures
+    - Handle 400 errors (invalid request)
+    - Handle 401 errors (unauthorized)
 
 5. **Loading State**:
-   - Disable form and show loading spinner during API call
-   - Prevent multiple submissions
+    - Disable form and show loading spinner during API call
+    - Prevent multiple submissions
 
 ### Translations
 
 #### English (EN)
+
 ```json
 {
   "transfers.title": "Transfer Funds",
@@ -168,14 +174,15 @@ src/app/
   "transfers.submit": "Transfer",
   "transfers.cancel": "Cancel",
   "transfers.success": "Transfer completed successfully",
-  "transfers.error.sameAccount": "Source and destination accounts must be different",
-  "transfers.error.insufficientBalance": "Insufficient balance in source account",
+  "transfers.error.sameAccount": "Source and destination products must be different",
+  "transfers.error.insufficientBalance": "Insufficient balance in source product",
   "transfers.error.invalidAmount": "Amount must be greater than zero",
   "transfers.availableBalance": "Available Balance"
 }
 ```
 
 #### Spanish (ES)
+
 ```json
 {
   "transfers.title": "Transferir Fondos",
@@ -212,4 +219,5 @@ src/app/
 
 ---
 
-**Feel free to ask any questions or request clarification on any aspect of this implementation. If there are existing patterns for account selection dropdowns or similar forms in the project, let me know and I'll adjust the implementation approach accordingly.**
+**Feel free to ask any questions or request clarification on any aspect of this implementation. If there are existing patterns for account selection dropdowns or similar forms in
+the project, let me know and I'll adjust the implementation approach accordingly.**

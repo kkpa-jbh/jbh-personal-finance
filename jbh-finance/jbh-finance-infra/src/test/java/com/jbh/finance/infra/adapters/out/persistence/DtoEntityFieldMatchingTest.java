@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
-import com.jbh.finance.infra.adapters.out.persistence.account.ProductJPAEntity;
 import com.jbh.finance.infra.adapters.out.persistence.monthlybalance.MonthlyBalanceJPAEntity;
 import com.jbh.finance.infra.adapters.out.persistence.movement.MovementJPAEntity;
+import com.jbh.finance.infra.adapters.out.persistence.product.ProductJPAEntity;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Set;
@@ -25,8 +25,8 @@ public class DtoEntityFieldMatchingTest {
     // Get field names from both classes
     final Set<String> dtoFields = getFieldNames(ProductDTO.class);
     final Set<String> entityFields = getFieldNames(ProductJPAEntity.class);
-    final String dtoClass = "AccountDTO";
-    final String entityClass = "AccountJPAEntity";
+    final String dtoClass = ProductDTO.class.getName();
+    final String entityClass = ProductDTO.class.getName();
 
     // Assert they match
     assertMapping(dtoFields, entityFields, dtoClass, entityClass);
@@ -77,8 +77,8 @@ public class DtoEntityFieldMatchingTest {
     // Get field names from both classes
     final Set<String> dtoFields = getFieldNames(MonthlyBalanceDTO.class);
     final Set<String> entityFields = getFieldNames(MonthlyBalanceJPAEntity.class);
-    final String dtoClass = "MonthlyBalanceDTO";
-    final String entityClass = "AccountMonthlyBalanceJPAEntity";
+    final String dtoClass = MonthlyBalanceDTO.class.getName();
+    final String entityClass = MonthlyBalanceJPAEntity.class.getName();
 
     // Assert they match
     assertMapping(dtoFields, entityFields, dtoClass, entityClass);
@@ -89,8 +89,8 @@ public class DtoEntityFieldMatchingTest {
     // Get field names from both classes
     final Set<String> dtoFields = getFieldNames(MovementDTO.class);
     final Set<String> entityFields = getFieldNames(MovementJPAEntity.class);
-    final String dtoClass = "MovementDTO";
-    final String entityClass = "AccountMovementJPAEntity";
+    final String dtoClass = MovementDTO.class.getName();
+    final String entityClass = MovementJPAEntity.class.getName();
 
     // Assert they match
     assertMapping(dtoFields, entityFields, dtoClass, entityClass);

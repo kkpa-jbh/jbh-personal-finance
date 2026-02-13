@@ -30,7 +30,7 @@ class MonthlyBalanceDTOTest {
             .build();
 
     assertNotNull(dto);
-    assertEquals(accountId, dto.accountId());
+    assertEquals(accountId, dto.productId());
     assertEquals(period, dto.period());
     assertEquals(2025, dto.year());
     assertEquals(1, dto.month());
@@ -53,7 +53,7 @@ class MonthlyBalanceDTOTest {
         MonthlyBalanceDTO.withInitialDataForNextMonth(accountId, period, closingBalance, false);
 
     assertNotNull(dto);
-    assertEquals(accountId, dto.accountId());
+    assertEquals(accountId, dto.productId());
     assertEquals(period, dto.period());
     assertEquals(2025, dto.year());
     assertEquals(2, dto.month());
@@ -150,7 +150,7 @@ class MonthlyBalanceDTOTest {
 
     assertNotNull(dto);
     assertEquals(1L, dto.id());
-    assertEquals(accountId, dto.accountId());
+    assertEquals(accountId, dto.productId());
     assertEquals(2025, dto.year());
     assertEquals(1, dto.month());
     assertEquals(period, dto.period());

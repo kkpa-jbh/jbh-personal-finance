@@ -1,4 +1,4 @@
--- financial instruments/accounts
+-- financial instruments/products
 CREATE TABLE finance.products
 (
     id                 UUID PRIMARY KEY                  DEFAULT gen_random_uuid(),
@@ -115,6 +115,6 @@ CREATE INDEX idx_monthly_balances_gap_period ON finance.monthly_balances (produc
 
 
 COMMENT ON TABLE finance.products IS
-    'Financial instruments: bank accounts, investment accounts, credit cards';
+    'Financial instruments: bank products, investment products, credit cards';
 COMMENT ON COLUMN finance.products.movement_balance IS
     'Sum of all movements (credits - debits)';

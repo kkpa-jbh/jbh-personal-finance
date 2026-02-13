@@ -9,7 +9,7 @@ import java.util.UUID;
 /**
  * Retrieves financial movements for a specific product within a configurable time period.
  *
- * <p><strong>User Explanation:</strong> "View your recent transaction history for an account.
+ * <p><strong>User Explanation:</strong> "View your recent transaction history for an productDTO.
  * You can see the last few months of deposits, withdrawals, and balance updates to track your
  * spending and income patterns."
  *

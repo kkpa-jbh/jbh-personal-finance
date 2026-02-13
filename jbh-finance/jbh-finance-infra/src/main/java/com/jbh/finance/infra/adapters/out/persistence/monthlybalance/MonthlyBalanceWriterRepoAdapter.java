@@ -1,7 +1,7 @@
 package com.jbh.finance.infra.adapters.out.persistence.monthlybalance;
 
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceWriterRepo;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
@@ -12,7 +12,7 @@ import org.apache.commons.collections4.CollectionUtils;
 @Transactional
 @ApplicationScoped
 @Named("monthlyBalanceWriterJPAAdapter")
-public class MonthlyBalanceWriterRepoAdapter implements AccountMonthlyBalanceWriterRepository {
+public class MonthlyBalanceWriterRepoAdapter implements MonthlyBalanceWriterRepo {
   @Inject MonthlyBalanceJPARepository jpaRepo;
 
   @Override

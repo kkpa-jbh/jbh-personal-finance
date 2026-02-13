@@ -12,7 +12,7 @@ import java.time.YearMonth;
  *
  * @param monthlyPeriod The past month to register the balance for.
  * @param closingBalance The final balance for the month.
- * @param monthlyProfitReported The profit reported for the month.Given by the institution account.
+ * @param monthlyProfitReported The profit reported for the month.Given by the institution productDTO.
  * @param incomeWithholdingTaxAmount The amount of withholding tax to be applied to the
  *     balance.(RETEFUENTE)
  */

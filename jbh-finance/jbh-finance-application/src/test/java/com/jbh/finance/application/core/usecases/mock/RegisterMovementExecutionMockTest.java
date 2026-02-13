@@ -15,19 +15,19 @@ import static org.mockito.Mockito.when;
 
 import com.jbh.finance.application.acid.UnitOfWork;
 import com.jbh.finance.application.async.AsyncTaskExecutorImpl;
-import com.jbh.finance.application.builders.AccountEntityBuilder;
+import com.jbh.finance.application.builders.ProductEntityBuilder;
 import com.jbh.finance.application.core.usecases.utils.MovementTypeUtils;
 import com.jbh.finance.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceQueryRepo;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceWriterRepo;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementInputPort;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.services.MovementLifecycleService;
 import com.jbh.finance.application.feature.movement.services.MovementLifecycleServiceImpl;
 import com.jbh.finance.application.feature.movement.services.ProcessMovementService;
@@ -69,9 +69,9 @@ public class RegisterMovementExecutionMockTest {
   MonthlyBalanceSyncForUploadedMovements monthlyBalanceAsyncTask;
   LocalDate movementDate = LocalDate.now();
   @Mock private ProductRepository accountRepository;
-  @Mock private AccountMovementWriterRepository accountMovementRepository;
-  @Mock private AccountMonthlyBalanceQueryRepo accountMonthlyBalanceRepository;
-  @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
+  @Mock private MovementWriterRepository accountMovementRepository;
+  @Mock private MonthlyBalanceQueryRepo accountMonthlyBalanceRepository;
+  @Mock private MonthlyBalanceWriterRepo monthlyBalanceWriterRepoMock;
   private AddMovementInputPort useCaseInstanceTest;
   private MonthlyBalanceLifecycleServiceImpl monthlyBalanceService;
 
@@ -125,7 +125,7 @@ public class RegisterMovementExecutionMockTest {
     verify(accountMovementRepository).save((MovementDTO) any());
     verify(accountRepository).save(any());
 
-    assertEquals(mvmtResponse.get().account().movementBalance(), amount);
+    assertEquals(mvmtResponse.get().productDTO().movementBalance(), amount);
     final MonthlyBalanceDTO actualMonthlyBalances = mvmtResponse.get().monthlyBalance();
     assertEquals(amount, actualMonthlyBalances.totalDebits());
     assertEquals(amount, actualMonthlyBalances.closingBalance());
@@ -152,7 +152,7 @@ public class RegisterMovementExecutionMockTest {
   }
 
   private ProductDomain withId(final ProductId accountId) {
-    return AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
+    return ProductEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
   }
 
   @Test
@@ -168,7 +168,7 @@ public class RegisterMovementExecutionMockTest {
             movementDate, null, balanceSnashot, MovementTypeUtils.BALANCE_SNAPSHOT_TESTSCOPE, null);
 
     final ProductDomain accountDomain =
-        AccountEntityBuilder.withBasicMovementForExisting(
+        ProductEntityBuilder.withBasicMovementForExisting(
             accountId, userId, existingAccountPpalBalance, new BigDecimal("190.00"));
 
     when(accountRepository.findByUserAndProductId(userId, accountId))
@@ -185,8 +185,8 @@ public class RegisterMovementExecutionMockTest {
     verify(accountMovementRepository).save((MovementDTO) any());
     verify(accountRepository).save(any());
 
-    assertEquals(balanceSnashot, mvmtResponse.get().account().currentBalance());
-    assertEquals(existingAccountPpalBalance, mvmtResponse.get().account().movementBalance());
+    assertEquals(balanceSnashot, mvmtResponse.get().productDTO().currentBalance());
+    assertEquals(existingAccountPpalBalance, mvmtResponse.get().productDTO().movementBalance());
     assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().totalDebits());
     assertEquals(0, mvmtResponse.get().monthlyBalance().totalMovements());
     assertEquals(JBH_ZERO, mvmtResponse.get().monthlyBalance().totalCredits());
@@ -210,7 +210,7 @@ public class RegisterMovementExecutionMockTest {
     final BigDecimal existingMovBalance = new BigDecimal("12591000.00");
 
     final ProductDomain accountDomain =
-        AccountEntityBuilder.withBasicMovementForExisting(
+        ProductEntityBuilder.withBasicMovementForExisting(
             accountId, userId, existingMovBalance, new BigDecimal("12689712.00"));
 
     when(accountRepository.findByUserAndProductId(userId, accountId))
@@ -227,7 +227,7 @@ public class RegisterMovementExecutionMockTest {
     verify(accountMovementRepository).save((MovementDTO) any());
     verify(accountRepository).save((ProductDTO) any());
 
-    final ProductDTO accountResponse = mvmtResponse.get().account();
+    final ProductDTO accountResponse = mvmtResponse.get().productDTO();
     assertEquals(amount.add(existingMovBalance), accountResponse.movementBalance());
     assertEquals(balanceSnapshot, accountResponse.currentBalance());
 
@@ -297,7 +297,7 @@ public class RegisterMovementExecutionMockTest {
     verify(accountRepository).save(any());
     verify(monthlyBalanceWriterRepoMock, atMostOnce()).saveBalance((MonthlyBalanceDTO) any());
 
-    assertEquals(amount, processedResponse.get().account().movementBalance());
+    assertEquals(amount, processedResponse.get().productDTO().movementBalance());
     assertEquals(existingEntries + 1, processedResponse.get().monthlyBalance().totalMovements());
     assertEquals(
         existingTotalDebits.add(amount), processedResponse.get().monthlyBalance().totalDebits());

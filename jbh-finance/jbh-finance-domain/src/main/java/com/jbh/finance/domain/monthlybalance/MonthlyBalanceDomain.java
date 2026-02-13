@@ -33,7 +33,7 @@ public class MonthlyBalanceDomain {
 
   // Attributes
   private final Long id;
-  private final ProductId accountId;
+  private final ProductId productId;
   private final Integer year;
   private final Integer month;
   private final YearMonth period;
@@ -62,7 +62,7 @@ public class MonthlyBalanceDomain {
   @SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.NPathComplexity"})
   public MonthlyBalanceDomain(
       final Long id,
-      final ProductId accountId,
+      final ProductId productId,
       final Integer year,
       final Integer month,
       final YearMonth period,
@@ -80,7 +80,7 @@ public class MonthlyBalanceDomain {
 
     this.isActive = true;
     this.id = id;
-    this.accountId = accountId;
+    this.productId = productId;
     this.year = year;
     this.month = month;
     this.period = period;
@@ -98,8 +98,8 @@ public class MonthlyBalanceDomain {
   }
 
   /** Constructor with required fields. */
-  private MonthlyBalanceDomain(final ProductId accountId, final YearMonth period) {
-    this.accountId = accountId;
+  private MonthlyBalanceDomain(final ProductId productId, final YearMonth period) {
+    this.productId = productId;
     this.period = period;
     this.year = period.getYear();
     this.month = period.getMonthValue();
@@ -111,10 +111,10 @@ public class MonthlyBalanceDomain {
     return new MonthlyBalanceDomain(accountId, period);
   }
 
-  /** Returns a hash code value for the object based on period and accountId. */
+  /** Returns a hash code value for the object based on period and productId. */
   @Override
   public int hashCode() {
-    return Objects.hash(accountId, period);
+    return Objects.hash(productId, period);
   }
 
   /**
@@ -131,7 +131,7 @@ public class MonthlyBalanceDomain {
     }
 
     final MonthlyBalanceDomain that = (MonthlyBalanceDomain) obj;
-    return Objects.equals(period, that.period) && Objects.equals(accountId, that.accountId);
+    return Objects.equals(period, that.period) && Objects.equals(productId, that.productId);
   }
 
   public void assignOpeningBalance(final MonthlyBalanceDomain previousMonthlyBalance) {
@@ -206,7 +206,7 @@ public class MonthlyBalanceDomain {
   private void syncMonthlyNetProfit() {
     if (openingBalance == null) {
       throw new IllegalArgumentException(
-          "The opening Balance is not set for " + this.getAccountId());
+          "The opening Balance is not set for " + this.getProductId());
     }
     // I think it's for file upload
     if (isZero(totalCredits) && isZero(totalDebits) && isZero(openingBalance)) {
@@ -222,7 +222,7 @@ public class MonthlyBalanceDomain {
   }
 
   private void syncNetGrowthRate() throws BusinessException {
-    LOG.debug("Syncing Net Growth Rate for account {} and period {}", accountId, period);
+    LOG.debug("Syncing Net Growth Rate for product {} and period {}", productId, period);
     final var movementBalance = getMovementBalance();
     if (this.officialMonthlyReport && isNotZero(monthlyProfitReported)) {
       this.netGrowthRate =

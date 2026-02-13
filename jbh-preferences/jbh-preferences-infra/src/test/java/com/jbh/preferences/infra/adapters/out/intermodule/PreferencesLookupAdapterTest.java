@@ -26,7 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class PreferencesLookupAdapterTest {
 
   private static final UUID USER_ID = UUID.randomUUID();
-  private static final UUID ACCOUNT_ID = UUID.randomUUID();
+  private static final UUID PRODUCT_ID = UUID.randomUUID();
   @Mock private GetUserPreferencesInputPort getUserPreferencesInputPort;
   @Mock private GetTeamPreferencesInputPort getTeamPreferencesInputPort;
   private PreferencesLookupAdapter adapter;
@@ -49,7 +49,7 @@ class PreferencesLookupAdapterTest {
     assertThat(result.languageCode()).isEqualTo("en");
     assertThat(result.currencyCode()).isEqualTo("USD");
     assertThat(result.savingsGoal()).isEqualTo(new BigDecimal("1000.00"));
-    assertThat(result.defaultAccountId()).isEqualTo(ACCOUNT_ID);
+    assertThat(result.defaultAccountId()).isEqualTo(PRODUCT_ID);
   }
 
   private UserPreferencesDTO createTestDto() {
@@ -58,7 +58,7 @@ class PreferencesLookupAdapterTest {
         .defaultLang(Language.ENGLISH)
         .defaultCurrency(Currency.USD)
         .savingsGoal(new BigDecimal("1000.00"))
-        .defaultProductId(ACCOUNT_ID)
+        .defaultProductId(PRODUCT_ID)
         .build();
   }
 

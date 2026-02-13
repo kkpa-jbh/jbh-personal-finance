@@ -29,7 +29,7 @@ class MonthlyBalanceInMemoryRepositoryTest {
     // Given
     final MonthlyBalanceDTO balance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(testAccountId)
+            .productId(testAccountId)
             .year(2024)
             .month(3)
             .period(YearMonth.of(2024, 3))
@@ -78,7 +78,7 @@ class MonthlyBalanceInMemoryRepositoryTest {
   private MonthlyBalanceDTO createBalance(
       final ProductId accountId, final int year, final int month, final BigDecimal closingBalance) {
     return MonthlyBalanceDTO.defaultBuilder()
-        .accountId(accountId)
+        .productId(accountId)
         .year(year)
         .month(month)
         .period(YearMonth.of(year, month))

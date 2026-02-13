@@ -29,7 +29,7 @@ public class DeleteProductInputPort implements DeleteProductUseCase {
     command.validate();
 
     final ProductDTO productDTO =
-        productsService.findByUserAndProductId(command.userId(), command.productId());
+        productsService.findOrThrowByUserAndProductId(command.userId(), command.productId());
 
     if (productDTO == null) {
       throw new BusinessException(BusinessApplicationExceptionType.PRODUCT_NOT_FOUND);

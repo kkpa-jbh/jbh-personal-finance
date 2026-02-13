@@ -13,15 +13,15 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.builders.EntityTestBuilder;
 import com.jbh.finance.application.builders.UseCaseBuilder;
 import com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder;
-import com.jbh.finance.application.core.ports.output.account.InMemoryAccountRepository;
+import com.jbh.finance.application.builders.commands.MonthlyBalanceCommandTest;
+import com.jbh.finance.application.core.ports.output.product.InMemoryProductRepository;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
-import com.jbh.finance.application.feature.monthlybalance.commands.MonthlyBalanceCommandVO;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
@@ -55,7 +55,7 @@ public class AddMovementsAfterMonthlyReportedTest {
   private static final Logger LOG =
       LoggerFactory.getLogger(AddMovementsAfterMonthlyReportedTest.class);
 
-  private static final String ACCOUNT_REPORTED = "Reported";
+  private static final String PRODUCT_REPORTED_NAME = "Reported";
   private static final List<BigDecimal> withdrawalMovements =
       List.of(withJBHDecimals(new BigDecimal("5")));
   private static final List<BigDecimal> depositMovements =
@@ -63,18 +63,18 @@ public class AddMovementsAfterMonthlyReportedTest {
 
   static CreateProductUseCase createAccountUseCase;
   static ProductDTO createdAccount;
-  static ProductId accountId;
+  static ProductId productId;
   static MonthlyBalanceLifecycleService monthlyBalanceService;
   static YearMonth reportedPeriod = YearMonth.of(2024, 7);
-  static MonthlyBalanceCommandVO reportedPeriodAmounts =
-      new MonthlyBalanceCommandVO(
+  static MonthlyBalanceCommandTest reportedPeriodAmounts =
+      new MonthlyBalanceCommandTest(
           withJBHDecimals(new BigDecimal("1010")), withJBHDecimals(new BigDecimal("10")));
   private static ProductDTO finalExpectedAccountBalance;
   private static MonthlyBalanceDTO officialReportedBalance;
-  private static InMemoryAccountRepository inMemoryAccountRepo;
+  private static InMemoryProductRepository inMemoryAccountRepo;
   RegisterMonthlyBalanceUseCase useCaseTest;
   LocalDate runningDate = LocalDate.now();
-  @Mock private AccountMovementWriterRepository accountMovementRepository;
+  @Mock private MovementWriterRepository accountMovementRepository;
   private AddMovementUseCase addMovementUseCase;
 
   @BeforeEach
@@ -96,23 +96,23 @@ public class AddMovementsAfterMonthlyReportedTest {
   void creatingAccount() throws BusinessException {
     createdAccount =
         createAccountUseCase.execute(
-            createBasicAccountCommand(userId, ACCOUNT_REPORTED, ProductType.SAVINGS));
-    accountId = createdAccount.id();
-    LOG.info("Account created with id {}", accountId);
-    assert accountId != null;
+            createBasicAccountCommand(userId, PRODUCT_REPORTED_NAME, ProductType.SAVINGS));
+    productId = createdAccount.id();
+    LOG.info("Account created with id {}", productId);
+    assert productId != null;
 
     // Creating Initial Balance
     final var initialBalance = withJBHDecimals(new BigDecimal("900"));
     final AddMonthlyBalanceCommand previousCommand =
         createMonthlyBalanceCommand(
             reportedPeriod.plusMonths(-1),
-            new MonthlyBalanceCommandVO(withJBHDecimals(initialBalance), null));
+            new MonthlyBalanceCommandTest(withJBHDecimals(initialBalance), null));
 
-    useCaseTest.registerOfficialMonthlyBalance(runningDate, userId, accountId, previousCommand);
+    useCaseTest.registerOfficialMonthlyBalance(runningDate, userId, productId, previousCommand);
 
     verify(accountMovementRepository).save(any(MovementDTO.class));
 
-    finalExpectedAccountBalance = inMemoryAccountRepo.findByProductId(accountId).get();
+    finalExpectedAccountBalance = inMemoryAccountRepo.findByProductId(productId).get();
     assertEquals(initialBalance, finalExpectedAccountBalance.currentBalance(), "Account Balance");
     assertEquals(initialBalance, finalExpectedAccountBalance.movementBalance(), "Movement Balance");
 
@@ -123,7 +123,7 @@ public class AddMovementsAfterMonthlyReportedTest {
         () ->
             savedInitialMonthlyBalance.set(
                 useCaseTest.registerOfficialMonthlyBalance(
-                    runningDate, userId, accountId, command)));
+                    runningDate, userId, productId, command)));
 
     officialReportedBalance = savedInitialMonthlyBalance.get();
     assertEquals(new BigDecimal("12.22"), officialReportedBalance.netGrowthRate());
@@ -134,7 +134,7 @@ public class AddMovementsAfterMonthlyReportedTest {
     assertEquals(command.monthlyProfitReported(), officialReportedBalance.monthlyReportedProfit());
     assertEquals(command.monthlyProfitReported(), officialReportedBalance.monthlyNetProfit());
 
-    finalExpectedAccountBalance = inMemoryAccountRepo.findByProductId(accountId).get();
+    finalExpectedAccountBalance = inMemoryAccountRepo.findByProductId(productId).get();
     assertEquals(
         command.closingBalance(), finalExpectedAccountBalance.currentBalance(), "Account Balance");
     assertEquals(
@@ -151,10 +151,10 @@ public class AddMovementsAfterMonthlyReportedTest {
     addMovement(reportedPeriod, ExpenseCategory.PERSONAL, withDrawal1, null);
 
     final MonthlyBalanceDTO currentMonthlyBalance =
-        monthlyBalanceService.findByAccountIdAndPeriod(accountId, reportedPeriod).get();
+        monthlyBalanceService.findByAccountIdAndPeriod(productId, reportedPeriod).get();
     final var expectedMonthlyBalance =
         EntityTestBuilder.withClosingBalance(
-                accountId, reportedPeriod, officialReportedBalance.closingBalance())
+                productId, reportedPeriod, officialReportedBalance.closingBalance())
             .totalDebits(officialReportedBalance.totalDebits())
             .totalCredits(officialReportedBalance.totalCredits().add(withDrawal1))
             .openingBalance(officialReportedBalance.openingBalance())
@@ -170,7 +170,7 @@ public class AddMovementsAfterMonthlyReportedTest {
         currentMonthlyBalance.netGrowthRate().compareTo(officialReportedBalance.netGrowthRate())
             > 0);
 
-    final ProductDTO currentAccountBalance = inMemoryAccountRepo.findByProductId(accountId).get();
+    final ProductDTO currentAccountBalance = inMemoryAccountRepo.findByProductId(productId).get();
     assertEquals(
         finalExpectedAccountBalance.currentBalance(),
         currentAccountBalance.currentBalance(),
@@ -194,7 +194,7 @@ public class AddMovementsAfterMonthlyReportedTest {
             MovementCategoryVO.withType(categoryType),
             amount);
     try {
-      addMovementUseCase.addMovement(userId, accountId, movement);
+      addMovementUseCase.addMovement(userId, productId, movement);
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
@@ -215,10 +215,10 @@ public class AddMovementsAfterMonthlyReportedTest {
     addMovement(reportedPeriod, IncomeCategory.SALARY, deposit, null);
 
     final MonthlyBalanceDTO currentMonthlyBalance =
-        monthlyBalanceService.findByAccountIdAndPeriod(accountId, reportedPeriod).get();
+        monthlyBalanceService.findByAccountIdAndPeriod(productId, reportedPeriod).get();
     final var expectedMonthlyBalance =
         EntityTestBuilder.withClosingBalance(
-                accountId, reportedPeriod, officialReportedBalance.closingBalance())
+                productId, reportedPeriod, officialReportedBalance.closingBalance())
             .totalDebits(officialReportedBalance.totalDebits().add(deposit))
             .totalCredits(officialReportedBalance.totalCredits().add(withDrawal1))
             .openingBalance(officialReportedBalance.openingBalance())
@@ -234,7 +234,7 @@ public class AddMovementsAfterMonthlyReportedTest {
         currentMonthlyBalance.netGrowthRate().compareTo(officialReportedBalance.netGrowthRate())
             < 0);
 
-    final ProductDTO currentAccountBalance = inMemoryAccountRepo.findByProductId(accountId).get();
+    final ProductDTO currentAccountBalance = inMemoryAccountRepo.findByProductId(productId).get();
     assertEquals(
         finalExpectedAccountBalance.currentBalance(),
         currentAccountBalance.currentBalance(),

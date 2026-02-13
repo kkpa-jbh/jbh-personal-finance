@@ -1,3 +1,7 @@
+# CLAUDE INSTRUCTIONS
+
+- Improve the mock. Do not mock lifecycle services, mock the repository layers.
+
 # USECASES TO DO
 
 - [] DLQ

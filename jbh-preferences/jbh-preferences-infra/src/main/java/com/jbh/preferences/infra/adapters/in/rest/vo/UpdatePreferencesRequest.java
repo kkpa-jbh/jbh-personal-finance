@@ -12,7 +12,7 @@ public record UpdatePreferencesRequest(
     String defaultLang,
     String defaultCurrency,
     BigDecimal savingsGoal,
-    UUID defaultAccountId,
+    UUID defaultProductId,
     Map<String, Object> metadata) {
 
   public UpdatePreferencesCommand toCommand() {
@@ -23,7 +23,7 @@ public record UpdatePreferencesRequest(
                 ? Currency.fromCode(defaultCurrency)
                 : Currency.defaultCurrency())
         .savingsGoal(savingsGoal)
-        .defaultAccountId(defaultAccountId)
+        .defaultProductId(defaultProductId)
         .metadata(
             metadata != null ? PreferencesMetadata.fromMap(metadata) : PreferencesMetadata.empty())
         .build();

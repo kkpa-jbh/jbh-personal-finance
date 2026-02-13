@@ -21,7 +21,7 @@ public final class CommonMetadata extends BaseMetadata {
   }
 
   /**
-   * Checks if the account is fully withdrawn based on metadata.
+   * Checks if the product is fully withdrawn based on metadata.
    *
    * @return true if FULLY_WITHDRAWN key exists and is true
    */
@@ -40,7 +40,7 @@ public final class CommonMetadata extends BaseMetadata {
   }
 
   /**
-   * Gets the date when the account was fully withdrawn.
+   * Gets the date when the product was fully withdrawn.
    *
    * @return LocalDate or null if not set
    */
@@ -49,7 +49,7 @@ public final class CommonMetadata extends BaseMetadata {
   }
 
   /**
-   * Gets the timestamp when the account was marked as fully withdrawn.
+   * Gets the timestamp when the product was marked as fully withdrawn.
    *
    * @return LocalDateTime or null if not set
    */
@@ -67,7 +67,7 @@ public final class CommonMetadata extends BaseMetadata {
   }
 
   /**
-   * Marks the account as fully withdrawn with the given movement date.
+   * Marks the product as fully withdrawn with the given movement date.
    *
    * @param movementDate The date of the withdrawal movement
    */

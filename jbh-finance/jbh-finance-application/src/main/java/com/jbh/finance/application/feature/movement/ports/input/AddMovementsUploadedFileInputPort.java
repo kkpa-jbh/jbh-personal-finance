@@ -8,7 +8,7 @@ import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanc
 import com.jbh.finance.application.feature.movement.commands.AddMovementUploadedFileCommand;
 import com.jbh.finance.application.feature.movement.dto.AddMultipleBasicMovementDTO;
 import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
@@ -26,14 +26,14 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
   private static final Logger LOG =
       LoggerFactory.getLogger(AddMovementsUploadedFileInputPort.class);
 
-  private final AccountMovementWriterRepository movementRepo;
+  private final MovementWriterRepository movementRepo;
   private final ProductLifecycleService accountService;
   private final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService;
   private final UnitOfWork unitOfWork;
 
   public AddMovementsUploadedFileInputPort(
       final ProductLifecycleService accountService,
-      final AccountMovementWriterRepository movementRepo,
+      final MovementWriterRepository movementRepo,
       final UnitOfWork unitOfWork,
       final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService) {
     this.movementRepo = movementRepo;
@@ -43,7 +43,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
   }
 
   /**
-   * The user adds a list of basic movements to the account by uploading a CSV file. \n The
+   * The user adds a list of basic movements to the productDTO by uploading a CSV file. \n The
    * movements are validated and persisted in the database. The monthly balance is also synced
    * asynchronously.
    *
@@ -66,7 +66,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
     final List<MovementDomain> uploadedMovements =
         mapCommandToDomain(allUploadedMovCommand, accountDomain);
 
-    // Sync account balance
+    // Sync productDTO balance
     final ProductDTO accountDTO =
         accountService.syncByUploadedMovements(accountDomain, uploadedMovements);
 
@@ -99,7 +99,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
 
   private ProductDomain findAccountOrElseThrow(final UUID userId, final ProductId accountId)
       throws BusinessException {
-    final ProductDTO accountDTO = accountService.findByUserAndProductId(userId, accountId);
+    final ProductDTO accountDTO = accountService.findOrThrowByUserAndProductId(userId, accountId);
 
     return accountDTO.toDomain();
   }
@@ -133,7 +133,7 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
         () -> {
           LOG.info("Persisting Movements changes");
           movementRepo.save(newMovements.stream().map(MovementMapper::toDTO).toList());
-          LOG.info("Saving account changes");
+          LOG.info("Saving productDTO changes");
           accountService.save(accountDTO);
         });
   }

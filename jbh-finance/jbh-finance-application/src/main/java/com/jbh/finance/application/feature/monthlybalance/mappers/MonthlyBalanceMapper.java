@@ -14,7 +14,7 @@ public final class MonthlyBalanceMapper {
 
     return MonthlyBalanceDTO.defaultBuilder()
         .id(domain.getId())
-        .accountId(domain.getAccountId())
+        .productId(domain.getProductId())
         .year(domain.getYear())
         .month(domain.getMonth())
         .period(domain.getPeriod())
@@ -40,7 +40,7 @@ public final class MonthlyBalanceMapper {
 
     return new MonthlyBalanceDomain(
         dto.id(),
-        dto.accountId(),
+        dto.productId(),
         dto.year(),
         dto.month(),
         dto.period(),

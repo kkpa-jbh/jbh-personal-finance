@@ -6,8 +6,8 @@ import com.jbh.commons.util.JbhStringUtils;
 @SuppressWarnings("PMD.LongVariable")
 public enum BusinessDomainExceptionType implements BusinessExceptionType {
   EMPTY_MOVEMENTS("Movements cannot be empty", "Los movimientos no pueden estar vacíos"),
-  ACCOUNT_MISMATCH(
-      "Account ID mismatch when applying movement",
+  PRODUCT_MISMATCH(
+      "Product ID mismatch when applying movement",
       "ID de cuenta no coincide al aplicar movimiento"),
   INSUFFICIENT_FUNDS("Insufficient effective balance", "Fondos efectivos insuficientes"),
   INVALID_MOV_DATE_MONTHLY_PERIOD(
@@ -32,21 +32,21 @@ public enum BusinessDomainExceptionType implements BusinessExceptionType {
 
   // Account Creation Validation Errors
   MISSING_CREDIT_LIMIT(
-      "CREDIT_LIMIT is required for CREDIT_CARD accounts",
+      "CREDIT_LIMIT is required for CREDIT_CARD products",
       "CREDIT_LIMIT es requerido para cuentas CREDIT_CARD"),
   INVALID_CREDIT_LIMIT_TYPE(
       "CREDIT_LIMIT must be a BigDecimal", "CREDIT_LIMIT debe ser un BigDecimal"),
   INVALID_CREDIT_LIMIT_VALUE(
       "CREDIT_LIMIT must be greater than zero", "CREDIT_LIMIT debe ser mayor que cero"),
   MISSING_PAYMENT_DUE_DAY(
-      "PAYMENT_DUE_DAY is required for CREDIT_CARD accounts",
+      "PAYMENT_DUE_DAY is required for CREDIT_CARD products",
       "PAYMENT_DUE_DAY es requerido para cuentas CREDIT_CARD"),
   INVALID_PAYMENT_DUE_DAY_TYPE(
       "The payment due day must be an Integer", "PAYMENT_DUE_DAY debe ser un Integer"),
   INVALID_PAYMENT_DUE_DAY_RANGE(
       "PAYMENT_DUE_DAY must be between 1 and 31", "PAYMENT_DUE_DAY debe estar entre 1 y 31"),
   MISSING_BROKER_NAME(
-      "The broker name is required for INVESTMENT accounts",
+      "The broker name is required for INVESTMENT products",
       "El nombre del broker es requerido para cuentas INVESTMENT"),
   MISSING_COMMISSION_RATE(
       "It's required to provide the commission rate",
@@ -80,12 +80,12 @@ public enum BusinessDomainExceptionType implements BusinessExceptionType {
   }
 
   @Override
-  public String getMessage() {
-    return JbhStringUtils.buildJsonMessage(en, es);
+  public String getFormattedMessage(final Object... args) {
+    return JbhStringUtils.buildFormattedJsonMessage(en, es, args);
   }
 
   @Override
-  public String getFormattedMessage(final Object... args) {
-    return JbhStringUtils.buildFormattedJsonMessage(en, es, args);
+  public String getMessage() {
+    return JbhStringUtils.buildJsonMessage(en, es);
   }
 }

@@ -6,9 +6,9 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.builders.CommandTestBuilder;
 import com.jbh.finance.application.builders.UseCaseBuilder;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
-import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhAccountsUseCase;
+import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhProductsUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
@@ -25,13 +25,13 @@ import org.mockito.MockitoAnnotations;
 @TestMethodOrder(OrderAnnotation.class)
 public class AddTransferRealEstateITTest {
   private static final UUID userId = UUID.randomUUID();
-  @Mock private static AccountMovementWriterRepository accountMovementRepository;
+  @Mock private static MovementWriterRepository accountMovementRepository;
   private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
   private static ProductLifecycleService accountService;
   private static MonthlyBalanceLifecycleService monthlyBalanceService;
   private static UpdateProductUseCase updateProductUseCase;
-  private static AddTransferJbhAccountsUseCase transferUseCase;
+  private static AddTransferJbhProductsUseCase transferUseCase;
 
   @BeforeEach
   public void setUp() {

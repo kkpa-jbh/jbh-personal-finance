@@ -36,7 +36,7 @@ interface MovementResponse {
   movementAmount: BigDecimal;   // Decimal number (use jbhDecimalFormat directive)
   movementDate: LocalDate;      // Date string (YYYY-MM-DD) (use jbhDate pipe)
   balanceSnapshot: BigDecimal;  // Decimal number (use jbhDecimalFormat directive)
-  metadata: MovementMetadata;   // Map of metadata keys (e.g., target account info, import tags)
+  metadata: MovementMetadata;   // Map of metadata keys (e.g., target product info, import tags)
   createdAt: LocalDateTime;     // ISO 8601 datetime string (use jbhDate pipe)
   description: string;          // Movement description
 }

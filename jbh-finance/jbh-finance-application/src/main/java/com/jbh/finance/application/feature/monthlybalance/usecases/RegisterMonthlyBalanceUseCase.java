@@ -44,7 +44,7 @@ public interface RegisterMonthlyBalanceUseCase {
    * <ul>
    *   <li>INSERT: Initial balance movement (if first monthly balance)
    *   <li>UPDATE: Monthly balance record with official closing balance
-   *   <li>INSERT: Dividend/profit movement (if monthly profit is reported and target account
+   *   <li>INSERT: Dividend/profit movement (if monthly profit is reported and target productDTO
    *       specified)
    *   <li>UPDATE: Opening balance of next month's record
    * </ul>

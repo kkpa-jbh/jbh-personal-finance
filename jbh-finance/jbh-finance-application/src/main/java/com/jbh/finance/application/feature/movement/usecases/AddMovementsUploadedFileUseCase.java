@@ -11,7 +11,7 @@ import java.util.UUID;
  * Imports multiple movements for a product from an uploaded file (typically CSV format).
  *
  * <p><strong>User Explanation:</strong> "Upload your bank statement file to automatically import
- * all transactions into your account. This saves time compared to entering each transaction
+ * all transactions into your productDTO. This saves time compared to entering each transaction
  * manually."
  *
  * <p><strong>Business Rules:</strong>

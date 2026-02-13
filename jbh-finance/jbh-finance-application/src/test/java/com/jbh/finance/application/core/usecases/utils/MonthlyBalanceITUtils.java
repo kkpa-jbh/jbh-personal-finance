@@ -2,9 +2,9 @@ package com.jbh.finance.application.core.usecases.utils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.jbh.finance.application.builders.commands.MonthlyBalanceCommandTest;
 import com.jbh.finance.application.core.usecases.integration.monthlybalance.IgnoreOption;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
-import com.jbh.finance.application.feature.monthlybalance.commands.MonthlyBalanceCommandVO;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import java.math.BigDecimal;
 import java.time.YearMonth;
@@ -84,7 +84,7 @@ public class MonthlyBalanceITUtils {
   }
 
   public static AddMonthlyBalanceCommand createMonthlyBalanceCommand(
-      final YearMonth monthlyPeriod, final MonthlyBalanceCommandVO balanceVO) {
+      final YearMonth monthlyPeriod, final MonthlyBalanceCommandTest balanceVO) {
     if (balanceVO == null) {
       return new AddMonthlyBalanceCommand(monthlyPeriod, null, null, null);
     }
@@ -101,7 +101,7 @@ public class MonthlyBalanceITUtils {
 
   public static AddMonthlyBalanceCommand createMonthlyBalanceCommand(
       final YearMonth monthlyPeriod,
-      final MonthlyBalanceCommandVO balanceVO,
+      final MonthlyBalanceCommandTest balanceVO,
       final BigDecimal retefuente) {
     return new AddMonthlyBalanceCommand(
         monthlyPeriod, balanceVO.closingBalance(), balanceVO.monthlyProfitReported(), retefuente);

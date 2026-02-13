@@ -19,12 +19,12 @@ import com.jbh.finance.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.ports.input.RegisterMonthlyBalanceInputPort;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceQueryRepo;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceWriterRepo;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.services.MovementLifecycleService;
 import com.jbh.finance.application.feature.movement.services.MovementLifecycleServiceImpl;
 import com.jbh.finance.application.feature.movement.services.ProcessMovementServiceImpl;
@@ -57,9 +57,9 @@ public class RegisterMonthlyBalanceMockTest {
   MonthlyBalanceLifecycleService monthlyBalanceService;
   ProductLifecycleService accountService;
   @Mock private ProductRepository accountRepository;
-  @Mock private AccountMovementWriterRepository accountMovementRepository;
-  @Mock private AccountMonthlyBalanceQueryRepo monthlyBalanceQueryRepoMock;
-  @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
+  @Mock private MovementWriterRepository accountMovementRepository;
+  @Mock private MonthlyBalanceQueryRepo monthlyBalanceQueryRepoMock;
+  @Mock private MonthlyBalanceWriterRepo monthlyBalanceWriterRepoMock;
 
   @BeforeEach
   void setUp() {

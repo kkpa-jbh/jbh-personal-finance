@@ -3,7 +3,7 @@ package com.jbh.finance.application.feature.movement.mappers;
 import static com.jbh.finance.domain.movement.vo.MovementType.WITHDRAWAL;
 
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
-import com.jbh.finance.application.feature.movement.commands.LiquidateAccountCommand;
+import com.jbh.finance.application.feature.movement.commands.LiquidateProductCommand;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.domain.movement.MovementCategoryDomain;
 import com.jbh.finance.domain.movement.MovementDomain;
@@ -38,7 +38,7 @@ public final class MovementMapper {
   /**
    * Creates a MovementDTO from an AddMovementCommand.
    *
-   * @param accountId The account ID
+   * @param accountId The productDTO ID
    * @param command The AddMovementCommand containing movement details
    * @return MovementDTO with the movement data
    */
@@ -69,7 +69,7 @@ public final class MovementMapper {
 
     return MovementDTO.builder()
         .id(domain.getId())
-        .accountId(domain.getAccountId())
+        .accountId(domain.getProductId())
         .movementType(domain.getMovementType())
         .category(CategoryMapper.toDTO(domain.getCategory()))
         .movementAmount(domain.getMovementAmount())
@@ -84,12 +84,12 @@ public final class MovementMapper {
    * Creates a MovementDTO from a LiquidateAccountCommand. Liquidation movements always use
    * INVESTMENT_WITHDRAWAL category and WITHDRAWAL type.
    *
-   * @param accountId The account ID
+   * @param accountId The productDTO ID
    * @param command The LiquidateAccountCommand containing liquidation details
    * @return MovementDTO with the liquidation movement data
    */
   public static MovementDTO fromCommand(
-      final ProductId accountId, final LiquidateAccountCommand command) {
+      final ProductId accountId, final LiquidateProductCommand command) {
     final BigDecimal totalAmount = command.currentBalance();
     final MovementCategoryVO categoryDTO =
         MovementCategoryVO.withType(ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT);

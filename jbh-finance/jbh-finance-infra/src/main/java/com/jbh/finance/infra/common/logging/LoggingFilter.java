@@ -36,7 +36,7 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
         .trackingId(trackingId)
         .userId(userId)
         .requestId(requestId)
-        .module("account-infra")
+        .module("productresponse-infra")
         .apply();
 
     // Store for response processing

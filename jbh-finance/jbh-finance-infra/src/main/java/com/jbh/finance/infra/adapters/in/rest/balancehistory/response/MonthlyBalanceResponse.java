@@ -8,7 +8,7 @@ import java.time.YearMonth;
 
 public record MonthlyBalanceResponse(
     Long id,
-    ProductId accountId,
+    ProductId productId,
     int year,
     int month,
     YearMonth period,
@@ -29,7 +29,7 @@ public record MonthlyBalanceResponse(
   public static MonthlyBalanceResponse fromDTO(final MonthlyBalanceDTO dto) {
     return new MonthlyBalanceResponse(
         dto.id(),
-        dto.accountId(),
+        dto.productId(),
         dto.year(),
         dto.month(),
         dto.period(),

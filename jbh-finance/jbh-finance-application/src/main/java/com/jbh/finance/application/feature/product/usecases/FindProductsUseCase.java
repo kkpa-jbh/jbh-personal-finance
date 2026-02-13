@@ -1,7 +1,7 @@
 package com.jbh.finance.application.feature.product.usecases;
 
-import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.commands.FindProductCommand;
+import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -10,7 +10,7 @@ import java.util.UUID;
  * Retrieves products from the user's portfolio with various filtering options.
  *
  * <p><strong>User Explanation:</strong> "View your financial products. You can see all your active
- * accounts or search for a specific product by its ID."
+ * products or search for a specific product by its ID."
  *
  * <p><strong>Business Rules:</strong>
  *

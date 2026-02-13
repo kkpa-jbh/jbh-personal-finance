@@ -39,7 +39,7 @@ public record UpdatePreferencesCommand(
     private Language langValue = Language.DEFAULT;
     private Currency currencyValue = Currency.defaultCurrency();
     private BigDecimal goalValue;
-    private UUID accountIdValue;
+    private UUID productIdValue;
     private PreferencesMetadata metadataValue = PreferencesMetadata.empty();
 
     public UpdatePreferencesCommandBuilder defaultLang(final Language lang) {
@@ -57,8 +57,8 @@ public record UpdatePreferencesCommand(
       return this;
     }
 
-    public UpdatePreferencesCommandBuilder defaultAccountId(final UUID accountId) {
-      this.accountIdValue = accountId;
+    public UpdatePreferencesCommandBuilder defaultProductId(final UUID accountId) {
+      this.productIdValue = accountId;
       return this;
     }
 
@@ -69,7 +69,7 @@ public record UpdatePreferencesCommand(
 
     public UpdatePreferencesCommand build() {
       return new UpdatePreferencesCommand(
-          langValue, currencyValue, goalValue, accountIdValue, metadataValue);
+          langValue, currencyValue, goalValue, productIdValue, metadataValue);
     }
   }
 }

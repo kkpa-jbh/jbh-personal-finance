@@ -3,15 +3,15 @@ package com.jbh.finance.application.feature.monthlybalance.services;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceQueryRepo;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceWriterRepo;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.domain.product.vo.ProductId;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public interface MonthlyBalanceLifecycleService
-    extends AccountMonthlyBalanceQueryRepo, AccountMonthlyBalanceWriterRepository {
+    extends MonthlyBalanceQueryRepo, MonthlyBalanceWriterRepo {
 
   void validateNewMovementForOfficialMonthlyReport(MovementDTO movementDTO)
       throws BusinessException;
@@ -23,7 +23,7 @@ public interface MonthlyBalanceLifecycleService
    *
    * <p>2. It will update the monthly balance for the next month
    *
-   * <p>3. It will update the account current balance and net profit.
+   * <p>3. It will update the productDTO current balance and net profit.
    *
    * @param reportedMonthlyBalance
    * @param command

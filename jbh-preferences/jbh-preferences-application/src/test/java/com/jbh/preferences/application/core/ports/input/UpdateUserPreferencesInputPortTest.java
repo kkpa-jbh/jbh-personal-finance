@@ -66,7 +66,7 @@ class UpdateUserPreferencesInputPortTest {
             .defaultLang(Language.ENGLISH)
             .defaultCurrency(Currency.USD)
             .savingsGoal(new BigDecimal("3000.00"))
-            .defaultAccountId(accountId)
+            .defaultProductId(accountId)
             .build();
     final UserPreferencesDTO expectedDto = createUpdatedDTO(userId, accountId);
     when(preferencesService.updatePreferences(userId, command)).thenReturn(expectedDto);

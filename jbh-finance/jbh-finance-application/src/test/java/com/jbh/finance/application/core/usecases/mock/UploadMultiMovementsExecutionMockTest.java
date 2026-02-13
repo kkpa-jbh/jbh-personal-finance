@@ -19,20 +19,20 @@ import static org.mockito.Mockito.when;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.acid.UnitOfWork;
 import com.jbh.finance.application.async.AsyncTaskExecutorImpl;
-import com.jbh.finance.application.builders.AccountEntityBuilder;
 import com.jbh.finance.application.builders.EntityTestBuilder;
+import com.jbh.finance.application.builders.ProductEntityBuilder;
 import com.jbh.finance.application.builders.TestDataFactory;
 import com.jbh.finance.application.builders.UseCaseBuilder;
 import com.jbh.finance.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceQueryRepo;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceWriterRepo;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.finance.application.feature.movement.commands.AddMovementUploadedFileCommand;
 import com.jbh.finance.application.feature.movement.dto.AddMultipleBasicMovementDTO;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementsUploadedFileInputPort;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.ports.output.ProductRepository;
@@ -70,7 +70,7 @@ public class UploadMultiMovementsExecutionMockTest {
   static ProductId accountId = ProductId.generate();
   static UUID userId = UUID.randomUUID();
   static ProductDomain accountDomain =
-      AccountEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
+      ProductEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
   private static CreateProductUseCase createAccountUseCase;
   private static ProductDTO currentAccount;
   private static ProductLifecycleService accountService;
@@ -78,9 +78,9 @@ public class UploadMultiMovementsExecutionMockTest {
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
   private final Logger log = LoggerFactory.getLogger(UploadMultiMovementsExecutionMockTest.class);
   MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService;
-  @Mock private AccountMovementWriterRepository accountMovementRepository;
-  @Mock private AccountMonthlyBalanceQueryRepo accountMonthlyBalanceQueryRepo;
-  @Mock private AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepoMock;
+  @Mock private MovementWriterRepository accountMovementRepository;
+  @Mock private MonthlyBalanceQueryRepo accountMonthlyBalanceQueryRepo;
+  @Mock private MonthlyBalanceWriterRepo monthlyBalanceWriterRepoMock;
   private AddMovementsUploadedFileUseCase useCaseInstanceTest;
   private MonthlyBalanceLifecycleServiceImpl monthlyBalanceService;
 
@@ -146,7 +146,7 @@ public class UploadMultiMovementsExecutionMockTest {
     assertEquals(0, new BigDecimal("12591000.00").compareTo(firstEntry.totalAmount()));
     assertEquals(0, new BigDecimal("12689712.00").compareTo(firstEntry.balanceSnapshot()));
 
-    // Verify last entry (account reaches zero)
+    // Verify last entry (productDTO reaches zero)
     final AddMovementUploadedFileCommand lastEntry = allSimpleMovements.get(9);
     assertEquals(LocalDate.of(2025, 3, 31), lastEntry.entryDate());
     assertEquals(0, new BigDecimal("-3768488.00").compareTo(lastEntry.totalAmount()));
@@ -181,7 +181,7 @@ public class UploadMultiMovementsExecutionMockTest {
 
     verify(accountMovementRepository).save(anyList());
 
-    final ProductDTO actualAccountResponse = processedResponse.get().account();
+    final ProductDTO actualAccountResponse = processedResponse.get().productDTO();
     final List<MonthlyBalanceDTO> actualBalancesWithoutAsyncOperation =
         processedResponse.get().monthlyBalances();
 
@@ -455,8 +455,8 @@ public class UploadMultiMovementsExecutionMockTest {
     assertEquals(numberOf("0"), actualResponse.getMonthlyNetProfit());
     assertEquals(expectedPeriod.plusMonths(index), actualResponse.getPeriod());
 
-    // Assert account net growth rate
-    final ProductDTO accountDTO = accountService.findProductOrThrow(accountId);
+    // Assert productDTO net growth rate
+    final ProductDTO accountDTO = accountService.findOrThrowByIdProductId(accountId);
     assertEquals(numberOf("10.28"), accountDTO.netGrowthRate());
     assertNotNull(accountDTO.metadata());
     assertTrue(accountDTO.isFullyWithdrawn());
@@ -493,7 +493,7 @@ public class UploadMultiMovementsExecutionMockTest {
             processedResponse.set(
                 useCaseInstanceTest.uploadMovementsFromFile(userId, accountId, testData)));
 
-    final ProductDTO actualAccount = processedResponse.get().account();
+    final ProductDTO actualAccount = processedResponse.get().productDTO();
 
     assertEquals(numberOf("56386448"), actualAccount.movementBalance());
     assertEquals(numberOf("70908065"), actualAccount.currentBalance());
@@ -745,7 +745,7 @@ public class UploadMultiMovementsExecutionMockTest {
     assertEquals(0, new BigDecimal("37074883.00").compareTo(lastEntry.balanceSnapshot()));
 
     /*
-    when(accountRepository.findByUserAndAccountId(userId, accountId))
+    when(accountRepository.findByUserAndAccountId(userId, productId))
         .thenReturn(Optional.of(ProductMapper.toDTO(accountDomain)));
 
      */
@@ -756,7 +756,7 @@ public class UploadMultiMovementsExecutionMockTest {
             processedResponse.set(
                 useCaseInstanceTest.uploadMovementsFromFile(userId, accountId, testData)));
 
-    final ProductDTO actualAccount = processedResponse.get().account();
+    final ProductDTO actualAccount = processedResponse.get().productDTO();
 
     assertEquals(numberOf("29710000"), actualAccount.movementBalance());
     assertEquals(numberOf("37074883"), actualAccount.currentBalance());

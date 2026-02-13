@@ -5,7 +5,6 @@ import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.services.MovementLifecycleService;
 import com.jbh.finance.application.feature.movement.usecases.FindMovementsUseCase;
-import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.domain.product.vo.ProductId;
 import java.time.LocalDate;
@@ -18,14 +17,14 @@ public class FindMovementsInputPort implements FindMovementsUseCase {
 
   private static final int DEFAULT_MONTHS_BACK = 3;
 
-  private final MovementLifecycleService movementService;
-  private final ProductLifecycleService productsService;
+  private final MovementLifecycleService movementLifecycleService;
+  private final ProductLifecycleService productLifecycleService;
 
   public FindMovementsInputPort(
-      final MovementLifecycleService movementService,
-      final ProductLifecycleService productsService) {
-    this.movementService = movementService;
-    this.productsService = productsService;
+      final MovementLifecycleService movementLifecycleService,
+      final ProductLifecycleService productLifecycleService) {
+    this.movementLifecycleService = movementLifecycleService;
+    this.productLifecycleService = productLifecycleService;
   }
 
   @Override
@@ -43,7 +42,7 @@ public class FindMovementsInputPort implements FindMovementsUseCase {
     }
 
     // Verify product exists and belongs to user
-    final ProductDTO product = productsService.findByUserAndProductId(userId, productId);
+    productLifecycleService.findOrThrowByUserAndProductId(userId, productId);
 
     // Calculate date range
     final int months = (monthsBack != null && monthsBack > 0) ? monthsBack : DEFAULT_MONTHS_BACK;
@@ -52,7 +51,8 @@ public class FindMovementsInputPort implements FindMovementsUseCase {
 
     // Query movements within period
     final List<MovementDTO> movements =
-        movementService.getByUserAndProductIdWithinPeriod(userId, productId, startDate, endDate);
+        movementLifecycleService.getByUserAndProductIdWithinPeriod(
+            userId, productId, startDate, endDate);
 
     // Sort descending by movement date (newest first)
     return movements.stream()

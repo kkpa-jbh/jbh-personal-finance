@@ -22,7 +22,8 @@ public class UpdateProductInputPort implements UpdateProductUseCase {
   public void replaceMetadata(final ProductPK accountPK, final UpdateMetadataProductCommand command)
       throws BusinessException {
 
-    final ProductDTO loanProductDTO = accountService.findProductOrThrow(accountPK.accountId());
+    final ProductDTO loanProductDTO =
+        accountService.findOrThrowByIdProductId(accountPK.productId());
 
     final ProductMetadata productMetadata = command.metadata();
 

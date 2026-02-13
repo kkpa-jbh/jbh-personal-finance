@@ -21,11 +21,11 @@ public class ProductMovementValidatorFactory {
   }
 
   /**
-   * Returns the appropriate validator for the given account type.
+   * Returns the appropriate validator for the given productDTO type.
    *
-   * @param accountType The account type to get validator for
-   * @return The validator instance for the account type
-   * @throws IllegalArgumentException if no validator is registered for the account type
+   * @param accountType The productDTO type to get validator for
+   * @return The validator instance for the productDTO type
+   * @throws IllegalArgumentException if no validator is registered for the productDTO type
    */
   public ProductMovementValidator getValidator(final ProductType accountType) {
     final ProductMovementValidator validator = this.validators.get(accountType);

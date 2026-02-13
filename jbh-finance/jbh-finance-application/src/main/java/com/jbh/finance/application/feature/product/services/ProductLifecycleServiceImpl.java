@@ -38,7 +38,7 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
   }
 
   @Override
-  public ProductDTO findByUserAndProductId(final UUID userId, final ProductId accountId)
+  public ProductDTO findOrThrowByUserAndProductId(final UUID userId, final ProductId productId)
       throws BusinessException {
 
     if (userId == null) {
@@ -46,25 +46,25 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
       throw new GenericSpecificationException("User ID cannot be null");
     }
 
-    if (accountId == null) {
+    if (productId == null) {
       log.error("Account ID cannot be null");
       throw new GenericSpecificationException("Account ID cannot be null");
     }
 
     return accountRepo
-        .findByUserAndProductId(userId, accountId)
+        .findByUserAndProductId(userId, productId)
         .orElseThrow(
             () -> {
               log.error(
-                  "Account not found for user: {} and account: {}", userId, accountId.value());
+                  "Account not found for user: {} and productDTO: {}", userId, productId.value());
 
               return new BusinessException(BusinessApplicationExceptionType.PRODUCT_NOT_FOUND);
             });
   }
 
   @Override
-  public ProductDTO findProductOrThrow(final ProductId accountId) {
-    return findProductById(accountId)
+  public ProductDTO findOrThrowByIdProductId(final ProductId productId) {
+    return findProductById(productId)
         .orElseThrow(() -> new IllegalArgumentException("Account not found"));
   }
 
@@ -88,7 +88,7 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
     accountDomain.setCurrentBalance(closingBalance);
     accountDomain.setCalculatedNetProfit(calculatedNetProfit);
     log.info(
-        "Setting {} Net Profit and {} current Balance for account {}",
+        "Setting {} Net Profit and {} current Balance for productDTO {}",
         calculatedNetProfit,
         closingBalance,
         accountId.value());
@@ -110,7 +110,7 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
     final var accountDomain = findDomainOrThrow(accountId);
     accountDomain.setCurrentBalance(closingBalance);
 
-    log.info("Setting {} current Balance for account {}", closingBalance, accountId.value());
+    log.info("Setting {} current Balance for productDTO {}", closingBalance, accountId.value());
     save(accountDomain);
   }
 
@@ -132,7 +132,7 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
       final ProductId accountId, final List<MonthlyBalanceDTO> monthlyBalances) {
     final var accountDomain = findDomainOrThrow(accountId);
     if (accountDomain.isFullyWithdrawn()) {
-      log.info("Updating account {} when it's fully withdrawn", accountId);
+      log.info("Updating productDTO {} when it's fully withdrawn", accountId);
       // CashFlows
       final YearMonth maxPeriod = YearMonth.now().plusMonths(1);
       final List<BigDecimal> cashFlows = new ArrayList<>();
@@ -190,7 +190,7 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
       try {
         syncAccountDomainBalanceByMovement(accountDomain, movement, false);
       } catch (final BusinessException ex) {
-        log.error("Error syncing account movement by movement {}", movement);
+        log.error("Error syncing productDTO movement by movement {}", movement);
         throw ex;
       }
     }
@@ -218,9 +218,9 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
 
   private ProductDomain findDomainOrThrow(final ProductPK accountPK) throws BusinessException {
     final UUID userId = accountPK.userId();
-    final ProductId accountId = accountPK.accountId();
+    final ProductId accountId = accountPK.productId();
 
-    final ProductDTO accountDTO = findByUserAndProductId(userId, accountId);
+    final ProductDTO accountDTO = findOrThrowByUserAndProductId(userId, accountId);
 
     return accountDTO.toDomain();
   }

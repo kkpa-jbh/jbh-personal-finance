@@ -30,7 +30,7 @@ public class UpdateProductStatusInputPort implements UpdateProductStatusUseCase 
     command.validate();
 
     final ProductDTO productDTO =
-        accountService.findByUserAndProductId(command.userId(), command.productId());
+        accountService.findOrThrowByUserAndProductId(command.userId(), command.productId());
 
     if (productDTO.isActive() == command.active()) {
       LOG.info(

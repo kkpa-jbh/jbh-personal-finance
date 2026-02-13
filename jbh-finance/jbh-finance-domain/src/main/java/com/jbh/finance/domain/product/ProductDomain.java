@@ -49,7 +49,7 @@ public class ProductDomain {
   protected LocalDateTime createdAt = LocalDateTime.now();
   protected LocalDateTime updatedAt;
 
-  /** Net growth rate is the rate of change of the net profit balance for the account. */
+  /** Net growth rate is the rate of change of the net profit balance for the product. */
   protected BigDecimal netGrowthRate = JBH_ZERO;
 
   protected ProductMetadata metadata = ProductMetadata.empty();
@@ -90,15 +90,15 @@ public class ProductDomain {
   }
 
   /**
-   * Factory method to create an account with minimum required data for creation. Validates the
-   * account based on type-specific requirements using the Strategy Pattern.
+   * Factory method to create an product with minimum required data for creation. Validates the
+   * product based on type-specific requirements using the Strategy Pattern.
    *
    * @param name Account name
    * @param type Account type
    * @param userId User ID
    * @param inputMetadata Account inputMetadata (ProductMetadata instance)
    * @return AccountDomain instance
-   * @throws BusinessException if validation fails based on account type requirements
+   * @throws BusinessException if validation fails based on product type requirements
    */
   public static ProductDomain withMinimumDataForCreation(
       final String name,
@@ -111,7 +111,7 @@ public class ProductDomain {
     final ProductMetadata productMetadata =
         inputMetadata != null ? inputMetadata : ProductMetadata.empty();
 
-    // Validate inputMetadata based on account type BEFORE creating the domain object
+    // Validate inputMetadata based on product type BEFORE creating the domain object
     validateMetadata(type, productMetadata);
 
     // Only create the object if validation passes
@@ -143,8 +143,8 @@ public class ProductDomain {
       throws BusinessException {
     movement.validate();
 
-    if (!this.getId().equals(movement.getAccountId())) {
-      throw new BusinessException(BusinessDomainExceptionType.ACCOUNT_MISMATCH);
+    if (!this.getId().equals(movement.getProductId())) {
+      throw new BusinessException(BusinessDomainExceptionType.PRODUCT_MISMATCH);
     }
 
     validateInsufficientNetFlow(movement);

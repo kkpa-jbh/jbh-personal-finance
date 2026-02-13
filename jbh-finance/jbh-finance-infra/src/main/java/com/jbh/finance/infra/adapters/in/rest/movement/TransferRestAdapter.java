@@ -3,7 +3,7 @@ package com.jbh.finance.infra.adapters.in.rest.movement;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
 import com.jbh.finance.application.feature.movement.commands.AddTransferCommand;
-import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhAccountsUseCase;
+import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhProductsUseCase;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
 import com.jbh.finance.infra.adapters.in.rest.common.BaseRestAdapter;
@@ -31,15 +31,15 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings({"PMD.UnnecessaryAnnotationValueElement", "PMD.AvoidDuplicateLiterals"})
 @RequestScoped
 @Path(FinanceApiRoutes.TRANSFERS_API_PATH)
-@Tag(name = "Transfer Operations", description = "Transfer funds between JBH accounts")
+@Tag(name = "Transfer Operations", description = "Transfer funds between JBH products")
 public class TransferRestAdapter extends BaseRestAdapter {
 
   private static final Logger LOG = LoggerFactory.getLogger(TransferRestAdapter.class);
 
-  private final AddTransferJbhAccountsUseCase addTransferUseCase;
+  private final AddTransferJbhProductsUseCase addTransferUseCase;
 
   @Inject
-  public TransferRestAdapter(final AddTransferJbhAccountsUseCase addTransferUseCase) {
+  public TransferRestAdapter(final AddTransferJbhProductsUseCase addTransferUseCase) {
     this.addTransferUseCase = addTransferUseCase;
   }
 
@@ -48,8 +48,8 @@ public class TransferRestAdapter extends BaseRestAdapter {
   @Consumes(MediaType.APPLICATION_JSON)
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(
-      summary = "Transfer funds between accounts",
-      description = "Transfer funds between two JBH accounts owned by the same user")
+      summary = "Transfer funds between products",
+      description = "Transfer funds between two JBH products owned by the same user")
   @APIResponses(
       value = {
         @APIResponse(responseCode = "204", description = "Transfer completed successfully"),
@@ -70,7 +70,7 @@ public class TransferRestAdapter extends BaseRestAdapter {
       })
   @SecurityRequirement(name = "JWT")
   public Response addTransfer(
-      @QueryParam("fromAccountId") @Parameter(description = "Source account ID", required = true)
+      @QueryParam("fromAccountId") @Parameter(description = "Source productresponse ID", required = true)
           final UUID fromAccountId,
       @RequestBody final AddTransferRequest request,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
@@ -80,7 +80,7 @@ public class TransferRestAdapter extends BaseRestAdapter {
     final UUID userId = findUserId(authorizationHeader);
 
     LOG.info(
-        "Processing transfer from account {} to {} for user {}",
+        "Processing transfer from productresponse {} to {} for user {}",
         fromAccountId,
         request.toAccountId(),
         userId);

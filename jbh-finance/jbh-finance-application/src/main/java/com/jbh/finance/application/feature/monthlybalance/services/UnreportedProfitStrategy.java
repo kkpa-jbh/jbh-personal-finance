@@ -30,7 +30,7 @@ public class UnreportedProfitStrategy implements MonthlyBalanceProfitStrategy {
 
     if (monthlyBalanceService.isLastOfficialReport(savedMonthlyReported)) {
       accountService.updateClosingBalances(
-          accountPK.accountId(), savedMonthlyReported.closingBalance());
+          accountPK.productId(), savedMonthlyReported.closingBalance());
     }
 
     return savedMonthlyReported;

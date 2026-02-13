@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public interface MovementQueryRepository {
 
-  List<MovementDTO> getByAccountId(ProductId accountId);
+  List<MovementDTO> getByProductId(ProductId accountId);
 
   List<MovementDTO> getByUserAndProductIdWithinPeriod(
       UUID userId, ProductId productId, LocalDate startDate, LocalDate endDate);

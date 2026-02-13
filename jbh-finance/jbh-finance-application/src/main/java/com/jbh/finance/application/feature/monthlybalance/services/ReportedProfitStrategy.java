@@ -57,12 +57,12 @@ public class ReportedProfitStrategy implements MonthlyBalanceProfitStrategy {
     // Run in background to async task (One for each movement)
     movementApplicationService.addDividendsMovementForNextMonth(accountPK, command);
 
-    // This is important to be after the dividends movement because it will update the account net
+    // This is important to be after the dividends movement because it will update the productDTO net
     // profit  with the monthly reported profit
     if (monthlyBalanceService.isLastOfficialReport(savedMonthlyReported)) {
-      final BigDecimal calculatedNetProfit = sumNetProfitOfficialReported(accountPK.accountId());
+      final BigDecimal calculatedNetProfit = sumNetProfitOfficialReported(accountPK.productId());
       accountService.updateClosingProfitBalances(
-          accountPK.accountId(), currentBalance, calculatedNetProfit);
+          accountPK.productId(), currentBalance, calculatedNetProfit);
     }
 
     return savedMonthlyReported;

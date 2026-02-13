@@ -7,32 +7,32 @@ import java.util.Map;
 
 public final class MovementMetadata {
 
-  private final Map<AccountMovementMetadataKey, Object> data;
+  private final Map<MovementMetadataKey, Object> data;
 
-  private MovementMetadata(final Map<AccountMovementMetadataKey, Object> data) {
+  private MovementMetadata(final Map<MovementMetadataKey, Object> data) {
     this.data =
         (data != null && !data.isEmpty())
             ? new EnumMap<>(data)
-            : new EnumMap<>(AccountMovementMetadataKey.class);
+            : new EnumMap<>(MovementMetadataKey.class);
   }
 
   public static MovementMetadata createEmpty() {
-    return new MovementMetadata(new EnumMap<>(AccountMovementMetadataKey.class));
+    return new MovementMetadata(new EnumMap<>(MovementMetadataKey.class));
   }
 
-  public static MovementMetadata of(final Map<AccountMovementMetadataKey, Object> data) {
+  public static MovementMetadata of(final Map<MovementMetadataKey, Object> data) {
     return new MovementMetadata(data);
   }
 
-  public Map<AccountMovementMetadataKey, Object> asMap() {
+  public Map<MovementMetadataKey, Object> asMap() {
     return data;
   }
 
-  public boolean hasKey(final AccountMovementMetadataKey key) {
+  public boolean hasKey(final MovementMetadataKey key) {
     return data.containsKey(key);
   }
 
-  public Object get(final AccountMovementMetadataKey key) {
+  public Object get(final MovementMetadataKey key) {
     return data.get(key);
   }
 
@@ -41,20 +41,20 @@ public final class MovementMetadata {
   }
 
   public void putTargetInternalAccount(final ProductDomain accountDomain) {
-    put(AccountMovementMetadataKey.TARGET_INTERNAL_ACCOUNT_ID, accountDomain.getId());
-    put(AccountMovementMetadataKey.TARGET_INTERNAL_ACCOUNT_NAME, accountDomain.getName());
+    put(MovementMetadataKey.TARGET_INTERNAL_ACCOUNT_ID, accountDomain.getId());
+    put(MovementMetadataKey.TARGET_INTERNAL_ACCOUNT_NAME, accountDomain.getName());
   }
 
-  private void put(final AccountMovementMetadataKey key, final Object value) {
+  private void put(final MovementMetadataKey key, final Object value) {
     data.put(key, value);
   }
 
   public void putInvestmentIncomeAccount(final ProductDomain accountDomain) {
-    put(AccountMovementMetadataKey.INVESTMENT_INCOME_ACCOUNT, accountDomain.getName());
+    put(MovementMetadataKey.INVESTMENT_INCOME_ACCOUNT, accountDomain.getName());
   }
 
   public void putFileImportedAt(final LocalDateTime importedAt) {
-    put(AccountMovementMetadataKey.FILE_IMPORTED_AT_TAG, importedAt);
-    put(AccountMovementMetadataKey.FILE_IMPORT_TAG, true);
+    put(MovementMetadataKey.FILE_IMPORTED_AT_TAG, importedAt);
+    put(MovementMetadataKey.FILE_IMPORT_TAG, true);
   }
 }

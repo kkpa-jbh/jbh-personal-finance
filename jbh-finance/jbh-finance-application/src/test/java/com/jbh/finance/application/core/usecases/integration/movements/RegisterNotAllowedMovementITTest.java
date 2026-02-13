@@ -7,11 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.builders.CommandTestBuilder;
 import com.jbh.finance.application.builders.UseCaseBuilder;
-import com.jbh.finance.application.core.ports.output.account.InMemoryAccountRepository;
+import com.jbh.finance.application.core.ports.output.product.InMemoryProductRepository;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
-import com.jbh.finance.application.feature.movement.usecases.LiquidateAccountUseCase;
+import com.jbh.finance.application.feature.movement.usecases.LiquidateProductUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import java.math.BigDecimal;
@@ -23,15 +23,15 @@ import org.junit.jupiter.api.Test;
 
 public class RegisterNotAllowedMovementITTest {
   private static final YearMonth period = YearMonth.of(2023, 1);
-  private static final InMemoryAccountRepository inMemoryAccountRepo =
+  private static final InMemoryProductRepository inMemoryAccountRepo =
       UseCaseBuilder.getAccountRepository();
   private static final UUID userId = UUID.randomUUID();
   private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
-  private static AccountMovementWriterRepository accountMovementRepository;
+  private static MovementWriterRepository accountMovementRepository;
   private static ProductDTO cdtAccount;
   private static ProductDTO internalAccount;
-  private static LiquidateAccountUseCase liquidateAccountUseCase;
+  private static LiquidateProductUseCase liquidateAccountUseCase;
   private MonthlyBalanceLifecycleService monthlyBalanceService;
 
   @BeforeAll

@@ -4,8 +4,8 @@ import com.jbh.finance.application.acid.UnitOfWork;
 import com.jbh.finance.application.async.AsyncTaskExecutorImpl;
 import com.jbh.finance.application.feature.monthlybalance.ports.input.FindMonthlyBalanceInputPort;
 import com.jbh.finance.application.feature.monthlybalance.ports.input.RegisterMonthlyBalanceInputPort;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceQueryRepo;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceWriterRepo;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
@@ -13,18 +13,18 @@ import com.jbh.finance.application.feature.monthlybalance.usecases.FindMonthlyBa
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementsUploadedFileInputPort;
-import com.jbh.finance.application.feature.movement.ports.input.AddTransferJbhAccountsInputPort;
+import com.jbh.finance.application.feature.movement.ports.input.AddTransferJbhProductsInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.FindMovementsInputPort;
-import com.jbh.finance.application.feature.movement.ports.input.LiquidateAccountInputPort;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.finance.application.feature.movement.ports.input.LiquidateProductInputPort;
 import com.jbh.finance.application.feature.movement.ports.output.MovementQueryRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.services.MovementLifecycleService;
 import com.jbh.finance.application.feature.movement.services.MovementLifecycleServiceImpl;
 import com.jbh.finance.application.feature.movement.services.ProcessMovementService;
 import com.jbh.finance.application.feature.movement.services.ProcessMovementServiceImpl;
-import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhAccountsUseCase;
+import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhProductsUseCase;
 import com.jbh.finance.application.feature.movement.usecases.FindMovementsUseCase;
-import com.jbh.finance.application.feature.movement.usecases.LiquidateAccountUseCase;
+import com.jbh.finance.application.feature.movement.usecases.LiquidateProductUseCase;
 import com.jbh.finance.application.feature.product.ports.input.CreateProductInputPort;
 import com.jbh.finance.application.feature.product.ports.input.DeleteProductInputPort;
 import com.jbh.finance.application.feature.product.ports.input.EditProductInputPort;
@@ -63,7 +63,7 @@ public class ProductUseCasesCDIConfig {
 
   @Inject ProductRepository accountRepository;
 
-  @Inject AccountMovementWriterRepository accountMovementWriterRepo;
+  @Inject MovementWriterRepository accountMovementWriterRepo;
 
   @Inject MovementQueryRepository accountMovementQueryRepo;
 
@@ -71,11 +71,11 @@ public class ProductUseCasesCDIConfig {
 
   @Inject
   @Named("monthlyBalanceWriterJPAAdapter")
-  AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepo;
+  MonthlyBalanceWriterRepo monthlyBalanceWriterRepo;
 
   @Inject
   @Named("monthlyBalanceJPARepository")
-  AccountMonthlyBalanceQueryRepo monthlyBalanceQueryRepo;
+  MonthlyBalanceQueryRepo monthlyBalanceQueryRepo;
 
   @Inject ProductLifecycleService productsService;
 
@@ -179,15 +179,15 @@ public class ProductUseCasesCDIConfig {
 
   @Produces
   @ApplicationScoped
-  public AddTransferJbhAccountsUseCase addTransferJbhAccountsUseCase() {
-    return new AddTransferJbhAccountsInputPort(
+  public AddTransferJbhProductsUseCase addTransferJbhAccountsUseCase() {
+    return new AddTransferJbhProductsInputPort(
         productsService(), accountMovementServiceApplication());
   }
 
   @Produces
   @ApplicationScoped
-  public LiquidateAccountUseCase liquidateAccountUseCase() {
-    return new LiquidateAccountInputPort(productsService(), accountMovementServiceApplication());
+  public LiquidateProductUseCase liquidateAccountUseCase() {
+    return new LiquidateProductInputPort(productsService(), accountMovementServiceApplication());
   }
 
   @Produces

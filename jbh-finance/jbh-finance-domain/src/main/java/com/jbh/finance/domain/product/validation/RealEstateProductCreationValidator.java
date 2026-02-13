@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @SuppressWarnings("PMD.LawOfDemeter")
-public class RealEstateProductCreationValidator extends BaseAccountCreationValidator
+public class RealEstateProductCreationValidator extends BaseProductCreationValidator
     implements ProductCreationValidator {
 
   @Override

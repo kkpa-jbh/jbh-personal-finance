@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 public record MovementResponse(
     MovementId id,
-    ProductId accountId,
+    ProductId productId,
     MovementType movementType,
     CategoryType category,
     BigDecimal movementAmount,

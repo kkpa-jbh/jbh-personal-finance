@@ -31,7 +31,7 @@ public class EditProductInputPort implements EditProductUseCase {
     command.validate();
 
     final ProductDTO productDTO =
-        accountService.findByUserAndProductId(command.userId(), command.productId());
+        accountService.findOrThrowByUserAndProductId(command.userId(), command.productId());
 
     if (!productDTO.isActive()) {
       throw new BusinessException(BusinessApplicationExceptionType.PRODUCT_NOT_ACTIVE);

@@ -37,14 +37,14 @@ public class AddMovementInputPort implements AddMovementUseCase {
 
     movementCommand.validate();
 
-    final ProductDTO productDTO = accountService.findByUserAndProductId(userId, productId);
+    final ProductDTO productDTO = accountService.findOrThrowByUserAndProductId(userId, productId);
     final ProductType productType = productDTO.type();
 
     if (!productType.addingMovementsProductsAllowed().contains(productType)) {
       throw new BusinessException(BusinessApplicationExceptionType.DISALLOWED_MOVEMENT_FOR_PRODUCT);
     }
 
-    // Sync account balance and persist movement
+    // Sync productDTO balance and persist movement
     final AddBasicMovementDTO addBasicMovementDTO;
     addBasicMovementDTO =
         accountMovementService.addMovementProcessingBalances(

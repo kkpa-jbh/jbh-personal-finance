@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings({"PMD.UnnecessaryAnnotationValueElement", "PMD.CallSuperInConstructor"})
 @RequestScoped
 @Path(FinanceApiRoutes.PRODUCTS_API_PATH + MOVEMENTS_INBULK_API)
-@Tag(name = "Upload movements to an account", description = "Register multiple movements")
+@Tag(name = "Upload movements to an productresponse", description = "Register multiple movements")
 public class ProductUploadFileRestAdapter extends BaseRestAdapter {
 
   private final ExcelMovementReaderService excelMovementReaderService;
@@ -61,9 +61,9 @@ public class ProductUploadFileRestAdapter extends BaseRestAdapter {
   @Consumes(MediaType.MULTIPART_FORM_DATA)
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(
-      summary = "Upload Excel file with account movements",
+      summary = "Upload Excel file with productresponse movements",
       description =
-          "Upload and process an Excel file containing account movements for a specific account")
+          "Upload and process an Excel file containing productresponse movements for a specific productresponse")
   @APIResponses(
       value = {
         @APIResponse(
@@ -92,13 +92,13 @@ public class ProductUploadFileRestAdapter extends BaseRestAdapter {
   @SecurityRequirement(name = "JWT")
   public Response uploadExcelMovements(
       @FormParam("file")
-          @Parameter(description = "Excel file containing account movements", required = true)
+          @Parameter(description = "Excel file containing productresponse movements", required = true)
           final FileUpload fileUpload,
       @FormParam("sheetName")
           @Parameter(description = "Name of the Excel sheet to process", required = true)
           final String sheetName,
-      @FormParam("accountId")
-          @Parameter(description = "UUID of the target account", required = true)
+      @FormParam("productId")
+          @Parameter(description = "UUID of the target productresponse", required = true)
           final UUID accountId,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)

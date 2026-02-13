@@ -5,7 +5,7 @@ public enum EmailTemplate {
     TEAM_INVITATION("team-invitation", "email.team-invitation.subject"),
     WELCOME("welcome", "email.welcome.subject"),
     PASSWORD_RESET("password-reset", "email.password-reset.subject"),
-    ACCOUNT_VERIFICATION("account-verification", "email.account-verification.subject");
+    ACCOUNT_VERIFICATION("product-verification", "email.product-verification.subject");
 
     private final String templateName;
     private final String subjectKey;

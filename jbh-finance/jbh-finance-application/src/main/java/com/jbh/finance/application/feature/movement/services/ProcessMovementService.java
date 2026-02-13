@@ -20,7 +20,7 @@ public interface ProcessMovementService {
    *
    * <p>It will update the monthly balance for the next month
    *
-   * <p>For each movement, it will update the account current balance and net profit. <p<The monthly
+   * <p>For each movement, it will update the productDTO current balance and net profit. <p<The monthly
    * balance for the next mont will be synced.
    *
    * @param productPK

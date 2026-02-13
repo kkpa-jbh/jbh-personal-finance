@@ -8,7 +8,7 @@ import java.util.Map;
  * ProductType}.
  *
  * <p>This factory implements the Strategy Pattern by providing the correct validator implementation
- * based on the account type, eliminating the need for if/else or switch statements.
+ * based on the product type, eliminating the need for if/else or switch statements.
  *
  * <p>Usage example:
  *
@@ -25,11 +25,11 @@ public final class ProductCreationValidatorFactory {
   static {
     VALIDATORS =
         Map.ofEntries(
-            Map.entry(ProductType.CREDIT_CARD, new CreditCardAccountCreationValidator()),
-            Map.entry(ProductType.SAVINGS, new SavingsAccountCreationValidator()),
-            Map.entry(ProductType.INVESTMENT, new InvestmentAccountCreationValidator()),
+            Map.entry(ProductType.CREDIT_CARD, new CreditCardProductCreationValidator()),
+            Map.entry(ProductType.SAVINGS, new SavingsProductCreationValidator()),
+            Map.entry(ProductType.INVESTMENT, new InvestmentProductCreationValidator()),
             Map.entry(ProductType.LOAN, new LoanProductCreationValidator()),
-            Map.entry(ProductType.CDT, new CdtAccountCreationValidator()),
+            Map.entry(ProductType.CDT, new CdtProductCreationValidator()),
             Map.entry(ProductType.REAL_ESTATE_INVESTMENT, new RealEstateProductCreationValidator()));
   }
 
@@ -39,18 +39,18 @@ public final class ProductCreationValidatorFactory {
   }
 
   /**
-   * Returns the appropriate validator for the given account type.
+   * Returns the appropriate validator for the given product type.
    *
-   * @param accountType The account type to get validator for
-   * @return The validator instance for the account type
-   * @throws IllegalArgumentException if no validator is registered for the account type
+   * @param accountType The product type to get validator for
+   * @return The validator instance for the product type
+   * @throws IllegalArgumentException if no validator is registered for the product type
    */
   public static ProductCreationValidator getValidator(final ProductType accountType) {
     final ProductCreationValidator validator = VALIDATORS.get(accountType);
 
     if (validator == null) {
       throw new IllegalArgumentException(
-          "No Account creation validator registered for account type: " + accountType);
+          "No Account creation validator registered for product type: " + accountType);
     }
 
     return validator;

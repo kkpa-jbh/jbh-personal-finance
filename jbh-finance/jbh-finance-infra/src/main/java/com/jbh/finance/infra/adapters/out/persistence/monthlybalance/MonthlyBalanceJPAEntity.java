@@ -37,7 +37,7 @@ public class MonthlyBalanceJPAEntity extends PanacheEntityBase {
   private Long id;
 
   @Column(name = "product_id")
-  private UUID accountId;
+  private UUID productId;
 
   @Column(name = "year")
   private Integer year;
@@ -94,8 +94,8 @@ public class MonthlyBalanceJPAEntity extends PanacheEntityBase {
   public static MonthlyBalanceJPAEntity of(final MonthlyBalanceDTO monthlyBalance) {
     final MonthlyBalanceJPAEntity entity = new MonthlyBalanceJPAEntity();
     entity.setId(monthlyBalance.id());
-    entity.setAccountId(
-        monthlyBalance.accountId() != null ? monthlyBalance.accountId().value() : null);
+    entity.setProductId(
+        monthlyBalance.productId() != null ? monthlyBalance.productId().value() : null);
     entity.setYear(monthlyBalance.year());
     entity.setMonth(monthlyBalance.month());
     entity.setPeriod(monthlyBalance.period());
@@ -128,7 +128,7 @@ public class MonthlyBalanceJPAEntity extends PanacheEntityBase {
   public MonthlyBalanceDTO toDTO() {
     return MonthlyBalanceDTO.defaultBuilder()
         .id(id)
-        .accountId(ProductId.of(accountId))
+        .productId(ProductId.of(productId))
         .year(year)
         .month(month)
         .period(period)

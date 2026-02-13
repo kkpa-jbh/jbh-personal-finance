@@ -5,9 +5,9 @@ import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.application.builders.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.finance.application.builders.UseCaseBuilder.DEFAULT_ACCOUNT_NAME;
 import static com.jbh.finance.application.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
-import static com.jbh.finance.application.core.usecases.utils.AccountITUtils.assertAccount;
 import static com.jbh.finance.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.finance.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
+import static com.jbh.finance.application.core.usecases.utils.ProductITUtils.assertAccount;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -17,18 +17,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.builders.UseCaseBuilder;
 import com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder;
-import com.jbh.finance.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.finance.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
-import com.jbh.finance.application.core.usecases.utils.IgnoreAccountOptions;
+import com.jbh.finance.application.core.ports.output.product.InMemoryProductRepository;
+import com.jbh.finance.application.core.usecases.utils.IgnoreProductOptions;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceQueryRepo;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceWriterRepo;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.dto.ProductDTO.ProductDTOBuilder;
@@ -81,7 +81,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   static final BigDecimal salaryAmountMay25 = withJBHDecimals(new BigDecimal("16000000"));
   private static final Logger LOG =
       LoggerFactory.getLogger(RegisterMonthlyReportedWithoutProfitITTest.class);
-  private static final InMemoryAccountRepository inMemoryAccountRepo =
+  private static final InMemoryProductRepository inMemoryAccountRepo =
       UseCaseBuilder.getAccountRepository();
   static BigDecimal expensesFeb25 = withJBHDecimals(BigDecimal.ZERO);
   // Static to be shared between tests
@@ -92,18 +92,16 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
   static int totalMonthsCreated = 1;
   static ProductDTO createdAccount;
   static ProductId accountId;
-  @Mock private static AccountMovementWriterRepository accountMovementRepository;
+  @Mock private static MovementWriterRepository accountMovementRepository;
   private static MonthlyBalanceLifecycleService monthlyBalanceService;
   private static RegisterMonthlyBalanceUseCase useCaseTest;
   ;
   private static AddMovementUseCase addMovementUseCase;
   private static ProductDTO finalAccountBalance;
-  public final ProductDTOBuilder ACCOUNT_DEFAULT_BUILDER =
+  public final ProductDTOBuilder PRODUCT_DEFAULT_BUILDER =
       ProductDTO.defaultBuilder(userId, accountId, DEFAULT_ACCOUNT_NAME, DEFAULT_ACCOUNT_TYPE);
-  AccountMonthlyBalanceWriterRepository monthlyBalanceInMemoWriter =
-      inMemoryMonthlyBalanceRepos.getWriterRepo();
-  AccountMonthlyBalanceQueryRepo monthlyBalanceInMemoQuery =
-      inMemoryMonthlyBalanceRepos.getQueryRepo();
+  MonthlyBalanceWriterRepo monthlyBalanceInMemoWriter = inMemoryMonthlyBalanceRepos.getWriterRepo();
+  MonthlyBalanceQueryRepo monthlyBalanceInMemoQuery = inMemoryMonthlyBalanceRepos.getQueryRepo();
   private FindMonthlyBalanceUseCase findMonthlyBalanceUseCase;
   private CreateProductUseCase createAccountUseCase;
 
@@ -169,7 +167,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     final var actualMonthlyBalance = savedMonthlyBalance.get();
     final var expectedMonthlyBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .period(monthlyPeriod)
             .closingBalance(withJBHDecimals(closingBalanceNov24))
             .totalDebits(withJBHDecimals(salaryAmountNov24))
@@ -241,7 +239,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     logBlockHeader("TESTING " + monthlyPeriod);
 
     final ProductDTO expectedAccount =
-        ACCOUNT_DEFAULT_BUILDER
+        PRODUCT_DEFAULT_BUILDER
             .currentBalance(withJBHDecimals(closingBalanceNov24))
             .movementBalance(withJBHDecimals(salaryAmountNov24))
             .build();
@@ -251,8 +249,8 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     assertAccount(
         (expectedAccount),
         persistedAccount,
-        IgnoreAccountOptions.IGNORE_ACCOUNT_NAME,
-        IgnoreAccountOptions.IGNORE_ACCOUNT_TYPE);
+        IgnoreProductOptions.IGNORE_ACCOUNT_NAME,
+        IgnoreProductOptions.IGNORE_ACCOUNT_TYPE);
 
     final AddMovementCommand salaryMovement =
         AddMovementCommandTestBuilder.withCategory(
@@ -318,7 +316,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     logBlockHeader("TESTING " + monthlyPeriod);
 
     final ProductDTO expectedAccount =
-        ACCOUNT_DEFAULT_BUILDER
+        PRODUCT_DEFAULT_BUILDER
             .currentBalance(withJBHDecimals(closingBalanceDec24))
             .movementBalance(withJBHDecimals(salaryAmountDec24).add(salaryAmountNov24))
             .netProfitBalance(withJBHDecimals(new BigDecimal("7676950.00")))
@@ -667,7 +665,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     assertEquals(YearMonth.of(2025, 3), lastOfficialReportPeriod);
 
     final ProductDTO expectedAccount =
-        ACCOUNT_DEFAULT_BUILDER
+        PRODUCT_DEFAULT_BUILDER
             .netGrowthRate(withJBHDecimals(new BigDecimal("-18.70")))
             .currentBalance(
                 withJBHDecimals(closingBalanceMar25).add(salaryAmountApr25).add(salaryAmountMay25))
@@ -684,7 +682,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
     final ProductDTO persistedAccount =
         inMemoryAccountRepo.findByUserAndProductId(userId, accountId).get();
-    assertAccount(expectedAccount, persistedAccount, IgnoreAccountOptions.IGNORE_ACCOUNT_PROFIT);
+    assertAccount(expectedAccount, persistedAccount, IgnoreProductOptions.IGNORE_ACCOUNT_PROFIT);
   }
 
   @Test

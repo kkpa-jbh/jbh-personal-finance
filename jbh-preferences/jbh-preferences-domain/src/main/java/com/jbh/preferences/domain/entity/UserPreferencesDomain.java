@@ -21,7 +21,7 @@ public final class UserPreferencesDomain {
   private final Language defaultLang;
   private final Currency defaultCurrency;
   private final BigDecimal savingsGoal;
-  private final UUID defaultAccountId;
+  private final UUID defaultProductId;
   private final PreferencesMetadata metadata;
   private final LocalDateTime createdAt;
   private final LocalDateTime updatedAt;
@@ -34,7 +34,7 @@ public final class UserPreferencesDomain {
         .defaultLang(Language.DEFAULT)
         .defaultCurrency(Currency.COP)
         .savingsGoal(JBH_ZERO)
-        .defaultAccountId(null)
+        .defaultProductId(null)
         .metadata(PreferencesMetadata.empty())
         .createdAt(LocalDateTime.now())
         .updatedAt(LocalDateTime.now())
@@ -59,7 +59,7 @@ public final class UserPreferencesDomain {
         .defaultLang(newLanguage)
         .defaultCurrency(this.defaultCurrency)
         .savingsGoal(this.savingsGoal)
-        .defaultAccountId(this.defaultAccountId)
+        .defaultProductId(this.defaultProductId)
         .metadata(this.metadata)
         .createdAt(this.createdAt)
         .updatedAt(LocalDateTime.now())
@@ -73,7 +73,7 @@ public final class UserPreferencesDomain {
         .defaultLang(this.defaultLang)
         .defaultCurrency(newCurrency)
         .savingsGoal(this.savingsGoal)
-        .defaultAccountId(this.defaultAccountId)
+        .defaultProductId(this.defaultProductId)
         .metadata(this.metadata)
         .createdAt(this.createdAt)
         .updatedAt(LocalDateTime.now())
@@ -87,7 +87,7 @@ public final class UserPreferencesDomain {
         .defaultLang(this.defaultLang)
         .defaultCurrency(this.defaultCurrency)
         .savingsGoal(newSavingsGoal)
-        .defaultAccountId(this.defaultAccountId)
+        .defaultProductId(this.defaultProductId)
         .metadata(this.metadata)
         .createdAt(this.createdAt)
         .updatedAt(LocalDateTime.now())
@@ -100,13 +100,13 @@ public final class UserPreferencesDomain {
     }
   }
 
-  public UserPreferencesDomain withDefaultAccountId(final UUID newDefaultAccountId) {
+  public UserPreferencesDomain withDefaultProductId(final UUID newDefaultAccountId) {
     return internalBuilder()
         .userId(this.userId)
         .defaultLang(this.defaultLang)
         .defaultCurrency(this.defaultCurrency)
         .savingsGoal(this.savingsGoal)
-        .defaultAccountId(newDefaultAccountId)
+        .defaultProductId(newDefaultAccountId)
         .metadata(this.metadata)
         .createdAt(this.createdAt)
         .updatedAt(LocalDateTime.now())
@@ -119,7 +119,7 @@ public final class UserPreferencesDomain {
         .defaultLang(this.defaultLang)
         .defaultCurrency(this.defaultCurrency)
         .savingsGoal(this.savingsGoal)
-        .defaultAccountId(this.defaultAccountId)
+        .defaultProductId(this.defaultProductId)
         .metadata(newMetadata != null ? newMetadata : PreferencesMetadata.empty())
         .createdAt(this.createdAt)
         .updatedAt(LocalDateTime.now())

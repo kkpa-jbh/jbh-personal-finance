@@ -170,7 +170,7 @@ exports com.jbh.xxx.application.shared.exceptions;
 The REST API layer is organized by **feature/bounded context** (vertical slices) rather than technical role:
 
 ```
-com.jbh.products.infra.adapters.in.rest/
+com.jbh.finance.infra.adapters.in.rest/
 ├── product/
 │   ├── ProductRestAdapter.java
 │   ├── ProductConfigRestAdapter.java
@@ -239,7 +239,7 @@ com.jbh.products.infra.adapters.in.rest/
 
 ```java
 // In infra module - Response object
-package com.jbh.products.infra.adapters.in.rest.product.response;
+package com.jbh.finances.infra.adapters.in.rest.product.response;
 
 import dto.product.feature.com.jbh.finance.application.ProductDTO;
 
@@ -251,7 +251,7 @@ public record ProductResponse(...) {
 }
 
 // In controller
-package com.jbh.products.infra.adapters.in.rest.product;
+package com.jbh.finances.infra.adapters.in.rest.product;
 
 import response.product.rest.in.adapters.com.jbh.finance.infra.ProductResponse;
 import request.product.rest.in.adapters.com.jbh.finance.infra.CreateProductRequest;

@@ -1,10 +1,10 @@
 package com.jbh.finance.infra.adapters.out.persistence.movement;
 
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
-import com.jbh.finance.domain.movement.vo.AccountMovementMetadataKey;
 import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.movement.vo.MovementId;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
+import com.jbh.finance.domain.movement.vo.MovementMetadataKey;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
@@ -59,7 +59,7 @@ public class MovementJPAEntity extends PanacheEntityBase {
 
   @Type(JsonBinaryType.class)
   @Column(name = "metadata", columnDefinition = "jsonb")
-  public Map<AccountMovementMetadataKey, Object> metadata;
+  public Map<MovementMetadataKey, Object> metadata;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   public LocalDateTime createdAt;

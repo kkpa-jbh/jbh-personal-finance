@@ -5,12 +5,12 @@
 
   <Match>
     <Bug pattern="CRLF_INJECTION_LOGS"/>
-    <Class name="~com\.jbh\.account\.domain\..*"/>
+    <Class name="~com\.jbh\.finance\.domain\..*"/>
   </Match>
 
   <Match>
     <Bug pattern="CRLF_INJECTION_LOGS"/>
-    <Class name="~com\.jbh\.account\.application\..*"/>
+    <Class name="~com\.jbh\.finance\.application\..*"/>
   </Match>
 
   <Match>

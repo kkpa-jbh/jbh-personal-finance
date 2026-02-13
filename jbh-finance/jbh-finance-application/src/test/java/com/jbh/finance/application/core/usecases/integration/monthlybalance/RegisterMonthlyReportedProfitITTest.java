@@ -18,14 +18,14 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.builders.EntityTestBuilder;
 import com.jbh.finance.application.builders.UseCaseBuilder;
 import com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder;
-import com.jbh.finance.application.core.ports.output.account.InMemoryAccountRepository;
+import com.jbh.finance.application.core.ports.output.product.InMemoryProductRepository;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.services.ProcessMovementServiceImpl;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
@@ -60,7 +60,7 @@ public class RegisterMonthlyReportedProfitITTest {
   static final UUID userId = UUID.randomUUID();
   private static final Logger LOG =
       LoggerFactory.getLogger(RegisterMonthlyReportedWithoutProfitITTest.class);
-  private static final InMemoryAccountRepository inMemoryAccountRepo =
+  private static final InMemoryProductRepository inMemoryAccountRepo =
       UseCaseBuilder.getAccountRepository();
 
   static CreateProductUseCase createAccountUseCase;
@@ -71,7 +71,7 @@ public class RegisterMonthlyReportedProfitITTest {
   private static MonthlyBalanceDTO finalReported20249;
   private static ProductDTO finalAccountBalance;
   private static MonthlyBalanceDTO finalReported202410;
-  @Mock private static AccountMovementWriterRepository accountMovementRepository;
+  @Mock private static MovementWriterRepository accountMovementRepository;
   RegisterMonthlyBalanceUseCase useCaseTest;
   YearMonth initialPeriod = YearMonth.of(2024, 7);
   LocalDate runningDate = LocalDate.now();
@@ -789,7 +789,7 @@ public class RegisterMonthlyReportedProfitITTest {
             .get();
     assertMonthlyBalance(nextMonthBalance, finalReported202410);
 
-    // Check that account balance is not updated
+    // Check that productDTO balance is not updated
     final var currentAccountBalance = inMemoryAccountRepo.findByProductId(accountId).get();
     assertEquals(
         currentAccountBalance.currentBalance(),

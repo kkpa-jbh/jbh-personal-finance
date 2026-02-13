@@ -7,7 +7,7 @@ import com.jbh.finance.application.feature.product.commands.DeleteProductCommand
  * Soft deletes a financial product from the user's portfolio.
  *
  * <p><strong>User Explanation:</strong> "Remove a product from your portfolio. The product will be
- * archived and hidden from your active accounts, but historical data is preserved."
+ * archived and hidden from your active products, but historical data is preserved."
  *
  * <p><strong>Business Rules:</strong>
  *

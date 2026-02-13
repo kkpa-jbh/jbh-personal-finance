@@ -43,7 +43,7 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
       throws BusinessException {
 
     validatePeriodRange(startPeriod, endPeriod);
-    productService.findByUserAndProductId(productPK.userId(), productPK.accountId());
+    productService.findOrThrowByUserAndProductId(productPK.userId(), productPK.productId());
 
     return monthlyBalanceService.findByAccountAndPeriods(productPK, startPeriod, endPeriod);
   }
@@ -58,7 +58,7 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
 
     validatePeriodRange(startPeriod, endPeriod);
     final ProductDTO product =
-        productService.findByUserAndProductId(accountPK.userId(), accountPK.accountId());
+        productService.findOrThrowByUserAndProductId(accountPK.userId(), accountPK.productId());
 
     return findBalanceHistory(startPeriod, endPeriod, today, Collections.singletonList(product));
   }
@@ -118,7 +118,7 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
 
       balancesResponse.add(
           BalanceHistoryEntryResponse.fromDTO(
-              monthlyBalance, productsMap.get(monthlyBalance.accountId())));
+              monthlyBalance, productsMap.get(monthlyBalance.productId())));
     }
 
     final BigDecimal avgGrowthRateSummary =

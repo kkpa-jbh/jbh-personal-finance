@@ -1,7 +1,7 @@
 package com.jbh.finance.application.builders;
 
-import com.jbh.finance.application.feature.movement.commands.ExternalAccountInfoVO;
-import com.jbh.finance.application.feature.movement.commands.LiquidateAccountCommand;
+import com.jbh.finance.application.feature.movement.commands.LiquidateProductCommand;
+import com.jbh.finance.application.feature.movement.dto.ExternalProductInfoDTO;
 import com.jbh.finance.application.feature.product.commands.CreateProductCommand;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
 import com.jbh.finance.domain.product.vo.ProductMetadataKey;
@@ -25,8 +25,8 @@ public class CommandTestBuilder {
    * Creates a CreateBasicAccountCommand with default values and empty metadata.
    *
    * @param userId the user ID
-   * @param name the account name
-   * @param type the account type
+   * @param name the productDTO name
+   * @param type the productDTO type
    * @return a CreateBasicAccountCommand
    */
   public static CreateProductCommand createBasicAccountCommand(
@@ -38,9 +38,9 @@ public class CommandTestBuilder {
    * Creates a CreateBasicAccountCommand with metadata.
    *
    * @param userId the user ID
-   * @param name the account name
-   * @param type the account type
-   * @param metadata the account metadata
+   * @param name the productDTO name
+   * @param type the productDTO type
+   * @param metadata the productDTO metadata
    * @return a CreateBasicAccountCommand
    */
   public static CreateProductCommand createBasicAccountCommand(
@@ -59,7 +59,7 @@ public class CommandTestBuilder {
    * Creates a CreateBasicAccountCommand with default name and empty metadata.
    *
    * @param userId the user ID
-   * @param type the account type
+   * @param type the productDTO type
    * @return a CreateBasicAccountCommand
    */
   public static CreateProductCommand createBasicAccountCommand(
@@ -68,10 +68,10 @@ public class CommandTestBuilder {
   }
 
   /**
-   * Creates a CreateBasicAccountCommand for a credit card account with typical metadata.
+   * Creates a CreateBasicAccountCommand for a credit card productDTO with typical metadata.
    *
    * @param userId the user ID
-   * @param name the account name
+   * @param name the productDTO name
    * @param creditLimit the credit limit
    * @param paymentDueDay the payment due day
    * @return a CreateBasicAccountCommand configured for credit card
@@ -124,10 +124,10 @@ public class CommandTestBuilder {
   }
 
   /**
-   * Creates a CreateBasicAccountCommand for an investment account with typical metadata.
+   * Creates a CreateBasicAccountCommand for an investment productDTO with typical metadata.
    *
    * @param userId the user ID
-   * @param name the account name
+   * @param name the productDTO name
    * @param brokerName the broker name
    * @return a CreateBasicAccountCommand configured for investment
    */
@@ -141,16 +141,16 @@ public class CommandTestBuilder {
 
   // ==================== Convenience Methods for Common Scenarios ====================
 
-  public static LiquidateAccountCommand createLiquidateCommandToInternal(
+  public static LiquidateProductCommand createLiquidateCommandToInternal(
       final ProductPK accountPK, final BigDecimal amount, final LocalDate date) {
-    return new LiquidateAccountCommand(Optional.of(accountPK), Optional.empty(), amount, date);
+    return new LiquidateProductCommand(Optional.of(accountPK), Optional.empty(), amount, date);
   }
 
-  public static LiquidateAccountCommand createLiquidateCommandToExternal(
-      final ExternalAccountInfoVO externalAccountInfoVO,
+  public static LiquidateProductCommand createLiquidateCommandToExternal(
+      final ExternalProductInfoDTO externalAccountInfoVO,
       final BigDecimal amount,
       final LocalDate date) {
-    return new LiquidateAccountCommand(
+    return new LiquidateProductCommand(
         Optional.empty(), Optional.of(externalAccountInfoVO), amount, date);
   }
 

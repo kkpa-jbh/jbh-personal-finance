@@ -12,7 +12,7 @@ public record AddTransferCommand(
     ProductPK toAccount, BigDecimal totalAmount, LocalDate transferDate) {
 
   public void validate() throws BusinessException {
-    if (toAccount == null || toAccount.userId() == null || toAccount.accountId() == null) {
+    if (toAccount == null || toAccount.userId() == null || toAccount.productId() == null) {
       throw new BusinessException(BusinessApplicationExceptionType.INVALID_TRANSFER_RECIPIENT);
     }
 

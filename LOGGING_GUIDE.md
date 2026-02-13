@@ -100,7 +100,7 @@ Located in: `jbh-finance-infra/src/main/resources/logback-spring.xml`
 
 **Purpose**: Manage MDC values for request context tracking
 
-**Location**: `logging.common.com.jbh.products.application.LoggingContext`
+**Location**: `logging.common.com.jbh.finances.application.LoggingContext`
 
 **Key Methods:**
 
@@ -142,7 +142,7 @@ accountId("acc-789")
 
 **Purpose**: Create loggers with structured logging support
 
-**Location**: `logging.common.com.jbh.products.application.LoggerFactory`
+**Location**: `logging.common.com.jbh.finances.application.LoggerFactory`
 
 **Usage:**
 
@@ -158,7 +158,7 @@ private static final StructuredLogger structuredLogger =
 
 **Purpose**: Automatically set up logging context for HTTP requests
 
-**Location**: `logging.common.com.jbh.products.infra.LoggingFilter`
+**Location**: `logging.common.com.jbh.finances.infra.LoggingFilter`
 
 **Features:**
 
@@ -172,7 +172,7 @@ private static final StructuredLogger structuredLogger =
 ### 1. Basic Logging in Domain Layer
 
 ```java
-package com.jbh.productss_mgmt.accounts.domain;
+package com.jbh.financess_mgmt.accounts.domain;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -182,7 +182,7 @@ public class AccountDomain {
   private static final Logger logger = LoggerFactory.getLogger(AccountDomain.class);
 
   public void syncBalances(TransactionDomain transaction) {
-    logger.debug("Syncing balance for account: {}, transaction amount: {}",
+    logger.debug("Syncing balance for product: {}, transaction amount: {}",
         getId().value(), transaction.getAmount());
 
     // Business logic
@@ -195,10 +195,10 @@ public class AccountDomain {
 ### 2. Application Layer with Full Context
 
 ```java
-package com.jbh.products_app.accounts.ports.input;
+package com.jbh.finances_app.accounts.ports.input;
 
-import logging.common.com.jbh.products.application.LoggerFactory;
-import logging.common.com.jbh.products.application.LoggingContext;
+import logging.common.com.jbh.finances.application.LoggerFactory;
+import logging.common.com.jbh.finances.application.LoggingContext;
 
 public class AddTransactionInputPort {
 
@@ -209,9 +209,9 @@ public class AddTransactionInputPort {
     LoggingContext.builder()
         .accountId(accountId.value())
         .userId(requestVO.userId())
-        .module("account-application")
+        .module("product-application")
         .execute(() -> {
-          logger.info("Starting transaction addition for account: {}", accountId.value());
+          logger.info("Starting transaction addition for product: {}", accountId.value());
 
           try {
             // Business logic
@@ -220,7 +220,7 @@ public class AddTransactionInputPort {
 
             logger.info("Transaction created successfully: {}", txn.getId().value());
           } catch (Exception e) {
-            logger.error("Failed to add transaction for account: {}", accountId.value(), e);
+            logger.error("Failed to add transaction for product: {}", accountId.value(), e);
             throw e;
           }
         });
@@ -231,25 +231,25 @@ public class AddTransactionInputPort {
 ### 3. Infrastructure Layer with HTTP Context
 
 ```java
-package com.jbh.products_infra.controllers;
+package com.jbh.finances_infra.controllers;
 
-import logging.common.com.jbh.products.application.LoggerFactory;
-import logging.common.com.jbh.products.application.LoggingContext;
+import logging.common.com.jbh.finances.application.LoggerFactory;
+import logging.common.com.jbh.finances.application.LoggingContext;
 
 @RestController
 public class AccountController {
 
   private static final Logger logger = LoggerFactory.getLogger(AccountController.class);
 
-  @PostMapping("/accounts/{accountId}/transactions")
+  @PostMapping("/products/{accountId}/transactions")
   public ResponseEntity<Void> addTransaction(
       @PathVariable UUID accountId,
       @RequestBody TransactionRequest request) {
 
     // Context already set by LoggingFilter, just add specific details
-    LoggingContext.setModule("account-controller");
+    LoggingContext.setModule("product-controller");
 
-    logger.info("Received transaction request for account: {}", accountId);
+    logger.info("Received transaction request for product: {}", accountId);
 
     try {
       addTransactionUseCase.addTransaction(AccountId.of(accountId), request.toVO());
@@ -320,13 +320,13 @@ public class AsyncTransactionProcessor {
   "level": "INFO",
   "thread": "http-nio-8080-exec-1",
   "logger": "c.j.a.i.controllers.AccountController",
-  "message": "Received transaction request for account: acc-789",
+  "message": "Received transaction request for product: acc-789",
   "mdc": {
     "trackingId": "abc-123-def",
     "accountId": "acc-789",
     "userId": "user-456",
     "transactionId": "txn-001",
-    "module": "account-controller"
+    "module": "product-controller"
   },
   "application": "jbh-personal-finance"
 }

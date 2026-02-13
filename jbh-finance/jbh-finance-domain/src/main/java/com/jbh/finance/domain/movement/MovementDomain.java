@@ -5,11 +5,11 @@ import static com.jbh.finance.domain.movement.MovementCategoryDomain.withCategor
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.commons.util.JbhMoneyUtils;
-import com.jbh.finance.domain.movement.vo.AccountMovementMetadataKey;
 import com.jbh.finance.domain.movement.vo.ExpenseCategory;
 import com.jbh.finance.domain.movement.vo.IncomeCategory;
 import com.jbh.finance.domain.movement.vo.MovementId;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
+import com.jbh.finance.domain.movement.vo.MovementMetadataKey;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.shared.exceptions.BusinessDomainExceptionType;
@@ -23,7 +23,7 @@ import lombok.Getter;
 public class MovementDomain {
 
   private final MovementId id;
-  private final ProductId accountId;
+  private final ProductId productId;
   private final MovementType movementType;
   private final MovementCategoryDomain category;
 
@@ -39,7 +39,7 @@ public class MovementDomain {
   private final String description;
 
   public MovementDomain(
-      final ProductId accountId,
+      final ProductId productId,
       final MovementType movementType,
       final LocalDate movementDate,
       final BigDecimal movementAmount,
@@ -49,7 +49,7 @@ public class MovementDomain {
       final String description) {
     this(
         MovementId.generate(),
-        accountId,
+        productId,
         movementType,
         category,
         movementAmount,
@@ -61,7 +61,7 @@ public class MovementDomain {
 
   public MovementDomain(
       final MovementId id,
-      final ProductId accountId,
+      final ProductId productId,
       final MovementType movementType,
       final MovementCategoryDomain category,
       final BigDecimal movementAmount,
@@ -70,7 +70,7 @@ public class MovementDomain {
       final MovementMetadata metadata,
       final String description) {
     this.id = id;
-    this.accountId = accountId;
+    this.productId = productId;
     this.movementType = movementType;
     this.category = category;
     this.movementAmount = JbhMoneyUtils.withJBHDecimals(movementAmount);
@@ -125,7 +125,7 @@ public class MovementDomain {
   }
 
   private void validateAccountId() {
-    if (accountId == null || accountId.value() == null) {
+    if (productId == null || productId.value() == null) {
       throw new GenericSpecificationException("Account ID cannot be null");
     }
   }
@@ -215,11 +215,11 @@ public class MovementDomain {
     }
   }
 
-  public boolean hasMetadata(final AccountMovementMetadataKey fieldName) {
+  public boolean hasMetadata(final MovementMetadataKey fieldName) {
     return metadata != null && metadata.hasKey(fieldName);
   }
 
-  public Object getMetadataField(final AccountMovementMetadataKey key) {
+  public Object getMetadataField(final MovementMetadataKey key) {
     return metadata != null ? metadata.get(key) : null;
   }
 

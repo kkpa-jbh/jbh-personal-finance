@@ -1,29 +1,29 @@
 package com.jbh.finance.application.builders;
 
 import com.jbh.finance.application.async.AsyncTaskExecutorImpl;
-import com.jbh.finance.application.core.ports.output.account.InMemoryAccountRepository;
 import com.jbh.finance.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
-import com.jbh.finance.application.core.ports.output.movement.InMemoryAccountMovementQueryRepository;
-import com.jbh.finance.application.core.ports.output.movement.InMemoryAccountMovementRepository;
+import com.jbh.finance.application.core.ports.output.movement.InMemoryMovementQueryRepository;
+import com.jbh.finance.application.core.ports.output.movement.InMemoryMovementRepository;
+import com.jbh.finance.application.core.ports.output.product.InMemoryProductRepository;
 import com.jbh.finance.application.core.usecases.utils.UnitOfWorkTest;
 import com.jbh.finance.application.feature.monthlybalance.ports.input.FindMonthlyBalanceInputPort;
 import com.jbh.finance.application.feature.monthlybalance.ports.input.RegisterMonthlyBalanceInputPort;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceQueryRepo;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceWriterRepo;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementInputPort;
-import com.jbh.finance.application.feature.movement.ports.input.AddTransferJbhAccountsInputPort;
-import com.jbh.finance.application.feature.movement.ports.input.LiquidateAccountInputPort;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
+import com.jbh.finance.application.feature.movement.ports.input.AddTransferJbhProductsInputPort;
+import com.jbh.finance.application.feature.movement.ports.input.LiquidateProductInputPort;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.services.MovementLifecycleService;
 import com.jbh.finance.application.feature.movement.services.MovementLifecycleServiceImpl;
 import com.jbh.finance.application.feature.movement.services.ProcessMovementServiceImpl;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
-import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhAccountsUseCase;
-import com.jbh.finance.application.feature.movement.usecases.LiquidateAccountUseCase;
+import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhProductsUseCase;
+import com.jbh.finance.application.feature.movement.usecases.LiquidateProductUseCase;
 import com.jbh.finance.application.feature.product.ports.input.CreateProductInputPort;
 import com.jbh.finance.application.feature.product.ports.input.UpdateProductInputPort;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
@@ -38,21 +38,21 @@ public class UseCaseBuilder {
   public static final ProductType DEFAULT_ACCOUNT_TYPE = ProductType.SAVINGS;
 
   // Account
-  private static final InMemoryAccountRepository inMemoryAccountRepo =
-      new InMemoryAccountRepository();
+  private static final InMemoryProductRepository inMemoryAccountRepo =
+      new InMemoryProductRepository();
   private static final InMemoryMonthlyBalanceRepositories inMemoryMonthlyBalanceRepos =
       new InMemoryMonthlyBalanceRepositories();
 
-  static final AccountMonthlyBalanceWriterRepository monthlyBalanceInMemoWriter =
+  static final MonthlyBalanceWriterRepo monthlyBalanceInMemoWriter =
       inMemoryMonthlyBalanceRepos.getWriterRepo();
-  static final AccountMonthlyBalanceQueryRepo monthlyBalanceInMemoQuery =
+  static final MonthlyBalanceQueryRepo monthlyBalanceInMemoQuery =
       inMemoryMonthlyBalanceRepos.getQueryRepo();
 
-  public static InMemoryAccountMovementQueryRepository movementQueryRepository =
-      new InMemoryAccountMovementQueryRepository();
+  public static InMemoryMovementQueryRepository movementQueryRepository =
+      new InMemoryMovementQueryRepository();
 
-  static final AccountMovementWriterRepository movementInMemoWriter =
-      new InMemoryAccountMovementRepository(movementQueryRepository);
+  static final MovementWriterRepository movementInMemoWriter =
+      new InMemoryMovementRepository(movementQueryRepository);
 
   public static final AddMovementUseCase addMovementUseCase =
       buildAddMovementUseCase(movementInMemoWriter);
@@ -67,16 +67,16 @@ public class UseCaseBuilder {
     return new ProductLifecycleServiceImpl(getAccountRepository());
   }
 
-  public static InMemoryAccountRepository getAccountRepository() {
+  public static InMemoryProductRepository getAccountRepository() {
     return inMemoryAccountRepo;
   }
 
-  public static AccountMovementWriterRepository getAccountMovementWriterRepository() {
+  public static MovementWriterRepository getAccountMovementWriterRepository() {
     return movementInMemoWriter;
   }
 
   public static RegisterMonthlyBalanceUseCase buildRegisterMonthlyBalanceUseCase(
-      final AccountMovementWriterRepository accountMovementRepository) {
+      final MovementWriterRepository accountMovementRepository) {
     return new RegisterMonthlyBalanceInputPort(
         buildMonthlyBalanceService(),
         buildAccountService(),
@@ -84,7 +84,7 @@ public class UseCaseBuilder {
   }
 
   public static AddMovementUseCase buildAddMovementUseCase(
-      final AccountMovementWriterRepository accountMovementRepository) {
+      final MovementWriterRepository accountMovementRepository) {
     return new AddMovementInputPort(
         buildAccountMovementApplicationService(accountMovementRepository), buildAccountService());
   }
@@ -105,14 +105,14 @@ public class UseCaseBuilder {
     }
   }
 
-  public static AddTransferJbhAccountsUseCase buildAddTransferUseCase(
-      final AccountMovementWriterRepository accountMovementRepository) {
-    return new AddTransferJbhAccountsInputPort(
+  public static AddTransferJbhProductsUseCase buildAddTransferUseCase(
+      final MovementWriterRepository accountMovementRepository) {
+    return new AddTransferJbhProductsInputPort(
         buildAccountService(), buildAccountMovementApplicationService(accountMovementRepository));
   }
 
   public static ProcessMovementServiceImpl buildAccountMovementApplicationService(
-      final AccountMovementWriterRepository accountMovementRepository) {
+      final MovementWriterRepository accountMovementRepository) {
     return new ProcessMovementServiceImpl(
         buildAccountMovementService(accountMovementRepository),
         buildAccountService(),
@@ -121,7 +121,7 @@ public class UseCaseBuilder {
   }
 
   public static MovementLifecycleService buildAccountMovementService(
-      final AccountMovementWriterRepository accountMovementRepository) {
+      final MovementWriterRepository accountMovementRepository) {
     return new MovementLifecycleServiceImpl(accountMovementRepository, movementQueryRepository);
   }
 
@@ -133,9 +133,9 @@ public class UseCaseBuilder {
         buildAccountService());
   }
 
-  public static LiquidateAccountUseCase buildLiquidateAccountUseCase(
-      final AccountMovementWriterRepository accountMovementRepository) {
-    return new LiquidateAccountInputPort(
+  public static LiquidateProductUseCase buildLiquidateAccountUseCase(
+      final MovementWriterRepository accountMovementRepository) {
+    return new LiquidateProductInputPort(
         buildAccountService(), buildAccountMovementApplicationService(accountMovementRepository));
   }
 

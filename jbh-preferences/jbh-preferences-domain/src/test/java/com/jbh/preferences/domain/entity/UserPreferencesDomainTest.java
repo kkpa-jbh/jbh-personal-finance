@@ -21,7 +21,7 @@ class UserPreferencesDomainTest {
     assertEquals(Language.DEFAULT, preferences.getDefaultLang());
     assertEquals(Currency.COP, preferences.getDefaultCurrency());
     assertEquals(BigDecimal.ZERO.setScale(2), preferences.getSavingsGoal());
-    assertNull(preferences.getDefaultAccountId());
+    assertNull(preferences.getDefaultProductId());
     assertTrue(preferences.getMetadata().isEmpty());
     assertNotNull(preferences.getCreatedAt());
     assertNotNull(preferences.getUpdatedAt());
@@ -41,14 +41,14 @@ class UserPreferencesDomainTest {
         .defaultLang(Language.SPANISH)
         .defaultCurrency(Currency.COP)
         .savingsGoal(new BigDecimal("1000.00"))
-        .defaultAccountId(accountId)
+        .defaultProductId(accountId)
         .build();
 
     assertEquals(userId, preferences.getUserId());
     assertEquals(Language.SPANISH, preferences.getDefaultLang());
     assertEquals(Currency.COP, preferences.getDefaultCurrency());
     assertEquals(new BigDecimal("1000.00"), preferences.getSavingsGoal());
-    assertEquals(accountId, preferences.getDefaultAccountId());
+    assertEquals(accountId, preferences.getDefaultProductId());
   }
 
   @Test
@@ -133,22 +133,22 @@ class UserPreferencesDomainTest {
     final UserPreferencesDomain original = UserPreferencesDomain.createDefault(UUID.randomUUID());
     final UUID newAccountId = UUID.randomUUID();
 
-    final UserPreferencesDomain updated = original.withDefaultAccountId(newAccountId);
+    final UserPreferencesDomain updated = original.withDefaultProductId(newAccountId);
 
     assertNotSame(original, updated);
-    assertEquals(newAccountId, updated.getDefaultAccountId());
+    assertEquals(newAccountId, updated.getDefaultProductId());
   }
 
   @Test
   void withDefaultAccountId_shouldAllowNullAccountId() {
     final UUID accountId = UUID.randomUUID();
     final UserPreferencesDomain original = UserPreferencesDomain.builder(UUID.randomUUID())
-        .defaultAccountId(accountId)
+        .defaultProductId(accountId)
         .build();
 
-    final UserPreferencesDomain updated = original.withDefaultAccountId(null);
+    final UserPreferencesDomain updated = original.withDefaultProductId(null);
 
-    assertNull(updated.getDefaultAccountId());
+    assertNull(updated.getDefaultProductId());
   }
 
   @Test

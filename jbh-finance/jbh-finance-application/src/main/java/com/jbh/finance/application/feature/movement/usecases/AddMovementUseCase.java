@@ -9,7 +9,7 @@ import java.util.UUID;
 /**
  * Adds a single financial movement (transaction) to a product in the user's portfolio.
  *
- * <p><strong>User Explanation:</strong> "Record a transaction in your account, such as a deposit,
+ * <p><strong>User Explanation:</strong> "Record a transaction in your productDTO, such as a deposit,
  * withdrawal, or expense. The system automatically updates your balances and monthly summaries."
  *
  * <p><strong>Business Rules:</strong>

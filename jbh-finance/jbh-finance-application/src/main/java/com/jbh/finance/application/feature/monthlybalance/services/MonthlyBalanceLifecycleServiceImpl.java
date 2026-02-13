@@ -9,11 +9,11 @@ import com.jbh.finance.application.async.AsyncTaskExecutor;
 import com.jbh.finance.application.async.vo.AsyncTask;
 import com.jbh.finance.application.async.vo.AsyncTaskType;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
-import com.jbh.finance.application.feature.monthlybalance.comparator.AccountMonthlyBalanceComparators;
+import com.jbh.finance.application.feature.monthlybalance.comparator.MonthlyBalanceComparators;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.mappers.MonthlyBalanceMapper;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceQueryRepo;
-import com.jbh.finance.application.feature.monthlybalance.ports.output.AccountMonthlyBalanceWriterRepository;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceQueryRepo;
+import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceWriterRepo;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
 import com.jbh.finance.application.feature.movement.validation.movement_type.MovementTypeValidatorStrategy;
@@ -45,15 +45,15 @@ import org.slf4j.LoggerFactory;
 public class MonthlyBalanceLifecycleServiceImpl implements MonthlyBalanceLifecycleService {
   private static final Logger LOG =
       LoggerFactory.getLogger(MonthlyBalanceLifecycleServiceImpl.class);
-  private final AccountMonthlyBalanceQueryRepo queryRepo;
-  private final AccountMonthlyBalanceWriterRepository writerRepo;
+  private final MonthlyBalanceQueryRepo queryRepo;
+  private final MonthlyBalanceWriterRepo writerRepo;
   private final AsyncTaskExecutor asyncTaskExecutor;
   private final ProductLifecycleService accountService;
   private final MovementValidationStrategyFactory movValidationStrategyFactory;
 
   public MonthlyBalanceLifecycleServiceImpl(
-      final AccountMonthlyBalanceQueryRepo monthlyBalanceRepo,
-      final AccountMonthlyBalanceWriterRepository monthlyBalanceWriterRepo,
+      final MonthlyBalanceQueryRepo monthlyBalanceRepo,
+      final MonthlyBalanceWriterRepo monthlyBalanceWriterRepo,
       final AsyncTaskExecutor asyncTaskExecutor,
       final ProductLifecycleService accountService) {
     this.writerRepo = monthlyBalanceWriterRepo;
@@ -193,11 +193,11 @@ public class MonthlyBalanceLifecycleServiceImpl implements MonthlyBalanceLifecyc
     final MonthlyBalanceDomain nextMonthlyBalance =
         queryRepo
             .findByAccountIdYearAndMonth(
-                currentMonthlyBalance.accountId(), nextPeriod.getYear(), nextPeriod.getMonthValue())
+                currentMonthlyBalance.productId(), nextPeriod.getYear(), nextPeriod.getMonthValue())
             .map(MonthlyBalanceMapper::toDomain)
             .orElseGet(
                 () ->
-                    MonthlyBalanceDomain.withPeriod(currentMonthlyBalance.accountId(), nextPeriod));
+                    MonthlyBalanceDomain.withPeriod(currentMonthlyBalance.productId(), nextPeriod));
 
     nextMonthlyBalance.assignOpeningBalance(toDomain(currentMonthlyBalance));
 
@@ -208,7 +208,7 @@ public class MonthlyBalanceLifecycleServiceImpl implements MonthlyBalanceLifecyc
   @Override
   public boolean isLastOfficialReport(final MonthlyBalanceDTO monthlyBalanceDTO) {
     final Optional<MonthlyBalanceDTO> latestOfficialMonthlyReport =
-        findLastOfficialReport(monthlyBalanceDTO.accountId());
+        findLastOfficialReport(monthlyBalanceDTO.productId());
     final YearMonth currentPeriod = monthlyBalanceDTO.period();
 
     final boolean isLastOfficialReport =
@@ -227,7 +227,7 @@ public class MonthlyBalanceLifecycleServiceImpl implements MonthlyBalanceLifecyc
     // Implementation for syncing monthly balances
     final ProductId accountId = newMovement.accountId();
     LOG.info(
-        "Syncing monthly balance for account {} and new movement date {}",
+        "Syncing monthly balance for productDTO {} and new movement date {}",
         accountId,
         newMovement.movementDate());
     final LocalDate movementDate = newMovement.movementDate();
@@ -260,7 +260,7 @@ public class MonthlyBalanceLifecycleServiceImpl implements MonthlyBalanceLifecyc
     final Map<String, Object> metadata =
         new HashMap<>(
             Map.of(
-                "accountId", accountId.value().toString(),
+                "productId", accountId.value().toString(),
                 "initPeriod", initPeriod.toString(),
                 "lastPeriod", lastPeriod.toString(),
                 "balancesCount", monthlyBalances.size()));
@@ -268,7 +268,7 @@ public class MonthlyBalanceLifecycleServiceImpl implements MonthlyBalanceLifecyc
     final AsyncTask asyncTask = new AsyncTask(AsyncTaskType.MONTHLY_BALANCES_SYNC, metadata);
 
     LOG.info(
-        "Preparing to submit async task {} to persist balances from {} to {} for account {}",
+        "Preparing to submit async task {} to persist balances from {} to {} for productDTO {}",
         asyncTask,
         initPeriod,
         lastPeriod,
@@ -280,7 +280,7 @@ public class MonthlyBalanceLifecycleServiceImpl implements MonthlyBalanceLifecyc
         () -> {
           LOG.info(
               String.format(
-                  "Starting async task for account %s to persist balances from [%s- %s]",
+                  "Starting async task for productDTO %s to persist balances from [%s- %s]",
                   accountId, initPeriod, lastPeriod));
 
           // Step 1: Save balances (executes first)
@@ -313,13 +313,13 @@ public class MonthlyBalanceLifecycleServiceImpl implements MonthlyBalanceLifecyc
       throws BusinessException {
 
     LOG.info(
-        "Monthly balances from{} to {} for the account {} should be already persisted in the database",
+        "Monthly balances from{} to {} for the productDTO {} should be already persisted in the database",
         initPeriod,
         endPeriod,
         accountId);
 
     LOG.info(
-        "Adjusting Opening/Profit Balances for account {}" + " from period {} to period {}",
+        "Adjusting Opening/Profit Balances for productDTO {}" + " from period {} to period {}",
         accountId,
         initPeriod,
         endPeriod);
@@ -329,7 +329,7 @@ public class MonthlyBalanceLifecycleServiceImpl implements MonthlyBalanceLifecyc
 
     if (existingNextPeriodBalanceDTO == null || existingNextPeriodBalanceDTO.isEmpty()) {
       LOG.warn(
-          "No future balances to sync profit were found for account {} and period {}",
+          "No future balances to sync profit were found for productDTO {} and period {}",
           accountId,
           initPeriod);
       return Collections.emptyList();
@@ -398,7 +398,7 @@ public class MonthlyBalanceLifecycleServiceImpl implements MonthlyBalanceLifecyc
     }
 
     // Sort using natural ordering (period ASC)
-    profitBalancesSynced.sort(AccountMonthlyBalanceComparators.BY_PERIOD_ASC);
+    profitBalancesSynced.sort(MonthlyBalanceComparators.BY_PERIOD_ASC);
 
     // persist monthly balances with profit and opening balances synced.
     final List<MonthlyBalanceDTO> profitBalancesSyncedDto =

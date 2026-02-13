@@ -19,9 +19,10 @@ import java.util.UUID;
  * <p>Like a Repository abstraction.
  */
 public interface ProductLifecycleService {
-  ProductDTO findByUserAndProductId(UUID userId, ProductId accountId) throws BusinessException;
+  ProductDTO findOrThrowByUserAndProductId(UUID userId, ProductId productId)
+      throws BusinessException;
 
-  ProductDTO findProductOrThrow(ProductId accountId);
+  ProductDTO findOrThrowByIdProductId(ProductId productId);
 
   ProductDTO save(ProductDTO account);
 
@@ -44,15 +45,15 @@ public interface ProductLifecycleService {
   boolean isFullyWithdrawn(ProductId accountId);
 
   /**
-   * Updates the net growth rate of the account if it's fully withdrawn
+   * Updates the net growth rate of the productDTO if it's fully withdrawn
    *
    * @param accountId Account ID
    */
   void updateWhenFullyWithdrawn(ProductId accountId, List<MonthlyBalanceDTO> monthlyBalances);
 
   /**
-   * Syncs the account by the movement. This method will update the account current balance and net
-   * profit.
+   * Syncs the productDTO by the movement. This method will update the productDTO current balance
+   * and net profit.
    *
    * @param accountPK
    * @param movement

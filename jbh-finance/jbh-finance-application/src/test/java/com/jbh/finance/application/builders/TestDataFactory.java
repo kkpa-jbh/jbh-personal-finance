@@ -3,8 +3,8 @@ package com.jbh.finance.application.builders;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 
+import com.jbh.finance.application.builders.commands.MonthlyBalanceCommandTest;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
-import com.jbh.finance.application.feature.monthlybalance.commands.MonthlyBalanceCommandVO;
 import com.jbh.finance.application.feature.movement.commands.AddMovementUploadedFileCommand;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -17,8 +17,8 @@ public class TestDataFactory {
   private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
   /**
-   * Creates test data for AddEntryWithDateAmount based on the account movement history. Data
-   * represents account entries with dates, movement amounts, and balance snapshots. NU
+   * Creates test data for AddEntryWithDateAmount based on the productDTO movement history. Data
+   * represents productDTO entries with dates, movement amounts, and balance snapshots. NU
    */
   public static List<AddMovementUploadedFileCommand> createAccountMovementTestData() {
     return List.of(
@@ -89,7 +89,7 @@ public class TestDataFactory {
 
   /**
    * Creates extended test data for AddBasicMovementRequest covering the period from 2023 to 2025.
-   * Data represents a longer account movement history with various deposits, withdrawals, and
+   * Data represents a longer productDTO movement history with various deposits, withdrawals, and
    * interest accruals. PI BI
    */
   public static List<AddMovementUploadedFileCommand> movementsForPIBI() {
@@ -388,7 +388,7 @@ public class TestDataFactory {
       final YearMonth initialPeriod, final BigDecimal initialBalance) {
     return List.of(
         createMonthlyBalanceCommand(
-            initialPeriod, new MonthlyBalanceCommandVO(initialBalance, null)),
+            initialPeriod, new MonthlyBalanceCommandTest(initialBalance, null)),
         createMonthlyBalanceCommand(initialPeriod.plusMonths(1), getCommandVO("1050", "50")),
         createMonthlyBalanceCommand(initialPeriod.plusMonths(2), getCommandVO("1200", "30")),
         createMonthlyBalanceCommand(initialPeriod.plusMonths(3), getCommandVO("1000", "50")),
@@ -402,8 +402,8 @@ public class TestDataFactory {
         );
   }
 
-  private static MonthlyBalanceCommandVO getCommandVO(final String balance, final String profit) {
-    return new MonthlyBalanceCommandVO(
+  private static MonthlyBalanceCommandTest getCommandVO(final String balance, final String profit) {
+    return new MonthlyBalanceCommandTest(
         withJBHDecimals(new BigDecimal(balance)), withJBHDecimals(new BigDecimal(profit)));
   }
 }

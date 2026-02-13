@@ -96,7 +96,7 @@ public class PreferencesServiceImpl implements PreferencesService {
         .defaultLang(domain.getDefaultLang())
         .defaultCurrency(domain.getDefaultCurrency())
         .savingsGoal(domain.getSavingsGoal())
-        .defaultProductId(domain.getDefaultAccountId())
+        .defaultProductId(domain.getDefaultProductId())
         .metadata(domain.getMetadata())
         .createdAt(domain.getCreatedAt())
         .updatedAt(domain.getUpdatedAt())

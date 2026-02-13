@@ -7,7 +7,7 @@ import com.jbh.finance.domain.shared.exceptions.BusinessDomainExceptionType;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
 import com.jbh.finance.domain.product.vo.ProductMetadataKey;
 
-public class LoanProductCreationValidator extends BaseAccountCreationValidator
+public class LoanProductCreationValidator extends BaseProductCreationValidator
     implements ProductCreationValidator {
 
   @Override

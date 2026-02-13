@@ -10,7 +10,7 @@ import java.util.List;
  * Calculator for Money-Weighted Rate of Return (MWRR) using the XIRR method.
  *
  * <p>The Money-Weighted Rate of Return measures the rate of return on an investment portfolio,
- * taking into account the timing and size of cash flows (deposits and withdrawals). This is
+ * taking into product the timing and size of cash flows (deposits and withdrawals). This is
  * particularly useful for evaluating investment performance when there are irregular cash flows
  * throughout the investment period.
  *

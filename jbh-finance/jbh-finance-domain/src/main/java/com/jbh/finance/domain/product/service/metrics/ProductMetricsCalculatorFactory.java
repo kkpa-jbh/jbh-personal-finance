@@ -11,11 +11,11 @@ public final class ProductMetricsCalculatorFactory {
 
   public static ProductMetricsCalculator getCalculator(final ProductType productType) {
     return switch (productType) {
-      case SAVINGS -> new SavingsAccountMetricsCalculator();
-      case CREDIT_CARD -> new CreditCardAccountMetricsCalculator();
-      case INVESTMENT -> new InvestmentAccountMetricsCalculator();
-      case CDT -> new CdtAccountMetricsCalculator();
-      case LOAN -> new LoanAccountMetricsCalculator();
+      case SAVINGS -> new SavingsProductMetricsCalculator();
+      case CREDIT_CARD -> new CreditCardProductMetricsCalculator();
+      case INVESTMENT -> new InvestmentProductMetricsCalculator();
+      case CDT -> new CdtProductMetricsCalculator();
+      case LOAN -> new LoanProductMetricsCalculator();
       default ->
           throw new GenericSpecificationException(
               "Metrics calculator not implemented for product type");

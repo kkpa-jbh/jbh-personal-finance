@@ -58,7 +58,8 @@ public class FindMonthlyBalanceInputPortTest {
     final MonthlyBalanceDTO balance2 = createTestMonthlyBalance(YearMonth.of(2025, 2));
     final List<MonthlyBalanceDTO> expectedBalances = Arrays.asList(balance1, balance2);
 
-    when(productService.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(product);
+    when(productService.findOrThrowByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
+        .thenReturn(product);
     when(monthlyBalanceService.findByAccountAndPeriods(accountPK, START_PERIOD, END_PERIOD))
         .thenReturn(expectedBalances);
 
@@ -67,7 +68,7 @@ public class FindMonthlyBalanceInputPortTest {
 
     assertNotNull(result);
     assertEquals(2, result.size());
-    verify(productService).findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID);
+    verify(productService).findOrThrowByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID);
     verify(monthlyBalanceService).findByAccountAndPeriods(accountPK, START_PERIOD, END_PERIOD);
   }
 
@@ -152,7 +153,8 @@ public class FindMonthlyBalanceInputPortTest {
     final MonthlyBalanceDTO balance1 = createTestMonthlyBalance(START_PERIOD);
     final List<MonthlyBalanceDTO> balances = Collections.singletonList(balance1);
 
-    when(productService.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(product);
+    when(productService.findOrThrowByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
+        .thenReturn(product);
     when(monthlyBalanceService.findByProductIdsAndPeriods(any(), any())).thenReturn(balances);
 
     final BalanceHistoryResponse result =
@@ -161,7 +163,7 @@ public class FindMonthlyBalanceInputPortTest {
     assertNotNull(result);
     assertNotNull(result.summary());
     assertNotNull(result.balances());
-    verify(productService).findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID);
+    verify(productService).findOrThrowByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID);
   }
 
   @Test
@@ -169,7 +171,8 @@ public class FindMonthlyBalanceInputPortTest {
     final ProductPK accountPK = new ProductPK(TEST_USER_ID, TEST_PRODUCT_ID);
     final ProductDTO product = createTestProduct();
 
-    when(productService.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID)).thenReturn(product);
+    when(productService.findOrThrowByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
+        .thenReturn(product);
     when(monthlyBalanceService.findByProductIdsAndPeriods(any(), any()))
         .thenReturn(Collections.emptyList());
 

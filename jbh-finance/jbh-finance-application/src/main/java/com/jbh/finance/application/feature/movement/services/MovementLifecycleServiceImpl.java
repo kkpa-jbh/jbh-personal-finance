@@ -1,8 +1,8 @@
 package com.jbh.finance.application.feature.movement.services;
 
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
-import com.jbh.finance.application.feature.movement.ports.output.AccountMovementWriterRepository;
 import com.jbh.finance.application.feature.movement.ports.output.MovementQueryRepository;
+import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.domain.product.vo.ProductId;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -11,11 +11,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class MovementLifecycleServiceImpl implements MovementLifecycleService {
-  private final AccountMovementWriterRepository movementWriterRepo;
+  private final MovementWriterRepository movementWriterRepo;
   private final MovementQueryRepository movementQueryRepo;
 
   public MovementLifecycleServiceImpl(
-      final AccountMovementWriterRepository movementWriterRepo,
+      final MovementWriterRepository movementWriterRepo,
       final MovementQueryRepository movementQueryRepo) {
     this.movementWriterRepo = movementWriterRepo;
     this.movementQueryRepo = movementQueryRepo;
@@ -28,7 +28,7 @@ public class MovementLifecycleServiceImpl implements MovementLifecycleService {
 
   @Override
   public List<MovementDTO> findByAccountId(final ProductId id) {
-    return movementQueryRepo.getByAccountId(id);
+    return movementQueryRepo.getByProductId(id);
   }
 
   @Override

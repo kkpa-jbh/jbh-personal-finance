@@ -35,7 +35,7 @@ public class ProductDomainTest {
   @Test
   public void shouldCreateAccountWithBasicMovementForExistingId() {
     accountDomain =
-        AccountDomainTestBuilder.createSavingProductWithBalance(
+        ProductDomainTestBuilder.createSavingProductWithBalance(
             ProductId.generate(), userId, JBH_ZERO, JBH_ZERO);
 
     assert accountDomain.getId() != null;
@@ -560,7 +560,7 @@ public class ProductDomainTest {
     final var movementBalance = new BigDecimal("100.00");
     final var currentBalance = new BigDecimal("200.00");
     final ProductDomain accountDomain =
-        AccountDomainTestBuilder.createSavingProductWithBalance(
+        ProductDomainTestBuilder.createSavingProductWithBalance(
             ProductId.generate(), userId, movementBalance, currentBalance);
 
     assertEquals(movementBalance, accountDomain.getMovementBalance());
@@ -571,7 +571,7 @@ public class ProductDomainTest {
   @Test
   public void shouldCreateWithConstructor() throws BusinessException {
     final var accountDomain =
-        AccountDomainTestBuilder.createProduct(
+        ProductDomainTestBuilder.createProduct(
             "name", ProductType.SAVINGS, userId, JBH_ZERO, JBH_ZERO, ProductMetadata.empty());
 
     assertNotNull(accountDomain.getId());
@@ -679,7 +679,7 @@ public class ProductDomainTest {
     // Adding REAL_ESTATE_DOWN_PAYMENT_PAID_TO_DATE
     metadata.findRealEstateMetadata().putDownPaymentPaidToDate(BigDecimal.ONE);
     final ProductDomain product =
-        AccountDomainTestBuilder.createRealEstateProduct(UUID.randomUUID(), metadata);
+        ProductDomainTestBuilder.createRealEstateProduct(UUID.randomUUID(), metadata);
 
     assertNotNull(product);
 
