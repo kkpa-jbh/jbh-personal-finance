@@ -23,7 +23,7 @@ class MonthlyBalanceDTOTest {
 
     final MonthlyBalanceDTO dto =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .period(period)
             .year(period.getYear())
             .month(period.getMonthValue())
@@ -78,7 +78,7 @@ class MonthlyBalanceDTOTest {
   void shouldReturnTrueForIsProfitableWhenProfitIsPositive() {
     final MonthlyBalanceDTO dto =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(ProductId.generate())
+            .productId(ProductId.generate())
             .period(YearMonth.of(2025, 1))
             .year(2025)
             .month(1)
@@ -93,7 +93,7 @@ class MonthlyBalanceDTOTest {
   void shouldReturnTrueForIsProfitableWhenProfitIsZero() {
     final MonthlyBalanceDTO dto =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(ProductId.generate())
+            .productId(ProductId.generate())
             .period(YearMonth.of(2025, 1))
             .year(2025)
             .month(1)
@@ -108,7 +108,7 @@ class MonthlyBalanceDTOTest {
   void shouldReturnTrueForIsLossWhenProfitIsNegative() {
     final MonthlyBalanceDTO dto =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(ProductId.generate())
+            .productId(ProductId.generate())
             .period(YearMonth.of(2025, 1))
             .year(2025)
             .month(1)
@@ -128,7 +128,7 @@ class MonthlyBalanceDTOTest {
     final MonthlyBalanceDTO dto =
         MonthlyBalanceDTO.defaultBuilder()
             .id(1L)
-            .accountId(accountId)
+            .productId(accountId)
             .year(2025)
             .month(1)
             .period(period)
@@ -174,7 +174,7 @@ class MonthlyBalanceDTOTest {
   void shouldCreateDTOWithNullOptionalFields() {
     final MonthlyBalanceDTO dto =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(ProductId.generate())
+            .productId(ProductId.generate())
             .period(YearMonth.of(2025, 1))
             .year(2025)
             .month(1)

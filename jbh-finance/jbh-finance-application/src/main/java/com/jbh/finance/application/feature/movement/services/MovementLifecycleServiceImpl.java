@@ -48,7 +48,7 @@ public class MovementLifecycleServiceImpl implements MovementLifecycleService {
               if (movementDTO.createdAt() != null) {
                 final YearMonth createdMonth = YearMonth.from(movementDTO.createdAt());
                 if (currentMonth.equals(createdMonth)) {
-                  movementDTO.setToRemoval(true);
+                  movementDTO.setCanBeRemoved(true);
                 }
               }
               return movementDTO;

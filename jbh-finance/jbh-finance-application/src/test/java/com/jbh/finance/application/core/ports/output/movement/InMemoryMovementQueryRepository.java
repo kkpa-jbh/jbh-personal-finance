@@ -14,8 +14,7 @@ import org.slf4j.LoggerFactory;
 
 public class InMemoryMovementQueryRepository implements MovementQueryRepository {
 
-  private static final Logger log =
-      LoggerFactory.getLogger(InMemoryMovementQueryRepository.class);
+  private static final Logger log = LoggerFactory.getLogger(InMemoryMovementQueryRepository.class);
   private final Map<UUID, MovementDTO> storage = new HashMap<>();
 
   public void saveAll(final List<MovementDTO> newMovements) {
@@ -31,7 +30,7 @@ public class InMemoryMovementQueryRepository implements MovementQueryRepository 
   @Override
   public List<MovementDTO> getByProductId(final ProductId accountId) {
     return storage.values().stream()
-        .filter(movement -> movement.accountId().equals(accountId))
+        .filter(movement -> movement.productId().equals(accountId))
         .sorted((m1, m2) -> m1.movementDate().compareTo(m2.movementDate()))
         .toList();
   }
@@ -43,7 +42,7 @@ public class InMemoryMovementQueryRepository implements MovementQueryRepository 
       final LocalDate startDate,
       final LocalDate endDate) {
     return storage.values().stream()
-        .filter(movement -> movement.accountId().equals(productId))
+        .filter(movement -> movement.productId().equals(productId))
         .filter(
             movement ->
                 !movement.movementDate().isBefore(startDate)

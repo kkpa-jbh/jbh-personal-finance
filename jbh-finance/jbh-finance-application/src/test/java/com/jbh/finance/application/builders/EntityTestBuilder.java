@@ -12,7 +12,7 @@ public class EntityTestBuilder {
   public static MonthlyBalanceDTO.MonthlyBalanceDTOBuilder withClosingBalance(
       final ProductId accountId, final YearMonth period, final BigDecimal closingBalance) {
     return MonthlyBalanceDTO.defaultBuilder()
-        .accountId(accountId)
+        .productId(accountId)
         .period(period)
         .year(period.getYear())
         .month(period.getMonthValue())

@@ -268,7 +268,7 @@ public class RegisterMovementExecutionMockTest {
     final MonthlyBalanceDTO existingMonthlyBalance =
         MonthlyBalanceDTO.defaultBuilder()
             .id(1L)
-            .accountId(accountId)
+            .productId(accountId)
             .year(movementDate.getYear())
             .month(movementDate.getMonthValue())
             .period(period)

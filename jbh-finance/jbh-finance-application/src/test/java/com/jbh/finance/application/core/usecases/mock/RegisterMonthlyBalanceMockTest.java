@@ -105,7 +105,7 @@ public class RegisterMonthlyBalanceMockTest {
 
     final MonthlyBalanceDTO monthlyBalanceDTO =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .period(august24MonthlyPeriod)
             .month(8)
             .year(2024)
@@ -147,7 +147,7 @@ public class RegisterMonthlyBalanceMockTest {
     final var actualMonthlyBalance = savedMonthlyBalance.get();
     final MonthlyBalanceDTO expectedMonthBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .totalMovements(1)
             .period(august24MonthlyPeriod)
             .month(8)

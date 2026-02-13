@@ -113,7 +113,7 @@ public class MonthlyBalanceLifecycleServiceImpl implements MonthlyBalanceLifecyc
   public void validateNewMovementForOfficialMonthlyReport(final MovementDTO movementDTO)
       throws BusinessException {
     final YearMonth movementPeriod = YearMonth.from(movementDTO.movementDate());
-    final ProductId accountId = movementDTO.accountId();
+    final ProductId accountId = movementDTO.productId();
     final BigDecimal balanceSnapshot = movementDTO.balanceSnapshot();
     final BigDecimal movementAmount = movementDTO.movementAmount();
     final MovementType movementType = movementDTO.movementType();
@@ -225,7 +225,7 @@ public class MonthlyBalanceLifecycleServiceImpl implements MonthlyBalanceLifecyc
   public MonthlyBalanceDTO syncForNewMovement(final MovementDTO newMovement)
       throws BusinessException {
     // Implementation for syncing monthly balances
-    final ProductId accountId = newMovement.accountId();
+    final ProductId accountId = newMovement.productId();
     LOG.info(
         "Syncing monthly balance for productDTO {} and new movement date {}",
         accountId,

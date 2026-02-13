@@ -101,7 +101,7 @@ public class FindMovementsByProductMockTest {
       final MovementId id, final LocalDate date, final BigDecimal amount) {
     return MovementDTO.builder()
         .id(id)
-        .accountId(TEST_PRODUCT_ID)
+        .productId(TEST_PRODUCT_ID)
         .movementType(MovementType.DEPOSIT)
         .category(MovementCategoryVO.withName(MovementType.DEPOSIT, "DEPOSIT"))
         .movementAmount(amount)

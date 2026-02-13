@@ -25,7 +25,7 @@ public final class MovementMapper {
 
     return new MovementDomain(
         dto.id(),
-        dto.accountId(),
+        dto.productId(),
         dto.movementType(),
         CategoryMapper.toDomain(dto.category()),
         dto.movementAmount(),
@@ -69,7 +69,7 @@ public final class MovementMapper {
 
     return MovementDTO.builder()
         .id(domain.getId())
-        .accountId(domain.getProductId())
+        .productId(domain.getProductId())
         .movementType(domain.getMovementType())
         .category(CategoryMapper.toDTO(domain.getCategory()))
         .movementAmount(domain.getMovementAmount())

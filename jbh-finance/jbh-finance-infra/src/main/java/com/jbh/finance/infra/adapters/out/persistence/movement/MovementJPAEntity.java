@@ -36,7 +36,7 @@ public class MovementJPAEntity extends PanacheEntityBase {
   public UUID id;
 
   @Column(name = "product_id")
-  public UUID accountId;
+  public UUID productId;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "movement_type")
@@ -67,8 +67,8 @@ public class MovementJPAEntity extends PanacheEntityBase {
   public static MovementJPAEntity toEntity(final MovementDTO productMovement) {
     final MovementJPAEntity entity = new MovementJPAEntity();
     entity.setId(productMovement.id() != null ? productMovement.id().value() : null);
-    entity.setAccountId(
-        productMovement.accountId() != null ? productMovement.accountId().value() : null);
+    entity.setProductId(
+        productMovement.productId() != null ? productMovement.productId().value() : null);
     entity.setMovementType(productMovement.movementType());
     entity.setMovementAmount(productMovement.movementAmount());
     entity.setMovementDate(productMovement.movementDate());
@@ -93,7 +93,7 @@ public class MovementJPAEntity extends PanacheEntityBase {
   public MovementDTO toDTO() {
     return MovementDTO.builder()
         .id(MovementId.of(id))
-        .accountId(ProductId.of(accountId))
+        .productId(ProductId.of(productId))
         .movementType(movementType)
         .category(MovementCategoryVO.withName(movementType, category))
         .movementAmount(movementAmount)

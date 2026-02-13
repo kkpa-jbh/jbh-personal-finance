@@ -26,7 +26,7 @@ class MonthlyBalanceResponseDTOTest {
 
     final MonthlyBalanceDTO monthlyBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(productId)
+            .productId(productId)
             .period(period)
             .year(2025)
             .month(1)
@@ -68,7 +68,7 @@ class MonthlyBalanceResponseDTOTest {
 
     final MonthlyBalanceDTO monthlyBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(productId)
+            .productId(productId)
             .period(period)
             .year(2025)
             .month(2)
@@ -103,7 +103,7 @@ class MonthlyBalanceResponseDTOTest {
 
     final MonthlyBalanceDTO monthlyBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(productId)
+            .productId(productId)
             .period(period)
             .year(2025)
             .month(3)
@@ -136,7 +136,7 @@ class MonthlyBalanceResponseDTOTest {
 
     final MonthlyBalanceDTO monthlyBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(productId)
+            .productId(productId)
             .period(period)
             .year(2025)
             .month(4)

@@ -17,7 +17,7 @@ import lombok.Builder;
 public class MovementDTO {
 
   private final MovementId id;
-  private final ProductId accountId;
+  private final ProductId productId;
   private final MovementType movementType;
   private final MovementCategoryVO category;
   private final BigDecimal movementAmount;
@@ -28,7 +28,7 @@ public class MovementDTO {
   private final String description;
 
   // mutable field we want to expose/set during tests or runtime
-  private boolean toRemoval;
+  private boolean canBeRemoved;
 
   @Override
   public String toString() {
@@ -49,8 +49,8 @@ public class MovementDTO {
     return id;
   }
 
-  public ProductId accountId() {
-    return accountId;
+  public ProductId productId() {
+    return productId;
   }
 
   public MovementType movementType() {
@@ -93,11 +93,11 @@ public class MovementDTO {
     return movementType.isBalanceSnapshot();
   }
 
-  public boolean isToRemoval() {
-    return toRemoval;
+  public boolean isCanBeRemoved() {
+    return canBeRemoved;
   }
 
-  public void setToRemoval(final boolean toRemoval) {
-    this.toRemoval = toRemoval;
+  public void setCanBeRemoved(final boolean canBeRemoved) {
+    this.canBeRemoved = canBeRemoved;
   }
 }

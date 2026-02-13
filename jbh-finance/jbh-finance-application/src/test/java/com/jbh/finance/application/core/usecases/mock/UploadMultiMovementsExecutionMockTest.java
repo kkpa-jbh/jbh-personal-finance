@@ -204,7 +204,7 @@ public class UploadMultiMovementsExecutionMockTest {
     final var closingBalance20247 = numberOf("12689712");
     MonthlyBalanceDTO expectedMonthBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .totalMovements(1)
             .period(YearMonth.of(expectedYear, expectedMonth))
             .month(expectedMonth)
@@ -224,7 +224,7 @@ public class UploadMultiMovementsExecutionMockTest {
     actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     expectedMonthBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .totalMovements(1)
             .period(YearMonth.of(expectedYear, expectedMonth))
             .month(expectedMonth)
@@ -245,7 +245,7 @@ public class UploadMultiMovementsExecutionMockTest {
     actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     expectedMonthBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .totalMovements(0)
             .period(YearMonth.of(expectedYear, expectedMonth))
             .month(expectedMonth)
@@ -265,7 +265,7 @@ public class UploadMultiMovementsExecutionMockTest {
     actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     expectedMonthBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .totalMovements(0)
             .period(YearMonth.of(expectedYear, expectedMonth))
             .month(expectedMonth)
@@ -285,7 +285,7 @@ public class UploadMultiMovementsExecutionMockTest {
     actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     expectedMonthBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .totalMovements(1)
             .period(YearMonth.of(expectedYear, expectedMonth))
             .month(expectedMonth)
@@ -307,7 +307,7 @@ public class UploadMultiMovementsExecutionMockTest {
     actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     expectedMonthBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .totalMovements(1)
             .period(YearMonth.of(expectedYear, expectedMonth))
             .month(expectedMonth)
@@ -329,7 +329,7 @@ public class UploadMultiMovementsExecutionMockTest {
     actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     expectedMonthBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .totalMovements(1)
             .period(YearMonth.of(expectedYear, expectedMonth))
             .month(expectedMonth)
@@ -351,7 +351,7 @@ public class UploadMultiMovementsExecutionMockTest {
     actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     expectedMonthBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .totalMovements(2)
             .period(YearMonth.of(expectedYear, expectedMonth))
             .month(expectedMonth)
@@ -372,7 +372,7 @@ public class UploadMultiMovementsExecutionMockTest {
     actualMonthBalance = actualBalancesWithoutAsyncOperation.get(sortedIndex);
     expectedMonthBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .totalMovements(1)
             .period(YearMonth.of(expectedYear, expectedMonth))
             .month(expectedMonth)

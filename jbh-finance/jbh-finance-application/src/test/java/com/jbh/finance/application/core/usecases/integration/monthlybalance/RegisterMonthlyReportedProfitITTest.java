@@ -129,7 +129,7 @@ public class RegisterMonthlyReportedProfitITTest {
             .closingBalance(FIRST_BALANCE_ZERO)
             .movementBalance(FIRST_BALANCE_ZERO)
             .totalDebits(FIRST_BALANCE_ZERO)
-            .accountId(accountId)
+            .productId(accountId)
             .period(initialPeriod)
             .year(initialPeriod.getYear())
             .month(initialPeriod.getMonthValue())
@@ -411,7 +411,7 @@ public class RegisterMonthlyReportedProfitITTest {
     final var dividendsPreviousMonth = previousCommand.monthlyProfitReported();
     final var expectedOpeningBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .period(period)
             .movementBalance(dividendsPreviousMonth)
             .openingBalance(openingBalance)
@@ -521,7 +521,7 @@ public class RegisterMonthlyReportedProfitITTest {
     final var openingBalance = previousCommand.closingBalance().subtract(previousDividends);
     final var expectedOpeningBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .period(period)
             .movementBalance(previousDividends)
             .openingBalance(openingBalance)
@@ -581,7 +581,7 @@ public class RegisterMonthlyReportedProfitITTest {
     final var openingBalance = previousCommand.closingBalance().subtract(previousDividends);
     final var expectedOpeningBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .period(period)
             .movementBalance(previousDividends)
             .openingBalance(openingBalance)
@@ -652,7 +652,7 @@ public class RegisterMonthlyReportedProfitITTest {
     final var openingBalance = previousCommand.closingBalance().subtract(previousDividends);
     final var expectedOpeningBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .period(period)
             .movementBalance(previousDividends)
             .openingBalance(openingBalance)
@@ -680,7 +680,7 @@ public class RegisterMonthlyReportedProfitITTest {
     // Then Monthly Balance Assertions
     final var expectedMonthlyBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .period(period)
             .openingBalance(withJBHDecimals(expectedOpeningBalance.openingBalance()))
             .closingBalance(withJBHDecimals(new BigDecimal("580")))
@@ -704,7 +704,7 @@ public class RegisterMonthlyReportedProfitITTest {
         monthlyBalanceService.findByAccountIdAndPeriod(accountId, period.plusMonths(1)).get();
     final var expectedNextMonthBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .period(period.plusMonths(1))
             .openingBalance(withJBHDecimals(new BigDecimal("580")))
             .closingBalance(withJBHDecimals(new BigDecimal("582")))
@@ -767,7 +767,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
     final MonthlyBalanceDTO expectedReported20249 =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .period(monthlyPeriod)
             .openingBalance(finalReported20249.openingBalance())
             .closingBalance(finalReported20249.closingBalance())

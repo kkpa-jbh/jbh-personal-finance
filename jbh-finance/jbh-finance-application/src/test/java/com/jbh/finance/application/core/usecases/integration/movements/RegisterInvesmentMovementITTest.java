@@ -270,7 +270,7 @@ public class RegisterInvesmentMovementITTest {
             .orElse(null);
     final MonthlyBalanceDTO expectedAcciCuentaBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(acciCuentaId)
+            .productId(acciCuentaId)
             .period(YearMonth.of(2025, entryDate.getMonthValue()))
             .openingBalance(withJBHDecimals(finalAcciBalanceSept))
             .closingBalance(withJBHDecimals(acciCuentaBalance))

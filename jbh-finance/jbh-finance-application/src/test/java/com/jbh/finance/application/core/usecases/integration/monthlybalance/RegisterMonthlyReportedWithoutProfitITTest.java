@@ -443,7 +443,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
     final var actualMonthlyBalance = savedMonthlyBalance.get();
     final var expectedMonthlyBalance20252 =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .period(monthlyPeriod202502)
             .openingBalance(closingBalanceJan25)
             .closingBalance(closingBalanceFeb25)
@@ -492,7 +492,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
     final var expectedUpdatedMonthlyBalance =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(accountId)
+            .productId(accountId)
             .period(expectedMonthlyBalance20252.period())
             .openingBalance(expectedMonthlyBalance20252.openingBalance())
             .closingBalance(expectedMonthlyBalance20252.closingBalance())

@@ -61,7 +61,7 @@ import jakarta.inject.Named;
     })
 public class ProductUseCasesCDIConfig {
 
-  @Inject ProductRepository accountRepository;
+  @Inject ProductRepository productRepository;
 
   @Inject MovementWriterRepository accountMovementWriterRepo;
 
@@ -77,8 +77,6 @@ public class ProductUseCasesCDIConfig {
   @Named("monthlyBalanceJPARepository")
   MonthlyBalanceQueryRepo monthlyBalanceQueryRepo;
 
-  @Inject ProductLifecycleService productsService;
-
   @Produces
   @ApplicationScoped
   public CreateProductInputPort registeringCreateAccountUseCase() {
@@ -88,7 +86,7 @@ public class ProductUseCasesCDIConfig {
   @Produces
   @ApplicationScoped
   public ProductLifecycleService productsService() {
-    return new ProductLifecycleServiceImpl(accountRepository);
+    return new ProductLifecycleServiceImpl(productRepository);
   }
 
   @Produces

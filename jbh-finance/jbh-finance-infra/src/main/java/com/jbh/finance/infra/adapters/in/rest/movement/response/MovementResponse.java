@@ -25,7 +25,7 @@ public record MovementResponse(
   public static MovementResponse fromDTO(final MovementDTO dto) {
     return new MovementResponse(
         dto.id(),
-        dto.accountId(),
+        dto.productId(),
         dto.movementType(),
         dto.category() != null ? dto.category().getType() : null,
         dto.movementAmount(),
@@ -34,6 +34,6 @@ public record MovementResponse(
         dto.metadata(),
         dto.createdAt(),
         dto.description(),
-        dto.isToRemoval());
+        dto.isCanBeRemoved());
   }
 }

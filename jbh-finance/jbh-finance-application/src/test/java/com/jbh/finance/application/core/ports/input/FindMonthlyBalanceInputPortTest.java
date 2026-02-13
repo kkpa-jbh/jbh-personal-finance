@@ -80,7 +80,7 @@ public class FindMonthlyBalanceInputPortTest {
 
   private MonthlyBalanceDTO createTestMonthlyBalance(final YearMonth period) {
     return MonthlyBalanceDTO.defaultBuilder()
-        .accountId(TEST_PRODUCT_ID)
+        .productId(TEST_PRODUCT_ID)
         .period(period)
         .year(period.getYear())
         .month(period.getMonthValue())
@@ -224,7 +224,7 @@ public class FindMonthlyBalanceInputPortTest {
 
     final MonthlyBalanceDTO balance1 =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(TEST_PRODUCT_ID)
+            .productId(TEST_PRODUCT_ID)
             .period(START_PERIOD)
             .year(START_PERIOD.getYear())
             .month(START_PERIOD.getMonthValue())
@@ -237,7 +237,7 @@ public class FindMonthlyBalanceInputPortTest {
 
     final MonthlyBalanceDTO balance2 =
         MonthlyBalanceDTO.defaultBuilder()
-            .accountId(TEST_PRODUCT_ID)
+            .productId(TEST_PRODUCT_ID)
             .period(END_PERIOD)
             .year(END_PERIOD.getYear())
             .month(END_PERIOD.getMonthValue())
