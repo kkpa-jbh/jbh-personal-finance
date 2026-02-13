@@ -28,13 +28,18 @@ You are helping the user build a complete use case for the jbh-finance modular m
 
 ### Step 1: Read Architecture Patterns
 
-First, read the architecture patterns file:
+First, read the complete use case pattern file:
 
 ```
-/.claude/docs/use-case-architecture-patterns.md
+/.claude/patterns/use-case-complete.md
 ```
 
-This file contains all the patterns, naming conventions, and templates you need.
+This file contains all the patterns, naming conventions, templates, and a complete 12-layer implementation example.
+
+**Key References:**
+- [Naming Conventions](../standards/naming.md) - Complete naming patterns for all components
+- [Code Quality Standards](../standards/code-quality.md) - PMD rules and SOLID principles
+- [JavaDoc Templates](../standards/javadoc.md) - Use case documentation standards
 
 ### Step 2: Gather Requirements
 
@@ -110,114 +115,65 @@ Based on the gathered information, create a task list with TaskCreate:
 
 ### Step 4: Build Application Layer
 
-For each file, use the templates from `use-case-architecture-patterns.md`:
+Follow the templates from `patterns/use-case-complete.md` for each component.
+
+**Reference:** See [Naming Conventions](../standards/naming.md) for complete naming patterns.
 
 #### 4.1 Use Case Interface
 
-- **Location**: `jbh-finance-application/src/main/java/com/jbh/finance/application/feature/<feature>/usecases/`
-- **Naming**: `<Action><Entity>UseCase.java`
-- **Template**: Follow the JavaDoc template with:
-    - Technical purpose
-    - User Explanation (user-friendly)
-    - Business Rules
-    - Method documentation (Validations, Database Operations)
+See `use-case-complete.md` section 1 for the full template with JavaDoc structure.
+
+**Key Requirements:**
+- Class-level JavaDoc: Technical purpose, User Explanation, Business Rules
+- Method-level JavaDoc: Validations, Database Operations
+- Full documentation template in [JavaDoc Standards](../standards/javadoc.md)
 
 #### 4.2 Input Port Implementation
 
-- **Location**: `jbh-finance-application/src/main/java/com/jbh/finance/application/feature/<feature>/ports/input/`
-- **Naming**: `<Action><Entity>InputPort.java`
-- **Pattern**:
-    - Constructor injection (NO @Inject annotation)
-    - All fields final
-    - Null validations first
-    - Command validation (if applicable)
-    - Business logic via services
-    - Return DTOs
+See `use-case-complete.md` section 2 for complete pattern.
+
+**Key Points:**
+- NO annotations on class or constructor
+- All fields final
+- Validation first, then business logic
+- Delegates to services
 
 #### 4.3 Command Object (if needed)
 
-- **Location**: `jbh-finance-application/src/main/java/com/jbh/finance/application/feature/<feature>/commands/`
-- **Naming**: `<Action><Entity>Command.java`
-- **Pattern**:
-    - Record with custom builder
-    - `validate()` method
-    - JavaDoc with usage examples
+See `use-case-complete.md` section 5 for command pattern with builder.
 
 #### 4.4 Output Port (if needed)
 
-- **Location**: `jbh-finance-application/src/main/java/com/jbh/finance/application/feature/<feature>/ports/output/`
-- **Naming**: `<Entity>QueryRepository` or `<Entity>WriterRepository`
-- **Pattern**: Interface with method signatures only
+See `use-case-complete.md` section 3 for repository interface pattern.
 
 #### 4.5 Unit Tests
 
-- **Location**: `jbh-finance-application/src/test/java/com/jbh/finance/application/core/usecases/mock/`
-- **Naming**: `<Action><Entity>MockTest.java`
-- **Pattern**: Follow FindMovementsByProductMockTest pattern
-- **Tests to include**:
-    - Happy path
-    - Validation errors (null checks)
-    - Business exceptions
-    - Edge cases
-    - Sorting/ordering (if applicable)
+Follow testing patterns from [Testing Standards](../standards/testing.md).
+
+**Tests to include:**
+- Happy path
+- Validation errors
+- Business exceptions
+- Edge cases
 
 ### Step 5: Build Infrastructure Layer
 
-#### 5.1 Repository Adapter (if needed)
+#### 5.1-5.6 Infrastructure Components
 
-- **Location**: `jbh-finance-infra/src/main/java/com/jbh/finance/infra/adapters/out/persistence/<feature>/`
-- **Naming**: `<Entity>RepositoryQueryAdapter.java` or `<Entity>RepositoryWriterAdapter.java`
-- **Pattern**: @ApplicationScoped, inject JPA repository, implement interface
+See `use-case-complete.md` sections 6-12 for complete templates:
+- Section 6: Repository Adapter
+- Section 7: JPA Repository
+- Section 8: JPA Entity
+- Section 9: REST Adapter
+- Section 10: Request Object
+- Section 11: Response Object
+- Section 12: CDI Configuration
 
-#### 5.2 JPA Repository (if needed)
-
-- **Location**: `jbh-finance-infra/src/main/java/com/jbh/finance/infra/adapters/out/persistence/<feature>/`
-- **Naming**: `<Entity>JPARepository.java`
-- **Pattern**:
-    - PanacheRepository
-    - @PersistenceUnit(name = "finance")
-    - Use Parameters.with() for queries
-    - Map to DTO via entity.toDTO()
-
-#### 5.3 REST Adapter
-
-- **Location**: `jbh-finance-infra/src/main/java/com/jbh/finance/infra/adapters/in/rest/<feature>/`
-- **Naming**: `<Feature>RestAdapter.java` (may already exist)
-- **Pattern**:
-    - @RequestScoped
-    - @Path from FinanceApiRoutes
-    - Inject UseCase interface (not InputPort!)
-    - GET for queries, POST for commands
-    - @SecurityRequirement(name = "JWT")
-    - findUserId(authHeader) for user extraction
-    - Transform DTO → Response
-
-#### 5.4 Request Object (for Commands)
-
-- **Location**: `jbh-finance-infra/src/main/java/com/jbh/finance/infra/adapters/in/rest/<feature>/request/`
-- **Naming**: `<Action><Entity>Request.java`
-- **Pattern**: Record with fields matching API contract
-
-#### 5.5 Response Object
-
-- **Location**: `jbh-finance-infra/src/main/java/com/jbh/finance/infra/adapters/in/rest/<feature>/response/`
-- **Naming**: `<Entity>Response.java` (NEVER `<Entity>DTO`!)
-- **Pattern**:
-    - Record matching DTO fields
-    - Static `fromDTO(DTO dto)` factory method
-
-#### 5.6 CDI Configuration
-
-- **Location**: `jbh-finance-infra/src/main/java/com/jbh/finance/infra/ProductUseCasesCDIConfig.java`
-- **Pattern**:
-    - Add import for InputPort and UseCase
-    - Add @Produces @ApplicationScoped method
-    - Return InputPort instance as UseCase interface type
-    - Wire dependencies via constructor
+**Naming Reference:** All component naming follows [Naming Conventions](../standards/naming.md)
 
 ### Step 6: Implementation Order
 
-**CRITICAL**: Implement files in this order:
+**CRITICAL**: Implement files in this order (see `use-case-complete.md` for details):
 
 1. ✅ Use Case Interface (application)
 2. ✅ Command Object (if needed, application)
@@ -250,10 +206,7 @@ After creating all files:
    mvn clean compile -pl jbh-finance/jbh-finance-infra -am -DskipTests
    ```
 
-4. **Verify All Tests Pass**:
-    - All unit tests must pass
-    - Code must compile without errors
-    - Minimum 50% coverage achieved
+4. **Verify All Tests Pass**: See [Testing Standards](../standards/testing.md) for coverage requirements
 
 ### Step 8: Completion Summary
 
@@ -267,17 +220,21 @@ Provide the user with:
 
 ## Important Notes
 
-### PMD Compliance
+### Code Quality
 
+See [Code Quality Standards](../standards/code-quality.md) for complete PMD rules and SOLID principles.
+
+**Key Rules:**
 - All variables must be final
 - No literals in if statements
-- No generic exceptions (use BusinessException with BusinessApplicationExceptionType)
-- Methods should not throw Exception
+- No generic exceptions
+- Maximum 3 method parameters
 
 ### Naming Conventions
 
-Always follow these exact patterns:
+See [Naming Conventions](../standards/naming.md) for complete naming patterns.
 
+**Critical Patterns:**
 - Use Case Interface: `<Action><Entity>UseCase`
 - Input Port: `<Action><Entity>InputPort`
 - Command: `<Action><Entity>Command`
@@ -286,6 +243,7 @@ Always follow these exact patterns:
 
 ### Architecture Rules
 
+**CRITICAL (from hexagonal architecture standards):**
 - **NEVER** put Request/Response in application module
 - **NEVER** inject InputPort, always inject UseCase interface
 - **NEVER** use @Inject in InputPort constructor
@@ -294,49 +252,33 @@ Always follow these exact patterns:
 - **ALWAYS** use fromDTO() for Response objects
 - **ALWAYS** document with full JavaDoc
 
-### Feature Package Structure
-
-```
-com.jbh.finance.application.feature.<feature>/
-├── dto/                    # DTOs only
-├── commands/               # Command objects
-├── ports/
-│   ├── input/             # InputPort implementations
-│   └── output/            # Repository interfaces
-├── usecases/              # UseCase interfaces
-├── services/              # Domain services
-└── validation/            # Validators
-```
-
-### Test Coverage
-
-- Minimum 50% coverage required
-- Test all validation paths
-- Test business logic branches
-- Test error cases
-- Mock all dependencies
+See [Hexagonal Layers](../architecture/hexagonal-layers.md) for complete rules.
 
 ## Example Session Flow
 
 1. User runs: `/build-usecase`
 2. You ask questions to gather requirements
-3. You create all necessary files following templates
+3. You create all necessary files following templates from `patterns/use-case-complete.md`
 4. You run tests and verify compilation
 5. You provide completion summary with API endpoint details
 
 ## Success Criteria
 
 - ✅ All files created in correct locations
-- ✅ Naming conventions followed exactly
-- ✅ JavaDoc documentation complete
-- ✅ Unit tests pass (9+ tests typical)
+- ✅ Naming conventions followed (see [Naming Standards](../standards/naming.md))
+- ✅ JavaDoc documentation complete (see [JavaDoc Standards](../standards/javadoc.md))
+- ✅ Unit tests pass (see [Testing Standards](../standards/testing.md))
 - ✅ Code compiles successfully
 - ✅ CDI configuration updated
 - ✅ API endpoint documented
-- ✅ PMD rules compliant
-- ✅ Architecture patterns followed
+- ✅ PMD rules compliant (see [Code Quality](../standards/code-quality.md))
+- ✅ Architecture patterns followed (see [Use Case Pattern](../patterns/use-case-complete.md))
 
 ---
 
-**Remember**: Always reference `~/.claude/use-case-architecture-patterns.md` for templates and patterns. Follow the exact structure shown in the FindMovementsByProduct use case as
-the gold standard example.
+**Key References:**
+- **Templates:** [Use Case Complete Pattern](../patterns/use-case-complete.md)
+- **Naming:** [Naming Conventions](../standards/naming.md)
+- **Quality:** [Code Quality Standards](../standards/code-quality.md)
+- **Testing:** [Testing Standards](../standards/testing.md)
+- **JavaDoc:** [Documentation Standards](../standards/javadoc.md)

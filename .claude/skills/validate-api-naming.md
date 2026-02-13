@@ -13,6 +13,8 @@ If no arguments provided, validates the most recently created/modified API code.
 
 You are a **Backend API Naming Convention Validator**. Your goal is to ensure all backend classes follow the strict naming conventions defined in the project documentation.
 
+**Reference:** All naming rules are defined in [Naming Conventions](../standards/naming.md)
+
 ### Step 1: Identify Target for Analysis
 
 1. If a file path or class name is provided, analyze that specific file
@@ -21,62 +23,35 @@ You are a **Backend API Naming Convention Validator**. Your goal is to ensure al
 
 ### Step 2: Analyze Naming Conventions
 
-For each API class found, verify compliance with these rules:
+For each API class found, verify compliance with the rules from [Naming Conventions](../standards/naming.md):
 
-#### 2.1 Entity Classes (`<EntityName>Entity`)
+#### Key Validation Rules (see full specs in naming.md):
 
-- ✅ **MUST** end with `Entity` suffix
-- ✅ **MUST** be in `*.infrastructure.adapters.output.persistence.entity` package OR any package of the `jbh-xxxx-infra` modules.
-- ✅ **MUST** contain ORM annotations (@Entity, @Table, etc.)
-- ❌ **MUST NOT** be exposed in API controllers or responses
-- ❌ **MUST NOT** be returned by service methods
+**Persistence Layer:**
+- Entity classes must end with `Entity` suffix
+- Must be in `*.infra.adapters.out.persistence.<feature>/` package
+- Must not be exposed in API controllers
 
-#### 2.2 Internal DTOs (`<EntityName>DTO`)
+**Application Layer:**
+- DTOs must end with `DTO` suffix
+- Must be in `*.application.feature.<feature>.dto/` package
+- Must not be used in controller return types
 
-- ✅ **MUST** end with `DTO` suffix
-- ✅ **SHOULD** be in `*.application.core.domain.dto` package OR any package of the `jbh-xxxx-application` modules.
-- ✅ Can be used internally between services and repositories
-- ❌ **MUST NOT** be serialized to API responses
-- ❌ **MUST NOT** be used in controller return types
+**Infrastructure Layer (API):**
+- Request objects must end with `Request` suffix
+- Response objects must end with `Response` suffix
+- Must be in `*.infra.adapters.in.rest.<feature>.request/` or `.response/` packages
+- Responses must never be named `DTO`
 
-#### 2.3 Request Objects (`<EntityName>Request`)
-
-- ✅ **MUST** end with `Request` suffix
-- ✅ **SHOULD** be in `*.infrastructure.adapters.input.rest.request` package OR any package of the `jbh-xxxx-infra` modules.
-- ✅ **MUST** be used only as controller method parameters
-- ✅ Should contain validation annotations (@NotNull, @Valid, etc.)
-- ❌ **MUST NOT** be reused as domain or persistence models
-
-#### 2.4 Response Objects (`<EntityName>Response`)
-
-- ✅ **MUST** end with `Response` or `ApiResponse` suffix
-- ✅ **SHOULD** be in `*.infrastructure.adapters.input.rest.response` package OR any package of the `jbh-xxxx-infra` modules.
-- ✅ **MUST** be used only as controller method return types
-- ❌ **MUST NOT** be named `DTO`
-- ❌ **MUST NOT** expose Entity classes directly
-- ❌ **MUST NOT** be reused as internal DTOs
+See [Naming Conventions](../standards/naming.md) sections 1-4 for complete specifications.
 
 ### Step 3: Validate Method Naming and Consistency
 
-For each API method, verify:
+For each API method, verify (see [Naming Conventions](../standards/naming.md) section 13):
 
-1. **HTTP Method vs. Method Name Alignment:**
-    - `POST` → `create*`, `add*`, `register*`
-    - `GET` → `get*`, `find*`, `retrieve*`, `list*`
-    - `PUT/PATCH` → `update*`, `modify*`, `edit*`
-    - `DELETE` → `delete*`, `remove*`
-
-2. **Method Signature Consistency:**
-    - Method parameters should use `*Request` objects
-    - Return types should use `*Response` objects
-    - Entity or DTO should NOT appear in controller signatures
-
-3. **Naming Coherence:**
-    - If method handles `MonthlyBalance`, all objects should use `MonthlyBalance` prefix
-    - Request: `MonthlyBalanceRequest`
-    - Response: `MonthlyBalanceResponse`
-    - DTO: `MonthlyBalanceDTO`
-    - Entity: `MonthlyBalanceEntity`
+1. **HTTP Method vs. Method Name Alignment**
+2. **Method Signature Consistency**
+3. **Naming Coherence** across Request/Response/DTO/Entity
 
 ### Step 4: Generate Validation Report
 
@@ -92,9 +67,9 @@ For each violation, report:
 
 - **File:** Full path to the file
 - **Class/Method:** Name of the problematic class or method
-- **Issue:** Specific naming convention violated
+- **Issue:** Specific naming convention violated (reference section from naming.md)
 - **Current Name:** The incorrect name currently in use
-- **Suggested Name:** The correct name according to conventions
+- **Suggested Name:** The correct name according to [Naming Conventions](../standards/naming.md)
 - **Impact:** What needs to change (e.g., "Used in 3 controller methods")
 
 #### Example Violation Report:
@@ -103,9 +78,10 @@ For each violation, report:
 ❌ VIOLATION: Response object named as DTO
 File: jbh-personal-finance-service/src/main/java/.../MonthlyBalanceDTO.java
 Class: MonthlyBalanceDTO
-Issue: Response object incorrectly named as DTO
+Issue: Response object incorrectly named as DTO (violates naming.md section 4)
 Current Name: MonthlyBalanceDTO
 Suggested Name: MonthlyBalanceResponse
+Reference: See standards/naming.md section 4 for Response naming rules
 Impact: Returned by 2 controller methods:
   - MonthlyBalanceController.getMonthlyBalance()
   - MonthlyBalanceController.listMonthlyBalances()
@@ -115,20 +91,9 @@ Impact: Returned by 2 controller methods:
 
 Create a step-by-step plan to fix all violations:
 
-1. **Phase 1: Rename Classes**
-    - List all classes to rename
-    - Include full search/replace patterns
-    - Note dependencies that will be affected
-
+1. **Phase 1: Rename Classes** (following naming.md standards)
 2. **Phase 2: Update References**
-    - List all files that reference the renamed classes
-    - Include import statements to update
-    - Include method signatures to update
-
-3. **Phase 3: Verification**
-    - Run tests to ensure no breakage
-    - Verify API contracts remain stable
-    - Check Swagger/OpenAPI documentation updates
+3. **Phase 3: Verification** (run tests, verify API contracts)
 
 ### Step 6: Ask for Approval
 
@@ -156,7 +121,7 @@ If user approves execution:
 Always provide:
 
 1. **Summary Statistics:** Total classes analyzed, violations found, compliance percentage
-2. **Detailed Report:** All violations with suggested fixes
+2. **Detailed Report:** All violations with suggested fixes and references to naming.md
 3. **Remediation Plan:** Step-by-step fix instructions
 4. **Approval Request:** Ask user how to proceed
 
@@ -172,6 +137,6 @@ Always provide:
 
 - This skill is READ-ONLY by default - it only analyzes and reports
 - Changes are only made after explicit user approval
-- Always preserve API contract stability - response field names should not change unless required
-- When renaming, use IDE refactoring tools to maintain git history
+- All naming rules reference [Naming Conventions](../standards/naming.md)
 - Consider backwards compatibility for public APIs
+- Ensure compliance with [Code Quality Standards](../standards/code-quality.md) during refactoring
