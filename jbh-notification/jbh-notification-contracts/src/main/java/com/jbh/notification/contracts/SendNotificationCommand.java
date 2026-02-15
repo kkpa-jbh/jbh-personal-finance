@@ -5,7 +5,7 @@ import com.jbh.notification.contracts.email.EmailTemplateMetadata;
 import java.util.Map;
 import java.util.UUID;
 
-public record SendNotificationRequest(
+public record SendNotificationCommand(
     UUID recipientId,
     String recipientEmail,
     UUID senderUserId,
@@ -67,8 +67,8 @@ public record SendNotificationRequest(
       return this;
     }
 
-    public SendNotificationRequest build() {
-      return new SendNotificationRequest(
+    public SendNotificationCommand build() {
+      return new SendNotificationCommand(
           recipientId,
           recipientEmail,
           senderUserId,

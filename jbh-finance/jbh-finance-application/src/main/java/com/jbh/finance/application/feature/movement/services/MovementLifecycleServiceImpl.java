@@ -5,10 +5,8 @@ import com.jbh.finance.application.feature.movement.ports.output.MovementQueryRe
 import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.domain.product.vo.ProductId;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class MovementLifecycleServiceImpl implements MovementLifecycleService {
   private final MovementWriterRepository movementWriterRepo;
@@ -37,22 +35,7 @@ public class MovementLifecycleServiceImpl implements MovementLifecycleService {
       final ProductId productId,
       final LocalDate startDate,
       final LocalDate endDate) {
-
-    final YearMonth currentMonth = YearMonth.now();
-
-    return movementQueryRepo
-        .getByUserAndProductIdWithinPeriod(userId, productId, startDate, endDate)
-        .stream()
-        .map(
-            movementDTO -> {
-              if (movementDTO.createdAt() != null) {
-                final YearMonth createdMonth = YearMonth.from(movementDTO.createdAt());
-                if (currentMonth.equals(createdMonth)) {
-                  movementDTO.setCanBeRemoved(true);
-                }
-              }
-              return movementDTO;
-            })
-        .collect(Collectors.toUnmodifiableList());
+    return movementQueryRepo.getByUserAndProductIdWithinPeriod(
+        userId, productId, startDate, endDate);
   }
 }

@@ -1,6 +1,6 @@
 package com.jbh.finance.domain.movement;
 
-import static com.jbh.finance.domain.movement.MovementCategoryDomain.withCategoryType;
+import static com.jbh.finance.domain.movement.CategoryDomain.withCategoryType;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
@@ -25,7 +25,7 @@ public class MovementDomain {
   private final MovementId id;
   private final ProductId productId;
   private final MovementType movementType;
-  private final MovementCategoryDomain category;
+  private final CategoryDomain category;
 
   /**
    * For withdrawals, the amount is negative. For deposits, the amount is positive. For balance
@@ -45,7 +45,7 @@ public class MovementDomain {
       final BigDecimal movementAmount,
       final BigDecimal balanceSnapshot,
       final MovementMetadata metadata,
-      final MovementCategoryDomain category,
+      final CategoryDomain category,
       final String description) {
     this(
         MovementId.generate(),
@@ -63,7 +63,7 @@ public class MovementDomain {
       final MovementId id,
       final ProductId productId,
       final MovementType movementType,
-      final MovementCategoryDomain category,
+      final CategoryDomain category,
       final BigDecimal movementAmount,
       final LocalDate movementDate,
       final BigDecimal balanceSnapshot,
@@ -90,7 +90,7 @@ public class MovementDomain {
       final LocalDateTime importedAt)
       throws BusinessException {
 
-    MovementCategoryDomain category = null;
+    CategoryDomain category = null;
     if (movementType == MovementType.DEPOSIT) {
       category = withCategoryType(IncomeCategory.OTHER);
     } else if (movementType == MovementType.WITHDRAWAL) {
@@ -165,7 +165,7 @@ public class MovementDomain {
   }
 
   private void validateCategoryRequirement() throws BusinessException {
-    if (MovementCategoryDomain.isEmpty(category) && movementType != MovementType.BALANCE_SNAPSHOT) {
+    if (CategoryDomain.isEmpty(category) && movementType != MovementType.BALANCE_SNAPSHOT) {
 
       throw new BusinessException(BusinessDomainExceptionType.EMPTY_CATEGORY);
     }

@@ -12,7 +12,7 @@ import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.infra.adapters.in.rest.common.BaseRestAdapter;
 import com.jbh.finance.infra.adapters.in.rest.common.FinanceApiRoutes;
 import com.jbh.finance.infra.adapters.in.rest.movement.request.AddMovementRequest;
-import com.jbh.finance.infra.adapters.in.rest.movement.response.AddBasicMovementResponse;
+import com.jbh.finance.infra.adapters.in.rest.movement.response.AddMovementResponse;
 import com.jbh.finance.infra.adapters.in.rest.movement.response.MovementResponse;
 import com.jbh.gateway.client.JbhGatewayException;
 import jakarta.enterprise.context.RequestScoped;
@@ -74,7 +74,7 @@ public class MovementRestAdapter extends BaseRestAdapter {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = AddBasicMovementResponse.class))),
+                    schema = @Schema(implementation = AddMovementResponse.class))),
         @APIResponse(
             responseCode = "400",
             description = "Invalid command",
@@ -118,7 +118,7 @@ public class MovementRestAdapter extends BaseRestAdapter {
     final AddBasicMovementDTO response =
         addMovementUseCase.addMovement(userId, ProductId.of(productId), command);
 
-    return Response.ok(AddBasicMovementResponse.fromDTO(response)).build();
+    return Response.ok(AddMovementResponse.fromDTO(response)).build();
   }
 
   @GET

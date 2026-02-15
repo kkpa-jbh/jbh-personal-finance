@@ -1,6 +1,6 @@
 package com.jbh.notification.contracts.validation;
 
-import com.jbh.notification.contracts.SendNotificationRequest;
+import com.jbh.notification.contracts.SendNotificationCommand;
 import com.jbh.notification.contracts.email.EmailMetadataKey;
 import com.jbh.notification.contracts.email.EmailTemplate;
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public final class EmailNotificationValidationStrategy extends BaseNotificationV
   }
 
   @Override
-  public List<ValidationError> validate(final SendNotificationRequest request) {
+  public List<ValidationError> validate(final SendNotificationCommand request) {
     final List<ValidationError> errors = new ArrayList<>(validateCommonFields(request));
 
     final EmailTemplate template = request.emailTemplate();
@@ -55,11 +55,11 @@ public final class EmailNotificationValidationStrategy extends BaseNotificationV
   }
 
   private List<ValidationError> validateTemplateEmail(
-      final SendNotificationRequest request, final EmailTemplate template) {
+      final SendNotificationCommand request, final EmailTemplate template) {
     return collectErrors(template, request.metadata());
   }
 
-  private List<ValidationError> validateNonTemplateEmail(final SendNotificationRequest request) {
+  private List<ValidationError> validateNonTemplateEmail(final SendNotificationCommand request) {
     final List<ValidationError> errors = new ArrayList<>();
 
     if (isBlank(request.subject())) {

@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryEntryResponse;
-import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryResponse;
-import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistorySummaryResponse;
+import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryDTO;
+import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryEntryDTO;
+import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistorySummaryDTO;
 import com.jbh.finance.domain.product.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.YearMonth;
@@ -20,16 +20,16 @@ class BalanceHistoryResponseDTOTest {
 
   @Test
   void shouldCreateResponseWithAllFields() {
-    final BalanceHistorySummaryResponse summary =
-        new BalanceHistorySummaryResponse(
+    final BalanceHistorySummaryDTO summary =
+        new BalanceHistorySummaryDTO(
             new BigDecimal("10000.00"),
             new BigDecimal("1000.00"),
             new BigDecimal("10.00"),
             new BigDecimal("2.50"),
             25);
 
-    final BalanceHistoryEntryResponse balance1 =
-        new BalanceHistoryEntryResponse(
+    final BalanceHistoryEntryDTO balance1 =
+        new BalanceHistoryEntryDTO(
             YearMonth.of(2025, 1),
             new BigDecimal("9000.00"),
             new BigDecimal("10000.00"),
@@ -45,9 +45,9 @@ class BalanceHistoryResponseDTOTest {
             JBH_ZERO,
             JBH_ZERO);
 
-    final List<BalanceHistoryEntryResponse> balances = Arrays.asList(balance1);
+    final List<BalanceHistoryEntryDTO> balances = Arrays.asList(balance1);
 
-    final BalanceHistoryResponse response = new BalanceHistoryResponse(summary, balances);
+    final BalanceHistoryDTO response = new BalanceHistoryDTO(summary, balances);
 
     assertNotNull(response);
     assertEquals(summary, response.summary());
@@ -57,7 +57,7 @@ class BalanceHistoryResponseDTOTest {
 
   @Test
   void shouldCreateEmptyResponse() {
-    final BalanceHistoryResponse response = BalanceHistoryResponse.empty();
+    final BalanceHistoryDTO response = BalanceHistoryDTO.empty();
 
     assertNotNull(response);
     assertNotNull(response.summary());
@@ -71,9 +71,8 @@ class BalanceHistoryResponseDTOTest {
 
   @Test
   void shouldCreateResponseWithEmptyBalancesList() {
-    final BalanceHistorySummaryResponse summary = BalanceHistorySummaryResponse.empty();
-    final BalanceHistoryResponse response =
-        new BalanceHistoryResponse(summary, Collections.emptyList());
+    final BalanceHistorySummaryDTO summary = BalanceHistorySummaryDTO.empty();
+    final BalanceHistoryDTO response = new BalanceHistoryDTO(summary, Collections.emptyList());
 
     assertNotNull(response);
     assertEquals(summary, response.summary());
@@ -82,16 +81,16 @@ class BalanceHistoryResponseDTOTest {
 
   @Test
   void shouldCreateResponseWithMultipleBalances() {
-    final BalanceHistorySummaryResponse summary =
-        new BalanceHistorySummaryResponse(
+    final BalanceHistorySummaryDTO summary =
+        new BalanceHistorySummaryDTO(
             new BigDecimal("15000.00"),
             new BigDecimal("2000.00"),
             new BigDecimal("15.00"),
             new BigDecimal("3.00"),
             50);
 
-    final BalanceHistoryEntryResponse balance1 =
-        new BalanceHistoryEntryResponse(
+    final BalanceHistoryEntryDTO balance1 =
+        new BalanceHistoryEntryDTO(
             YearMonth.of(2025, 1),
             new BigDecimal("10000.00"),
             new BigDecimal("12000.00"),
@@ -107,8 +106,8 @@ class BalanceHistoryResponseDTOTest {
             JBH_ZERO,
             JBH_ZERO);
 
-    final BalanceHistoryEntryResponse balance2 =
-        new BalanceHistoryEntryResponse(
+    final BalanceHistoryEntryDTO balance2 =
+        new BalanceHistoryEntryDTO(
             YearMonth.of(2025, 2),
             new BigDecimal("12000.00"),
             new BigDecimal("15000.00"),
@@ -124,9 +123,9 @@ class BalanceHistoryResponseDTOTest {
             JBH_ZERO,
             JBH_ZERO);
 
-    final List<BalanceHistoryEntryResponse> balances = Arrays.asList(balance1, balance2);
+    final List<BalanceHistoryEntryDTO> balances = Arrays.asList(balance1, balance2);
 
-    final BalanceHistoryResponse response = new BalanceHistoryResponse(summary, balances);
+    final BalanceHistoryDTO response = new BalanceHistoryDTO(summary, balances);
 
     assertNotNull(response);
     assertEquals(summary, response.summary());

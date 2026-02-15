@@ -10,6 +10,7 @@ import com.jbh.preferences.application.core.ports.input.CreateUserPreferencesInp
 import com.jbh.preferences.application.core.ports.input.GetUserPreferencesInputPort;
 import com.jbh.preferences.application.core.ports.input.UpdateUserPreferencesInputPort;
 import com.jbh.preferences.infra.adapters.in.rest.vo.UpdatePreferencesRequest;
+import com.jbh.preferences.infra.adapters.in.rest.vo.UserPreferencesResponse;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
@@ -71,7 +72,7 @@ public class UserPreferencesRestAdapter {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = UserPreferencesDTO.class))),
+                    schema = @Schema(implementation = UserPreferencesResponse.class))),
         @APIResponse(responseCode = "401", description = "Unauthorized"),
         @APIResponse(responseCode = "404", description = "Preferences not found")
       })
@@ -83,7 +84,7 @@ public class UserPreferencesRestAdapter {
     LOG.debug("Getting preferences for user: {}", userId);
 
     final UserPreferencesDTO preferences = getPreferencesUseCase.execute(userId);
-    return Response.ok(preferences).build();
+    return Response.ok(UserPreferencesResponse.fromDTO(preferences)).build();
   }
 
   @PUT
@@ -100,7 +101,7 @@ public class UserPreferencesRestAdapter {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = UserPreferencesDTO.class))),
+                    schema = @Schema(implementation = UserPreferencesResponse.class))),
         @APIResponse(responseCode = "400", description = "Invalid request"),
         @APIResponse(responseCode = "401", description = "Unauthorized"),
         @APIResponse(responseCode = "404", description = "Preferences not found")
@@ -122,7 +123,7 @@ public class UserPreferencesRestAdapter {
 
     final UserPreferencesDTO updated =
         updatePreferencesUseCase.execute(userId, request.toCommand());
-    return Response.ok(updated).build();
+    return Response.ok(UserPreferencesResponse.fromDTO(updated)).build();
   }
 
   @POST
@@ -138,7 +139,7 @@ public class UserPreferencesRestAdapter {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = UserPreferencesDTO.class))),
+                    schema = @Schema(implementation = UserPreferencesResponse.class))),
         @APIResponse(responseCode = "401", description = "Unauthorized"),
         @APIResponse(responseCode = "409", description = "Preferences already exist")
       })
@@ -150,6 +151,8 @@ public class UserPreferencesRestAdapter {
     LOG.debug("Creating default preferences for user: {}", userId);
 
     final UserPreferencesDTO created = createPreferencesUseCase.execute(userId);
-    return Response.status(Response.Status.CREATED).entity(created).build();
+    return Response.status(Response.Status.CREATED)
+        .entity(UserPreferencesResponse.fromDTO(created))
+        .build();
   }
 }

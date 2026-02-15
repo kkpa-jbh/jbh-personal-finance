@@ -23,8 +23,8 @@ class SendNotificationRequestTest {
             .locale("es")
             .build();
 
-    final SendNotificationRequest request =
-        SendNotificationRequest.builder()
+    final SendNotificationCommand request =
+        SendNotificationCommand.builder()
             .recipientId(recipientId)
             .recipientEmail("test@example.com")
             .templateMetadata(metadata)
@@ -45,8 +45,8 @@ class SendNotificationRequestTest {
 
     final WelcomeMetadata metadata = WelcomeMetadata.builder().userName("john.doe").build();
 
-    final SendNotificationRequest request =
-        SendNotificationRequest.builder()
+    final SendNotificationCommand request =
+        SendNotificationCommand.builder()
             .recipientId(recipientId)
             .recipientEmail("john@example.com")
             .templateMetadata(metadata)

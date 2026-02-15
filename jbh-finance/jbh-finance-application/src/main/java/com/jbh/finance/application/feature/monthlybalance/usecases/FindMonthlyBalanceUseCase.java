@@ -2,7 +2,7 @@ package com.jbh.finance.application.feature.monthlybalance.usecases;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryResponse;
+import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryDTO;
 import com.jbh.finance.domain.product.vo.ProductPK;
 import java.time.YearMonth;
 import java.util.List;
@@ -80,7 +80,7 @@ public interface FindMonthlyBalanceUseCase {
    * @return balance history response with summary and monthly data
    * @throws BusinessException if validation fails or product not found
    */
-  BalanceHistoryResponse findBalanceHistoryByProduct(
+  BalanceHistoryDTO findBalanceHistoryByProduct(
       ProductPK productPK, YearMonth startPeriod, YearMonth endPeriod, YearMonth today)
       throws BusinessException;
 
@@ -109,7 +109,7 @@ public interface FindMonthlyBalanceUseCase {
    * @return balance history response with aggregated summary and monthly data across all products
    * @throws BusinessException if validation fails
    */
-  BalanceHistoryResponse findBalanceHistoryByUser(
+  BalanceHistoryDTO findBalanceHistoryByUser(
       UUID userId, YearMonth startPeriod, YearMonth endPeriod, YearMonth today)
       throws BusinessException;
 }

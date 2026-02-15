@@ -4,13 +4,14 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryResponse;
+import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryDTO;
 import com.jbh.finance.application.feature.monthlybalance.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
 import com.jbh.finance.infra.adapters.in.rest.balancehistory.request.MonthlyBalanceRequest;
 import com.jbh.finance.infra.adapters.in.rest.balancehistory.request.RegisterMonthlyBalanceRequest;
+import com.jbh.finance.infra.adapters.in.rest.balancehistory.response.BalanceHistoryResponse;
 import com.jbh.finance.infra.adapters.in.rest.balancehistory.response.MonthlyBalanceResponse;
 import com.jbh.finance.infra.adapters.in.rest.common.BaseRestAdapter;
 import com.jbh.finance.infra.adapters.in.rest.common.FinanceApiRoutes;
@@ -84,7 +85,7 @@ public class MonthlyBalanceRestAdapter extends BaseRestAdapter {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = Map.class))),
+                    schema = @Schema(implementation = BalanceHistoryResponse.class))),
         @APIResponse(
             responseCode = "400",
             description = "Invalid request",
@@ -112,11 +113,11 @@ public class MonthlyBalanceRestAdapter extends BaseRestAdapter {
 
     final UUID userId = findUserId(authorizationHeader);
 
-    final BalanceHistoryResponse balanceHistoryResponse =
+    final BalanceHistoryDTO balanceHistoryDTO =
         findMonthlyBalanceUseCase.findBalanceHistoryByUser(
             userId, request.startPeriod(), request.endPeriod(), YearMonth.now());
 
-    return Response.ok(balanceHistoryResponse).build();
+    return Response.ok(BalanceHistoryResponse.fromDTO(balanceHistoryDTO)).build();
   }
 
   @POST
@@ -132,7 +133,7 @@ public class MonthlyBalanceRestAdapter extends BaseRestAdapter {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = String.class))),
+                    schema = @Schema(implementation = BalanceHistoryResponse.class))),
         @APIResponse(
             responseCode = "400",
             description = "Invalid command",
@@ -161,14 +162,14 @@ public class MonthlyBalanceRestAdapter extends BaseRestAdapter {
 
     final UUID userId = findUserId(authorizationHeader);
 
-    final BalanceHistoryResponse balanceHistoryByProduct =
+    final BalanceHistoryDTO balanceHistoryDTO =
         findMonthlyBalanceUseCase.findBalanceHistoryByProduct(
             new ProductPK(userId, ProductId.of(productId)),
             request.startPeriod(),
             request.endPeriod(),
             YearMonth.now());
 
-    return Response.ok(balanceHistoryByProduct).build();
+    return Response.ok(BalanceHistoryResponse.fromDTO(balanceHistoryDTO)).build();
   }
 
   @POST

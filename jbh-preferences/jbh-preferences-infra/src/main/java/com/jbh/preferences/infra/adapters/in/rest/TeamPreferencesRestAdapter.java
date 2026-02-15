@@ -10,6 +10,7 @@ import com.jbh.preferences.application.core.ports.input.CreateTeamPreferencesInp
 import com.jbh.preferences.application.core.ports.input.GetTeamPreferencesInputPort;
 import com.jbh.preferences.application.core.ports.input.UpdateTeamPreferencesInputPort;
 import com.jbh.preferences.infra.adapters.in.rest.vo.CreateTeamPreferencesRequest;
+import com.jbh.preferences.infra.adapters.in.rest.vo.TeamPreferencesResponse;
 import com.jbh.preferences.infra.adapters.in.rest.vo.UpdateTeamPreferencesRequest;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
@@ -74,7 +75,7 @@ public class TeamPreferencesRestAdapter {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = TeamPreferencesDTO.class))),
+                    schema = @Schema(implementation = TeamPreferencesResponse.class))),
         @APIResponse(responseCode = "401", description = "Unauthorized"),
         @APIResponse(responseCode = "404", description = "Team preferences not found")
       })
@@ -87,7 +88,7 @@ public class TeamPreferencesRestAdapter {
     LOG.debug("Getting preferences for team: {} (requested by user: {})", teamId, userId);
 
     final TeamPreferencesDTO preferences = getPreferencesUseCase.execute(teamId);
-    return Response.ok(preferences).build();
+    return Response.ok(TeamPreferencesResponse.fromDTO(preferences)).build();
   }
 
   @PUT
@@ -105,7 +106,7 @@ public class TeamPreferencesRestAdapter {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = TeamPreferencesDTO.class))),
+                    schema = @Schema(implementation = TeamPreferencesResponse.class))),
         @APIResponse(responseCode = "400", description = "Invalid request"),
         @APIResponse(responseCode = "401", description = "Unauthorized"),
         @APIResponse(responseCode = "404", description = "Team preferences not found")
@@ -128,7 +129,7 @@ public class TeamPreferencesRestAdapter {
 
     final TeamPreferencesDTO updated =
         updatePreferencesUseCase.execute(teamId, request.toCommand(userId));
-    return Response.ok(updated).build();
+    return Response.ok(TeamPreferencesResponse.fromDTO(updated)).build();
   }
 
   @POST
@@ -145,7 +146,7 @@ public class TeamPreferencesRestAdapter {
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = TeamPreferencesDTO.class))),
+                    schema = @Schema(implementation = TeamPreferencesResponse.class))),
         @APIResponse(responseCode = "400", description = "Invalid request"),
         @APIResponse(responseCode = "401", description = "Unauthorized"),
         @APIResponse(responseCode = "409", description = "Team preferences already exist")
@@ -167,6 +168,8 @@ public class TeamPreferencesRestAdapter {
 
     final TeamPreferencesDTO created =
         createPreferencesUseCase.execute(request.teamId(), userId);
-    return Response.status(Response.Status.CREATED).entity(created).build();
+    return Response.status(Response.Status.CREATED)
+        .entity(TeamPreferencesResponse.fromDTO(created))
+        .build();
   }
 }

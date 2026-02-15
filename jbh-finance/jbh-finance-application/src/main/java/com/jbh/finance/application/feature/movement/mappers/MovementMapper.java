@@ -5,7 +5,7 @@ import static com.jbh.finance.domain.movement.vo.MovementType.WITHDRAWAL;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.commands.LiquidateProductCommand;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
-import com.jbh.finance.domain.movement.MovementCategoryDomain;
+import com.jbh.finance.domain.movement.CategoryDomain;
 import com.jbh.finance.domain.movement.MovementDomain;
 import com.jbh.finance.domain.movement.vo.ExpenseCategory;
 import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
@@ -56,7 +56,7 @@ public final class MovementMapper {
             totalAmount,
             command.balanceSnapshot(),
             MovementMetadata.createEmpty(),
-            MovementCategoryDomain.withDTO(command.categoryDTO()),
+            CategoryDomain.withDTO(command.categoryDTO()),
             command.description());
 
     return toDTO(newMovement);
@@ -104,7 +104,7 @@ public final class MovementMapper {
             totalAmount.negate(),
             BigDecimal.ZERO,
             metadata,
-            MovementCategoryDomain.withDTO(categoryDTO),
+            CategoryDomain.withDTO(categoryDTO),
             null);
 
     return toDTO(newMovement);

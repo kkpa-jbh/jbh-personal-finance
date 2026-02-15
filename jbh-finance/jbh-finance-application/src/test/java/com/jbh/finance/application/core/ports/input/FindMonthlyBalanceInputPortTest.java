@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryResponse;
+import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryDTO;
 import com.jbh.finance.application.feature.monthlybalance.ports.input.FindMonthlyBalanceInputPort;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
@@ -157,7 +157,7 @@ public class FindMonthlyBalanceInputPortTest {
         .thenReturn(product);
     when(monthlyBalanceService.findByProductIdsAndPeriods(any(), any())).thenReturn(balances);
 
-    final BalanceHistoryResponse result =
+    final BalanceHistoryDTO result =
         inputPort.findBalanceHistoryByProduct(accountPK, START_PERIOD, END_PERIOD, TODAY);
 
     assertNotNull(result);
@@ -176,7 +176,7 @@ public class FindMonthlyBalanceInputPortTest {
     when(monthlyBalanceService.findByProductIdsAndPeriods(any(), any()))
         .thenReturn(Collections.emptyList());
 
-    final BalanceHistoryResponse result =
+    final BalanceHistoryDTO result =
         inputPort.findBalanceHistoryByProduct(accountPK, START_PERIOD, END_PERIOD, TODAY);
 
     assertNotNull(result);
@@ -195,7 +195,7 @@ public class FindMonthlyBalanceInputPortTest {
     when(productService.findActiveByUserId(TEST_USER_ID)).thenReturn(products);
     when(monthlyBalanceService.findByProductIdsAndPeriods(any(), any())).thenReturn(balances);
 
-    final BalanceHistoryResponse result =
+    final BalanceHistoryDTO result =
         inputPort.findBalanceHistoryByUser(TEST_USER_ID, START_PERIOD, END_PERIOD, TODAY);
 
     assertNotNull(result);
@@ -208,7 +208,7 @@ public class FindMonthlyBalanceInputPortTest {
   public void shouldReturnEmptyHistoryWhenUserHasNoProducts() throws BusinessException {
     when(productService.findActiveByUserId(TEST_USER_ID)).thenReturn(Collections.emptyList());
 
-    final BalanceHistoryResponse result =
+    final BalanceHistoryDTO result =
         inputPort.findBalanceHistoryByUser(TEST_USER_ID, START_PERIOD, END_PERIOD, TODAY);
 
     assertNotNull(result);
@@ -253,7 +253,7 @@ public class FindMonthlyBalanceInputPortTest {
     when(productService.findActiveByUserId(TEST_USER_ID)).thenReturn(products);
     when(monthlyBalanceService.findByProductIdsAndPeriods(any(), any())).thenReturn(balances);
 
-    final BalanceHistoryResponse result =
+    final BalanceHistoryDTO result =
         inputPort.findBalanceHistoryByUser(TEST_USER_ID, START_PERIOD, END_PERIOD, TODAY);
 
     assertNotNull(result);

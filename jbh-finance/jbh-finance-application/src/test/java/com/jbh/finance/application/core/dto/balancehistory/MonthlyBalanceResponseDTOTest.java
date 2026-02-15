@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryEntryResponse;
+import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryEntryDTO;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductType;
@@ -42,8 +42,7 @@ class MonthlyBalanceResponseDTOTest {
     final ProductDTO product =
         ProductDTO.defaultBuilder(userId, productId, "Test Product", ProductType.SAVINGS).build();
 
-    final BalanceHistoryEntryResponse response =
-        BalanceHistoryEntryResponse.fromDTO(monthlyBalance, product);
+    final BalanceHistoryEntryDTO response = BalanceHistoryEntryDTO.fromDTO(monthlyBalance, product);
 
     assertNotNull(response);
     assertEquals(period, response.period());
@@ -86,8 +85,7 @@ class MonthlyBalanceResponseDTOTest {
         ProductDTO.defaultBuilder(userId, productId, "Investment Account", ProductType.INVESTMENT)
             .build();
 
-    final BalanceHistoryEntryResponse response =
-        BalanceHistoryEntryResponse.fromDTO(monthlyBalance, product);
+    final BalanceHistoryEntryDTO response = BalanceHistoryEntryDTO.fromDTO(monthlyBalance, product);
 
     assertNotNull(response);
     assertEquals(new BigDecimal("3000.00"), response.profit());
@@ -120,8 +118,7 @@ class MonthlyBalanceResponseDTOTest {
         ProductDTO.defaultBuilder(userId, productId, "Savings Account", ProductType.SAVINGS)
             .build();
 
-    final BalanceHistoryEntryResponse response =
-        BalanceHistoryEntryResponse.fromDTO(monthlyBalance, product);
+    final BalanceHistoryEntryDTO response = BalanceHistoryEntryDTO.fromDTO(monthlyBalance, product);
 
     assertNotNull(response);
     assertTrue(response.isGapPeriod());
@@ -153,8 +150,7 @@ class MonthlyBalanceResponseDTOTest {
         ProductDTO.defaultBuilder(userId, productId, "Trading Account", ProductType.INVESTMENT)
             .build();
 
-    final BalanceHistoryEntryResponse response =
-        BalanceHistoryEntryResponse.fromDTO(monthlyBalance, product);
+    final BalanceHistoryEntryDTO response = BalanceHistoryEntryDTO.fromDTO(monthlyBalance, product);
 
     assertNotNull(response);
     assertEquals(new BigDecimal("-1000.00"), response.profit());
@@ -168,8 +164,8 @@ class MonthlyBalanceResponseDTOTest {
     final ProductId productId = ProductId.generate();
     final YearMonth period = YearMonth.of(2025, 5);
 
-    final BalanceHistoryEntryResponse response =
-        new BalanceHistoryEntryResponse(
+    final BalanceHistoryEntryDTO response =
+        new BalanceHistoryEntryDTO(
             period,
             new BigDecimal("15000.00"),
             new BigDecimal("16000.00"),

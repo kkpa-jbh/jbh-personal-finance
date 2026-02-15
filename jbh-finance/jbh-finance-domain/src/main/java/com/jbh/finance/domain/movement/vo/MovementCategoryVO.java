@@ -1,9 +1,9 @@
 package com.jbh.finance.domain.movement.vo;
 
-import com.jbh.finance.domain.movement.MovementCategoryDomain;
+import com.jbh.finance.domain.movement.CategoryDomain;
 
 @SuppressWarnings("PMD.CyclomaticComplexity")
-public class MovementCategoryVO extends MovementCategoryDomain {
+public class MovementCategoryVO extends CategoryDomain {
 
   public MovementCategoryVO(final CategoryType categoryType) {
     super(categoryType);

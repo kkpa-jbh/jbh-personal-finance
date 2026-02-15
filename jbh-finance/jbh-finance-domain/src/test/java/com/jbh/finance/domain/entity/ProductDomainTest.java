@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.commons.exception.BusinessException;
-import com.jbh.finance.domain.movement.MovementCategoryDomain;
+import com.jbh.finance.domain.movement.CategoryDomain;
 import com.jbh.finance.domain.movement.MovementDomain;
 import com.jbh.finance.domain.movement.vo.ExpenseCategory;
 import com.jbh.finance.domain.movement.vo.IncomeCategory;
@@ -582,7 +582,7 @@ public class ProductDomainTest {
             MovementId.generate(),
             accountDomain.getId(),
             MovementType.DEPOSIT,
-            MovementCategoryDomain.withCategoryType(IncomeCategory.OTHER),
+            CategoryDomain.withCategoryType(IncomeCategory.OTHER),
             movementAmount,
             LocalDate.now(),
             null,
@@ -600,7 +600,7 @@ public class ProductDomainTest {
             MovementId.generate(),
             accountDomain.getId(),
             MovementType.WITHDRAWAL,
-            MovementCategoryDomain.withCategoryType(ExpenseCategory.SOCIAL_SECURITY),
+            CategoryDomain.withCategoryType(ExpenseCategory.SOCIAL_SECURITY),
             new BigDecimal("-100.00"),
             LocalDate.now(),
             JBH_ZERO,
@@ -619,7 +619,7 @@ public class ProductDomainTest {
             MovementId.generate(),
             ProductId.generate(),
             MovementType.DEPOSIT,
-            MovementCategoryDomain.withCategoryType(IncomeCategory.OTHER),
+            CategoryDomain.withCategoryType(IncomeCategory.OTHER),
             movementAmount,
             LocalDate.now(),
             JBH_ZERO,
@@ -690,6 +690,6 @@ public class ProductDomainTest {
             BigDecimal.ONE,
             BigDecimal.ZERO,
             MovementType.DEPOSIT,
-            MovementCategoryDomain.withCategoryType(IncomeCategory.OTHER)));
+            CategoryDomain.withCategoryType(IncomeCategory.OTHER)));
   }
 }

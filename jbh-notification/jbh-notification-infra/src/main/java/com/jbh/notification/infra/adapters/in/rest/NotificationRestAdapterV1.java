@@ -1,9 +1,9 @@
 package com.jbh.notification.infra.adapters.in.rest;
 
-import com.jbh.notification.contracts.NotificationType;
-import com.jbh.notification.contracts.SendNotificationRequest;
-import com.jbh.notification.contracts.validation.NotificationValidationException;
 import com.jbh.commons.api.ApiResponse;
+import com.jbh.notification.contracts.NotificationType;
+import com.jbh.notification.contracts.SendNotificationCommand;
+import com.jbh.notification.contracts.validation.NotificationValidationException;
 import com.jbh.notification.infra.adapters.in.rest.vo.NotificationResponse;
 import com.jbh.notification.infra.adapters.in.rest.vo.NotificationRoutes;
 import com.jbh.notification.infra.dto.NotificationDTO;
@@ -78,9 +78,9 @@ public class NotificationRestAdapterV1 {
       @RequestBody(
               description = "Notification details",
               required = true,
-              content = @Content(schema = @Schema(implementation = SendNotificationRequest.class)))
+              content = @Content(schema = @Schema(implementation = SendNotificationCommand.class)))
           @Valid
-          final SendNotificationRequest request) {
+          final SendNotificationCommand request) {
 
     if (LOG.isInfoEnabled()) {
       LOG.info(

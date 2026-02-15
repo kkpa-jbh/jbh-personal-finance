@@ -8,6 +8,7 @@ import com.jbh.finance.domain.product.vo.ProductId;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
@@ -26,9 +27,6 @@ public class MovementDTO {
   private final MovementMetadata metadata;
   private final LocalDateTime createdAt;
   private final String description;
-
-  // mutable field we want to expose/set during tests or runtime
-  private boolean canBeRemoved;
 
   @Override
   public String toString() {
@@ -93,11 +91,20 @@ public class MovementDTO {
     return movementType.isBalanceSnapshot();
   }
 
-  public boolean isCanBeRemoved() {
-    return canBeRemoved;
-  }
+  /**
+   * Determines if this movement can be removed. A movement can only be removed if it was created in
+   * the current month, or if it was created today.
+   *
+   * @return true if removable, false otherwise
+   */
+  public boolean canBeRemoved() {
+    if (createdAt == null) {
+      return false;
+    }
 
-  public void setCanBeRemoved(final boolean canBeRemoved) {
-    this.canBeRemoved = canBeRemoved;
+    final YearMonth currentMonth = YearMonth.now();
+    final YearMonth createdMonth = YearMonth.from(createdAt);
+
+    return currentMonth.equals(createdMonth) || LocalDate.now().equals(createdAt.toLocalDate());
   }
 }

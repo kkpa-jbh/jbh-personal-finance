@@ -6,9 +6,9 @@ import static com.jbh.finance.application.shared.exceptions.BusinessApplicationE
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.util.JbhMoneyUtils;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryEntryResponse;
-import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryResponse;
-import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistorySummaryResponse;
+import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryDTO;
+import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistoryEntryDTO;
+import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistorySummaryDTO;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
@@ -49,7 +49,7 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
   }
 
   @Override
-  public BalanceHistoryResponse findBalanceHistoryByProduct(
+  public BalanceHistoryDTO findBalanceHistoryByProduct(
       final ProductPK accountPK,
       final YearMonth startPeriod,
       final YearMonth endPeriod,
@@ -63,13 +63,13 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
     return findBalanceHistory(startPeriod, endPeriod, today, Collections.singletonList(product));
   }
 
-  private BalanceHistoryResponse findBalanceHistory(
+  private BalanceHistoryDTO findBalanceHistory(
       final YearMonth startPeriod,
       final YearMonth inputEndPeriod,
       final YearMonth today,
       final List<ProductDTO> allProducts) {
     if (allProducts.isEmpty()) {
-      return BalanceHistoryResponse.empty();
+      return BalanceHistoryDTO.empty();
     }
 
     final Map<ProductId, ProductDTO> productsMap =
@@ -82,7 +82,7 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
         monthlyBalanceService.findByProductIdsAndPeriods(productIds, periodRange);
 
     if (allMonthlyBalances.isEmpty()) {
-      return BalanceHistoryResponse.empty();
+      return BalanceHistoryDTO.empty();
     }
     // Logic by transforming the fetched data.
 
@@ -94,7 +94,7 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
     BigDecimal totalWeightForAvg = JBH_ZERO;
     int totalMovementsSummary = 0;
 
-    final List<BalanceHistoryEntryResponse> balancesResponse = new ArrayList<>();
+    final List<BalanceHistoryEntryDTO> balancesResponse = new ArrayList<>();
 
     for (final MonthlyBalanceDTO monthlyBalance : allMonthlyBalances) {
 
@@ -117,7 +117,7 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
       }
 
       balancesResponse.add(
-          BalanceHistoryEntryResponse.fromDTO(
+          BalanceHistoryEntryDTO.fromDTO(
               monthlyBalance, productsMap.get(monthlyBalance.productId())));
     }
 
@@ -131,20 +131,20 @@ public class FindMonthlyBalanceInputPort implements FindMonthlyBalanceUseCase {
     final BigDecimal periodChangePercent =
         JbhMoneyUtils.calculatePercentageChange(lastClosingBalances, firstOpeningBalances);
 
-    final BalanceHistorySummaryResponse summary =
-        new BalanceHistorySummaryResponse(
+    final BalanceHistorySummaryDTO summary =
+        new BalanceHistorySummaryDTO(
             totalBalanceSummary,
             periodChange,
             periodChangePercent,
             avgGrowthRateSummary,
             totalMovementsSummary);
 
-    return new BalanceHistoryResponse(summary, balancesResponse);
+    return new BalanceHistoryDTO(summary, balancesResponse);
   }
 
   @Override
   /** Orchestration: Coordinating calls to Application Services and Domain Services */
-  public BalanceHistoryResponse findBalanceHistoryByUser(
+  public BalanceHistoryDTO findBalanceHistoryByUser(
       final UUID userId,
       final YearMonth startPeriod,
       final YearMonth inputEndPeriod,

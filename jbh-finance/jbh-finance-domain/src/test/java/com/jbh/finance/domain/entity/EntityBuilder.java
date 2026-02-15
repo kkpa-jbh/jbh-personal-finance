@@ -5,7 +5,7 @@ import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.finance.domain.monthlybalance.MonthlyBalanceDomain;
-import com.jbh.finance.domain.movement.MovementCategoryDomain;
+import com.jbh.finance.domain.movement.CategoryDomain;
 import com.jbh.finance.domain.movement.MovementDomain;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
@@ -56,7 +56,7 @@ public class EntityBuilder {
       final BigDecimal totalAmount,
       final BigDecimal balanceSnapshot,
       final MovementType movementType,
-      final MovementCategoryDomain category) {
+      final CategoryDomain category) {
 
     final MovementDomain movDomain =
         new MovementDomain(

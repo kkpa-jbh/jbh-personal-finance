@@ -2,8 +2,8 @@ package com.jbh.finance.domain.entity;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
-import static com.jbh.finance.domain.movement.MovementCategoryDomain.OTHER_INCOME_CATEGORY;
-import static com.jbh.finance.domain.movement.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
+import static com.jbh.finance.domain.movement.CategoryDomain.OTHER_INCOME_CATEGORY;
+import static com.jbh.finance.domain.movement.CategoryDomain.PERSONAL_EXPENSE_CATEGORY;
 import static com.jbh.finance.domain.movement.vo.MovementType.DEPOSIT;
 import static com.jbh.finance.domain.movement.vo.MovementType.WITHDRAWAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;

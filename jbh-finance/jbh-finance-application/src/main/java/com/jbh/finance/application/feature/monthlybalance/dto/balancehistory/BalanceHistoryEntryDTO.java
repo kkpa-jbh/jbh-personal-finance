@@ -22,7 +22,7 @@ import java.time.YearMonth;
  * @param isProfitable
  * @param isLoss
  */
-public record BalanceHistoryEntryResponse(
+public record BalanceHistoryEntryDTO(
     YearMonth period,
     BigDecimal openingBalance,
     BigDecimal closingBalance,
@@ -38,9 +38,9 @@ public record BalanceHistoryEntryResponse(
     BigDecimal totalDebits,
     BigDecimal totalCredits) {
 
-  public static BalanceHistoryEntryResponse fromDTO(
+  public static BalanceHistoryEntryDTO fromDTO(
       final MonthlyBalanceDTO monthlyBalance, final ProductDTO productDTO) {
-    return new BalanceHistoryEntryResponse(
+    return new BalanceHistoryEntryDTO(
         monthlyBalance.period(),
         monthlyBalance.openingBalance(),
         monthlyBalance.closingBalance(),

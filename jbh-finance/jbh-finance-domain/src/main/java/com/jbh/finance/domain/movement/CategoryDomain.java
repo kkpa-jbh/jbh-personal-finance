@@ -7,20 +7,19 @@ import com.jbh.finance.domain.movement.vo.IncomeCategory;
 import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 
 @SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
-public class MovementCategoryDomain {
-  public static final MovementCategoryDomain OTHER_INCOME_CATEGORY =
-      withCategoryType(IncomeCategory.OTHER);
+public class CategoryDomain {
+  public static final CategoryDomain OTHER_INCOME_CATEGORY = withCategoryType(IncomeCategory.OTHER);
 
-  public static final MovementCategoryDomain PERSONAL_EXPENSE_CATEGORY =
+  public static final CategoryDomain PERSONAL_EXPENSE_CATEGORY =
       withCategoryType(ExpenseCategory.PERSONAL);
 
   private final CategoryType categoryType;
 
-  public MovementCategoryDomain(final CategoryType categoryType) {
+  public CategoryDomain(final CategoryType categoryType) {
     this.categoryType = categoryType;
   }
 
-  public static boolean isEmpty(final MovementCategoryDomain category) {
+  public static boolean isEmpty(final CategoryDomain category) {
     return category == null || category.getType() == null;
   }
 
@@ -28,15 +27,15 @@ public class MovementCategoryDomain {
     return categoryType;
   }
 
-  public static MovementCategoryDomain withDTO(final MovementCategoryVO movementCategoryDTO) {
+  public static CategoryDomain withDTO(final MovementCategoryVO movementCategoryDTO) {
     if (movementCategoryDTO == null) {
       return null;
     }
     return withCategoryType(movementCategoryDTO.getType());
   }
 
-  public static MovementCategoryDomain withCategoryType(final CategoryType categoryType) {
-    return new MovementCategoryDomain(categoryType);
+  public static CategoryDomain withCategoryType(final CategoryType categoryType) {
+    return new CategoryDomain(categoryType);
   }
 
   public boolean isExpense() {

@@ -1,7 +1,7 @@
 package com.jbh.finance.application.services;
 
-import static com.jbh.finance.domain.movement.MovementCategoryDomain.OTHER_INCOME_CATEGORY;
-import static com.jbh.finance.domain.movement.MovementCategoryDomain.PERSONAL_EXPENSE_CATEGORY;
+import static com.jbh.finance.domain.movement.CategoryDomain.OTHER_INCOME_CATEGORY;
+import static com.jbh.finance.domain.movement.CategoryDomain.PERSONAL_EXPENSE_CATEGORY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.jbh.commons.exception.BusinessException;
@@ -9,7 +9,7 @@ import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.finance.application.builders.ProductEntityBuilder;
 import com.jbh.finance.application.builders.UseCaseBuilder;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
-import com.jbh.finance.domain.movement.MovementCategoryDomain;
+import com.jbh.finance.domain.movement.CategoryDomain;
 import com.jbh.finance.domain.movement.MovementDomain;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
@@ -81,7 +81,7 @@ public class ProductServiceTest {
       final BigDecimal totalAmount,
       final BigDecimal balanceSnapshot,
       final MovementType movementType,
-      final MovementCategoryDomain category) {
+      final CategoryDomain category) {
 
     final MovementDomain movDomain =
         new MovementDomain(

@@ -1,7 +1,7 @@
 package com.jbh.notification.contracts.validation;
 
 import com.jbh.notification.contracts.NotificationType;
-import com.jbh.notification.contracts.SendNotificationRequest;
+import com.jbh.notification.contracts.SendNotificationCommand;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +19,7 @@ public final class NotificationValidator {
 
   private NotificationValidator() {}
 
-  public static void validate(final NotificationType type, final SendNotificationRequest request)
+  public static void validate(final NotificationType type, final SendNotificationCommand request)
       throws NotificationValidationException {
     final List<ValidationError> errors = validateAndCollect(type, request);
     if (!errors.isEmpty()) {
@@ -28,7 +28,7 @@ public final class NotificationValidator {
   }
 
   public static List<ValidationError> validateAndCollect(
-      final NotificationType type, final SendNotificationRequest request) {
+      final NotificationType type, final SendNotificationCommand request) {
     if (request == null) {
       return List.of(ValidationError.required("request"));
     }
@@ -46,7 +46,7 @@ public final class NotificationValidator {
   }
 
   public static boolean isValid(
-      final NotificationType type, final SendNotificationRequest request) {
+      final NotificationType type, final SendNotificationCommand request) {
     return validateAndCollect(type, request).isEmpty();
   }
 }

@@ -1,7 +1,7 @@
 package com.jbh.notification.infra.ports.input;
 
 import com.jbh.notification.contracts.NotificationType;
-import com.jbh.notification.contracts.SendNotificationRequest;
+import com.jbh.notification.contracts.SendNotificationCommand;
 import com.jbh.notification.contracts.validation.NotificationValidationException;
 import com.jbh.notification.infra.dto.NotificationDTO;
 
@@ -17,6 +17,6 @@ public interface NotificationServicePort {
    * @param type the type of notification to send (EMAIL, SMS, PUSH, IN_APP)
    * @return the saved notification with ID and status
    */
-  NotificationDTO sendNotification(SendNotificationRequest request, NotificationType type)
+  NotificationDTO sendNotification(SendNotificationCommand request, NotificationType type)
       throws NotificationValidationException;
 }

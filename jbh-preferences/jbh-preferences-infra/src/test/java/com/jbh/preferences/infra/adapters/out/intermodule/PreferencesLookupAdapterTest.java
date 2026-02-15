@@ -49,7 +49,7 @@ class PreferencesLookupAdapterTest {
     assertThat(result.languageCode()).isEqualTo("en");
     assertThat(result.currencyCode()).isEqualTo("USD");
     assertThat(result.savingsGoal()).isEqualTo(new BigDecimal("1000.00"));
-    assertThat(result.defaultAccountId()).isEqualTo(PRODUCT_ID);
+    assertThat(result.defaultProductId()).isEqualTo(PRODUCT_ID);
   }
 
   private UserPreferencesDTO createTestDto() {

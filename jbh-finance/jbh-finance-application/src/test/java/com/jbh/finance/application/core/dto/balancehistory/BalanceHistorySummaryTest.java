@@ -4,7 +4,7 @@ import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistorySummaryResponse;
+import com.jbh.finance.application.feature.monthlybalance.dto.balancehistory.BalanceHistorySummaryDTO;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 
@@ -18,8 +18,8 @@ class BalanceHistorySummaryTest {
     final BigDecimal avgGrowthRate = new BigDecimal("2.50");
     final int totalMovements = 25;
 
-    final BalanceHistorySummaryResponse summary =
-        new BalanceHistorySummaryResponse(
+    final BalanceHistorySummaryDTO summary =
+        new BalanceHistorySummaryDTO(
             totalBalance, periodChange, periodChangePercent, avgGrowthRate, totalMovements);
 
     assertNotNull(summary);
@@ -32,7 +32,7 @@ class BalanceHistorySummaryTest {
 
   @Test
   void shouldCreateEmptySummary() {
-    final BalanceHistorySummaryResponse summary = BalanceHistorySummaryResponse.empty();
+    final BalanceHistorySummaryDTO summary = BalanceHistorySummaryDTO.empty();
 
     assertNotNull(summary);
     assertEquals(JBH_ZERO, summary.totalBalance());
@@ -50,8 +50,8 @@ class BalanceHistorySummaryTest {
     final BigDecimal avgGrowthRate = new BigDecimal("-3.00");
     final int totalMovements = 10;
 
-    final BalanceHistorySummaryResponse summary =
-        new BalanceHistorySummaryResponse(
+    final BalanceHistorySummaryDTO summary =
+        new BalanceHistorySummaryDTO(
             totalBalance, periodChange, periodChangePercent, avgGrowthRate, totalMovements);
 
     assertNotNull(summary);

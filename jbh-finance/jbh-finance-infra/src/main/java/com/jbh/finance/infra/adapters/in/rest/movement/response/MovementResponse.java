@@ -34,6 +34,6 @@ public record MovementResponse(
         dto.metadata(),
         dto.createdAt(),
         dto.description(),
-        dto.isCanBeRemoved());
+        dto.canBeRemoved());
   }
 }

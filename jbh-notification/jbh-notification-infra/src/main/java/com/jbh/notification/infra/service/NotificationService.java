@@ -2,7 +2,7 @@ package com.jbh.notification.infra.service;
 
 import com.jbh.commons.util.JbhJsonUtils;
 import com.jbh.notification.contracts.NotificationType;
-import com.jbh.notification.contracts.SendNotificationRequest;
+import com.jbh.notification.contracts.SendNotificationCommand;
 import com.jbh.notification.contracts.email.EmailTemplate;
 import com.jbh.notification.contracts.validation.NotificationValidationException;
 import com.jbh.notification.contracts.validation.NotificationValidator;
@@ -57,7 +57,7 @@ public class NotificationService implements NotificationServicePort {
    */
   @Override
   public NotificationDTO sendNotification(
-      final SendNotificationRequest request, final NotificationType type)
+      final SendNotificationCommand request, final NotificationType type)
       throws NotificationValidationException {
 
     NotificationValidator.validate(type, request);
@@ -94,7 +94,7 @@ public class NotificationService implements NotificationServicePort {
     return processNotificationByType(savedNotification, type);
   }
 
-  private NotificationDTO mapRequestToDTO(final SendNotificationRequest request) {
+  private NotificationDTO mapRequestToDTO(final SendNotificationCommand request) {
     return NotificationDTO.builder()
         .recipientId(request.recipientId())
         .recipientEmail(request.recipientEmail())
