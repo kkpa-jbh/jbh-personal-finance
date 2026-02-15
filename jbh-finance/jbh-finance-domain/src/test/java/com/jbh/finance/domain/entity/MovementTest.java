@@ -2,10 +2,10 @@ package com.jbh.finance.domain.entity;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.finance.domain.entity.ProductDomainTest.userId;
-import static com.jbh.finance.domain.movement.CategoryDomain.OTHER_INCOME_CATEGORY;
-import static com.jbh.finance.domain.movement.CategoryDomain.PERSONAL_EXPENSE_CATEGORY;
 import static com.jbh.finance.domain.movement.vo.MovementType.DEPOSIT;
 import static com.jbh.finance.domain.movement.vo.MovementType.WITHDRAWAL;
+import static com.jbh.finance.testfixtures.CategoryFixtures.OTHER_INCOME;
+import static com.jbh.finance.testfixtures.CategoryFixtures.PERSONAL_EXPENSE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -81,7 +81,7 @@ public class MovementTest {
             totalAmount,
             balanceSnapshot,
             WITHDRAWAL,
-            PERSONAL_EXPENSE_CATEGORY);
+            PERSONAL_EXPENSE);
 
     assertEquals(WITHDRAWAL, newMovement.getMovementType());
     assertEquals(totalAmount, newMovement.getMovementAmount());
@@ -154,7 +154,7 @@ public class MovementTest {
                 new BigDecimal("100"),
                 JBH_ZERO,
                 DEPOSIT,
-                OTHER_INCOME_CATEGORY));
+                OTHER_INCOME));
 
     assertDoesNotThrow(
         () ->
@@ -164,6 +164,6 @@ public class MovementTest {
                 new BigDecimal("-23.00"),
                 JBH_ZERO,
                 WITHDRAWAL,
-                PERSONAL_EXPENSE_CATEGORY));
+                PERSONAL_EXPENSE));
   }
 }

@@ -9,7 +9,8 @@
 
 ## Executive Summary
 
-The current `CategoryDomain` implementation has **naming violations**, **missing DTOs**, **zero test coverage**, and architectural inconsistencies. This plan addresses immediate refactoring needs and provides analysis on whether categories should remain as enums or evolve into database entities.
+The current `CategoryDomain` implementation has **naming violations**, **missing DTOs**, **zero test coverage**, and architectural inconsistencies. This plan addresses immediate
+refactoring needs and provides analysis on whether categories should remain as enums or evolve into database entities.
 
 ---
 
@@ -31,25 +32,27 @@ jbh-finance-domain/
 
 ### 1.2 Current Issues
 
-| Issue | Severity | Impact |
-|-------|----------|--------|
-| Naming violation: `CategoryDomain` should be `CategoryVO` | 🔴 High | Violates naming standards |
-| Missing `CategoryDTO` in application module | 🔴 High | Violates hexagonal architecture |
-| Zero test coverage | 🔴 High | Violates 50% coverage requirement |
+| Issue                                                              | Severity  | Impact                                |
+|--------------------------------------------------------------------|-----------|---------------------------------------|
+| Naming violation: `CategoryDomain` should be `CategoryVO`          | 🔴 High   | Violates naming standards             |
+| Missing `CategoryDTO` in application module                        | 🔴 High   | Violates hexagonal architecture       |
+| Zero test coverage                                                 | 🔴 High   | Violates 50% coverage requirement     |
 | Confusing inheritance: `MovementCategoryVO extends CategoryDomain` | 🟡 Medium | Violates composition over inheritance |
-| Static constants in domain class | 🟡 Medium | Poor separation of concerns |
-| TODO comments unresolved | 🟢 Low | Technical debt |
-| Unprofessional "CHATGPT" comment | 🟢 Low | Code quality |
+| Static constants in domain class                                   | 🟡 Medium | Poor separation of concerns           |
+| TODO comments unresolved                                           | 🟢 Low    | Technical debt                        |
+| Unprofessional "CHATGPT" comment                                   | 🟢 Low    | Code quality                          |
 
 ### 1.3 Current Usage
 
 **Used by**:
+
 - `MovementDomain` (main domain entity)
 - Movement validation logic
 - Movement type determination
 - File import functionality
 
 **Dependencies**:
+
 - Zero external dependencies (domain-pure)
 - Uses `CategoryType` interface for polymorphism
 - Translation support via `JbhStringUtils`
@@ -60,10 +63,10 @@ jbh-finance-domain/
 
 ### 2.1 Rename Plan
 
-| Current Name | Correct Name | Reason |
-|--------------|--------------|--------|
-| `CategoryDomain` | `CategoryVO` | It's a value object, not a domain entity |
-| `MovementCategoryVO` | ~~Delete~~ (merge into `CategoryVO`) | Unnecessary inheritance |
+| Current Name         | Correct Name                         | Reason                                   |
+|----------------------|--------------------------------------|------------------------------------------|
+| `CategoryDomain`     | `CategoryVO`                         | It's a value object, not a domain entity |
+| `MovementCategoryVO` | ~~Delete~~ (merge into `CategoryVO`) | Unnecessary inheritance                  |
 
 ### 2.2 Add Missing DTO
 
@@ -77,13 +80,14 @@ public record CategoryDTO(
     String typeName,            // "SALARY", "PERSONAL", etc.
     String translationsKey      // i18n key
 ) {
-    public static CategoryDTO from(CategoryVO vo) {
-        return new CategoryDTO(
-            vo.getSource(),
-            vo.getType().getTypeName(),
-            vo.getType().getTranslationsKey()
-        );
-    }
+
+  public static CategoryDTO from(CategoryVO vo) {
+    return new CategoryDTO(
+        vo.getSource(),
+        vo.getType().getTypeName(),
+        vo.getType().getTranslationsKey()
+    );
+  }
 }
 ```
 
@@ -97,31 +101,32 @@ package com.jbh.finance.domain.movement.vo;
  * Wraps CategoryType (IncomeCategory or ExpenseCategory enums).
  */
 public final class CategoryVO {
-    private final CategoryType categoryType;
 
-    private CategoryVO(final CategoryType categoryType) {
-        this.categoryType = categoryType;
-    }
+  private final CategoryType categoryType;
 
-    public static CategoryVO of(final CategoryType categoryType) {
-        return new CategoryVO(categoryType);
-    }
+  private CategoryVO(final CategoryType categoryType) {
+    this.categoryType = categoryType;
+  }
 
-    public boolean isExpense() {
-        return getSource() == CategorySource.EXPENSE;
-    }
+  public static CategoryVO of(final CategoryType categoryType) {
+    return new CategoryVO(categoryType);
+  }
 
-    public boolean isIncome() {
-        return getSource() == CategorySource.INCOME;
-    }
+  public boolean isExpense() {
+    return getSource() == CategorySource.EXPENSE;
+  }
 
-    public CategorySource getSource() {
-        return categoryType.getSource();
-    }
+  public boolean isIncome() {
+    return getSource() == CategorySource.INCOME;
+  }
 
-    public CategoryType getType() {
-        return categoryType;
-    }
+  public CategorySource getSource() {
+    return categoryType.getSource();
+  }
+
+  public CategoryType getType() {
+    return categoryType;
+  }
 }
 ```
 
@@ -134,48 +139,62 @@ public final class CategoryVO {
 **File**: `CategoryVOTest.java`
 
 **Coverage Requirements**:
+
 - Minimum 50% coverage (per project standards)
 - Target: 80%+ coverage
 
 **Test Cases**:
+
 ```java
 class CategoryVOTest {
 
-    @Nested
-    class FactoryMethods {
-        @Test
-        void shouldCreateFromIncomeCategory() { }
+  @Nested
+  class FactoryMethods {
 
-        @Test
-        void shouldCreateFromExpenseCategory() { }
-
-        @Test
-        void shouldThrowExceptionWhenCategoryTypeIsNull() { }
+    @Test
+    void shouldCreateFromIncomeCategory() {
     }
 
-    @Nested
-    class BehaviorMethods {
-        @Test
-        void shouldIdentifyIncomeCategory() { }
-
-        @Test
-        void shouldIdentifyExpenseCategory() { }
-
-        @Test
-        void shouldReturnCorrectSource() { }
-
-        @Test
-        void shouldReturnCorrectType() { }
+    @Test
+    void shouldCreateFromExpenseCategory() {
     }
 
-    @Nested
-    class EdgeCases {
-        @Test
-        void shouldHandleAllIncomeCategories() { }
-
-        @Test
-        void shouldHandleAllExpenseCategories() { }
+    @Test
+    void shouldThrowExceptionWhenCategoryTypeIsNull() {
     }
+  }
+
+  @Nested
+  class BehaviorMethods {
+
+    @Test
+    void shouldIdentifyIncomeCategory() {
+    }
+
+    @Test
+    void shouldIdentifyExpenseCategory() {
+    }
+
+    @Test
+    void shouldReturnCorrectSource() {
+    }
+
+    @Test
+    void shouldReturnCorrectType() {
+    }
+  }
+
+  @Nested
+  class EdgeCases {
+
+    @Test
+    void shouldHandleAllIncomeCategories() {
+    }
+
+    @Test
+    void shouldHandleAllExpenseCategories() {
+    }
+  }
 }
 ```
 
@@ -184,6 +203,7 @@ class CategoryVOTest {
 **Files**: `IncomeCategoryTest.java`, `ExpenseCategoryTest.java`
 
 **Test Cases**:
+
 - All enum values have translations
 - `findByName()` works for all values
 - `getSource()` returns correct CategorySource
@@ -196,6 +216,7 @@ class CategoryVOTest {
 ### 4.1 Current Enum Approach
 
 **Advantages** ✅:
+
 1. **Type Safety**: Compile-time validation
 2. **Performance**: No database lookups
 3. **Simplicity**: Easy to use, no ORM overhead
@@ -204,6 +225,7 @@ class CategoryVOTest {
 6. **Immutable**: Cannot be modified at runtime
 
 **Disadvantages** ❌:
+
 1. **Requires Code Deployment**: New categories need redeployment
 2. **Not User-Configurable**: Users cannot add custom categories
 3. **Limited Flexibility**: Cannot disable/enable categories dynamically
@@ -213,25 +235,21 @@ class CategoryVOTest {
 ### 4.2 Entity/Table Approach
 
 **Schema Design** (if implemented):
+
 ```sql
-CREATE TABLE finance.movement_category (
-    category_id VARCHAR(50) PRIMARY KEY,  -- "SALARY", "PERSONAL"
-    category_source VARCHAR(20) NOT NULL, -- "INCOME", "EXPENSE"
-    is_active BOOLEAN DEFAULT TRUE,
-    translation_key_en VARCHAR(100),
-    translation_key_es VARCHAR(100),
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP,
-    CONSTRAINT chk_source CHECK (category_source IN ('INCOME', 'EXPENSE'))
+CREATE TABLE finance.movement_category
+(
+    category_id     VARCHAR(50) PRIMARY KEY, -- "SALARY", "PERSONAL"
+    category_source VARCHAR(20) NOT NULL,    -- "INCOME", "EXPENSE"
+    is_active       BOOLEAN DEFAULT TRUE,
+    display_name    jsonb                    -- HANDLE EN AND ES LANGUAGES
+        CONSTRAINT chk_source CHECK (category_source IN ('INCOME', 'EXPENSE'))
 );
 
--- Seed Data
-INSERT INTO finance.movement_category VALUES
-('SALARY', 'INCOME', TRUE, 'Salary', 'Salario', NOW(), NULL),
-('PERSONAL', 'EXPENSE', TRUE, 'Personal', 'Personal', NOW(), NULL);
 ```
 
 **Advantages** ✅:
+
 1. **Dynamic Configuration**: Add/remove categories without deployment
 2. **User Customization**: Users could add custom categories (future feature)
 3. **Soft Delete**: Disable instead of delete (data integrity)
@@ -240,6 +258,7 @@ INSERT INTO finance.movement_category VALUES
 6. **Multi-tenancy Ready**: Different categories per team/user
 
 **Disadvantages** ❌:
+
 1. **Complexity**: ORM mapping, repositories, migrations
 2. **Performance Overhead**: Database queries for each category lookup
 3. **Caching Required**: Need cache layer to avoid N+1 queries
@@ -253,36 +272,38 @@ INSERT INTO finance.movement_category VALUES
 
 ```java
 public enum IncomeCategory implements CategoryType {
-    SALARY("salary", "Salary", "Salario"),  // lowercase = future DB key
-    // ...
+  SALARY("salary", "Salary", "Salario"),  // lowercase = future DB key
+  // ...
 
-    private final String databaseKey;  // For future migration
+  private final String databaseKey;  // For future migration
 
-    public String getDatabaseKey() {
-        return databaseKey;
-    }
-}
+  public String getDatabaseKey() {
+    return databaseKey;
+  }
+  }
 ```
 
 **Benefits**:
+
 - Current simplicity maintained
 - Future migration easier
 - Backward compatibility preserved
 
 ### 4.4 Decision Matrix
 
-| Criteria | Weight | Enum Score | Entity Score | Winner |
-|----------|--------|------------|--------------|--------|
-| Performance | 30% | 10/10 | 6/10 | Enum |
-| Flexibility | 25% | 4/10 | 10/10 | Entity |
-| Simplicity | 20% | 10/10 | 5/10 | Enum |
-| User Control | 15% | 2/10 | 10/10 | Entity |
-| Development Speed | 10% | 10/10 | 4/10 | Enum |
-| **Total** | **100%** | **7.5/10** | **6.95/10** | **Enum** |
+| Criteria          | Weight   | Enum Score | Entity Score | Winner   |
+|-------------------|----------|------------|--------------|----------|
+| Performance       | 30%      | 10/10      | 6/10         | Enum     |
+| Flexibility       | 25%      | 4/10       | 10/10        | Entity   |
+| Simplicity        | 20%      | 10/10      | 5/10         | Enum     |
+| User Control      | 15%      | 2/10       | 10/10        | Entity   |
+| Development Speed | 10%      | 10/10      | 4/10         | Enum     |
+| **Total**         | **100%** | **7.5/10** | **6.95/10**  | **Enum** |
 
 ### 4.5 Recommendation: KEEP AS ENUM (For Now)
 
 **Rationale**:
+
 1. **Current Requirements**: No user-defined categories needed
 2. **Performance Critical**: Finance calculations are frequent
 3. **Simple Domain**: 16 total categories (10 income + 6 expense)
@@ -291,6 +312,7 @@ public enum IncomeCategory implements CategoryType {
 
 **Future Migration Trigger**:
 Migrate to entity/table when ANY of these occur:
+
 - Users request custom categories
 - Categories exceed 50 total
 - Multi-language support beyond EN/ES needed
@@ -304,21 +326,22 @@ Migrate to entity/table when ANY of these occur:
 ### Phase 1: Preparation (No Breaking Changes)
 
 **Tasks**:
+
 1. ✅ Create unit tests for current implementation
-   - `CategoryDomainTest.java`
-   - `IncomeCategoryTest.java`
-   - `ExpenseCategoryTest.java`
-   - **Acceptance**: 80%+ coverage
+    - `CategoryDomainTest.java`
+    - `IncomeCategoryTest.java`
+    - `ExpenseCategoryTest.java`
+    - **Acceptance**: 80%+ coverage
 
 2. ✅ Document all usages of `CategoryDomain`
-   - Search across all modules
-   - Create migration checklist
-   - **Acceptance**: All usages documented
+    - Search across all modules
+    - Create migration checklist
+    - **Acceptance**: All usages documented
 
 3. ✅ Add `databaseKey` field to enums (future-proofing)
-   - Modify `IncomeCategory`
-   - Modify `ExpenseCategory`
-   - **Acceptance**: All enums have lowercase keys
+    - Modify `IncomeCategory`
+    - Modify `ExpenseCategory`
+    - **Acceptance**: All enums have lowercase keys
 
 **Estimated Effort**: 4 hours
 **Risk**: Low
@@ -328,27 +351,28 @@ Migrate to entity/table when ANY of these occur:
 ### Phase 2: Domain Module Refactoring
 
 **Tasks**:
+
 1. ✅ Rename `CategoryDomain` → `CategoryVO`
-   - Update class name
-   - Update all imports
-   - Update tests
-   - **Acceptance**: All tests pass
+    - Update class name
+    - Update all imports
+    - Update tests
+    - **Acceptance**: All tests pass
 
 2. ✅ Delete `MovementCategoryVO`
-   - Move factory methods to `CategoryFactory`
-   - Update `MovementType` references
-   - **Acceptance**: Zero compilation errors
+    - Move factory methods to `CategoryFactory`
+    - Update `MovementType` references
+    - **Acceptance**: Zero compilation errors
 
 3. ✅ Create `CategoryFactory`
-   - Move static constants
-   - Move complex factory methods
-   - **Acceptance**: All factory methods tested
+    - Move static constants
+    - Move complex factory methods
+    - **Acceptance**: All factory methods tested
 
 4. ✅ Clean up documentation
-   - Remove "CHATGPT" comment
-   - Add proper JavaDoc
-   - Resolve TODOs
-   - **Acceptance**: No TODO/FIXME comments remain
+    - Remove "CHATGPT" comment
+    - Add proper JavaDoc
+    - Resolve TODOs
+    - **Acceptance**: No TODO/FIXME comments remain
 
 **Estimated Effort**: 6 hours
 **Risk**: Medium (breaking changes)
@@ -358,21 +382,22 @@ Migrate to entity/table when ANY of these occur:
 ### Phase 3: Application Module Integration
 
 **Tasks**:
+
 1. ✅ Create `CategoryDTO` in application module
-   - Add record class
-   - Add factory methods
-   - **Acceptance**: Compiles successfully
+    - Add record class
+    - Add factory methods
+    - **Acceptance**: Compiles successfully
 
 2. ✅ Update application layer to use DTOs
-   - Modify input ports
-   - Modify use cases
-   - Update mappers
-   - **Acceptance**: All tests pass
+    - Modify input ports
+    - Modify use cases
+    - Update mappers
+    - **Acceptance**: All tests pass
 
 3. ✅ Update infrastructure layer
-   - Modify REST adapters
-   - Update persistence adapters
-   - **Acceptance**: Integration tests pass
+    - Modify REST adapters
+    - Update persistence adapters
+    - **Acceptance**: Integration tests pass
 
 **Estimated Effort**: 8 hours
 **Risk**: Medium
@@ -382,22 +407,23 @@ Migrate to entity/table when ANY of these occur:
 ### Phase 4: Testing & Validation
 
 **Tasks**:
+
 1. ✅ Run full test suite
-   - Unit tests
-   - Integration tests
-   - Architecture tests (ArchUnit)
-   - **Acceptance**: All tests pass
+    - Unit tests
+    - Integration tests
+    - Architecture tests (ArchUnit)
+    - **Acceptance**: All tests pass
 
 2. ✅ Code coverage verification
-   - Generate coverage report
-   - Verify 50%+ coverage
-   - **Acceptance**: Coverage meets standards
+    - Generate coverage report
+    - Verify 50%+ coverage
+    - **Acceptance**: Coverage meets standards
 
 3. ✅ Manual testing
-   - Test movement creation
-   - Test category validation
-   - Test balance calculations
-   - **Acceptance**: No regression bugs
+    - Test movement creation
+    - Test category validation
+    - Test balance calculations
+    - **Acceptance**: No regression bugs
 
 **Estimated Effort**: 4 hours
 **Risk**: Low
@@ -407,20 +433,21 @@ Migrate to entity/table when ANY of these occur:
 ### Phase 5: Documentation & Cleanup
 
 **Tasks**:
+
 1. ✅ Update architecture documentation
-   - Update feature structure docs
-   - Update mapping flow diagrams
-   - **Acceptance**: Docs reflect new structure
+    - Update feature structure docs
+    - Update mapping flow diagrams
+    - **Acceptance**: Docs reflect new structure
 
 2. ✅ Update CLAUDE.md if needed
-   - Add CategoryVO naming example
-   - Update DTO guidelines
-   - **Acceptance**: Claude instructions updated
+    - Add CategoryVO naming example
+    - Update DTO guidelines
+    - **Acceptance**: Claude instructions updated
 
 3. ✅ Create migration guide (if needed for other modules)
-   - Document breaking changes
-   - Provide code examples
-   - **Acceptance**: Other modules can migrate
+    - Document breaking changes
+    - Provide code examples
+    - **Acceptance**: Other modules can migrate
 
 **Estimated Effort**: 2 hours
 **Risk**: Low
@@ -430,11 +457,13 @@ Migrate to entity/table when ANY of these occur:
 ## 6. Migration Checklist
 
 ### Pre-Migration
+
 - [ ] Backup current codebase
 - [ ] Create feature branch `refactor/category-domain-to-vo`
 - [ ] Notify team of upcoming changes
 
 ### Domain Module Changes
+
 - [ ] Create `CategoryVOTest.java` (80%+ coverage)
 - [ ] Create `IncomeCategoryTest.java`
 - [ ] Create `ExpenseCategoryTest.java`
@@ -450,6 +479,7 @@ Migrate to entity/table when ANY of these occur:
 - [ ] Resolve TODO in deleted `MovementCategoryVO`
 
 ### Application Module Changes
+
 - [ ] Create `CategoryDTO.java` record
 - [ ] Add factory methods to `CategoryDTO`
 - [ ] Update `FindMonthlyBalanceInputPort` (if uses Category)
@@ -457,12 +487,14 @@ Migrate to entity/table when ANY of these occur:
 - [ ] Update mappers (Entity ↔ DTO)
 
 ### Infrastructure Module Changes
+
 - [ ] Update `MonthlyBalanceRestAdapter` (if uses Category)
 - [ ] Update `MovementRestAdapter` (if uses Category)
 - [ ] Update persistence entities (if needed)
 - [ ] Update request/response objects
 
 ### Testing
+
 - [ ] Run `mvn clean test` (all modules)
 - [ ] Run `mvn verify` (integration tests)
 - [ ] Run `mvn test jacoco:report` (coverage)
@@ -471,11 +503,13 @@ Migrate to entity/table when ANY of these occur:
 - [ ] Manual testing: Import movements from file
 
 ### Documentation
+
 - [ ] Update `docs/architecture/feature-structure.md`
 - [ ] Update `docs/patterns/mapping-flow.md`
 - [ ] Update `.claude/CLAUDE.md` (add CategoryVO example)
 
 ### Deployment
+
 - [ ] Code review
 - [ ] Merge to main
 - [ ] Deploy to test environment
@@ -486,25 +520,27 @@ Migrate to entity/table when ANY of these occur:
 
 ## 7. Risk Assessment
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| Breaking changes in other modules | Medium | High | Comprehensive search before refactoring |
-| Test coverage gaps | Low | Medium | Write tests first (TDD approach) |
-| Performance regression | Low | Low | Categories are lightweight VOs |
-| Lost business logic during merge | Low | High | Thorough code review |
-| Downstream service impacts | Low | Medium | Check API contracts |
+| Risk                              | Probability | Impact | Mitigation                              |
+|-----------------------------------|-------------|--------|-----------------------------------------|
+| Breaking changes in other modules | Medium      | High   | Comprehensive search before refactoring |
+| Test coverage gaps                | Low         | Medium | Write tests first (TDD approach)        |
+| Performance regression            | Low         | Low    | Categories are lightweight VOs          |
+| Lost business logic during merge  | Low         | High   | Thorough code review                    |
+| Downstream service impacts        | Low         | Medium | Check API contracts                     |
 
 ---
 
 ## 8. Success Criteria
 
 ### Functional
+
 - ✅ All existing functionality works
 - ✅ No regression bugs
 - ✅ Movement creation with categories works
 - ✅ Balance calculations include category data
 
 ### Technical
+
 - ✅ Naming follows standards (`CategoryVO`)
 - ✅ `CategoryDTO` exists in application module
 - ✅ Test coverage ≥ 50% (target 80%)
@@ -513,6 +549,7 @@ Migrate to entity/table when ANY of these occur:
 - ✅ All tests pass
 
 ### Architectural
+
 - ✅ Hexagonal architecture maintained
 - ✅ Domain module has zero framework dependencies
 - ✅ Proper VO → DTO → Response mapping
@@ -525,6 +562,7 @@ Migrate to entity/table when ANY of these occur:
 ### When to Migrate to Entity/Table
 
 **Indicators**:
+
 1. **User Request**: "I want to add my own categories"
 2. **Scale**: More than 50 categories total
 3. **Multi-tenancy**: Different categories per team
@@ -534,27 +572,35 @@ Migrate to entity/table when ANY of these occur:
 ### Migration Path (Enum → Entity)
 
 **Phase 1**: Add database table (keep enums)
+
 ```sql
-CREATE TABLE finance.movement_category (
-    category_key VARCHAR(50) PRIMARY KEY,  -- matches enum.databaseKey
+CREATE TABLE finance.movement_category
+(
+    category_key VARCHAR(50) PRIMARY KEY, -- matches enum.databaseKey
     -- other fields
 );
 ```
 
 **Phase 2**: Populate with enum values
+
 ```java
 // Migration script
-for (IncomeCategory category : IncomeCategory.values()) {
-    categoryRepository.save(new Category(category.getDatabaseKey(), ...));
-}
+for(IncomeCategory category :IncomeCategory.
+
+values()){
+    categoryRepository.
+
+save(new Category(category.getDatabaseKey(), ...));
+    }
 ```
 
 **Phase 3**: Switch factory to read from DB
+
 ```java
 // CategoryFactory
 public static CategoryVO fromDatabase(String key) {
-    Category entity = categoryRepository.findByKey(key);
-    return CategoryVO.fromEntity(entity);
+  Category entity = categoryRepository.findByKey(key);
+  return CategoryVO.fromEntity(entity);
 }
 ```
 
@@ -566,20 +612,21 @@ public static CategoryVO fromDatabase(String key) {
 
 ## 10. Estimated Timeline
 
-| Phase | Duration | Dependencies |
-|-------|----------|--------------|
-| Phase 1: Preparation | 4 hours | None |
-| Phase 2: Domain Refactoring | 6 hours | Phase 1 complete |
-| Phase 3: Application Integration | 8 hours | Phase 2 complete |
-| Phase 4: Testing & Validation | 4 hours | Phase 3 complete |
-| Phase 5: Documentation | 2 hours | Phase 4 complete |
-| **Total** | **24 hours** (~3 days) | Sequential |
+| Phase                            | Duration               | Dependencies     |
+|----------------------------------|------------------------|------------------|
+| Phase 1: Preparation             | 4 hours                | None             |
+| Phase 2: Domain Refactoring      | 6 hours                | Phase 1 complete |
+| Phase 3: Application Integration | 8 hours                | Phase 2 complete |
+| Phase 4: Testing & Validation    | 4 hours                | Phase 3 complete |
+| Phase 5: Documentation           | 2 hours                | Phase 4 complete |
+| **Total**                        | **24 hours** (~3 days) | Sequential       |
 
 ---
 
 ## 11. Recommendations
 
 ### Immediate Actions (This Sprint)
+
 1. ✅ **Create unit tests** for current implementation
 2. ✅ **Rename** `CategoryDomain` → `CategoryVO`
 3. ✅ **Add** `CategoryDTO` to application module
@@ -587,16 +634,19 @@ public static CategoryVO fromDatabase(String key) {
 5. ✅ **Resolve** TODO comments
 
 ### Short-term (Next Sprint)
+
 1. 🔄 **Refactor** `MovementCategoryVO` (merge or delete)
 2. 🔄 **Create** `CategoryFactory` for static constants
 3. 🔄 **Update** all documentation
 
 ### Long-term (Future)
+
 1. 📅 **Monitor** category usage patterns
 2. 📅 **Re-evaluate** enum vs entity decision in 6 months
 3. 📅 **Prepare** migration path if user-defined categories needed
 
 ### DO NOT (Keep as Enum)
+
 - ❌ Do NOT migrate to entity/table without business need
 - ❌ Do NOT over-engineer with unnecessary abstraction
 - ❌ Do NOT compromise performance for theoretical flexibility
@@ -608,18 +658,22 @@ public static CategoryVO fromDatabase(String key) {
 ### A. Current Category Enums
 
 **Income Categories** (10):
+
 - TRANSFER, SALARY, DIVIDENDS, FREELANCE, INVESTMENT, RENTAL, GIFT, OTHER, INITIAL_BALANCE, DEPOSIT
 
 **Expense Categories** (6):
+
 - RETEFUENTE, SOCIAL_SECURITY, PUBLIC_SERVICES, PERSONAL, TRANSFER, INVESTMENT_WITHDRAWAL_TO_CLOSE_IT
 
 ### B. References
+
 - Project naming standards: `docs/standards/naming.md`
 - Hexagonal architecture: `docs/architecture/hexagonal-layers.md`
 - Testing requirements: `docs/standards/testing.md`
 - Code quality: `docs/standards/code-quality.md`
 
 ### C. Related Issues
+
 - Missing test coverage for domain VOs
 - Need for consistent VO naming across modules
 - DTO mapping patterns need documentation update

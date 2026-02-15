@@ -2,10 +2,10 @@ package com.jbh.finance.domain.entity;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
-import static com.jbh.finance.domain.movement.CategoryDomain.OTHER_INCOME_CATEGORY;
-import static com.jbh.finance.domain.movement.CategoryDomain.PERSONAL_EXPENSE_CATEGORY;
 import static com.jbh.finance.domain.movement.vo.MovementType.DEPOSIT;
 import static com.jbh.finance.domain.movement.vo.MovementType.WITHDRAWAL;
+import static com.jbh.finance.testfixtures.CategoryFixtures.OTHER_INCOME;
+import static com.jbh.finance.testfixtures.CategoryFixtures.PERSONAL_EXPENSE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -64,7 +64,7 @@ public class MonthlyBalanceDomainTest {
             new BigDecimal("100.00"),
             new BigDecimal("100.00"),
             DEPOSIT,
-            OTHER_INCOME_CATEGORY));
+            OTHER_INCOME));
   }
 
   @Test
@@ -110,7 +110,7 @@ public class MonthlyBalanceDomainTest {
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getMonthlyNetProfit());
 
     ceroMonthlyBalance.assignMovement(
-        EntityBuilder.with(productId, today, JBH_ZERO, JBH_ZERO, DEPOSIT, OTHER_INCOME_CATEGORY));
+        EntityBuilder.with(productId, today, JBH_ZERO, JBH_ZERO, DEPOSIT, OTHER_INCOME));
     assertEquals(JBH_ZERO, ceroMonthlyBalance.getMonthlyNetProfit());
   }
 
@@ -181,7 +181,7 @@ public class MonthlyBalanceDomainTest {
     final var balanceSnapshot = new BigDecimal("120.00");
     final var newMovement =
         EntityBuilder.with(
-            productId, today, totalAmount, balanceSnapshot, DEPOSIT, OTHER_INCOME_CATEGORY);
+            productId, today, totalAmount, balanceSnapshot, DEPOSIT, OTHER_INCOME);
 
     ceroMonthlyBalance.assignMovement(newMovement);
 
@@ -200,7 +200,7 @@ public class MonthlyBalanceDomainTest {
   public void shouldSyncDepositWithoutSnapshotMovement() throws BusinessException {
     final var totalAmount = new BigDecimal("100.00");
     final var newMovement =
-        EntityBuilder.with(productId, today, totalAmount, null, DEPOSIT, OTHER_INCOME_CATEGORY);
+        EntityBuilder.with(productId, today, totalAmount, null, DEPOSIT, OTHER_INCOME);
 
     ceroMonthlyBalance.assignMovement(newMovement);
 
@@ -220,7 +220,7 @@ public class MonthlyBalanceDomainTest {
     final var balanceSnapshot = new BigDecimal("230.00");
     final var newMovement =
         EntityBuilder.with(
-            productId, today, totalAmount, balanceSnapshot, DEPOSIT, OTHER_INCOME_CATEGORY);
+            productId, today, totalAmount, balanceSnapshot, DEPOSIT, OTHER_INCOME);
 
     final BigDecimal existingTotalDebits = oneHundredMonthlyBalance.getTotalDebits();
 
@@ -241,7 +241,7 @@ public class MonthlyBalanceDomainTest {
   public void shouldSyncDepositWithoutSnapshotMovementOneHundred() throws BusinessException {
     final var totalAmount = new BigDecimal("50.00");
     final var newMovement =
-        EntityBuilder.with(productId, today, totalAmount, null, DEPOSIT, OTHER_INCOME_CATEGORY);
+        EntityBuilder.with(productId, today, totalAmount, null, DEPOSIT, OTHER_INCOME);
     final BigDecimal existingTotalDebits = oneHundredMonthlyBalance.getTotalDebits();
     oneHundredMonthlyBalance.assignMovement(newMovement);
 
@@ -263,7 +263,7 @@ public class MonthlyBalanceDomainTest {
     final var balanceSnapshot = new BigDecimal("120.00");
     final var newMovement =
         EntityBuilder.with(
-            productId, today, totalAmount, balanceSnapshot, WITHDRAWAL, PERSONAL_EXPENSE_CATEGORY);
+            productId, today, totalAmount, balanceSnapshot, WITHDRAWAL, PERSONAL_EXPENSE);
 
     ceroMonthlyBalance.assignMovement(newMovement);
 
@@ -284,14 +284,14 @@ public class MonthlyBalanceDomainTest {
     final var balanceSnapshot = new BigDecimal("120.00");
     final var newMovement =
         EntityBuilder.with(
-            productId, today, totalAmount, balanceSnapshot, DEPOSIT, OTHER_INCOME_CATEGORY);
+            productId, today, totalAmount, balanceSnapshot, DEPOSIT, OTHER_INCOME);
 
     // TOTAL Earn 20.00 on 2nd deposit
     final var totalAmount2 = new BigDecimal("30.00");
     final var balanceSnapshot2 = new BigDecimal("170.00");
     final var newMovement2 =
         EntityBuilder.with(
-            productId, today, totalAmount2, balanceSnapshot2, DEPOSIT, OTHER_INCOME_CATEGORY);
+            productId, today, totalAmount2, balanceSnapshot2, DEPOSIT, OTHER_INCOME);
 
     // Earn 0 on the withdrawal
     final var totalAmount3 = new BigDecimal("-20.00");
@@ -303,7 +303,7 @@ public class MonthlyBalanceDomainTest {
             totalAmount3,
             balanceSnapshot3,
             WITHDRAWAL,
-            PERSONAL_EXPENSE_CATEGORY);
+            PERSONAL_EXPENSE);
 
     // oneHundredMonthlyBalance.syncMovements(List.of(newMovement, newMovement2, newMovement3));
     List.of(newMovement, newMovement2, newMovement3)
@@ -348,7 +348,7 @@ public class MonthlyBalanceDomainTest {
             new BigDecimal("10"),
             new BigDecimal("10"),
             DEPOSIT,
-            OTHER_INCOME_CATEGORY));
+            OTHER_INCOME));
     balance2.assignMovement(
         EntityBuilder.with(
             productId,
@@ -356,7 +356,7 @@ public class MonthlyBalanceDomainTest {
             new BigDecimal("20"),
             new BigDecimal("20"),
             DEPOSIT,
-            OTHER_INCOME_CATEGORY));
+            OTHER_INCOME));
     balance3.assignMovement(
         EntityBuilder.with(
             productId,
@@ -364,7 +364,7 @@ public class MonthlyBalanceDomainTest {
             new BigDecimal("30"),
             new BigDecimal("30"),
             DEPOSIT,
-            OTHER_INCOME_CATEGORY));
+            OTHER_INCOME));
     balance4.assignMovement(
         EntityBuilder.with(
             productId,
@@ -372,7 +372,7 @@ public class MonthlyBalanceDomainTest {
             new BigDecimal("40"),
             new BigDecimal("40"),
             DEPOSIT,
-            OTHER_INCOME_CATEGORY));
+            OTHER_INCOME));
     balance5.assignMovement(
         EntityBuilder.with(
             productId,
@@ -380,7 +380,7 @@ public class MonthlyBalanceDomainTest {
             new BigDecimal("50"),
             new BigDecimal("50"),
             DEPOSIT,
-            OTHER_INCOME_CATEGORY));
+            OTHER_INCOME));
 
     assertEquals(period1, balance1.getPeriod());
     assertEquals(period2, balance2.getPeriod());

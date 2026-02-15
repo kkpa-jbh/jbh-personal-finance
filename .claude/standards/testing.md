@@ -57,6 +57,102 @@ src/test/java/com/jbh/finance/application/feature/movement/usecases/AddMovementI
 
 ---
 
+## Test Fixtures
+
+**Purpose:** Centralize test data creation to avoid polluting production code with test-only constants.
+
+### Package Structure
+
+**Location:** `src/test/java/com/jbh/<module>/testfixtures/`
+
+```
+jbh-finance-domain/src/test/java/
+└── com/jbh/finance/testfixtures/
+    ├── CategoryFixtures.java
+    ├── MovementFixtures.java
+    └── ProductFixtures.java
+```
+
+### Fixtures Class Pattern
+
+**Rules:**
+- Never put test-only constants in production code
+- Use clear, descriptive constant names
+- Group related fixtures together
+- Make fixtures classes `final` with private constructor
+- Use `public static final` constants for pre-built instances
+
+**Example:**
+```java
+package com.jbh.finance.testfixtures;
+
+import com.jbh.finance.domain.movement.CategoryDomain;
+import com.jbh.finance.domain.movement.vo.ExpenseCategory;
+import com.jbh.finance.domain.movement.vo.IncomeCategory;
+
+/**
+ * Test fixtures for CategoryDomain objects.
+ * Provides pre-configured category instances for testing purposes.
+ */
+public final class CategoryFixtures {
+
+  public static final CategoryDomain OTHER_INCOME =
+      CategoryDomain.withCategoryType(IncomeCategory.OTHER);
+
+  public static final CategoryDomain PERSONAL_EXPENSE =
+      CategoryDomain.withCategoryType(ExpenseCategory.PERSONAL);
+
+  public static final CategoryDomain SALARY_INCOME =
+      CategoryDomain.withCategoryType(IncomeCategory.SALARY);
+
+  private CategoryFixtures() {
+    throw new AssertionError("Utility class - do not instantiate");
+  }
+}
+```
+
+### Using Fixtures in Tests
+
+Import fixtures using static imports:
+
+```java
+import static com.jbh.finance.testfixtures.CategoryFixtures.OTHER_INCOME;
+import static com.jbh.finance.testfixtures.CategoryFixtures.PERSONAL_EXPENSE;
+
+@Test
+void shouldCreateMovementWithCategory() {
+  final MovementDomain movement = MovementDomain.builder()
+      .category(OTHER_INCOME)
+      .amount(new BigDecimal("100.00"))
+      .build();
+
+  assertEquals(OTHER_INCOME, movement.getCategory());
+}
+```
+
+### Benefits
+
+1. **Clean Production Code** - No test-only constants in domain/application layers
+2. **Easy Discovery** - All test data in one place
+3. **Reduced Noise** - Searching for production usage doesn't show test references
+4. **Reusability** - All tests import from same location
+5. **Maintainability** - Change test data in one place
+
+### When to Use Fixtures
+
+✅ **Use fixtures for:**
+- Common domain objects used across many tests
+- Predefined categories, types, or enums
+- Standard test scenarios (valid/invalid states)
+- Frequently used value objects
+
+❌ **Don't use fixtures for:**
+- Test-specific data that varies per test
+- Data that needs customization per test (use builders instead)
+- One-off test scenarios
+
+---
+
 ## Test Categories
 
 ### 1. Value Object Tests

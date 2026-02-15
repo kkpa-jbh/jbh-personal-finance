@@ -1,7 +1,7 @@
 package com.jbh.finance.application.services;
 
-import static com.jbh.finance.domain.movement.CategoryDomain.OTHER_INCOME_CATEGORY;
-import static com.jbh.finance.domain.movement.CategoryDomain.PERSONAL_EXPENSE_CATEGORY;
+import static com.jbh.finance.testfixtures.CategoryFixtures.OTHER_INCOME;
+import static com.jbh.finance.testfixtures.CategoryFixtures.PERSONAL_EXPENSE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.jbh.commons.exception.BusinessException;
@@ -53,7 +53,7 @@ public class ProductServiceTest {
             amount1,
             balance1,
             MovementType.DEPOSIT,
-            OTHER_INCOME_CATEGORY);
+            OTHER_INCOME);
 
     final var amount2 = new BigDecimal("-50.00");
     final var balance2 = new BigDecimal("155.00");
@@ -65,7 +65,7 @@ public class ProductServiceTest {
             amount2,
             balance2,
             MovementType.WITHDRAWAL,
-            PERSONAL_EXPENSE_CATEGORY);
+            PERSONAL_EXPENSE);
 
     productLifecycleService.syncByUploadedMovements(
         accountDomain, List.of(newMovement1, newMovement2));
@@ -120,7 +120,7 @@ public class ProductServiceTest {
             totalAmount,
             balanceSnapshot,
             MovementType.DEPOSIT,
-            OTHER_INCOME_CATEGORY);
+            OTHER_INCOME);
     productLifecycleService.syncByUploadedMovements(
         accountDomain, Collections.singletonList(newMovement));
 

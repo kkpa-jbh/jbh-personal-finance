@@ -2,17 +2,10 @@ package com.jbh.finance.domain.movement;
 
 import com.jbh.finance.domain.movement.vo.CategorySource;
 import com.jbh.finance.domain.movement.vo.CategoryType;
-import com.jbh.finance.domain.movement.vo.ExpenseCategory;
-import com.jbh.finance.domain.movement.vo.IncomeCategory;
 import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 
 @SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
 public class CategoryDomain {
-  public static final CategoryDomain OTHER_INCOME_CATEGORY = withCategoryType(IncomeCategory.OTHER);
-
-  public static final CategoryDomain PERSONAL_EXPENSE_CATEGORY =
-      withCategoryType(ExpenseCategory.PERSONAL);
-
   private final CategoryType categoryType;
 
   public CategoryDomain(final CategoryType categoryType) {
