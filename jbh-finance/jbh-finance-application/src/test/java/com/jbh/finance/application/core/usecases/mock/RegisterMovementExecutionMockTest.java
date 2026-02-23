@@ -5,6 +5,7 @@ import static com.jbh.finance.application.builders.UseCaseBuilder.movementQueryR
 import static com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder.createMovement;
 import static com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder.createMovementWithType;
 import static com.jbh.finance.domain.movement.vo.MovementType.DEPOSIT;
+import static com.jbh.finance.testfixtures.CategoryFixtures.OTHER_INCOME_MOVEMENT;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,8 +38,6 @@ import com.jbh.finance.application.feature.product.mappers.ProductMapper;
 import com.jbh.finance.application.feature.product.ports.output.ProductRepository;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleServiceImpl;
-import com.jbh.finance.domain.movement.vo.IncomeCategory;
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
 import java.math.BigDecimal;
@@ -59,8 +58,6 @@ import org.slf4j.LoggerFactory;
 
 public class RegisterMovementExecutionMockTest {
 
-  public static final MovementCategoryVO OTHER_INCOME_CATEGORY =
-      MovementCategoryVO.withType(IncomeCategory.OTHER);
   static UUID userId = UUID.randomUUID();
   private static ProcessMovementService accountMovementService;
   private static ProductLifecycleService accountService;
@@ -108,7 +105,7 @@ public class RegisterMovementExecutionMockTest {
     final BigDecimal amount = new BigDecimal("100.00");
 
     final AddMovementCommand request =
-        createMovementWithType(movementDate, amount, DEPOSIT, OTHER_INCOME_CATEGORY);
+        createMovementWithType(movementDate, amount, DEPOSIT, OTHER_INCOME_MOVEMENT);
     final ProductDomain accountDomain = withId(accountId);
 
     final var dto = Optional.of(ProductMapper.toDTO(accountDomain));
@@ -205,7 +202,7 @@ public class RegisterMovementExecutionMockTest {
     final BigDecimal balanceSnapshot = new BigDecimal("35693653.00");
 
     final AddMovementCommand request =
-        createMovement(movementDate, amount, balanceSnapshot, DEPOSIT, OTHER_INCOME_CATEGORY);
+        createMovement(movementDate, amount, balanceSnapshot, DEPOSIT, OTHER_INCOME_MOVEMENT);
 
     final BigDecimal existingMovBalance = new BigDecimal("12591000.00");
 
@@ -288,7 +285,7 @@ public class RegisterMovementExecutionMockTest {
     // When & Then
     final BigDecimal amount = new BigDecimal("100.00");
     final AddMovementCommand request =
-        createMovementWithType(movementDate, amount, DEPOSIT, OTHER_INCOME_CATEGORY);
+        createMovementWithType(movementDate, amount, DEPOSIT, OTHER_INCOME_MOVEMENT);
     final AtomicReference<AddBasicMovementDTO> processedResponse = new AtomicReference<>();
     assertDoesNotThrow(
         () -> processedResponse.set(useCaseInstanceTest.addMovement(userId, accountId, request)));

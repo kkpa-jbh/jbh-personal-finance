@@ -8,6 +8,8 @@ import static com.jbh.finance.application.builders.UseCaseBuilder.delayTests;
 import static com.jbh.finance.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.finance.application.core.usecases.utils.MovementTypeUtils.BALANCE_SNAPSHOT_TESTSCOPE;
 import static com.jbh.finance.application.core.usecases.utils.MovementTypeUtils.WITHDRAWAL_TESTSCOPE;
+import static com.jbh.finance.testfixtures.CategoryFixtures.INITIAL_BALANCE;
+import static com.jbh.finance.testfixtures.CategoryFixtures.PERSONAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,9 +33,6 @@ import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.movement.usecases.LiquidateProductUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
-import com.jbh.finance.domain.movement.vo.ExpenseCategory;
-import com.jbh.finance.domain.movement.vo.IncomeCategory;
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import java.math.BigDecimal;
@@ -119,7 +118,7 @@ public class RegisterInvesmentMovementITTest {
             initialBalance,
             initialBalance,
             MovementType.DEPOSIT,
-            MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE));
+            INITIAL_BALANCE);
     addMovementUseCase.addMovement(userId, acciCuentaId, movement);
     addMovementUseCase.addMovement(userId, fondoAccionesId, movement);
   }
@@ -313,7 +312,7 @@ public class RegisterInvesmentMovementITTest {
             currentBalance,
             BigDecimal.ZERO,
             WITHDRAWAL_TESTSCOPE,
-            MovementCategoryVO.withType(ExpenseCategory.PERSONAL));
+            PERSONAL);
 
     assertThrows(
         BusinessException.class,

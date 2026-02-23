@@ -10,6 +10,8 @@ import static com.jbh.finance.application.builders.UseCaseBuilder.addMovementUse
 import static com.jbh.finance.application.builders.UseCaseBuilder.delayTests;
 import static com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder.withCategory;
 import static com.jbh.finance.application.core.usecases.utils.ProductITUtils.assertAccount;
+import static com.jbh.finance.testfixtures.CategoryFixtures.PERSONAL;
+import static com.jbh.finance.testfixtures.CategoryFixtures.PUBLIC_SERVICES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -24,8 +26,6 @@ import com.jbh.finance.application.feature.product.commands.CreateProductCommand
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.mappers.ProductMapper;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
-import com.jbh.finance.domain.movement.vo.ExpenseCategory;
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
 import com.jbh.finance.domain.product.vo.ProductType;
@@ -172,7 +172,7 @@ public class CreateProductITTest {
             personalExpense1,
             null,
             MovementType.WITHDRAWAL,
-            MovementCategoryVO.withType(ExpenseCategory.PERSONAL)));
+            PERSONAL));
 
     ProductDTO updatedAccount =
         inMemoryAccountRepo.findByProductId(creditCardAccountDTO.id()).get();
@@ -199,7 +199,7 @@ public class CreateProductITTest {
         withCategory(
             mvmDate.plus(1, ChronoUnit.DAYS),
             publicServicesExpense1,
-            MovementCategoryVO.withType(ExpenseCategory.PUBLIC_SERVICES)));
+            PUBLIC_SERVICES));
 
     updatedAccount = inMemoryAccountRepo.findByProductId(creditCardAccountDTO.id()).get();
 

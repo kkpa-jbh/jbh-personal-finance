@@ -5,6 +5,7 @@ import static com.jbh.finance.application.builders.CommandTestBuilder.createBasi
 import static com.jbh.finance.application.builders.CommandTestBuilder.createLoanCommand;
 import static com.jbh.finance.application.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
 import static com.jbh.finance.application.builders.UseCaseBuilder.delayTests;
+import static com.jbh.finance.testfixtures.CategoryFixtures.INITIAL_BALANCE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -26,8 +27,6 @@ import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.application.feature.product.usecases.UpdateProductUseCase;
-import com.jbh.finance.domain.movement.vo.IncomeCategory;
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
 import com.jbh.finance.domain.product.vo.ProductPK;
 import java.math.BigDecimal;
@@ -115,13 +114,13 @@ public class AddTransferProductsITTest {
         AddMovementCommandTestBuilder.withCategory(
             createdAccountsPeriod.atDay(1),
             withJBHDecimals(new BigDecimal("1000")),
-            MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE));
+            INITIAL_BALANCE);
 
     final AddMovementCommand toAccountInitialBalance =
         AddMovementCommandTestBuilder.withCategory(
             createdAccountsPeriod.atDay(2),
             withJBHDecimals(new BigDecimal("2000")),
-            MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE));
+            INITIAL_BALANCE);
 
     // Execute movements concurrently to simulate different users adding movements at the same time
     final ExecutorService executorService = Executors.newFixedThreadPool(2);

@@ -1,8 +1,11 @@
 package com.jbh.finance.application.builders.commands;
 
+import static com.jbh.finance.testfixtures.CategoryFixtures.DEPOSIT;
+import static com.jbh.finance.testfixtures.CategoryFixtures.INITIAL_BALANCE;
+import static com.jbh.finance.testfixtures.CategoryFixtures.PERSONAL;
+
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.domain.movement.vo.ExpenseCategory;
-import com.jbh.finance.domain.movement.vo.IncomeCategory;
 import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import java.math.BigDecimal;
@@ -78,8 +81,7 @@ public class AddMovementCommandTestBuilder {
 
   public static AddMovementCommand createDepositIncome(
       final LocalDate date, final BigDecimal amount) {
-    return AddMovementCommandTestBuilder.withCategory(
-        date, amount, MovementCategoryVO.withType(IncomeCategory.DEPOSIT));
+    return AddMovementCommandTestBuilder.withCategory(date, amount, DEPOSIT);
   }
 
   /**
@@ -119,8 +121,7 @@ public class AddMovementCommandTestBuilder {
 
   public static AddMovementCommand createPersonalExpense(
       final LocalDate date, final BigDecimal amount) {
-    return AddMovementCommandTestBuilder.withCategory(
-        date, amount, MovementCategoryVO.withType(ExpenseCategory.PERSONAL));
+    return AddMovementCommandTestBuilder.withCategory(date, amount, PERSONAL);
   }
 
   /**
@@ -132,7 +133,6 @@ public class AddMovementCommandTestBuilder {
    */
   public static AddMovementCommand createInitialBalance(
       final LocalDate date, final BigDecimal amount) {
-    return AddMovementCommandTestBuilder.withCategory(
-        date, amount, MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE));
+    return AddMovementCommandTestBuilder.withCategory(date, amount, INITIAL_BALANCE);
   }
 }

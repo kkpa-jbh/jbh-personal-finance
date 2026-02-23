@@ -1,6 +1,8 @@
 package com.jbh.finance.application.core.vo.commands;
 
 import static com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder.withBalanceSnapshot;
+import static com.jbh.finance.testfixtures.CategoryFixtures.PERSONAL;
+import static com.jbh.finance.testfixtures.CategoryFixtures.SALARY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -8,9 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
-import com.jbh.finance.domain.movement.vo.ExpenseCategory;
-import com.jbh.finance.domain.movement.vo.IncomeCategory;
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -24,10 +23,6 @@ class AddMovementCommandTest {
   private static final LocalDate TEST_DATE = LocalDate.of(2024, 1, 15);
   private static final BigDecimal TEST_AMOUNT = new BigDecimal("100.00");
   private static final BigDecimal TEST_SNAPSHOT = new BigDecimal("500.00");
-  private static final MovementCategoryVO INCOME_CATEGORY =
-      MovementCategoryVO.withType(IncomeCategory.SALARY);
-  private static final MovementCategoryVO EXPENSE_CATEGORY =
-      MovementCategoryVO.withType(ExpenseCategory.PERSONAL);
 
   @Nested
   @DisplayName("Builder Construction Tests")
@@ -42,7 +37,7 @@ class AddMovementCommandTest {
               .totalAmount(TEST_AMOUNT)
               .balanceSnapshot(TEST_SNAPSHOT)
               .movementType(MovementType.DEPOSIT)
-              .categoryDTO(INCOME_CATEGORY)
+              .categoryDTO(SALARY)
               .description("Test description")
               .build();
 
@@ -50,7 +45,7 @@ class AddMovementCommandTest {
       assertEquals(TEST_AMOUNT, command.totalAmount());
       assertEquals(TEST_SNAPSHOT, command.balanceSnapshot());
       assertEquals(MovementType.DEPOSIT, command.movementType());
-      assertEquals(INCOME_CATEGORY, command.categoryDTO());
+      assertEquals(SALARY, command.categoryDTO());
       assertEquals("Test description", command.description());
     }
 
@@ -58,13 +53,13 @@ class AddMovementCommandTest {
     @DisplayName("Should build command with category auto-derivation")
     void shouldBuildWithCategoryAutoDerivedType() {
       final AddMovementCommand command =
-          AddMovementCommandTestBuilder.withCategory(TEST_DATE, TEST_AMOUNT, INCOME_CATEGORY);
+          AddMovementCommandTestBuilder.withCategory(TEST_DATE, TEST_AMOUNT, SALARY);
 
       assertEquals(TEST_DATE, command.entryDate());
       assertEquals(TEST_AMOUNT, command.totalAmount());
       assertNull(command.balanceSnapshot());
       assertEquals(MovementType.DEPOSIT, command.movementType());
-      assertEquals(INCOME_CATEGORY, command.categoryDTO());
+      assertEquals(SALARY, command.categoryDTO());
       assertNull(command.description());
     }
 
@@ -72,19 +67,19 @@ class AddMovementCommandTest {
     @DisplayName("Should build command with balance snapshot")
     void shouldBuildWithBalanceSnapshot() {
       final AddMovementCommand command =
-          withBalanceSnapshot(TEST_DATE, TEST_SNAPSHOT, EXPENSE_CATEGORY, TEST_AMOUNT);
+          withBalanceSnapshot(TEST_DATE, TEST_SNAPSHOT, PERSONAL, TEST_AMOUNT);
       assertEquals(TEST_DATE, command.entryDate());
       assertEquals(TEST_AMOUNT, command.totalAmount());
       assertEquals(TEST_SNAPSHOT, command.balanceSnapshot());
       assertEquals(MovementType.WITHDRAWAL, command.movementType());
-      assertEquals(EXPENSE_CATEGORY, command.categoryDTO());
+      assertEquals(PERSONAL, command.categoryDTO());
     }
 
     @Test
     @DisplayName("Should auto-derive WITHDRAWAL type from expense category")
     void shouldAutoDeriveWithdrawalType() {
       final AddMovementCommand command =
-          AddMovementCommandTestBuilder.withCategory(TEST_DATE, TEST_AMOUNT, EXPENSE_CATEGORY);
+          AddMovementCommandTestBuilder.withCategory(TEST_DATE, TEST_AMOUNT, PERSONAL);
 
       assertEquals(MovementType.WITHDRAWAL, command.movementType());
     }
@@ -93,7 +88,7 @@ class AddMovementCommandTest {
     @DisplayName("Should auto-derive DEPOSIT type from income category")
     void shouldAutoDeriveDepositType() {
       final AddMovementCommand command =
-          AddMovementCommandTestBuilder.withCategory(TEST_DATE, TEST_AMOUNT, INCOME_CATEGORY);
+          AddMovementCommandTestBuilder.withCategory(TEST_DATE, TEST_AMOUNT, SALARY);
 
       assertEquals(MovementType.DEPOSIT, command.movementType());
     }
@@ -110,7 +105,7 @@ class AddMovementCommandTest {
           AddMovementCommand.builder()
               .totalAmount(TEST_AMOUNT)
               .movementType(MovementType.DEPOSIT)
-              .categoryDTO(INCOME_CATEGORY)
+              .categoryDTO(SALARY)
               .build();
 
       final IllegalArgumentException exception =
@@ -125,7 +120,7 @@ class AddMovementCommandTest {
           AddMovementCommand.builder()
               .entryDate(TEST_DATE)
               .totalAmount(TEST_AMOUNT)
-              .categoryDTO(INCOME_CATEGORY)
+              .categoryDTO(SALARY)
               .build();
 
       final IllegalArgumentException exception =
@@ -140,7 +135,7 @@ class AddMovementCommandTest {
           AddMovementCommand.builder()
               .entryDate(TEST_DATE)
               .movementType(MovementType.DEPOSIT)
-              .categoryDTO(INCOME_CATEGORY)
+              .categoryDTO(SALARY)
               .build();
 
       final IllegalArgumentException exception =
@@ -156,7 +151,7 @@ class AddMovementCommandTest {
               .entryDate(TEST_DATE)
               .totalAmount(new BigDecimal("-100.00"))
               .movementType(MovementType.DEPOSIT)
-              .categoryDTO(INCOME_CATEGORY)
+              .categoryDTO(SALARY)
               .build();
 
       final IllegalArgumentException exception =
@@ -168,7 +163,7 @@ class AddMovementCommandTest {
     @DisplayName("Should pass validation with valid total amount only")
     void shouldPassValidationWithTotalAmountOnly() {
       final AddMovementCommand command =
-          AddMovementCommandTestBuilder.withCategory(TEST_DATE, TEST_AMOUNT, INCOME_CATEGORY);
+          AddMovementCommandTestBuilder.withCategory(TEST_DATE, TEST_AMOUNT, SALARY);
 
       command.validate();
 
@@ -180,7 +175,7 @@ class AddMovementCommandTest {
     @DisplayName("Should pass validation with valid balance snapshot only")
     void shouldPassValidationWithBalanceSnapshotOnly() {
       final AddMovementCommand command =
-          withBalanceSnapshot(TEST_DATE, TEST_SNAPSHOT, INCOME_CATEGORY, null);
+          withBalanceSnapshot(TEST_DATE, TEST_SNAPSHOT, SALARY, null);
 
       command.validate();
 
@@ -192,7 +187,7 @@ class AddMovementCommandTest {
     @DisplayName("Should pass validation with both amounts")
     void shouldPassValidationWithBothAmounts() {
       final AddMovementCommand command =
-          withBalanceSnapshot(TEST_DATE, TEST_SNAPSHOT, INCOME_CATEGORY, TEST_AMOUNT);
+          withBalanceSnapshot(TEST_DATE, TEST_SNAPSHOT, SALARY, TEST_AMOUNT);
 
       command.validate();
 
@@ -204,7 +199,7 @@ class AddMovementCommandTest {
     @DisplayName("Should pass validation with zero total amount")
     void shouldPassValidationWithZeroTotalAmount() {
       final AddMovementCommand command =
-          AddMovementCommandTestBuilder.withCategory(TEST_DATE, BigDecimal.ZERO, INCOME_CATEGORY);
+          AddMovementCommandTestBuilder.withCategory(TEST_DATE, BigDecimal.ZERO, SALARY);
 
       command.validate();
 
@@ -225,7 +220,7 @@ class AddMovementCommandTest {
               .totalAmount(TEST_AMOUNT)
               .balanceSnapshot(TEST_SNAPSHOT)
               .movementType(MovementType.DEPOSIT)
-              .categoryDTO(INCOME_CATEGORY)
+              .categoryDTO(SALARY)
               .description("Chained")
               .build();
 
@@ -237,7 +232,7 @@ class AddMovementCommandTest {
     @DisplayName("Should allow adding total amount to withBalanceSnapshot builder")
     void shouldAllowAddingTotalAmountToWithBalanceSnapshotBuilder() {
       final AddMovementCommand command =
-          withBalanceSnapshot(TEST_DATE, TEST_SNAPSHOT, INCOME_CATEGORY, TEST_AMOUNT);
+          withBalanceSnapshot(TEST_DATE, TEST_SNAPSHOT, SALARY, TEST_AMOUNT);
       assertEquals(TEST_AMOUNT, command.totalAmount());
       assertEquals(TEST_SNAPSHOT, command.balanceSnapshot());
     }
