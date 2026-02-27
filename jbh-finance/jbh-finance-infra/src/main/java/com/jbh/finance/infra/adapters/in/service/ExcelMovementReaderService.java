@@ -78,7 +78,7 @@ public final class ExcelMovementReaderService {
    * Main method that reads Excel data and transforms it to AddMovementsUploadedFileRequest objects.
    *
    * @param fileInputStream The Excel file input stream
-   * @param sheetName The name of the sheet to read from
+   * @param sheetName The alias of the sheet to read from
    * @return List of AddMovementsUploadedFileRequest objects in the same order as Excel rows
    * @throws ExcelReadingException if there's an error reading or parsing the Excel file
    */
@@ -99,7 +99,7 @@ public final class ExcelMovementReaderService {
    * consecutive empty rows.
    *
    * @param fileInputStream The Excel file input stream
-   * @param sheetName The name of the sheet to read from
+   * @param sheetName The alias of the sheet to read from
    * @return List of string arrays representing each row (excluding headers)
    * @throws ExcelReadingException if there's an error accessing the Excel file or sheet
    */

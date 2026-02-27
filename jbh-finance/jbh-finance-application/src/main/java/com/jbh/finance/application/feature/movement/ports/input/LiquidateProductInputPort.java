@@ -1,6 +1,7 @@
 package com.jbh.finance.application.feature.movement.ports.input;
 
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.finance.application.feature.category.services.CategoryService;
 import com.jbh.finance.application.feature.movement.commands.LiquidateProductCommand;
 import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
 import com.jbh.finance.application.feature.movement.dto.LiquidationResultDTO;
@@ -22,24 +23,29 @@ public class LiquidateProductInputPort implements LiquidateProductUseCase {
 
   private final ProductLifecycleService accountService;
   private final ProcessMovementService movementApplicationService;
+  private final CategoryService categoryService;
 
   public LiquidateProductInputPort(
       final ProductLifecycleService accountService,
-      final ProcessMovementService movementApplicationService) {
+      final ProcessMovementService movementApplicationService,
+      final CategoryService categoryService) {
     this.accountService = accountService;
     this.movementApplicationService = movementApplicationService;
+    this.categoryService = categoryService;
   }
 
   @Override
   public LiquidationResultDTO liquidateAccount(
       final UUID userId,
-      final ProductId accountId,
+      final ProductId productId,
       final LiquidateProductCommand liquidationCommand)
       throws BusinessException {
 
     liquidationCommand.validate();
 
-    final var movementDTO = MovementMapper.fromCommand(accountId, liquidationCommand);
+    final var movementDTO =
+        MovementMapper.fromCommand(
+            productId, liquidationCommand, categoryService.findInvestmentToCloseIt());
     ProductDTO toInternalAccount = null;
     if (liquidationCommand.toInternalAccount().isPresent()) {
       final var internalAccountId = liquidationCommand.toInternalAccount().get().productId();
@@ -47,9 +53,9 @@ public class LiquidateProductInputPort implements LiquidateProductUseCase {
       movementDTO.metadata().putTargetInternalAccount(toInternalAccount.toDomain());
     }
 
-    final ProductPK accountPK = new ProductPK(userId, accountId);
+    final ProductPK accountPK = new ProductPK(userId, productId);
 
-    LOG.info("Liquidating productDTO {} ", accountId);
+    LOG.info("Liquidating productDTO {} ", productId);
     final AddBasicMovementDTO addedMovementDTO =
         movementApplicationService.processMovement(movementDTO, accountPK, false);
 

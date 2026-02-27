@@ -3,16 +3,21 @@ package com.jbh.finance.application.feature.movement.ports.input;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.acid.UnitOfWork;
 import com.jbh.finance.application.common.logging.LoggerFactory;
+import com.jbh.finance.application.feature.category.dto.CategoryDTO;
+import com.jbh.finance.application.feature.category.services.CategoryService;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.finance.application.feature.movement.commands.AddMovementUploadedFileCommand;
 import com.jbh.finance.application.feature.movement.dto.AddMultipleBasicMovementDTO;
+import com.jbh.finance.application.feature.movement.mappers.CategoryMapper;
 import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
 import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementsUploadedFileUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.domain.movement.MovementDomain;
+import com.jbh.finance.domain.movement.vo.MovementMetadata;
+import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
 import java.math.BigDecimal;
@@ -30,16 +35,19 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
   private final ProductLifecycleService accountService;
   private final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService;
   private final UnitOfWork unitOfWork;
+  private final CategoryService categoryService;
 
   public AddMovementsUploadedFileInputPort(
       final ProductLifecycleService accountService,
       final MovementWriterRepository movementRepo,
       final UnitOfWork unitOfWork,
-      final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService) {
+      final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService,
+      final CategoryService categoryService) {
     this.movementRepo = movementRepo;
     this.accountService = accountService;
     this.unitOfWork = unitOfWork;
     this.monthlyBalanceSyncerService = monthlyBalanceSyncerService;
+    this.categoryService = categoryService;
   }
 
   /**
@@ -107,19 +115,36 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
   private List<MovementDomain> mapCommandToDomain(
       final List<AddMovementUploadedFileCommand> allSimpleMovements,
       final ProductDomain accountDomain) {
+    final var importedAt = LocalDateTime.now();
     return allSimpleMovements.stream()
         .map(
             mvmntCommand -> {
               final BigDecimal totalAmount = mvmntCommand.totalAmount();
+              final MovementType movementType = mvmntCommand.movementType();
+              CategoryDTO categoryDTO = null;
+              if (movementType == MovementType.DEPOSIT) {
+                categoryDTO = getOtherIncomeCategory();
+              } else if (movementType == MovementType.WITHDRAWAL) {
+                categoryDTO = getUnknownExpenseCategory();
+              }
 
               try {
-                return MovementDomain.withFileImport(
-                    accountDomain.getId(),
-                    mvmntCommand.entryDate(),
-                    totalAmount,
-                    mvmntCommand.balanceSnapshot(),
-                    mvmntCommand.movementType(),
-                    LocalDateTime.now());
+                final var mov =
+                    new MovementDomain(
+                        accountDomain.getId(),
+                        movementType,
+                        mvmntCommand.entryDate(),
+                        totalAmount,
+                        mvmntCommand.balanceSnapshot(),
+                        MovementMetadata.createEmpty(),
+                        CategoryMapper.toDomain(categoryDTO),
+                        null);
+
+                mov.validate();
+                mov.getMetadata().putFileImportedAt(importedAt);
+
+                return mov;
+
               } catch (final BusinessException e) {
                 throw new RuntimeException(e);
               }
@@ -136,5 +161,13 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
           LOG.info("Saving productDTO changes");
           accountService.save(accountDTO);
         });
+  }
+
+  private CategoryDTO getOtherIncomeCategory() {
+    return categoryService.findIncomeOther();
+  }
+
+  private CategoryDTO getUnknownExpenseCategory() {
+    return categoryService.findExpenseUnknown();
   }
 }

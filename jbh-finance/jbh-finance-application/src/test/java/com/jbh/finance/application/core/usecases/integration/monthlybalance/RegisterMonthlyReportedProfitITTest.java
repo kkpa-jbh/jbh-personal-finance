@@ -19,6 +19,7 @@ import com.jbh.finance.application.builders.EntityTestBuilder;
 import com.jbh.finance.application.builders.UseCaseBuilder;
 import com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder;
 import com.jbh.finance.application.core.ports.output.product.InMemoryProductRepository;
+import com.jbh.finance.application.feature.category.dto.CategoryDTO;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
@@ -30,12 +31,10 @@ import com.jbh.finance.application.feature.movement.services.ProcessMovementServ
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
-import com.jbh.finance.domain.movement.vo.CategoryType;
-import com.jbh.finance.domain.movement.vo.ExpenseCategory;
-import com.jbh.finance.domain.movement.vo.IncomeCategory;
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
+import com.jbh.finance.domain.category.vo.CategoryTypeVO;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductType;
+import com.jbh.finance.testfixtures.CategoryFixturesTestApp;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -210,7 +209,8 @@ public class RegisterMonthlyReportedProfitITTest {
     final BigDecimal deposit2 = withJBHDecimals(new BigDecimal("100"));
     final BigDecimal snapshot2 = withJBHDecimals(new BigDecimal("1160"));
     final var period = command.monthlyPeriod();
-    addMovement(period, IncomeCategory.SALARY, deposit2, snapshot2);
+    addMovement(
+        period, CategoryFixturesTestApp.INCOME_DEPOSIT_DOMAIN.getType(), deposit2, snapshot2);
 
     LOG.info("Checking Current Balance Month2 after adding movement");
     final MonthlyBalanceDTO currentMonthlyBalance =
@@ -279,14 +279,14 @@ public class RegisterMonthlyReportedProfitITTest {
 
   private void addMovement(
       final YearMonth period,
-      final CategoryType categoryType,
+      final CategoryTypeVO categoryType,
       final BigDecimal amount,
       final BigDecimal balanceSnapshot) {
     final AddMovementCommand movement =
         AddMovementCommandTestBuilder.withBalanceSnapshot(
             LocalDate.of(period.getYear(), period.getMonthValue(), 15),
             balanceSnapshot,
-            MovementCategoryVO.withType(categoryType),
+            CategoryDTO.withInternalPurpose(categoryType, null),
             amount);
     try {
       addMovementUseCase.addMovement(userId, accountId, movement);
@@ -316,7 +316,8 @@ public class RegisterMonthlyReportedProfitITTest {
     final BigDecimal withdrawal = withJBHDecimals(new BigDecimal("300"));
     final BigDecimal snapshotWithdrawal = withJBHDecimals(new BigDecimal("900"));
 
-    addMovement(period, ExpenseCategory.PERSONAL, withdrawal, snapshotWithdrawal);
+    addMovement(
+        period, CategoryFixturesTestApp.UNKNOWN_EXPENSE.getType(), withdrawal, snapshotWithdrawal);
 
     LOG.info("Checking Current Balance after withdrawing");
     final MonthlyBalanceDTO currentMonthlyBalance =
@@ -335,7 +336,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
     final BigDecimal deposit = withJBHDecimals(new BigDecimal("200"));
     final BigDecimal snapshotDeposit = withJBHDecimals(new BigDecimal("1130"));
-    addMovement(period, IncomeCategory.SALARY, deposit, snapshotDeposit);
+    addMovement(period, CategoryFixturesTestApp.SALARY.getCategoryType(), deposit, snapshotDeposit);
 
     LOG.info("Checking Current Balance after depositing");
     final MonthlyBalanceDTO currentMonthlyBalance2 =
@@ -425,15 +426,15 @@ public class RegisterMonthlyReportedProfitITTest {
 
     final BigDecimal deposit1 = withJBHDecimals(new BigDecimal("200"));
     final BigDecimal snapshot1 = withJBHDecimals(new BigDecimal("1200"));
-    addMovement(period, IncomeCategory.SALARY, deposit1, snapshot1);
+    addMovement(period, CategoryFixturesTestApp.SALARY.getCategoryType(), deposit1, snapshot1);
 
     final BigDecimal withdrawal1 = withJBHDecimals(new BigDecimal("100"));
     final BigDecimal snapshot2 = withJBHDecimals(new BigDecimal("1050"));
-    addMovement(period, ExpenseCategory.PERSONAL, withdrawal1, snapshot2);
+    addMovement(period, CategoryFixturesTestApp.UNKNOWN_EXPENSE.getType(), withdrawal1, snapshot2);
 
     final BigDecimal withdrawal2 = withJBHDecimals(new BigDecimal("350"));
     final BigDecimal snapshot3 = withJBHDecimals(new BigDecimal("700"));
-    addMovement(period, ExpenseCategory.PERSONAL, withdrawal2, snapshot3);
+    addMovement(period, CategoryFixturesTestApp.UNKNOWN_EXPENSE.getType(), withdrawal2, snapshot3);
 
     LOG.info("Checking Current Balance after 3 movements");
     final MonthlyBalanceDTO currentBalanceAfter3Movements =
@@ -535,7 +536,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
     final var withDrawal1 = withJBHDecimals(new BigDecimal("100"));
     final var snapshot1 = withJBHDecimals(new BigDecimal("410"));
-    addMovement(period, ExpenseCategory.PERSONAL, withDrawal1, snapshot1);
+    addMovement(period, CategoryFixturesTestApp.UNKNOWN_EXPENSE.getType(), withDrawal1, snapshot1);
 
     // Registering Monthly Balance
     final MonthlyBalanceDTO finalReportedMonthlyBalance =
@@ -595,7 +596,7 @@ public class RegisterMonthlyReportedProfitITTest {
 
     final var deposit1 = withJBHDecimals(new BigDecimal("120"));
     final var snapshot1 = withJBHDecimals(new BigDecimal("530"));
-    addMovement(period, IncomeCategory.SALARY, deposit1, snapshot1);
+    addMovement(period, CategoryFixturesTestApp.SALARY.getCategoryType(), deposit1, snapshot1);
 
     // Registering Monthly Balance
     final MonthlyBalanceDTO finalReportedMonthlyBalance =
@@ -744,7 +745,11 @@ public class RegisterMonthlyReportedProfitITTest {
     assertThrows(
         RuntimeException.class,
         () -> {
-          addMovement(YearMonth.of(2024, 9), ExpenseCategory.PERSONAL, deposit, snapshot);
+          addMovement(
+              YearMonth.of(2024, 9),
+              CategoryFixturesTestApp.UNKNOWN_EXPENSE.getType(),
+              deposit,
+              snapshot);
         },
         message);
 
@@ -760,7 +765,7 @@ public class RegisterMonthlyReportedProfitITTest {
     final BigDecimal deposit = withJBHDecimals(new BigDecimal("10"));
     final BigDecimal snapshot = null;
 
-    addMovement(monthlyPeriod, IncomeCategory.SALARY, deposit, snapshot);
+    addMovement(monthlyPeriod, CategoryFixturesTestApp.SALARY.getCategoryType(), deposit, snapshot);
 
     final MonthlyBalanceDTO actualReported20249 =
         monthlyBalanceService.findByAccountIdAndPeriod(accountId, monthlyPeriod).get();

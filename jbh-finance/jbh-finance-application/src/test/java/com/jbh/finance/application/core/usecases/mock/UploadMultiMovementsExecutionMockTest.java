@@ -65,7 +65,7 @@ import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@TestMethodOrder(MethodOrderer.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class UploadMultiMovementsExecutionMockTest {
   static ProductId accountId = ProductId.generate();
   static UUID userId = UUID.randomUUID();
@@ -104,7 +104,11 @@ public class UploadMultiMovementsExecutionMockTest {
 
     useCaseInstanceTest =
         new AddMovementsUploadedFileInputPort(
-            accountService, accountMovementRepository, unitOfWork, monthlyBalanceSyncerService);
+            accountService,
+            accountMovementRepository,
+            unitOfWork,
+            monthlyBalanceSyncerService,
+            UseCaseBuilder.categoryServiceMock);
 
     createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
   }

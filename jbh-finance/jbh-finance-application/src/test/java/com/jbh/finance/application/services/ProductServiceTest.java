@@ -1,20 +1,21 @@
 package com.jbh.finance.application.services;
 
-import static com.jbh.finance.testfixtures.CategoryFixtures.OTHER_INCOME;
-import static com.jbh.finance.testfixtures.CategoryFixtures.PERSONAL_EXPENSE;
+import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.INCOME_OTHER;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.finance.application.builders.ProductEntityBuilder;
 import com.jbh.finance.application.builders.UseCaseBuilder;
+import com.jbh.finance.application.feature.category.dto.CategoryDTO;
+import com.jbh.finance.application.feature.movement.mappers.CategoryMapper;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
-import com.jbh.finance.domain.movement.CategoryDomain;
 import com.jbh.finance.domain.movement.MovementDomain;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
+import com.jbh.finance.testfixtures.CategoryFixturesTestApp;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -53,7 +54,7 @@ public class ProductServiceTest {
             amount1,
             balance1,
             MovementType.DEPOSIT,
-            OTHER_INCOME);
+            INCOME_OTHER);
 
     final var amount2 = new BigDecimal("-50.00");
     final var balance2 = new BigDecimal("155.00");
@@ -65,7 +66,7 @@ public class ProductServiceTest {
             amount2,
             balance2,
             MovementType.WITHDRAWAL,
-            PERSONAL_EXPENSE);
+            CategoryFixturesTestApp.EXPENSE_UNKNOWN);
 
     productLifecycleService.syncByUploadedMovements(
         accountDomain, List.of(newMovement1, newMovement2));
@@ -81,7 +82,7 @@ public class ProductServiceTest {
       final BigDecimal totalAmount,
       final BigDecimal balanceSnapshot,
       final MovementType movementType,
-      final CategoryDomain category) {
+      final CategoryDTO category) {
 
     final MovementDomain movDomain =
         new MovementDomain(
@@ -91,7 +92,7 @@ public class ProductServiceTest {
             totalAmount,
             balanceSnapshot,
             MovementMetadata.createEmpty(),
-            category,
+            CategoryMapper.toDomain(category),
             null);
 
     try {
@@ -120,7 +121,7 @@ public class ProductServiceTest {
             totalAmount,
             balanceSnapshot,
             MovementType.DEPOSIT,
-            OTHER_INCOME);
+            INCOME_OTHER);
     productLifecycleService.syncByUploadedMovements(
         accountDomain, Collections.singletonList(newMovement));
 

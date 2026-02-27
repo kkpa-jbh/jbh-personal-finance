@@ -1,5 +1,7 @@
 package com.jbh.finance.domain.movement.vo;
 
+import com.jbh.finance.domain.category.vo.CategorySourceVO;
+import com.jbh.finance.domain.category.vo.CategoryTypeVO;
 import java.math.BigDecimal;
 
 public enum MovementType {
@@ -35,11 +37,11 @@ public enum MovementType {
     return movementType;
   }
 
-  public static MovementType findByCategory(final MovementCategoryVO movementCategoryDTO) {
-    if (movementCategoryDTO == null) {
+  public static MovementType findByCategory(final CategoryTypeVO categoryType) {
+    if (categoryType == null) {
       throw new IllegalArgumentException("Category cannot be null");
     }
-    return movementCategoryDTO.getSource() == CategorySource.INCOME ? DEPOSIT : WITHDRAWAL;
+    return categoryType.getSource() == CategorySourceVO.INCOME ? DEPOSIT : WITHDRAWAL;
   }
 
   public boolean isDeposit() {

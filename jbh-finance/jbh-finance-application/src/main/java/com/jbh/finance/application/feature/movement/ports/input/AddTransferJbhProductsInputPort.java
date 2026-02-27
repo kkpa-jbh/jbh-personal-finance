@@ -1,6 +1,8 @@
 package com.jbh.finance.application.feature.movement.ports.input;
 
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.finance.application.feature.category.dto.CategoryDTO;
+import com.jbh.finance.application.feature.category.services.CategoryService;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.commands.AddTransferCommand;
 import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
@@ -9,9 +11,6 @@ import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhProdu
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.mappers.ProductMapper;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
-import com.jbh.finance.domain.movement.vo.ExpenseCategory;
-import com.jbh.finance.domain.movement.vo.IncomeCategory;
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductPK;
 import com.jbh.finance.domain.shared.exceptions.BusinessDomainExceptionType;
@@ -25,13 +24,16 @@ public class AddTransferJbhProductsInputPort implements AddTransferJbhProductsUs
   private static final Logger LOG = LoggerFactory.getLogger(AddTransferJbhProductsInputPort.class);
   private final ProcessMovementService processMovementService;
   private final ProductLifecycleService productLifecycleService;
+  private final CategoryService categoryService;
 
   public AddTransferJbhProductsInputPort(
       final ProductLifecycleService productLifecycleService,
-      final ProcessMovementService processMovementService) {
+      final ProcessMovementService processMovementService,
+      final CategoryService categoryService) {
 
     this.productLifecycleService = productLifecycleService;
     this.processMovementService = processMovementService;
+    this.categoryService = categoryService;
   }
 
   @Override
@@ -57,9 +59,9 @@ public class AddTransferJbhProductsInputPort implements AddTransferJbhProductsUs
         toAccountDTO.name(),
         transferAmount);
 
-    final MovementCategoryVO incomeTransferCategory =
-        MovementCategoryVO.withType(IncomeCategory.TRANSFER);
-    final MovementType movementType = MovementType.findByCategory(incomeTransferCategory);
+    final CategoryDTO incomeTransferCategory = categoryService.findIncomeTransfer();
+    final MovementType movementType =
+        MovementType.findByCategory(incomeTransferCategory.getCategoryType());
 
     final var movementCommandFrom =
         new AddMovementCommand(
@@ -71,10 +73,9 @@ public class AddTransferJbhProductsInputPort implements AddTransferJbhProductsUs
             "Transfer from " + fromAccountName + " to " + toAccountName);
     transferValidationFROM(fromAccountDTO, movementCommandFrom);
 
-    final MovementCategoryVO expenseTransferCategory =
-        MovementCategoryVO.withType(ExpenseCategory.TRANSFER);
+    final CategoryDTO expenseTransferCategory = categoryService.findExpenseTransfer();
     final MovementType expenseTransferMovementType =
-        MovementType.findByCategory(expenseTransferCategory);
+        MovementType.findByCategory(expenseTransferCategory.getCategoryType());
     final var movementCommandTo =
         new AddMovementCommand(
             transferDate,

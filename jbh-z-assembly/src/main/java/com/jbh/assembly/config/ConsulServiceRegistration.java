@@ -132,7 +132,7 @@ public class ConsulServiceRegistration {
 
     if (response.statusCode() == Status.OK.getStatusCode()) {
       LOG.infof(
-          "Service successfully registered with Consul: id=%s, name=%s, address=%s:%d, tags=%s",
+          "Service successfully registered with Consul: id=%s, alias=%s, address=%s:%d, tags=%s",
           serviceId, serviceName, serviceAddress, servicePort, serviceTags);
     } else {
       LOG.errorf(
@@ -182,7 +182,7 @@ public class ConsulServiceRegistration {
 
   private void deregisterService() throws IOException, InterruptedException {
     LOG.infof(
-        "Initiating service deregistration from Consul: id=%s, name=%s", serviceId, serviceName);
+        "Initiating service deregistration from Consul: id=%s, alias=%s", serviceId, serviceName);
 
     final String consulUrl =
         String.format(

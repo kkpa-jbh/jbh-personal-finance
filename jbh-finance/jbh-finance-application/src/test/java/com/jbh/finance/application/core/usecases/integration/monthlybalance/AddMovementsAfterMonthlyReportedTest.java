@@ -15,6 +15,7 @@ import com.jbh.finance.application.builders.UseCaseBuilder;
 import com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder;
 import com.jbh.finance.application.builders.commands.MonthlyBalanceCommandTest;
 import com.jbh.finance.application.core.ports.output.product.InMemoryProductRepository;
+import com.jbh.finance.application.feature.category.dto.CategoryDTO;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
@@ -25,12 +26,10 @@ import com.jbh.finance.application.feature.movement.ports.output.MovementWriterR
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
-import com.jbh.finance.domain.movement.vo.CategoryType;
-import com.jbh.finance.domain.movement.vo.ExpenseCategory;
-import com.jbh.finance.domain.movement.vo.IncomeCategory;
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
+import com.jbh.finance.domain.category.vo.CategoryTypeVO;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductType;
+import com.jbh.finance.testfixtures.CategoryFixturesTestApp;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -148,7 +147,8 @@ public class AddMovementsAfterMonthlyReportedTest {
   @Order(1)
   void addingWithdrawal1() {
     final BigDecimal withDrawal1 = withdrawalMovements.get(0);
-    addMovement(reportedPeriod, ExpenseCategory.PERSONAL, withDrawal1, null);
+    addMovement(
+        reportedPeriod, CategoryFixturesTestApp.UNKNOWN_EXPENSE.getType(), withDrawal1, null);
 
     final MonthlyBalanceDTO currentMonthlyBalance =
         monthlyBalanceService.findByAccountIdAndPeriod(productId, reportedPeriod).get();
@@ -184,14 +184,14 @@ public class AddMovementsAfterMonthlyReportedTest {
 
   private void addMovement(
       final YearMonth period,
-      final CategoryType categoryType,
+      final CategoryTypeVO categoryType,
       final BigDecimal amount,
       final BigDecimal balanceSnapshot) {
     final AddMovementCommand movement =
         AddMovementCommandTestBuilder.withBalanceSnapshot(
             LocalDate.of(period.getYear(), period.getMonthValue(), 15),
             balanceSnapshot,
-            MovementCategoryVO.withType(categoryType),
+            CategoryDTO.withInternalPurpose(categoryType, null),
             amount);
     try {
       addMovementUseCase.addMovement(userId, productId, movement);
@@ -212,7 +212,7 @@ public class AddMovementsAfterMonthlyReportedTest {
     final BigDecimal deposit = depositMovements.get(0);
     final BigDecimal withDrawal1 = withdrawalMovements.get(0);
 
-    addMovement(reportedPeriod, IncomeCategory.SALARY, deposit, null);
+    addMovement(reportedPeriod, CategoryFixturesTestApp.SALARY.getCategoryType(), deposit, null);
 
     final MonthlyBalanceDTO currentMonthlyBalance =
         monthlyBalanceService.findByAccountIdAndPeriod(productId, reportedPeriod).get();
@@ -253,7 +253,9 @@ public class AddMovementsAfterMonthlyReportedTest {
 
     Assertions.assertThrows(
         RuntimeException.class,
-        () -> addMovement(reportedPeriod, IncomeCategory.SALARY, deposit, null));
+        () ->
+            addMovement(
+                reportedPeriod, CategoryFixturesTestApp.SALARY.getCategoryType(), deposit, null));
   }
 
   @Test
@@ -263,10 +265,16 @@ public class AddMovementsAfterMonthlyReportedTest {
     final BigDecimal withdrawal2 = new BigDecimal("10");
 
     // Nothing happens, the balance has enought still (5 more)
-    addMovement(reportedPeriod, ExpenseCategory.PERSONAL, withdrawal1, null);
+    addMovement(
+        reportedPeriod, CategoryFixturesTestApp.UNKNOWN_EXPENSE.getType(), withdrawal1, null);
 
     Assertions.assertThrows(
         RuntimeException.class,
-        () -> addMovement(reportedPeriod, ExpenseCategory.PERSONAL, withdrawal2, null));
+        () ->
+            addMovement(
+                reportedPeriod,
+                CategoryFixturesTestApp.UNKNOWN_EXPENSE.getType(),
+                withdrawal2,
+                null));
   }
 }

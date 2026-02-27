@@ -6,6 +6,7 @@ import com.jbh.finance.application.core.ports.output.movement.InMemoryMovementQu
 import com.jbh.finance.application.core.ports.output.movement.InMemoryMovementRepository;
 import com.jbh.finance.application.core.ports.output.product.InMemoryProductRepository;
 import com.jbh.finance.application.core.usecases.utils.UnitOfWorkTest;
+import com.jbh.finance.application.feature.category.services.CategoryService;
 import com.jbh.finance.application.feature.monthlybalance.ports.input.FindMonthlyBalanceInputPort;
 import com.jbh.finance.application.feature.monthlybalance.ports.input.RegisterMonthlyBalanceInputPort;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceQueryRepo;
@@ -31,31 +32,33 @@ import com.jbh.finance.application.feature.product.services.ProductLifecycleServ
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.application.feature.product.usecases.UpdateProductUseCase;
 import com.jbh.finance.domain.product.vo.ProductType;
+import com.jbh.finance.testfixtures.CategoryServiceMock;
 
 public class UseCaseBuilder {
 
   public static final String DEFAULT_ACCOUNT_NAME = "Account 1";
   public static final ProductType DEFAULT_ACCOUNT_TYPE = ProductType.SAVINGS;
-
+  // FIXME Centralize the constructors that are using this serviceMock.
+  public static final CategoryService categoryServiceMock = buildCategoryService();
   // Account
   private static final InMemoryProductRepository inMemoryAccountRepo =
       new InMemoryProductRepository();
   private static final InMemoryMonthlyBalanceRepositories inMemoryMonthlyBalanceRepos =
       new InMemoryMonthlyBalanceRepositories();
-
   static final MonthlyBalanceWriterRepo monthlyBalanceInMemoWriter =
       inMemoryMonthlyBalanceRepos.getWriterRepo();
   static final MonthlyBalanceQueryRepo monthlyBalanceInMemoQuery =
       inMemoryMonthlyBalanceRepos.getQueryRepo();
-
   public static InMemoryMovementQueryRepository movementQueryRepository =
       new InMemoryMovementQueryRepository();
-
   static final MovementWriterRepository movementInMemoWriter =
       new InMemoryMovementRepository(movementQueryRepository);
-
   public static final AddMovementUseCase addMovementUseCase =
       buildAddMovementUseCase(movementInMemoWriter);
+
+  private static CategoryService buildCategoryService() {
+    return new CategoryServiceMock();
+  }
 
   // Use Cases
 
@@ -80,7 +83,8 @@ public class UseCaseBuilder {
     return new RegisterMonthlyBalanceInputPort(
         buildMonthlyBalanceService(),
         buildAccountService(),
-        buildAccountMovementApplicationService(accountMovementRepository));
+        buildAccountMovementApplicationService(accountMovementRepository),
+        categoryServiceMock);
   }
 
   public static AddMovementUseCase buildAddMovementUseCase(
@@ -108,7 +112,9 @@ public class UseCaseBuilder {
   public static AddTransferJbhProductsUseCase buildAddTransferUseCase(
       final MovementWriterRepository accountMovementRepository) {
     return new AddTransferJbhProductsInputPort(
-        buildAccountService(), buildAccountMovementApplicationService(accountMovementRepository));
+        buildAccountService(),
+        buildAccountMovementApplicationService(accountMovementRepository),
+        categoryServiceMock);
   }
 
   public static ProcessMovementServiceImpl buildAccountMovementApplicationService(
@@ -117,7 +123,8 @@ public class UseCaseBuilder {
         buildAccountMovementService(accountMovementRepository),
         buildAccountService(),
         buildMonthlyBalanceService(),
-        new UnitOfWorkTest());
+        new UnitOfWorkTest(),
+        categoryServiceMock);
   }
 
   public static MovementLifecycleService buildAccountMovementService(
@@ -136,7 +143,9 @@ public class UseCaseBuilder {
   public static LiquidateProductUseCase buildLiquidateAccountUseCase(
       final MovementWriterRepository accountMovementRepository) {
     return new LiquidateProductInputPort(
-        buildAccountService(), buildAccountMovementApplicationService(accountMovementRepository));
+        buildAccountService(),
+        buildAccountMovementApplicationService(accountMovementRepository),
+        categoryServiceMock);
   }
 
   public static UpdateProductUseCase buildUpdateProductUseCase() {

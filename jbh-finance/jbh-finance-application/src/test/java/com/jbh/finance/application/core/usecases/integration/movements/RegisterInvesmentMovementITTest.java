@@ -8,8 +8,8 @@ import static com.jbh.finance.application.builders.UseCaseBuilder.delayTests;
 import static com.jbh.finance.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.finance.application.core.usecases.utils.MovementTypeUtils.BALANCE_SNAPSHOT_TESTSCOPE;
 import static com.jbh.finance.application.core.usecases.utils.MovementTypeUtils.WITHDRAWAL_TESTSCOPE;
-import static com.jbh.finance.testfixtures.CategoryFixtures.INITIAL_BALANCE;
-import static com.jbh.finance.testfixtures.CategoryFixtures.PERSONAL;
+import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.INCOME_INITIAL_BALANCE;
+import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.PERSONAL;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -118,7 +118,7 @@ public class RegisterInvesmentMovementITTest {
             initialBalance,
             initialBalance,
             MovementType.DEPOSIT,
-            INITIAL_BALANCE);
+            INCOME_INITIAL_BALANCE);
     addMovementUseCase.addMovement(userId, acciCuentaId, movement);
     addMovementUseCase.addMovement(userId, fondoAccionesId, movement);
   }
@@ -308,11 +308,7 @@ public class RegisterInvesmentMovementITTest {
 
     final AddMovementCommand withdrawal =
         AddMovementCommandTestBuilder.createMovement(
-            withdrawalDate,
-            currentBalance,
-            BigDecimal.ZERO,
-            WITHDRAWAL_TESTSCOPE,
-            PERSONAL);
+            withdrawalDate, currentBalance, BigDecimal.ZERO, WITHDRAWAL_TESTSCOPE, PERSONAL);
 
     assertThrows(
         BusinessException.class,

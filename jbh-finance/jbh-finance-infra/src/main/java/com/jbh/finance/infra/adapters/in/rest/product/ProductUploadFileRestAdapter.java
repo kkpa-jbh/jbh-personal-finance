@@ -92,7 +92,9 @@ public class ProductUploadFileRestAdapter extends BaseRestAdapter {
   @SecurityRequirement(name = "JWT")
   public Response uploadExcelMovements(
       @FormParam("file")
-          @Parameter(description = "Excel file containing productresponse movements", required = true)
+          @Parameter(
+              description = "Excel file containing productresponse movements",
+              required = true)
           final FileUpload fileUpload,
       @FormParam("sheetName")
           @Parameter(description = "Name of the Excel sheet to process", required = true)
@@ -152,7 +154,7 @@ public class ProductUploadFileRestAdapter extends BaseRestAdapter {
   /**
    * Validates if the uploaded file is an Excel file based on its extension.
    *
-   * @param fileName The name of the uploaded file
+   * @param fileName The alias of the uploaded file
    * @return true if it's an Excel file, false otherwise
    */
   private boolean isExcelFile(final String fileName) {
@@ -168,17 +170,18 @@ public class ProductUploadFileRestAdapter extends BaseRestAdapter {
    * Processes the uploaded Excel file and extracts movement data.
    *
    * @param fileUpload The uploaded file
-   * @param sheetName The sheet name to process
+   * @param sheetName The sheet alias to process
    * @return List of movement requests
    * @throws IOException if there's an error reading the file
    * @throws ExcelMovementReaderService.ExcelReadingException if there's an error processing the
    *     Excel
    */
+  @SuppressWarnings("PMD.UnnecessaryModifier")
   private List<AddMovementsUploadedFileRequest> processExcelFile(
       final FileUpload fileUpload, final String sheetName)
       throws IOException, ExcelMovementReaderService.ExcelReadingException {
 
-    try (InputStream fileInputStream = Files.newInputStream(fileUpload.uploadedFile())) {
+    try (final InputStream fileInputStream = Files.newInputStream(fileUpload.uploadedFile())) {
       return excelMovementReaderService.readMovementsFromExcel(fileInputStream, sheetName);
     }
   }

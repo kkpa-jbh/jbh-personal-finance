@@ -7,7 +7,6 @@ import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.movement.usecases.FindMovementsUseCase;
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.infra.adapters.in.rest.common.BaseRestAdapter;
 import com.jbh.finance.infra.adapters.in.rest.common.FinanceApiRoutes;
@@ -112,7 +111,7 @@ public class MovementRestAdapter extends BaseRestAdapter {
             request.totalAmount(),
             request.balanceSnapshot(),
             request.movementType(),
-            MovementCategoryVO.withName(request.movementType(), request.categoryName()),
+            request.categoryRequest().toDTO(),
             request.description());
 
     final AddBasicMovementDTO response =

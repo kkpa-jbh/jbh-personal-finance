@@ -4,7 +4,6 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
-import com.jbh.finance.domain.movement.vo.ExpenseCategory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,17 +19,15 @@ public class InvestmentMovementValidator implements ProductMovementValidator {
       return;
     }
 
-    final var categoryType = movementDTO.category().getType();
+    final var categoryType = movementDTO.category();
 
     if (movementDTO.isWithdrawalType()) {
-      if (existingProduct.isFullyWithdrawn()
-          && categoryType != ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT) {
+      if (existingProduct.isFullyWithdrawn() && categoryType.isNotInvestmentToCloseIt()) {
 
         LOG.error("The Category {} is not valid for Investment products", categoryType);
         throw new BusinessException(
             BusinessApplicationExceptionType.INVALID_CATEGORY_INVESTMENT_WITHDRAWAL);
-      } else if (!existingProduct.isFullyWithdrawn()
-          && categoryType == ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT) {
+      } else if (!existingProduct.isFullyWithdrawn() && categoryType.isInvestmentToCloseIt()) {
 
         throw new BusinessException(BusinessApplicationExceptionType.INVALID_LIQUIDATION_AMOUNT);
       }

@@ -54,4 +54,16 @@ module jbh.finance.domain {
       jbh.finance.application;
   opens com.jbh.finance.domain.monthlybalance to
       jbh.finance.application;
+
+  exports com.jbh.finance.domain.category to
+      jbh.finance.application,
+      jbh.finance.infra;
+
+  opens com.jbh.finance.domain.category to
+      jbh.finance.application;
+
+  exports com.jbh.finance.domain.category.vo;
+
+  opens com.jbh.finance.domain.category.vo to
+      jbh.finance.application;
 }

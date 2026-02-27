@@ -1,23 +1,23 @@
 package com.jbh.finance.application.feature.movement.mappers;
 
-import com.jbh.finance.domain.movement.CategoryDomain;
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
+import com.jbh.finance.application.feature.category.dto.CategoryDTO;
+import com.jbh.finance.domain.category.CategoryDomain;
 
 public final class CategoryMapper {
 
   private CategoryMapper() {}
 
-  public static MovementCategoryVO toDTO(final CategoryDomain domain) {
+  public static CategoryDTO toDTO(final CategoryDomain domain) {
     if (domain == null) {
       return null;
     }
-    return MovementCategoryVO.withType(domain.getType());
+    return CategoryDTO.withInternalPurpose(domain.getType(), null);
   }
 
-  public static CategoryDomain toDomain(final MovementCategoryVO dto) {
+  public static CategoryDomain toDomain(final CategoryDTO dto) {
     if (dto == null) {
       return null;
     }
-    return CategoryDomain.withDTO(dto);
+    return CategoryDomain.withCategoryType(dto.getCategoryType());
   }
 }

@@ -1,19 +1,22 @@
 package com.jbh.finance.infra.adapters.out.persistence.movement;
 
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.movement.vo.MovementId;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementMetadataKey;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
+import com.jbh.finance.infra.adapters.out.persistence.category.CategoryJPAEntity;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
@@ -42,8 +45,9 @@ public class MovementJPAEntity extends PanacheEntityBase {
   @Column(name = "movement_type")
   public MovementType movementType;
 
-  @Column(name = "category_type")
-  public String category;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "category_id")
+  public CategoryJPAEntity category;
 
   @Column(name = "movement_amount", precision = 20, scale = 2)
   public BigDecimal movementAmount;
@@ -75,10 +79,7 @@ public class MovementJPAEntity extends PanacheEntityBase {
     entity.setBalanceSnapshot(productMovement.balanceSnapshot());
     entity.setMetadata(
         productMovement.metadata() != null ? productMovement.metadata().asMap() : null);
-    entity.setCategory(
-        productMovement.category() != null
-            ? productMovement.category().getType().getTypeName()
-            : null);
+    entity.setCategory(CategoryJPAEntity.fromDTO(productMovement.category()));
     entity.setDescription(productMovement.description());
     entity.setCreatedAt(productMovement.createdAt());
     entity.setDescription(productMovement.description());
@@ -95,7 +96,7 @@ public class MovementJPAEntity extends PanacheEntityBase {
         .id(MovementId.of(id))
         .productId(ProductId.of(productId))
         .movementType(movementType)
-        .category(MovementCategoryVO.withName(movementType, category))
+        .category(category != null ? category.toDTO() : null)
         .movementAmount(movementAmount)
         .movementDate(movementDate)
         .balanceSnapshot(balanceSnapshot)

@@ -9,10 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.commons.exception.BusinessException;
-import com.jbh.finance.domain.movement.CategoryDomain;
 import com.jbh.finance.domain.movement.MovementDomain;
-import com.jbh.finance.domain.movement.vo.ExpenseCategory;
-import com.jbh.finance.domain.movement.vo.IncomeCategory;
 import com.jbh.finance.domain.movement.vo.MovementId;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
@@ -21,6 +18,7 @@ import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
 import com.jbh.finance.domain.product.vo.ProductMetadataKey;
 import com.jbh.finance.domain.product.vo.ProductType;
+import com.jbh.finance.testfixtures.CategoryFixturesDomain;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -582,7 +580,7 @@ public class ProductDomainTest {
             MovementId.generate(),
             accountDomain.getId(),
             MovementType.DEPOSIT,
-            CategoryDomain.withCategoryType(IncomeCategory.OTHER),
+            CategoryFixturesDomain.OTHER_INCOME,
             movementAmount,
             LocalDate.now(),
             null,
@@ -600,7 +598,7 @@ public class ProductDomainTest {
             MovementId.generate(),
             accountDomain.getId(),
             MovementType.WITHDRAWAL,
-            CategoryDomain.withCategoryType(ExpenseCategory.SOCIAL_SECURITY),
+            CategoryFixturesDomain.SOCIAL_SECURITY_EXPENSE,
             new BigDecimal("-100.00"),
             LocalDate.now(),
             JBH_ZERO,
@@ -619,7 +617,7 @@ public class ProductDomainTest {
             MovementId.generate(),
             ProductId.generate(),
             MovementType.DEPOSIT,
-            CategoryDomain.withCategoryType(IncomeCategory.OTHER),
+            CategoryFixturesDomain.OTHER_INCOME,
             movementAmount,
             LocalDate.now(),
             JBH_ZERO,
@@ -690,6 +688,6 @@ public class ProductDomainTest {
             BigDecimal.ONE,
             BigDecimal.ZERO,
             MovementType.DEPOSIT,
-            CategoryDomain.withCategoryType(IncomeCategory.OTHER)));
+            CategoryFixturesDomain.OTHER_INCOME));
   }
 }

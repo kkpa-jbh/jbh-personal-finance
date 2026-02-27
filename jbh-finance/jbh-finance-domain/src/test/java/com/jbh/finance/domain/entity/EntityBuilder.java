@@ -4,8 +4,8 @@ import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
+import com.jbh.finance.domain.category.CategoryDomain;
 import com.jbh.finance.domain.monthlybalance.MonthlyBalanceDomain;
-import com.jbh.finance.domain.movement.CategoryDomain;
 import com.jbh.finance.domain.movement.MovementDomain;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;

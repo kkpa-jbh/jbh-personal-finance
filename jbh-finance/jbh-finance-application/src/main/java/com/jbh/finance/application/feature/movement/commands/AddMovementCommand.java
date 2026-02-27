@@ -1,6 +1,6 @@
 package com.jbh.finance.application.feature.movement.commands;
 
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
+import com.jbh.finance.application.feature.category.dto.CategoryDTO;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -50,7 +50,7 @@ public record AddMovementCommand(
     BigDecimal totalAmount,
     BigDecimal balanceSnapshot,
     MovementType movementType,
-    MovementCategoryVO categoryDTO,
+    CategoryDTO categoryDTO,
     String description) {
 
   /**
@@ -103,7 +103,7 @@ public record AddMovementCommand(
     private BigDecimal totalAmount;
     private BigDecimal balanceSnapshot;
     private MovementType movementType;
-    private MovementCategoryVO categoryDTO;
+    private CategoryDTO categoryDTO;
     private String description;
 
     private MovementCommandBuilder() {}
@@ -128,7 +128,7 @@ public record AddMovementCommand(
       return this;
     }
 
-    public MovementCommandBuilder categoryDTO(final MovementCategoryVO categoryDTO) {
+    public MovementCommandBuilder categoryDTO(final CategoryDTO categoryDTO) {
       this.categoryDTO = categoryDTO;
       return this;
     }

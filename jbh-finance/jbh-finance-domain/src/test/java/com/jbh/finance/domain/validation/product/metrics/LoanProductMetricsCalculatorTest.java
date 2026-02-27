@@ -6,15 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.domain.entity.ProductDomainTestBuilder;
-import com.jbh.finance.domain.movement.CategoryDomain;
 import com.jbh.finance.domain.movement.MovementDomain;
-import com.jbh.finance.domain.movement.vo.ExpenseCategory;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.service.metrics.LoanProductMetricsCalculator;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
+import com.jbh.finance.testfixtures.CategoryFixturesDomain;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -166,7 +165,7 @@ class LoanProductMetricsCalculatorTest {
             new BigDecimal("-500.00"),
             JBH_ZERO,
             MovementMetadata.createEmpty(),
-            CategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
+            CategoryFixturesDomain.UNKNOWN_EXPENSE,
             null);
 
     // When
@@ -194,7 +193,7 @@ class LoanProductMetricsCalculatorTest {
             new BigDecimal("1000.00"),
             JBH_ZERO,
             MovementMetadata.createEmpty(),
-            CategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
+            CategoryFixturesDomain.UNKNOWN_EXPENSE,
             null);
 
     // When
@@ -220,7 +219,7 @@ class LoanProductMetricsCalculatorTest {
             new BigDecimal("-500.00"),
             JBH_ZERO,
             MovementMetadata.createEmpty(),
-            CategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
+            CategoryFixturesDomain.UNKNOWN_EXPENSE,
             null);
 
     // When
@@ -249,7 +248,7 @@ class LoanProductMetricsCalculatorTest {
             new BigDecimal("-250.00"),
             JBH_ZERO,
             MovementMetadata.createEmpty(),
-            CategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
+            CategoryFixturesDomain.UNKNOWN_EXPENSE,
             null);
 
     // When
@@ -277,7 +276,7 @@ class LoanProductMetricsCalculatorTest {
             new BigDecimal("-25000.00"),
             JBH_ZERO,
             MovementMetadata.createEmpty(),
-            CategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
+            CategoryFixturesDomain.UNKNOWN_EXPENSE,
             null);
 
     // When
@@ -305,7 +304,7 @@ class LoanProductMetricsCalculatorTest {
             new BigDecimal("-500.654321"),
             JBH_ZERO,
             MovementMetadata.createEmpty(),
-            CategoryDomain.withCategoryType(ExpenseCategory.PERSONAL),
+            CategoryFixturesDomain.UNKNOWN_EXPENSE,
             null);
 
     // When

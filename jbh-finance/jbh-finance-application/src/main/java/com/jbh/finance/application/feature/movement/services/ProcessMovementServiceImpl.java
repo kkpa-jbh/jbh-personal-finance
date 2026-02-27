@@ -5,6 +5,8 @@ import static com.jbh.finance.domain.movement.vo.MovementType.WITHDRAWAL;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.acid.UnitOfWork;
+import com.jbh.finance.application.feature.category.dto.CategoryDTO;
+import com.jbh.finance.application.feature.category.services.CategoryService;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
@@ -15,9 +17,6 @@ import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.application.feature.product.validation.product_type.ProductMovementValidatorFactory;
-import com.jbh.finance.domain.movement.vo.ExpenseCategory;
-import com.jbh.finance.domain.movement.vo.IncomeCategory;
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
@@ -30,6 +29,8 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// FIXME
+@SuppressWarnings("PMD.CouplingBetweenObjects")
 public class ProcessMovementServiceImpl implements ProcessMovementService {
   private static final Logger log = LoggerFactory.getLogger(ProcessMovementServiceImpl.class);
 
@@ -37,20 +38,30 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
   private final ProductLifecycleService productLifecycleService;
   private final MonthlyBalanceLifecycleService monthlyBalanceService;
   private final UnitOfWork unitOfWork;
-
+  private final CategoryService categoryLifecycleService;
   private final ProductMovementValidatorFactory movementValidatorFactory;
+
+  private final CategoryDTO incomeDividendsCategory;
+  private final CategoryDTO expRetefuenteCat;
 
   public ProcessMovementServiceImpl(
       final MovementLifecycleService movementLifecycleService,
       final ProductLifecycleService productLifecycleService,
       final MonthlyBalanceLifecycleService monthlyBalanceService,
-      final UnitOfWork unitOfWork) {
+      final UnitOfWork unitOfWork,
+      final CategoryService inputCategoryLifecycleSrv) {
     this.unitOfWork = unitOfWork;
     this.productLifecycleService = productLifecycleService;
     this.monthlyBalanceService = monthlyBalanceService;
     this.movementLifecycleService = movementLifecycleService;
-
+    this.categoryLifecycleService = inputCategoryLifecycleSrv;
     movementValidatorFactory = new ProductMovementValidatorFactory(movementLifecycleService);
+
+    // System Categories
+
+    incomeDividendsCategory = categoryLifecycleService.findIncomeDividends();
+
+    expRetefuenteCat = categoryLifecycleService.findExpenseRetefuente();
   }
 
   // TODO: Move this out of the service. This service should be responsible of
@@ -85,7 +96,8 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
 
       // I decided to put the balance snapshot, to make it real with the current balance of the
       // month
-      // taking into productDTO the dividends. This balance snapshot should be the same of the productDTO
+      // taking into productDTO the dividends. This balance snapshot should be the same of the
+      // productDTO
       // balance.
 
       /*
@@ -196,13 +208,14 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
       final BigDecimal incomeWithholdingTaxAmount,
       final MovementMetadata metadata)
       throws BusinessException {
+
     final AddMovementCommand dividendsMovement =
         new AddMovementCommand(
             movementDate,
             dividendsAmount,
             balanceSnapshot,
             MovementType.DEPOSIT,
-            MovementCategoryVO.withType(IncomeCategory.DIVIDENDS),
+            incomeDividendsCategory,
             null);
 
     addMovementProcessingBalances(accountPK, dividendsMovement);
@@ -214,13 +227,14 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
         movementDate);
 
     if (incomeWithholdingTaxAmount != null) {
+
       final var incomeWithholdingTaxMovement =
           new AddMovementCommand(
               movementDate,
               incomeWithholdingTaxAmount,
               balanceSnapshot,
               WITHDRAWAL,
-              MovementCategoryVO.withType(ExpenseCategory.RETEFUENTE),
+              expRetefuenteCat,
               null);
 
       addMovementProcessingBalances(accountPK, incomeWithholdingTaxMovement);

@@ -1,8 +1,8 @@
 package com.jbh.finance.application.core.vo.commands;
 
 import static com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder.withBalanceSnapshot;
-import static com.jbh.finance.testfixtures.CategoryFixtures.PERSONAL;
-import static com.jbh.finance.testfixtures.CategoryFixtures.SALARY;
+import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.PERSONAL;
+import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.SALARY;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;

@@ -5,7 +5,6 @@ import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.services.MovementLifecycleService;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
-import com.jbh.finance.domain.movement.vo.IncomeCategory;
 
 @SuppressWarnings({
   "PMD.AvoidDeeplyNestedIfStmts",
@@ -29,7 +28,7 @@ public class CDTMovementValidator implements ProductMovementValidator {
         if (totalCDTMovements >= 1) {
           throw new BusinessException(BusinessApplicationExceptionType.CDT_MOVEMENTS_EXCEEDED);
         }
-        if (movementDTO.category().getType() != IncomeCategory.INITIAL_BALANCE) {
+        if (movementDTO.category().isNotIncomeInitialBalance()) {
           throw new BusinessException(BusinessApplicationExceptionType.CDT_WRONG_INCOME_CATEGORY);
         }
       }

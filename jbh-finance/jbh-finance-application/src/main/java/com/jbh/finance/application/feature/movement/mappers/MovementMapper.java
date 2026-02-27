@@ -2,13 +2,11 @@ package com.jbh.finance.application.feature.movement.mappers;
 
 import static com.jbh.finance.domain.movement.vo.MovementType.WITHDRAWAL;
 
+import com.jbh.finance.application.feature.category.dto.CategoryDTO;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.commands.LiquidateProductCommand;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
-import com.jbh.finance.domain.movement.CategoryDomain;
 import com.jbh.finance.domain.movement.MovementDomain;
-import com.jbh.finance.domain.movement.vo.ExpenseCategory;
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
@@ -56,7 +54,7 @@ public final class MovementMapper {
             totalAmount,
             command.balanceSnapshot(),
             MovementMetadata.createEmpty(),
-            CategoryDomain.withDTO(command.categoryDTO()),
+            CategoryMapper.toDomain(command.categoryDTO()),
             command.description());
 
     return toDTO(newMovement);
@@ -89,10 +87,10 @@ public final class MovementMapper {
    * @return MovementDTO with the liquidation movement data
    */
   public static MovementDTO fromCommand(
-      final ProductId accountId, final LiquidateProductCommand command) {
+      final ProductId accountId,
+      final LiquidateProductCommand command,
+      final CategoryDTO investmentToCloseIt) {
     final BigDecimal totalAmount = command.currentBalance();
-    final MovementCategoryVO categoryDTO =
-        MovementCategoryVO.withType(ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT);
 
     final MovementMetadata metadata = MovementMetadata.createEmpty();
 
@@ -104,7 +102,7 @@ public final class MovementMapper {
             totalAmount.negate(),
             BigDecimal.ZERO,
             metadata,
-            CategoryDomain.withDTO(categoryDTO),
+            CategoryMapper.toDomain(investmentToCloseIt),
             null);
 
     return toDTO(newMovement);

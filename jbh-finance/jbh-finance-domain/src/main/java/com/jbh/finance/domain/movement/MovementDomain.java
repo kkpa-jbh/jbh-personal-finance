@@ -1,12 +1,9 @@
 package com.jbh.finance.domain.movement;
 
-import static com.jbh.finance.domain.movement.CategoryDomain.withCategoryType;
-
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.commons.util.JbhMoneyUtils;
-import com.jbh.finance.domain.movement.vo.ExpenseCategory;
-import com.jbh.finance.domain.movement.vo.IncomeCategory;
+import com.jbh.finance.domain.category.CategoryDomain;
 import com.jbh.finance.domain.movement.vo.MovementId;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementMetadataKey;
@@ -15,7 +12,6 @@ import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.shared.exceptions.BusinessDomainExceptionType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import lombok.Getter;
 
 @Getter
@@ -78,41 +74,6 @@ public class MovementDomain {
     this.balanceSnapshot = JbhMoneyUtils.withJBHDecimals(balanceSnapshot);
     this.metadata = metadata;
     this.description = description;
-  }
-
-  // FIXME Use factory movemtn type and see if this method can be removed
-  public static MovementDomain withFileImport(
-      final ProductId accountId,
-      final LocalDate movementDate,
-      final BigDecimal totalAmount,
-      final BigDecimal balanceSnapshot,
-      final MovementType movementType,
-      final LocalDateTime importedAt)
-      throws BusinessException {
-
-    CategoryDomain category = null;
-    if (movementType == MovementType.DEPOSIT) {
-      category = withCategoryType(IncomeCategory.OTHER);
-    } else if (movementType == MovementType.WITHDRAWAL) {
-      category = withCategoryType(ExpenseCategory.PERSONAL);
-    }
-
-    final MovementDomain movementDomain =
-        new MovementDomain(
-            accountId,
-            movementType,
-            movementDate,
-            totalAmount,
-            balanceSnapshot,
-            MovementMetadata.createEmpty(),
-            category,
-            null);
-
-    movementDomain.validate();
-
-    movementDomain.getMetadata().putFileImportedAt(importedAt);
-
-    return movementDomain;
   }
 
   public void validate() throws BusinessException {
@@ -226,7 +187,7 @@ public class MovementDomain {
   public boolean isToCloseProduct() {
     return movementType.isWithdrawal()
         && category.isExpense()
-        && category.getType() == ExpenseCategory.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT;
+        && category.isInvestmentWithdrawalToCloseIt();
   }
 
   @Override

@@ -2,6 +2,9 @@ package com.jbh.finance.infra;
 
 import com.jbh.finance.application.acid.UnitOfWork;
 import com.jbh.finance.application.async.AsyncTaskExecutorImpl;
+import com.jbh.finance.application.feature.category.ports.output.CategoryQueryRepo;
+import com.jbh.finance.application.feature.category.services.CategoryService;
+import com.jbh.finance.application.feature.category.services.CategoryServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.ports.input.FindMonthlyBalanceInputPort;
 import com.jbh.finance.application.feature.monthlybalance.ports.input.RegisterMonthlyBalanceInputPort;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceQueryRepo;
@@ -77,6 +80,8 @@ public class ProductUseCasesCDIConfig {
   @Named("monthlyBalanceJPARepository")
   MonthlyBalanceQueryRepo monthlyBalanceQueryRepo;
 
+  @Inject CategoryQueryRepo categoryQueryRepo;
+
   @Produces
   @ApplicationScoped
   public CreateProductInputPort registeringCreateAccountUseCase() {
@@ -99,7 +104,11 @@ public class ProductUseCasesCDIConfig {
   @ApplicationScoped
   public ProcessMovementService accountMovementServiceApplication() {
     return new ProcessMovementServiceImpl(
-        movementService(), productsService(), monthlyBalanceService(), unitOfWork);
+        movementService(),
+        productsService(),
+        monthlyBalanceService(),
+        unitOfWork,
+        categoryService());
   }
 
   @Produces
@@ -117,6 +126,12 @@ public class ProductUseCasesCDIConfig {
         productsService());
   }
 
+  // TODO Validate if it's singleton
+  @Produces
+  public CategoryService categoryService() {
+    return new CategoryServiceImpl(categoryQueryRepo);
+  }
+
   @Produces
   @ApplicationScoped
   public AddMovementsUploadedFileInputPort registeringAddMovementsUploadedFileUseCase() {
@@ -124,7 +139,8 @@ public class ProductUseCasesCDIConfig {
         productsService(),
         accountMovementWriterRepo,
         unitOfWork,
-        uploadedMovementsBalanceSynchronizer());
+        uploadedMovementsBalanceSynchronizer(),
+        categoryService());
   }
 
   @Produces
@@ -179,20 +195,24 @@ public class ProductUseCasesCDIConfig {
   @ApplicationScoped
   public AddTransferJbhProductsUseCase addTransferJbhAccountsUseCase() {
     return new AddTransferJbhProductsInputPort(
-        productsService(), accountMovementServiceApplication());
+        productsService(), accountMovementServiceApplication(), categoryService());
   }
 
   @Produces
   @ApplicationScoped
   public LiquidateProductUseCase liquidateAccountUseCase() {
-    return new LiquidateProductInputPort(productsService(), accountMovementServiceApplication());
+    return new LiquidateProductInputPort(
+        productsService(), accountMovementServiceApplication(), categoryService());
   }
 
   @Produces
   @ApplicationScoped
   public RegisterMonthlyBalanceUseCase registerMonthlyBalanceUseCase() {
     return new RegisterMonthlyBalanceInputPort(
-        monthlyBalanceService(), productsService(), accountMovementServiceApplication());
+        monthlyBalanceService(),
+        productsService(),
+        accountMovementServiceApplication(),
+        categoryService());
   }
 
   @Produces

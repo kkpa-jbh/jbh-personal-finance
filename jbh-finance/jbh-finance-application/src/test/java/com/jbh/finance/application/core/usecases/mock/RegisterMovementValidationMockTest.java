@@ -1,11 +1,12 @@
 package com.jbh.finance.application.core.usecases.mock;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.finance.application.builders.UseCaseBuilder.categoryServiceMock;
 import static com.jbh.finance.application.builders.UseCaseBuilder.movementQueryRepository;
 import static com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder.createExpense;
 import static com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder.withCategory;
-import static com.jbh.finance.testfixtures.CategoryFixtures.OTHER_INCOME_MOVEMENT;
-import static com.jbh.finance.testfixtures.CategoryFixtures.PERSONAL;
+import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.OTHER_INCOME_MOVEMENT;
+import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.PERSONAL;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -40,9 +41,9 @@ import com.jbh.finance.application.feature.product.mappers.ProductMapper;
 import com.jbh.finance.application.feature.product.ports.output.ProductRepository;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleServiceImpl;
-import com.jbh.finance.domain.movement.vo.ExpenseCategory;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
+import com.jbh.finance.testfixtures.CategoryFixturesTestApp;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -87,7 +88,8 @@ public class RegisterMovementValidationMockTest {
             coreAccountMovementService,
             accountService,
             monthlyBalanceService,
-            new UnitOfWorkTest());
+            new UnitOfWorkTest(),
+            categoryServiceMock);
 
     registerSimpleMovementInputPort =
         new AddMovementInputPort(accountMovementService, accountService);
@@ -102,7 +104,7 @@ public class RegisterMovementValidationMockTest {
     final BigDecimal amount = new BigDecimal("100.00");
 
     final AddMovementCommand request =
-        createExpense(movementDate, amount, ExpenseCategory.PERSONAL);
+        createExpense(movementDate, amount, CategoryFixturesTestApp.UNKNOWN_EXPENSE.getType());
 
     // When & Then
     final GenericSpecificationException exception =
@@ -135,7 +137,7 @@ public class RegisterMovementValidationMockTest {
     final ProductId accountId = ProductId.generate();
     final BigDecimal amount = new BigDecimal("-100.00");
     final AddMovementCommand request =
-        createExpense(LocalDate.now(), amount, ExpenseCategory.PERSONAL);
+        createExpense(LocalDate.now(), amount, CategoryFixturesTestApp.UNKNOWN_EXPENSE.getType());
 
     // When & Then
     assertThrows(
@@ -245,7 +247,7 @@ public class RegisterMovementValidationMockTest {
     final BigDecimal amount = new BigDecimal("100.00");
 
     final AddMovementCommand request =
-        createExpense(movementDate, amount, ExpenseCategory.PERSONAL);
+        createExpense(movementDate, amount, CategoryFixturesTestApp.UNKNOWN_EXPENSE.getType());
     final ProductDomain accountDomain =
         ProductEntityBuilder.withBasicMovementForExisting(accountId, userId, JBH_ZERO, JBH_ZERO);
 
@@ -269,7 +271,7 @@ public class RegisterMovementValidationMockTest {
     final BigDecimal amount = new BigDecimal("50.00");
 
     final AddMovementCommand request =
-        createExpense(movementDate, amount, ExpenseCategory.PERSONAL);
+        createExpense(movementDate, amount, CategoryFixturesTestApp.UNKNOWN_EXPENSE.getType());
     final ProductDomain accountDomain =
         ProductEntityBuilder.withBasicMovementForExisting(
             accountId, userId, new BigDecimal("30.00"), new BigDecimal("30.00"));

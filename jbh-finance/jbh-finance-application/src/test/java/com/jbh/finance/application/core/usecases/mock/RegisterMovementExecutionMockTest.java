@@ -1,11 +1,12 @@
 package com.jbh.finance.application.core.usecases.mock;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
+import static com.jbh.finance.application.builders.UseCaseBuilder.categoryServiceMock;
 import static com.jbh.finance.application.builders.UseCaseBuilder.movementQueryRepository;
 import static com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder.createMovement;
 import static com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder.createMovementWithType;
 import static com.jbh.finance.domain.movement.vo.MovementType.DEPOSIT;
-import static com.jbh.finance.testfixtures.CategoryFixtures.OTHER_INCOME_MOVEMENT;
+import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.OTHER_INCOME_MOVEMENT;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -92,7 +93,11 @@ public class RegisterMovementExecutionMockTest {
 
     accountMovementService =
         new ProcessMovementServiceImpl(
-            coreAccountMovementService, accountService, monthlyBalanceService, unitOfWork);
+            coreAccountMovementService,
+            accountService,
+            monthlyBalanceService,
+            unitOfWork,
+            categoryServiceMock);
     useCaseInstanceTest = new AddMovementInputPort(accountMovementService, accountService);
   }
 

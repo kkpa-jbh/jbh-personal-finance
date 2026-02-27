@@ -7,6 +7,7 @@ This document defines testing requirements, coverage expectations, and best prac
 ## Testing Requirements
 
 ### 1. Minimum Coverage Requirement
+
 **Rule:** Always generate unit tests for new code generated on any module different from `jbh-z-assembly` and `jbh-*****-infra`.
 
 **Minimum Coverage:** 50%
@@ -14,14 +15,17 @@ This document defines testing requirements, coverage expectations, and best prac
 ### 2. Modules Requiring Tests
 
 **✅ MUST have tests:**
+
 - `jbh-*-domain` modules (domain entities, value objects)
 - `jbh-*-application` modules (use cases, services, mappers, commands)
 
 **❌ Tests NOT required:**
+
 - `jbh-z-assembly` module (application bootstrap)
 - `jbh-*-infra` modules (infrastructure adapters, REST controllers, JPA repositories)
 
 **Rationale:**
+
 - Domain and application layers contain core business logic
 - Infrastructure is tested via integration tests
 - Assembly module is configuration only
@@ -37,6 +41,7 @@ This document defines testing requirements, coverage expectations, and best prac
 ```
 
 **Examples:**
+
 - `AddMovementInputPortTest`
 - `MovementApplicationServiceTest`
 - `ProductMapperTest`
@@ -76,6 +81,7 @@ jbh-finance-domain/src/test/java/
 ### Fixtures Class Pattern
 
 **Rules:**
+
 - Never put test-only constants in production code
 - Use clear, descriptive constant names
 - Group related fixtures together
@@ -83,12 +89,13 @@ jbh-finance-domain/src/test/java/
 - Use `public static final` constants for pre-built instances
 
 **Example:**
+
 ```java
 package com.jbh.finance.testfixtures;
 
-import com.jbh.finance.domain.movement.CategoryDomain;
-import com.jbh.finance.domain.movement.vo.ExpenseCategory;
-import com.jbh.finance.domain.movement.vo.IncomeCategory;
+import com.jbh.finance.domain.category.CategoryDomain;
+import com.jbh.finance.domain.category.ExpenseCategory;
+import com.jbh.finance.domain.category.IncomeCategory;
 
 /**
  * Test fixtures for CategoryDomain objects.
@@ -141,12 +148,14 @@ void shouldCreateMovementWithCategory() {
 ### When to Use Fixtures
 
 ✅ **Use fixtures for:**
+
 - Common domain objects used across many tests
 - Predefined categories, types, or enums
 - Standard test scenarios (valid/invalid states)
 - Frequently used value objects
 
 ❌ **Don't use fixtures for:**
+
 - Test-specific data that varies per test
 - Data that needs customization per test (use builders instead)
 - One-off test scenarios
@@ -160,10 +169,12 @@ void shouldCreateMovementWithCategory() {
 Test immutability, factory methods, and validation.
 
 **Example:**
+
 ```java
 package com.jbh.finance.domain.valueobjects;
 
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ProductIdTest {
@@ -207,10 +218,12 @@ class ProductIdTest {
 Test validation logic and builder patterns.
 
 **Example:**
+
 ```java
 package com.jbh.finance.application.feature.movement.commands;
 
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class AddMovementCommandTest {
@@ -278,6 +291,7 @@ class AddMovementCommandTest {
 Test use case orchestration, validation, and error handling.
 
 **Example:**
+
 ```java
 package com.jbh.finance.application.feature.movement.ports.input;
 
@@ -286,6 +300,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -422,6 +437,7 @@ class AddMovementInputPortTest {
 Test business logic, multi-step operations, and error scenarios.
 
 **Example:**
+
 ```java
 package com.jbh.finance.application.feature.movement.services;
 
@@ -430,6 +446,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -536,10 +553,12 @@ class MovementApplicationServiceTest {
 Test DTO to entity mappings and vice versa.
 
 **Example:**
+
 ```java
 package com.jbh.finance.application.feature.product.mappers;
 
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ProductMapperTest {
@@ -626,23 +645,28 @@ class ProductMapperTest {
 ## Testing Best Practices
 
 ### 1. Test Method Naming
+
 Use descriptive names that explain what is being tested:
 
 **Pattern:**
+
 ```
 should<ExpectedBehavior>When<Condition>
 ```
 
 **Examples:**
+
 - `shouldCreateProductSuccessfully()`
 - `shouldThrowExceptionWhenUserIdIsNull()`
 - `shouldReturnEmptyListWhenNoMovementsExist()`
 - `shouldCalculateBalanceCorrectlyForDeposit()`
 
 ### 2. AAA Pattern (Arrange-Act-Assert)
+
 Structure tests in three clear sections:
 
 ```java
+
 @Test
 void shouldAddMovementSuccessfully() {
   // Arrange (Given)
@@ -660,11 +684,14 @@ void shouldAddMovementSuccessfully() {
 ```
 
 ### 3. Use Mockito for Dependencies
+
 Mock all external dependencies (services, repositories):
 
 ```java
+
 @ExtendWith(MockitoExtension.class)
 class MyTest {
+
   @Mock
   private DependencyService service;
 
@@ -680,7 +707,9 @@ class MyTest {
 ```
 
 ### 4. Test Edge Cases
+
 Always test:
+
 - Null inputs
 - Empty collections
 - Boundary values
@@ -688,6 +717,7 @@ Always test:
 - Error scenarios
 
 ### 5. Avoid Test Dependencies
+
 Each test should be independent and runnable in isolation:
 
 ```java
@@ -719,6 +749,7 @@ void shouldUpdateProduct() {
 ```
 
 ### 6. Use Test Builders/Factories
+
 Create helper methods for test data:
 
 ```java
@@ -749,6 +780,7 @@ private ProductDTO createProductDTO() {
 Add JaCoCo plugin to module POMs (exclude infra and assembly):
 
 ```xml
+
 <plugin>
   <groupId>org.jacoco</groupId>
   <artifactId>jacoco-maven-plugin</artifactId>
@@ -791,12 +823,15 @@ Add JaCoCo plugin to module POMs (exclude infra and assembly):
 ```
 
 ### Coverage Report
+
 Run coverage report:
+
 ```bash
 mvn clean test jacoco:report
 ```
 
 View report:
+
 ```
 target/site/jacoco/index.html
 ```

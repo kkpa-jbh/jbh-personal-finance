@@ -1,6 +1,8 @@
 package com.jbh.finance.application.feature.monthlybalance.ports.input;
 
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.finance.application.feature.category.dto.CategoryDTO;
+import com.jbh.finance.application.feature.category.services.CategoryService;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.mappers.MonthlyBalanceMapper;
@@ -14,8 +16,6 @@ import com.jbh.finance.application.feature.movement.services.ProcessMovementServ
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
 import com.jbh.finance.domain.monthlybalance.MonthlyBalanceDomain;
-import com.jbh.finance.domain.movement.vo.IncomeCategory;
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
@@ -34,14 +34,21 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
   private final MonthlyBalanceLifecycleService monthlyBalanceService;
   private final ProductLifecycleService accountService;
   private final ProcessMovementService accountMovementService;
+  private final CategoryService categoryService;
+
+  private final CategoryDTO incomeInitialBalanceCat;
 
   public RegisterMonthlyBalanceInputPort(
       final MonthlyBalanceLifecycleService monthlyBalanceService,
       final ProductLifecycleService accountService,
-      final ProcessMovementService accountMovementService) {
+      final ProcessMovementService accountMovementService,
+      final CategoryService categoryService) {
     this.accountMovementService = accountMovementService;
     this.accountService = accountService;
     this.monthlyBalanceService = monthlyBalanceService;
+    this.categoryService = categoryService;
+
+    incomeInitialBalanceCat = this.categoryService.findIncomeInitialBalance();
   }
 
   /**
@@ -73,7 +80,9 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
 
     final YearMonth periodToRegister = addMonthlyBalanceCommand.monthlyPeriod();
     log.info(
-        "Registering Official Monthly Balance for productDTO {} on {}", accountId, periodToRegister);
+        "Registering Official Monthly Balance for productDTO {} on {}",
+        accountId,
+        periodToRegister);
 
     validatePeriod(runningDate, periodToRegister);
 
@@ -93,7 +102,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
               addMonthlyBalanceCommand.closingBalance(),
               null,
               MovementType.DEPOSIT,
-              MovementCategoryVO.withType(IncomeCategory.INITIAL_BALANCE),
+              incomeInitialBalanceCat,
               null);
 
       accountMovementService.addMovementProcessingBalances(

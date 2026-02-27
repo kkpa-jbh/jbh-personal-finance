@@ -5,6 +5,11 @@ module jbh.finance.application {
   requires java.logging;
   requires static lombok;
 
+  // Test framework / Mockito access
+  opens com.jbh.finance.application.feature.movement.ports.output;
+  opens com.jbh.finance.application.feature.monthlybalance.ports.output;
+  opens com.jbh.finance.application.feature.product.ports.output;
+
   // Cross-cutting infrastructure exports
   exports com.jbh.finance.application.acid;
   exports com.jbh.finance.application.async;
@@ -13,6 +18,10 @@ module jbh.finance.application {
   // Shared business exports
   exports com.jbh.finance.application.shared.exceptions;
   exports com.jbh.finance.application.shared.validation;
+
+  // Category feature expoerts
+  exports com.jbh.finance.application.feature.category.services to
+      jbh.finance.infra;
 
   // Product feature exports
   exports com.jbh.finance.application.feature.product.dto to
@@ -61,4 +70,6 @@ module jbh.finance.application {
   exports com.jbh.finance.application.feature.monthlybalance.commands to
       jbh.finance.infra;
   exports com.jbh.finance.application.feature.monthlybalance.services;
+  exports com.jbh.finance.application.feature.category.dto;
+  exports com.jbh.finance.application.feature.category.ports.output;
 }

@@ -167,6 +167,7 @@
         <artifactId>junit-jupiter</artifactId>
         <groupId>org.junit.jupiter</groupId>
         <scope>test</scope>
+        <version>${junit.version}</version>
       </dependency>
 
       <dependency>
@@ -174,6 +175,13 @@
         <groupId>org.mockito</groupId>
         <scope>test</scope>
         <version>${mockito.version}</version>
+      </dependency>
+
+      <dependency>
+        <artifactId>archunit-junit5</artifactId>
+        <groupId>com.tngtech.archunit</groupId>
+        <scope>test</scope>
+        <version>${archunit.version}</version>
       </dependency>
 
     </dependencies>
@@ -200,6 +208,7 @@
   </parent>
 
   <properties>
+    <archunit.version>1.3.0</archunit.version>
     <jacoco.branch.coverage.minimum>0.45</jacoco.branch.coverage.minimum>
     <jacoco.bundle.branch.minimum>0.40</jacoco.bundle.branch.minimum>
     <jacoco.bundle.line.minimum>0.63</jacoco.bundle.line.minimum>

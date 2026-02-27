@@ -10,8 +10,8 @@ import static com.jbh.finance.application.builders.UseCaseBuilder.addMovementUse
 import static com.jbh.finance.application.builders.UseCaseBuilder.delayTests;
 import static com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder.withCategory;
 import static com.jbh.finance.application.core.usecases.utils.ProductITUtils.assertAccount;
-import static com.jbh.finance.testfixtures.CategoryFixtures.PERSONAL;
-import static com.jbh.finance.testfixtures.CategoryFixtures.PUBLIC_SERVICES;
+import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.PERSONAL;
+import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.PUBLIC_SERVICES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -168,11 +168,7 @@ public class CreateProductITTest {
         userId,
         creditCardAccountDTO.id(),
         AddMovementCommandTestBuilder.createMovement(
-            mvmDate,
-            personalExpense1,
-            null,
-            MovementType.WITHDRAWAL,
-            PERSONAL));
+            mvmDate, personalExpense1, null, MovementType.WITHDRAWAL, PERSONAL));
 
     ProductDTO updatedAccount =
         inMemoryAccountRepo.findByProductId(creditCardAccountDTO.id()).get();
@@ -196,10 +192,7 @@ public class CreateProductITTest {
     addMovementUseCase.addMovement(
         userId,
         creditCardAccountDTO.id(),
-        withCategory(
-            mvmDate.plus(1, ChronoUnit.DAYS),
-            publicServicesExpense1,
-            PUBLIC_SERVICES));
+        withCategory(mvmDate.plus(1, ChronoUnit.DAYS), publicServicesExpense1, PUBLIC_SERVICES));
 
     updatedAccount = inMemoryAccountRepo.findByProductId(creditCardAccountDTO.id()).get();
 

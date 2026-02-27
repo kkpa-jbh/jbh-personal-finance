@@ -1,13 +1,13 @@
 package com.jbh.finance.application.builders.commands;
 
-import static com.jbh.finance.testfixtures.CategoryFixtures.DEPOSIT;
-import static com.jbh.finance.testfixtures.CategoryFixtures.INITIAL_BALANCE;
-import static com.jbh.finance.testfixtures.CategoryFixtures.PERSONAL;
+import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.INCOME_INITIAL_BALANCE;
+import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.PERSONAL;
 
+import com.jbh.finance.application.feature.category.dto.CategoryDTO;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
-import com.jbh.finance.domain.movement.vo.ExpenseCategory;
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
+import com.jbh.finance.domain.category.vo.CategoryTypeVO;
 import com.jbh.finance.domain.movement.vo.MovementType;
+import com.jbh.finance.testfixtures.CategoryFixturesTestApp;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -28,7 +28,7 @@ public class AddMovementCommandTestBuilder {
       final BigDecimal totalAmount,
       final BigDecimal balanceSnapshot,
       final MovementType movementType,
-      final MovementCategoryVO categoryDTO) {
+      final CategoryDTO categoryDTO) {
     return new AddMovementCommand(
         entryDate, totalAmount, balanceSnapshot, movementType, categoryDTO, null);
   }
@@ -46,7 +46,7 @@ public class AddMovementCommandTestBuilder {
       final LocalDate entryDate,
       final BigDecimal totalAmount,
       final MovementType movementType,
-      final MovementCategoryVO categoryDTO) {
+      final CategoryDTO categoryDTO) {
     return AddMovementCommand.builder()
         .entryDate(entryDate)
         .totalAmount(totalAmount)
@@ -68,20 +68,21 @@ public class AddMovementCommandTestBuilder {
   public static AddMovementCommand withBalanceSnapshot(
       final LocalDate entryDate,
       final BigDecimal balanceSnapshot,
-      final MovementCategoryVO categoryDTO,
+      final CategoryDTO categoryDTO,
       final BigDecimal totalAmount) {
     return AddMovementCommand.builder()
         .entryDate(entryDate)
         .balanceSnapshot(balanceSnapshot)
         .categoryDTO(categoryDTO)
         .totalAmount(totalAmount)
-        .movementType(MovementType.findByCategory(categoryDTO))
+        .movementType(MovementType.findByCategory(categoryDTO.getCategoryType()))
         .build();
   }
 
   public static AddMovementCommand createDepositIncome(
       final LocalDate date, final BigDecimal amount) {
-    return AddMovementCommandTestBuilder.withCategory(date, amount, DEPOSIT);
+    return AddMovementCommandTestBuilder.withCategory(
+        date, amount, CategoryFixturesTestApp.INCOME_DEPOSIT);
   }
 
   /**
@@ -94,14 +95,12 @@ public class AddMovementCommandTestBuilder {
    * @return a Builder instance pre-configured with these parameters
    */
   public static AddMovementCommand withCategory(
-      final LocalDate entryDate,
-      final BigDecimal totalAmount,
-      final MovementCategoryVO categoryDTO) {
+      final LocalDate entryDate, final BigDecimal totalAmount, final CategoryDTO categoryDTO) {
     return AddMovementCommand.builder()
         .entryDate(entryDate)
         .totalAmount(totalAmount)
         .categoryDTO(categoryDTO)
-        .movementType(MovementType.findByCategory(categoryDTO))
+        .movementType(MovementType.findByCategory(categoryDTO.getCategoryType()))
         .build();
   }
 
@@ -114,9 +113,9 @@ public class AddMovementCommandTestBuilder {
    * @return an AddMovementCommand for expense
    */
   public static AddMovementCommand createExpense(
-      final LocalDate date, final BigDecimal amount, final ExpenseCategory expenseCategory) {
+      final LocalDate date, final BigDecimal amount, final CategoryTypeVO expenseCategory) {
     return AddMovementCommandTestBuilder.withCategory(
-        date, amount, MovementCategoryVO.withType(expenseCategory));
+        date, amount, CategoryDTO.withInternalPurpose(expenseCategory, null));
   }
 
   public static AddMovementCommand createPersonalExpense(
@@ -133,6 +132,6 @@ public class AddMovementCommandTestBuilder {
    */
   public static AddMovementCommand createInitialBalance(
       final LocalDate date, final BigDecimal amount) {
-    return AddMovementCommandTestBuilder.withCategory(date, amount, INITIAL_BALANCE);
+    return AddMovementCommandTestBuilder.withCategory(date, amount, INCOME_INITIAL_BALANCE);
   }
 }

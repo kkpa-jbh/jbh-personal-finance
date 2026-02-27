@@ -1,10 +1,60 @@
 # Entity-Based Category Migration Plan
 
+Expense category
+
+```java
+  RETEFUENTE("Withholding Tax","Retención en la Fuente"),
+
+SOCIAL_SECURITY("Social Security","Seguridad Social"),
+
+PUBLIC_SERVICES("Public Services","Servicios Públicos"),
+
+UNKNOWN("Unknown","Desconocido"),
+
+TRANSFER("Transfer","Transferencia"),
+
+// To Close CDT, Investments
+INVESTMENT_WITHDRAWAL_TO_CLOSE_IT("Investment Total Withdrawal","Retiro Total de la Inversión");
+
+```
+
+INCOME CATEGORY
+
+```java
+  TRANSFER("Transfer","Transferencia"),
+
+SALARY("Salary","Salario"),
+
+DIVIDENDS("Dividends","Dividendos"),
+
+FREELANCE("Freelance","Freelance"),
+
+INVESTMENT("Investment","Inversión"),
+
+RENTAL("Rental","Renta"),
+
+GIFT("Gift","Regalo"),
+
+OTHER("Other","Otro"),
+
+INITIAL_BALANCE("Initial Balance","Saldo Inicial"),
+
+DEPOSIT("Deposit","Depósito");
+```
+
+## Pending to add to the plan
+
+- Decide if the category table should have a PK with regular ID or combinated PK with source and type: pros vs cons
+- Performance when fetching a bunch of movements with this new relationship there. Adding L2 Cache with Panache or another alternative?
+  I asked that because I think we need to have the entire entity object already mapped in the MovementJPAEntity.. rather than only the PK key of
+  category.
+
 ## Context
 
 ### Why This Change Is Needed
 
-The current category implementation uses Java ENUMs (IncomeCategory, ExpenseCategory) with categories stored as TEXT values in the database. While this approach provides compile-time type safety, it has significant limitations:
+The current category implementation uses Java ENUMs (IncomeCategory, ExpenseCategory) with categories stored as TEXT values in the database. While this approach provides
+compile-time type safety, it has significant limitations:
 
 1. **Requires Code Deployment** - Adding/modifying categories requires code changes and redeployment
 2. **Not User-Configurable** - Users cannot create custom categories
@@ -23,20 +73,24 @@ The user has decided to migrate to an **entity-based approach** using database t
 ### Current State
 
 **Enums (To Be Replaced)**:
+
 - `IncomeCategory` - 10 categories: TRANSFER, SALARY, DIVIDENDS, FREELANCE, INVESTMENT, RENTAL, GIFT, OTHER, INITIAL_BALANCE, DEPOSIT
 - `ExpenseCategory` - 6 categories: RETEFUENTE, SOCIAL_SECURITY, PUBLIC_SERVICES, PERSONAL, TRANSFER, INVESTMENT_WITHDRAWAL_TO_CLOSE_IT
 
 **Database**:
+
 - Movement table has `category_type TEXT NULL` column storing enum names
 - No category reference table exists
 - No foreign key constraints on categories
 
 **Translation Handling**:
+
 - Translations embedded in enum constructors as bilingual JSON: `{"en":"Salary","es":"Salario"}`
 - Generated via `JbhStringUtils.buildJsonMessage(en, es)`
 - Exposed via REST API in CategoryResponse
 
 **User Requirements**:
+
 - Keep translations in Java code (not in database)
 - Use `CategoryTranslationRegistry` pattern to centralize translations
 - Use `finance.categories` table name (plural, following existing pattern: products, movements, monthly_balances)
@@ -50,11 +104,12 @@ The user has decided to migrate to an **entity-based approach** using database t
 Create `finance.categories` table with composite natural key:
 
 ```sql
-CREATE TABLE finance.categories (
-    category_key    TEXT NOT NULL,      -- "SALARY", "TRANSFER", etc.
-    category_source TEXT NOT NULL,      -- "INCOME" or "EXPENSE"
-    is_active       BOOLEAN NOT NULL DEFAULT TRUE,
-    display_order   INTEGER NOT NULL DEFAULT 0,
+CREATE TABLE finance.categories
+(
+    category_key    TEXT                     NOT NULL, -- "SALARY", "TRANSFER", etc.
+    category_source TEXT                     NOT NULL, -- "INCOME" or "EXPENSE"
+    is_active       BOOLEAN                  NOT NULL DEFAULT TRUE,
+    display_order   INTEGER                  NOT NULL DEFAULT 0,
     created_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT pk_categories PRIMARY KEY (category_key, category_source),
@@ -63,6 +118,7 @@ CREATE TABLE finance.categories (
 ```
 
 **Key Design Decisions**:
+
 - **Table Name**: `categories` (plural, matches existing pattern: `products`, `movements`, `monthly_balances`)
 - **Composite Primary Key**: `(category_key, category_source)` - allows "TRANSFER" in both INCOME and EXPENSE
 - **No UUID**: Categories are reference data with natural keys
@@ -74,6 +130,7 @@ CREATE TABLE finance.categories (
 Use `@IdClass` for composite primary key:
 
 ```java
+
 @Entity
 @IdClass(CategoryId.class)
 @Table(name = "categories", schema = "finance")
@@ -127,6 +184,7 @@ public final class CategoryTranslationRegistry {
 Quarkus Panache repository with caching:
 
 ```java
+
 @ApplicationScoped
 @PersistenceUnit(name = "finance")
 public class CategoryJPARepository implements PanacheRepository<CategoryJPAEntity> {
@@ -150,34 +208,40 @@ public class CategoryJPARepository implements PanacheRepository<CategoryJPAEntit
 ### New Files to Create
 
 **1. Database Migration**
-- Path: `jbh-finance-infra/src/main/resources/db/changelog/002_create_categories_table.sql`
+
+- Path: `jbh-finance-infra/src/main/resources/db/changelog/001_create_categories_table.sql`
 - Creates category table, indexes, seeds 16 categories
 - Validation: Ensures all existing movement categories are valid
 
 **2. Composite Key Class**
+
 - Path: `jbh-finance-infra/src/main/java/com/jbh/finance/infra/adapters/out/persistence/category/CategoryId.java`
 - Implements Serializable for @IdClass
 - Equals/hashCode based on (categoryKey, categorySource)
 
 **3. JPA Entity**
+
 - Path: `jbh-finance-infra/src/main/java/com/jbh/finance/infra/adapters/out/persistence/category/CategoryJPAEntity.java`
 - Extends PanacheEntityBase
 - Composite key via @IdClass
 - Bidirectional mapping: toEntity(), toDTO()
 
 **4. JPA Repository**
+
 - Path: `jbh-finance-infra/src/main/java/com/jbh/finance/infra/adapters/out/persistence/category/CategoryJPARepository.java`
 - Implements PanacheRepository<CategoryJPAEntity>
 - Methods: findByKeyAndSource, findAllBySource, findAllActive
 - Caching via @CacheResult
 
 **5. Translation Registry**
+
 - Path: `jbh-finance-domain/src/main/java/com/jbh/finance/domain/movement/CategoryTranslationRegistry.java`
 - Static maps for INCOME_TRANSLATIONS, EXPENSE_TRANSLATIONS
 - Replaces translations from enum constructors
 - Method: getTranslation(key, source)
 
 **6. Application DTO**
+
 - Path: `jbh-finance-application/src/main/java/com/jbh/finance/application/feature/category/dto/CategoryDTO.java`
 - Record with: categoryKey, categorySource, isActive, displayOrder, createdAt
 - Builder pattern
@@ -185,39 +249,46 @@ public class CategoryJPARepository implements PanacheRepository<CategoryJPAEntit
 ### Files to Modify
 
 **7. CategoryDomain.java** (domain entity)
+
 - Path: `jbh-finance-domain/src/main/java/com/jbh/finance/domain/movement/CategoryDomain.java`
 - Replace `CategoryType categoryType` with `String categoryKey + CategorySource categorySource`
 - Add `fromDTO(CategoryDTO)` factory method
 - Update `getTranslationKey()` to use CategoryTranslationRegistry
 
 **8. MovementCategoryVO.java** (value object)
+
 - Path: `jbh-finance-domain/src/main/java/com/jbh/finance/domain/movement/vo/MovementCategoryVO.java`
 - Update constructor to accept `(String categoryKey, CategorySource categorySource)`
 - Update `withName()` to work with string keys instead of enums
 
 **9. CategoryResponse.java** (REST response)
+
 - Path: `jbh-finance-infra/src/main/java/com/jbh/finance/infra/adapters/in/rest/category/response/CategoryResponse.java`
 - Add `fromDTO(CategoryDTO)` method
 - Add `fromDomain(CategoryDomain)` method
 - Keep existing `fromDTO(CategoryType)` temporarily for backward compatibility
 
 **10. IncomeCategoryRestAdapter.java** (REST endpoint)
+
 - Path: `jbh-finance-infra/src/main/java/com/jbh/finance/infra/adapters/in/rest/category/IncomeCategoryRestAdapter.java`
 - Inject `CategoryJPARepository`
 - Replace `Arrays.stream(IncomeCategory.values())` with `categoryRepository.findAllBySource(CategorySource.INCOME)`
 
 **11. ExpenseCategoryRestAdapter.java** (REST endpoint)
+
 - Path: `jbh-finance-infra/src/main/java/com/jbh/finance/infra/adapters/in/rest/category/ExpenseCategoryRestAdapter.java`
 - Inject `CategoryJPARepository`
 - Replace `Arrays.stream(ExpenseCategory.values())` with `categoryRepository.findAllBySource(CategorySource.EXPENSE)`
 
 **12. MovementJPAEntity.java** (persistence)
+
 - Path: `jbh-finance-infra/src/main/java/com/jbh/finance/infra/adapters/out/persistence/movement/MovementJPAEntity.java`
 - Update `toDTO()` to use CategoryLookupService or CategoryDomain.fromDTO()
 - Keep existing `category_type` column (minimal change approach)
 - Future: Add FK constraint after validation
 
 **13. MovementDomain.java** (domain logic)
+
 - Path: `jbh-finance-domain/src/main/java/com/jbh/finance/domain/movement/MovementDomain.java`
 - Update `withFileImport()` to query repository instead of using enum constants
 - Replace `IncomeCategory.OTHER` with repository lookup
@@ -226,16 +297,19 @@ public class CategoryJPARepository implements PanacheRepository<CategoryJPAEntit
 ### Files to Deprecate (Later Phase)
 
 **14. CategoryType.java** (interface)
+
 - Path: `jbh-finance-domain/src/main/java/com/jbh/finance/domain/movement/vo/CategoryType.java`
 - Add `@Deprecated` annotation
 - Keep for backward compatibility during migration
 
 **15. IncomeCategory.java** (enum)
+
 - Path: `jbh-finance-domain/src/main/java/com/jbh/finance/domain/movement/vo/IncomeCategory.java`
 - Add `@Deprecated` annotation
 - Delete in final cleanup phase
 
 **16. ExpenseCategory.java** (enum)
+
 - Path: `jbh-finance-domain/src/main/java/com/jbh/finance/domain/movement/vo/ExpenseCategory.java`
 - Add `@Deprecated` annotation
 - Delete in final cleanup phase
@@ -248,16 +322,17 @@ public class CategoryJPARepository implements PanacheRepository<CategoryJPAEntit
 
 **Step 1.1: Create Migration Script**
 
-Create file: `jbh-finance-infra/src/main/resources/db/changelog/002_create_categories_table.sql`
+Create file: `jbh-finance-infra/src/main/resources/db/changelog/001_create_categories_table.sql`
 
 ```sql
 -- Create categories table
-CREATE TABLE finance.categories (
-    category_key    TEXT NOT NULL,
-    category_source TEXT NOT NULL,
+CREATE TABLE finance.categories
+(
+    category_key    TEXT                     NOT NULL,
+    category_source TEXT                     NOT NULL,
     created_at      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    is_active       BOOLEAN NOT NULL DEFAULT TRUE,
-    display_order   INTEGER NOT NULL DEFAULT 0,
+    is_active       BOOLEAN                  NOT NULL DEFAULT TRUE,
+    display_order   INTEGER                  NOT NULL DEFAULT 0,
 
     CONSTRAINT pk_categories PRIMARY KEY (category_key, category_source),
     CONSTRAINT chk_category_source_valid CHECK (category_source IN ('INCOME', 'EXPENSE')),
@@ -269,58 +344,61 @@ CREATE INDEX idx_categories_source ON finance.categories (category_source, is_ac
 CREATE INDEX idx_categories_order ON finance.categories (category_source, display_order);
 
 -- Seed income categories (10)
-INSERT INTO finance.categories (category_key, category_source, display_order) VALUES
-    ('TRANSFER', 'INCOME', 1),
-    ('SALARY', 'INCOME', 2),
-    ('DIVIDENDS', 'INCOME', 3),
-    ('FREELANCE', 'INCOME', 4),
-    ('INVESTMENT', 'INCOME', 5),
-    ('RENTAL', 'INCOME', 6),
-    ('GIFT', 'INCOME', 7),
-    ('OTHER', 'INCOME', 8),
-    ('INITIAL_BALANCE', 'INCOME', 9),
-    ('DEPOSIT', 'INCOME', 10);
+INSERT INTO finance.categories (category_key, category_source, display_order)
+VALUES ('TRANSFER', 'INCOME', 1),
+       ('SALARY', 'INCOME', 2),
+       ('DIVIDENDS', 'INCOME', 3),
+       ('FREELANCE', 'INCOME', 4),
+       ('INVESTMENT', 'INCOME', 5),
+       ('RENTAL', 'INCOME', 6),
+       ('GIFT', 'INCOME', 7),
+       ('OTHER', 'INCOME', 8),
+       ('INITIAL_BALANCE', 'INCOME', 9),
+       ('DEPOSIT', 'INCOME', 10);
 
 -- Seed expense categories (6)
-INSERT INTO finance.categories (category_key, category_source, display_order) VALUES
-    ('RETEFUENTE', 'EXPENSE', 1),
-    ('SOCIAL_SECURITY', 'EXPENSE', 2),
-    ('PUBLIC_SERVICES', 'EXPENSE', 3),
-    ('PERSONAL', 'EXPENSE', 4),
-    ('TRANSFER', 'EXPENSE', 5),
-    ('INVESTMENT_WITHDRAWAL_TO_CLOSE_IT', 'EXPENSE', 6);
+INSERT INTO finance.categories (category_key, category_source, display_order)
+VALUES ('RETEFUENTE', 'EXPENSE', 1),
+       ('SOCIAL_SECURITY', 'EXPENSE', 2),
+       ('PUBLIC_SERVICES', 'EXPENSE', 3),
+       ('PERSONAL', 'EXPENSE', 4),
+       ('TRANSFER', 'EXPENSE', 5),
+       ('INVESTMENT_WITHDRAWAL_TO_CLOSE_IT', 'EXPENSE', 6);
 
 -- Validation: Should be 16 categories
-DO $$
-DECLARE
-    category_count INTEGER;
-BEGIN
-    SELECT COUNT(*) INTO category_count FROM finance.categories;
-    IF category_count != 16 THEN
-        RAISE EXCEPTION 'Expected 16 categories, found %', category_count;
-    END IF;
-END $$;
+DO
+$$
+    DECLARE
+        category_count INTEGER;
+    BEGIN
+        SELECT COUNT(*) INTO category_count FROM finance.categories;
+        IF category_count != 16 THEN
+            RAISE EXCEPTION 'Expected 16 categories, found %', category_count;
+        END IF;
+    END
+$$;
 
 -- Verify existing movement categories are valid
-DO $$
-DECLARE
-    invalid_count INTEGER;
-BEGIN
-    SELECT COUNT(*) INTO invalid_count
-    FROM finance.movements m
-    WHERE m.category_type IS NOT NULL
-      AND NOT EXISTS (
-          SELECT 1
-          FROM finance.categories c
-          WHERE c.category_key = m.category_type
-      );
+DO
+$$
+    DECLARE
+        invalid_count INTEGER;
+    BEGIN
+        SELECT COUNT(*)
+        INTO invalid_count
+        FROM finance.movements m
+        WHERE m.category_type IS NOT NULL
+          AND NOT EXISTS (SELECT 1
+                          FROM finance.categories c
+                          WHERE c.category_key = m.category_type);
 
-    IF invalid_count > 0 THEN
-        RAISE WARNING 'Found % movements with invalid category references', invalid_count;
-    ELSE
-        RAISE NOTICE 'All existing movement categories are valid';
-    END IF;
-END $$;
+        IF invalid_count > 0 THEN
+            RAISE WARNING 'Found % movements with invalid category references', invalid_count;
+        ELSE
+            RAISE NOTICE 'All existing movement categories are valid';
+        END IF;
+    END
+$$;
 ```
 
 **Step 1.2: Update Liquibase Master File**
@@ -328,7 +406,8 @@ END $$;
 Add to `jbh-finance-infra/src/main/resources/db/finance-db-master.xml`:
 
 ```xml
-<include file="db/changelog/002_create_categories_table.sql"/>
+
+<include file="db/changelog/001_create_categories_table.sql"/>
 ```
 
 **Step 1.3-1.7**: Create CategoryId, CategoryJPAEntity, CategoryJPARepository, CategoryTranslationRegistry, CategoryDTO
@@ -336,6 +415,7 @@ Add to `jbh-finance-infra/src/main/resources/db/finance-db-master.xml`:
 (See detailed code examples in "Solution Architecture" section above)
 
 **Verification**:
+
 ```bash
 cd jbh-finance
 ./mvnw quarkus:dev
@@ -390,6 +470,7 @@ curl http://localhost:8080/api/v1/finance/categories/expense | jq 'length'
 ## Success Criteria
 
 ### Functional
+
 - ✅ All 16 categories stored in `finance.categories` table
 - ✅ GET /categories/income returns 10 categories
 - ✅ GET /categories/expense returns 6 categories
@@ -399,6 +480,7 @@ curl http://localhost:8080/api/v1/finance/categories/expense | jq 'length'
 - ✅ Balance snapshots (no category) work correctly
 
 ### Non-Functional
+
 - ✅ Response time < 100ms for category queries (with cache)
 - ✅ Zero data loss during migration
 - ✅ Code coverage > 50%
@@ -406,6 +488,7 @@ curl http://localhost:8080/api/v1/finance/categories/expense | jq 'length'
 - ✅ No breaking changes to API response structure
 
 ### Technical
+
 - ✅ Table name follows plural pattern (`categories`)
 - ✅ Hexagonal architecture maintained
 - ✅ Quarkus Panache repository pattern followed
@@ -434,23 +517,23 @@ DROP TABLE IF EXISTS finance.categories CASCADE;
 
 ```sql
 ALTER TABLE finance.categories
-ADD COLUMN user_id UUID NULL,
-ADD COLUMN is_system BOOLEAN NOT NULL DEFAULT TRUE;
+    ADD COLUMN user_id   UUID    NULL,
+    ADD COLUMN is_system BOOLEAN NOT NULL DEFAULT TRUE;
 ```
 
 ### 2. Category Metadata
 
 ```sql
 ALTER TABLE finance.categories
-ADD COLUMN metadata JSONB;
+    ADD COLUMN metadata JSONB;
 ```
 
 ### 3. Category Hierarchies
 
 ```sql
 ALTER TABLE finance.categories
-ADD COLUMN parent_category_key TEXT NULL,
-ADD COLUMN parent_category_source TEXT NULL;
+    ADD COLUMN parent_category_key    TEXT NULL,
+    ADD COLUMN parent_category_source TEXT NULL;
 ```
 
 ---

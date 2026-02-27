@@ -39,4 +39,11 @@ public final class JbhStringUtils {
   public static boolean isBlank(final String value) {
     return value == null || value.isBlank();
   }
+
+  public static String toUpperCase(final String str) {
+    if (isBlank(str)) {
+      return null;
+    }
+    return str.toUpperCase(Locale.ROOT);
+  }
 }

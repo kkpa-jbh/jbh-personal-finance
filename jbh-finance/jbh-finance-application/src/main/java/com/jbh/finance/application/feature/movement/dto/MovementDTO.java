@@ -1,6 +1,6 @@
 package com.jbh.finance.application.feature.movement.dto;
 
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
+import com.jbh.finance.application.feature.category.dto.CategoryDTO;
 import com.jbh.finance.domain.movement.vo.MovementId;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
@@ -20,7 +20,7 @@ public class MovementDTO {
   private final MovementId id;
   private final ProductId productId;
   private final MovementType movementType;
-  private final MovementCategoryVO category;
+  private final CategoryDTO category;
   private final BigDecimal movementAmount;
   private final LocalDate movementDate;
   private final BigDecimal balanceSnapshot;
@@ -55,7 +55,7 @@ public class MovementDTO {
     return movementType;
   }
 
-  public MovementCategoryVO category() {
+  public CategoryDTO category() {
     return category;
   }
 

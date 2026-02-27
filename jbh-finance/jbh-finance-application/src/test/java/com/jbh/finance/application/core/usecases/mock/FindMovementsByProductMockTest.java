@@ -20,11 +20,11 @@ import com.jbh.finance.application.feature.movement.usecases.FindMovementsUseCas
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
-import com.jbh.finance.domain.movement.vo.MovementCategoryVO;
 import com.jbh.finance.domain.movement.vo.MovementId;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductType;
+import com.jbh.finance.testfixtures.CategoryFixturesTestApp;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -103,7 +103,7 @@ public class FindMovementsByProductMockTest {
         .id(id)
         .productId(TEST_PRODUCT_ID)
         .movementType(MovementType.DEPOSIT)
-        .category(MovementCategoryVO.withName(MovementType.DEPOSIT, "DEPOSIT"))
+        .category(CategoryFixturesTestApp.INCOME_DEPOSIT)
         .movementAmount(amount)
         .movementDate(date)
         .balanceSnapshot(amount)

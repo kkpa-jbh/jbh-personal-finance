@@ -3,6 +3,7 @@ package com.jbh.finance.application.core.usecases.mock;
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.application.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
+import static com.jbh.finance.application.builders.UseCaseBuilder.categoryServiceMock;
 import static com.jbh.finance.application.builders.UseCaseBuilder.movementQueryRepository;
 import static com.jbh.finance.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 import static org.mockito.ArgumentMatchers.any;
@@ -87,12 +88,13 @@ public class RegisterMonthlyBalanceMockTest {
             coreAccountMovementService,
             accountService,
             realMonthlyBalanceService,
-            new UnitOfWorkTest());
+            new UnitOfWorkTest(),
+            categoryServiceMock);
     monthlyBalanceService = spy(realMonthlyBalanceService);
 
     useCaseInstanceTest =
         new RegisterMonthlyBalanceInputPort(
-            monthlyBalanceService, accountService, accountMovementService);
+            monthlyBalanceService, accountService, accountMovementService, categoryServiceMock);
   }
 
   @Test
