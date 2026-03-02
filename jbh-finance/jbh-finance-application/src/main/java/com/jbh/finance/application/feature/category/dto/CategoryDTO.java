@@ -1,7 +1,7 @@
 package com.jbh.finance.application.feature.category.dto;
 
+import static com.jbh.finance.domain.category.vo.SystemCategoryAlias.EXPENSE_INVESTMENT_WITHDRAWAL_TO_CLOSE_IT;
 import static com.jbh.finance.domain.category.vo.SystemCategoryAlias.INCOME_INITIAL_BALANCE;
-import static com.jbh.finance.domain.category.vo.SystemCategoryAlias.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT;
 
 import com.jbh.finance.domain.category.vo.CategorySourceVO;
 import com.jbh.finance.domain.category.vo.CategoryTypeVO;
@@ -56,7 +56,7 @@ public final class CategoryDTO {
   }
 
   public boolean isInvestmentToCloseIt() {
-    return is(INVESTMENT_WITHDRAWAL_TO_CLOSE_IT);
+    return is(EXPENSE_INVESTMENT_WITHDRAWAL_TO_CLOSE_IT);
   }
 
   private boolean is(final SystemCategoryAlias alias) {
@@ -76,6 +76,6 @@ public final class CategoryDTO {
   }
 
   public boolean isNotInvestmentToCloseIt() {
-    return isNot(INVESTMENT_WITHDRAWAL_TO_CLOSE_IT);
+    return isNot(EXPENSE_INVESTMENT_WITHDRAWAL_TO_CLOSE_IT);
   }
 }

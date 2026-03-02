@@ -31,9 +31,6 @@ public class CategoryRestAdapter {
 
   private static final Logger LOG = LoggerFactory.getLogger(CategoryRestAdapter.class);
 
-  private static final String INCOME_SOURCE = "INCOME";
-  private static final String EXPENSE_SOURCE = "EXPENSE";
-
   private final CategoryJPARepository categoryRepository;
 
   @Inject

@@ -16,6 +16,10 @@ public class CategoryRepositoryAdapter implements CategoryQueryRepo {
     this.jpaRepository = jpaRepository;
   }
 
+  /**
+   * INCLUDES THE INITIAL BALANCE USED INTERNALLY (INACTIVE)
+   * @return
+   */
   @Override
   public List<CategoryDTO> findAllSystemCategories() {
     return jpaRepository.findAll().stream().map(CategoryJPAEntity::toDTO).toList();

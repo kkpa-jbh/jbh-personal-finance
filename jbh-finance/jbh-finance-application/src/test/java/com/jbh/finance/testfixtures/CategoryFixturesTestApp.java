@@ -69,7 +69,7 @@ public final class CategoryFixturesTestApp {
   public static final CategoryDTO INVESTMENT_TO_CLOSE_IT =
       CategoryDTO.withInternalPurpose(
           new CategoryTypeVO(
-              EXPENSE, SystemCategoryAlias.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT.getAlias()),
+              EXPENSE, SystemCategoryAlias.EXPENSE_INVESTMENT_WITHDRAWAL_TO_CLOSE_IT.getAlias()),
           categoryId++);
   ;
   public static final CategoryDTO INCOME_INITIAL_BALANCE =

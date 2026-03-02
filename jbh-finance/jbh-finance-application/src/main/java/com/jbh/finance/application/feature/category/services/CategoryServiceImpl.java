@@ -1,5 +1,6 @@
 package com.jbh.finance.application.feature.category.services;
 
+import static com.jbh.finance.domain.category.vo.SystemCategoryAlias.EXPENSE_INVESTMENT_WITHDRAWAL_TO_CLOSE_IT;
 import static com.jbh.finance.domain.category.vo.SystemCategoryAlias.EXPENSE_RETEFUENTE;
 import static com.jbh.finance.domain.category.vo.SystemCategoryAlias.EXPENSE_TRANSFER;
 import static com.jbh.finance.domain.category.vo.SystemCategoryAlias.EXPENSE_UNKNOWN;
@@ -7,7 +8,6 @@ import static com.jbh.finance.domain.category.vo.SystemCategoryAlias.INCOME_DIVI
 import static com.jbh.finance.domain.category.vo.SystemCategoryAlias.INCOME_INITIAL_BALANCE;
 import static com.jbh.finance.domain.category.vo.SystemCategoryAlias.INCOME_OTHER;
 import static com.jbh.finance.domain.category.vo.SystemCategoryAlias.INCOME_TRANSFER;
-import static com.jbh.finance.domain.category.vo.SystemCategoryAlias.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT;
 
 import com.jbh.finance.application.feature.category.dto.CategoryDTO;
 import com.jbh.finance.application.feature.category.ports.output.CategoryQueryRepo;
@@ -52,7 +52,7 @@ public class CategoryServiceImpl implements CategoryService {
 
   @Override
   public CategoryDTO findInvestmentToCloseIt() {
-    return categoriesMa.get(INVESTMENT_WITHDRAWAL_TO_CLOSE_IT.getAlias());
+    return categoriesMa.get(EXPENSE_INVESTMENT_WITHDRAWAL_TO_CLOSE_IT.getAlias());
   }
 
   @Override

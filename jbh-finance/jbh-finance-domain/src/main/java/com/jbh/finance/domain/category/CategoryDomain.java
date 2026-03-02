@@ -38,7 +38,7 @@ public class CategoryDomain {
 
   public boolean isInvestmentWithdrawalToCloseIt() {
     return getAlias()
-        .equalsIgnoreCase(SystemCategoryAlias.INVESTMENT_WITHDRAWAL_TO_CLOSE_IT.getAlias());
+        .equalsIgnoreCase(SystemCategoryAlias.EXPENSE_INVESTMENT_WITHDRAWAL_TO_CLOSE_IT.getAlias());
   }
 
   public String getAlias() {
