@@ -1,5 +1,6 @@
 package com.jbh.finance.infra.adapters.out.persistence.category;
 
+import com.jbh.finance.domain.category.vo.CategorySourceVO;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.panache.common.Sort;
@@ -14,8 +15,8 @@ public class CategoryJPARepository implements PanacheRepository<CategoryJPAEntit
   private static final String SOURCE_PARAM = "source";
   private static final String ALIAS_PARAM = "alias";
 
-  public List<CategoryJPAEntity> findBySource(final String source) {
-    return find("source = :source", Sort.by(ALIAS_PARAM), Parameters.with(SOURCE_PARAM, source))
+  public List<CategoryJPAEntity> findBySource(final CategorySourceVO source) {
+    return find("source = :source and active IS TRUE", Sort.by(ALIAS_PARAM), Parameters.with(SOURCE_PARAM, source))
         .list();
   }
 

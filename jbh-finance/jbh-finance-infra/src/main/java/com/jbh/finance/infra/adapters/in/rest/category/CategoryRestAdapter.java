@@ -70,13 +70,55 @@ public class CategoryRestAdapter {
       return Response.status(Response.Status.BAD_REQUEST).entity("Invalid type").build();
     }
 
-    LOG.debug("Retrieving categories for source: {}", source);
+    return buildCategoryResponse(source);
+  }
 
+  @GET
+  @Path("/expenses")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Get all expense categories",
+      description = "Returns all available expense categories, sorted by short alias")
+  @APIResponses(
+      value = {
+        @APIResponse(
+            responseCode = "200",
+            description = "Expense categories retrieved successfully",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = CategoryEntityResponse.class)))
+      })
+  public Response getAllExpenseCategories() {
+    return buildCategoryResponse(CategorySourceVO.EXPENSE);
+  }
+
+  @GET
+  @Path("/incomes")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Get all income categories",
+      description = "Returns all available income categories, sorted by short alias")
+  @APIResponses(
+      value = {
+        @APIResponse(
+            responseCode = "200",
+            description = "Income categories retrieved successfully",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = CategoryEntityResponse.class)))
+      })
+  public Response getAllIncomeCategories() {
+    return buildCategoryResponse(CategorySourceVO.INCOME);
+  }
+
+  private Response buildCategoryResponse(final CategorySourceVO source) {
+    LOG.debug("Retrieving categories for source: {}", source);
     final List<CategoryEntityResponse> categories =
-        categoryRepository.findBySource(source.name()).stream()
+        categoryRepository.findBySource(source).stream()
             .map(CategoryEntityResponse::fromEntity)
             .toList();
-
     LOG.info("Returning {} categories for source {}", categories.size(), source);
     return Response.ok(categories).build();
   }

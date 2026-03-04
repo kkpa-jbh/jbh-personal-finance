@@ -21,6 +21,4 @@ public class FinanceApiRoutes {
 
   // Categories API
   public static final String CATEGORIES_API_PATH = BASE_API_PATH + "/categories";
-  public static final String EXPENSE_CATEGORIES_API_PATH = BASE_API_PATH + "/categories/expenses";
-  public static final String INCOME_CATEGORIES_API_PATH = BASE_API_PATH + "/categories/incomes";
 }
