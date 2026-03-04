@@ -79,7 +79,6 @@ public class MovementJPAEntity extends PanacheEntityBase {
     entity.setBalanceSnapshot(productMovement.balanceSnapshot());
     entity.setMetadata(
         productMovement.metadata() != null ? productMovement.metadata().asMap() : null);
-    entity.setCategory(CategoryJPAEntity.fromDTO(productMovement.category()));
     entity.setDescription(productMovement.description());
     entity.setCreatedAt(productMovement.createdAt());
     entity.setDescription(productMovement.description());
