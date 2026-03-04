@@ -22,6 +22,6 @@ public class CategoryRepositoryAdapter implements CategoryQueryRepo {
    */
   @Override
   public List<CategoryDTO> findAllSystemCategories() {
-    return jpaRepository.findAll().stream().map(CategoryJPAEntity::toDTO).toList();
+    return jpaRepository.findAllSystem().stream().map(CategoryJPAEntity::toDTO).toList();
   }
 }

@@ -43,9 +43,16 @@ public class CategoryJPAEntity extends PanacheEntityBase {
   @Column(name = "active", nullable = false)
   public boolean active;
 
+  @Column(name = "system", nullable = false)
+  public boolean system;
+
   @Type(JsonBinaryType.class)
   @Column(name = "display_name", columnDefinition = "jsonb")
   public Map<String, String> displayName;
+
+  @Type(JsonBinaryType.class)
+  @Column(name = "description", columnDefinition = "jsonb")
+  public Map<String, String> description;
 
   @Column(name = "created_at", nullable = false, updatable = false)
   public LocalDateTime createdAt;

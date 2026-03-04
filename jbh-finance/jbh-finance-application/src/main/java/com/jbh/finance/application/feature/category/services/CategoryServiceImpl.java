@@ -20,7 +20,7 @@ public class CategoryServiceImpl implements CategoryService {
 
   private static final Logger LOG = LoggerFactory.getLogger(CategoryServiceImpl.class);
   private final CategoryQueryRepo categoryQueryRepo;
-  private Map<String, CategoryDTO> categoriesMa;
+  private Map<String, CategoryDTO> categoriesMap;
 
   public CategoryServiceImpl(final CategoryQueryRepo categoryQueryRepo) {
     this.categoryQueryRepo = categoryQueryRepo;
@@ -30,48 +30,48 @@ public class CategoryServiceImpl implements CategoryService {
   private void createMap() {
     LOG.info("Creating categories MAP ");
 
-    categoriesMa =
+    categoriesMap =
         categoryQueryRepo.findAllSystemCategories().stream()
             .collect(Collectors.toMap(CategoryDTO::getAlias, category -> category));
   }
 
   @Override
   public CategoryDTO findIncomeInitialBalance() {
-    return categoriesMa.get(INCOME_INITIAL_BALANCE.getAlias());
+    return categoriesMap.get(INCOME_INITIAL_BALANCE.getAlias());
   }
 
   @Override
   public CategoryDTO findIncomeTransfer() {
-    return categoriesMa.get(INCOME_TRANSFER.getAlias());
+    return categoriesMap.get(INCOME_TRANSFER.getAlias());
   }
 
   @Override
   public CategoryDTO findIncomeDividends() {
-    return categoriesMa.get(INCOME_DIVIDENDS.getAlias());
+    return categoriesMap.get(INCOME_DIVIDENDS.getAlias());
   }
 
   @Override
   public CategoryDTO findInvestmentToCloseIt() {
-    return categoriesMa.get(EXPENSE_INVESTMENT_WITHDRAWAL_TO_CLOSE_IT.getAlias());
+    return categoriesMap.get(EXPENSE_INVESTMENT_WITHDRAWAL_TO_CLOSE_IT.getAlias());
   }
 
   @Override
   public CategoryDTO findExpenseTransfer() {
-    return categoriesMa.get(EXPENSE_TRANSFER.getAlias());
+    return categoriesMap.get(EXPENSE_TRANSFER.getAlias());
   }
 
   @Override
   public CategoryDTO findExpenseRetefuente() {
-    return categoriesMa.get(EXPENSE_RETEFUENTE.getAlias());
+    return categoriesMap.get(EXPENSE_RETEFUENTE.getAlias());
   }
 
   @Override
   public CategoryDTO findExpenseUnknown() {
-    return categoriesMa.get(EXPENSE_UNKNOWN.getAlias());
+    return categoriesMap.get(EXPENSE_UNKNOWN.getAlias());
   }
 
   @Override
   public CategoryDTO findIncomeOther() {
-    return categoriesMa.get(INCOME_OTHER.getAlias());
+    return categoriesMap.get(INCOME_OTHER.getAlias());
   }
 }

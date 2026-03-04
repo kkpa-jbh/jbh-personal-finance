@@ -4,6 +4,7 @@ CREATE TABLE finance.categories
     id           SERIAL                   NOT NULL,
     source       TEXT                     NOT NULL,
     alias        VARCHAR(50)              NOT NULL,
+    system       BOOLEAN                  NOT NULL DEFAULT FALSE,
     active       BOOLEAN                  NOT NULL DEFAULT TRUE,
     display_name JSONB,
     created_at   TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,

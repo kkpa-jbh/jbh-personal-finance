@@ -7,7 +7,7 @@
 
   <include file="/db/changelog/001_create_categories_table.sql"/>
   <include file="/db/changelog/001_create_finance_core_schema.sql"/>
-  <include file="/db/changelog/002_alter_movements_category.sql"/>
-
+  <include file="/db/changelog/002_add_system_categories.sql"/>
+  <include file="/db/changelog/003_add_consumer_categories.sql"/>
 
 </databaseChangeLog>

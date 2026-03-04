@@ -6,7 +6,6 @@ import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.PersistenceUnit;
 import java.util.List;
-import java.util.Optional;
 
 @ApplicationScoped
 @PersistenceUnit(name = "finance")
@@ -20,11 +19,7 @@ public class CategoryJPARepository implements PanacheRepository<CategoryJPAEntit
         .list();
   }
 
-  public Optional<CategoryJPAEntity> findBySourceAndShortName(
-      final String source, final String shortName) {
-    return find(
-            "source = :source and alias = :" + ALIAS_PARAM,
-            Parameters.with(SOURCE_PARAM, source).and(ALIAS_PARAM, shortName))
-        .firstResultOptional();
+  public List<CategoryJPAEntity> findAllSystem() {
+    return find("system IS TRUE", Sort.by(ALIAS_PARAM)).list();
   }
 }
