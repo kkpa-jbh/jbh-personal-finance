@@ -53,7 +53,8 @@ public class ProductMetadataConfigRegistry {
           ProductType.CDT,
               new LinkedHashSet<>(
                   List.of(MATURITY_DATE, OPENING_DATE, TERM_LENGTH_IN_DAYS, COMMISSION_RATE)),
-          ProductType.INVESTMENT, new LinkedHashSet<>(List.of(BROKER_NAME, COMMISSION_RATE)),
+          ProductType.INVESTMENT,
+              new LinkedHashSet<>(List.of(BROKER_NAME, COMMISSION_RATE, COMMON_INITIAL_BALANCE)),
           ProductType.CREDIT_CARD, new LinkedHashSet<>(List.of(CREDIT_LIMIT, PAYMENT_DUE_DAY)),
           ProductType.SAVINGS, new LinkedHashSet<>(List.of(COMMON_INITIAL_BALANCE)));
 

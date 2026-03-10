@@ -33,7 +33,7 @@ public class CategoryJPAEntity extends PanacheEntityBase {
   @Column(name = "id")
   public Long id;
 
-  @Column(name = "source", nullable = false)
+  @Column(name = "source", nullable = false, columnDefinition = "TEXT")
   @Enumerated(value = EnumType.STRING)
   public CategorySourceVO source;
 
@@ -84,7 +84,7 @@ public class CategoryJPAEntity extends PanacheEntityBase {
   }
 
   public CategoryDTO toDTO() {
-    return CategoryDTO.withEntity(toCategoryType(), id, displayName, active);
+    return CategoryDTO.withEntity(toCategoryType(), id, displayName, active, description);
   }
 
   private CategoryTypeVO toCategoryType() {

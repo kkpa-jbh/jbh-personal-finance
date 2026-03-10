@@ -18,28 +18,32 @@ public final class CategoryDTO {
   private final Long categoryId;
   private final Map<String, String> displayName;
   private final boolean active;
+  private final Map<String, String> description;
 
   private CategoryDTO(
       final CategoryTypeVO categoryType,
       final Long id,
       final Map<String, String> displayName,
-      final boolean active) {
+      final boolean active,
+      final Map<String, String> description) {
     this.categoryType = categoryType;
     this.categoryId = id;
     this.displayName = displayName;
     this.active = active;
+    this.description = description;
   }
 
   public static CategoryDTO withInternalPurpose(final CategoryTypeVO categoryType, final Long id) {
-    return new CategoryDTO(categoryType, id, null, true);
+    return new CategoryDTO(categoryType, id, null, true, null);
   }
 
   public static CategoryDTO withEntity(
       final CategoryTypeVO categoryType,
       final Long id,
       final Map<String, String> displayName,
-      final boolean active) {
-    return new CategoryDTO(categoryType, id, displayName, active);
+      final boolean active,
+      final Map<String, String> description) {
+    return new CategoryDTO(categoryType, id, displayName, active, description);
   }
 
   @Override

@@ -42,7 +42,7 @@ public class MovementJPAEntity extends PanacheEntityBase {
   public UUID productId;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "movement_type")
+  @Column(name = "movement_type", columnDefinition = "TEXT")
   public MovementType movementType;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -58,7 +58,7 @@ public class MovementJPAEntity extends PanacheEntityBase {
   @Column(name = "balance_snapshot", precision = 20, scale = 2)
   public BigDecimal balanceSnapshot;
 
-  @Column(name = "description")
+  @Column(name = "description", columnDefinition = "TEXT")
   public String description;
 
   @Type(JsonBinaryType.class)

@@ -49,31 +49,31 @@ public class MonthlyBalanceJPAEntity extends PanacheEntityBase {
   @Convert(converter = YearMonthConverter.class)
   private YearMonth period;
 
-  @Column(name = "total_debits")
+  @Column(name = "total_debits", precision = 20, scale = 2)
   private BigDecimal totalDebits;
 
-  @Column(name = "total_credits")
+  @Column(name = "total_credits", precision = 20, scale = 2)
   private BigDecimal totalCredits;
 
-  @Column(name = "movement_balance")
+  @Column(name = "movement_balance", precision = 20, scale = 2)
   private BigDecimal movementBalance;
 
-  @Column(name = "opening_balance")
+  @Column(name = "opening_balance", precision = 20, scale = 2)
   private BigDecimal openingBalance;
 
-  @Column(name = "closing_balance")
+  @Column(name = "closing_balance", precision = 20, scale = 2)
   private BigDecimal closingBalance;
 
-  @Column(name = "monthly_reported_profit")
+  @Column(name = "monthly_reported_profit", precision = 20, scale = 2)
   private BigDecimal monthlyReportedProfit;
 
-  @Column(name = "monthly_net_profit")
+  @Column(name = "monthly_net_profit", precision = 20, scale = 2)
   private BigDecimal monthlyNetProfit;
 
-  @Column(name = "income_withholding_tax_amount")
+  @Column(name = "income_withholding_tax_amount", precision = 20, scale = 2)
   private BigDecimal incomeWithholdingTaxAmount;
 
-  @Column(name = "net_growth_rate")
+  @Column(name = "net_growth_rate", precision = 10, scale = 2)
   private BigDecimal netGrowthRate;
 
   @Column(name = "total_movements")

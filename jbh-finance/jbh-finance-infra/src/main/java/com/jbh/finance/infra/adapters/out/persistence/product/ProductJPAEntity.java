@@ -41,18 +41,18 @@ public class ProductJPAEntity extends PanacheEntityBase {
   @Column(name = "net_profit_balance", nullable = false, precision = 20, scale = 2)
   private BigDecimal netProfitBalance = BigDecimal.ZERO;
 
-  @Column(name = "net_growth_rate", nullable = false, precision = 20, scale = 2)
+  @Column(name = "net_growth_rate", nullable = false, precision = 10, scale = 2)
   private BigDecimal netGrowthRate = BigDecimal.ZERO;
 
   @Id
   @Column(name = "id")
   private UUID id;
 
-  @Column(name = "name", nullable = false)
+  @Column(name = "name", nullable = false, columnDefinition = "TEXT")
   private String name;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "type")
+  @Column(name = "type", columnDefinition = "TEXT")
   private ProductType type;
 
   @Column(name = "user_id", nullable = false)

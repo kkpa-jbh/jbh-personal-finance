@@ -4,7 +4,12 @@ import com.jbh.finance.infra.adapters.out.persistence.category.CategoryJPAEntity
 import java.util.Map;
 
 public record CategoryEntityResponse(
-    Long id, String source, String alias, boolean active, Map<String, String> displayName) {
+    Long id,
+    String source,
+    String alias,
+    boolean active,
+    Map<String, String> displayName,
+    Map<String, String> description) {
 
   public static CategoryEntityResponse fromEntity(final CategoryJPAEntity entity) {
     return new CategoryEntityResponse(
@@ -12,6 +17,7 @@ public record CategoryEntityResponse(
         entity.getSource().name(),
         entity.getAlias(),
         entity.isActive(),
-        entity.getDisplayName());
+        entity.getDisplayName(),
+        entity.getDescription());
   }
 }
