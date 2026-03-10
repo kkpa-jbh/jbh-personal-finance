@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,11 @@ public class InMemoryMovementQueryRepository implements MovementQueryRepository 
         .toList();
   }
 
+  @Override
+  public Optional<MovementDTO> findById(final UUID movementId) {
+    return Optional.ofNullable(storage.get(movementId));
+  }
+
   public void clearStorage() {
     storage.clear();
   }
@@ -61,5 +67,9 @@ public class InMemoryMovementQueryRepository implements MovementQueryRepository 
 
   public List<MovementDTO> findAll() {
     return new ArrayList<>(storage.values());
+  }
+
+  public void deleteById(final UUID movementId) {
+    storage.remove(movementId);
   }
 }

@@ -2,7 +2,7 @@ package com.jbh.finance.application.core.usecases.integration.movements;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder.createInitialBalance;
-import static com.jbh.finance.application.core.usecases.utils.ProductITUtils.assertAccount;
+import static com.jbh.finance.application.core.usecases.utils.ProductITUtils.assertProduct;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -106,7 +106,7 @@ public class RegisterCDTMovementITTest {
 
     final ProductDTO expectedAccount = ProductMapper.toDTO(expectedAccountBuilder.build());
 
-    assertAccount(expectedAccount, updatedAccount);
+    assertProduct(expectedAccount, updatedAccount);
 
     // Should not be able to add a new income movement to the productDTO
     assertThrows(
@@ -155,7 +155,7 @@ public class RegisterCDTMovementITTest {
             .netGrowthRate(new BigDecimal("25.00"))
             .isActive(false)
             .build();
-    assertAccount(expectedCDTAccount, updatedCDTAccount.get());
+    assertProduct(expectedCDTAccount, updatedCDTAccount.get());
     assertTrue(
         updatedCDTAccount.get().metadata().findCommonMetadata().isFullyWithdrawn(),
         "Is not Fully withdrawn");

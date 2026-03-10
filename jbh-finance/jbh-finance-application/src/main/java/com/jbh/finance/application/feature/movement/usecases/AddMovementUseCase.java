@@ -2,15 +2,16 @@ package com.jbh.finance.application.feature.movement.usecases;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
-import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
+import com.jbh.finance.application.feature.movement.dto.AddMovementResultDTO;
 import com.jbh.finance.domain.product.vo.ProductId;
 import java.util.UUID;
 
 /**
  * Adds a single financial movement (transaction) to a product in the user's portfolio.
  *
- * <p><strong>User Explanation:</strong> "Record a transaction in your productDTO, such as a deposit,
- * withdrawal, or expense. The system automatically updates your balances and monthly summaries."
+ * <p><strong>User Explanation:</strong> "Record a transaction in your productDTO, such as a
+ * deposit, withdrawal, or expense. The system automatically updates your balances and monthly
+ * summaries."
  *
  * <p><strong>Business Rules:</strong>
  *
@@ -48,7 +49,7 @@ public interface AddMovementUseCase {
    * @return DTO containing the created movement and updated product information
    * @throws BusinessException if validation fails or product type doesn't allow movements
    */
-  AddBasicMovementDTO addMovement(
+  AddMovementResultDTO addMovement(
       UUID userId, ProductId productId, AddMovementCommand movementCommand)
       throws BusinessException;
 }

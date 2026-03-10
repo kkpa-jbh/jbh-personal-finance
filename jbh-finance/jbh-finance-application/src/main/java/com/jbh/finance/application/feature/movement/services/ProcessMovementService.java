@@ -3,7 +3,7 @@ package com.jbh.finance.application.feature.movement.services;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
-import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
+import com.jbh.finance.application.feature.movement.dto.AddMovementResultDTO;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.product.vo.ProductPK;
@@ -20,8 +20,8 @@ public interface ProcessMovementService {
    *
    * <p>It will update the monthly balance for the next month
    *
-   * <p>For each movement, it will update the productDTO current balance and net profit. <p<The monthly
-   * balance for the next mont will be synced.
+   * <p>For each movement, it will update the productDTO current balance and net profit. <p<The
+   * monthly balance for the next mont will be synced.
    *
    * @param productPK
    * @param nextMonthlyBalanceCommand The command with the monthly balance for the next month. The
@@ -42,10 +42,10 @@ public interface ProcessMovementService {
    * @return
    * @throws BusinessException
    */
-  AddBasicMovementDTO addMovementProcessingBalances(
+  AddMovementResultDTO addMovementProcessingBalances(
       ProductPK accountPK, AddMovementCommand movementCommand) throws BusinessException;
 
-  AddBasicMovementDTO processMovement(
+  AddMovementResultDTO processMovement(
       MovementDTO movementDTO, ProductPK accountPK, boolean isMonthOfficiallyReported)
       throws BusinessException;
 
@@ -56,5 +56,19 @@ public interface ProcessMovementService {
       BigDecimal balanceSnapshot,
       BigDecimal incomeWithholdingTaxAmount,
       MovementMetadata metadata)
+      throws BusinessException;
+
+  /**
+   * Reverses a movement's effect on the product balance and deletes it atomically.
+   *
+   * <p>For DEPOSIT movements, reversal applies a WITHDRAWAL of the same amount. For WITHDRAWAL
+   * movements, reversal applies a DEPOSIT of the same amount. BALANCE_SNAPSHOT movements are
+   * deleted without balance adjustment since they represent point-in-time snapshots.
+   *
+   * @param productPK the product owner and ID
+   * @param movement the movement to reverse and delete
+   * @throws BusinessException if balance sync fails
+   */
+  void reverseMovementProcessingBalances(ProductPK productPK, MovementDTO movement)
       throws BusinessException;
 }

@@ -17,6 +17,7 @@ import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonth
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementsUploadedFileInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.AddTransferJbhProductsInputPort;
+import com.jbh.finance.application.feature.movement.ports.input.DeleteMovementInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.FindMovementsInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.LiquidateProductInputPort;
 import com.jbh.finance.application.feature.movement.ports.output.MovementQueryRepository;
@@ -26,6 +27,7 @@ import com.jbh.finance.application.feature.movement.services.MovementLifecycleSe
 import com.jbh.finance.application.feature.movement.services.ProcessMovementService;
 import com.jbh.finance.application.feature.movement.services.ProcessMovementServiceImpl;
 import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhProductsUseCase;
+import com.jbh.finance.application.feature.movement.usecases.DeleteMovementUseCase;
 import com.jbh.finance.application.feature.movement.usecases.FindMovementsUseCase;
 import com.jbh.finance.application.feature.movement.usecases.LiquidateProductUseCase;
 import com.jbh.finance.application.feature.product.ports.input.CreateProductInputPort;
@@ -225,5 +227,12 @@ public class ProductUseCasesCDIConfig {
   @ApplicationScoped
   public FindMovementsUseCase findMovementsByProductUseCase() {
     return new FindMovementsInputPort(movementService(), productsService());
+  }
+
+  @Produces
+  @ApplicationScoped
+  public DeleteMovementUseCase deleteMovementUseCase() {
+    return new DeleteMovementInputPort(
+        movementService(), productsService(), accountMovementServiceApplication());
   }
 }

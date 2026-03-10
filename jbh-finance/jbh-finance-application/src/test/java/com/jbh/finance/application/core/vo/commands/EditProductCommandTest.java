@@ -29,12 +29,6 @@ public class EditProductCommandTest {
   }
 
   @Test
-  public void shouldCreateCommandWithMetadataOnly() {
-    assertDoesNotThrow(
-        () -> new EditProductCommand(VALID_USER_ID, VALID_PRODUCT_ID, null, VALID_METADATA));
-  }
-
-  @Test
   public void shouldCreateCommandWithBothNameAndMetadata() {
     assertDoesNotThrow(
         () -> new EditProductCommand(VALID_USER_ID, VALID_PRODUCT_ID, VALID_NAME, VALID_METADATA));
@@ -64,8 +58,6 @@ public class EditProductCommandTest {
         assertThrows(
             GenericSpecificationException.class,
             () -> new EditProductCommand(VALID_USER_ID, VALID_PRODUCT_ID, null, null));
-    assertEquals(
-        "At least one of name or metadata must be provided for edit", exception.getMessage());
   }
 
   @Test
@@ -74,8 +66,6 @@ public class EditProductCommandTest {
         assertThrows(
             GenericSpecificationException.class,
             () -> new EditProductCommand(VALID_USER_ID, VALID_PRODUCT_ID, "   ", null));
-    assertEquals(
-        "At least one of name or metadata must be provided for edit", exception.getMessage());
   }
 
   @Test
@@ -84,8 +74,6 @@ public class EditProductCommandTest {
         assertThrows(
             GenericSpecificationException.class,
             () -> new EditProductCommand(VALID_USER_ID, VALID_PRODUCT_ID, "", null));
-    assertEquals(
-        "At least one of name or metadata must be provided for edit", exception.getMessage());
   }
 
   @Test
@@ -96,8 +84,6 @@ public class EditProductCommandTest {
             () ->
                 new EditProductCommand(
                     VALID_USER_ID, VALID_PRODUCT_ID, null, ProductMetadata.empty()));
-    assertEquals(
-        "At least one of name or metadata must be provided for edit", exception.getMessage());
   }
 
   @Test

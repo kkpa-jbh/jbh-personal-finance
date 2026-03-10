@@ -1,7 +1,6 @@
 package com.jbh.finance.application.feature.movement.services;
 
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
-import static com.jbh.finance.domain.movement.vo.MovementType.WITHDRAWAL;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.acid.UnitOfWork;
@@ -11,7 +10,7 @@ import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBal
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
-import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
+import com.jbh.finance.application.feature.movement.dto.AddMovementResultDTO;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
@@ -140,7 +139,7 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
   }
 
   @Override
-  public AddBasicMovementDTO addMovementProcessingBalances(
+  public AddMovementResultDTO addMovementProcessingBalances(
       final ProductPK accountPK, final AddMovementCommand movementCommand)
       throws BusinessException {
     // Input validations
@@ -165,7 +164,7 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
   }
 
   @Override
-  public AddBasicMovementDTO processMovement(
+  public AddMovementResultDTO processMovement(
       final MovementDTO movementDTO,
       final ProductPK accountPK,
       final boolean isMonthOfficiallyReported)
@@ -196,7 +195,7 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
       monthlyBalanceDTO = monthlyBalanceService.syncForNewMovement(movementDTO);
     }
 
-    return new AddBasicMovementDTO(syncedAccountDTO, movementDTO, monthlyBalanceDTO);
+    return new AddMovementResultDTO(syncedAccountDTO, movementDTO, monthlyBalanceDTO);
   }
 
   @Override
@@ -233,7 +232,7 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
               movementDate,
               incomeWithholdingTaxAmount,
               balanceSnapshot,
-              WITHDRAWAL,
+              MovementType.WITHDRAWAL,
               expRetefuenteCat,
               null);
 
@@ -245,6 +244,52 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
           accountPK.productId(),
           movementDate);
     }
+  }
+
+  @Override
+  public void reverseMovementProcessingBalances(
+      final ProductPK productPK, final MovementDTO movement) throws BusinessException {
+
+    if (movement.movementType().isBalanceSnapshot()) {
+      unitOfWork.execute(() -> movementLifecycleService.delete(movement.id().value()));
+      return;
+    }
+
+    final MovementDTO reversedMovement = buildReversedMovement(movement);
+    final YearMonth movementPeriod = YearMonth.from(movement.movementDate());
+    final boolean isMonthOfficiallyReported =
+        findIfMonthlyBalanceWasOfficialReported(movement.productId(), movementPeriod);
+
+    final ProductDTO syncedProduct =
+        productLifecycleService.syncByMovement(
+            productPK, reversedMovement, isMonthOfficiallyReported);
+
+    unitOfWork.execute(
+        () -> {
+          movementLifecycleService.delete(movement.id().value());
+          productLifecycleService.save(syncedProduct);
+          log.info(
+              "Movement {} deleted and product {} balance reversed",
+              movement.id(),
+              syncedProduct.name());
+        });
+  }
+
+  private MovementDTO buildReversedMovement(final MovementDTO movement) {
+    final MovementType reversedType =
+        movement.movementType().isDeposit() ? MovementType.WITHDRAWAL : MovementType.DEPOSIT;
+    return MovementDTO.builder()
+        .id(movement.id())
+        .productId(movement.productId())
+        .movementType(reversedType)
+        .movementAmount(movement.movementAmount())
+        .movementDate(movement.movementDate())
+        .balanceSnapshot(movement.balanceSnapshot())
+        .category(movement.category())
+        .metadata(movement.metadata())
+        .createdAt(movement.createdAt())
+        .description(movement.description())
+        .build();
   }
 
   /**

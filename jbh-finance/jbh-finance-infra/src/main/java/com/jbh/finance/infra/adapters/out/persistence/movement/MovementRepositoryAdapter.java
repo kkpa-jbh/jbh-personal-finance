@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.UUID;
 
 @ApplicationScoped
 public class MovementRepositoryAdapter implements MovementWriterRepository {
@@ -29,9 +30,16 @@ public class MovementRepositoryAdapter implements MovementWriterRepository {
 
     final EntityManager em = jpaRepo.getEntityManager();
     if (accountMovement.category() != null && accountMovement.category().getCategoryId() != null) {
-      entity.setCategory(em.getReference(CategoryJPAEntity.class, accountMovement.category().getCategoryId()));
+      entity.setCategory(
+          em.getReference(CategoryJPAEntity.class, accountMovement.category().getCategoryId()));
     }
 
     em.persist(entity);
+  }
+
+  @Override
+  @Transactional
+  public void delete(final UUID movementId) {
+    jpaRepo.deleteById(movementId);
   }
 }

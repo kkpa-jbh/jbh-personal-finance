@@ -122,9 +122,10 @@ public class ProductDomain {
       accountDomain.metadata = productMetadata;
     }
 
-    // Setting Current Balance with Common initial balance inputMetadata
+    // Setting Current/Movement Balance with Common initial balance inputMetadata
     if (productMetadata.hasKey(ProductMetadataKey.COMMON_INITIAL_BALANCE)) {
       accountDomain.currentBalance = productMetadata.findCommonMetadata().getInitialBalance();
+      accountDomain.movementBalance = accountDomain.currentBalance;
     }
 
     return accountDomain;

@@ -9,7 +9,7 @@ import static com.jbh.finance.application.builders.CommandTestBuilder.createReal
 import static com.jbh.finance.application.builders.UseCaseBuilder.addMovementUseCase;
 import static com.jbh.finance.application.builders.UseCaseBuilder.delayTests;
 import static com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder.withCategory;
-import static com.jbh.finance.application.core.usecases.utils.ProductITUtils.assertAccount;
+import static com.jbh.finance.application.core.usecases.utils.ProductITUtils.assertProduct;
 import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.PERSONAL;
 import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.PUBLIC_SERVICES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -184,7 +184,7 @@ public class CreateProductITTest {
 
     ProductDTO expectedAccount = ProductMapper.toDTO(expectedAccountBuilder.build());
 
-    assertAccount(expectedAccount, updatedAccount);
+    assertProduct(expectedAccount, updatedAccount);
 
     delayTests();
 
@@ -207,7 +207,7 @@ public class CreateProductITTest {
 
     expectedAccount = ProductMapper.toDTO(expectedAccountBuilder.build());
 
-    assertAccount(expectedAccount, updatedAccount);
+    assertProduct(expectedAccount, updatedAccount);
   }
 
   @Test

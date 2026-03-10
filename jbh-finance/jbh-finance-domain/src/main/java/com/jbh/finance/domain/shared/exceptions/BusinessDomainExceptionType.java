@@ -69,6 +69,8 @@ public enum BusinessDomainExceptionType implements BusinessExceptionType {
       "The amount paid is greater than the payoff amount",
       "El monto pagado es mayor al monto pendiente de pagar"),
   MISSING_METADATA("Missing required metadata: %s", "Falta el metadato requerido: %s"),
+  INVALID_METADATA(
+      "The product contains invalid metadata", "El producto contiene metadata invalido"),
   INVALID_PERCENTAGE("Percentage must be between 0 and 100", "Porcentaje debe estar entre 0 y 100");
 
   private final String en;

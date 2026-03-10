@@ -3,9 +3,10 @@ package com.jbh.finance.infra.adapters.in.rest.movement;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
-import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
+import com.jbh.finance.application.feature.movement.dto.AddMovementResultDTO;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
+import com.jbh.finance.application.feature.movement.usecases.DeleteMovementUseCase;
 import com.jbh.finance.application.feature.movement.usecases.FindMovementsUseCase;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.infra.adapters.in.rest.common.BaseRestAdapter;
@@ -17,6 +18,7 @@ import com.jbh.gateway.client.JbhGatewayException;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
@@ -49,13 +51,16 @@ public class MovementRestAdapter extends BaseRestAdapter {
 
   private final AddMovementUseCase addMovementUseCase;
   private final FindMovementsUseCase findMovementsUseCase;
+  private final DeleteMovementUseCase deleteMovementUseCase;
 
   @Inject
   public MovementRestAdapter(
       final AddMovementUseCase addMovementUseCase,
-      final FindMovementsUseCase findMovementsUseCase) {
+      final FindMovementsUseCase findMovementsUseCase,
+      final DeleteMovementUseCase deleteMovementUseCase) {
     this.addMovementUseCase = addMovementUseCase;
     this.findMovementsUseCase = findMovementsUseCase;
+    this.deleteMovementUseCase = deleteMovementUseCase;
   }
 
   @POST
@@ -114,7 +119,7 @@ public class MovementRestAdapter extends BaseRestAdapter {
             request.categoryRequest().toDTO(),
             request.description());
 
-    final AddBasicMovementDTO response =
+    final AddMovementResultDTO response =
         addMovementUseCase.addMovement(userId, ProductId.of(productId), command);
 
     return Response.ok(AddMovementResponse.fromDTO(response)).build();
@@ -180,5 +185,54 @@ public class MovementRestAdapter extends BaseRestAdapter {
         movements.stream().map(MovementResponse::fromDTO).toList();
 
     return Response.ok(responseList).build();
+  }
+
+  @DELETE
+  @Path("/{productId}/{movementId}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Delete a movement from a product",
+      description =
+          "Deletes a movement and reverses its effect on product balances. Only movements created in the current month can be deleted.")
+  @APIResponses(
+      value = {
+        @APIResponse(responseCode = "204", description = "Movement deleted successfully"),
+        @APIResponse(
+            responseCode = "400",
+            description = "Movement cannot be removed (not in current month)",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class))),
+        @APIResponse(
+            responseCode = "401",
+            description = "Unauthorized",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class))),
+        @APIResponse(
+            responseCode = "404",
+            description = "Movement or product not found",
+            content =
+                @Content(
+                    mediaType = MediaType.APPLICATION_JSON,
+                    schema = @Schema(implementation = String.class)))
+      })
+  @SecurityRequirement(name = "JWT")
+  public Response deleteMovement(
+      @PathParam("productId") final UUID productId,
+      @PathParam("movementId") final UUID movementId,
+      @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
+          final String authorizationHeader)
+      throws JbhGatewayException, BusinessException, InternalSystemException {
+
+    final UUID userId = findUserId(authorizationHeader);
+
+    LOG.info("Deleting movement {} from product {}", movementId, productId);
+
+    deleteMovementUseCase.deleteMovement(userId, ProductId.of(productId), movementId);
+
+    return Response.noContent().build();
   }
 }

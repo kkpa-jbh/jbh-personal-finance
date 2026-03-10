@@ -26,7 +26,7 @@ import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBa
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
-import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
+import com.jbh.finance.application.feature.movement.dto.AddMovementResultDTO;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementInputPort;
 import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
@@ -119,7 +119,7 @@ public class RegisterMovementExecutionMockTest {
     when(accountRepository.findByProductId(accountId)).thenReturn(dto);
 
     // When & Then
-    final AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
+    final AtomicReference<AddMovementResultDTO> mvmtResponse = new AtomicReference<>();
     assertDoesNotThrow(
         () -> mvmtResponse.set(useCaseInstanceTest.addMovement(userId, accountId, request)));
 
@@ -179,7 +179,7 @@ public class RegisterMovementExecutionMockTest {
         .thenReturn(Optional.of(ProductMapper.toDTO(accountDomain)));
 
     // When & Then
-    final AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
+    final AtomicReference<AddMovementResultDTO> mvmtResponse = new AtomicReference<>();
     assertDoesNotThrow(
         () -> mvmtResponse.set(useCaseInstanceTest.addMovement(userId, accountId, request)));
 
@@ -221,7 +221,7 @@ public class RegisterMovementExecutionMockTest {
         .thenReturn(Optional.of(ProductMapper.toDTO(accountDomain)));
 
     // When & Then
-    final AtomicReference<AddBasicMovementDTO> mvmtResponse = new AtomicReference<>();
+    final AtomicReference<AddMovementResultDTO> mvmtResponse = new AtomicReference<>();
     assertDoesNotThrow(
         () -> mvmtResponse.set(useCaseInstanceTest.addMovement(userId, accountId, request)));
 
@@ -291,7 +291,7 @@ public class RegisterMovementExecutionMockTest {
     final BigDecimal amount = new BigDecimal("100.00");
     final AddMovementCommand request =
         createMovementWithType(movementDate, amount, DEPOSIT, OTHER_INCOME_MOVEMENT);
-    final AtomicReference<AddBasicMovementDTO> processedResponse = new AtomicReference<>();
+    final AtomicReference<AddMovementResultDTO> processedResponse = new AtomicReference<>();
     assertDoesNotThrow(
         () -> processedResponse.set(useCaseInstanceTest.addMovement(userId, accountId, request)));
 

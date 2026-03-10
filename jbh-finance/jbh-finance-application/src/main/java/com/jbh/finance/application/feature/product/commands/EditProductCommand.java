@@ -1,17 +1,13 @@
 package com.jbh.finance.application.feature.product.commands;
 
-import com.jbh.finance.application.shared.validation.CommandValidator;
-
 import com.jbh.commons.exception.GenericSpecificationException;
+import com.jbh.finance.application.shared.validation.CommandValidator;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
 import java.util.UUID;
 
 public record EditProductCommand(
-    UUID userId,
-    ProductId productId,
-    String name,
-    ProductMetadata metadata)
+    UUID userId, ProductId productId, String name, ProductMetadata metadata)
     implements CommandValidator {
 
   public EditProductCommand {
@@ -24,10 +20,8 @@ public record EditProductCommand(
     }
 
     final boolean hasName = name != null && !name.isBlank();
-    final boolean hasMetadata = metadata != null && !metadata.isEmpty();
-    if (!hasName && !hasMetadata) {
-      throw new GenericSpecificationException(
-          "At least one of name or metadata must be provided for edit");
+    if (!hasName) {
+      throw new GenericSpecificationException("At least one of name must be provided for edit");
     }
   }
 
@@ -42,10 +36,8 @@ public record EditProductCommand(
     }
 
     final boolean hasName = name != null && !name.isBlank();
-    final boolean hasMetadata = metadata != null && !metadata.isEmpty();
-    if (!hasName && !hasMetadata) {
-      throw new GenericSpecificationException(
-          "At least one of name or metadata must be provided for edit");
+    if (!hasName) {
+      throw new GenericSpecificationException("At least one of name  must be provided for edit");
     }
   }
 }

@@ -23,10 +23,8 @@ import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptio
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
-import com.jbh.finance.domain.product.vo.ProductMetadataKey;
 import com.jbh.finance.domain.product.vo.ProductType;
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,7 +52,7 @@ public class EditProductMockTest {
 
   @Test
   public void shouldEditProductNameOnly() throws BusinessException {
-    final ProductDomain productDomain = createActiveProduct();
+    final ProductDomain productDomain = createSavingProduct();
     final ProductDTO productDTO = ProductMapper.toDTO(productDomain);
 
     when(accountRepository.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
@@ -71,7 +69,7 @@ public class EditProductMockTest {
     verify(accountRepository).save(any(ProductDTO.class));
   }
 
-  private ProductDomain createActiveProduct() {
+  private ProductDomain createSavingProduct() {
     return new ProductDomain(
         TEST_PRODUCT_ID,
         ORIGINAL_NAME,
@@ -88,38 +86,15 @@ public class EditProductMockTest {
   }
 
   @Test
-  public void shouldEditProductMetadataOnly() throws BusinessException {
-    final ProductDomain productDomain = createActiveProduct();
-    final ProductDTO productDTO = ProductMapper.toDTO(productDomain);
-
-    when(accountRepository.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
-        .thenReturn(Optional.of(productDTO));
-    when(accountRepository.save(any(ProductDTO.class))).thenAnswer(inv -> inv.getArgument(0));
-
-    final ProductMetadata newMetadata =
-        ProductMetadata.fromMap(
-            Map.of(ProductMetadataKey.COMMON_INITIAL_BALANCE, new java.math.BigDecimal("1000")));
-    final EditProductCommand command =
-        new EditProductCommand(TEST_USER_ID, TEST_PRODUCT_ID, null, newMetadata);
-
-    final ProductDTO result = useCase.execute(command);
-
-    assertNotNull(result);
-    verify(accountRepository).save(any(ProductDTO.class));
-  }
-
-  @Test
   public void shouldEditProductNameAndMetadata() throws BusinessException {
-    final ProductDomain productDomain = createActiveProduct();
+    final ProductDomain productDomain = createSavingProduct();
     final ProductDTO productDTO = ProductMapper.toDTO(productDomain);
 
     when(accountRepository.findByUserAndProductId(TEST_USER_ID, TEST_PRODUCT_ID))
         .thenReturn(Optional.of(productDTO));
     when(accountRepository.save(any(ProductDTO.class))).thenAnswer(inv -> inv.getArgument(0));
 
-    final ProductMetadata newMetadata =
-        ProductMetadata.fromMap(
-            Map.of(ProductMetadataKey.COMMON_INITIAL_BALANCE, new java.math.BigDecimal("1000")));
+    final ProductMetadata newMetadata = ProductMetadata.empty();
     final EditProductCommand command =
         new EditProductCommand(TEST_USER_ID, TEST_PRODUCT_ID, UPDATED_NAME, newMetadata);
 

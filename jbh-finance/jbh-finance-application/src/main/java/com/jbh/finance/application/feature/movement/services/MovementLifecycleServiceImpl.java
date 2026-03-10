@@ -6,6 +6,7 @@ import com.jbh.finance.application.feature.movement.ports.output.MovementWriterR
 import com.jbh.finance.domain.product.vo.ProductId;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class MovementLifecycleServiceImpl implements MovementLifecycleService {
@@ -37,5 +38,15 @@ public class MovementLifecycleServiceImpl implements MovementLifecycleService {
       final LocalDate endDate) {
     return movementQueryRepo.getByUserAndProductIdWithinPeriod(
         userId, productId, startDate, endDate);
+  }
+
+  @Override
+  public Optional<MovementDTO> findById(final UUID movementId) {
+    return movementQueryRepo.findById(movementId);
+  }
+
+  @Override
+  public void delete(final UUID movementId) {
+    movementWriterRepo.delete(movementId);
   }
 }

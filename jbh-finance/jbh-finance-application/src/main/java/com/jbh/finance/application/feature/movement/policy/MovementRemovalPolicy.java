@@ -10,6 +10,7 @@ import java.time.YearMonth;
  * allows the same rule to be reused across different use cases (queries, removal validation, etc.)
  * without duplication.
  */
+@Deprecated(since = "See canBeRemoved from MovementDTO")
 public class MovementRemovalPolicy {
 
   /**

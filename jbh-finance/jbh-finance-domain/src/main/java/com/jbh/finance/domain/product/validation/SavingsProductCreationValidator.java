@@ -4,6 +4,7 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.domain.movement.MovementDomain;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
+import com.jbh.finance.domain.shared.exceptions.BusinessDomainExceptionType;
 
 /**
  * Validator for SAVINGS product type creation.
@@ -17,11 +18,9 @@ public class SavingsProductCreationValidator extends BaseProductCreationValidato
 
   @Override
   public void validateMetadata(final ProductMetadata metadata) throws BusinessException {
-    // No specific metadata required for savings products (yet)
-    // Future validations can be added here:
-    // - Minimum balance
-    // - Interest rate
-    // - Account features
+    if (metadata != null && !metadata.isEmpty()) {
+      throw new BusinessException(BusinessDomainExceptionType.INVALID_METADATA);
+    }
   }
 
   @Override

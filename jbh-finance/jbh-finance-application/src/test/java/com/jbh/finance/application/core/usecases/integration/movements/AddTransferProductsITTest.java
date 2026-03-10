@@ -18,7 +18,7 @@ import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.commands.AddTransferCommand;
-import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
+import com.jbh.finance.application.feature.movement.dto.AddMovementResultDTO;
 import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhProductsUseCase;
@@ -130,7 +130,7 @@ public class AddTransferProductsITTest {
       executorService.submit(
           () -> {
             try {
-              final AddBasicMovementDTO result =
+              final AddMovementResultDTO result =
                   addMovementUseCase.addMovement(
                       fromUserId, fromAccount.id(), fromAccountInitialBalance);
 
@@ -148,7 +148,7 @@ public class AddTransferProductsITTest {
       executorService.submit(
           () -> {
             try {
-              final AddBasicMovementDTO result =
+              final AddMovementResultDTO result =
                   addMovementUseCase.addMovement(toUserId, toAccount.id(), toAccountInitialBalance);
               assertNotNull(result);
               toAccount = result.productDTO();

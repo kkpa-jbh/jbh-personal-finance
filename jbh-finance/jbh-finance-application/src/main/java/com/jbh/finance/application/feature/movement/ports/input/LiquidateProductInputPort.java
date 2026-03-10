@@ -3,7 +3,7 @@ package com.jbh.finance.application.feature.movement.ports.input;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.category.services.CategoryService;
 import com.jbh.finance.application.feature.movement.commands.LiquidateProductCommand;
-import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
+import com.jbh.finance.application.feature.movement.dto.AddMovementResultDTO;
 import com.jbh.finance.application.feature.movement.dto.LiquidationResultDTO;
 import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
 import com.jbh.finance.application.feature.movement.services.ProcessMovementService;
@@ -56,7 +56,7 @@ public class LiquidateProductInputPort implements LiquidateProductUseCase {
     final ProductPK accountPK = new ProductPK(userId, productId);
 
     LOG.info("Liquidating productDTO {} ", productId);
-    final AddBasicMovementDTO addedMovementDTO =
+    final AddMovementResultDTO addedMovementDTO =
         movementApplicationService.processMovement(movementDTO, accountPK, false);
 
     final ProductDTO syncedAccountDTO = addedMovementDTO.productDTO();

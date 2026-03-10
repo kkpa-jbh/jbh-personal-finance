@@ -3,6 +3,7 @@ package com.jbh.finance.application.core.ports.output.movement;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import java.util.List;
+import java.util.UUID;
 
 public class InMemoryMovementRepository implements MovementWriterRepository {
 
@@ -20,5 +21,10 @@ public class InMemoryMovementRepository implements MovementWriterRepository {
   @Override
   public void save(final List<MovementDTO> newMovements) {
     queryRepo.saveAll(newMovements);
+  }
+
+  @Override
+  public void delete(final UUID movementId) {
+    queryRepo.deleteById(movementId);
   }
 }

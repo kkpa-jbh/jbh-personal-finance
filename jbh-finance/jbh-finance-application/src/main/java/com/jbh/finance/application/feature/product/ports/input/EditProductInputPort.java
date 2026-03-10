@@ -10,6 +10,7 @@ import com.jbh.finance.application.feature.product.services.ProductLifecycleServ
 import com.jbh.finance.application.feature.product.usecases.EditProductUseCase;
 import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
 import com.jbh.finance.domain.product.ProductDomain;
+import com.jbh.finance.domain.product.vo.ProductMetadata;
 import org.slf4j.Logger;
 
 public class EditProductInputPort implements EditProductUseCase {
@@ -45,6 +46,8 @@ public class EditProductInputPort implements EditProductUseCase {
 
     if (command.metadata() != null && !command.metadata().isEmpty()) {
       productDomain.replaceAllMetadata(command.metadata());
+    } else {
+      productDomain.replaceAllMetadata(ProductMetadata.empty());
     }
 
     final ProductDTO savedProduct = accountService.save(productDomain);

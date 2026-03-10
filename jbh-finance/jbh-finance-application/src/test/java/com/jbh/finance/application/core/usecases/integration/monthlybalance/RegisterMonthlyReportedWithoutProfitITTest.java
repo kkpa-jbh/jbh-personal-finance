@@ -7,7 +7,7 @@ import static com.jbh.finance.application.builders.UseCaseBuilder.DEFAULT_ACCOUN
 import static com.jbh.finance.application.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
 import static com.jbh.finance.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.finance.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
-import static com.jbh.finance.application.core.usecases.utils.ProductITUtils.assertAccount;
+import static com.jbh.finance.application.core.usecases.utils.ProductITUtils.assertProduct;
 import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.PERSONAL;
 import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.PUBLIC_SERVICES;
 import static com.jbh.finance.testfixtures.CategoryFixturesTestApp.SALARY;
@@ -24,6 +24,7 @@ import com.jbh.finance.application.builders.commands.AddMovementCommandTestBuild
 import com.jbh.finance.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
 import com.jbh.finance.application.core.ports.output.product.InMemoryProductRepository;
 import com.jbh.finance.application.core.usecases.utils.IgnoreProductOptions;
+import com.jbh.finance.application.core.usecases.utils.ProductITUtils;
 import com.jbh.finance.application.feature.category.dto.CategoryDTO;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
@@ -246,7 +247,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
     final ProductDTO persistedAccount =
         inMemoryAccountRepo.findByUserAndProductId(userId, accountId).get();
-    assertAccount(
+    ProductITUtils.assertProduct(
         (expectedAccount),
         persistedAccount,
         IgnoreProductOptions.IGNORE_ACCOUNT_NAME,
@@ -322,7 +323,7 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
             .build();
     final ProductDTO persistedAccount =
         inMemoryAccountRepo.findByUserAndProductId(userId, accountId).get();
-    assertAccount(expectedAccount, persistedAccount);
+    assertProduct(expectedAccount, persistedAccount);
 
     addMovement(
         AddMovementCommandTestBuilder.withCategory(
@@ -670,7 +671,8 @@ public class RegisterMonthlyReportedWithoutProfitITTest {
 
     final ProductDTO persistedAccount =
         inMemoryAccountRepo.findByUserAndProductId(userId, accountId).get();
-    assertAccount(expectedAccount, persistedAccount, IgnoreProductOptions.IGNORE_ACCOUNT_PROFIT);
+    ProductITUtils.assertProduct(
+        expectedAccount, persistedAccount, IgnoreProductOptions.IGNORE_ACCOUNT_PROFIT);
   }
 
   @Test

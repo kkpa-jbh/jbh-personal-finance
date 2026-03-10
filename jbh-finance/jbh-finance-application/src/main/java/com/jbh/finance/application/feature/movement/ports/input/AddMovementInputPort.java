@@ -3,7 +3,7 @@ package com.jbh.finance.application.feature.movement.ports.input;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
-import com.jbh.finance.application.feature.movement.dto.AddBasicMovementDTO;
+import com.jbh.finance.application.feature.movement.dto.AddMovementResultDTO;
 import com.jbh.finance.application.feature.movement.services.ProcessMovementService;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
@@ -27,7 +27,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
   }
 
   @Override
-  public AddBasicMovementDTO addMovement(
+  public AddMovementResultDTO addMovement(
       final UUID userId, final ProductId productId, final AddMovementCommand movementCommand)
       throws BusinessException {
 
@@ -45,7 +45,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
     }
 
     // Sync productDTO balance and persist movement
-    final AddBasicMovementDTO addBasicMovementDTO;
+    final AddMovementResultDTO addBasicMovementDTO;
     addBasicMovementDTO =
         accountMovementService.addMovementProcessingBalances(
             new ProductPK(userId, productId), movementCommand);

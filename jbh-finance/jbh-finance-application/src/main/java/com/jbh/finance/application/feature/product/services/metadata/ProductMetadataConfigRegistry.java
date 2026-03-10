@@ -25,6 +25,7 @@ import com.jbh.finance.application.feature.product.dto.MetadataFieldConfigDTO;
 import com.jbh.finance.domain.product.vo.ProductMetadataKey;
 import com.jbh.finance.domain.product.vo.ProductType;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,7 @@ public class ProductMetadataConfigRegistry {
           ProductType.INVESTMENT,
               new LinkedHashSet<>(List.of(BROKER_NAME, COMMISSION_RATE, COMMON_INITIAL_BALANCE)),
           ProductType.CREDIT_CARD, new LinkedHashSet<>(List.of(CREDIT_LIMIT, PAYMENT_DUE_DAY)),
-          ProductType.SAVINGS, new LinkedHashSet<>(List.of(COMMON_INITIAL_BALANCE)));
+          ProductType.SAVINGS, new LinkedHashSet<>(Collections.emptyList()));
 
   private static final Map<ProductType, Set<ProductMetadataKey>> OPTIONAL_FIELDS =
       Map.of(

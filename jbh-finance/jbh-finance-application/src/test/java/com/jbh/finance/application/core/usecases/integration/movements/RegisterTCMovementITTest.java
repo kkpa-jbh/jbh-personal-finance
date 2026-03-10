@@ -3,7 +3,7 @@ package com.jbh.finance.application.core.usecases.integration.movements;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.application.builders.commands.AddMovementCommandTestBuilder.createPersonalExpense;
 import static com.jbh.finance.application.core.usecases.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
-import static com.jbh.finance.application.core.usecases.utils.ProductITUtils.assertAccount;
+import static com.jbh.finance.application.core.usecases.utils.ProductITUtils.assertProduct;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -102,7 +102,7 @@ public class RegisterTCMovementITTest {
 
     final ProductDTO expectedAccount = ProductMapper.toDTO(expectedAccountBuilder.build());
 
-    assertAccount(expectedAccount, updatedAccount);
+    assertProduct(expectedAccount, updatedAccount);
   }
 
   @Test
@@ -128,7 +128,7 @@ public class RegisterTCMovementITTest {
 
     final ProductDTO expectedAccount = ProductMapper.toDTO(expectedAccountBuilder.build());
 
-    assertAccount(expectedAccount, updatedAccount);
+    assertProduct(expectedAccount, updatedAccount);
   }
 
   @Test
@@ -156,7 +156,7 @@ public class RegisterTCMovementITTest {
 
     final ProductDTO expectedAccount = ProductMapper.toDTO(expectedAccountBuilder.build());
 
-    assertAccount(expectedAccount, updatedAccount);
+    assertProduct(expectedAccount, updatedAccount);
 
     UseCaseBuilder.delayTests();
     LOG.info("Checking Monthly Balance for period in test {} ", period);
@@ -203,7 +203,7 @@ public class RegisterTCMovementITTest {
 
     final ProductDTO expectedAccount = ProductMapper.toDTO(expectedAccountBuilder.build());
 
-    assertAccount(expectedAccount, updatedAccount);
+    assertProduct(expectedAccount, updatedAccount);
 
     UseCaseBuilder.delayTests();
     LOG.info("Checking Monthly Balance for period in test {} ", period);
@@ -264,7 +264,7 @@ public class RegisterTCMovementITTest {
 
     final ProductDTO expectedAccount = ProductMapper.toDTO(expectedAccountBuilder.build());
 
-    assertAccount(expectedAccount, updatedAccount);
+    assertProduct(expectedAccount, updatedAccount);
 
     UseCaseBuilder.delayTests();
     LOG.info("Checking Monthly Balance for period in test {} ", period);

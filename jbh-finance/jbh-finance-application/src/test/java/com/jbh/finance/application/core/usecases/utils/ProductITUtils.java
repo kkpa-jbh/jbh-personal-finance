@@ -6,7 +6,7 @@ import com.jbh.finance.application.feature.product.dto.ProductDTO;
 
 public class ProductITUtils {
 
-  public static void assertAccount(
+  public static void assertProduct(
       final ProductDTO expected,
       final ProductDTO actual,
       final IgnoreProductOptions... ignoreOptions) {
@@ -42,7 +42,7 @@ public class ProductITUtils {
     assertEquals(expected.netGrowthRate(), actual.netGrowthRate(), "Net Growth Rate");
   }
 
-  public static void assertAccount(final ProductDTO expected, final ProductDTO actual) {
+  public static void assertProduct(final ProductDTO expected, final ProductDTO actual) {
     assertEquals(expected.id(), actual.id(), "Account ID");
     assertEquals(expected.name(), actual.name(), "Account Name");
     assertEquals(expected.type(), actual.type(), "Account Type");

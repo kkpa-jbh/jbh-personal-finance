@@ -7,6 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @ApplicationScoped
@@ -26,5 +27,10 @@ public class MovementRepositoryQueryAdapter implements MovementQueryRepository {
       final LocalDate startDate,
       final LocalDate endDate) {
     return jpaRepo.findByProductIdAndDateRange(productId.value(), startDate, endDate);
+  }
+
+  @Override
+  public Optional<MovementDTO> findById(final UUID movementId) {
+    return jpaRepo.findById(movementId).map(MovementJPAEntity::toDTO);
   }
 }
