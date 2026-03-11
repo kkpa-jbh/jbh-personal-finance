@@ -12,6 +12,24 @@ import org.jboss.resteasy.reactive.RestResponse.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Global exception handler for the Preferences REST API. Maps exceptions to standardized
+ * ApiResponse objects with appropriate HTTP status codes.
+ *
+ * <p><b>NOTE - Code Duplication by Design:</b> This handler is intentionally duplicated across
+ * modules (finance, notification, preferences, etc.). Each module owns its own copy because:
+ * <ul>
+ *   <li>In a modular monolith deployed as a single Quarkus application, all {@code @Provider}
+ *       classes are scanned and registered globally. JAX-RS only allows one
+ *       {@code ExceptionMapper<Exception>} to be active at a time, leading to a provider
+ *       collision where an arbitrary handler wins — regardless of which module's API is being
+ *       called.</li>
+ *   <li>Keeping a copy per module ensures correctness if/when modules are extracted into
+ *       independent microservices in the future.</li>
+ * </ul>
+ * Until a shared solution (e.g., a commons-level handler or specific per-type mappers) is
+ * adopted, do NOT remove individual module handlers to avoid the collision problem.
+ */
 @Provider
 public class PreferencesGlobalExceptionHandler implements ExceptionMapper<Exception> {
 
