@@ -10,5 +10,6 @@
   <include file="/db/changelog/002_add_system_categories.sql"/>
   <include file="/db/changelog/003_add_consumer_categories.sql"/>
   <include file="/db/changelog/004_upgrade_category_id_to_bigint.sql"/>
+  <include file="/db/changelog/005_add_system_categories.sql"/>
 
 </databaseChangeLog>
