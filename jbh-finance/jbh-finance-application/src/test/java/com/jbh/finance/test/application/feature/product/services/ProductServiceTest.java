@@ -15,7 +15,7 @@ import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.test.testfixtures.CategoryFixturesTestApp;
 import com.jbh.finance.test.testfixtures.builders.ProductEntityBuilder;
-import com.jbh.finance.test.testfixtures.builders.UseCaseBuilder;
+import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -32,7 +32,7 @@ public class ProductServiceTest {
 
   @BeforeEach
   void setup() {
-    productLifecycleService = UseCaseBuilder.buildProductLifecycleSrv();
+    productLifecycleService = UseCaseFixtureBuilder.buildProductLifecycleSrv();
   }
 
   @Test

@@ -4,8 +4,8 @@ import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.INCOME_INITIAL_BALANCE;
 import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createLoanCommand;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseBuilder.delayTests;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.DEFAULT_ACCOUNT_TYPE;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.delayTests;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,7 +27,7 @@ import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase
 import com.jbh.finance.application.feature.product.usecases.UpdateProductUseCase;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
 import com.jbh.finance.domain.product.vo.ProductPK;
-import com.jbh.finance.test.testfixtures.builders.UseCaseBuilder;
+import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
 import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -71,19 +71,19 @@ public class AddTransferProductsTest {
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
-    transferUseCase = UseCaseBuilder.buildAddTransferUseCase(accountMovementRepository);
+    transferUseCase = UseCaseFixtureBuilder.buildAddTransferUseCase(accountMovementRepository);
 
-    createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
 
-    addMovementUseCase = UseCaseBuilder.buildAddMovementUseCase(accountMovementRepository);
+    addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
 
-    accountService = UseCaseBuilder.buildProductLifecycleSrv();
+    accountService = UseCaseFixtureBuilder.buildProductLifecycleSrv();
 
-    monthlyBalanceService = UseCaseBuilder.buildMonthlyBalanceService();
+    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
 
-    updateProductUseCase = UseCaseBuilder.buildUpdateProductUseCase();
+    updateProductUseCase = UseCaseFixtureBuilder.buildUpdateProductUseCase();
 
-    UseCaseBuilder.delayTests();
+    UseCaseFixtureBuilder.delayTests();
   }
 
   @Test

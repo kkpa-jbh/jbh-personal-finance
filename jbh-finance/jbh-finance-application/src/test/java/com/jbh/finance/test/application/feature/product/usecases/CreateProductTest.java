@@ -1,6 +1,5 @@
 package com.jbh.finance.test.application.feature.product.usecases;
 
-import static com.jbh.finance.test.testfixtures.utils.ProductITUtils.assertProduct;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.PERSONAL;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.PUBLIC_SERVICES;
 import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createBasicAccountCommand;
@@ -9,9 +8,10 @@ import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.crea
 import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createInvestmentCommand;
 import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createLoanCommand;
 import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createRealEstateCommand;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseBuilder.addMovementUseCase;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseBuilder.delayTests;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.addMovementUseCase;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.delayTests;
 import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder.withCategory;
+import static com.jbh.finance.test.testfixtures.utils.ProductITUtils.assertProduct;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -25,10 +25,10 @@ import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
 import com.jbh.finance.domain.product.vo.ProductType;
-import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import com.jbh.finance.test.testfixtures.builders.ProductEntityBuilder;
-import com.jbh.finance.test.testfixtures.builders.UseCaseBuilder;
+import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
 import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder;
+import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -44,8 +44,8 @@ public class CreateProductTest {
 
   @BeforeEach
   public void setUp() {
-    createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
-    inMemoryAccountRepo = UseCaseBuilder.getProductRepoInMemory();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    inMemoryAccountRepo = UseCaseFixtureBuilder.getProductRepoInMemory();
   }
 
   @Test

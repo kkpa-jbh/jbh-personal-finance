@@ -3,8 +3,8 @@ package com.jbh.finance.test.application.feature.movement.usecases;
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createBasicAccountCommand;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseBuilder.DEFAULT_ACCOUNT_NAME;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.DEFAULT_ACCOUNT_NAME;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.DEFAULT_ACCOUNT_TYPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -22,10 +22,10 @@ import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductMetadataKey;
 import com.jbh.finance.domain.product.vo.ProductType;
-import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import com.jbh.finance.test.application.feature.monthlybalance.usecases.AddMovementsAfterMonthlyReportedTest;
-import com.jbh.finance.test.testfixtures.builders.UseCaseBuilder;
+import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
 import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder;
+import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -73,14 +73,15 @@ public class AddMovementSavingProductTest {
   public void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    monthlyBalanceService = UseCaseBuilder.buildMonthlyBalanceService();
-    inMemoryAccountRepo = UseCaseBuilder.getProductRepoInMemory();
+    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
+    inMemoryAccountRepo = UseCaseFixtureBuilder.getProductRepoInMemory();
 
-    useCaseTest = UseCaseBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
+    useCaseTest =
+        UseCaseFixtureBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
 
-    createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
 
-    addMovementUseCase = UseCaseBuilder.buildAddMovementUseCase(accountMovementRepository);
+    addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
 
     PRODUCT_DEFAULT_BUILDER =
         ProductDTO.defaultBuilder(userId, productId, DEFAULT_ACCOUNT_NAME, DEFAULT_ACCOUNT_TYPE);

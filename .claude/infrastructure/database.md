@@ -37,6 +37,16 @@ When a natural unique identifier exists in the business domain, use it as the pr
 - Composite keys would be too complex
 - Performance considerations (natural key is very long string)
 
+### Migration Files
+
+**Always create a new migration file for every SQL change:**
+
+- Never modify existing migration files that have already been applied
+- Name files sequentially: `NNN_descriptive_name.sql` (e.g., `006_add_prepaid_health_category.sql`)
+- Place migration files in the corresponding `*-infra` module under `src/main/resources/db/changelog/`
+- Register every new migration in the module's Liquibase master XML (e.g., `finance-db-master.xml`)
+- If unsure which module a migration belongs to, ask the user before creating the file
+
 ### Database Access Patterns
 
 **Repository Pattern:**

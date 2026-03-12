@@ -1,9 +1,9 @@
 package com.jbh.finance.test.application.feature.movement.usecases;
 
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
+import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder.createPersonalExpense;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.finance.test.testfixtures.utils.ProductITUtils.assertProduct;
-import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder.createPersonalExpense;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -16,12 +16,12 @@ import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.mappers.ProductMapper;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
-import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import com.jbh.finance.test.testfixtures.builders.CommandTestBuilder;
 import com.jbh.finance.test.testfixtures.builders.EntityTestBuilder;
 import com.jbh.finance.test.testfixtures.builders.ProductEntityBuilder;
-import com.jbh.finance.test.testfixtures.builders.UseCaseBuilder;
+import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
 import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder;
+import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -44,7 +44,7 @@ public class RegisterTCMovementTest {
   static final UUID userId = UUID.randomUUID();
   private static final Logger LOG = LoggerFactory.getLogger(RegisterTCMovementTest.class);
   private static final InMemoryProductRepository inMemoryAccountRepo =
-      UseCaseBuilder.getProductRepoInMemory();
+      UseCaseFixtureBuilder.getProductRepoInMemory();
   private static final String name = "CREDIT CARD";
   private static final YearMonth period = YearMonth.of(2023, 1);
   private static CreateProductUseCase createAccountUseCase;
@@ -55,19 +55,19 @@ public class RegisterTCMovementTest {
 
   @BeforeAll
   static void beforeAll() {
-    UseCaseBuilder.getInMemoryMonthlyBalanceRepos().clearStorage();
-    UseCaseBuilder.getProductRepoInMemory().clearStorage();
+    UseCaseFixtureBuilder.getInMemoryMonthlyBalanceRepos().clearStorage();
+    UseCaseFixtureBuilder.getProductRepoInMemory().clearStorage();
   }
 
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
-    addMovementUseCase = UseCaseBuilder.buildAddMovementUseCase(accountMovementRepository);
-    monthlyBalanceService = UseCaseBuilder.buildMonthlyBalanceService();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
+    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
 
-    UseCaseBuilder.delayTests();
+    UseCaseFixtureBuilder.delayTests();
   }
 
   @Test
@@ -158,7 +158,7 @@ public class RegisterTCMovementTest {
 
     assertProduct(expectedAccount, updatedAccount);
 
-    UseCaseBuilder.delayTests();
+    UseCaseFixtureBuilder.delayTests();
     LOG.info("Checking Monthly Balance for period in test {} ", period);
 
     final MonthlyBalanceDTO actualMonthlyBalance =
@@ -205,7 +205,7 @@ public class RegisterTCMovementTest {
 
     assertProduct(expectedAccount, updatedAccount);
 
-    UseCaseBuilder.delayTests();
+    UseCaseFixtureBuilder.delayTests();
     LOG.info("Checking Monthly Balance for period in test {} ", period);
 
     final MonthlyBalanceDTO actualMonthlyBalance =
@@ -266,7 +266,7 @@ public class RegisterTCMovementTest {
 
     assertProduct(expectedAccount, updatedAccount);
 
-    UseCaseBuilder.delayTests();
+    UseCaseFixtureBuilder.delayTests();
     LOG.info("Checking Monthly Balance for period in test {} ", period);
 
     final MonthlyBalanceDTO actualMonthlyBalance =

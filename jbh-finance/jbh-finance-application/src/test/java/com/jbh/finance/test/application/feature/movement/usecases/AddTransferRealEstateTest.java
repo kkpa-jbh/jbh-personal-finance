@@ -12,7 +12,7 @@ import com.jbh.finance.application.feature.product.services.ProductLifecycleServ
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.application.feature.product.usecases.UpdateProductUseCase;
 import com.jbh.finance.test.testfixtures.builders.CommandTestBuilder;
-import com.jbh.finance.test.testfixtures.builders.UseCaseBuilder;
+import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -36,19 +36,19 @@ public class AddTransferRealEstateTest {
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
-    transferUseCase = UseCaseBuilder.buildAddTransferUseCase(accountMovementRepository);
+    transferUseCase = UseCaseFixtureBuilder.buildAddTransferUseCase(accountMovementRepository);
 
-    createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
 
-    addMovementUseCase = UseCaseBuilder.buildAddMovementUseCase(accountMovementRepository);
+    addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
 
-    accountService = UseCaseBuilder.buildProductLifecycleSrv();
+    accountService = UseCaseFixtureBuilder.buildProductLifecycleSrv();
 
-    monthlyBalanceService = UseCaseBuilder.buildMonthlyBalanceService();
+    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
 
-    updateProductUseCase = UseCaseBuilder.buildUpdateProductUseCase();
+    updateProductUseCase = UseCaseFixtureBuilder.buildUpdateProductUseCase();
 
-    UseCaseBuilder.delayTests();
+    UseCaseFixtureBuilder.delayTests();
   }
 
   @Test

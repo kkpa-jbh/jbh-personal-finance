@@ -1,8 +1,8 @@
 package com.jbh.finance.test.application.feature.monthlybalance.usecases;
 
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
-import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createBasicAccountCommand;
+import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
@@ -13,9 +13,9 @@ import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductType;
-import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
-import com.jbh.finance.test.testfixtures.builders.UseCaseBuilder;
+import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
 import com.jbh.finance.test.testfixtures.builders.commands.MonthlyBalanceCommandFixture;
+import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -50,12 +50,13 @@ public class RegisterMonthlyReportedValidationTest {
   public void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    monthlyBalanceService = UseCaseBuilder.buildMonthlyBalanceService();
-    inMemoryAccountRepo = UseCaseBuilder.getProductRepoInMemory();
+    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
+    inMemoryAccountRepo = UseCaseFixtureBuilder.getProductRepoInMemory();
 
-    useCaseTest = UseCaseBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
+    useCaseTest =
+        UseCaseFixtureBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
 
-    createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
   }
 
   @Test
@@ -73,7 +74,8 @@ public class RegisterMonthlyReportedValidationTest {
     final var initialBalance = withJBHDecimals(new BigDecimal("900"));
     final AddMonthlyBalanceCommand previousCommand =
         createMonthlyBalanceCommand(
-            reportedPeriod, new MonthlyBalanceCommandFixture(withJBHDecimals(initialBalance), null));
+            reportedPeriod,
+            new MonthlyBalanceCommandFixture(withJBHDecimals(initialBalance), null));
 
     useCaseTest.registerOfficialMonthlyBalance(runningDate, userId, accountId, previousCommand);
   }
@@ -90,7 +92,8 @@ public class RegisterMonthlyReportedValidationTest {
             new MonthlyBalanceCommandFixture(withJBHDecimals(initialBalance), null));
     final AddMonthlyBalanceCommand existingMonthlyReportCommand =
         createMonthlyBalanceCommand(
-            reportedPeriod, new MonthlyBalanceCommandFixture(withJBHDecimals(initialBalance), null));
+            reportedPeriod,
+            new MonthlyBalanceCommandFixture(withJBHDecimals(initialBalance), null));
 
     // Should work the consecutive months
     useCaseTest.registerOfficialMonthlyBalance(runningDate, userId, accountId, nextCommand);

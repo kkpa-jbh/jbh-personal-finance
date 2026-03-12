@@ -2,16 +2,16 @@ package com.jbh.finance.test.application.feature.monthlybalance.usecases;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
-import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
-import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
-import static com.jbh.finance.test.testfixtures.utils.ProductITUtils.assertProduct;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.PERSONAL;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.PUBLIC_SERVICES;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.SALARY;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.SOCIAL_SECURITY_EXPENSE;
 import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createBasicAccountCommand;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseBuilder.DEFAULT_ACCOUNT_NAME;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.DEFAULT_ACCOUNT_NAME;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.DEFAULT_ACCOUNT_TYPE;
+import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
+import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
+import static com.jbh.finance.test.testfixtures.utils.ProductITUtils.assertProduct;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -36,12 +36,12 @@ import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
+import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
+import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder;
 import com.jbh.finance.test.testfixtures.fakes.monthlybalance.InMemoryMonthlyBalanceRepositories;
 import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import com.jbh.finance.test.testfixtures.utils.IgnoreProductOptions;
 import com.jbh.finance.test.testfixtures.utils.ProductITUtils;
-import com.jbh.finance.test.testfixtures.builders.UseCaseBuilder;
-import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -85,12 +85,12 @@ public class RegisterMonthlyReportedWithoutProfitTest {
   private static final Logger LOG =
       LoggerFactory.getLogger(RegisterMonthlyReportedWithoutProfitTest.class);
   private static final InMemoryProductRepository inMemoryAccountRepo =
-      UseCaseBuilder.getProductRepoInMemory();
+      UseCaseFixtureBuilder.getProductRepoInMemory();
   static BigDecimal expensesFeb25 = withJBHDecimals(BigDecimal.ZERO);
   // Static to be shared between tests
   static UUID userId = UUID.randomUUID();
   static InMemoryMonthlyBalanceRepositories inMemoryMonthlyBalanceRepos =
-      UseCaseBuilder.getInMemoryMonthlyBalanceRepos();
+      UseCaseFixtureBuilder.getInMemoryMonthlyBalanceRepos();
   // Static to be shared between tests
   static int totalMonthsCreated = 1;
   static ProductDTO createdAccount;
@@ -122,14 +122,15 @@ public class RegisterMonthlyReportedWithoutProfitTest {
   void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    monthlyBalanceService = UseCaseBuilder.buildMonthlyBalanceService();
-    useCaseTest = UseCaseBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
+    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
+    useCaseTest =
+        UseCaseFixtureBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
 
-    addMovementUseCase = UseCaseBuilder.buildAddMovementUseCase(accountMovementRepository);
-    createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
-    findMonthlyBalanceUseCase = UseCaseBuilder.buildFindMonthlyBalanceUseCase();
+    addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    findMonthlyBalanceUseCase = UseCaseFixtureBuilder.buildFindMonthlyBalanceUseCase();
 
-    UseCaseBuilder.delayTests();
+    UseCaseFixtureBuilder.delayTests();
   }
 
   @Test

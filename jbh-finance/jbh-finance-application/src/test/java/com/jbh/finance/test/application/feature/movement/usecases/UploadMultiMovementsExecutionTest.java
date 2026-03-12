@@ -3,10 +3,10 @@ package com.jbh.finance.test.application.feature.movement.usecases;
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.application.feature.monthlybalance.mappers.MonthlyBalanceMapper.toDomain;
+import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createBasicAccountCommand;
+import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceIgnoreOption.IGNORE_MONTHLY_PROFIT;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceIgnoreOption.IGNORE_OPENING_BALANCE;
-import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createBasicAccountCommand;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -37,11 +37,11 @@ import com.jbh.finance.domain.monthlybalance.MonthlyBalanceDomain;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductType;
-import com.jbh.finance.test.testfixtures.utils.UnitOfWorkTest;
 import com.jbh.finance.test.testfixtures.builders.EntityTestBuilder;
 import com.jbh.finance.test.testfixtures.builders.ProductEntityBuilder;
 import com.jbh.finance.test.testfixtures.builders.TestDataFactory;
-import com.jbh.finance.test.testfixtures.builders.UseCaseBuilder;
+import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
+import com.jbh.finance.test.testfixtures.utils.UnitOfWorkTest;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -89,8 +89,8 @@ public class UploadMultiMovementsExecutionTest {
 
     MockitoAnnotations.openMocks(this);
 
-    accountRepository = UseCaseBuilder.getProductRepoInMemory();
-    accountService = UseCaseBuilder.buildProductLifecycleSrv();
+    accountRepository = UseCaseFixtureBuilder.getProductRepoInMemory();
+    accountService = UseCaseFixtureBuilder.buildProductLifecycleSrv();
 
     accountService.save(accountDomain);
 
@@ -108,9 +108,9 @@ public class UploadMultiMovementsExecutionTest {
             accountMovementRepository,
             unitOfWork,
             monthlyBalanceSyncerService,
-            UseCaseBuilder.categoryServiceMock);
+            UseCaseFixtureBuilder.getCategoryServiceMock());
 
-    createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
   }
 
   @Order(1)

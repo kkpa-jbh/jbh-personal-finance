@@ -1,7 +1,7 @@
 package com.jbh.finance.test.testfixtures.builders;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.DEFAULT_ACCOUNT_TYPE;
 
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;

@@ -29,19 +29,19 @@ import com.jbh.finance.application.feature.product.services.ProductLifecycleServ
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.application.feature.product.usecases.UpdateProductUseCase;
 import com.jbh.finance.domain.product.vo.ProductType;
+import com.jbh.finance.test.testfixtures.CategoryServiceMock;
 import com.jbh.finance.test.testfixtures.fakes.monthlybalance.InMemoryMonthlyBalanceRepositories;
 import com.jbh.finance.test.testfixtures.fakes.movement.InMemoryMovementQueryRepository;
 import com.jbh.finance.test.testfixtures.fakes.movement.InMemoryMovementRepository;
 import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import com.jbh.finance.test.testfixtures.utils.UnitOfWorkTest;
-import com.jbh.finance.test.testfixtures.CategoryServiceMock;
 
-public class UseCaseBuilder {
+public class UseCaseFixtureBuilder {
 
   public static final String DEFAULT_ACCOUNT_NAME = "Account 1";
   public static final ProductType DEFAULT_ACCOUNT_TYPE = ProductType.SAVINGS;
   // FIXME Centralize the constructors that are using this serviceMock.
-  public static final CategoryService categoryServiceMock = buildCategoryService();
+  private static final CategoryService categoryServiceMock = buildCategoryServiceMock();
   // Account
   private static final InMemoryProductRepository inMemoryAccountRepo =
       new InMemoryProductRepository();
@@ -58,8 +58,12 @@ public class UseCaseBuilder {
   public static final AddMovementUseCase addMovementUseCase =
       buildAddMovementUseCase(movementInMemoWriter);
 
-  private static CategoryService buildCategoryService() {
+  private static CategoryService buildCategoryServiceMock() {
     return new CategoryServiceMock();
+  }
+
+  public static CategoryService getCategoryServiceMock() {
+    return categoryServiceMock;
   }
 
   // Use Cases

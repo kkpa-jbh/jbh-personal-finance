@@ -1,8 +1,8 @@
 package com.jbh.finance.test.application.feature.movement.usecases;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.finance.test.testfixtures.utils.ProductITUtils.assertProduct;
 import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder.createInitialBalance;
+import static com.jbh.finance.test.testfixtures.utils.ProductITUtils.assertProduct;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -21,10 +21,10 @@ import com.jbh.finance.application.feature.product.mappers.ProductMapper;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
 import com.jbh.finance.domain.product.vo.ProductPK;
-import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import com.jbh.finance.test.testfixtures.builders.CommandTestBuilder;
 import com.jbh.finance.test.testfixtures.builders.ProductEntityBuilder;
-import com.jbh.finance.test.testfixtures.builders.UseCaseBuilder;
+import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
+import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -48,7 +48,7 @@ public class RegisterCDTMovementTest {
   private static final String name = "CDT";
   private static final YearMonth period = YearMonth.of(2023, 1);
   private static final InMemoryProductRepository inMemoryAccountRepo =
-      UseCaseBuilder.getProductRepoInMemory();
+      UseCaseFixtureBuilder.getProductRepoInMemory();
   private static final BigDecimal CDT_INITIAL_BALANCE = new BigDecimal("100.00");
   private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
@@ -60,22 +60,22 @@ public class RegisterCDTMovementTest {
 
   @BeforeAll
   static void beforeAll() {
-    UseCaseBuilder.getInMemoryMonthlyBalanceRepos().clearStorage();
-    UseCaseBuilder.getProductRepoInMemory().clearStorage();
+    UseCaseFixtureBuilder.getInMemoryMonthlyBalanceRepos().clearStorage();
+    UseCaseFixtureBuilder.getProductRepoInMemory().clearStorage();
   }
 
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    accountMovementRepository = UseCaseBuilder.getAccountMovementWriterRepository();
-    createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
-    addMovementUseCase = UseCaseBuilder.buildAddMovementUseCase(accountMovementRepository);
-    monthlyBalanceService = UseCaseBuilder.buildMonthlyBalanceService();
+    accountMovementRepository = UseCaseFixtureBuilder.getAccountMovementWriterRepository();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
+    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
 
     liquidateAccountUseCase =
-        UseCaseBuilder.buildLiquidateAccountUseCase(accountMovementRepository);
-    UseCaseBuilder.delayTests();
+        UseCaseFixtureBuilder.buildLiquidateAccountUseCase(accountMovementRepository);
+    UseCaseFixtureBuilder.delayTests();
   }
 
   @Test
@@ -142,7 +142,7 @@ public class RegisterCDTMovementTest {
                 mvmDate));
     assertNotNull(result);
 
-    UseCaseBuilder.delayTests();
+    UseCaseFixtureBuilder.delayTests();
 
     final Optional<ProductDTO> updatedCDTAccount =
         inMemoryAccountRepo.findByProductId(cdtAccount.id());
@@ -163,7 +163,7 @@ public class RegisterCDTMovementTest {
         mvmDate,
         updatedCDTAccount.get().metadata().findCommonMetadata().getFullyWithdrawnDate(),
         "There is not fully withdrawn date");
-    UseCaseBuilder.delayTests();
+    UseCaseFixtureBuilder.delayTests();
 
     final Optional<MonthlyBalanceDTO> cdtAccountMonthlyBalanceOpt =
         monthlyBalanceService.findByAccountIdAndPeriod(cdtAccount.id(), currentPeriod);

@@ -11,9 +11,9 @@ import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.movement.usecases.LiquidateProductUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
-import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import com.jbh.finance.test.testfixtures.builders.CommandTestBuilder;
-import com.jbh.finance.test.testfixtures.builders.UseCaseBuilder;
+import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
+import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.UUID;
@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 public class RegisterNotAllowedMovementTest {
   private static final YearMonth period = YearMonth.of(2023, 1);
   private static final InMemoryProductRepository inMemoryAccountRepo =
-      UseCaseBuilder.getProductRepoInMemory();
+      UseCaseFixtureBuilder.getProductRepoInMemory();
   private static final UUID userId = UUID.randomUUID();
   private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
@@ -36,20 +36,20 @@ public class RegisterNotAllowedMovementTest {
 
   @BeforeAll
   static void beforeAll() {
-    UseCaseBuilder.getInMemoryMonthlyBalanceRepos().clearStorage();
-    UseCaseBuilder.getProductRepoInMemory().clearStorage();
+    UseCaseFixtureBuilder.getInMemoryMonthlyBalanceRepos().clearStorage();
+    UseCaseFixtureBuilder.getProductRepoInMemory().clearStorage();
   }
 
   @BeforeEach
   public void setUp() {
 
-    accountMovementRepository = UseCaseBuilder.getAccountMovementWriterRepository();
-    createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
-    addMovementUseCase = UseCaseBuilder.buildAddMovementUseCase(accountMovementRepository);
-    monthlyBalanceService = UseCaseBuilder.buildMonthlyBalanceService();
+    accountMovementRepository = UseCaseFixtureBuilder.getAccountMovementWriterRepository();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
+    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
 
     liquidateAccountUseCase =
-        UseCaseBuilder.buildLiquidateAccountUseCase(accountMovementRepository);
+        UseCaseFixtureBuilder.buildLiquidateAccountUseCase(accountMovementRepository);
   }
 
   @Test

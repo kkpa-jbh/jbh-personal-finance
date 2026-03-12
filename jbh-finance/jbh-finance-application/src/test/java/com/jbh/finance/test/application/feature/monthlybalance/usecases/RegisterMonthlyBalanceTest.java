@@ -2,10 +2,9 @@ package com.jbh.finance.test.application.feature.monthlybalance.usecases;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.DEFAULT_ACCOUNT_TYPE;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.movementInMemoQuery;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseBuilder.DEFAULT_ACCOUNT_TYPE;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseBuilder.categoryServiceMock;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseBuilder.movementInMemoQuery;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
@@ -32,6 +31,7 @@ import com.jbh.finance.application.feature.product.ports.output.ProductRepositor
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleServiceImpl;
 import com.jbh.finance.domain.product.vo.ProductId;
+import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
 import com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils;
 import com.jbh.finance.test.testfixtures.utils.UnitOfWorkTest;
 import java.math.BigDecimal;
@@ -89,12 +89,15 @@ public class RegisterMonthlyBalanceTest {
             accountService,
             realMonthlyBalanceService,
             new UnitOfWorkTest(),
-            categoryServiceMock);
+            UseCaseFixtureBuilder.getCategoryServiceMock());
     monthlyBalanceService = spy(realMonthlyBalanceService);
 
     useCaseInstanceTest =
         new RegisterMonthlyBalanceInputPort(
-            monthlyBalanceService, accountService, accountMovementService, categoryServiceMock);
+            monthlyBalanceService,
+            accountService,
+            accountMovementService,
+            UseCaseFixtureBuilder.getCategoryServiceMock());
   }
 
   @Test

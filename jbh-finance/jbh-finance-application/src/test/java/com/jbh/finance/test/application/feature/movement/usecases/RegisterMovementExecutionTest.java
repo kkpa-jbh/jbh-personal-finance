@@ -3,8 +3,7 @@ package com.jbh.finance.test.application.feature.movement.usecases;
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.finance.domain.movement.vo.MovementType.DEPOSIT;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.OTHER_INCOME_MOVEMENT;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseBuilder.categoryServiceMock;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseBuilder.movementInMemoQuery;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.movementInMemoQuery;
 import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder.createMovement;
 import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder.createMovementWithType;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -38,9 +37,10 @@ import com.jbh.finance.application.feature.product.services.ProductLifecycleServ
 import com.jbh.finance.application.feature.product.services.ProductLifecycleServiceImpl;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
+import com.jbh.finance.test.testfixtures.builders.ProductEntityBuilder;
+import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
 import com.jbh.finance.test.testfixtures.utils.MovementTypeUtils;
 import com.jbh.finance.test.testfixtures.utils.UnitOfWorkTest;
-import com.jbh.finance.test.testfixtures.builders.ProductEntityBuilder;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -97,7 +97,7 @@ public class RegisterMovementExecutionTest {
             accountService,
             monthlyBalanceService,
             unitOfWork,
-            categoryServiceMock);
+            UseCaseFixtureBuilder.getCategoryServiceMock());
     useCaseInstanceTest = new AddMovementInputPort(accountMovementService, accountService);
   }
 

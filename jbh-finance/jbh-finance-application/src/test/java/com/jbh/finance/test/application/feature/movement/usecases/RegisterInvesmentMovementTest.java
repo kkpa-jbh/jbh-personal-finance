@@ -2,14 +2,14 @@ package com.jbh.finance.test.application.feature.movement.usecases;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
-import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
-import static com.jbh.finance.test.testfixtures.utils.MovementTypeUtils.BALANCE_SNAPSHOT_TESTSCOPE;
-import static com.jbh.finance.test.testfixtures.utils.MovementTypeUtils.WITHDRAWAL_TESTSCOPE;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.INCOME_INITIAL_BALANCE;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.PERSONAL;
 import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createInvestmentCommand;
 import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createLiquidateCommandToExternal;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseBuilder.delayTests;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.delayTests;
+import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
+import static com.jbh.finance.test.testfixtures.utils.MovementTypeUtils.BALANCE_SNAPSHOT_TESTSCOPE;
+import static com.jbh.finance.test.testfixtures.utils.MovementTypeUtils.WITHDRAWAL_TESTSCOPE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,10 +31,10 @@ import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
-import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import com.jbh.finance.test.application.feature.monthlybalance.usecases.RegisterMonthlyReportedWithoutProfitTest;
-import com.jbh.finance.test.testfixtures.builders.UseCaseBuilder;
+import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
 import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder;
+import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -56,7 +56,7 @@ public class RegisterInvesmentMovementTest {
   private static final Logger LOG =
       LoggerFactory.getLogger(RegisterMonthlyReportedWithoutProfitTest.class);
   private static final InMemoryProductRepository inMemoryAccountRepo =
-      UseCaseBuilder.getProductRepoInMemory();
+      UseCaseFixtureBuilder.getProductRepoInMemory();
   private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
   private static LiquidateProductUseCase liquidateAccountUseCase;
@@ -72,25 +72,25 @@ public class RegisterInvesmentMovementTest {
 
   @BeforeAll
   static void beforeAll() {
-    UseCaseBuilder.getInMemoryMonthlyBalanceRepos().clearStorage();
-    UseCaseBuilder.getProductRepoInMemory().clearStorage();
+    UseCaseFixtureBuilder.getInMemoryMonthlyBalanceRepos().clearStorage();
+    UseCaseFixtureBuilder.getProductRepoInMemory().clearStorage();
   }
 
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    monthlyBalanceService = UseCaseBuilder.buildMonthlyBalanceService();
+    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
 
     accountMovementApplicationService =
-        UseCaseBuilder.buildProcessMovementService(accountMovementRepository);
+        UseCaseFixtureBuilder.buildProcessMovementService(accountMovementRepository);
 
-    createAccountUseCase = UseCaseBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
 
-    addMovementUseCase = UseCaseBuilder.buildAddMovementUseCase(accountMovementRepository);
+    addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
 
     liquidateAccountUseCase =
-        UseCaseBuilder.buildLiquidateAccountUseCase(accountMovementRepository);
+        UseCaseFixtureBuilder.buildLiquidateAccountUseCase(accountMovementRepository);
 
     delayTests();
   }

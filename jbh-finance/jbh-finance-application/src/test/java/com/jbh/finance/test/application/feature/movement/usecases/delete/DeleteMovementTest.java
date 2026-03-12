@@ -1,4 +1,4 @@
-package com.jbh.finance.test.application.feature.movement.usecases;
+package com.jbh.finance.test.application.feature.movement.usecases.delete;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
