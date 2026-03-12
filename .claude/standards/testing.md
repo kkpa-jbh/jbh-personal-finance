@@ -40,6 +40,14 @@ This document defines testing requirements, coverage expectations, and best prac
 <ClassName>Test
 ```
 
+**Single suffix rule — no exceptions.** Do NOT use `*ITTest`, `*MockTest`, or any mechanism-encoding suffix. If you need to filter by test style, use `@Tag`:
+
+```java
+@Tag("integration")   // in-memory fake repos, multi-use-case flows
+@Tag("unit")          // Mockito-based, no I/O
+class RegisterMonthlyReportedProfitTest { ... }
+```
+
 **Examples:**
 
 - `AddMovementInputPortTest`
@@ -47,18 +55,64 @@ This document defines testing requirements, coverage expectations, and best prac
 - `ProductMapperTest`
 - `AddMovementCommandTest`
 - `ProductIdTest`
+- `RegisterMonthlyReportedProfitTest`  ← NOT `RegisterMonthlyReportedProfitITTest`
+- `CreateBasicProductTest`             ← NOT `CreateBasicProductMockTest`
 
 ### Test Package Structure
 
-Tests should mirror the source package structure:
+Tests are organized in two parallel trees under `com.jbh.finance.test`:
+
+**`application/`** — mirrors production source, organized feature-first:
 
 ```
-# Source
-src/main/java/com/jbh/finance/application/feature/movement/usecases/AddMovementInputPort.java
-
-# Test
-src/test/java/com/jbh/finance/application/feature/movement/usecases/AddMovementInputPortTest.java
+com.jbh.finance.test.application
+├── architecture/                  ← ArchUnit constraint tests
+├── async/                         ← AsyncTaskExecutor tests
+├── core/
+│   ├── dto/                       ← Cross-cutting DTO tests (MetadataFieldConfig, etc.)
+│   └── vo/commands/               ← Command value-object tests
+└── feature/
+    ├── category/
+    │   └── services/              ← CategoryServiceImplTest
+    ├── metadata/                  ← ProductMetadataConfigRegistryTest
+    ├── monthlybalance/
+    │   ├── dto/                   ← MonthlyBalanceDTOTest
+    │   │   └── balancehistory/    ← BalanceHistory* tests
+    │   ├── ports/input/           ← FindMonthlyBalanceInputPortTest
+    │   └── usecases/              ← Register* tests (integration + mock)
+    ├── movement/
+    │   ├── dto/                   ← MovementDTOTest
+    │   ├── policy/                ← MovementRemovalPolicyTest
+    │   ├── ports/input/           ← (future input port tests)
+    │   └── usecases/              ← AddMovement*, RegisterCDT*, Delete*, etc.
+    └── product/
+        ├── ports/input/           ← GetProductMetadataConfigInputPortTest
+        ├── services/              ← ProductServiceTest
+        └── usecases/              ← CreateProduct*, Delete*, Edit*, etc.
 ```
+
+**Rule:** Feature-specific tests (use cases, DTOs, ports) go under `feature/<name>/`. Only truly cross-cutting concerns (non-feature DTOs, VOs, architecture) go under `core/`.
+
+**`testfixtures/`** — shared test infrastructure (no `application/` prefix):
+
+```
+com.jbh.finance.test.testfixtures
+├── builders/                      ← CommandTestBuilder, EntityTestBuilder, etc.
+│   └── commands/                  ← AddMovementCommandTestBuilder, MonthlyBalanceCommandFixture
+├── fakes/                         ← In-memory repository doubles (NOT tests)
+│   ├── movement/                  ← InMemoryMovementRepository, InMemoryMovementQueryRepository
+│   ├── product/                   ← InMemoryProductRepository
+│   └── monthlybalance/            ← InMemoryMonthlyBalance* (query, writer, aggregator)
+└── utils/                         ← Shared test utilities and enums
+                                       MonthlyBalanceITUtils, ProductITUtils, MovementTypeUtils
+                                       MonthlyBalanceIgnoreOption, IgnoreProductOptions
+                                       UnitOfWorkTest
+```
+
+**Key naming rules for testfixtures:**
+- Fakes (in-memory doubles) live in `fakes/<feature>/` — never in `core/ports/output/`
+- Fixture data classes use `*Fixture` suffix (e.g., `MonthlyBalanceCommandFixture`), never `*Test`
+- Enums/helpers that are not JUnit test classes must not end in `Test`
 
 ---
 
@@ -76,7 +130,38 @@ jbh-finance-domain/src/test/java/
     ├── CategoryFixtures.java
     ├── MovementFixtures.java
     └── ProductFixtures.java
+
+jbh-finance-application/src/test/java/
+└── com/jbh/finance/test/testfixtures/
+    ├── builders/                          ← Test data builders
+    │   ├── CommandTestBuilder.java
+    │   ├── EntityTestBuilder.java
+    │   ├── UseCaseBuilder.java
+    │   └── commands/
+    │       ├── AddMovementCommandTestBuilder.java
+    │       └── MonthlyBalanceCommandFixture.java  ← record, NOT a JUnit test
+    ├── fakes/                             ← In-memory repository implementations
+    │   ├── movement/
+    │   │   ├── InMemoryMovementRepository.java
+    │   │   └── InMemoryMovementQueryRepository.java
+    │   ├── product/
+    │   │   └── InMemoryProductRepository.java
+    │   └── monthlybalance/
+    │       ├── InMemoryMonthlyBalanceQueryRepo.java
+    │       ├── InMemoryMonthlyBalanceRepositories.java
+    │       └── InMemoryProductMonthlyBalanceWriterRepository.java
+    └── utils/                             ← Shared test utility classes/enums
+        ├── MonthlyBalanceITUtils.java
+        ├── MonthlyBalanceIgnoreOption.java
+        ├── IgnoreProductOptions.java
+        ├── ProductITUtils.java
+        ├── MovementTypeUtils.java
+        └── UnitOfWorkTest.java            ← implements UnitOfWork (not a JUnit test)
 ```
+
+**Fakes vs Mocks:**
+- **Fakes** (`testfixtures/fakes/`) — simple in-memory implementations of output ports; use when tests need realistic multi-step state (integration-style use-case tests)
+- **Mocks** (Mockito `@Mock`) — use for unit tests that only verify interactions
 
 ### Fixtures Class Pattern
 

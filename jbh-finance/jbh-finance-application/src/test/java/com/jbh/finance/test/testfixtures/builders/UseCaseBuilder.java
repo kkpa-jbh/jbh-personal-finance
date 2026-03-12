@@ -29,11 +29,11 @@ import com.jbh.finance.application.feature.product.services.ProductLifecycleServ
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.application.feature.product.usecases.UpdateProductUseCase;
 import com.jbh.finance.domain.product.vo.ProductType;
-import com.jbh.finance.test.application.core.ports.output.monthlybalance.InMemoryMonthlyBalanceRepositories;
-import com.jbh.finance.test.application.core.ports.output.movement.InMemoryMovementQueryRepository;
-import com.jbh.finance.test.application.core.ports.output.movement.InMemoryMovementRepository;
-import com.jbh.finance.test.application.core.ports.output.product.InMemoryProductRepository;
-import com.jbh.finance.test.application.core.usecases.utils.UnitOfWorkTest;
+import com.jbh.finance.test.testfixtures.fakes.monthlybalance.InMemoryMonthlyBalanceRepositories;
+import com.jbh.finance.test.testfixtures.fakes.movement.InMemoryMovementQueryRepository;
+import com.jbh.finance.test.testfixtures.fakes.movement.InMemoryMovementRepository;
+import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
+import com.jbh.finance.test.testfixtures.utils.UnitOfWorkTest;
 import com.jbh.finance.test.testfixtures.CategoryServiceMock;
 
 public class UseCaseBuilder {

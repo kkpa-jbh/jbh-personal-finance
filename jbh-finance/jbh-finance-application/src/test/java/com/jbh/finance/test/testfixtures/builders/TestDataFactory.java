@@ -1,11 +1,11 @@
 package com.jbh.finance.test.testfixtures.builders;
 
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
-import static com.jbh.finance.test.application.core.usecases.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
+import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.movement.commands.AddMovementUploadedFileCommand;
-import com.jbh.finance.test.testfixtures.builders.commands.MonthlyBalanceCommandTest;
+import com.jbh.finance.test.testfixtures.builders.commands.MonthlyBalanceCommandFixture;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -388,7 +388,7 @@ public class TestDataFactory {
       final YearMonth initialPeriod, final BigDecimal initialBalance) {
     return List.of(
         createMonthlyBalanceCommand(
-            initialPeriod, new MonthlyBalanceCommandTest(initialBalance, null)),
+            initialPeriod, new MonthlyBalanceCommandFixture(initialBalance, null)),
         createMonthlyBalanceCommand(initialPeriod.plusMonths(1), getCommandVO("1050", "50")),
         createMonthlyBalanceCommand(initialPeriod.plusMonths(2), getCommandVO("1200", "30")),
         createMonthlyBalanceCommand(initialPeriod.plusMonths(3), getCommandVO("1000", "50")),
@@ -402,8 +402,8 @@ public class TestDataFactory {
         );
   }
 
-  private static MonthlyBalanceCommandTest getCommandVO(final String balance, final String profit) {
-    return new MonthlyBalanceCommandTest(
+  private static MonthlyBalanceCommandFixture getCommandVO(final String balance, final String profit) {
+    return new MonthlyBalanceCommandFixture(
         withJBHDecimals(new BigDecimal(balance)), withJBHDecimals(new BigDecimal(profit)));
   }
 }
