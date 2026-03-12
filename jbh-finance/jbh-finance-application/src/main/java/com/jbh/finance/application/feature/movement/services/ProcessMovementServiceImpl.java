@@ -223,7 +223,6 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
       final ProductPK productPK, final MovementDTO movement) throws BusinessException {
 
     final MovementDTO reversedMovement = buildReversedMovement(movement);
-    final YearMonth movementPeriod = YearMonth.from(movement.movementDate());
 
     processMovement(reversedMovement, new ProcessMovementOptions(productPK, true));
 
