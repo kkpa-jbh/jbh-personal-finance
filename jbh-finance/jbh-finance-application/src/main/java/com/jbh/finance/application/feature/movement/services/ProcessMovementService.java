@@ -37,16 +37,15 @@ public interface ProcessMovementService {
    * It registers the movement in the database. It will update the product and the monthly balances
    * for the month of the movement date. It will update the product current balance and net profit.
    *
-   * @param accountPK
+   * @param productPK
    * @param movementCommand
    * @return
    * @throws BusinessException
    */
-  AddMovementResultDTO addMovementProcessingBalances(
-      ProductPK accountPK, AddMovementCommand movementCommand) throws BusinessException;
+  AddMovementResultDTO addMovementToProduct(ProductPK productPK, AddMovementCommand movementCommand)
+      throws BusinessException;
 
-  AddMovementResultDTO processMovement(
-      MovementDTO movementDTO, ProductPK accountPK, boolean isMonthOfficiallyReported)
+  AddMovementResultDTO liquidateProductByMovement(MovementDTO movementDTO, ProductPK accountPK)
       throws BusinessException;
 
   void addDividendsMovement(

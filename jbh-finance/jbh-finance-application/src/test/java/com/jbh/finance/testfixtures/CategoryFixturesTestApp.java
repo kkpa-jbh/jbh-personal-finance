@@ -35,15 +35,11 @@ import com.jbh.finance.domain.category.vo.SystemCategoryAlias;
 public final class CategoryFixturesTestApp {
 
   public static final CategoryDomain UNKNOWN_EXPENSE =
-      CategoryDomain.withCategoryType(
-          new CategoryTypeVO(
-              CategorySourceVO.EXPENSE, SystemCategoryAlias.EXPENSE_UNKNOWN.getAlias()));
-  public static final CategoryDomain INCOME_DEPOSIT_DOMAIN =
-      CategoryDomain.withCategoryType(new CategoryTypeVO(INCOME, "DEPOSIT"));
+      domain(CategorySourceVO.EXPENSE, SystemCategoryAlias.EXPENSE_UNKNOWN.getAlias());
+  public static final CategoryDomain INCOME_DEPOSIT_DOMAIN = domain(INCOME, "DEPOSIT");
   // CategoryDomain fixtures - Expense categories
   public static final CategoryDomain SOCIAL_SECURITY_EXPENSE =
-      CategoryDomain.withCategoryType(
-          new CategoryTypeVO(CategorySourceVO.EXPENSE, "SOCIAL_SECURITY"));
+      domain(CategorySourceVO.EXPENSE, "SOCIAL_SECURITY");
   private static long categoryId = 1L;
   public static final CategoryDTO EXPENSE_TRANSFER =
       CategoryDTO.withInternalPurpose(
@@ -101,5 +97,9 @@ public final class CategoryFixturesTestApp {
 
   private CategoryFixturesTestApp() {
     throw new AssertionError("Utility class - do not instantiate");
+  }
+
+  private static CategoryDomain domain(final CategorySourceVO source, final String alias) {
+    return CategoryDomain.withCategoryType(new CategoryTypeVO(source, alias), null);
   }
 }

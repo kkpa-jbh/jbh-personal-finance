@@ -80,6 +80,13 @@ If user provides an endpoint without code:
 - Consistent error message display
 - Success/error feedback to user
 
+#### Products selection component
+
+Use this whenever a page or component needs a dropdown to select a product (productId). It enforces use of the shared <app-product-select>  
+component (src/app/shared/components/product-select/product-select.component.ts) instead of inline ion-select wrappers. The component is a ControlValueAccessor —
+use formControlName for reactive forms or [(ngModel)] for template-driven forms. Key inputs: [products], [isLoading], [selectInterface], [placeholder],
+[hasError], and [emptyOption] (for "All", "None", or similar sentinel options). Never recreate an inline product select; always import and reuse this component.
+
 ### API Integration Pattern
 
 ````typescript

@@ -14,19 +14,19 @@ import com.jbh.finance.domain.category.vo.SystemCategoryAlias;
  */
 public final class CategoryFixturesDomain {
 
-  public static final CategoryDomain OTHER_INCOME =
-      CategoryDomain.withCategoryType(new CategoryTypeVO(CategorySourceVO.INCOME, "OTHER"));
+  public static final CategoryDomain OTHER_INCOME = domain(CategorySourceVO.INCOME, "OTHER");
 
   public static final String SOCIAL_SECURITY = "SOCIAL_SECURITY";
   public static final CategoryDomain SOCIAL_SECURITY_EXPENSE =
-      CategoryDomain.withCategoryType(
-          new CategoryTypeVO(CategorySourceVO.EXPENSE, SOCIAL_SECURITY));
+      domain(CategorySourceVO.EXPENSE, SOCIAL_SECURITY);
   public static final CategoryDomain UNKNOWN_EXPENSE =
-      CategoryDomain.withCategoryType(
-          new CategoryTypeVO(
-              CategorySourceVO.EXPENSE, SystemCategoryAlias.EXPENSE_UNKNOWN.getAlias()));
+      domain(CategorySourceVO.EXPENSE, SystemCategoryAlias.EXPENSE_UNKNOWN.getAlias());
 
   private CategoryFixturesDomain() {
     throw new AssertionError("Utility class - do not instantiate");
+  }
+
+  private static CategoryDomain domain(final CategorySourceVO source, final String alias) {
+    return CategoryDomain.withCategoryType(new CategoryTypeVO(source, alias), null);
   }
 }

@@ -47,7 +47,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
     // Sync productDTO balance and persist movement
     final AddMovementResultDTO addBasicMovementDTO;
     addBasicMovementDTO =
-        accountMovementService.addMovementProcessingBalances(
+        accountMovementService.addMovementToProduct(
             new ProductPK(userId, productId), movementCommand);
 
     return addBasicMovementDTO;

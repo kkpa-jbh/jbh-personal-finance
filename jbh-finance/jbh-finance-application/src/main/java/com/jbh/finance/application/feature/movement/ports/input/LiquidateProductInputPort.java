@@ -57,7 +57,7 @@ public class LiquidateProductInputPort implements LiquidateProductUseCase {
 
     LOG.info("Liquidating productDTO {} ", productId);
     final AddMovementResultDTO addedMovementDTO =
-        movementApplicationService.processMovement(movementDTO, accountPK, false);
+        movementApplicationService.liquidateProductByMovement(movementDTO, accountPK);
 
     final ProductDTO syncedAccountDTO = addedMovementDTO.productDTO();
     depositToAccount(liquidationCommand, toInternalAccount, syncedAccountDTO);

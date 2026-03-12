@@ -126,6 +126,7 @@ public class MovementDomain {
   }
 
   private void validateCategoryRequirement() throws BusinessException {
+    // FIXME Duplicated
     if (CategoryDomain.isEmpty(category) && movementType != MovementType.BALANCE_SNAPSHOT) {
 
       throw new BusinessException(BusinessDomainExceptionType.EMPTY_CATEGORY);

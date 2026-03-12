@@ -105,7 +105,7 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
               incomeInitialBalanceCat,
               null);
 
-      accountMovementService.addMovementProcessingBalances(
+      accountMovementService.addMovementToProduct(
           new ProductPK(userId, accountId), movementCommand);
 
       try {

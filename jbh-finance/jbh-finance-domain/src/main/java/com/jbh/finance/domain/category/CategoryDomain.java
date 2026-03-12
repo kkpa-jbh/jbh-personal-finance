@@ -7,9 +7,11 @@ import com.jbh.finance.domain.category.vo.SystemCategoryAlias;
 @SuppressWarnings("PMD.ClassWithOnlyPrivateConstructorsShouldBeFinal")
 public class CategoryDomain {
   private final CategoryTypeVO categoryType;
+  private final Long categoryId;
 
-  protected CategoryDomain(final CategoryTypeVO categoryType) {
+  protected CategoryDomain(final CategoryTypeVO categoryType, final Long categoryId) {
     this.categoryType = categoryType;
+    this.categoryId = categoryId;
   }
 
   public static boolean isEmpty(final CategoryDomain category) {
@@ -20,8 +22,8 @@ public class CategoryDomain {
     return categoryType;
   }
 
-  public static CategoryDomain withCategoryType(final CategoryTypeVO categoryType) {
-    return new CategoryDomain(categoryType);
+  public static CategoryDomain withCategoryType(final CategoryTypeVO categoryType, final Long categoryId) {
+    return new CategoryDomain(categoryType, categoryId);
   }
 
   public boolean isExpense() {
@@ -43,5 +45,9 @@ public class CategoryDomain {
 
   public String getAlias() {
     return categoryType.getAlias();
+  }
+
+  public Long getCategoryId() {
+    return categoryId;
   }
 }

@@ -11,13 +11,13 @@ public final class CategoryMapper {
     if (domain == null) {
       return null;
     }
-    return CategoryDTO.withInternalPurpose(domain.getType(), null);
+    return CategoryDTO.withInternalPurpose(domain.getType(), domain.getCategoryId());
   }
 
   public static CategoryDomain toDomain(final CategoryDTO dto) {
     if (dto == null) {
       return null;
     }
-    return CategoryDomain.withCategoryType(dto.getCategoryType());
+    return CategoryDomain.withCategoryType(dto.getCategoryType(), dto.getCategoryId());
   }
 }

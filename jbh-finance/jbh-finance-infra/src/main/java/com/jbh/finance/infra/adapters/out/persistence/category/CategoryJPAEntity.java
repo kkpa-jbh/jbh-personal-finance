@@ -61,6 +61,10 @@ public class CategoryJPAEntity extends PanacheEntityBase {
   public LocalDateTime updatedAt;
 
   public static CategoryJPAEntity fromDTO(final CategoryDTO dto) {
+    if (dto == null) {
+      return null;
+    }
+
     final var entity = new CategoryJPAEntity();
 
     entity.setId(dto.getCategoryId());

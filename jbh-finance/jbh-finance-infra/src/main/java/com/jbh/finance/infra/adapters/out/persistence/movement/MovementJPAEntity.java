@@ -1,5 +1,6 @@
 package com.jbh.finance.infra.adapters.out.persistence.movement;
 
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.domain.movement.vo.MovementId;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
@@ -82,7 +83,17 @@ public class MovementJPAEntity extends PanacheEntityBase {
     entity.setDescription(productMovement.description());
     entity.setCreatedAt(productMovement.createdAt());
     entity.setDescription(productMovement.description());
+    entity.setCategory(CategoryJPAEntity.fromDTO(productMovement.category()));
+
+    entity.validate();
+
     return entity;
+  }
+
+  private void validate() {
+    if (this.movementType != null && movementType != MovementType.BALANCE_SNAPSHOT && category == null) {
+      throw new GenericSpecificationException("No category associated with the movement");
+    }
   }
 
   @PrePersist

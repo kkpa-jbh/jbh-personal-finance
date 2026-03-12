@@ -88,11 +88,11 @@ public class AddTransferJbhProductsInputPort implements AddTransferJbhProductsUs
     transferValidationTO(toAccountDTO, movementCommandTo);
 
     LOG.info("Registering the deposit movement for the productDTO {}", toAccountName);
-    processMovementService.addMovementProcessingBalances(
+    processMovementService.addMovementToProduct(
         new ProductPK(toAccountDTO.userId(), toAccountDTO.id()), movementCommandFrom);
 
     LOG.info("Registering the withdrawal movement for the productDTO {}", fromAccountName);
-    processMovementService.addMovementProcessingBalances(fromAccount, movementCommandTo);
+    processMovementService.addMovementToProduct(fromAccount, movementCommandTo);
   }
 
   /**

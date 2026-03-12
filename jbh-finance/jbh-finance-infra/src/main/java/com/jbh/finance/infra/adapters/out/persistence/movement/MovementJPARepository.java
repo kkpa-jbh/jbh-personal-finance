@@ -17,7 +17,7 @@ public class MovementJPARepository implements PanacheRepository<MovementJPAEntit
   private static final String PRODUCT_ID_PARAM = "productId";
   private static final String START_DATE_PARAM = "startDate";
   private static final String END_DATE_PARAM = "endDate";
-  private static final String MOVEMENT_ID = "id";
+  private static final String MOVEMENT_ID = "movementId";
 
   public List<MovementDTO> findByProductId(final UUID accountId) {
     return find("productId = :productId", Parameters.with(PRODUCT_ID_PARAM, accountId))
@@ -46,6 +46,6 @@ public class MovementJPARepository implements PanacheRepository<MovementJPAEntit
   }
 
   public boolean deleteById(final UUID uuid) {
-    return delete("id = :movementId", Parameters.with("movementId", uuid)) != 0;
+    return delete("id = :movementId", Parameters.with(MOVEMENT_ID, uuid)) != 0;
   }
 }
