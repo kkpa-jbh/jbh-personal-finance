@@ -198,9 +198,9 @@ public class MonthlyBalanceDomain {
         case REMOVE -> {
           this.totalMovements--;
           if (amount.signum() < 0) {
-            this.totalCredits = this.totalCredits.subtract(amount);
+            this.totalCredits = this.totalCredits.subtract(amount.abs());
           } else {
-            this.totalDebits = this.totalDebits.subtract(amount);
+            this.totalDebits = this.totalDebits.subtract(amount.abs());
           }
           if (!this.officialMonthlyReport) {
             this.closingBalance = this.closingBalance.subtract(amount);

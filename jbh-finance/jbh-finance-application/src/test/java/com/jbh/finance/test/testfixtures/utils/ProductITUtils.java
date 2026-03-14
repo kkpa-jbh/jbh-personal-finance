@@ -13,6 +13,7 @@ public class ProductITUtils {
     boolean ignoreAccountName = false;
     boolean ignoreAccountType = false;
     boolean ignoreAccountProfit = false;
+    boolean ignoreNetGrowthRate = false;
     // Process provided ignore options
     if (ignoreOptions != null) {
       for (final IgnoreProductOptions option : ignoreOptions) {
@@ -21,6 +22,7 @@ public class ProductITUtils {
           case IGNORE_ACCOUNT_NAME -> ignoreAccountName = true;
           case IGNORE_ACCOUNT_TYPE -> ignoreAccountType = true;
           case IGNORE_ACCOUNT_PROFIT -> ignoreAccountProfit = true;
+          case IGNORE_NET_GROWTH_RATE -> ignoreNetGrowthRate = true;
         }
       }
     }
@@ -39,7 +41,10 @@ public class ProductITUtils {
       assertEquals(expected.netProfitBalance(), actual.netProfitBalance(), "Profit Balance");
     }
     assertEquals(expected.isActive(), actual.isActive(), "Is Active");
-    assertEquals(expected.netGrowthRate(), actual.netGrowthRate(), "Net Growth Rate");
+
+    if (!ignoreNetGrowthRate) {
+      assertEquals(expected.netGrowthRate(), actual.netGrowthRate(), "Product Net Growth Rate");
+    }
   }
 
   public static void assertProduct(final ProductDTO expected, final ProductDTO actual) {
@@ -52,6 +57,6 @@ public class ProductITUtils {
     assertEquals(expected.netProfitBalance(), actual.netProfitBalance(), "Account Profit Balance");
     assertEquals(expected.isActive(), actual.isActive(), "Is Active");
 
-    assertEquals(expected.netGrowthRate(), actual.netGrowthRate(), "Net Growth Rate");
+    assertEquals(expected.netGrowthRate(), actual.netGrowthRate(), " Product Net Growth Rate");
   }
 }

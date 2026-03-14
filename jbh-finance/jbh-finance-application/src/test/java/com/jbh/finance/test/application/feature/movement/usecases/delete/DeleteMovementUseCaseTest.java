@@ -21,6 +21,7 @@ import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
 import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder;
 import com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder;
 import com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils;
+import com.jbh.finance.test.testfixtures.utils.ProductITUtils;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.List;
@@ -42,8 +43,10 @@ public class DeleteMovementUseCaseTest {
   static final UUID userId = UUID.randomUUID();
   private static ProductDTO productDTO;
   private static MovementDTO expenseToBeReversed;
-  private static ProductDTO initialProductDTO;
-  private static MonthlyBalanceDTO initialMontlyBalance;
+  private static ProductDTO latestProductBeforeReversion;
+  private static MonthlyBalanceDTO latestMonthlyBalanceBeforeRev;
+  private static int dayOfMonth = 1;
+  private static MovementDTO income100ToReverse;
   private final Logger log = LoggerFactory.getLogger(this.getClass());
   private DeleteMovementUseCase deleteMovementUseCase;
   private CreateProductUseCase createProductUseCase;
@@ -79,26 +82,32 @@ public class DeleteMovementUseCaseTest {
         productDTO.id(),
         AddMovementCommandFixtureBuilder.createInitialBalance(
             INITIAL_DEPOSIT_MONTH.atDay(1), INITIAL_DEPOSIT));
-
-    delayTests();
-
-    initialProductDTO = productLifecycleSrv.findProductById(productDTO.id()).get();
-
-    final List<MonthlyBalanceDTO> monthlyBalanceBefore =
-        monthlyBalanceLifecycleSrv.findAllByAccountIdUntilNow(productDTO.id());
-
-    assertFalse(monthlyBalanceBefore.isEmpty());
-
-    initialMontlyBalance =
-        MonthlyBalanceITUtils.getBalanceForPeriod(monthlyBalanceBefore, INITIAL_DEPOSIT_MONTH);
-
-    assertNotNull(initialMontlyBalance);
-    assertNotNull(initialMontlyBalance.period());
   }
 
   @Test
   @Order(1)
-  void createExpenseAmount50() throws BusinessException {
+  void addAmount30() throws BusinessException {
+    addIncomeToProduct(new BigDecimal("30"));
+  }
+
+  private MovementDTO addIncomeToProduct(final BigDecimal amount) throws BusinessException {
+    final AddMovementResultDTO result =
+        addMovementUseCase.addMovement(
+            userId,
+            productDTO.id(),
+            AddMovementCommandFixtureBuilder.createDepositIncome(
+                INITIAL_DEPOSIT_MONTH.atDay(dayOfMonth++), amount));
+
+    delayTests();
+
+    return result.movement();
+  }
+
+  @Test
+  @Order(2)
+  void createExpense10ToBeReversed() throws BusinessException {
+
+    updateLatestInfoBeforeReversion();
 
     delayTests();
 
@@ -107,7 +116,7 @@ public class DeleteMovementUseCaseTest {
 
     assertFalse(monthlyBalanceBefore.isEmpty());
 
-    final var personalExpense = new BigDecimal("50.00");
+    final var personalExpense = new BigDecimal("10.00");
 
     final AddMovementCommand command =
         AddMovementCommandFixtureBuilder.createPersonalExpense(
@@ -121,51 +130,71 @@ public class DeleteMovementUseCaseTest {
     expenseToBeReversed = resultDTO.movement();
   }
 
-  @Test
-  @Order(2)
-  void deleteExpense() throws BusinessException {
+  private void updateLatestInfoBeforeReversion() {
     delayTests();
 
-    final ProductDTO productDTOBefore = productLifecycleSrv.findProductById(productDTO.id()).get();
+    latestProductBeforeReversion = productLifecycleSrv.findProductById(productDTO.id()).get();
+
     final List<MonthlyBalanceDTO> monthlyBalanceBefore =
         monthlyBalanceLifecycleSrv.findAllByAccountIdUntilNow(productDTO.id());
-    deleteMovementUseCase.deleteMovement(userId, productDTO.id(), expenseToBeReversed.id().value());
 
-    delayTests();
+    assertFalse(monthlyBalanceBefore.isEmpty());
 
-    // After reversing the movement
-    log.info("ProductDTO after reversing the movement: {}", productDTOBefore);
+    latestMonthlyBalanceBeforeRev =
+        MonthlyBalanceITUtils.getBalanceForPeriod(monthlyBalanceBefore, INITIAL_DEPOSIT_MONTH);
 
-    final ProductDTO productDTOAfter = productLifecycleSrv.findProductById(productDTO.id()).get();
-
-    // ProductITUtils.assertProduct(initialProductDTO, productDTOAfter);
-
-    final List<MonthlyBalanceDTO> monthlyBalanceAfter =
-        monthlyBalanceLifecycleSrv.findAllByAccountIdUntilNow(productDTO.id());
-
-    /*
-    MonthlyBalanceITUtils.assertMonthlyBalance(
-        initialMontlyBalance,
-        MonthlyBalanceITUtils.getBalanceForPeriod(monthlyBalanceAfter, INITIAL_DEPOSIT_MONTH));
-
-     */
-
-    assertTrue(movementLifecycleSrv.findById(expenseToBeReversed.id().value()).isEmpty());
+    assertNotNull(latestMonthlyBalanceBeforeRev);
+    assertNotNull(latestMonthlyBalanceBeforeRev.period());
   }
 
   @Test
   @Order(3)
-  void addIncome100() throws BusinessException {}
+  void deleteExpense() throws BusinessException {
+    delayTests();
+
+    final var movToReverse = expenseToBeReversed;
+
+    reverseMovement(movToReverse);
+  }
+
+  private void reverseMovement(final MovementDTO movToReverse) throws BusinessException {
+
+    deleteMovementUseCase.deleteMovement(userId, productDTO.id(), movToReverse.id().value());
+
+    delayTests();
+
+    final ProductDTO productDTOAfter = productLifecycleSrv.findProductById(productDTO.id()).get();
+
+    ProductITUtils.assertProduct(latestProductBeforeReversion, productDTOAfter);
+
+    final List<MonthlyBalanceDTO> monthlyBalanceAfter =
+        monthlyBalanceLifecycleSrv.findAllByAccountIdUntilNow(productDTO.id());
+
+    MonthlyBalanceITUtils.assertMonthlyBalance(
+        latestMonthlyBalanceBeforeRev,
+        MonthlyBalanceITUtils.getBalanceForPeriod(monthlyBalanceAfter, INITIAL_DEPOSIT_MONTH));
+
+    assertTrue(movementLifecycleSrv.findById(movToReverse.id().value()).isEmpty());
+  }
 
   @Test
   @Order(4)
-  void deleteIncome100() throws BusinessException {}
+  void addIncome100ToBeReversed() throws BusinessException {
+    updateLatestInfoBeforeReversion();
+    income100ToReverse = addIncomeToProduct(new BigDecimal("100"));
+  }
 
   @Test
   @Order(5)
-  void createExpenseBalanceSnapshot() throws BusinessException {}
+  void deleteIncome100() throws BusinessException {
+    reverseMovement(income100ToReverse);
+  }
 
   @Test
   @Order(6)
+  void createExpenseBalanceSnapshot() throws BusinessException {}
+
+  @Test
+  @Order(7)
   void createDepositBalanceSnapshot() throws BusinessException {}
 }
