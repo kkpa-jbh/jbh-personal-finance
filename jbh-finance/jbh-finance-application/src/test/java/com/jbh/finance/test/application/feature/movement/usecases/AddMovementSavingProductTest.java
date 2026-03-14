@@ -2,9 +2,7 @@ package com.jbh.finance.test.application.feature.movement.usecases;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createBasicAccountCommand;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.DEFAULT_ACCOUNT_NAME;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.DEFAULT_ACCOUNT_TYPE;
+import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createBasicAccountCommand;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -17,14 +15,13 @@ import com.jbh.finance.application.feature.movement.dto.AddMovementResultDTO;
 import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
-import com.jbh.finance.application.feature.product.dto.ProductDTO.ProductDTOBuilder;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductMetadataKey;
 import com.jbh.finance.domain.product.vo.ProductType;
 import com.jbh.finance.test.application.feature.monthlybalance.usecases.AddMovementsAfterMonthlyReportedTest;
 import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
-import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder;
+import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder;
 import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -32,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -57,8 +55,6 @@ public class AddMovementSavingProductTest {
   static ProductId productId;
   static MonthlyBalanceLifecycleService monthlyBalanceService;
 
-  private static ProductDTO finalExpectedAccountBalance;
-  private static MonthlyBalanceDTO officialReportedBalance;
   private static InMemoryProductRepository inMemoryAccountRepo;
   private final BigDecimal INITIAL_BALANCE_AMOUNT = new BigDecimal("1000.00");
   RegisterMonthlyBalanceUseCase useCaseTest;
@@ -66,8 +62,10 @@ public class AddMovementSavingProductTest {
   @Mock private MovementWriterRepository accountMovementRepository;
   private AddMovementUseCase addMovementUseCase;
 
-  private ProductDTOBuilder PRODUCT_DEFAULT_BUILDER =
-      ProductDTO.defaultBuilder(userId, productId, DEFAULT_ACCOUNT_NAME, DEFAULT_ACCOUNT_TYPE);
+  @BeforeAll
+  static void beforeAll() {
+    UseCaseFixtureBuilder.resetState();
+  }
 
   @BeforeEach
   public void setUp() {
@@ -79,12 +77,9 @@ public class AddMovementSavingProductTest {
     useCaseTest =
         UseCaseFixtureBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
 
-    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateProductUseCase();
 
     addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
-
-    PRODUCT_DEFAULT_BUILDER =
-        ProductDTO.defaultBuilder(userId, productId, DEFAULT_ACCOUNT_NAME, DEFAULT_ACCOUNT_TYPE);
   }
 
   @Test
@@ -118,7 +113,7 @@ public class AddMovementSavingProductTest {
   void addDeposit1MonthAgo() throws BusinessException {
     final var depositAmount = new BigDecimal("100.00");
     final AddMovementCommand command =
-        AddMovementCommandTestBuilder.createDepositIncome(
+        AddMovementCommandFixtureBuilder.createDepositIncome(
             LocalDate.of(2026, 02, 10), depositAmount);
 
     final AddMovementResultDTO result = addMovementUseCase.addMovement(userId, productId, command);

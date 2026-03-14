@@ -1,7 +1,7 @@
 package com.jbh.finance.test.application.feature.monthlybalance.usecases;
 
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createBasicAccountCommand;
+import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createBasicAccountCommand;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 
 import com.jbh.commons.exception.BusinessException;
@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.UUID;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -46,6 +47,11 @@ public class RegisterMonthlyReportedValidationTest {
   private static ProductId accountId;
   @Mock private MovementWriterRepository accountMovementRepository;
 
+  @BeforeAll
+  static void beforeAll() {
+    UseCaseFixtureBuilder.resetState();
+  }
+
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
@@ -56,7 +62,7 @@ public class RegisterMonthlyReportedValidationTest {
     useCaseTest =
         UseCaseFixtureBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
 
-    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateProductUseCase();
   }
 
   @Test

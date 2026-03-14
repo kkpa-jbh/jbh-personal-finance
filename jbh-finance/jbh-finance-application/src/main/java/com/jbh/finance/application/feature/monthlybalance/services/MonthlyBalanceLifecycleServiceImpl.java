@@ -225,83 +225,27 @@ public class MonthlyBalanceLifecycleServiceImpl implements MonthlyBalanceLifecyc
   public MonthlyBalanceDTO syncForNewMovement(final MovementDTO newMovement)
       throws BusinessException {
     // Implementation for syncing monthly balances
-    final ProductId accountId = newMovement.productId();
+    final ProductId productId = newMovement.productId();
     LOG.info(
         "Syncing monthly balance for productDTO {} and new movement date {}",
-        accountId,
+        productId,
         newMovement.movementDate());
-    final LocalDate movementDate = newMovement.movementDate();
-    final YearMonth movementPeriod = YearMonth.from(movementDate);
-    final MonthlyBalanceDomain accountMonthlyBalance =
-        findByAccountIdAndPeriod(accountId, movementPeriod)
-            .map(MonthlyBalanceMapper::toDomain)
-            .orElseGet(() -> MonthlyBalanceDomain.withPeriod(accountId, movementPeriod));
+    final var accountMonthlyBalance = findMonthlyBalanceOfMovement(newMovement, productId);
 
     accountMonthlyBalance.assignMovement(MovementMapper.toDomain(newMovement));
     final var syncedMonthlyBalanceDTO = toDTO(accountMonthlyBalance);
-    persistBalancesAsync(accountId, Collections.singletonList(syncedMonthlyBalanceDTO));
+    persistBalancesAsync(productId, Collections.singletonList(syncedMonthlyBalanceDTO));
 
     return syncedMonthlyBalanceDTO;
   }
 
-  @Override
-  public CompletableFuture<List<MonthlyBalanceDTO>> persistBalancesAsync(
-      final ProductId accountId, final List<MonthlyBalanceDTO> monthlyBalances) {
-
-    if (monthlyBalances == null || monthlyBalances.isEmpty()) {
-      LOG.warn("No monthly balances available for saving them ASYNC");
-      return CompletableFuture.completedFuture(Collections.emptyList());
-    }
-
-    final YearMonth initPeriod = monthlyBalances.getFirst().period();
-    final YearMonth lastPeriod = monthlyBalances.getLast().period();
-
-    // Create AsyncTask metadata
-    final Map<String, Object> metadata =
-        new HashMap<>(
-            Map.of(
-                "productId", accountId.value().toString(),
-                "initPeriod", initPeriod.toString(),
-                "lastPeriod", lastPeriod.toString(),
-                "balancesCount", monthlyBalances.size()));
-
-    final AsyncTask asyncTask = new AsyncTask(AsyncTaskType.MONTHLY_BALANCES_SYNC, metadata);
-
-    LOG.info(
-        "Preparing to submit async task {} to persist balances from {} to {} for productDTO {}",
-        asyncTask,
-        initPeriod,
-        lastPeriod,
-        accountId);
-
-    // Create Callable that contains the entire business logic
-    return asyncTaskExecutor.submitTask(
-        asyncTask,
-        () -> {
-          LOG.info(
-              String.format(
-                  "Starting async task for productDTO %s to persist balances from [%s- %s]",
-                  accountId, initPeriod, lastPeriod));
-
-          // Step 1: Save balances (executes first)
-          saveMultiBalances(monthlyBalances);
-
-          // Step 2: Return profit/opening balances (they contain the combined results)
-          // The monthly balances are already persisted in the database
-          final List<MonthlyBalanceDTO> updatedBalances =
-              adjustCurrentAndNextMonthlyBalancesAsync(accountId, initPeriod, lastPeriod);
-
-          LOG.info("Persisting monthly balances completed successfully {} ", asyncTask);
-
-          // Step 3: Update Account Net Growth Rate when is fully withdrawl
-
-          if (accountService.isFullyWithdrawn(accountId)) {
-            accountService.updateWhenFullyWithdrawn(
-                accountId, findAllByAccountIdUntilNow(accountId));
-          }
-
-          return updatedBalances;
-        });
+  private MonthlyBalanceDomain findMonthlyBalanceOfMovement(
+      final MovementDTO newMovement, final ProductId productId) {
+    final LocalDate movementDate = newMovement.movementDate();
+    final YearMonth movementPeriod = YearMonth.from(movementDate);
+    return findByAccountIdAndPeriod(productId, movementPeriod)
+        .map(MonthlyBalanceMapper::toDomain)
+        .orElseGet(() -> MonthlyBalanceDomain.withPeriod(productId, movementPeriod));
   }
 
   /**
@@ -416,5 +360,82 @@ public class MonthlyBalanceLifecycleServiceImpl implements MonthlyBalanceLifecyc
 
   private YearMonth getEdgePeriod(final YearMonth now) {
     return now.plusMonths(1);
+  }
+
+  @Override
+  public CompletableFuture<List<MonthlyBalanceDTO>> persistBalancesAsync(
+      final ProductId accountId, final List<MonthlyBalanceDTO> monthlyBalances) {
+
+    if (monthlyBalances == null || monthlyBalances.isEmpty()) {
+      LOG.warn("No monthly balances available for saving them ASYNC");
+      return CompletableFuture.completedFuture(Collections.emptyList());
+    }
+
+    final YearMonth initPeriod = monthlyBalances.getFirst().period();
+    final YearMonth lastPeriod = monthlyBalances.getLast().period();
+
+    // Create AsyncTask metadata
+    final Map<String, Object> metadata =
+        new HashMap<>(
+            Map.of(
+                "productId", accountId.value().toString(),
+                "initPeriod", initPeriod.toString(),
+                "lastPeriod", lastPeriod.toString(),
+                "balancesCount", monthlyBalances.size()));
+
+    final AsyncTask asyncTask = new AsyncTask(AsyncTaskType.MONTHLY_BALANCES_SYNC, metadata);
+
+    LOG.info(
+        "Preparing to submit async task {} to persist balances from {} to {} for productDTO {}",
+        asyncTask,
+        initPeriod,
+        lastPeriod,
+        accountId);
+
+    // Create Callable that contains the entire business logic
+    return asyncTaskExecutor.submitTask(
+        asyncTask,
+        () -> {
+          LOG.info(
+              String.format(
+                  "Starting async task for productDTO %s to persist balances from [%s- %s]",
+                  accountId, initPeriod, lastPeriod));
+
+          // Step 1: Save balances (executes first)
+          saveMultiBalances(monthlyBalances);
+
+          // Step 2: Return profit/opening balances (they contain the combined results)
+          // The monthly balances are already persisted in the database
+          final List<MonthlyBalanceDTO> updatedBalances =
+              adjustCurrentAndNextMonthlyBalancesAsync(accountId, initPeriod, lastPeriod);
+
+          LOG.info("Persisting monthly balances completed successfully {} ", asyncTask);
+
+          // Step 3: Update Account Net Growth Rate when is fully withdrawl
+
+          if (accountService.isFullyWithdrawn(accountId)) {
+            accountService.updateWhenFullyWithdrawn(
+                accountId, findAllByAccountIdUntilNow(accountId));
+          }
+
+          return updatedBalances;
+        });
+  }
+
+  @Override
+  public MonthlyBalanceDTO syncForReversedMovement(final MovementDTO reversedMovement)
+      throws BusinessException {
+    final ProductId productId = reversedMovement.productId();
+    final var accountMonthlyBalance = findMonthlyBalanceOfMovement(reversedMovement, productId);
+    LOG.info(
+        "Reversing monthly balance for productDTO {} and new movement date {}",
+        productId,
+        reversedMovement.movementDate());
+
+    accountMonthlyBalance.reverseMovement(MovementMapper.toDomain(reversedMovement));
+    final var syncedMonthlyBalanceDTO = toDTO(accountMonthlyBalance);
+    persistBalancesAsync(productId, Collections.singletonList(syncedMonthlyBalanceDTO));
+
+    return syncedMonthlyBalanceDTO;
   }
 }

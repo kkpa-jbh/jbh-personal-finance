@@ -77,6 +77,7 @@ This is a Quarkus multi-module monolith using **Hexagonal Architecture** with **
 - `/build-usecase` - Generate complete use case implementation
 - `/validate-api-naming` - Validate API naming conventions
 - `/fe-api-instructions` - Generate frontend instructions from backend API specs
+- `/jbh-generate-tests` - Generate unit tests for domain/application classes following project test standards
 
 ## Current Infrastructure
 

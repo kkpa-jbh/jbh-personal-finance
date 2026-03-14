@@ -2,9 +2,10 @@ package com.jbh.finance.test.application.feature.monthlybalance.usecases;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.finance.test.testfixtures.builders.TestDataFactory.getAddMonthlyBalanceCommandsWithProfit;
 import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.DEFAULT_ACCOUNT_NAME;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.delayTests;
+import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createBasicAccountCommand;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -33,7 +34,7 @@ import com.jbh.finance.domain.product.vo.ProductType;
 import com.jbh.finance.test.testfixtures.CategoryFixturesTestApp;
 import com.jbh.finance.test.testfixtures.builders.EntityTestBuilder;
 import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
-import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder;
+import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder;
 import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -82,8 +83,7 @@ public class RegisterMonthlyReportedProfitTest {
 
   @BeforeAll
   static void beforeAll() {
-    UseCaseFixtureBuilder.getInMemoryMonthlyBalanceRepos().clearStorage();
-    UseCaseFixtureBuilder.getProductRepoInMemory().clearStorage();
+    UseCaseFixtureBuilder.resetState();
   }
 
   @BeforeEach
@@ -98,7 +98,7 @@ public class RegisterMonthlyReportedProfitTest {
     useCaseTest =
         UseCaseFixtureBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
 
-    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateProductUseCase();
 
     addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
 
@@ -284,7 +284,7 @@ public class RegisterMonthlyReportedProfitTest {
       final BigDecimal amount,
       final BigDecimal balanceSnapshot) {
     final AddMovementCommand movement =
-        AddMovementCommandTestBuilder.withBalanceSnapshot(
+        AddMovementCommandFixtureBuilder.withBalanceSnapshot(
             LocalDate.of(period.getYear(), period.getMonthValue(), 15),
             balanceSnapshot,
             CategoryDTO.withInternalPurpose(categoryType, null),
@@ -573,6 +573,8 @@ public class RegisterMonthlyReportedProfitTest {
   @Order(6)
   void month6ProfitReport202501() throws BusinessException {
     ++commandIndex;
+
+    delayTests();
 
     final AddMonthlyBalanceCommand command = getCurrentCommand();
     final AddMonthlyBalanceCommand previousCommand = getPreviousCommand();

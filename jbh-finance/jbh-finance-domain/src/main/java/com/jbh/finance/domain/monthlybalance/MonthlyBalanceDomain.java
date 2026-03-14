@@ -11,6 +11,7 @@ import com.jbh.finance.domain.monthlybalance.service.MoneyGrowthCalculator;
 import com.jbh.finance.domain.movement.MovementDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.shared.exceptions.BusinessDomainExceptionType;
+import com.jbh.finance.domain.shared.vo.EntityOperationVO;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.Objects;
@@ -23,6 +24,9 @@ import org.slf4j.LoggerFactory;
 @SuppressWarnings({
   "PMD.ImmutableField",
   "PMD.GodClass",
+  "PMD.CognitiveComplexity",
+  "PMD.SwitchDensity",
+  "PMD.TooFewBranchesForASwitchStatement",
   "PMD.CyclomaticComplexity",
   "PMD.NPathComplexity",
   "PMD.UnusedAssignment"
@@ -160,7 +164,7 @@ public class MonthlyBalanceDomain {
 
   public void assignMovement(final MovementDomain movement) throws BusinessException {
     validateMovementPeriod(movement);
-    syncBalancesByMovement(movement);
+    syncBalancesByMovement(movement, EntityOperationVO.ADD);
     recalculateBalances();
   }
 
@@ -174,19 +178,37 @@ public class MonthlyBalanceDomain {
     }
   }
 
-  private void syncBalancesByMovement(final MovementDomain movement) {
+  private void syncBalancesByMovement(
+      final MovementDomain movement, final EntityOperationVO operation) {
     final BigDecimal amount = movement.getMovementAmount();
+
     if (isNotZero(amount)) {
-      this.totalMovements++;
-      if (amount.signum() < 0) {
-        this.totalCredits = this.totalCredits.add(amount.abs());
-      } else {
-        this.totalDebits = this.totalDebits.add(amount.abs());
-      }
-      if (!this.officialMonthlyReport) {
-        this.closingBalance = this.closingBalance.add(amount);
+      switch (operation) {
+        case ADD -> {
+          this.totalMovements++;
+          if (amount.signum() < 0) {
+            this.totalCredits = this.totalCredits.add(amount.abs());
+          } else {
+            this.totalDebits = this.totalDebits.add(amount.abs());
+          }
+          if (!this.officialMonthlyReport) {
+            this.closingBalance = this.closingBalance.add(amount);
+          }
+        }
+        case REMOVE -> {
+          this.totalMovements--;
+          if (amount.signum() < 0) {
+            this.totalCredits = this.totalCredits.subtract(amount);
+          } else {
+            this.totalDebits = this.totalDebits.subtract(amount);
+          }
+          if (!this.officialMonthlyReport) {
+            this.closingBalance = this.closingBalance.subtract(amount);
+          }
+        }
       }
     }
+
     // Do not update closing balance after adding a movement when it's an official report
     if (!this.officialMonthlyReport && movement.getBalanceSnapshot() != null) {
       this.closingBalance = movement.getBalanceSnapshot();
@@ -273,5 +295,11 @@ public class MonthlyBalanceDomain {
         inputMonthlyProfitReported != null
             ? monthlyProfitReported.add(incomeWithholdingTaxAmount.negate())
             : monthlyNetProfit;
+  }
+
+  public void reverseMovement(final MovementDomain reversedMovement) throws BusinessException {
+    validateMovementPeriod(reversedMovement);
+    syncBalancesByMovement(reversedMovement, EntityOperationVO.REMOVE);
+    recalculateBalances();
   }
 }

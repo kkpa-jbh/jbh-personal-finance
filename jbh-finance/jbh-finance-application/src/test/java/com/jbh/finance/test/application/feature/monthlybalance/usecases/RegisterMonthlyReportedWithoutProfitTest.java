@@ -6,9 +6,9 @@ import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.PERSONAL
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.PUBLIC_SERVICES;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.SALARY;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.SOCIAL_SECURITY_EXPENSE;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createBasicAccountCommand;
 import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.DEFAULT_ACCOUNT_NAME;
 import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.DEFAULT_ACCOUNT_TYPE;
+import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createBasicAccountCommand;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 import static com.jbh.finance.test.testfixtures.utils.ProductITUtils.assertProduct;
@@ -37,7 +37,7 @@ import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
 import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
-import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder;
+import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder;
 import com.jbh.finance.test.testfixtures.fakes.monthlybalance.InMemoryMonthlyBalanceRepositories;
 import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import com.jbh.finance.test.testfixtures.utils.IgnoreProductOptions;
@@ -110,8 +110,7 @@ public class RegisterMonthlyReportedWithoutProfitTest {
 
   @BeforeAll
   static void beforeAll() {
-    inMemoryMonthlyBalanceRepos.clearStorage();
-    inMemoryAccountRepo.clearStorage();
+    UseCaseFixtureBuilder.resetState();
   }
 
   private static void refreshActualAccountBalance() {
@@ -127,7 +126,7 @@ public class RegisterMonthlyReportedWithoutProfitTest {
         UseCaseFixtureBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
 
     addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
-    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateProductUseCase();
     findMonthlyBalanceUseCase = UseCaseFixtureBuilder.buildFindMonthlyBalanceUseCase();
 
     UseCaseFixtureBuilder.delayTests();
@@ -151,7 +150,7 @@ public class RegisterMonthlyReportedWithoutProfitTest {
     logBlockHeader("TESTING " + monthlyPeriod);
 
     final AddMovementCommand salaryMovement =
-        AddMovementCommandTestBuilder.withCategory(
+        AddMovementCommandFixtureBuilder.withCategory(
             LocalDate.of(2024, 11, 15), withJBHDecimals(salaryAmountNov24), SALARY);
     addMovement(salaryMovement);
 
@@ -255,7 +254,7 @@ public class RegisterMonthlyReportedWithoutProfitTest {
         IgnoreProductOptions.IGNORE_ACCOUNT_TYPE);
 
     final AddMovementCommand salaryMovement =
-        AddMovementCommandTestBuilder.withCategory(
+        AddMovementCommandFixtureBuilder.withCategory(
             LocalDate.of(2024, 12, 15), withJBHDecimals(salaryAmountDec24), SALARY);
     addMovement(salaryMovement);
 
@@ -327,7 +326,7 @@ public class RegisterMonthlyReportedWithoutProfitTest {
     assertProduct(expectedAccount, persistedAccount);
 
     addMovement(
-        AddMovementCommandTestBuilder.withCategory(
+        AddMovementCommandFixtureBuilder.withCategory(
             LocalDate.of(2025, 1, 15), withJBHDecimals(salaryAmountJan25), SALARY));
 
     final AddMonthlyBalanceCommand command =
@@ -407,14 +406,14 @@ public class RegisterMonthlyReportedWithoutProfitTest {
     // Personal Movement
     final var personalAmount = new BigDecimal("105000.00");
     final AddMovementCommand personalMovement =
-        AddMovementCommandTestBuilder.withCategory(
+        AddMovementCommandFixtureBuilder.withCategory(
             LocalDate.of(2025, 2, 15), withJBHDecimals(personalAmount), PERSONAL);
     expensesFeb25 = expensesFeb25.add(personalAmount);
     addMovement(personalMovement);
 
     // Salary Movement
     final AddMovementCommand salaryMovement =
-        AddMovementCommandTestBuilder.withCategory(
+        AddMovementCommandFixtureBuilder.withCategory(
             LocalDate.of(2025, 2, 15), withJBHDecimals(salaryAmountFeb25), SALARY);
     addMovement(salaryMovement);
 
@@ -474,7 +473,7 @@ public class RegisterMonthlyReportedWithoutProfitTest {
     // and the total movements should be updated
     final var newAmount = new BigDecimal("100.00");
     final AddMovementCommand newMovementAfterClosedMonthlyBalance =
-        AddMovementCommandTestBuilder.withCategory(
+        AddMovementCommandFixtureBuilder.withCategory(
             LocalDate.of(2025, 2, 26), withJBHDecimals(newAmount), PUBLIC_SERVICES);
     expensesFeb25 = expensesFeb25.add(newAmount);
     addMovement(newMovementAfterClosedMonthlyBalance);
@@ -500,7 +499,7 @@ public class RegisterMonthlyReportedWithoutProfitTest {
 
     final var fiftyMillionsExpenses = new BigDecimal("50000000.00");
     final AddMovementCommand fiftyMillionsExpensesCommand =
-        AddMovementCommandTestBuilder.withCategory(
+        AddMovementCommandFixtureBuilder.withCategory(
             LocalDate.of(2025, 2, 26), withJBHDecimals(fiftyMillionsExpenses), PERSONAL);
     Assertions.assertThrows(
         RuntimeException.class, () -> addMovement(fiftyMillionsExpensesCommand));
@@ -516,7 +515,7 @@ public class RegisterMonthlyReportedWithoutProfitTest {
     logBlockHeader("TESTING " + monthlyPeriod);
 
     addMovement(
-        AddMovementCommandTestBuilder.withCategory(
+        AddMovementCommandFixtureBuilder.withCategory(
             LocalDate.of(monthlyPeriod.getYear(), monthlyPeriod.getMonthValue(), 15),
             withJBHDecimals(salaryAmountMar25),
             SALARY));
@@ -574,7 +573,7 @@ public class RegisterMonthlyReportedWithoutProfitTest {
     logBlockHeader("TESTING " + monthlyPeriod);
 
     addMovement(
-        AddMovementCommandTestBuilder.withCategory(
+        AddMovementCommandFixtureBuilder.withCategory(
             LocalDate.of(monthlyPeriod.getYear(), monthlyPeriod.getMonthValue(), 15),
             withJBHDecimals(salaryAmountApr25),
             SALARY));
@@ -607,7 +606,7 @@ public class RegisterMonthlyReportedWithoutProfitTest {
     logBlockHeader("TESTING " + monthlyPeriod);
 
     addMovement(
-        AddMovementCommandTestBuilder.withCategory(
+        AddMovementCommandFixtureBuilder.withCategory(
             LocalDate.of(monthlyPeriod.getYear(), monthlyPeriod.getMonthValue(), 15),
             withJBHDecimals(salaryAmountMay25),
             SALARY));

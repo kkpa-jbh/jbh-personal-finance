@@ -2,10 +2,10 @@ package com.jbh.finance.test.application.feature.movement.usecases;
 
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.INCOME_INITIAL_BALANCE;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createBasicAccountCommand;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createLoanCommand;
 import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.DEFAULT_ACCOUNT_TYPE;
 import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.delayTests;
+import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createBasicAccountCommand;
+import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createLoanCommand;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,7 +28,7 @@ import com.jbh.finance.application.feature.product.usecases.UpdateProductUseCase
 import com.jbh.finance.domain.product.vo.ProductMetadata;
 import com.jbh.finance.domain.product.vo.ProductPK;
 import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
-import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder;
+import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -38,6 +38,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -68,12 +69,17 @@ public class AddTransferProductsTest {
   private static MonthlyBalanceLifecycleService monthlyBalanceService;
   private static UpdateProductUseCase updateProductUseCase;
 
+  @BeforeAll
+  static void beforeAll() {
+    UseCaseFixtureBuilder.resetState();
+  }
+
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
     transferUseCase = UseCaseFixtureBuilder.buildAddTransferUseCase(accountMovementRepository);
 
-    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateProductUseCase();
 
     addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
 
@@ -111,13 +117,13 @@ public class AddTransferProductsTest {
     assertNotNull(loanAccount);
 
     final AddMovementCommand fromAccountInitialBalance =
-        AddMovementCommandTestBuilder.withCategory(
+        AddMovementCommandFixtureBuilder.withCategory(
             createdAccountsPeriod.atDay(1),
             withJBHDecimals(new BigDecimal("1000")),
             INCOME_INITIAL_BALANCE);
 
     final AddMovementCommand toAccountInitialBalance =
-        AddMovementCommandTestBuilder.withCategory(
+        AddMovementCommandFixtureBuilder.withCategory(
             createdAccountsPeriod.atDay(2),
             withJBHDecimals(new BigDecimal("2000")),
             INCOME_INITIAL_BALANCE);

@@ -1,3 +1,8 @@
+---
+name: jbh-build-usecase
+description: "Interactively builds a complete use case (all layers) for the jbh-finance hexagonal architecture — use when the user wants to create a new use case, input port, command, or API endpoint."
+---
+
 # Build Use Case Skill
 
 ## Description
@@ -19,7 +24,7 @@ This skill guides you through creating:
 ## Usage
 
 ```
-/build-usecase
+/jbh-build-usecase
 ```
 
 ## Instructions
@@ -37,6 +42,7 @@ First, read the complete use case pattern file:
 This file contains all the patterns, naming conventions, templates, and a complete 12-layer implementation example.
 
 **Key References:**
+
 - [Naming Conventions](../standards/naming.md) - Complete naming patterns for all components
 - [Code Quality Standards](../standards/code-quality.md) - PMD rules and SOLID principles
 - [JavaDoc Templates](../standards/javadoc.md) - Use case documentation standards
@@ -124,6 +130,7 @@ Follow the templates from `patterns/use-case-complete.md` for each component.
 See `use-case-complete.md` section 1 for the full template with JavaDoc structure.
 
 **Key Requirements:**
+
 - Class-level JavaDoc: Technical purpose, User Explanation, Business Rules
 - Method-level JavaDoc: Validations, Database Operations
 - Full documentation template in [JavaDoc Standards](../standards/javadoc.md)
@@ -133,6 +140,7 @@ See `use-case-complete.md` section 1 for the full template with JavaDoc structur
 See `use-case-complete.md` section 2 for complete pattern.
 
 **Key Points:**
+
 - NO annotations on class or constructor
 - All fields final
 - Validation first, then business logic
@@ -151,6 +159,7 @@ See `use-case-complete.md` section 3 for repository interface pattern.
 Follow testing patterns from [Testing Standards](../standards/testing.md).
 
 **Tests to include:**
+
 - Happy path
 - Validation errors
 - Business exceptions
@@ -161,6 +170,7 @@ Follow testing patterns from [Testing Standards](../standards/testing.md).
 #### 5.1-5.6 Infrastructure Components
 
 See `use-case-complete.md` sections 6-12 for complete templates:
+
 - Section 6: Repository Adapter
 - Section 7: JPA Repository
 - Section 8: JPA Entity
@@ -225,6 +235,7 @@ Provide the user with:
 See [Code Quality Standards](../standards/code-quality.md) for complete PMD rules and SOLID principles.
 
 **Key Rules:**
+
 - All variables must be final
 - No literals in if statements
 - No generic exceptions
@@ -235,6 +246,7 @@ See [Code Quality Standards](../standards/code-quality.md) for complete PMD rule
 See [Naming Conventions](../standards/naming.md) for complete naming patterns.
 
 **Critical Patterns:**
+
 - Use Case Interface: `<Action><Entity>UseCase`
 - Input Port: `<Action><Entity>InputPort`
 - Command: `<Action><Entity>Command`
@@ -244,6 +256,7 @@ See [Naming Conventions](../standards/naming.md) for complete naming patterns.
 ### Architecture Rules
 
 **CRITICAL (from hexagonal architecture standards):**
+
 - **NEVER** put Request/Response in application module
 - **NEVER** inject InputPort, always inject UseCase interface
 - **NEVER** use @Inject in InputPort constructor
@@ -277,6 +290,7 @@ See [Hexagonal Layers](../architecture/hexagonal-layers.md) for complete rules.
 ---
 
 **Key References:**
+
 - **Templates:** [Use Case Complete Pattern](../patterns/use-case-complete.md)
 - **Naming:** [Naming Conventions](../standards/naming.md)
 - **Quality:** [Code Quality Standards](../standards/code-quality.md)

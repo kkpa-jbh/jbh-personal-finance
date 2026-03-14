@@ -5,6 +5,7 @@ import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.domain.movement.MovementDomain;
+import com.jbh.finance.domain.movement.vo.ProcessMovementOptionsVO;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
@@ -61,7 +62,7 @@ public interface ProductLifecycleService {
    * @return
    */
   ProductDTO syncByMovement(
-      ProductPK accountPK, MovementDTO movement, boolean isMonthOfficiallyReported)
+      ProductPK accountPK, MovementDTO movement, ProcessMovementOptionsVO movementOptions)
       throws BusinessException;
 
   ProductDTO syncByUploadedMovements(

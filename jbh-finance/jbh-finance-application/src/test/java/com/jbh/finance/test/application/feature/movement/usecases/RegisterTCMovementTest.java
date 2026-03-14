@@ -1,7 +1,7 @@
 package com.jbh.finance.test.application.feature.movement.usecases;
 
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
-import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder.createPersonalExpense;
+import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder.createPersonalExpense;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.finance.test.testfixtures.utils.ProductITUtils.assertProduct;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,11 +16,11 @@ import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.mappers.ProductMapper;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
-import com.jbh.finance.test.testfixtures.builders.CommandTestBuilder;
 import com.jbh.finance.test.testfixtures.builders.EntityTestBuilder;
 import com.jbh.finance.test.testfixtures.builders.ProductEntityBuilder;
 import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
-import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder;
+import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder;
+import com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder;
 import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -55,15 +55,14 @@ public class RegisterTCMovementTest {
 
   @BeforeAll
   static void beforeAll() {
-    UseCaseFixtureBuilder.getInMemoryMonthlyBalanceRepos().clearStorage();
-    UseCaseFixtureBuilder.getProductRepoInMemory().clearStorage();
+    UseCaseFixtureBuilder.resetState();
   }
 
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateProductUseCase();
     addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
     monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
 
@@ -79,7 +78,7 @@ public class RegisterTCMovementTest {
     metadata.findCreditCardMetadata().putPaymentDueDay(15);
     creditCardAccount =
         createAccountUseCase.execute(
-            CommandTestBuilder.createCreditCardCommand(userId, name, metadata));
+            GeneralCommandFixtureBuilder.createCreditCardCommand(userId, name, metadata));
     assertNotNull(creditCardAccount);
     assertNotNull(creditCardAccount.id());
 
@@ -139,7 +138,7 @@ public class RegisterTCMovementTest {
     addMovementUseCase.addMovement(
         userId,
         creditCardAccount.id(),
-        AddMovementCommandTestBuilder.createDepositIncome(mvmDate, personalExpense));
+        AddMovementCommandFixtureBuilder.createDepositIncome(mvmDate, personalExpense));
 
     final ProductDTO updatedAccount =
         inMemoryAccountRepo.findByProductId(creditCardAccount.id()).get();
@@ -247,7 +246,7 @@ public class RegisterTCMovementTest {
     addMovementUseCase.addMovement(
         userId,
         creditCardAccount.id(),
-        AddMovementCommandTestBuilder.createDepositIncome(mvmDate, personalExpense));
+        AddMovementCommandFixtureBuilder.createDepositIncome(mvmDate, personalExpense));
 
     final ProductDTO updatedAccount =
         inMemoryAccountRepo.findByProductId(creditCardAccount.id()).get();

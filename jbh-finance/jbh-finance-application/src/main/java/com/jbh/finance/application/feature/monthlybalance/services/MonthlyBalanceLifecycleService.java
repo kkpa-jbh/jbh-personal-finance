@@ -45,4 +45,6 @@ public interface MonthlyBalanceLifecycleService
    */
   CompletableFuture<List<MonthlyBalanceDTO>> persistBalancesAsync(
       ProductId accountId, List<MonthlyBalanceDTO> monthlyBalances);
+
+  MonthlyBalanceDTO syncForReversedMovement(MovementDTO movementDTO) throws BusinessException;
 }

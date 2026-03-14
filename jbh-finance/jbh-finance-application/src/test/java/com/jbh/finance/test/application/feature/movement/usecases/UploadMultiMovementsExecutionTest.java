@@ -3,7 +3,7 @@ package com.jbh.finance.test.application.feature.movement.usecases;
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.application.feature.monthlybalance.mappers.MonthlyBalanceMapper.toDomain;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createBasicAccountCommand;
+import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createBasicAccountCommand;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceIgnoreOption.IGNORE_MONTHLY_PROFIT;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceIgnoreOption.IGNORE_OPENING_BALANCE;
@@ -110,7 +110,7 @@ public class UploadMultiMovementsExecutionTest {
             monthlyBalanceSyncerService,
             UseCaseFixtureBuilder.getCategoryServiceMock());
 
-    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateProductUseCase();
   }
 
   @Order(1)

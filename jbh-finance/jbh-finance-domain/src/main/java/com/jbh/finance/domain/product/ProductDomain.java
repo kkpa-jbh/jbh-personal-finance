@@ -7,7 +7,9 @@ import static com.jbh.commons.util.JbhMoneyUtils.isZero;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.finance.domain.movement.MovementDomain;
+import com.jbh.finance.domain.movement.vo.ProcessMovementOptionsVO;
 import com.jbh.finance.domain.product.service.calculators.MoneyWeightedReturnCalculator;
 import com.jbh.finance.domain.product.service.metrics.ProductMetricsCalculator;
 import com.jbh.finance.domain.product.service.metrics.ProductMetricsCalculatorFactory;
@@ -28,7 +30,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Getter
-@SuppressWarnings({"PMD.ExcessiveParameterList", "PMD.CollapsibleIfStatements"})
+@SuppressWarnings({
+  "PMD.GodClass",
+  "PMD.ExcessiveParameterList",
+  "PMD.CollapsibleIfStatements",
+  "PMD.TooFewBranchesForASwitchStatement"
+})
 public class ProductDomain {
 
   private static final Logger LOG = LoggerFactory.getLogger(ProductDomain.class);
@@ -140,7 +147,8 @@ public class ProductDomain {
     return ProductCreationValidatorFactory.getValidator(type);
   }
 
-  public void syncBalancesByMovement(final MovementDomain movement, final boolean wasOfficialReport)
+  public void syncBalancesByMovement(
+      final MovementDomain movement, final ProcessMovementOptionsVO movementOptions)
       throws BusinessException {
     movement.validate();
 
@@ -150,7 +158,7 @@ public class ProductDomain {
 
     validateInsufficientNetFlow(movement);
 
-    applyMovement(movement, wasOfficialReport);
+    applyMovement(movement, movementOptions);
   }
 
   public void validateInsufficientNetFlow(final MovementDomain movement) throws BusinessException {
@@ -165,38 +173,37 @@ public class ProductDomain {
    * <p>Otherwise, sync the balance and update the current balance.
    *
    * @param newAccountMovement
-   * @param wasOfficialReport
+   * @param movementOptions
    */
+  @SuppressWarnings("PMD.PrematureDeclaration")
   private void applyMovement(
-      final MovementDomain newAccountMovement, final boolean wasOfficialReport)
+      final MovementDomain newAccountMovement, final ProcessMovementOptionsVO movementOptions)
       throws BusinessException {
     final BigDecimal movementAmount = newAccountMovement.getMovementAmount();
 
+    if (newAccountMovement.getMovementType() == null) {
+      throw new GenericSpecificationException("Movement type cannot be null");
+    }
+
+    final boolean wasOfficialReport = movementOptions.isMonthOfficiallyReported();
     metricsCalculator = ProductMetricsCalculatorFactory.getCalculator(this.type);
 
     // If it's an official report, the monthly profit, and closing balance are already synced.
     // Movement balance will be synced due to a new movement done.
     if (wasOfficialReport) {
-      addAmountToMovementBalance(movementAmount);
+      syncMovementBalance(movementAmount, movementOptions);
       return;
     }
 
     final BigDecimal openingBalance = this.movementBalance;
 
     final boolean isInitialBalance = isInitialBalance();
-
-    if (movementAmount != null) {
-      addAmountToMovementBalance(movementAmount);
-      this.currentBalance = this.currentBalance.add(movementAmount);
-    }
-
-    final BigDecimal balanceSnapshot = newAccountMovement.getBalanceSnapshot();
-    if (balanceSnapshot != null) {
-      this.currentBalance = balanceSnapshot;
-    }
     if (isInitialBalance) {
       putInitialBalanceMetadata(currentBalance);
     }
+
+    syncMovementBalance(movementAmount, movementOptions);
+    syncCurrentBalance(newAccountMovement, movementOptions);
 
     if (hasValidBalance()) {
       if (checkIfFullyWithdrawn(currentBalance, movementAmount)) {
@@ -204,18 +211,28 @@ public class ProductDomain {
       }
     }
 
+    // Once the product is synced is ready to sync the profit balance and update metadata
     syncNetGrowthRate(openingBalance, movementAmount);
-    this.isActive = !newAccountMovement.isToCloseProduct();
-
     syncProfitBalance();
-
     updateMetadataFields(newAccountMovement);
 
     this.updatedAt = LocalDateTime.now();
+    this.isActive = !newAccountMovement.isToCloseProduct();
   }
 
-  private void addAmountToMovementBalance(final BigDecimal movementAmount) {
-    this.movementBalance = this.movementBalance.add(movementAmount);
+  private void syncMovementBalance(
+      final BigDecimal movementAmount, final ProcessMovementOptionsVO movementOptions) {
+    if (movementAmount == null) {
+      return;
+    }
+    switch (movementOptions.operation()) {
+      case ADD -> {
+        this.movementBalance = this.movementBalance.add(movementAmount);
+      }
+      case REMOVE -> {
+        this.movementBalance = this.movementBalance.subtract(movementAmount);
+      }
+    }
   }
 
   private boolean isInitialBalance() {
@@ -224,6 +241,29 @@ public class ProductDomain {
 
   private void putInitialBalanceMetadata(final BigDecimal initialBalance) {
     metadata.findCommonMetadata().putInitialBalance(initialBalance);
+  }
+
+  private void syncCurrentBalance(
+      final MovementDomain movement, final ProcessMovementOptionsVO movementOptions) {
+    if (movement == null) {
+      return;
+    }
+
+    if (movement.getMovementAmount() != null && movement.getMovementType().isNotBalanceSnapshot()) {
+      switch (movementOptions.operation()) {
+        case ADD -> {
+          this.currentBalance = this.currentBalance.add(movement.getMovementAmount());
+        }
+        case REMOVE -> {
+          this.currentBalance = this.currentBalance.subtract(movement.getMovementAmount());
+        }
+      }
+    }
+
+    final BigDecimal balanceSnapshot = movement.getBalanceSnapshot();
+    if (balanceSnapshot != null) {
+      this.currentBalance = balanceSnapshot;
+    }
   }
 
   private boolean hasValidBalance() {

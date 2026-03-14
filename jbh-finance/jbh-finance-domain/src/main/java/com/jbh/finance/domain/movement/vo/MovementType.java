@@ -52,6 +52,10 @@ public enum MovementType {
     return this == WITHDRAWAL;
   }
 
+  public boolean isNotBalanceSnapshot() {
+    return !isBalanceSnapshot();
+  }
+
   public boolean isBalanceSnapshot() {
     return this == BALANCE_SNAPSHOT;
   }

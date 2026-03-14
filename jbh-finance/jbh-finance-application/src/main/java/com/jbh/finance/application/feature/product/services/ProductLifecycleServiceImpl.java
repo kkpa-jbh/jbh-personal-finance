@@ -12,10 +12,12 @@ import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.ports.output.ProductRepository;
 import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
 import com.jbh.finance.domain.movement.MovementDomain;
+import com.jbh.finance.domain.movement.vo.ProcessMovementOptionsVO;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
 import com.jbh.finance.domain.shared.exceptions.BusinessDomainExceptionType;
+import com.jbh.finance.domain.shared.vo.EntityOperationVO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -155,12 +157,12 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
   public ProductDTO syncByMovement(
       final ProductPK accountPK,
       final MovementDTO movement,
-      final boolean isMonthOfficiallyReported)
+      final ProcessMovementOptionsVO movementOptions)
       throws BusinessException {
 
     final ProductDomain accountDomain = findDomainOrThrow(accountPK);
     syncAccountDomainBalanceByMovement(
-        accountDomain, MovementMapper.toDomain(movement), isMonthOfficiallyReported);
+        accountDomain, MovementMapper.toDomain(movement), movementOptions);
 
     log.info("Account {} was synced by Movement.. {}", accountDomain.getName(), movement);
 
@@ -170,9 +172,9 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
   private void syncAccountDomainBalanceByMovement(
       final ProductDomain accountDomain,
       final MovementDomain movement,
-      final boolean isMonthOfficiallyReported)
+      final ProcessMovementOptionsVO movementOptions)
       throws BusinessException {
-    accountDomain.syncBalancesByMovement(movement, isMonthOfficiallyReported);
+    accountDomain.syncBalancesByMovement(movement, movementOptions);
   }
 
   @Override
@@ -186,9 +188,10 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
     final List<MovementDomain> filteredMovements =
         uploadedMovements.stream().filter(Objects::nonNull).toList();
 
+    final var movOptions = new ProcessMovementOptionsVO(false, EntityOperationVO.ADD);
     for (final MovementDomain movement : filteredMovements) {
       try {
-        syncAccountDomainBalanceByMovement(accountDomain, movement, false);
+        syncAccountDomainBalanceByMovement(accountDomain, movement, movOptions);
       } catch (final BusinessException ex) {
         log.error("Error syncing productDTO movement by movement {}", movement);
         throw ex;

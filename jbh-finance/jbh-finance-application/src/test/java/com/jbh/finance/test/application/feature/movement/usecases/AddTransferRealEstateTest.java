@@ -11,8 +11,8 @@ import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.application.feature.product.usecases.UpdateProductUseCase;
-import com.jbh.finance.test.testfixtures.builders.CommandTestBuilder;
 import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
+import com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -38,7 +38,7 @@ public class AddTransferRealEstateTest {
     MockitoAnnotations.openMocks(this);
     transferUseCase = UseCaseFixtureBuilder.buildAddTransferUseCase(accountMovementRepository);
 
-    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateProductUseCase();
 
     addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
 
@@ -55,7 +55,8 @@ public class AddTransferRealEstateTest {
   @Order(0)
   public void shouldCreateRealEstateAccount() throws BusinessException {
     final ProductDTO realEstateAccount =
-        createAccountUseCase.execute(CommandTestBuilder.createMockRealStateCommand(userId));
+        createAccountUseCase.execute(
+            GeneralCommandFixtureBuilder.createMockRealStateCommand(userId));
     assertNotNull(realEstateAccount);
   }
 }

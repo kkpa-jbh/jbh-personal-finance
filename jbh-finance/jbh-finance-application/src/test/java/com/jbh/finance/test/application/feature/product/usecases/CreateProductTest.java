@@ -2,15 +2,14 @@ package com.jbh.finance.test.application.feature.product.usecases;
 
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.PERSONAL;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.PUBLIC_SERVICES;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createBasicAccountCommand;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createCDTCommand;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createCreditCardCommand;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createInvestmentCommand;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createLoanCommand;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createRealEstateCommand;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.addMovementUseCase;
 import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.delayTests;
-import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder.withCategory;
+import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder.withCategory;
+import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createBasicAccountCommand;
+import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createCDTCommand;
+import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createCreditCardCommand;
+import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createInvestmentCommand;
+import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createLoanCommand;
+import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createRealEstateCommand;
 import static com.jbh.finance.test.testfixtures.utils.ProductITUtils.assertProduct;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -18,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.GenericSpecificationException;
+import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.product.commands.CreateProductCommand;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.mappers.ProductMapper;
@@ -27,7 +27,7 @@ import com.jbh.finance.domain.product.vo.ProductMetadata;
 import com.jbh.finance.domain.product.vo.ProductType;
 import com.jbh.finance.test.testfixtures.builders.ProductEntityBuilder;
 import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
-import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder;
+import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder;
 import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -41,11 +41,13 @@ public class CreateProductTest {
   static BigDecimal creditLimit = new BigDecimal("1000000");
   private static CreateProductUseCase createAccountUseCase;
   private static InMemoryProductRepository inMemoryAccountRepo;
+  private static AddMovementUseCase addMovementUseCase;
 
   @BeforeEach
   public void setUp() {
-    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateProductUseCase();
     inMemoryAccountRepo = UseCaseFixtureBuilder.getProductRepoInMemory();
+    addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase();
   }
 
   @Test
@@ -167,7 +169,7 @@ public class CreateProductTest {
     addMovementUseCase.addMovement(
         userId,
         creditCardAccountDTO.id(),
-        AddMovementCommandTestBuilder.createMovement(
+        AddMovementCommandFixtureBuilder.createMovement(
             mvmDate, personalExpense1, null, MovementType.WITHDRAWAL, PERSONAL));
 
     ProductDTO updatedAccount =

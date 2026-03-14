@@ -1,7 +1,7 @@
 package com.jbh.finance.test.application.feature.movement.usecases;
 
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
-import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder.createInitialBalance;
+import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder.createInitialBalance;
 import static com.jbh.finance.test.testfixtures.utils.ProductITUtils.assertProduct;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -21,9 +21,9 @@ import com.jbh.finance.application.feature.product.mappers.ProductMapper;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
 import com.jbh.finance.domain.product.vo.ProductPK;
-import com.jbh.finance.test.testfixtures.builders.CommandTestBuilder;
 import com.jbh.finance.test.testfixtures.builders.ProductEntityBuilder;
 import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
+import com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder;
 import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -60,8 +60,7 @@ public class RegisterCDTMovementTest {
 
   @BeforeAll
   static void beforeAll() {
-    UseCaseFixtureBuilder.getInMemoryMonthlyBalanceRepos().clearStorage();
-    UseCaseFixtureBuilder.getProductRepoInMemory().clearStorage();
+    UseCaseFixtureBuilder.resetState();
   }
 
   @BeforeEach
@@ -69,7 +68,7 @@ public class RegisterCDTMovementTest {
     MockitoAnnotations.openMocks(this);
 
     accountMovementRepository = UseCaseFixtureBuilder.getAccountMovementWriterRepository();
-    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateProductUseCase();
     addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
     monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
 
@@ -85,7 +84,8 @@ public class RegisterCDTMovementTest {
     final ProductMetadata metadata = ProductMetadata.empty();
     metadata.findCDTMetadata().putMaturityDate(period.plusMonths(1).atDay(1));
     cdtAccount =
-        createAccountUseCase.execute(CommandTestBuilder.createCDTCommand(userId, name, metadata));
+        createAccountUseCase.execute(
+            GeneralCommandFixtureBuilder.createCDTCommand(userId, name, metadata));
     assertNotNull(cdtAccount);
     assertNotNull(cdtAccount.id());
 
@@ -117,7 +117,8 @@ public class RegisterCDTMovementTest {
         });
 
     internalAccount =
-        createAccountUseCase.execute(CommandTestBuilder.createSavingAccountCommand(userId));
+        createAccountUseCase.execute(
+            GeneralCommandFixtureBuilder.createSavingAccountCommand(userId));
     assertNotNull(internalAccount);
 
     addMovementUseCase.addMovement(
@@ -136,7 +137,7 @@ public class RegisterCDTMovementTest {
         liquidateAccountUseCase.liquidateAccount(
             userId,
             cdtAccount.id(),
-            CommandTestBuilder.createLiquidateCommandToInternal(
+            GeneralCommandFixtureBuilder.createLiquidateCommandToInternal(
                 new ProductPK(userId, internalAccount.id()),
                 CDT_INITIAL_BALANCE.add(gainedInterest),
                 mvmDate));

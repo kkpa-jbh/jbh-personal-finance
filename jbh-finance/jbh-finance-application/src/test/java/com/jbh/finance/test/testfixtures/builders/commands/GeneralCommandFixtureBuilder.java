@@ -1,4 +1,4 @@
-package com.jbh.finance.test.testfixtures.builders;
+package com.jbh.finance.test.testfixtures.builders.commands;
 
 import com.jbh.finance.application.feature.movement.commands.LiquidateProductCommand;
 import com.jbh.finance.application.feature.movement.dto.ExternalProductInfoDTO;
@@ -17,7 +17,7 @@ import java.util.UUID;
  * Test Data Factory for creating command objects with sensible defaults. Centralizes command
  * creation to make tests more maintainable when command structure changes.
  */
-public class CommandTestBuilder {
+public class GeneralCommandFixtureBuilder {
 
   private static final String DEFAULT_ACCOUNT_NAME = "Test Account";
 

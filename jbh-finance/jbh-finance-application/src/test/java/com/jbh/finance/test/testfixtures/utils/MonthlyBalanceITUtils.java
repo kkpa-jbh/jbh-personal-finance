@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.test.testfixtures.utils.MonthlyBalanceIgnoreOption;
 import com.jbh.finance.test.testfixtures.builders.commands.MonthlyBalanceCommandFixture;
 import java.math.BigDecimal;
 import java.time.YearMonth;
+import java.util.List;
 
 public class MonthlyBalanceITUtils {
 
@@ -105,5 +105,15 @@ public class MonthlyBalanceITUtils {
       final BigDecimal retefuente) {
     return new AddMonthlyBalanceCommand(
         monthlyPeriod, balanceVO.closingBalance(), balanceVO.monthlyProfitReported(), retefuente);
+  }
+
+  public static MonthlyBalanceDTO getBalanceForPeriod(
+      final List<MonthlyBalanceDTO> monthlyBalanceBefore, final YearMonth initialDepositDate) {
+    return monthlyBalanceBefore.stream()
+        .filter(b -> b.period().equals(initialDepositDate))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new RuntimeException("No monthly balance found for period " + initialDepositDate));
   }
 }

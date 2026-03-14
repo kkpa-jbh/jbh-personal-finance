@@ -1,7 +1,7 @@
 package com.jbh.finance.test.application.feature.monthlybalance.usecases;
 
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createBasicAccountCommand;
+import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createBasicAccountCommand;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,7 +27,7 @@ import com.jbh.finance.domain.product.vo.ProductType;
 import com.jbh.finance.test.testfixtures.CategoryFixturesTestApp;
 import com.jbh.finance.test.testfixtures.builders.EntityTestBuilder;
 import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
-import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder;
+import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder;
 import com.jbh.finance.test.testfixtures.builders.commands.MonthlyBalanceCommandFixture;
 import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import java.math.BigDecimal;
@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
@@ -76,6 +77,11 @@ public class AddMovementsAfterMonthlyReportedTest {
   @Mock private MovementWriterRepository accountMovementRepository;
   private AddMovementUseCase addMovementUseCase;
 
+  @BeforeAll
+  static void beforeAll() {
+    UseCaseFixtureBuilder.resetState();
+  }
+
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
@@ -86,7 +92,7 @@ public class AddMovementsAfterMonthlyReportedTest {
     useCaseTest =
         UseCaseFixtureBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
 
-    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateProductUseCase();
 
     addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
   }
@@ -189,7 +195,7 @@ public class AddMovementsAfterMonthlyReportedTest {
       final BigDecimal amount,
       final BigDecimal balanceSnapshot) {
     final AddMovementCommand movement =
-        AddMovementCommandTestBuilder.withBalanceSnapshot(
+        AddMovementCommandFixtureBuilder.withBalanceSnapshot(
             LocalDate.of(period.getYear(), period.getMonthValue(), 15),
             balanceSnapshot,
             CategoryDTO.withInternalPurpose(categoryType, null),

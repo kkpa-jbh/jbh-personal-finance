@@ -3,7 +3,6 @@ package com.jbh.finance.test.application.feature.monthlybalance.usecases;
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.DEFAULT_ACCOUNT_TYPE;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.movementInMemoQuery;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.createMonthlyBalanceCommand;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -81,7 +80,8 @@ public class RegisterMonthlyBalanceTest {
             accountService);
 
     final MovementLifecycleService coreAccountMovementService =
-        new MovementLifecycleServiceImpl(accountMovementRepository, movementInMemoQuery);
+        new MovementLifecycleServiceImpl(
+            accountMovementRepository, UseCaseFixtureBuilder.getMovementInMemoQuery());
 
     accountMovementService =
         new ProcessMovementServiceImpl(

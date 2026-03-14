@@ -3,6 +3,7 @@ package com.jbh.finance.application.feature.movement.services;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.commons.exception.GenericSpecificationException;
 import com.jbh.commons.util.JbhBooleanUtils;
 import com.jbh.finance.application.acid.UnitOfWork;
 import com.jbh.finance.application.feature.category.dto.CategoryDTO;
@@ -19,13 +20,14 @@ import com.jbh.finance.application.feature.product.services.ProductLifecycleServ
 import com.jbh.finance.application.feature.product.validation.product_type.ProductMovementValidatorFactory;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
+import com.jbh.finance.domain.movement.vo.ProcessMovementOptionsVO;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
+import com.jbh.finance.domain.shared.vo.EntityOperationVO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Optional;
-import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,17 +159,16 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
     // Create MovementDTO from command
     final var movementDTO = MovementMapper.fromCommand(accountId, movementCommand);
 
-    final ProcessMovementOptions options = new ProcessMovementOptions(productPK, false);
-
-    return processMovement(movementDTO, options);
+    return processMovement(
+        movementDTO, productPK, new ProcessMovementOptionsVO(EntityOperationVO.ADD));
   }
 
   @Override
   public AddMovementResultDTO liquidateProductByMovement(
       final MovementDTO movementDTO, final ProductPK accountPK) throws BusinessException {
-    final ProcessMovementOptions options = new ProcessMovementOptions(accountPK, false);
 
-    return processMovement(movementDTO, options);
+    return processMovement(
+        movementDTO, accountPK, new ProcessMovementOptionsVO(EntityOperationVO.ADD));
   }
 
   @Override
@@ -221,36 +222,7 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
   @Override
   public void reverseMovementProcessingBalances(
       final ProductPK productPK, final MovementDTO movement) throws BusinessException {
-
-    final MovementDTO reversedMovement = buildReversedMovement(movement);
-
-    processMovement(reversedMovement, new ProcessMovementOptions(productPK, true));
-
-    movementLifecycleService.delete(movement.id().value());
-  }
-
-  private MovementDTO buildReversedMovement(final MovementDTO movement) {
-    final MovementType reversedType =
-        movement.movementType().isDeposit() ? MovementType.WITHDRAWAL : MovementType.DEPOSIT;
-
-    // Temporary Category to pass validations
-    final CategoryDTO reversedCategory =
-        reversedType.isDeposit()
-            ? categoryService.findIncomeOther()
-            : categoryService.findExpenseUnknown();
-
-    return MovementDTO.builder()
-        .id(movement.id())
-        .productId(movement.productId())
-        .movementType(reversedType)
-        .movementAmount(movement.movementAmount())
-        .movementDate(movement.movementDate())
-        .balanceSnapshot(movement.balanceSnapshot())
-        .category(reversedCategory)
-        .metadata(movement.metadata())
-        .createdAt(movement.createdAt())
-        .description(movement.description())
-        .build();
+    processMovement(movement, productPK, new ProcessMovementOptionsVO(EntityOperationVO.REMOVE));
   }
 
   /**
@@ -264,8 +236,7 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
    *   <li>Syncs the product balance via {@link ProductLifecycleService#syncByMovement}.
    *   <li>Validates the movement against the specific product-type rules.
    *   <li>Persists the product balance (always) and the movement (unless {@link
-   *       ProcessMovementOptions#skipMovementPersistence()} is {@code true}) inside a {@link
-   *       UnitOfWork}.
+   *       ProcessMovementOptions#movementToReverse()} is {@code true}) inside a {@link UnitOfWork}.
    *   <li>Optionally syncs the monthly balance if the product type requires it.
    * </ol>
    *
@@ -283,24 +254,31 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
    * @throws BusinessException if any validation or persistence rule is violated
    */
   private AddMovementResultDTO processMovement(
-      final MovementDTO movementDTO, final ProcessMovementOptions options)
+      final MovementDTO movementDTO,
+      final ProductPK productPK,
+      final ProcessMovementOptionsVO inputMovOptions)
       throws BusinessException {
+
+    if (inputMovOptions == null) {
+      throw new GenericSpecificationException("Process Movement options cannot be null");
+    }
+
+    final boolean movementToReverse = inputMovOptions.operation().toRemove();
+
     // Validates that the movement period is not locked by an official monthly report
     monthlyBalanceService.validateNewMovementForOfficialMonthlyReport(movementDTO);
 
-    final ProductPK accountPK = options.productPK();
-
     final YearMonth movementPeriod = YearMonth.from(movementDTO.movementDate());
     final boolean isMonthOfficiallyReported =
-        findIfMonthlyBalanceWasOfficialReported(accountPK.productId(), movementPeriod);
+        findIfMonthlyBalanceWasOfficialReported(productPK.productId(), movementPeriod);
 
-    final UUID userId = accountPK.userId();
-    final ProductId accountId = accountPK.productId();
+    final ProcessMovementOptionsVO movementOptions =
+        new ProcessMovementOptionsVO(isMonthOfficiallyReported, inputMovOptions.operation());
 
     // Recalculates the product balance by applying the movement (does not persist yet)
+    // TODO Should I create a new method for reversing the movement on productLifecycleService?
     final ProductDTO syncedAccountDTO =
-        productLifecycleService.syncByMovement(
-            new ProductPK(userId, accountId), movementDTO, isMonthOfficiallyReported);
+        productLifecycleService.syncByMovement(productPK, movementDTO, movementOptions);
 
     // Applies product-type-specific business rules (e.g. CDT cannot have withdrawals)
     validateMovementByProductType(syncedAccountDTO, movementDTO);
@@ -308,9 +286,12 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
     // Atomically persists the movement and the updated product balance
     unitOfWork.execute(
         () -> {
-          if (JbhBooleanUtils.isFalse(options.skipMovementPersistence())) {
+          if (JbhBooleanUtils.isFalse(movementToReverse)) {
             log.info("Persisting Movement {} ", movementDTO.movementDate());
             persistMovementDTO(movementDTO);
+          } else {
+            log.info("Reversing Movement {} ", movementDTO.movementDate());
+            movementLifecycleService.delete(movementDTO.id().value());
           }
 
           productLifecycleService.save(syncedAccountDTO);
@@ -321,7 +302,11 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
     log.info("Syncing Monthly Balance for new movement {}", movementDTO);
     MonthlyBalanceDTO monthlyBalanceDTO = null;
     if (syncedAccountDTO.productTypeShouldUpdateMonthlyBalance()) {
-      monthlyBalanceDTO = monthlyBalanceService.syncForNewMovement(movementDTO);
+      if (movementToReverse) {
+        monthlyBalanceDTO = monthlyBalanceService.syncForReversedMovement(movementDTO);
+      } else {
+        monthlyBalanceDTO = monthlyBalanceService.syncForNewMovement(movementDTO);
+      }
     }
 
     return new AddMovementResultDTO(syncedAccountDTO, movementDTO, monthlyBalanceDTO);

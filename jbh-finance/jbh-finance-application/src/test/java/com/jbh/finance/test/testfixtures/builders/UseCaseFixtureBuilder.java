@@ -43,20 +43,18 @@ public class UseCaseFixtureBuilder {
   // FIXME Centralize the constructors that are using this serviceMock.
   private static final CategoryService categoryServiceMock = buildCategoryServiceMock();
   // Account
-  private static final InMemoryProductRepository inMemoryAccountRepo =
+  private static final InMemoryProductRepository inMemoryProductRepo =
       new InMemoryProductRepository();
   private static final InMemoryMonthlyBalanceRepositories inMemoryMonthlyBalanceRepos =
       new InMemoryMonthlyBalanceRepositories();
-  static final MonthlyBalanceWriterRepo monthlyBalanceInMemoWriter =
+  private static final MonthlyBalanceWriterRepo monthlyBalanceInMemoWriter =
       inMemoryMonthlyBalanceRepos.getWriterRepo();
-  static final MonthlyBalanceQueryRepo monthlyBalanceInMemoQuery =
+  private static final MonthlyBalanceQueryRepo monthlyBalanceInMemoQuery =
       inMemoryMonthlyBalanceRepos.getQueryRepo();
-  public static InMemoryMovementQueryRepository movementInMemoQuery =
+  private static final InMemoryMovementQueryRepository movementInMemoQuery =
       new InMemoryMovementQueryRepository();
-  static final MovementWriterRepository movementInMemoWriter =
+  private static final MovementWriterRepository movementInMemoWriter =
       new InMemoryMovementRepository(movementInMemoQuery);
-  public static final AddMovementUseCase addMovementUseCase =
-      buildAddMovementUseCase(movementInMemoWriter);
 
   private static CategoryService buildCategoryServiceMock() {
     return new CategoryServiceMock();
@@ -66,9 +64,13 @@ public class UseCaseFixtureBuilder {
     return categoryServiceMock;
   }
 
+  public static InMemoryMovementQueryRepository getMovementInMemoQuery() {
+    return movementInMemoQuery;
+  }
+
   // Use Cases
 
-  public static CreateProductUseCase buildCreateAccountUseCase() {
+  public static CreateProductUseCase buildCreateProductUseCase() {
     return new CreateProductInputPort(buildProductLifecycleSrv());
   }
 
@@ -77,7 +79,7 @@ public class UseCaseFixtureBuilder {
   }
 
   public static InMemoryProductRepository getProductRepoInMemory() {
-    return inMemoryAccountRepo;
+    return inMemoryProductRepo;
   }
 
   public static MovementWriterRepository getAccountMovementWriterRepository() {
@@ -91,12 +93,6 @@ public class UseCaseFixtureBuilder {
         buildProductLifecycleSrv(),
         buildProcessMovementService(accountMovementRepository),
         categoryServiceMock);
-  }
-
-  public static AddMovementUseCase buildAddMovementUseCase(
-      final MovementWriterRepository accountMovementRepository) {
-    return new AddMovementInputPort(
-        buildProcessMovementService(accountMovementRepository), buildProductLifecycleSrv());
   }
 
   public static FindMonthlyBalanceUseCase buildFindMonthlyBalanceUseCase() {
@@ -147,6 +143,10 @@ public class UseCaseFixtureBuilder {
         buildProductLifecycleSrv());
   }
 
+  public static MovementLifecycleService buildMovementLifeCycleSrv() {
+    return new MovementLifecycleServiceImpl(movementInMemoWriter, movementInMemoQuery);
+  }
+
   public static LiquidateProductUseCase buildLiquidateAccountUseCase(
       final MovementWriterRepository accountMovementRepository) {
     return new LiquidateProductInputPort(
@@ -162,7 +162,28 @@ public class UseCaseFixtureBuilder {
         buildProcessMovementService(movementInMemoWriter));
   }
 
+  public static AddMovementUseCase buildAddMovementUseCase() {
+    return new AddMovementInputPort(
+        buildProcessMovementService(movementInMemoWriter), buildProductLifecycleSrv());
+  }
+
+  public static AddMovementUseCase buildAddMovementUseCase(
+      final MovementWriterRepository accountMovementRepository) {
+    return new AddMovementInputPort(
+        buildProcessMovementService(accountMovementRepository), buildProductLifecycleSrv());
+  }
+
   public static UpdateProductUseCase buildUpdateProductUseCase() {
     return new UpdateProductInputPort(buildProductLifecycleSrv());
+  }
+
+  public static MonthlyBalanceQueryRepo getInMemoryMonthlyBalanceQueryRepo() {
+    return monthlyBalanceInMemoQuery;
+  }
+
+  public static void resetState() {
+    inMemoryProductRepo.clearStorage();
+    inMemoryMonthlyBalanceRepos.clearStorage();
+    movementInMemoQuery.clearStorage();
   }
 }

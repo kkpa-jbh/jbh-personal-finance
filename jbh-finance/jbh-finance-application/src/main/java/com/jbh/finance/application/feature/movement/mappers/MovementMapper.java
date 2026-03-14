@@ -75,6 +75,7 @@ public final class MovementMapper {
         .balanceSnapshot(domain.getBalanceSnapshot())
         .metadata(domain.getMetadata())
         .description(domain.getDescription())
+        .createdAt(domain.getCreatedAt())
         .build();
   }
 

@@ -13,11 +13,13 @@ import com.jbh.finance.domain.movement.MovementDomain;
 import com.jbh.finance.domain.movement.vo.MovementId;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
+import com.jbh.finance.domain.movement.vo.ProcessMovementOptionsVO;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
 import com.jbh.finance.domain.product.vo.ProductMetadataKey;
 import com.jbh.finance.domain.product.vo.ProductType;
+import com.jbh.finance.domain.shared.vo.EntityOperationVO;
 import com.jbh.finance.testfixtures.CategoryFixturesDomain;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -587,7 +589,8 @@ public class ProductDomainTest {
             MovementMetadata.createEmpty(),
             null);
 
-    accountDomain.syncBalancesByMovement(movement, false);
+    accountDomain.syncBalancesByMovement(
+        movement, new ProcessMovementOptionsVO(EntityOperationVO.ADD));
 
     assertNotNull(accountDomain.getId());
     assertFalse(accountDomain.isFullyWithdrawn());
@@ -604,7 +607,8 @@ public class ProductDomainTest {
             JBH_ZERO,
             MovementMetadata.createEmpty(),
             null);
-    accountDomain.syncBalancesByMovement(withdrawalMovement, false);
+    accountDomain.syncBalancesByMovement(
+        withdrawalMovement, new ProcessMovementOptionsVO(EntityOperationVO.ADD));
     assertTrue(accountDomain.isFullyWithdrawn());
     assertTrue(accountDomain.hasMetadata(ProductMetadataKey.COMMON_IS_FULLY_WITHDRAWN));
 
@@ -625,7 +629,9 @@ public class ProductDomainTest {
             null);
     assertThrows(
         BusinessException.class,
-        () -> accountDomain.syncBalancesByMovement(unknownMovement, false));
+        () ->
+            accountDomain.syncBalancesByMovement(
+                unknownMovement, new ProcessMovementOptionsVO(EntityOperationVO.ADD)));
   }
 
   @Test

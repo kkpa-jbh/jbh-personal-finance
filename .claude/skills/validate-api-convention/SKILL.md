@@ -1,3 +1,8 @@
+---
+name: jbh-validate-api-convention
+description: Analyzes API endpoints, methods, and objects to ensure compliance with the project's naming conventions and generates a remediation plan for violations.
+---
+
 # Validate API Naming Convention
 
 Analyzes API endpoints, methods, and objects to ensure compliance with the project's naming conventions and generates a remediation plan for violations.
@@ -28,16 +33,19 @@ For each API class found, verify compliance with the rules from [Naming Conventi
 #### Key Validation Rules (see full specs in naming.md):
 
 **Persistence Layer:**
+
 - Entity classes must end with `Entity` suffix
 - Must be in `*.infra.adapters.out.persistence.<feature>/` package
 - Must not be exposed in API controllers
 
 **Application Layer:**
+
 - DTOs must end with `DTO` suffix
 - Must be in `*.application.feature.<feature>.dto/` package
 - Must not be used in controller return types
 
 **Infrastructure Layer (API):**
+
 - Request objects must end with `Request` suffix
 - Response objects must end with `Response` suffix
 - Must be in `*.infra.adapters.in.rest.<feature>.request/` or `.response/` packages
@@ -128,9 +136,9 @@ Always provide:
 ## Example Usage
 
 ```
-/validate-api-naming
-/validate-api-naming src/main/java/com/jbh/personalfinance/controller/MonthlyBalanceController.java
-/validate-api-naming /api/v1/monthly-balance
+/validate-api-convention
+/validate-api-convention src/main/java/com/jbh/personalfinance/controller/MonthlyBalanceController.java
+/validate-api-convention /api/v1/monthly-balance
 ```
 
 ## Notes

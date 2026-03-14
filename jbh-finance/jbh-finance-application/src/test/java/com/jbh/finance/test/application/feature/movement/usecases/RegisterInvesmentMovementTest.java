@@ -4,9 +4,9 @@ import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.INCOME_INITIAL_BALANCE;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.PERSONAL;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createInvestmentCommand;
-import static com.jbh.finance.test.testfixtures.builders.CommandTestBuilder.createLiquidateCommandToExternal;
 import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.delayTests;
+import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createInvestmentCommand;
+import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createLiquidateCommandToExternal;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static com.jbh.finance.test.testfixtures.utils.MovementTypeUtils.BALANCE_SNAPSHOT_TESTSCOPE;
 import static com.jbh.finance.test.testfixtures.utils.MovementTypeUtils.WITHDRAWAL_TESTSCOPE;
@@ -33,7 +33,7 @@ import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.test.application.feature.monthlybalance.usecases.RegisterMonthlyReportedWithoutProfitTest;
 import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
-import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder;
+import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder;
 import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -55,7 +55,7 @@ public class RegisterInvesmentMovementTest {
   static final UUID userId = UUID.randomUUID();
   private static final Logger LOG =
       LoggerFactory.getLogger(RegisterMonthlyReportedWithoutProfitTest.class);
-  private static final InMemoryProductRepository inMemoryAccountRepo =
+  private static final InMemoryProductRepository inMemoryProductRepo =
       UseCaseFixtureBuilder.getProductRepoInMemory();
   private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
@@ -72,8 +72,7 @@ public class RegisterInvesmentMovementTest {
 
   @BeforeAll
   static void beforeAll() {
-    UseCaseFixtureBuilder.getInMemoryMonthlyBalanceRepos().clearStorage();
-    UseCaseFixtureBuilder.getProductRepoInMemory().clearStorage();
+    UseCaseFixtureBuilder.resetState();
   }
 
   @BeforeEach
@@ -85,7 +84,7 @@ public class RegisterInvesmentMovementTest {
     accountMovementApplicationService =
         UseCaseFixtureBuilder.buildProcessMovementService(accountMovementRepository);
 
-    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateProductUseCase();
 
     addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
 
@@ -113,7 +112,7 @@ public class RegisterInvesmentMovementTest {
   @Order(1)
   void initialBalance() throws BusinessException {
     final AddMovementCommand movement =
-        AddMovementCommandTestBuilder.createMovement(
+        AddMovementCommandFixtureBuilder.createMovement(
             LocalDate.of(2025, 8, 20),
             initialBalance,
             initialBalance,
@@ -138,7 +137,7 @@ public class RegisterInvesmentMovementTest {
 
     addMovementUseCase.addMovement(userId, acciCuentaId, acciCuentaUpdate);
 
-    inMemoryAccountRepo
+    inMemoryProductRepo
         .findByProductId(acciCuentaId)
         .ifPresent(
             updatedAcciCuenta -> {
@@ -157,7 +156,7 @@ public class RegisterInvesmentMovementTest {
             .build();
     addMovementUseCase.addMovement(userId, fondoAccionesId, fondoAccionesUpdate);
 
-    inMemoryAccountRepo
+    inMemoryProductRepo
         .findByProductId(fondoAccionesId)
         .ifPresent(
             updatedFondoAcciones -> {
@@ -183,7 +182,7 @@ public class RegisterInvesmentMovementTest {
 
     addMovementUseCase.addMovement(userId, acciCuentaId, acciCuentaUpdate);
 
-    inMemoryAccountRepo
+    inMemoryProductRepo
         .findByProductId(acciCuentaId)
         .ifPresent(
             updatedAcciCuenta -> {
@@ -203,7 +202,7 @@ public class RegisterInvesmentMovementTest {
             .build();
     addMovementUseCase.addMovement(userId, fondoAccionesId, fondoAccionesUpdate);
 
-    inMemoryAccountRepo
+    inMemoryProductRepo
         .findByProductId(fondoAccionesId)
         .ifPresent(
             updatedFondoAcciones -> {
@@ -253,7 +252,7 @@ public class RegisterInvesmentMovementTest {
 
     addMovementUseCase.addMovement(userId, acciCuentaId, acciCuentaUpdate);
 
-    inMemoryAccountRepo
+    inMemoryProductRepo
         .findByProductId(acciCuentaId)
         .ifPresent(
             updatedAcciCuenta -> {
@@ -288,7 +287,7 @@ public class RegisterInvesmentMovementTest {
             .build();
     addMovementUseCase.addMovement(userId, fondoAccionesId, fondoAccionesUpdate);
 
-    inMemoryAccountRepo
+    inMemoryProductRepo
         .findByProductId(fondoAccionesId)
         .ifPresent(
             updatedFondoAcciones -> {
@@ -303,11 +302,11 @@ public class RegisterInvesmentMovementTest {
   @Order(99)
   void shouldWithDrawalAllMoneySuccessfully() throws BusinessException {
     final LocalDate withdrawalDate = YearMonth.of(2025, 11).atDay(1);
-    final ProductDTO account = inMemoryAccountRepo.findByProductId(acciCuentaId).orElse(null);
+    final ProductDTO account = inMemoryProductRepo.findByProductId(acciCuentaId).orElse(null);
     final BigDecimal currentBalance = account.currentBalance();
 
     final AddMovementCommand withdrawal =
-        AddMovementCommandTestBuilder.createMovement(
+        AddMovementCommandFixtureBuilder.createMovement(
             withdrawalDate, currentBalance, BigDecimal.ZERO, WITHDRAWAL_TESTSCOPE, PERSONAL);
 
     assertThrows(
@@ -329,7 +328,7 @@ public class RegisterInvesmentMovementTest {
     delayTests();
 
     final ProductDTO updatedAccount =
-        inMemoryAccountRepo.findByProductId(acciCuentaId).orElse(null);
+        inMemoryProductRepo.findByProductId(acciCuentaId).orElse(null);
     assertNotNull(updatedAccount);
     // assertEquals(new BigDecimal("1.31"), updatedAccount.netGrowthRate());
     assertTrue(updatedAccount.netProfitBalance().compareTo(BigDecimal.ZERO) > 0);

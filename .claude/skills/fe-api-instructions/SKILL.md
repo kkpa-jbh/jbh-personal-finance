@@ -1,5 +1,5 @@
 ---
-name: fe-api-instructions
+name: jbh-fe-api-instructions
 description: Generate frontend (FE) instructions to create/update a component based on backend API specifications
 ---
 

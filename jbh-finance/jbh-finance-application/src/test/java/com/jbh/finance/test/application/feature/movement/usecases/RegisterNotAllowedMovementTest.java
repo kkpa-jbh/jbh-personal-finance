@@ -1,6 +1,6 @@
 package com.jbh.finance.test.application.feature.movement.usecases;
 
-import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder.createDepositIncome;
+import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder.createDepositIncome;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -11,13 +11,12 @@ import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.movement.usecases.LiquidateProductUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.usecases.CreateProductUseCase;
-import com.jbh.finance.test.testfixtures.builders.CommandTestBuilder;
 import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
+import com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder;
 import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import java.math.BigDecimal;
 import java.time.YearMonth;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,17 +33,11 @@ public class RegisterNotAllowedMovementTest {
   private static LiquidateProductUseCase liquidateAccountUseCase;
   private MonthlyBalanceLifecycleService monthlyBalanceService;
 
-  @BeforeAll
-  static void beforeAll() {
-    UseCaseFixtureBuilder.getInMemoryMonthlyBalanceRepos().clearStorage();
-    UseCaseFixtureBuilder.getProductRepoInMemory().clearStorage();
-  }
-
   @BeforeEach
   public void setUp() {
 
     accountMovementRepository = UseCaseFixtureBuilder.getAccountMovementWriterRepository();
-    createAccountUseCase = UseCaseFixtureBuilder.buildCreateAccountUseCase();
+    createAccountUseCase = UseCaseFixtureBuilder.buildCreateProductUseCase();
     addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
     monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
 
@@ -58,7 +51,7 @@ public class RegisterNotAllowedMovementTest {
     final BigDecimal amount = new BigDecimal("100");
     final ProductDTO loanProduct =
         createAccountUseCase.execute(
-            CommandTestBuilder.createMockLoanCommand(userId, "Loan Account"));
+            GeneralCommandFixtureBuilder.createMockLoanCommand(userId, "Loan Account"));
     assertNotNull(loanProduct);
 
     final BusinessException error =
@@ -77,7 +70,8 @@ public class RegisterNotAllowedMovementTest {
 
     final BigDecimal amount = new BigDecimal("100");
     final ProductDTO realEstateAccount =
-        createAccountUseCase.execute(CommandTestBuilder.createMockRealStateCommand(userId));
+        createAccountUseCase.execute(
+            GeneralCommandFixtureBuilder.createMockRealStateCommand(userId));
     assertNotNull(realEstateAccount);
 
     final BusinessException error =

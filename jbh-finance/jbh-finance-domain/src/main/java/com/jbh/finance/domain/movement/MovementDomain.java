@@ -12,6 +12,7 @@ import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.shared.exceptions.BusinessDomainExceptionType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.Getter;
 
 @Getter
@@ -33,6 +34,8 @@ public class MovementDomain {
   private final BigDecimal balanceSnapshot;
   private final MovementMetadata metadata;
   private final String description;
+
+  private final LocalDateTime createdAt;
 
   public MovementDomain(
       final ProductId productId,
@@ -74,6 +77,7 @@ public class MovementDomain {
     this.balanceSnapshot = JbhMoneyUtils.withJBHDecimals(balanceSnapshot);
     this.metadata = metadata;
     this.description = description;
+    this.createdAt = LocalDateTime.now();
   }
 
   public void validate() throws BusinessException {

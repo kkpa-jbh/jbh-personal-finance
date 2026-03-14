@@ -2,7 +2,7 @@ package com.jbh.finance.test.application.core.vo.commands;
 
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.PERSONAL;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.SALARY;
-import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder.withBalanceSnapshot;
+import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder.withBalanceSnapshot;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.domain.movement.vo.MovementType;
-import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder;
+import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import org.junit.jupiter.api.DisplayName;
@@ -53,7 +53,7 @@ class AddMovementCommandTest {
     @DisplayName("Should build command with category auto-derivation")
     void shouldBuildWithCategoryAutoDerivedType() {
       final AddMovementCommand command =
-          AddMovementCommandTestBuilder.withCategory(TEST_DATE, TEST_AMOUNT, SALARY);
+          AddMovementCommandFixtureBuilder.withCategory(TEST_DATE, TEST_AMOUNT, SALARY);
 
       assertEquals(TEST_DATE, command.entryDate());
       assertEquals(TEST_AMOUNT, command.totalAmount());
@@ -79,7 +79,7 @@ class AddMovementCommandTest {
     @DisplayName("Should auto-derive WITHDRAWAL type from expense category")
     void shouldAutoDeriveWithdrawalType() {
       final AddMovementCommand command =
-          AddMovementCommandTestBuilder.withCategory(TEST_DATE, TEST_AMOUNT, PERSONAL);
+          AddMovementCommandFixtureBuilder.withCategory(TEST_DATE, TEST_AMOUNT, PERSONAL);
 
       assertEquals(MovementType.WITHDRAWAL, command.movementType());
     }
@@ -88,7 +88,7 @@ class AddMovementCommandTest {
     @DisplayName("Should auto-derive DEPOSIT type from income category")
     void shouldAutoDeriveDepositType() {
       final AddMovementCommand command =
-          AddMovementCommandTestBuilder.withCategory(TEST_DATE, TEST_AMOUNT, SALARY);
+          AddMovementCommandFixtureBuilder.withCategory(TEST_DATE, TEST_AMOUNT, SALARY);
 
       assertEquals(MovementType.DEPOSIT, command.movementType());
     }
@@ -163,7 +163,7 @@ class AddMovementCommandTest {
     @DisplayName("Should pass validation with valid total amount only")
     void shouldPassValidationWithTotalAmountOnly() {
       final AddMovementCommand command =
-          AddMovementCommandTestBuilder.withCategory(TEST_DATE, TEST_AMOUNT, SALARY);
+          AddMovementCommandFixtureBuilder.withCategory(TEST_DATE, TEST_AMOUNT, SALARY);
 
       command.validate();
 
@@ -199,7 +199,7 @@ class AddMovementCommandTest {
     @DisplayName("Should pass validation with zero total amount")
     void shouldPassValidationWithZeroTotalAmount() {
       final AddMovementCommand command =
-          AddMovementCommandTestBuilder.withCategory(TEST_DATE, BigDecimal.ZERO, SALARY);
+          AddMovementCommandFixtureBuilder.withCategory(TEST_DATE, BigDecimal.ZERO, SALARY);
 
       command.validate();
 

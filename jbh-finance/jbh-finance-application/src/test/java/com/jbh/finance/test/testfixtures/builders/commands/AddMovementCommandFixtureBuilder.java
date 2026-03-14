@@ -11,7 +11,7 @@ import com.jbh.finance.test.testfixtures.CategoryFixturesTestApp;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class AddMovementCommandTestBuilder {
+public class AddMovementCommandFixtureBuilder {
 
   /**
    * Creates an AddMovementCommand with all parameters (full constructor).
@@ -81,7 +81,7 @@ public class AddMovementCommandTestBuilder {
 
   public static AddMovementCommand createDepositIncome(
       final LocalDate date, final BigDecimal amount) {
-    return AddMovementCommandTestBuilder.withCategory(
+    return AddMovementCommandFixtureBuilder.withCategory(
         date, amount, CategoryFixturesTestApp.INCOME_DEPOSIT);
   }
 
@@ -114,13 +114,13 @@ public class AddMovementCommandTestBuilder {
    */
   public static AddMovementCommand createExpense(
       final LocalDate date, final BigDecimal amount, final CategoryTypeVO expenseCategory) {
-    return AddMovementCommandTestBuilder.withCategory(
+    return AddMovementCommandFixtureBuilder.withCategory(
         date, amount, CategoryDTO.withInternalPurpose(expenseCategory, null));
   }
 
   public static AddMovementCommand createPersonalExpense(
       final LocalDate date, final BigDecimal amount) {
-    return AddMovementCommandTestBuilder.withCategory(date, amount, PERSONAL);
+    return AddMovementCommandFixtureBuilder.withCategory(date, amount, PERSONAL);
   }
 
   /**
@@ -132,6 +132,6 @@ public class AddMovementCommandTestBuilder {
    */
   public static AddMovementCommand createInitialBalance(
       final LocalDate date, final BigDecimal amount) {
-    return AddMovementCommandTestBuilder.withCategory(date, amount, INCOME_INITIAL_BALANCE);
+    return AddMovementCommandFixtureBuilder.withCategory(date, amount, INCOME_INITIAL_BALANCE);
   }
 }

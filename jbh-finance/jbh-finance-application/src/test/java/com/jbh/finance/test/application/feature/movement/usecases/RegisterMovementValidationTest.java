@@ -3,9 +3,8 @@ package com.jbh.finance.test.application.feature.movement.usecases;
 import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.OTHER_INCOME_MOVEMENT;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.PERSONAL;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.movementInMemoQuery;
-import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder.createExpense;
-import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandTestBuilder.withCategory;
+import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder.createExpense;
+import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder.withCategory;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -81,7 +80,8 @@ public class RegisterMovementValidationTest {
         new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
 
     final MovementLifecycleService coreAccountMovementService =
-        new MovementLifecycleServiceImpl(accountMovementRepository, movementInMemoQuery);
+        new MovementLifecycleServiceImpl(
+            accountMovementRepository, UseCaseFixtureBuilder.getMovementInMemoQuery());
 
     accountMovementService =
         new ProcessMovementServiceImpl(
