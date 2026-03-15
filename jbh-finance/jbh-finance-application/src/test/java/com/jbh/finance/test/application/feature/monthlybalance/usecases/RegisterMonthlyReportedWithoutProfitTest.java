@@ -250,8 +250,8 @@ public class RegisterMonthlyReportedWithoutProfitTest {
     ProductITUtils.assertProduct(
         (expectedAccount),
         persistedAccount,
-        IgnoreProductOptions.IGNORE_ACCOUNT_NAME,
-        IgnoreProductOptions.IGNORE_ACCOUNT_TYPE);
+        IgnoreProductOptions.IGNORE_PRODUCT_NAME,
+        IgnoreProductOptions.IGNORE_PRODUCT_TYPE);
 
     final AddMovementCommand salaryMovement =
         AddMovementCommandFixtureBuilder.withCategory(
@@ -672,7 +672,7 @@ public class RegisterMonthlyReportedWithoutProfitTest {
     final ProductDTO persistedAccount =
         inMemoryAccountRepo.findByUserAndProductId(userId, accountId).get();
     ProductITUtils.assertProduct(
-        expectedAccount, persistedAccount, IgnoreProductOptions.IGNORE_ACCOUNT_PROFIT);
+        expectedAccount, persistedAccount, IgnoreProductOptions.IGNORE_PRODUCT_PROFIT);
   }
 
   @Test

@@ -1,5 +1,6 @@
 package com.jbh.finance.test.application.feature.movement.usecases.delete;
 
+import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.delayTests;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -47,6 +48,7 @@ public class DeleteMovementUseCaseTest {
   private static MonthlyBalanceDTO latestMonthlyBalanceBeforeRev;
   private static int dayOfMonth = 1;
   private static MovementDTO income100ToReverse;
+  private static MovementDTO income45ToReverse;
   private final Logger log = LoggerFactory.getLogger(this.getClass());
   private DeleteMovementUseCase deleteMovementUseCase;
   private CreateProductUseCase createProductUseCase;
@@ -87,16 +89,17 @@ public class DeleteMovementUseCaseTest {
   @Test
   @Order(1)
   void addAmount30() throws BusinessException {
-    addIncomeToProduct(new BigDecimal("30"));
+    addIncomeToProduct(new BigDecimal("30"), null);
   }
 
-  private MovementDTO addIncomeToProduct(final BigDecimal amount) throws BusinessException {
+  private MovementDTO addIncomeToProduct(final BigDecimal amount, final BigDecimal balanceSnapshot)
+      throws BusinessException {
     final AddMovementResultDTO result =
         addMovementUseCase.addMovement(
             userId,
             productDTO.id(),
-            AddMovementCommandFixtureBuilder.createDepositIncome(
-                INITIAL_DEPOSIT_MONTH.atDay(dayOfMonth++), amount));
+            AddMovementCommandFixtureBuilder.createDepositIncomeWithSnapshot(
+                INITIAL_DEPOSIT_MONTH.atDay(dayOfMonth++), amount, balanceSnapshot));
 
     delayTests();
 
@@ -181,7 +184,7 @@ public class DeleteMovementUseCaseTest {
   @Order(4)
   void addIncome100ToBeReversed() throws BusinessException {
     updateLatestInfoBeforeReversion();
-    income100ToReverse = addIncomeToProduct(new BigDecimal("100"));
+    income100ToReverse = addIncomeToProduct(new BigDecimal("100"), null);
   }
 
   @Test
@@ -191,10 +194,39 @@ public class DeleteMovementUseCaseTest {
   }
 
   @Test
-  @Order(6)
-  void createExpenseBalanceSnapshot() throws BusinessException {}
+  @Order(7)
+  void addDeposit20Snapshot165() throws BusinessException {
+    addIncomeToProduct(new BigDecimal("20"), new BigDecimal("165"));
+
+    final var productDTOAfter = productLifecycleSrv.findProductById(productDTO.id()).get();
+
+    assertNotNull(productDTOAfter);
+
+    final ProductDTO expected =
+        ProductDTO.defaultBuilder(userId, productDTO.id(), productDTO.name(), productDTO.type())
+            .movementBalance(withJBHDecimals(new BigDecimal(150)))
+            .currentBalance(withJBHDecimals(new BigDecimal(165)))
+            .netGrowthRate(withJBHDecimals(new BigDecimal(10.71)))
+            .netProfitBalance(withJBHDecimals(new BigDecimal(15)))
+            .build();
+
+    ProductITUtils.assertProduct(expected, productDTOAfter);
+  }
 
   @Test
-  @Order(7)
-  void createDepositBalanceSnapshot() throws BusinessException {}
+  @Order(8)
+  void addIncome45() throws BusinessException {
+    updateLatestInfoBeforeReversion();
+    income45ToReverse = addIncomeToProduct(new BigDecimal("45"), null);
+  }
+
+  @Test
+  @Order(9)
+  void deleteIncome45() throws BusinessException {
+    reverseMovement(income45ToReverse);
+  }
+
+  @Test
+  @Order(20)
+  void createExpenseBalanceSnapshot() throws BusinessException {}
 }

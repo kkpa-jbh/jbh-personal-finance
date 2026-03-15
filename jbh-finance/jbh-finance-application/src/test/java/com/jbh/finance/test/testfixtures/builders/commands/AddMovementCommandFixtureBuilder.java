@@ -81,8 +81,7 @@ public class AddMovementCommandFixtureBuilder {
 
   public static AddMovementCommand createDepositIncome(
       final LocalDate date, final BigDecimal amount) {
-    return AddMovementCommandFixtureBuilder.withCategory(
-        date, amount, CategoryFixturesTestApp.INCOME_DEPOSIT);
+    return withCategory(date, amount, CategoryFixturesTestApp.INCOME_DEPOSIT);
   }
 
   /**
@@ -101,6 +100,18 @@ public class AddMovementCommandFixtureBuilder {
         .totalAmount(totalAmount)
         .categoryDTO(categoryDTO)
         .movementType(MovementType.findByCategory(categoryDTO.getCategoryType()))
+        .build();
+  }
+
+  public static AddMovementCommand createDepositIncomeWithSnapshot(
+      final LocalDate entryDate, final BigDecimal totalAmount, final BigDecimal balanceSnapshot) {
+    return AddMovementCommand.builder()
+        .entryDate(entryDate)
+        .totalAmount(totalAmount)
+        .categoryDTO(CategoryFixturesTestApp.INCOME_DEPOSIT)
+        .balanceSnapshot(balanceSnapshot)
+        .movementType(
+            MovementType.findByCategory(CategoryFixturesTestApp.INCOME_DEPOSIT.getCategoryType()))
         .build();
   }
 

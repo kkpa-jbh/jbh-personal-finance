@@ -14,6 +14,7 @@
 - See [Code Quality Standards](standards/code-quality.md) for PMD rules and SOLID principles
 - See [Naming Conventions](standards/naming.md) for comprehensive naming standards
 - See [Testing Requirements](standards/testing.md) for test patterns and coverage rules
+- See [Business Rules Distribution](standards/business-rules.md) for where to place validations, constraints, and business logic across domain/application/infra layers
 
 **Documentation:**
 - See [JavaDoc Standards](standards/javadoc.md) for use case documentation templates
@@ -49,6 +50,9 @@ This is a Quarkus multi-module monolith using **Hexagonal Architecture** with **
 **Testing:**
 - [Testing Standards](standards/testing.md) - Coverage requirements, patterns, and best practices
 
+**Business Rules:**
+- [Business Rules Distribution](standards/business-rules.md) - Where to place validations and rules across domain, application, and infrastructure layers
+
 ## Patterns
 
 **Use Case Implementation:**
@@ -78,6 +82,7 @@ This is a Quarkus multi-module monolith using **Hexagonal Architecture** with **
 - `/validate-api-naming` - Validate API naming conventions
 - `/fe-api-instructions` - Generate frontend instructions from backend API specs
 - `/jbh-generate-tests` - Generate unit tests for domain/application classes following project test standards
+- `/jbh-review-business-rules` - Review a Maven module and verify business rules are placed in the correct hexagonal layer
 
 ## Current Infrastructure
 

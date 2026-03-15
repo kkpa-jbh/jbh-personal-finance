@@ -276,7 +276,6 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
         new ProcessMovementOptionsVO(isMonthOfficiallyReported, inputMovOptions.operation());
 
     // Recalculates the product balance by applying the movement (does not persist yet)
-    // TODO Should I create a new method for reversing the movement on productLifecycleService?
     final ProductDTO syncedAccountDTO =
         productLifecycleService.syncByMovement(productPK, movementDTO, movementOptions);
 

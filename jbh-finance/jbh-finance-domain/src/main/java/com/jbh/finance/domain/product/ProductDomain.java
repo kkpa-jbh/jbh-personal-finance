@@ -195,7 +195,7 @@ public class ProductDomain {
       return;
     }
 
-    BigDecimal openingBalancePrevMovBalance = this.movementBalance;
+    final BigDecimal openingBalancePrevMovBalance = this.currentBalance;
 
     final boolean isInitialBalance = isInitialBalance();
     if (isInitialBalance) {
@@ -212,13 +212,14 @@ public class ProductDomain {
     }
 
     var inputAmountForNetGrowthRate = movementAmount;
+    var inputOpeningBalance = openingBalancePrevMovBalance;
     if (movementOptions.operation().toRemove()) {
-      openingBalancePrevMovBalance = openingBalancePrevMovBalance.subtract(movementAmount);
+      inputOpeningBalance = openingBalancePrevMovBalance.subtract(movementAmount);
       inputAmountForNetGrowthRate = BigDecimal.ZERO;
     }
 
     // Once the product is synced is ready to sync the profit balance and update metadata
-    syncNetGrowthRate(openingBalancePrevMovBalance, inputAmountForNetGrowthRate);
+    syncNetGrowthRate(inputOpeningBalance, inputAmountForNetGrowthRate);
     syncProfitBalance();
     updateMetadataFields(newAccountMovement);
 
