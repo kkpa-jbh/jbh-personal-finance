@@ -210,7 +210,7 @@ public class MonthlyBalanceDomain {
     }
 
     // Do not update closing balance after adding a movement when it's an official report
-    if (!this.officialMonthlyReport && movement.getBalanceSnapshot() != null) {
+    if (!this.officialMonthlyReport && movement.getBalanceSnapshot() != null && operation.toAdd()) {
       this.closingBalance = movement.getBalanceSnapshot();
     }
   }

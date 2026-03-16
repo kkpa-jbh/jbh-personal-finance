@@ -8,4 +8,8 @@ public enum EntityOperationVO {
   public boolean toRemove() {
     return this == REMOVE;
   }
+
+  public boolean toAdd() {
+    return this == ADD;
+  }
 }

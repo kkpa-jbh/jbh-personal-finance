@@ -24,6 +24,7 @@ public class MonthlyBalanceITUtils {
     boolean ignoreMonthlyProfit = false;
     boolean ignoreOpeningBalance = false;
     boolean ignoreNetGrowthRate = false;
+    boolean ignoreClosingBalance = false;
 
     // Process provided ignore options
     if (ignoreOptions != null) {
@@ -32,6 +33,7 @@ public class MonthlyBalanceITUtils {
           case IGNORE_MONTHLY_PROFIT -> ignoreMonthlyProfit = true;
           case IGNORE_OPENING_BALANCE -> ignoreOpeningBalance = true;
           case IGNORE_NET_GROWTH_RATE -> ignoreNetGrowthRate = true;
+          case IGNORE_CLOSING_BALANCE -> ignoreClosingBalance = true;
         }
       }
     }
@@ -40,10 +42,13 @@ public class MonthlyBalanceITUtils {
     assertEquals(expected.period().getYear(), actual.year(), "Year");
     assertEquals(expected.period().getMonthValue(), actual.month(), "Month");
 
-    assertEquals(
-        expected.closingBalance(),
-        actual.closingBalance(),
-        "Closing Balance for period " + actual.period());
+    if (!ignoreClosingBalance) {
+      assertEquals(
+          expected.closingBalance(),
+          actual.closingBalance(),
+          "Closing Balance for period " + actual.period());
+    }
+
     assertEquals(
         expected.movementBalance(),
         actual.movementBalance(),

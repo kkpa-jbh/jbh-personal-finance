@@ -195,7 +195,7 @@ public class ProductDomain {
       return;
     }
 
-    final BigDecimal openingBalancePrevMovBalance = this.currentBalance;
+    final BigDecimal openingBalancePrevMovBalance = this.movementBalance;
 
     final boolean isInitialBalance = isInitialBalance();
     if (isInitialBalance) {
@@ -255,9 +255,10 @@ public class ProductDomain {
     if (movement == null) {
       return;
     }
-
+    final var operation = movementOptions.operation();
     if (movement.getMovementAmount() != null && movement.getMovementType().isNotBalanceSnapshot()) {
-      switch (movementOptions.operation()) {
+
+      switch (operation) {
         case ADD -> {
           this.currentBalance = this.currentBalance.add(movement.getMovementAmount());
         }
@@ -268,7 +269,7 @@ public class ProductDomain {
     }
 
     final BigDecimal balanceSnapshot = movement.getBalanceSnapshot();
-    if (balanceSnapshot != null) {
+    if (balanceSnapshot != null && operation.toAdd()) {
       this.currentBalance = balanceSnapshot;
     }
   }

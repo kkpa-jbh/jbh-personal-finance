@@ -2,6 +2,8 @@ package com.jbh.finance.test.application.feature.movement.usecases.delete;
 
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.delayTests;
+import static com.jbh.finance.test.testfixtures.utils.IgnoreProductOptions.IGNORE_NET_GROWTH_RATE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -22,6 +24,7 @@ import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
 import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder;
 import com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder;
 import com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils;
+import com.jbh.finance.test.testfixtures.utils.MonthlyBalanceIgnoreOption;
 import com.jbh.finance.test.testfixtures.utils.ProductITUtils;
 import java.math.BigDecimal;
 import java.time.YearMonth;
@@ -40,7 +43,7 @@ import org.slf4j.LoggerFactory;
 public class DeleteMovementUseCaseTest {
 
   static final BigDecimal INITIAL_DEPOSIT = new BigDecimal("100.00");
-  static final YearMonth INITIAL_DEPOSIT_MONTH = YearMonth.now();
+  static final YearMonth INITIAL_PERIOD = YearMonth.now();
   static final UUID userId = UUID.randomUUID();
   private static ProductDTO productDTO;
   private static MovementDTO expenseToBeReversed;
@@ -49,6 +52,7 @@ public class DeleteMovementUseCaseTest {
   private static int dayOfMonth = 1;
   private static MovementDTO income100ToReverse;
   private static MovementDTO income45ToReverse;
+  private static MovementDTO expenseSnapshotToReverse;
   private final Logger log = LoggerFactory.getLogger(this.getClass());
   private DeleteMovementUseCase deleteMovementUseCase;
   private CreateProductUseCase createProductUseCase;
@@ -83,7 +87,7 @@ public class DeleteMovementUseCaseTest {
         userId,
         productDTO.id(),
         AddMovementCommandFixtureBuilder.createInitialBalance(
-            INITIAL_DEPOSIT_MONTH.atDay(1), INITIAL_DEPOSIT));
+            INITIAL_PERIOD.atDay(1), INITIAL_DEPOSIT));
   }
 
   @Test
@@ -99,7 +103,7 @@ public class DeleteMovementUseCaseTest {
             userId,
             productDTO.id(),
             AddMovementCommandFixtureBuilder.createDepositIncomeWithSnapshot(
-                INITIAL_DEPOSIT_MONTH.atDay(dayOfMonth++), amount, balanceSnapshot));
+                INITIAL_PERIOD.atDay(dayOfMonth++), amount, balanceSnapshot));
 
     delayTests();
 
@@ -114,8 +118,7 @@ public class DeleteMovementUseCaseTest {
 
     delayTests();
 
-    final List<MonthlyBalanceDTO> monthlyBalanceBefore =
-        monthlyBalanceLifecycleSrv.findAllByAccountIdUntilNow(productDTO.id());
+    final List<MonthlyBalanceDTO> monthlyBalanceBefore = getCurrentMonthlyBalances();
 
     assertFalse(monthlyBalanceBefore.isEmpty());
 
@@ -123,7 +126,7 @@ public class DeleteMovementUseCaseTest {
 
     final AddMovementCommand command =
         AddMovementCommandFixtureBuilder.createPersonalExpense(
-            INITIAL_DEPOSIT_MONTH.atDay(2), personalExpense);
+            INITIAL_PERIOD.atDay(2), personalExpense);
 
     final AddMovementResultDTO resultDTO =
         addMovementUseCase.addMovement(userId, productDTO.id(), command);
@@ -136,18 +139,26 @@ public class DeleteMovementUseCaseTest {
   private void updateLatestInfoBeforeReversion() {
     delayTests();
 
-    latestProductBeforeReversion = productLifecycleSrv.findProductById(productDTO.id()).get();
+    latestProductBeforeReversion = getCurrentProductInfo();
 
-    final List<MonthlyBalanceDTO> monthlyBalanceBefore =
-        monthlyBalanceLifecycleSrv.findAllByAccountIdUntilNow(productDTO.id());
+    final List<MonthlyBalanceDTO> monthlyBalanceBefore = getCurrentMonthlyBalances();
 
     assertFalse(monthlyBalanceBefore.isEmpty());
 
     latestMonthlyBalanceBeforeRev =
-        MonthlyBalanceITUtils.getBalanceForPeriod(monthlyBalanceBefore, INITIAL_DEPOSIT_MONTH);
+        MonthlyBalanceITUtils.getBalanceForPeriod(monthlyBalanceBefore, INITIAL_PERIOD);
 
     assertNotNull(latestMonthlyBalanceBeforeRev);
     assertNotNull(latestMonthlyBalanceBeforeRev.period());
+  }
+
+  private List<MonthlyBalanceDTO> getCurrentMonthlyBalances() {
+    delayTests();
+    return monthlyBalanceLifecycleSrv.findAllByAccountIdUntilNow(productDTO.id());
+  }
+
+  private ProductDTO getCurrentProductInfo() {
+    return productLifecycleSrv.findProductById(productDTO.id()).get();
   }
 
   @Test
@@ -158,6 +169,18 @@ public class DeleteMovementUseCaseTest {
     final var movToReverse = expenseToBeReversed;
 
     reverseMovement(movToReverse);
+
+    final ProductDTO productDTOAfter = getCurrentProductInfo();
+
+    ProductITUtils.assertProduct(latestProductBeforeReversion, productDTOAfter);
+
+    final List<MonthlyBalanceDTO> monthlyBalanceAfter = getCurrentMonthlyBalances();
+
+    MonthlyBalanceITUtils.assertMonthlyBalance(
+        latestMonthlyBalanceBeforeRev,
+        MonthlyBalanceITUtils.getBalanceForPeriod(monthlyBalanceAfter, INITIAL_PERIOD));
+
+    assertTrue(movementLifecycleSrv.findById(movToReverse.id().value()).isEmpty());
   }
 
   private void reverseMovement(final MovementDTO movToReverse) throws BusinessException {
@@ -165,19 +188,6 @@ public class DeleteMovementUseCaseTest {
     deleteMovementUseCase.deleteMovement(userId, productDTO.id(), movToReverse.id().value());
 
     delayTests();
-
-    final ProductDTO productDTOAfter = productLifecycleSrv.findProductById(productDTO.id()).get();
-
-    ProductITUtils.assertProduct(latestProductBeforeReversion, productDTOAfter);
-
-    final List<MonthlyBalanceDTO> monthlyBalanceAfter =
-        monthlyBalanceLifecycleSrv.findAllByAccountIdUntilNow(productDTO.id());
-
-    MonthlyBalanceITUtils.assertMonthlyBalance(
-        latestMonthlyBalanceBeforeRev,
-        MonthlyBalanceITUtils.getBalanceForPeriod(monthlyBalanceAfter, INITIAL_DEPOSIT_MONTH));
-
-    assertTrue(movementLifecycleSrv.findById(movToReverse.id().value()).isEmpty());
   }
 
   @Test
@@ -191,6 +201,18 @@ public class DeleteMovementUseCaseTest {
   @Order(5)
   void deleteIncome100() throws BusinessException {
     reverseMovement(income100ToReverse);
+
+    final ProductDTO productDTOAfter = getCurrentProductInfo();
+
+    ProductITUtils.assertProduct(latestProductBeforeReversion, productDTOAfter);
+
+    final List<MonthlyBalanceDTO> monthlyBalanceAfter = getCurrentMonthlyBalances();
+
+    MonthlyBalanceITUtils.assertMonthlyBalance(
+        latestMonthlyBalanceBeforeRev,
+        MonthlyBalanceITUtils.getBalanceForPeriod(monthlyBalanceAfter, INITIAL_PERIOD));
+
+    assertTrue(movementLifecycleSrv.findById(income100ToReverse.id().value()).isEmpty());
   }
 
   @Test
@@ -198,7 +220,7 @@ public class DeleteMovementUseCaseTest {
   void addDeposit20Snapshot165() throws BusinessException {
     addIncomeToProduct(new BigDecimal("20"), new BigDecimal("165"));
 
-    final var productDTOAfter = productLifecycleSrv.findProductById(productDTO.id()).get();
+    final var productDTOAfter = getCurrentProductInfo();
 
     assertNotNull(productDTOAfter);
 
@@ -223,10 +245,89 @@ public class DeleteMovementUseCaseTest {
   @Test
   @Order(9)
   void deleteIncome45() throws BusinessException {
-    reverseMovement(income45ToReverse);
+    final var movToReverse = income45ToReverse;
+    reverseMovement(movToReverse);
+
+    final ProductDTO productDTOAfter = getCurrentProductInfo();
+
+    ProductITUtils.assertProduct(
+        latestProductBeforeReversion, productDTOAfter, IGNORE_NET_GROWTH_RATE);
+    assertEquals(productDTOAfter.netGrowthRate(), withJBHDecimals("10.00"));
+
+    final List<MonthlyBalanceDTO> monthlyBalanceAfter = getCurrentMonthlyBalances();
+
+    MonthlyBalanceITUtils.assertMonthlyBalance(
+        latestMonthlyBalanceBeforeRev,
+        MonthlyBalanceITUtils.getBalanceForPeriod(monthlyBalanceAfter, INITIAL_PERIOD));
+
+    assertTrue(movementLifecycleSrv.findById(movToReverse.id().value()).isEmpty());
   }
 
   @Test
   @Order(20)
-  void createExpenseBalanceSnapshot() throws BusinessException {}
+  void createExpense30Snapshot130() throws BusinessException {
+    updateLatestInfoBeforeReversion();
+    expenseSnapshotToReverse = addExpenseToProduct(new BigDecimal("30"), new BigDecimal("130"));
+
+    final var productDTOAfter = getCurrentProductInfo();
+
+    assertNotNull(productDTOAfter);
+
+    final ProductDTO expected =
+        ProductDTO.defaultBuilder(userId, productDTO.id(), productDTO.name(), productDTO.type())
+            .movementBalance(withJBHDecimals(new BigDecimal(120)))
+            .currentBalance(withJBHDecimals(new BigDecimal(130)))
+            .netGrowthRate(withJBHDecimals(new BigDecimal(7.41)))
+            .netProfitBalance(withJBHDecimals(new BigDecimal(10)))
+            .build();
+
+    ProductITUtils.assertProduct(expected, productDTOAfter);
+  }
+
+  private MovementDTO addExpenseToProduct(final BigDecimal amount, final BigDecimal balanceSnapshot)
+      throws BusinessException {
+    final AddMovementResultDTO result =
+        addMovementUseCase.addMovement(
+            userId,
+            productDTO.id(),
+            AddMovementCommandFixtureBuilder.createUnknownExpenseWithSnapshot(
+                INITIAL_PERIOD.atDay(dayOfMonth++), amount, balanceSnapshot));
+
+    delayTests();
+
+    return result.movement();
+  }
+
+  @Test
+  @Order(21)
+  void deleteExpense30WithSnapshot() throws BusinessException {
+    reverseMovement(expenseSnapshotToReverse);
+
+    final ProductDTO productDTOAfter = getCurrentProductInfo();
+
+    final var currentBalance = withJBHDecimals("160");
+    final var netProfitBalance = withJBHDecimals("10");
+    final ProductDTO expected =
+        ProductITUtils.cloneBuilder(productDTOAfter)
+            .currentBalance(currentBalance)
+            .netProfitBalance(netProfitBalance)
+            .movementBalance(latestProductBeforeReversion.movementBalance())
+            .netGrowthRate(withJBHDecimals("6.67"))
+            .build();
+
+    ProductITUtils.assertProduct(expected, productDTOAfter);
+
+    final List<MonthlyBalanceDTO> monthlyBalanceAfterList = getCurrentMonthlyBalances();
+    final var latestMonthlyBalancePeriod =
+        MonthlyBalanceITUtils.getBalanceForPeriod(monthlyBalanceAfterList, INITIAL_PERIOD);
+    MonthlyBalanceITUtils.assertMonthlyBalance(
+        latestMonthlyBalanceBeforeRev,
+        latestMonthlyBalancePeriod,
+        MonthlyBalanceIgnoreOption.IGNORE_CLOSING_BALANCE,
+        MonthlyBalanceIgnoreOption.IGNORE_MONTHLY_PROFIT);
+    assertEquals(latestMonthlyBalancePeriod.closingBalance(), currentBalance);
+    assertEquals(withJBHDecimals("40"), latestMonthlyBalancePeriod.monthlyNetProfit());
+
+    assertTrue(movementLifecycleSrv.findById(expenseSnapshotToReverse.id().value()).isEmpty());
+  }
 }

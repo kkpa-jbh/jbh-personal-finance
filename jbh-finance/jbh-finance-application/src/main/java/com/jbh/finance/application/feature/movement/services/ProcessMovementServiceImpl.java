@@ -18,6 +18,9 @@ import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.application.feature.product.validation.product_type.ProductMovementValidatorFactory;
+import com.jbh.finance.domain.category.vo.CategorySourceVO;
+import com.jbh.finance.domain.category.vo.CategoryTypeVO;
+import com.jbh.finance.domain.category.vo.SystemCategoryAlias;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.movement.vo.ProcessMovementOptionsVO;
@@ -222,6 +225,8 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
   @Override
   public void reverseMovementProcessingBalances(
       final ProductPK productPK, final MovementDTO movement) throws BusinessException {
+    // final MovementDTO reversedMov = buildReverseMovement(movement);
+    // processMovement(reversedMov, productPK, new ProcessMovementOptionsVO(EntityOperationVO.ADD));
     processMovement(movement, productPK, new ProcessMovementOptionsVO(EntityOperationVO.REMOVE));
   }
 
@@ -288,8 +293,8 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
           if (JbhBooleanUtils.isFalse(movementToReverse)) {
             log.info("Persisting Movement {} ", movementDTO.movementDate());
             persistMovementDTO(movementDTO);
-          } else {
-            log.info("Reversing Movement {} ", movementDTO.movementDate());
+          } else if (movementToReverse) {
+            log.info("Deleting Movement {} ", movementDTO.movementDate());
             movementLifecycleService.delete(movementDTO.id().value());
           }
 
@@ -334,5 +339,38 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
 
   private void persistMovementDTO(final MovementDTO movementDTO) {
     movementLifecycleService.save(movementDTO);
+  }
+
+  private MovementDTO buildReverseMovement(final MovementDTO movement) {
+    if (movement.isBalanceSnapshot()) {
+      return null;
+    }
+
+    final var reversedMovType =
+        movement.movementType().isDeposit() ? MovementType.WITHDRAWAL : MovementType.DEPOSIT;
+    final var reversedCategory =
+        movement.movementType().isDeposit()
+            ? CategoryDTO.withInternalPurpose(
+                new CategoryTypeVO(
+                    CategorySourceVO.EXPENSE, SystemCategoryAlias.EXPENSE_UNKNOWN.getAlias()),
+                null)
+            : CategoryDTO.withInternalPurpose(
+                new CategoryTypeVO(
+                    CategorySourceVO.INCOME, SystemCategoryAlias.INCOME_OTHER.getAlias()),
+                null);
+    final MovementDTO reversedMovement =
+        MovementDTO.builder()
+            .movementAmount(movement.movementAmount().negate())
+            .movementDate(movement.movementDate())
+            .movementType(reversedMovType)
+            .category(reversedCategory)
+            .id(movement.id())
+            .productId(movement.productId())
+            .balanceSnapshot(movement.balanceSnapshot())
+            .metadata(movement.metadata())
+            .description(movement.description())
+            .build();
+
+    return reversedMovement;
   }
 }

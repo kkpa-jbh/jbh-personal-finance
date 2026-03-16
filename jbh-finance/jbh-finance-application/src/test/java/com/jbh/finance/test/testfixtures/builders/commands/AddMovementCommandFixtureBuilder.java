@@ -55,30 +55,6 @@ public class AddMovementCommandFixtureBuilder {
         .build();
   }
 
-  /**
-   * Creates a builder for a movement with balance snapshot. Movement type is automatically derived
-   * from the category. Use this when you have a balance snapshot instead of or in addition to a
-   * total amount.
-   *
-   * @param entryDate the date of the movement
-   * @param balanceSnapshot the balance after the movement
-   * @param categoryDTO the category of the movement
-   * @return a Builder instance pre-configured with these parameters
-   */
-  public static AddMovementCommand withBalanceSnapshot(
-      final LocalDate entryDate,
-      final BigDecimal balanceSnapshot,
-      final CategoryDTO categoryDTO,
-      final BigDecimal totalAmount) {
-    return AddMovementCommand.builder()
-        .entryDate(entryDate)
-        .balanceSnapshot(balanceSnapshot)
-        .categoryDTO(categoryDTO)
-        .totalAmount(totalAmount)
-        .movementType(MovementType.findByCategory(categoryDTO.getCategoryType()))
-        .build();
-  }
-
   public static AddMovementCommand createDepositIncome(
       final LocalDate date, final BigDecimal amount) {
     return withCategory(date, amount, CategoryFixturesTestApp.INCOME_DEPOSIT);
@@ -105,14 +81,38 @@ public class AddMovementCommandFixtureBuilder {
 
   public static AddMovementCommand createDepositIncomeWithSnapshot(
       final LocalDate entryDate, final BigDecimal totalAmount, final BigDecimal balanceSnapshot) {
+    return withBalanceSnapshot(
+        entryDate, balanceSnapshot, CategoryFixturesTestApp.INCOME_DEPOSIT, totalAmount);
+  }
+
+  /**
+   * Creates a builder for a movement with balance snapshot. Movement type is automatically derived
+   * from the category. Use this when you have a balance snapshot instead of or in addition to a
+   * total amount.
+   *
+   * @param entryDate the date of the movement
+   * @param balanceSnapshot the balance after the movement
+   * @param categoryDTO the category of the movement
+   * @return a Builder instance pre-configured with these parameters
+   */
+  public static AddMovementCommand withBalanceSnapshot(
+      final LocalDate entryDate,
+      final BigDecimal balanceSnapshot,
+      final CategoryDTO categoryDTO,
+      final BigDecimal totalAmount) {
     return AddMovementCommand.builder()
         .entryDate(entryDate)
-        .totalAmount(totalAmount)
-        .categoryDTO(CategoryFixturesTestApp.INCOME_DEPOSIT)
         .balanceSnapshot(balanceSnapshot)
-        .movementType(
-            MovementType.findByCategory(CategoryFixturesTestApp.INCOME_DEPOSIT.getCategoryType()))
+        .categoryDTO(categoryDTO)
+        .totalAmount(totalAmount)
+        .movementType(MovementType.findByCategory(categoryDTO.getCategoryType()))
         .build();
+  }
+
+  public static AddMovementCommand createUnknownExpenseWithSnapshot(
+      final LocalDate entryDate, final BigDecimal totalAmount, final BigDecimal balanceSnapshot) {
+    return withBalanceSnapshot(
+        entryDate, balanceSnapshot, CategoryFixturesTestApp.EXPENSE_UNKNOWN, totalAmount);
   }
 
   /**

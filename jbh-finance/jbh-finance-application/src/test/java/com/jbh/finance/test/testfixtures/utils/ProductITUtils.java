@@ -3,8 +3,13 @@ package com.jbh.finance.test.testfixtures.utils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
+import com.jbh.finance.application.feature.product.dto.ProductDTO.ProductDTOBuilder;
 
 public class ProductITUtils {
+
+  public static ProductDTOBuilder cloneBuilder(final ProductDTO input) {
+    return ProductDTO.defaultBuilder(input.userId(), input.id(), input.name(), input.type());
+  }
 
   public static void assertProduct(
       final ProductDTO expected,
@@ -14,6 +19,7 @@ public class ProductITUtils {
     boolean ignoreAccountType = false;
     boolean ignoreAccountProfit = false;
     boolean ignoreNetGrowthRate = false;
+    boolean ignoreProductCurrentBalance = false;
     // Process provided ignore options
     if (ignoreOptions != null) {
       for (final IgnoreProductOptions option : ignoreOptions) {
@@ -23,6 +29,7 @@ public class ProductITUtils {
           case IGNORE_PRODUCT_TYPE -> ignoreAccountType = true;
           case IGNORE_PRODUCT_PROFIT -> ignoreAccountProfit = true;
           case IGNORE_NET_GROWTH_RATE -> ignoreNetGrowthRate = true;
+          case IGNORE_PRODUCT_CURRENT_BALANCE -> ignoreProductCurrentBalance = true;
         }
       }
     }
@@ -36,7 +43,9 @@ public class ProductITUtils {
     }
     assertEquals(expected.userId(), actual.userId(), "User ID");
     assertEquals(expected.movementBalance(), actual.movementBalance(), "Movement Balance");
-    assertEquals(expected.currentBalance(), actual.currentBalance(), "Current Balance");
+    if (!ignoreProductCurrentBalance) {
+      assertEquals(expected.currentBalance(), actual.currentBalance(), "Current Balance");
+    }
     if (!ignoreAccountProfit) {
       assertEquals(expected.netProfitBalance(), actual.netProfitBalance(), "Profit Balance");
     }

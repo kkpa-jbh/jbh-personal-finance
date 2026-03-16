@@ -1,5 +1,7 @@
 package com.jbh.finance.application.feature.movement.dto;
 
+import com.jbh.commons.util.JbhMoneyUtils;
+import com.jbh.commons.util.JbhStringUtils;
 import com.jbh.finance.application.feature.category.dto.CategoryDTO;
 import com.jbh.finance.domain.movement.vo.MovementId;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
@@ -87,10 +89,6 @@ public class MovementDTO {
     return movementType.isWithdrawal();
   }
 
-  public boolean isBalanceSnapshot() {
-    return movementType.isBalanceSnapshot();
-  }
-
   /**
    * Determines if this movement can be removed. A movement can only be removed if it was created in
    * the current month, or if it was created today.
@@ -106,5 +104,18 @@ public class MovementDTO {
     final YearMonth createdMonth = YearMonth.from(createdAt);
 
     return currentMonth.equals(createdMonth) || LocalDate.now().equals(createdAt.toLocalDate());
+  }
+
+  public String internalMessage() {
+    if (isBalanceSnapshot() || JbhMoneyUtils.isNotZero(balanceSnapshot)) {
+      return JbhStringUtils.buildJsonMessage(
+          "The movement contains an updated to the balance snapshot, be sure to update it later",
+          "El movimiento contiene un ajuste al saldo, por favor, actualizalo más tarde");
+    }
+    return null;
+  }
+
+  public boolean isBalanceSnapshot() {
+    return movementType.isBalanceSnapshot();
   }
 }
