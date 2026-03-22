@@ -6,7 +6,7 @@ import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.crea
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceService;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
@@ -40,7 +40,7 @@ public class RegisterMonthlyReportedValidationTest {
   private static final String PRODUCT_REPORTED = "Reported";
   private static final YearMonth reportedPeriod = YearMonth.of(2024, 7);
   private static final LocalDate runningDate = LocalDate.now();
-  private static MonthlyBalanceLifecycleService monthlyBalanceService;
+  private static ProcessMonthlyBalanceService monthlyBalanceService;
   private static InMemoryProductRepository inMemoryAccountRepo;
   private static RegisterMonthlyBalanceUseCase useCaseTest;
   private static CreateProductUseCase createAccountUseCase;
@@ -56,7 +56,7 @@ public class RegisterMonthlyReportedValidationTest {
   public void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
+    monthlyBalanceService = UseCaseFixtureBuilder.buildProcessMonthlyBalanceSrv();
     inMemoryAccountRepo = UseCaseFixtureBuilder.getProductRepoInMemory();
 
     useCaseTest =

@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.jbh.commons.exception.BusinessException;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceService;
 import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.movement.usecases.LiquidateProductUseCase;
@@ -31,7 +31,7 @@ public class RegisterNotAllowedMovementTest {
   private static ProductDTO cdtAccount;
   private static ProductDTO internalAccount;
   private static LiquidateProductUseCase liquidateAccountUseCase;
-  private MonthlyBalanceLifecycleService monthlyBalanceService;
+  private ProcessMonthlyBalanceService monthlyBalanceService;
 
   @BeforeEach
   public void setUp() {
@@ -39,7 +39,7 @@ public class RegisterNotAllowedMovementTest {
     accountMovementRepository = UseCaseFixtureBuilder.getAccountMovementWriterRepository();
     createAccountUseCase = UseCaseFixtureBuilder.buildCreateProductUseCase();
     addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
-    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
+    monthlyBalanceService = UseCaseFixtureBuilder.buildProcessMonthlyBalanceSrv();
 
     liquidateAccountUseCase =
         UseCaseFixtureBuilder.buildLiquidateAccountUseCase(accountMovementRepository);

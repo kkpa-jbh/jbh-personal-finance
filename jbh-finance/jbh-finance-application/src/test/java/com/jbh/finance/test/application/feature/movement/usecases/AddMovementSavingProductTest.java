@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceService;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.AddMovementResultDTO;
@@ -53,7 +53,7 @@ public class AddMovementSavingProductTest {
   static CreateProductUseCase createAccountUseCase;
   static ProductDTO createdAccount;
   static ProductId productId;
-  static MonthlyBalanceLifecycleService monthlyBalanceService;
+  static ProcessMonthlyBalanceService monthlyBalanceService;
 
   private static InMemoryProductRepository inMemoryAccountRepo;
   private final BigDecimal INITIAL_BALANCE_AMOUNT = new BigDecimal("1000.00");
@@ -71,7 +71,7 @@ public class AddMovementSavingProductTest {
   public void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
+    monthlyBalanceService = UseCaseFixtureBuilder.buildProcessMonthlyBalanceSrv();
     inMemoryAccountRepo = UseCaseFixtureBuilder.getProductRepoInMemory();
 
     useCaseTest =

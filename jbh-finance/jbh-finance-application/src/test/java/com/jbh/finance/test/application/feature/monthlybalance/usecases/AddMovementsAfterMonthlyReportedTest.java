@@ -13,7 +13,7 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.category.dto.CategoryDTO;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceService;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
@@ -64,7 +64,7 @@ public class AddMovementsAfterMonthlyReportedTest {
   static CreateProductUseCase createAccountUseCase;
   static ProductDTO createdAccount;
   static ProductId productId;
-  static MonthlyBalanceLifecycleService monthlyBalanceService;
+  static ProcessMonthlyBalanceService monthlyBalanceService;
   static YearMonth reportedPeriod = YearMonth.of(2024, 7);
   static MonthlyBalanceCommandFixture reportedPeriodAmounts =
       new MonthlyBalanceCommandFixture(
@@ -86,7 +86,7 @@ public class AddMovementsAfterMonthlyReportedTest {
   public void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
+    monthlyBalanceService = UseCaseFixtureBuilder.buildProcessMonthlyBalanceSrv();
     inMemoryAccountRepo = UseCaseFixtureBuilder.getProductRepoInMemory();
 
     useCaseTest =

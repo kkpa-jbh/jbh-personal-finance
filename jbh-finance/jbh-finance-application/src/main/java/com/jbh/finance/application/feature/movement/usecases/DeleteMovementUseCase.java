@@ -21,7 +21,7 @@ import java.util.UUID;
 public interface DeleteMovementUseCase {
 
   /**
-   * Deletes a movement and reverses its effect on the product balance.
+   * Deletes a movement and reverses its effect on the product balance and monthly balance
    *
    * <p><strong>Validations:</strong>
    *

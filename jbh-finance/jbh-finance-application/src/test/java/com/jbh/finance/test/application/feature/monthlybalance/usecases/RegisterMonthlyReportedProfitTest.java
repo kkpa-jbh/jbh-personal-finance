@@ -19,7 +19,7 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.category.dto.CategoryDTO;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceService;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
@@ -67,7 +67,7 @@ public class RegisterMonthlyReportedProfitTest {
   static ProductDTO createdAccount;
   static ProductId accountId;
   static int commandIndex = -1;
-  static MonthlyBalanceLifecycleService monthlyBalanceService;
+  static ProcessMonthlyBalanceService monthlyBalanceService;
   private static MonthlyBalanceDTO finalReported20249;
   private static ProductDTO finalAccountBalance;
   private static MonthlyBalanceDTO finalReported202410;
@@ -90,7 +90,7 @@ public class RegisterMonthlyReportedProfitTest {
   public void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
+    monthlyBalanceService = UseCaseFixtureBuilder.buildProcessMonthlyBalanceSrv();
 
     accountMovementService =
         UseCaseFixtureBuilder.buildProcessMovementService(accountMovementRepository);

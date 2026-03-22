@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceService;
 import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
@@ -51,7 +51,7 @@ public class RegisterTCMovementTest {
   private static AddMovementUseCase addMovementUseCase;
   @Mock private static MovementWriterRepository accountMovementRepository;
   private static ProductDTO creditCardAccount;
-  private MonthlyBalanceLifecycleService monthlyBalanceService;
+  private ProcessMonthlyBalanceService monthlyBalanceService;
 
   @BeforeAll
   static void beforeAll() {
@@ -64,7 +64,7 @@ public class RegisterTCMovementTest {
 
     createAccountUseCase = UseCaseFixtureBuilder.buildCreateProductUseCase();
     addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
-    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
+    monthlyBalanceService = UseCaseFixtureBuilder.buildProcessMonthlyBalanceSrv();
 
     UseCaseFixtureBuilder.delayTests();
   }

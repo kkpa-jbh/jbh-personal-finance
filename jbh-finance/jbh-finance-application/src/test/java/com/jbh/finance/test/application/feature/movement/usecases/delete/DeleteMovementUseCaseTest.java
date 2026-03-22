@@ -71,7 +71,7 @@ public class DeleteMovementUseCaseTest {
     deleteMovementUseCase = UseCaseFixtureBuilder.buildDeleteMovementUseCase();
     createProductUseCase = UseCaseFixtureBuilder.buildCreateProductUseCase();
     addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase();
-    monthlyBalanceLifecycleSrv = UseCaseFixtureBuilder.buildMonthlyBalanceService();
+    monthlyBalanceLifecycleSrv = UseCaseFixtureBuilder.buildMonthlyBalanceLifecycleSrv();
     productLifecycleSrv = UseCaseFixtureBuilder.buildProductLifecycleSrv();
     movementLifecycleSrv = UseCaseFixtureBuilder.buildMovementLifeCycleSrv();
   }
@@ -163,7 +163,7 @@ public class DeleteMovementUseCaseTest {
 
   @Test
   @Order(3)
-  void deleteExpense() throws BusinessException {
+  void deleteExpense10() throws BusinessException {
     delayTests();
 
     final var movToReverse = expenseToBeReversed;
@@ -186,8 +186,6 @@ public class DeleteMovementUseCaseTest {
   private void reverseMovement(final MovementDTO movToReverse) throws BusinessException {
 
     deleteMovementUseCase.deleteMovement(userId, productDTO.id(), movToReverse.id().value());
-
-    delayTests();
   }
 
   @Test
@@ -326,7 +324,7 @@ public class DeleteMovementUseCaseTest {
         MonthlyBalanceIgnoreOption.IGNORE_CLOSING_BALANCE,
         MonthlyBalanceIgnoreOption.IGNORE_MONTHLY_PROFIT);
     assertEquals(latestMonthlyBalancePeriod.closingBalance(), currentBalance);
-    assertEquals(withJBHDecimals("40"), latestMonthlyBalancePeriod.monthlyNetProfit());
+    assertEquals(netProfitBalance, latestMonthlyBalancePeriod.monthlyNetProfit());
 
     assertTrue(movementLifecycleSrv.findById(expenseSnapshotToReverse.id().value()).isEmpty());
   }

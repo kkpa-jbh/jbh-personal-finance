@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceService;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.commands.LiquidateProductCommand;
 import com.jbh.finance.application.feature.movement.dto.ExternalProductInfoDTO;
@@ -67,7 +67,7 @@ public class RegisterInvesmentMovementTest {
   private static ProductId fondoAccionesId;
   private static BigDecimal finalAcciBalanceSept;
   private final BigDecimal initialBalance = withJBHDecimals(new BigDecimal("5000000"));
-  private MonthlyBalanceLifecycleService monthlyBalanceService;
+  private ProcessMonthlyBalanceService monthlyBalanceService;
   private ProcessMovementServiceImpl accountMovementApplicationService;
 
   @BeforeAll
@@ -79,7 +79,7 @@ public class RegisterInvesmentMovementTest {
   public void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
+    monthlyBalanceService = UseCaseFixtureBuilder.buildProcessMonthlyBalanceSrv();
 
     accountMovementApplicationService =
         UseCaseFixtureBuilder.buildProcessMovementService(accountMovementRepository);

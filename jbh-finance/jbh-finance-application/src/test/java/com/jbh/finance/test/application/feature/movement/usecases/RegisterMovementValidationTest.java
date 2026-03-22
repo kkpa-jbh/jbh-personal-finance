@@ -22,9 +22,10 @@ import com.jbh.finance.application.acid.UnitOfWork;
 import com.jbh.finance.application.async.AsyncTaskExecutorImpl;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceQueryRepo;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceWriterRepo;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceService;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceServiceImpl;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementInputPort;
@@ -55,7 +56,7 @@ import org.mockito.MockitoAnnotations;
 public class RegisterMovementValidationTest {
 
   private final UnitOfWork unitOfWork = new UnitOfWorkTest();
-  MonthlyBalanceLifecycleService monthlyBalanceService;
+  ProcessMonthlyBalanceService processMonthlyBalanceService;
   @Mock private ProductRepository accountRepository;
   @Mock private MovementWriterRepository accountMovementRepository;
   @Mock private MonthlyBalanceQueryRepo accountMonthlyBalanceRepository;
@@ -69,15 +70,16 @@ public class RegisterMovementValidationTest {
     final ProductLifecycleService accountService =
         new ProductLifecycleServiceImpl(accountRepository);
 
-    monthlyBalanceService =
+    final MonthlyBalanceLifecycleServiceImpl monthlyBalanceLifecycleService =
         new MonthlyBalanceLifecycleServiceImpl(
-            accountMonthlyBalanceRepository,
-            monthlyBalanceWriterRepoMock,
-            new AsyncTaskExecutorImpl(),
-            accountService);
+            accountMonthlyBalanceRepository, monthlyBalanceWriterRepoMock);
+
+    processMonthlyBalanceService =
+        new ProcessMonthlyBalanceServiceImpl(
+            monthlyBalanceLifecycleService, new AsyncTaskExecutorImpl(), accountService);
 
     final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService =
-        new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
+        new MonthlyBalanceSyncForUploadedMovements(processMonthlyBalanceService);
 
     final MovementLifecycleService coreAccountMovementService =
         new MovementLifecycleServiceImpl(
@@ -87,7 +89,7 @@ public class RegisterMovementValidationTest {
         new ProcessMovementServiceImpl(
             coreAccountMovementService,
             accountService,
-            monthlyBalanceService,
+            processMonthlyBalanceService,
             new UnitOfWorkTest(),
             UseCaseFixtureBuilder.getCategoryServiceMock());
 

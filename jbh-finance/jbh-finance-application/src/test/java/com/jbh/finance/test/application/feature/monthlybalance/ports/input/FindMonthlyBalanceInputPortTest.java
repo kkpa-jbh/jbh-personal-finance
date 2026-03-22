@@ -47,6 +47,7 @@ public class FindMonthlyBalanceInputPortTest {
   public void setUp() {
     MockitoAnnotations.openMocks(this);
     inputPort = new FindMonthlyBalanceInputPort(monthlyBalanceService, productService);
+    // TODO Change to UseCase
   }
 
   @Test

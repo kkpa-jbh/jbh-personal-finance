@@ -18,8 +18,10 @@ import com.jbh.finance.application.async.AsyncTaskExecutorImpl;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceQueryRepo;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceWriterRepo;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceServiceImpl;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.AddMovementResultDTO;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
@@ -70,7 +72,7 @@ public class RegisterMovementExecutionTest {
   @Mock private MonthlyBalanceQueryRepo accountMonthlyBalanceRepository;
   @Mock private MonthlyBalanceWriterRepo monthlyBalanceWriterRepoMock;
   private AddMovementInputPort useCaseInstanceTest;
-  private MonthlyBalanceLifecycleServiceImpl monthlyBalanceService;
+  private ProcessMonthlyBalanceServiceImpl monthlyBalanceService;
 
   @BeforeEach
   void setUp() {
@@ -79,12 +81,13 @@ public class RegisterMovementExecutionTest {
 
     accountService = new ProductLifecycleServiceImpl(accountRepository);
 
-    monthlyBalanceService =
+    final MonthlyBalanceLifecycleService monthlyBalanceLifecycleService =
         new MonthlyBalanceLifecycleServiceImpl(
-            accountMonthlyBalanceRepository,
-            monthlyBalanceWriterRepoMock,
-            new AsyncTaskExecutorImpl(),
-            accountService);
+            accountMonthlyBalanceRepository, monthlyBalanceWriterRepoMock);
+
+    monthlyBalanceService =
+        new ProcessMonthlyBalanceServiceImpl(
+            monthlyBalanceLifecycleService, new AsyncTaskExecutorImpl(), accountService);
     monthlyBalanceAsyncTask = new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
 
     final MovementLifecycleService coreAccountMovementService =

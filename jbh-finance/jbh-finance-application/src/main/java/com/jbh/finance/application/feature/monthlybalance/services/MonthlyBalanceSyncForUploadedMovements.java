@@ -22,11 +22,11 @@ public class MonthlyBalanceSyncForUploadedMovements {
   private static final Logger LOG =
       LoggerFactory.getLogger(MonthlyBalanceSyncForUploadedMovements.class);
 
-  private final MonthlyBalanceLifecycleService monthlyBalanceService;
+  private final ProcessMonthlyBalanceService processMonthlyBalanceService;
 
   public MonthlyBalanceSyncForUploadedMovements(
-      final MonthlyBalanceLifecycleService monthlyBalanceService) {
-    this.monthlyBalanceService = monthlyBalanceService;
+      final ProcessMonthlyBalanceService processMonthlyBalanceService) {
+    this.processMonthlyBalanceService = processMonthlyBalanceService;
   }
 
   public List<MonthlyBalanceDTO> syncForUploadedMovementsAsync(
@@ -56,7 +56,7 @@ public class MonthlyBalanceSyncForUploadedMovements {
               monthlyPeriodKey);
 
           final MonthlyBalanceDomain accountMonthlyBalance =
-              monthlyBalanceService
+              processMonthlyBalanceService
                   .findByAccountIdAndPeriod(accountId, monthlyPeriodKey)
                   .map(MonthlyBalanceMapper::toDomain)
                   .orElseGet(() -> MonthlyBalanceDomain.withPeriod(accountId, monthlyPeriodKey));
@@ -84,6 +84,6 @@ public class MonthlyBalanceSyncForUploadedMovements {
 
   public CompletableFuture<List<MonthlyBalanceDTO>> persistBalancesAsync(
       final ProductId accountId, final List<MonthlyBalanceDTO> monthlyBalances) {
-    return monthlyBalanceService.persistBalancesAsync(accountId, monthlyBalances);
+    return processMonthlyBalanceService.persistBalancesAsync(accountId, monthlyBalances);
   }
 }

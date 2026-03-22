@@ -3,7 +3,7 @@ package com.jbh.finance.test.application.feature.movement.usecases;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.jbh.commons.exception.BusinessException;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceService;
 import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.usecases.AddMovementUseCase;
 import com.jbh.finance.application.feature.movement.usecases.AddTransferJbhProductsUseCase;
@@ -29,7 +29,7 @@ public class AddTransferRealEstateTest {
   private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
   private static ProductLifecycleService accountService;
-  private static MonthlyBalanceLifecycleService monthlyBalanceService;
+  private static ProcessMonthlyBalanceService monthlyBalanceService;
   private static UpdateProductUseCase updateProductUseCase;
   private static AddTransferJbhProductsUseCase transferUseCase;
 
@@ -44,7 +44,7 @@ public class AddTransferRealEstateTest {
 
     accountService = UseCaseFixtureBuilder.buildProductLifecycleSrv();
 
-    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
+    monthlyBalanceService = UseCaseFixtureBuilder.buildProcessMonthlyBalanceSrv();
 
     updateProductUseCase = UseCaseFixtureBuilder.buildUpdateProductUseCase();
 

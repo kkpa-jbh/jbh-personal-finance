@@ -30,12 +30,12 @@ public class InMemoryMonthlyBalanceQueryRepo implements MonthlyBalanceQueryRepo 
 
   public void save(final MonthlyBalanceDTO balance) {
     final String key = generateKey(balance.productId(), balance.year(), balance.month());
-    log.warn("Saving balance " + balance);
     storage.put(key, balance);
+    log.warn("Saving balance " + balance);
   }
 
   private String generateKey(final ProductId accountId, final Integer year, final Integer month) {
-    return accountId.value() + "_" + year + "_" + month;
+    return year + "_" + month + "_" + accountId.value();
   }
 
   public void clearStorage() {
@@ -112,10 +112,12 @@ public class InMemoryMonthlyBalanceQueryRepo implements MonthlyBalanceQueryRepo 
 
   @Override
   public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final ProductId accountId) {
-    return findByAccountId(accountId).stream()
-        .filter(balance -> balance.period().isBefore(YearMonth.now().plusMonths(1)))
-        .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
-        .toList();
+    final List<MonthlyBalanceDTO> result =
+        findByAccountId(accountId).stream()
+            .filter(balance -> balance.period().isBefore(YearMonth.now().plusMonths(1)))
+            .sorted((b1, b2) -> b1.period().compareTo(b2.period()))
+            .toList();
+    return result;
   }
 
   @Override

@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceService;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.commands.AddTransferCommand;
 import com.jbh.finance.application.feature.movement.dto.AddMovementResultDTO;
@@ -66,7 +66,7 @@ public class AddTransferProductsTest {
   private static CreateProductUseCase createAccountUseCase;
   private static AddMovementUseCase addMovementUseCase;
   private static ProductLifecycleService accountService;
-  private static MonthlyBalanceLifecycleService monthlyBalanceService;
+  private static ProcessMonthlyBalanceService monthlyBalanceService;
   private static UpdateProductUseCase updateProductUseCase;
 
   @BeforeAll
@@ -85,7 +85,7 @@ public class AddTransferProductsTest {
 
     accountService = UseCaseFixtureBuilder.buildProductLifecycleSrv();
 
-    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
+    monthlyBalanceService = UseCaseFixtureBuilder.buildProcessMonthlyBalanceSrv();
 
     updateProductUseCase = UseCaseFixtureBuilder.buildUpdateProductUseCase();
 

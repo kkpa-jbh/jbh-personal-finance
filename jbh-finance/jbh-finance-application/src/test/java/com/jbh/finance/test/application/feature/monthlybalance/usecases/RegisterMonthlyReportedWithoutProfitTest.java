@@ -25,6 +25,7 @@ import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceQueryRepo;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceWriterRepo;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceService;
 import com.jbh.finance.application.feature.monthlybalance.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
@@ -96,11 +97,12 @@ public class RegisterMonthlyReportedWithoutProfitTest {
   static ProductDTO createdAccount;
   static ProductId accountId;
   @Mock private static MovementWriterRepository accountMovementRepository;
-  private static MonthlyBalanceLifecycleService monthlyBalanceService;
+  private static ProcessMonthlyBalanceService processMonthlyBalanceService;
   private static RegisterMonthlyBalanceUseCase useCaseTest;
   ;
   private static AddMovementUseCase addMovementUseCase;
   private static ProductDTO finalAccountBalance;
+  private static MonthlyBalanceLifecycleService monthlyBalanceService;
   public final ProductDTOBuilder PRODUCT_DEFAULT_BUILDER =
       ProductDTO.defaultBuilder(userId, accountId, DEFAULT_ACCOUNT_NAME, DEFAULT_ACCOUNT_TYPE);
   MonthlyBalanceWriterRepo monthlyBalanceInMemoWriter = inMemoryMonthlyBalanceRepos.getWriterRepo();
@@ -121,7 +123,8 @@ public class RegisterMonthlyReportedWithoutProfitTest {
   void setUp() {
     MockitoAnnotations.openMocks(this);
 
-    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceService();
+    monthlyBalanceService = UseCaseFixtureBuilder.buildMonthlyBalanceLifecycleSrv();
+    processMonthlyBalanceService = UseCaseFixtureBuilder.buildProcessMonthlyBalanceSrv();
     useCaseTest =
         UseCaseFixtureBuilder.buildRegisterMonthlyBalanceUseCase(accountMovementRepository);
 

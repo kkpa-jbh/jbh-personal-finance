@@ -12,6 +12,8 @@ import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBa
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceService;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementInputPort;
@@ -108,7 +110,7 @@ public class ProductUseCasesCDIConfig {
     return new ProcessMovementServiceImpl(
         movementService(),
         productsService(),
-        monthlyBalanceService(),
+        processMonthlyBalanceService(),
         unitOfWork,
         categoryService());
   }
@@ -120,18 +122,22 @@ public class ProductUseCasesCDIConfig {
 
   @Produces
   @ApplicationScoped
-  public MonthlyBalanceLifecycleService monthlyBalanceService() {
-    return new MonthlyBalanceLifecycleServiceImpl(
-        monthlyBalanceQueryRepo,
-        monthlyBalanceWriterRepo,
-        new AsyncTaskExecutorImpl(),
-        productsService());
+  public ProcessMonthlyBalanceService processMonthlyBalanceService() {
+    return new ProcessMonthlyBalanceServiceImpl(
+        monthlyBalanceService(), new AsyncTaskExecutorImpl(), productsService());
   }
 
   // TODO Validate if it's singleton
   @Produces
   public CategoryService categoryService() {
     return new CategoryServiceImpl(categoryQueryRepo);
+  }
+
+  @Produces
+  @ApplicationScoped
+  public MonthlyBalanceLifecycleService monthlyBalanceService() {
+    return new MonthlyBalanceLifecycleServiceImpl(
+        monthlyBalanceQueryRepo, monthlyBalanceWriterRepo);
   }
 
   @Produces
@@ -148,7 +154,7 @@ public class ProductUseCasesCDIConfig {
   @Produces
   @ApplicationScoped
   public MonthlyBalanceSyncForUploadedMovements uploadedMovementsBalanceSynchronizer() {
-    return new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService());
+    return new MonthlyBalanceSyncForUploadedMovements(processMonthlyBalanceService());
   }
 
   @Produces

@@ -22,8 +22,10 @@ import com.jbh.finance.application.async.AsyncTaskExecutorImpl;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceQueryRepo;
 import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceWriterRepo;
+import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceServiceImpl;
 import com.jbh.finance.application.feature.movement.commands.AddMovementUploadedFileCommand;
 import com.jbh.finance.application.feature.movement.dto.AddMultipleBasicMovementDTO;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementsUploadedFileInputPort;
@@ -82,7 +84,7 @@ public class UploadMultiMovementsExecutionTest {
   @Mock private MonthlyBalanceQueryRepo accountMonthlyBalanceQueryRepo;
   @Mock private MonthlyBalanceWriterRepo monthlyBalanceWriterRepoMock;
   private AddMovementsUploadedFileUseCase useCaseInstanceTest;
-  private MonthlyBalanceLifecycleServiceImpl monthlyBalanceService;
+  private ProcessMonthlyBalanceServiceImpl monthlyBalanceService;
 
   @BeforeEach
   void setUp() {
@@ -94,12 +96,13 @@ public class UploadMultiMovementsExecutionTest {
 
     accountService.save(accountDomain);
 
-    monthlyBalanceService =
+    final MonthlyBalanceLifecycleService monthlyBalanceSrv =
         new MonthlyBalanceLifecycleServiceImpl(
-            accountMonthlyBalanceQueryRepo,
-            monthlyBalanceWriterRepoMock,
-            new AsyncTaskExecutorImpl(),
-            accountService);
+            accountMonthlyBalanceQueryRepo, monthlyBalanceWriterRepoMock);
+
+    monthlyBalanceService =
+        new ProcessMonthlyBalanceServiceImpl(
+            monthlyBalanceSrv, new AsyncTaskExecutorImpl(), accountService);
     monthlyBalanceSyncerService = new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
 
     useCaseInstanceTest =

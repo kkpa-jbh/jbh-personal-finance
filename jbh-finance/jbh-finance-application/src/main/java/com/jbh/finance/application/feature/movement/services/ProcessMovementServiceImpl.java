@@ -10,7 +10,7 @@ import com.jbh.finance.application.feature.category.dto.CategoryDTO;
 import com.jbh.finance.application.feature.category.services.CategoryService;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
-import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceService;
 import com.jbh.finance.application.feature.movement.commands.AddMovementCommand;
 import com.jbh.finance.application.feature.movement.dto.AddMovementResultDTO;
 import com.jbh.finance.application.feature.movement.dto.MovementDTO;
@@ -18,19 +18,14 @@ import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.application.feature.product.validation.product_type.ProductMovementValidatorFactory;
-import com.jbh.finance.domain.category.vo.CategorySourceVO;
-import com.jbh.finance.domain.category.vo.CategoryTypeVO;
-import com.jbh.finance.domain.category.vo.SystemCategoryAlias;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.movement.vo.ProcessMovementOptionsVO;
-import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
 import com.jbh.finance.domain.shared.vo.EntityOperationVO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +36,7 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
 
   private final MovementLifecycleService movementLifecycleService;
   private final ProductLifecycleService productLifecycleService;
-  private final MonthlyBalanceLifecycleService monthlyBalanceService;
+  private final ProcessMonthlyBalanceService processMonthlyBalanceService;
   private final UnitOfWork unitOfWork;
   private final CategoryService categoryService;
   private final ProductMovementValidatorFactory movementValidatorFactory;
@@ -52,12 +47,12 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
   public ProcessMovementServiceImpl(
       final MovementLifecycleService movementLifecycleService,
       final ProductLifecycleService productLifecycleService,
-      final MonthlyBalanceLifecycleService monthlyBalanceService,
+      final ProcessMonthlyBalanceService processMonthlyBalanceService,
       final UnitOfWork unitOfWork,
       final CategoryService inputCategoryLifecycleSrv) {
     this.unitOfWork = unitOfWork;
     this.productLifecycleService = productLifecycleService;
-    this.monthlyBalanceService = monthlyBalanceService;
+    this.processMonthlyBalanceService = processMonthlyBalanceService;
     this.movementLifecycleService = movementLifecycleService;
     this.categoryService = inputCategoryLifecycleSrv;
     movementValidatorFactory = new ProductMovementValidatorFactory(movementLifecycleService);
@@ -271,11 +266,12 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
     final boolean movementToReverse = inputMovOptions.operation().toRemove();
 
     // Validates that the movement period is not locked by an official monthly report
-    monthlyBalanceService.validateNewMovementForOfficialMonthlyReport(movementDTO);
+    processMonthlyBalanceService.validateNewMovementForOfficialMonthlyReport(movementDTO);
 
     final YearMonth movementPeriod = YearMonth.from(movementDTO.movementDate());
     final boolean isMonthOfficiallyReported =
-        findIfMonthlyBalanceWasOfficialReported(productPK.productId(), movementPeriod);
+        processMonthlyBalanceService.findIfMonthlyBalanceWasOfficialReported(
+            productPK.productId(), movementPeriod);
 
     final ProcessMovementOptionsVO movementOptions =
         new ProcessMovementOptionsVO(isMonthOfficiallyReported, inputMovOptions.operation());
@@ -307,27 +303,13 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
     MonthlyBalanceDTO monthlyBalanceDTO = null;
     if (syncedAccountDTO.productTypeShouldUpdateMonthlyBalance()) {
       if (movementToReverse) {
-        monthlyBalanceDTO = monthlyBalanceService.syncForReversedMovement(movementDTO);
+        monthlyBalanceDTO = processMonthlyBalanceService.syncForReversedMovement(movementDTO);
       } else {
-        monthlyBalanceDTO = monthlyBalanceService.syncForNewMovement(movementDTO);
+        monthlyBalanceDTO = processMonthlyBalanceService.syncForNewMovement(movementDTO);
       }
     }
 
     return new AddMovementResultDTO(syncedAccountDTO, movementDTO, monthlyBalanceDTO);
-  }
-
-  /**
-   * Finds if the monthly balance associated with the movement date was already reported officially.
-   *
-   * @param accountId
-   * @param movementPeriod
-   * @return true if the monthly balance was already reported, false otherwise
-   */
-  private boolean findIfMonthlyBalanceWasOfficialReported(
-      final ProductId accountId, final YearMonth movementPeriod) {
-    final Optional<MonthlyBalanceDTO> existingMonthlyBalanceOpt =
-        monthlyBalanceService.findByAccountIdAndPeriod(accountId, movementPeriod);
-    return existingMonthlyBalanceOpt.map(MonthlyBalanceDTO::officialMonthlyReport).orElse(false);
   }
 
   private void validateMovementByProductType(
@@ -341,6 +323,7 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
     movementLifecycleService.save(movementDTO);
   }
 
+  /*
   private MovementDTO buildReverseMovement(final MovementDTO movement) {
     if (movement.isBalanceSnapshot()) {
       return null;
@@ -373,4 +356,6 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
 
     return reversedMovement;
   }
+
+   */
 }

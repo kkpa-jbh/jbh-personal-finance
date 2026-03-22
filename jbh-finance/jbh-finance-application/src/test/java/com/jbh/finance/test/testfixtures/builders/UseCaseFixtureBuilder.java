@@ -8,11 +8,12 @@ import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBa
 import com.jbh.finance.application.feature.monthlybalance.ports.output.MonthlyBalanceWriterRepo;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleServiceImpl;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceService;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceServiceImpl;
 import com.jbh.finance.application.feature.monthlybalance.usecases.FindMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
 import com.jbh.finance.application.feature.movement.ports.input.AddMovementInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.AddTransferJbhProductsInputPort;
-import com.jbh.finance.application.feature.movement.ports.input.DeleteMovementInputPort;
 import com.jbh.finance.application.feature.movement.ports.input.LiquidateProductInputPort;
 import com.jbh.finance.application.feature.movement.ports.output.MovementWriterRepository;
 import com.jbh.finance.application.feature.movement.services.MovementLifecycleService;
@@ -34,6 +35,7 @@ import com.jbh.finance.test.testfixtures.fakes.monthlybalance.InMemoryMonthlyBal
 import com.jbh.finance.test.testfixtures.fakes.movement.InMemoryMovementQueryRepository;
 import com.jbh.finance.test.testfixtures.fakes.movement.InMemoryMovementRepository;
 import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
+import com.jbh.finance.test.testfixtures.usecases.DeleteMovementUCFixture;
 import com.jbh.finance.test.testfixtures.utils.UnitOfWorkTest;
 
 public class UseCaseFixtureBuilder {
@@ -89,15 +91,40 @@ public class UseCaseFixtureBuilder {
   public static RegisterMonthlyBalanceUseCase buildRegisterMonthlyBalanceUseCase(
       final MovementWriterRepository accountMovementRepository) {
     return new RegisterMonthlyBalanceInputPort(
-        buildMonthlyBalanceService(),
+        buildMonthlyBalanceLifecycleSrv(),
         buildProductLifecycleSrv(),
         buildProcessMovementService(accountMovementRepository),
         categoryServiceMock);
   }
 
+  public static MonthlyBalanceLifecycleService buildMonthlyBalanceLifecycleSrv() {
+    return new MonthlyBalanceLifecycleServiceImpl(
+        monthlyBalanceInMemoQuery, monthlyBalanceInMemoWriter);
+  }
+
+  public static ProcessMovementServiceImpl buildProcessMovementService(
+      final MovementWriterRepository accountMovementRepository) {
+    return new ProcessMovementServiceImpl(
+        buildMovementLifeCycleSrv(accountMovementRepository),
+        buildProductLifecycleSrv(),
+        buildProcessMonthlyBalanceSrv(),
+        new UnitOfWorkTest(),
+        categoryServiceMock);
+  }
+
+  public static MovementLifecycleService buildMovementLifeCycleSrv(
+      final MovementWriterRepository accountMovementRepository) {
+    return new MovementLifecycleServiceImpl(accountMovementRepository, movementInMemoQuery);
+  }
+
+  public static ProcessMonthlyBalanceService buildProcessMonthlyBalanceSrv() {
+    return new ProcessMonthlyBalanceServiceImpl(
+        buildMonthlyBalanceLifecycleSrv(), new AsyncTaskExecutorImpl(), buildProductLifecycleSrv());
+  }
+
   public static FindMonthlyBalanceUseCase buildFindMonthlyBalanceUseCase() {
     return new FindMonthlyBalanceInputPort(
-        buildMonthlyBalanceService(), buildProductLifecycleSrv());
+        buildMonthlyBalanceLifecycleSrv(), buildProductLifecycleSrv());
   }
 
   public static InMemoryMonthlyBalanceRepositories getInMemoryMonthlyBalanceRepos() {
@@ -106,7 +133,7 @@ public class UseCaseFixtureBuilder {
 
   public static void delayTests() {
     try {
-      Thread.sleep(200);
+      Thread.sleep(500);
     } catch (final InterruptedException e) {
       throw new RuntimeException(e);
     }
@@ -118,29 +145,6 @@ public class UseCaseFixtureBuilder {
         buildProductLifecycleSrv(),
         buildProcessMovementService(accountMovementRepository),
         categoryServiceMock);
-  }
-
-  public static ProcessMovementServiceImpl buildProcessMovementService(
-      final MovementWriterRepository accountMovementRepository) {
-    return new ProcessMovementServiceImpl(
-        buildMovementLifeCycleSrv(accountMovementRepository),
-        buildProductLifecycleSrv(),
-        buildMonthlyBalanceService(),
-        new UnitOfWorkTest(),
-        categoryServiceMock);
-  }
-
-  public static MovementLifecycleService buildMovementLifeCycleSrv(
-      final MovementWriterRepository accountMovementRepository) {
-    return new MovementLifecycleServiceImpl(accountMovementRepository, movementInMemoQuery);
-  }
-
-  public static MonthlyBalanceLifecycleService buildMonthlyBalanceService() {
-    return new MonthlyBalanceLifecycleServiceImpl(
-        monthlyBalanceInMemoQuery,
-        monthlyBalanceInMemoWriter,
-        new AsyncTaskExecutorImpl(),
-        buildProductLifecycleSrv());
   }
 
   public static MovementLifecycleService buildMovementLifeCycleSrv() {
@@ -156,7 +160,7 @@ public class UseCaseFixtureBuilder {
   }
 
   public static DeleteMovementUseCase buildDeleteMovementUseCase() {
-    return new DeleteMovementInputPort(
+    return new DeleteMovementUCFixture(
         buildMovementLifeCycleSrv(movementInMemoWriter),
         buildProductLifecycleSrv(),
         buildProcessMovementService(movementInMemoWriter));
