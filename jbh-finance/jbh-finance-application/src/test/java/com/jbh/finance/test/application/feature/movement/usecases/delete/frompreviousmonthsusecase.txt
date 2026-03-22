@@ -1,0 +1,56 @@
+Test Scenarios Summary
+
+---
+  January
+  Jan  1:  +1,000.00  (Initial Balance)
+  Jan 10:  +  500.00  (Income)
+  Jan 20:  -  200.00  (Personal Expense) ← deleted at Order 11
+  ─────────────────────────────────────
+  Net flow: +1000 + 500 - 200 = +1,300
+  Closing balance: $1,300
+
+  February
+  Feb  5:  +  300.00  (Income)
+  Feb 15:  -  100.00  (Personal Expense) ← deleted at Order 21
+  Feb 25:  +  200.00  (Income)           ← deleted at Order 20
+  ─────────────────────────────────────
+  Net flow: +300 - 100 + 200 = +400
+  Closing balance: 1,300 + 400 = $1,700
+
+  March
+  Mar  5:  +  400.00  (Income)
+  Mar 15:  -  150.00  (Personal Expense) ← deleted at Order 10
+  ─────────────────────────────────────
+  Net flow: +400 - 150 = +250
+  Closing balance: 1,700 + 250 = $1,950
+
+  Grand total across all 3 months
+  1,300 + 400 + 250 = $1,950  →  product.movementBalance & currentBalance
+---
+
+
+  ┌───────┬───────────────────────────────────────┬─────────────────┬────────────────────────────────────────┐
+  │ Order │                Action                 │ Month Affected  │                Cascade                 │
+  ├───────┼───────────────────────────────────────┼─────────────────┼────────────────────────────────────────┤
+  │ 0–8   │ Setup: 8 movements across Jan/Feb/Mar │ —               │ —                                      │
+  ├───────┼───────────────────────────────────────┼─────────────────┼────────────────────────────────────────┤
+  │ 9     │ Verify base state                     │ Jan + Feb + Mar │ —                                      │
+  ├───────┼───────────────────────────────────────┼─────────────────┼────────────────────────────────────────┤
+  │ 10    │ Delete Mar expense (−$150)            │ March only      │ None — same month                      │
+  ├───────┼───────────────────────────────────────┼─────────────────┼────────────────────────────────────────┤
+  │ 11    │ Delete Jan expense (−$200)            │ January         │ → Feb opening → Mar opening (2 levels) │
+  ├───────┼───────────────────────────────────────┼─────────────────┼────────────────────────────────────────┤
+  │ 20    │ Delete Feb income (+$200)             │ February        │ → Mar opening (1 level)                │
+  ├───────┼───────────────────────────────────────┼─────────────────┼────────────────────────────────────────┤
+  │ 21    │ Delete Feb expense (−$100)            │ February        │ → Mar opening again (accumulated)      │
+  ├───────┼───────────────────────────────────────┼─────────────────┼────────────────────────────────────────┤
+  │ 30    │ Verify final state                    │ Jan + Feb + Mar │ —                                      │
+  └───────┴───────────────────────────────────────┴─────────────────┴────────────────────────────────────────┘
+
+  Balance Arithmetic Trail
+
+  Base state:   movBalance=$1,950  Jan-closing=$1,300  Feb-closing=$1,700  Mar-closing=$1,950
+  After Ord 10: movBalance=$2,100  Jan-closing=$1,300  Feb-closing=$1,700  Mar-closing=$2,100  ← only Mar
+  After Ord 11: movBalance=$2,300  Jan-closing=$1,500  Feb-closing=$1,900  Mar-closing=$2,300  ← cascade all
+  After Ord 20: movBalance=$2,100  Jan-closing=$1,500  Feb-closing=$1,700  Mar-closing=$2,100  ← Feb+Mar
+  After Ord 21: movBalance=$2,200  Jan-closing=$1,500  Feb-closing=$1,800  Mar-closing=$2,200  ← Feb+Mar

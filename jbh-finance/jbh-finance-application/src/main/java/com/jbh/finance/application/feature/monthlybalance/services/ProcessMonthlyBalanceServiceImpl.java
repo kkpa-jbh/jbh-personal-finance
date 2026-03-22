@@ -228,8 +228,13 @@ public class ProcessMonthlyBalanceServiceImpl implements ProcessMonthlyBalanceSe
 
   private boolean isAvailablePeriod(
       final YearMonth now, final YearMonth currentPeriod, final YearMonth endPeriod) {
-    return currentPeriod.isBefore(getEdgePeriod(now))
-        && currentPeriod.isBefore(endPeriod.plusMonths(1));
+    final boolean isAvailablePeriod =
+        currentPeriod.isBefore(getEdgePeriod(now))
+            && currentPeriod.isBefore(endPeriod.plusMonths(1));
+    if (!isAvailablePeriod) {
+      LOG.warn("It's not an available period {} - {}", currentPeriod, endPeriod);
+    }
+    return isAvailablePeriod;
   }
 
   private YearMonth getEdgePeriod(final YearMonth now) {

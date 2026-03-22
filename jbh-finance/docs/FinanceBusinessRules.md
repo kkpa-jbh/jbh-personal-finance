@@ -65,6 +65,11 @@ That should produce a cascade of synchronizations on the products balances along
 - The product should be associated with the user.
 - The use case returns the latest movements done in the last 3 months.
 
+# MONTHLY BALANCES
+
+- They dont accumulate data from previous months.
+- the closingBalance for each monthly balance represents only the net of movements within that month (starting from zero), not an accumulated running balance.
+
 # REMINDERS
 
 ## ACCOUNTS

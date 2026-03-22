@@ -9,6 +9,7 @@ public record AsyncTask(AsyncTaskType type, Map<String, Object> metadata) {
     return "**"
         + "type="
         + type
+        + "**"
         + ", metadata="
         + metadata
         + " On thread: "

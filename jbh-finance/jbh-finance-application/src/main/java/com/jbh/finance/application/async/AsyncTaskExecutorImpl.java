@@ -26,7 +26,7 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
 
     final CompletableFuture<T> future = new CompletableFuture<>();
     final ExecutorService executorService = Executors.newSingleThreadExecutor();
-    LOG.info("Starting async task: " + asyncTask);
+    LOG.info("[START] task: " + asyncTask);
     final Instant start = Instant.now();
     executorService.submit(
         () -> {
@@ -34,7 +34,7 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
             final T result = task.call();
             future.complete(result);
             final long durationMs = Duration.between(start, Instant.now()).toMillis();
-            LOG.info("Async task " + asyncTask + " completed in " + durationMs + " ms");
+            LOG.info("[COMPLETED] task " + asyncTask + " completed in " + durationMs + " ms");
           } catch (final InterruptedException exception) {
             Thread.currentThread().interrupt();
             LOG.error("Task was interrupted: {}", asyncTask.type(), exception);
