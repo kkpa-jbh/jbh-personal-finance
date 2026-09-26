@@ -11,7 +11,7 @@ Database architecture guidelines including PostgreSQL configuration, schema-per-
 Deployment model and constraints. Covers single deployable unit architecture, cost-effective hosting requirements, monitoring setup (ELK, Prometheus/Grafana), and distributed tracing. Use this when planning deployments or infrastructure changes.
 
 ### tech-stack.md
-Complete technology stack documentation: Quarkus with GraalVM, Maven multi-module setup, JWT security (RS256), Consul service discovery, and API gateway configuration. Reference when adding dependencies or configuring services.
+Complete technology stack documentation: Quarkus with GraalVM, Maven multi-module setup, JWT security (HMAC, validated by `jbh-gateway`), Consul service discovery, and the API gateway. Reference when adding dependencies or configuring services.
 
 ## Technology Decisions
 

@@ -1,116 +1,81 @@
-# MAKEFILE
+# jbh-personal-finance
+
+Quarkus modular monolith. One runtime (port 7777) holds several business modules.
+Each module uses hexagonal architecture: `domain`, `application`, `infra`.
+Only the `*-infra` modules expose REST APIs.
+
+See the `README.md` in the parent folder for how this service connects to the rest of JBH.
+
+## Modules
+
+| Module | Submodules | What it does | Gateway paths |
+|--------|-----------|--------------|---------------|
+| `jbh-commons-lib` | - | Shared code (`api`, `exception`, `time`, `util`) | - |
+| `jbh-finance` | `-domain`, `-application`, `-infra` | Products, movements, transfers, categories, balances | `/jbh-api/finance/**` |
+| `jbh-preferences` | `-domain`, `-application`, `-contracts`, `-infra` | User and team preferences | `/jbh-api/preferences/v1`, `/jbh-api/preferences/team-preferences/v1` |
+| `jbh-notification` | `-contracts`, `-infra` | Send notifications (email) | `/jbh-api/notifications/v1` |
+| `jbh-z-assembly` | - | Quarkus runner. Depends on all `*-infra` modules and holds `application.properties` | - |
+
+`jbh-products/` holds only an old `.iml` file. It is not a Maven module.
+
+## Links to other projects
+
+- **Consul**: registers as `jbh-personal-finance` (health check `/q/health`). `jbh-gateway` routes to it with `lb://jbh-personal-finance`.
+- **User id**: `jbh-finance-infra` and `jbh-preferences-infra` do not read the JWT. `BaseRestAdapter.findUserId(...)` asks `jbh-iam` through the gateway, with `jbh-gateway-client` (`getUserClient().findUserId`).
+- **Gateway URL**: `jbh.gateway.base-url` (env `JBH_GATEWAY_URL`, default `http://localhost:8080`).
+- **Contracts used by other repos**: `jbh-notification-contracts` is a dependency of `jbh-gateway-client`. `jbh-iam` sends invitation emails to the notifications module with it. Install it (`mvn install`) before you build `jbh-gateway-client`.
+- **Database**: Postgres `jbh_finance`, one schema per module (`DATABASE_URL`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`).
+
+## Makefile
+
+The root `Makefile` calls each module's `.mk` file (`Finance.mk`, `Notification.mk`, `Preferences.mk`).
+Note: the `product-*` targets are for the **Finance** module.
 
 Global commands:
 
-- make help - Shows comprehensive help for all modules
-- make create-all-schemas - Creates all module schemas
-- make drop-all-schemas - Drops all schemas (with confirmation)
-- make recreate-all-schemas - Recreates all schemas
-- make check-all-connections - Tests all database connections
+- `make help` - Shows help for all modules
+- `make create-all-schemas` - Creates all module schemas
+- `make drop-all-schemas` - Drops all schemas (asks for confirmation)
+- `make recreate-all-schemas` - Recreates all schemas
+- `make check-all-connections` - Tests all database connections
+- `make export-all-schemas` - Exports schemas to `docs/database-schemas`
 
-Module-specific help:
+Module help: `make product-help`, `make notification-help`, `make preferences-help`.
 
-- make product-help - Shows products module help
-- make notification-help - Shows notification module help
+Module commands (same pattern for `notification-*` and `preferences-*`):
 
-Individual module commands:
-
-- make product-create-schema - Creates only products schema
-- make product-drop-schema - Drops only products schema
-- make notification-create-schema - Creates only notification schema
-- make notification-drop-schema - Drops only notification schema
-
-The root Makefile delegates to each module's specific .mk file, maintaining separation while providing centralized
-control.
-
-## Project Overview
-
-I want to build a modular monolith with some boundaries (A , B, C ) and each module (A , B , C) will contain submodules
-where each submodule will use hexagonal architecture.
-At the end all modules belong to the same root parent project running with quarkus and only the submodule (
-C.infrastructure, A.infrastructure, B.infrastructure) will the ones that exposes APIs ...
-and I'd like to be able to centralize the server port for all modules.
-
-Each module should be completely independent in how it exposes its APIs, and the assembly should just aggregate them
-without imposing any specific technology choices.
-
-A modular monolith with clean hexagonal boundaries.
-
-One single Quarkus runtime.
-
-Central control over server, DB, logging, health, metrics.
-
-Easy future migration: if module-b needs to become its own service, just move its infrastructure into a new Quarkus app
-module.
+- `make product-create-schema`, `make product-drop-schema`, `make product-recreate-schema`, `make product-check-connection`
 
 ## How it works
 
-- Root POM → BOM & plugin versions, no Quarkus runtime.
-- Modules A/B/C → structured into hexagonal submodules.
-- App module
-    - Contains application.properties with quarkus.http.port=7777 → applies to the entire app
-    - Is the only module with the Quarkus Maven plugin → builds the runnable JAR.
-        - Depends on all infrastructure modules:
-      ```xml
-      <dependencies>
-          <dependency>
-              <groupId>com.example</groupId>
-              <artifactId>jbh-finance-infrastructure</artifactId>
-          </dependency>
-          <dependency>
-              <groupId>com.example</groupId>
-              <artifactId>module-b-infrastructure</artifactId>
-          </dependency>
-          <dependency>
-              <groupId>com.example</groupId>
-              <artifactId>module-c-infrastructure</artifactId>
-          </dependency>
-      </dependencies>
+- Root POM: BOM and plugin versions. No Quarkus runtime.
+- Business modules: split into hexagonal submodules.
+- `jbh-z-assembly`:
+    - Holds `application.properties` with `quarkus.http.port=7777`. This applies to the whole app.
+    - Is the only module with the Quarkus Maven plugin. It builds the runnable JAR.
+    - Depends on `jbh-finance-infra`, `jbh-notification-infra` and `jbh-preferences-infra`.
+    - Is named `z` so Maven builds it last.
+
+To move a module to its own service later, move its `*-infra` module into a new Quarkus app.
 
 ```
-
-```bash
 jbh-personal-finance/
-├── pom.xml                                 (Root Parent)
+├── pom.xml                      (root parent)
+├── jbh-commons-lib/
 ├── jbh-finance/
-│   ├── pom.xml                            (Module A Parent)
 │   ├── jbh-finance-domain/
-│   │   ├── pom.xml
-│   │   └── src/main/java/com/jbh/finance/jbh-finance/domain/
 │   ├── jbh-finance-application/
-│   │   ├── pom.xml
-│   │   └── src/main/java/com/jbh/finance/jbh-finance/application/
-│   └── jbh-finance-infra/
-│       ├── pom.xml
-│       └── src/main/java/com/jbh/finance/jbh-finance/infra/
-├── module-b/
-│   ├── pom.xml                            (Module B Parent)
-│   ├── b-domain/
-│   │   ├── pom.xml
-│   │   └── src/main/java/com/jbh/finance/b/domain/
-│   ├── b-application/
-│   │   ├── pom.xml
-│   │   └── src/main/java/com/jbh/finance/b/application/
-│   └── b-infra/
-│       ├── pom.xml
-│       └── src/main/java/com/jbh/finance/b/infra/
-├── module-c/
-│   ├── pom.xml                            (Module C Parent)
-│   ├── c-domain/
-│   │   ├── pom.xml
-│   │   └── src/main/java/com/jbh/finance/c/domain/
-│   ├── c-application/
-│   │   ├── pom.xml
-│   │   └── src/main/java/com/jbh/finance/c/application/
-│   └── c-infra/
-│       ├── pom.xml
-│       └── src/main/java/com/jbh/finance/c/infra/
-└── assembly/
-    ├── pom.xml                            (Assembly Module - Quarkus Runner)
-    └── src/main/
-    ├── java/com/jbh/finance/assembly/
-    └── resources/
-    └── application.properties
+│   └── jbh-finance-infra/       (REST, persistence, gateway client)
+├── jbh-preferences/
+│   ├── jbh-preferences-domain/
+│   ├── jbh-preferences-application/
+│   ├── jbh-preferences-contracts/
+│   └── jbh-preferences-infra/
+├── jbh-notification/
+│   ├── jbh-notification-contracts/
+│   └── jbh-notification-infra/
+└── jbh-z-assembly/              (Quarkus runner)
+    └── src/main/resources/application.properties
 ```
 
 ## Jandex Indexing Strategy (Hexagonal Architecture)

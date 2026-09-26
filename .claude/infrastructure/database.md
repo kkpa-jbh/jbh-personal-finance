@@ -8,7 +8,7 @@ Each module in the system uses a dedicated PostgreSQL schema to maintain clear s
 
 **Core Principles:**
 
-- **One schema per module**: Each module (e.g., `jbh-finance-service`, `jbh-iam-service`) operates within its own PostgreSQL schema
+- **One schema per module**: Each module (e.g., finance, notification, preferences) operates within its own PostgreSQL schema in the `jbh_finance` database. `jbh-iam` is a separate service with its own database config
 - **No multiple schemas within a module**: Avoid creating multiple schemas (e.g., `userprefs` + `teamprefs`) within a single module
 - **Schema isolation**: Modules should not cross-query other module schemas directly; use APIs instead
 

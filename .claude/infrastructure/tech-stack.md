@@ -57,21 +57,20 @@
 
 ## Security
 
-### JWT with RS256
+### JWT (HMAC shared secret)
 
 **Authentication:** JSON Web Tokens (JWT)
 
-- RS256 asymmetric signing algorithm
-- Public/private key pair
-- Token issued by `jbh-iam-service`
-- Validated by all services
+- Issued by `jbh-iam` (Consul name `jbh-iam-service`) at `/jbh-api/auth/signin`
+- Signed with an HMAC shared secret (env `JWT_SECRET`), the same value in `jbh-iam` and `jbh-gateway`
+- Validated by `jbh-gateway` only (signature, expiration, `token_type=ACCESS`, `sub` = user id)
+- Access token: 15 minutes. Refresh token: 30 days.
 
-**Authorization:**
+**This app does not validate the JWT itself:**
 
-- Role-based access control (RBAC)
-- Claims embedded in JWT (user ID, roles, permissions)
-- Verified on every HTTP request
-- Inter-module communication also JWT-protected
+- REST adapters pass the `Authorization` header to `BaseRestAdapter.findUserId(...)`
+- It asks `jbh-iam` for the user id through `jbh-gateway`, with `jbh-gateway-client`
+- Calls to other services also go through the gateway, with the same token
 
 ## Service Discovery
 
@@ -86,27 +85,24 @@
 
 **Integration:**
 
-- Quarkus Consul extension
-- Automatic service registration on startup
-- Health endpoint integration
-- Dynamic configuration updates
+- Custom registration class `jbh-z-assembly/.../config/ConsulServiceRegistration.java` (Consul HTTP API, no Quarkus extension)
+- Settings: `consul.*` in `jbh-z-assembly/src/main/resources/application.properties`
+- Registers as `jbh-personal-finance`, health check `/q/health`
+- Consul runs from the `jbh-discovery-nexus` repo (Docker)
 
 ## API Gateway
 
-### Quarkus-Based Routing
+### Spring Cloud Gateway
 
-**Gateway Service:** `jbh-gateway`
+**Gateway Service:** `jbh-gateway` (separate repo, Kotlin + Spring Cloud Gateway, port 8080)
 
-- Quarkus-based routing layer
 - Single entry point for all clients
-- Request routing to downstream services
+- Finds services in Consul (`lb://jbh-personal-finance`)
+- Routes `/jbh-api/finance/**`, `/jbh-api/preferences/**`, `/jbh-api/notifications/**` (and `/jbh-api/products/**`) to this app
 - JWT validation
-- Rate limiting and throttling
-- CORS handling
+- Rate limiting (10 requests per second per IP)
 
-**Features:**
+**Not configured yet:** circuit breaker (the Resilience4J dependency exists but no route uses it).
 
-- Reverse proxy to backend modules
-- Path-based routing rules
-- Circuit breaker for fault tolerance
-- Request/response transformation
+Full system map: `README.md` in the folder that holds all JBH repos (`kkpa-jbh/README.md`).
+

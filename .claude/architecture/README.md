@@ -83,9 +83,9 @@ JPMS module system and Jandex indexing configuration.
 - **Runtime**: Quarkus with GraalVM support
 - **Build Tool**: Maven with multi-module configuration
 - **Database**: PostgreSQL with schema-per-module approach
-- **Security**: JWT with RS256 signing
+- **Security**: JWT (HMAC) issued by `jbh-iam`, validated by `jbh-gateway`
 - **Service Discovery**: Consul
-- **API Gateway**: Quarkus-based routing
+- **API Gateway**: `jbh-gateway` (Kotlin, Spring Cloud Gateway)
 
 ## Quick Reference
 

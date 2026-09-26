@@ -86,14 +86,34 @@ This is a Quarkus multi-module monolith using **Hexagonal Architecture** with **
 
 ## Current Infrastructure
 
-**Existing Services:**
-- `jbh-gateway` - API Gateway (Quarkus-based)
-- `jbh-consul-service-discovery` - Service discovery (Consul on port 8500)
-- `jbh-iam-service` - User authentication and authorization
+**Existing Services** (sibling repos; full map in `../README.md`):
+- `jbh-gateway` - API Gateway (Kotlin, Spring Cloud Gateway, port 8080). Routes `/jbh-api/finance|products|preferences|notifications/**` here.
+- `jbh-discovery-nexus` - Service discovery (Consul in Docker, port 8500). This app registers as `jbh-personal-finance`.
+- `jbh-iam` - User authentication and authorization (Consul name `jbh-iam-service`, port 9999)
+- `jbh-gateway-client` - Java library used by the `*-infra` modules to call other services through the gateway
 
 **Architecture Model:**
-- Single deployable unit with well-defined modules
-- PostgreSQL with separate schema per module
-- JWT-based authorization (RS256) for all HTTP requests and inter-module communication
+- Single deployable unit with well-defined modules (port 7777)
+- PostgreSQL with separate schema per module (database `jbh_finance`)
+- JWT (HMAC shared secret) is issued by `jbh-iam` and validated by `jbh-gateway`. This app does not validate the JWT itself: `BaseRestAdapter.findUserId(...)` asks `jbh-iam` for the user id through `jbh-gateway-client`.
+- `jbh-notification-contracts` is also used by `jbh-gateway-client` and `jbh-iam`. A change there needs `mvn install` before those repos build.
 - Consul service discovery
 - Budget constraint: Cost-effective hosting solutions only (no cloud provider dependencies)
+
+## System map sync (`../README.md`)
+
+This repo is one part of the JBH system. The map of how all JBH services talk to each other
+lives in `../README.md` (relative to this repo's root: the `kkpa-jbh` folder that holds all JBH repos).
+
+**Rule:** when a change in this repo affects how services communicate, update `../README.md`
+in the same task. Change only the rows or lines that are affected. Then tell the user that
+`../README.md` changed, because that folder is not a git repo and the change is not versioned.
+
+Triggers for this repo:
+- Add or rename a top-level path under `/jbh-api` (it may need a new gateway route)
+- Change the port (`quarkus.http.port`), the Consul name (`consul.service.name`), or the DB
+- Add or remove a call through `jbh-gateway-client` (for example, `findUserId`)
+- Change `jbh-notification-contracts` (used by `jbh-gateway-client` and `jbh-iam`)
+- Add a new module that exposes REST endpoints
+
+If you are not sure a change counts, read `../README.md` and check whether any line is now wrong.

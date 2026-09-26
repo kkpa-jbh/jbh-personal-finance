@@ -91,7 +91,7 @@ public class MovementDTO {
 
   /**
    * Determines if this movement can be removed. A movement can only be removed if it was created in
-   * the current month, or if it was created today.
+   * the current year.
    *
    * @return true if removable, false otherwise
    */
@@ -100,10 +100,10 @@ public class MovementDTO {
       return false;
     }
 
-    final YearMonth currentMonth = YearMonth.now();
+    final YearMonth currentYear = YearMonth.now();
     final YearMonth createdMonth = YearMonth.from(createdAt);
 
-    return currentMonth.equals(createdMonth) || LocalDate.now().equals(createdAt.toLocalDate());
+    return currentYear.equals(createdMonth) || LocalDate.now().equals(createdAt.toLocalDate());
   }
 
   public String internalMessage() {
