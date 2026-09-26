@@ -12,6 +12,7 @@ on:
 # Set permissions for GITHUB_TOKEN to enable test reporting and artifact uploads
 permissions:
   contents: read
+  packages: read
   checks: write
   pull-requests: write
   actions: read
@@ -34,6 +35,8 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
+          # Writes a settings.xml server "github" that reads GITHUB_ACTOR / GITHUB_TOKEN.
+          server-id: github
 
       # Step 3: Cache Maven dependencies to speed up subsequent builds
       # Caches ~/.m2 (Maven local repository) based on pom.xml changes
@@ -48,8 +51,11 @@ jobs:
       # This executes: compile → test → package → verify (with PMD & SpotBugs)
       # Fails build if PMD finds violations or SpotBugs finds bugs
       - name: Run tests with static analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # -Pgithub: jbh-gateway-client comes from GitHub Packages, not ~/.m2.
         run: |
-          mvn clean verify \
+          mvn -Pgithub clean verify \
             -Dpmd.failOnViolation=true \
             -Dspotbugs.failOnError=true
       

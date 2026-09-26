@@ -200,6 +200,14 @@
 
     </dependencies>
   </dependencyManagement>
+  <!-- Publishes jbh-notification-contracts (and its parent POMs) for CI builds of other repos. -->
+  <distributionManagement>
+    <repository>
+      <id>github</id>
+      <name>GitHub kkpa-jbh Maven Packages</name>
+      <url>https://maven.pkg.github.com/kkpa-jbh/jbh-personal-finance</url>
+    </repository>
+  </distributionManagement>
   <description>Multi-module personal finance management system</description>
   <groupId>com.jbh</groupId>
   <modelVersion>4.0.0</modelVersion>
@@ -227,6 +235,22 @@
   <!-- Only actual JAR/WAR modules should be in dependencyManagement -->
   <!-- =============================================== -->
   <packaging>pom</packaging>
+
+  <!-- CI only (-Pgithub): resolve jbh-gateway-client from GitHub Packages. Local builds use ~/.m2. -->
+  <profiles>
+    <profile>
+      <id>github</id>
+      <repositories>
+        <repository>
+          <id>github</id>
+          <url>https://maven.pkg.github.com/kkpa-jbh/jbh-gateway-client</url>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
 
   <properties>
     <!-- Java & Encoding -->

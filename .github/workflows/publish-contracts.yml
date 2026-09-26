@@ -1,0 +1,35 @@
+# Publishes jbh-notification-contracts (and the parent POMs it needs) to GitHub Packages.
+# jbh-gateway-client and jbh-iam depend on it, so run this first when the contracts change.
+name: Publish notification contracts
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'jbh-notification/jbh-notification-contracts/**'
+      - 'jbh-notification/pom.xml'
+      - 'pom.xml'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+          server-id: github
+
+      # -am also deploys the parent POMs; a consumer cannot resolve the contracts without them.
+      - name: Deploy contracts
+        run: mvn -B -pl jbh-notification/jbh-notification-contracts -am -DskipTests deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
