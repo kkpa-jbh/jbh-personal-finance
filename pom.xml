@@ -242,7 +242,7 @@
       <id>github</id>
       <repositories>
         <repository>
-          <id>github</id>
+          <id>github-packages-read</id>
           <url>https://maven.pkg.github.com/kkpa-jbh/jbh-gateway-client</url>
           <snapshots>
             <enabled>true</enabled>

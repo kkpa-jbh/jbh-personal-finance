@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- CI only (mvn -s .github/maven-settings.xml). Two credentials, because GitHub Packages for Maven
+     is repository-scoped: GITHUB_TOKEN can only read and write THIS repo's packages.
+     - github:               deploy to this repo's own package (GITHUB_TOKEN).
+     - github-packages-read: read packages of other kkpa-jbh repos (classic PAT with read:packages,
+                             repo secret PACKAGES_READ_TOKEN). -->
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+  <servers>
+    <server>
+      <id>github</id>
+      <username>${env.GITHUB_ACTOR}</username>
+      <password>${env.GITHUB_TOKEN}</password>
+    </server>
+    <server>
+      <id>github-packages-read</id>
+      <username>${env.GITHUB_ACTOR}</username>
+      <password>${env.PACKAGES_READ_TOKEN}</password>
+    </server>
+  </servers>
+</settings>

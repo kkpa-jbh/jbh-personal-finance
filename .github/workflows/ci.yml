@@ -35,8 +35,6 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-          # Writes a settings.xml server "github" that reads GITHUB_ACTOR / GITHUB_TOKEN.
-          server-id: github
 
       # Step 3: Cache Maven dependencies to speed up subsequent builds
       # Caches ~/.m2 (Maven local repository) based on pom.xml changes
@@ -53,9 +51,10 @@ jobs:
       - name: Run tests with static analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PACKAGES_READ_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN }}
         # -Pgithub: jbh-gateway-client comes from GitHub Packages, not ~/.m2.
         run: |
-          mvn -Pgithub clean verify \
+          mvn -s .github/maven-settings.xml -Pgithub clean verify \
             -Dpmd.failOnViolation=true \
             -Dspotbugs.failOnError=true
       

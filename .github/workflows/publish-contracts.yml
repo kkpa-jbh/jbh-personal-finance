@@ -26,10 +26,9 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
-          server-id: github
 
       # -am also deploys the parent POMs; a consumer cannot resolve the contracts without them.
       - name: Deploy contracts
-        run: mvn -B -pl jbh-notification/jbh-notification-contracts -am -DskipTests deploy
+        run: mvn -B -s .github/maven-settings.xml -pl jbh-notification/jbh-notification-contracts -am -DskipTests deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
