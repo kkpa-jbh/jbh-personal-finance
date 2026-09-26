@@ -104,5 +104,5 @@
 
 **Not configured yet:** circuit breaker (the Resilience4J dependency exists but no route uses it).
 
-Full system map: `README.md` in the folder that holds all JBH repos (`kkpa-jbh/README.md`).
+Full system map: `../jbh-deploy/README.md` (the `jbh-deploy` repo).
 

@@ -60,7 +60,7 @@ Clients never call port 7777 directly. `jbh-gateway` (port 8080) sends these pre
 `/jbh-api/finance/**`, `/jbh-api/preferences/**`, `/jbh-api/notifications/**`.
 
 **When you add a new top-level prefix** (for example `/jbh-api/budgets`), you must also add it to a route in
-`jbh-gateway/src/main/resources/application.yml`, and update the system map in `kkpa-jbh/README.md`.
+`jbh-gateway/src/main/resources/application.yml`, and update the system map in `jbh-deploy/README.md`.
 
 ## Adding a New Module
 
