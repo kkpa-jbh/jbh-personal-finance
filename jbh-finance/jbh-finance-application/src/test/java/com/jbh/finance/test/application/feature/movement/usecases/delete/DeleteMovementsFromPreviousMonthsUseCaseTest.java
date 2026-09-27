@@ -22,8 +22,8 @@ import com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder;
 import com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder;
 import com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder;
 import com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils;
-import com.jbh.finance.test.testfixtures.utils.ProductITUtils;
 import java.math.BigDecimal;
+import java.time.Month;
 import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
@@ -142,7 +142,7 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
   // ─── Period constants ──────────────────────────────────────────────────────
   // The test is designed to run any time during or after the third month of
   // a given year (Jan and Feb movements must be in the past).
-  static final YearMonth CURRENT_PERIOD = YearMonth.now();
+  static final YearMonth CURRENT_PERIOD = YearMonth.of(2026, Month.MARCH);
   static final YearMonth JANUARY = YearMonth.of(CURRENT_PERIOD.getYear(), 1);
   static final YearMonth FEBRUARY = YearMonth.of(CURRENT_PERIOD.getYear(), 2);
   static final YearMonth MARCH = CURRENT_PERIOD; // = YearMonth.now() when running in March
@@ -266,6 +266,10 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
         withJBHDecimals(new BigDecimal("1000")),
         product.currentBalance(),
         "Product currentBalance after initial deposit");
+  }
+
+  private ProductDTO getCurrentProductInfo() {
+    return productLifecycleSrv.findProductById(productDTO.id()).get();
   }
 
   /**
@@ -519,6 +523,10 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
     assertEquals(withJBHDecimals(new BigDecimal("2100")), product.currentBalance());
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PHASE 1 FINAL VERIFICATION  (Order 9)
+  // ═══════════════════════════════════════════════════════════════════════════
+
   /**
    * Order 8 – Personal expense on <strong>March 15th</strong>.
    *
@@ -565,7 +573,7 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // PHASE 1 FINAL VERIFICATION  (Order 9)
+  // PHASE 2 – DELETIONS (non-chronological order: Mar, Jan, Feb, Feb)
   // ═══════════════════════════════════════════════════════════════════════════
 
   /**
@@ -686,9 +694,10 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
         "Product netProfitBalance must be $0 (no unrealized gains)");
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // PHASE 2 – DELETIONS (non-chronological order: Mar, Jan, Feb, Feb)
-  // ═══════════════════════════════════════════════════════════════════════════
+  private List<MonthlyBalanceDTO> getCurrentMonthlyBalances() {
+    delayTests();
+    return monthlyBalanceLifecycleSrv.findAllByAccountIdUntilNow(productDTO.id());
+  }
 
   /**
    * Order 10 – <strong>Delete the March expense (−$150): same-month deletion.</strong>
@@ -958,6 +967,10 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
     assertEquals(1, marMBAfter.totalMovements(), "Mar: totalMovements still 1");
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PHASE 2 FINAL VERIFICATION  (Order 30)
+  // ═══════════════════════════════════════════════════════════════════════════
+
   /**
    * Order 20 – <strong>Delete the February income (+$200): middle-month cross-month cascade.</strong>
    *
@@ -1096,6 +1109,10 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
         withJBHDecimals(new BigDecimal("400")), marMBAfter.closingBalance(), "Mar: closingBalance unchanged $400 (only Mar own movements: 400−0=400)");
     assertEquals(1, marMBAfter.totalMovements(), "Mar: totalMovements unchanged at 1");
   }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Helpers
+  // ═══════════════════════════════════════════════════════════════════════════
 
   /**
    * Order 21 – <strong>Delete the February expense (−$100): second deletion in the same month.</strong>
@@ -1238,10 +1255,6 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
     assertEquals(1, marMBAfter.totalMovements(), "Mar: totalMovements unchanged at 1");
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // PHASE 2 FINAL VERIFICATION  (Order 30)
-  // ═══════════════════════════════════════════════════════════════════════════
-
   /**
    * Order 30 – Assert the final system state after all four deletions.
    *
@@ -1353,18 +1366,5 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
     assertEquals(withJBHDecimals(new BigDecimal("400")), marFinal.movementBalance(), "Mar final: movementBalance");
     assertEquals(withJBHDecimals(new BigDecimal("400")), marFinal.closingBalance(), "Mar final: closingBalance (only Mar movements: +400, independent of opening)");
     assertEquals(1, marFinal.totalMovements(), "Mar final: totalMovements");
-  }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Helpers
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  private ProductDTO getCurrentProductInfo() {
-    return productLifecycleSrv.findProductById(productDTO.id()).get();
-  }
-
-  private List<MonthlyBalanceDTO> getCurrentMonthlyBalances() {
-    delayTests();
-    return monthlyBalanceLifecycleSrv.findAllByAccountIdUntilNow(productDTO.id());
   }
 }
