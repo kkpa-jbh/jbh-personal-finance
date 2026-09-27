@@ -40,7 +40,7 @@ jobs:
         with:
           context: jbh-z-assembly
           push: true
-          # One version per push. Build attestations would add untagged versions that fill the keep-5 window.
+          # One version per push. Build attestations would add untagged versions that use up the 2 kept slots.
           provenance: false
           tags: |
             ghcr.io/kkpa-jbh/jbh-personal-finance:${{ github.sha }}
