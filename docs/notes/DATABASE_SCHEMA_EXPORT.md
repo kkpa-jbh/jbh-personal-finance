@@ -60,7 +60,7 @@ The script uses these environment variables (with defaults):
 | `DATABASE_PORT`     | `5432`        | PostgreSQL port   |
 | `DATABASE_NAME`     | `jbh_finance` | Database name     |
 | `DATABASE_USERNAME` | `jbh_admin`   | Database username |
-| `DATABASE_PASSWORD` | `raspukk`     | Database password |
+| `DATABASE_PASSWORD` | none, required | Database password |
 
 ## Keeping Schema Up-to-Date
 

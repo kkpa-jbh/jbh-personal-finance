@@ -11,7 +11,7 @@ DB_HOST="${DATABASE_HOST:-localhost}"
 DB_PORT="${DATABASE_PORT:-5432}"
 DB_NAME="${DATABASE_NAME:-jbh_finance}"
 DB_USER="${DATABASE_USERNAME:-jbh_admin}"
-DB_PASSWORD="${DATABASE_PASSWORD:-raspukk}"
+DB_PASSWORD="${DATABASE_PASSWORD:?set DATABASE_PASSWORD}"
 
 # Default to all schemas if none specified
 SCHEMA="${1:-all}"
