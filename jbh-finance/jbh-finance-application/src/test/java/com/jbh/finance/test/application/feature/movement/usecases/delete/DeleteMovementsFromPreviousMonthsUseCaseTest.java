@@ -70,6 +70,15 @@ import org.slf4j.LoggerFactory;
  * Mar 15 : -$  150.00  Personal Expense   ← deleted at Order 10 (current-month deletion, simplest case)
  * </pre>
  *
+ * <h2>Monthly Balance Rules Asserted By This Test</h2>
+ *
+ * <ul>
+ *   <li>{@code closingBalance} counts only the month's own movements. It does not include the
+ *       opening balance. So {@code closingBalance == movementBalance} in every month.
+ *   <li>{@code openingBalance} equals the previous month's {@code closingBalance}.
+ *   <li>The cascade updates only the next month (the month after the changed one).
+ * </ul>
+ *
  * <h2>Cumulative State After All Base Data</h2>
  *
  * <pre>
@@ -79,7 +88,7 @@ import org.slf4j.LoggerFactory;
  *   netProfitBalance = $0
  *
  * January MB (async-settled):
- *   openingBalance  = $0
+ *   openingBalance  = $    0
  *   totalDebits     = $1,500  (1000+500)
  *   totalCredits    = $  200
  *   movementBalance = $1,300
@@ -91,17 +100,41 @@ import org.slf4j.LoggerFactory;
  *   totalDebits     = $  500  (300+200)
  *   totalCredits    = $  100
  *   movementBalance = $  400
- *   closingBalance  = $1,700
+ *   closingBalance  = $  400  (300−100+200, only Feb movements)
  *   totalMovements  = 3
  *
  * March MB (async-settled):
- *   openingBalance  = $1,700  ← Feb closing
+ *   openingBalance  = $  400  ← Feb closing
  *   totalDebits     = $  400
  *   totalCredits    = $  150
  *   movementBalance = $  250
- *   closingBalance  = $1,950
+ *   closingBalance  = $  250  (400−150, only Mar movements)
  *   totalMovements  = 2
  * </pre>
+ *
+ * <h2>Monthly Balance Values Per Step</h2>
+ *
+ * <p>Each cell is {@code opening / closing (movements)}. A dash means the month has no movements
+ * yet. The product column is {@code movementBalance = currentBalance}.
+ *
+ * <pre>
+ * Order | Step                 | January         | February        | March         | Product
+ * ------+----------------------+-----------------+-----------------+---------------+--------
+ *   1   | + Jan  1  +1,000     | 0 / 1,000 (1)   | –               | –             | 1,000
+ *   2   | + Jan 10  +  500     | 0 / 1,500 (2)   | –               | –             | 1,500
+ *   3   | + Jan 20  −  200     | 0 / 1,300 (3)   | –               | –             | 1,300
+ *   4   | + Feb  5  +  300     | 0 / 1,300 (3)   | 1,300 / 300 (1) | –             | 1,600
+ *   5   | + Feb 15  −  100     | 0 / 1,300 (3)   | 1,300 / 200 (2) | –             | 1,500
+ *   6   | + Feb 25  +  200     | 0 / 1,300 (3)   | 1,300 / 400 (3) | –             | 1,700
+ *   7   | + Mar  5  +  400     | 0 / 1,300 (3)   | 1,300 / 400 (3) | 400 / 400 (1) | 2,100
+ *   8   | + Mar 15  −  150     | 0 / 1,300 (3)   | 1,300 / 400 (3) | 400 / 250 (2) | 1,950
+ *  10   | − Mar 15  −  150     | 0 / 1,300 (3)   | 1,300 / 400 (3) | 400 / 400 (1) | 2,100
+ *  11   | − Jan 20  −  200     | 0 / 1,500 (2)   | 1,500 / 400 (3) | 400 / 400 (1) | 2,300
+ *  20   | − Feb 25  +  200     | 0 / 1,500 (2)   | 1,500 / 200 (2) | 200 / 400 (1) | 2,100
+ *  21   | − Feb 15  −  100     | 0 / 1,500 (2)   | 1,500 / 300 (1) | 300 / 400 (1) | 2,200
+ * </pre>
+ *
+ * <p>Orders 9 and 30 only verify state. They match the rows for Orders 8 and 21.
  *
  * <h2>Deletion Test Scenarios</h2>
  *
@@ -109,8 +142,8 @@ import org.slf4j.LoggerFactory;
  *   <li><strong>Order 10</strong> – Delete the <em>March</em> expense (−$150): only March MB
  *       changes. January and February are untouched.
  *   <li><strong>Order 11</strong> – Delete the <em>January</em> expense (−$200): January MB
- *       changes AND the cascade propagates the new January closing to February's opening, then to
- *       March's opening (two-level cascade).
+ *       changes AND the cascade propagates the new January closing to February's opening.
+ *       February's closing does not change, so March stays the same.
  *   <li><strong>Order 20</strong> – Delete the <em>February</em> income (+$200): February MB
  *       changes AND March's opening is updated (one-level cascade). January is untouched.
  *   <li><strong>Order 21</strong> – Delete the <em>February</em> expense (−$100): a second
@@ -376,7 +409,7 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
    * totalDebits     = $  300
    * totalCredits    = $    0
    * movementBalance = $  300
-   * closingBalance  = $1,600
+   * closingBalance  = $  300  (only Feb movements)
    * totalMovements  = 1
    * </pre>
    */
@@ -413,10 +446,11 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
    * <p>Cumulative February MB:
    *
    * <pre>
-   * totalDebits     = $300
-   * totalCredits    = $100
-   * movementBalance = $200
-   * closingBalance  = $1,500
+   * openingBalance  = $1,300  ← Jan closing
+   * totalDebits     = $  300
+   * totalCredits    = $  100
+   * movementBalance = $  200
+   * closingBalance  = $  200  (300−100, only Feb movements)
    * totalMovements  = 2
    * </pre>
    */
@@ -457,10 +491,11 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
    * <p>Cumulative February MB:
    *
    * <pre>
+   * openingBalance  = $1,300  ← Jan closing
    * totalDebits     = $  500  (300+200)
    * totalCredits    = $  100
    * movementBalance = $  400
-   * closingBalance  = $1,700
+   * closingBalance  = $  400  (300−100+200, only Feb movements)
    * totalMovements  = 3
    * </pre>
    */
@@ -499,11 +534,11 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
    * <p>Expected March MB (after async propagation from Feb):
    *
    * <pre>
-   * openingBalance  = $1,700  ← Feb closing
+   * openingBalance  = $  400  ← Feb closing
    * totalDebits     = $  400
    * totalCredits    = $    0
    * movementBalance = $  400
-   * closingBalance  = $2,100
+   * closingBalance  = $  400  (only Mar movements)
    * totalMovements  = 1
    * </pre>
    */
@@ -545,10 +580,11 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
    * <p>Final March MB:
    *
    * <pre>
+   * openingBalance  = $  400  ← Feb closing
    * totalDebits     = $  400
    * totalCredits    = $  150
    * movementBalance = $  250
-   * closingBalance  = $1,950
+   * closingBalance  = $  250  (400−150, only Mar movements)
    * totalMovements  = 2
    * </pre>
    */
@@ -712,7 +748,7 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
    *
    * <pre>
    * totalCredits   −= |−150| → 150 − 150 = $0
-   * closingBalance −= (−150) → 1,950 + 150 = $2,100  (subtracting a negative = adding)
+   * closingBalance −= (−150) → 250 + 150 = $400  (subtracting a negative = adding)
    * </pre>
    *
    * <h3>Expected product state after deletion</h3>
@@ -800,9 +836,8 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
   /**
    * Order 11 – <strong>Delete the January expense (−$200): oldest-month cross-month cascade.</strong>
    *
-   * <p>This is the most complex scenario. Deleting a movement from January triggers a two-level
-   * cascade: January's new closing becomes February's opening, and February's new closing becomes
-   * March's opening.
+   * <p>Deleting a movement from January changes January's closing. The cascade copies it to
+   * February's opening. February's closing does not change, so March's opening stays the same.
    *
    * <h3>State before this deletion (from Order 10)</h3>
    *
