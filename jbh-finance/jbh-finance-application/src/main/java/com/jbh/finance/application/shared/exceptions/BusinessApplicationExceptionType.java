@@ -58,6 +58,8 @@ public enum BusinessApplicationExceptionType implements BusinessExceptionType {
   SNAPSHOT_AFTER_OFFICIAL_REPORT(
       "Cannot add a snapshot after the monthly balance was officially reported",
       "No se puede añadir un snapshot después de que el balance anual fue reportado"),
+  STATEMENT_NO_MOVEMENTS_FOUND(
+      "No movements were found in this PDF", "No se encontraron movimientos en este PDF"),
   WITHDRAWAL_EXCEEDS_BALANCE(
       "The new withdrawal exceeds the monthly balance %s",
       "La retirada excede el saldo reportado del mes %s");

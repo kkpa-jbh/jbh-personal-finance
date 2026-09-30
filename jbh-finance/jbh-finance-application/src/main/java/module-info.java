@@ -9,6 +9,7 @@ module jbh.finance.application {
   opens com.jbh.finance.application.feature.movement.ports.output;
   opens com.jbh.finance.application.feature.monthlybalance.ports.output;
   opens com.jbh.finance.application.feature.product.ports.output;
+  opens com.jbh.finance.application.feature.statement.ports.output;
 
   // Cross-cutting infrastructure exports
   exports com.jbh.finance.application.acid;
@@ -70,6 +71,19 @@ module jbh.finance.application {
   exports com.jbh.finance.application.feature.monthlybalance.commands to
       jbh.finance.infra;
   exports com.jbh.finance.application.feature.monthlybalance.services;
+
+  // Statement feature exports
+  exports com.jbh.finance.application.feature.statement.dto to
+      jbh.finance.infra;
+  exports com.jbh.finance.application.feature.statement.commands to
+      jbh.finance.infra;
+  exports com.jbh.finance.application.feature.statement.ports.input to
+      jbh.finance.infra;
+  exports com.jbh.finance.application.feature.statement.ports.output to
+      jbh.finance.infra;
+  exports com.jbh.finance.application.feature.statement.usecases to
+      jbh.finance.infra;
+
   exports com.jbh.finance.application.feature.category.dto;
   exports com.jbh.finance.application.feature.category.ports.output;
 }

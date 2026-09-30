@@ -206,6 +206,25 @@
       <version>4.1.2</version>
     </dependency>
 
+    <!-- Unlocks password-protected bank statement PDFs -->
+    <dependency>
+      <artifactId>pdfbox</artifactId>
+      <exclusions>
+        <!-- Banned by the enforcer. Quarkus provides the JBoss bridge below instead. -->
+        <exclusion>
+          <artifactId>commons-logging</artifactId>
+          <groupId>commons-logging</groupId>
+        </exclusion>
+      </exclusions>
+      <groupId>org.apache.pdfbox</groupId>
+      <version>${pdfbox.version}</version>
+    </dependency>
+
+    <dependency>
+      <artifactId>commons-logging-jboss-logging</artifactId>
+      <groupId>org.jboss.logging</groupId>
+    </dependency>
+
     <!-- ArchUnit for architecture testing -->
     <dependency>
       <artifactId>archunit-junit5</artifactId>
@@ -230,6 +249,7 @@
     <jacoco.skip>true</jacoco.skip>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
+    <pdfbox.version>3.0.8</pdfbox.version>
     <poi.version>5.4.1</poi.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
