@@ -17,6 +17,9 @@ public enum FinanceInfraBusinessExceptionType implements BusinessExceptionType {
   STATEMENT_FILE_NOT_PDF("The file must be a PDF", "El archivo debe ser un PDF"),
   STATEMENT_FILE_REQUIRED("Upload a PDF file", "Sube un archivo PDF"),
   STATEMENT_FILE_TOO_LARGE("The PDF is too large", "El PDF es demasiado grande"),
+  STATEMENT_PDF_HAS_NO_TEXT(
+      "This PDF has no text. It may be a scanned image",
+      "Este PDF no tiene texto. Puede ser una imagen escaneada"),
   STATEMENT_PASSWORD_REQUIRED(
       "This PDF is locked. Type its password", "Este PDF está protegido. Escribe su contraseña"),
   STATEMENT_READER_FAILED(

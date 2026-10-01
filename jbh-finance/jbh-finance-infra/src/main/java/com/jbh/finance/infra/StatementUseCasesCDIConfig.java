@@ -7,9 +7,13 @@ import com.jbh.finance.application.feature.statement.ports.input.ExtractStatemen
 import com.jbh.finance.application.feature.statement.ports.output.MovementClassifier;
 import com.jbh.finance.application.feature.statement.ports.output.StatementReader;
 import com.jbh.finance.application.feature.statement.usecases.ExtractStatementMovementsUseCase;
+import com.jbh.finance.infra.adapters.out.ai.GeminiStatementReaderAdapter;
+import com.jbh.finance.infra.adapters.out.ai.OpenRouterStatementReaderAdapter;
 import com.jbh.finance.infra.config.StatementImportConfig;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Instance;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 
@@ -22,7 +26,8 @@ public class StatementUseCasesCDIConfig {
 
   @Inject CategoryService categoryService;
 
-  @Inject StatementReader statementReader;
+  // Instance, not a plain injection: two readers exist, and jbh.statement.reader picks one.
+  @Inject @Any Instance<StatementReader> statementReaders;
 
   @Inject MovementClassifier movementClassifier;
 
@@ -32,10 +37,17 @@ public class StatementUseCasesCDIConfig {
   @ApplicationScoped
   public ExtractStatementMovementsUseCase extractStatementMovementsUseCase() {
     return new ExtractStatementMovementsInputPort(
-        statementReader,
+        statementReader(),
         movementClassifier,
         categoryQueryRepo,
         categoryService,
         new ClassificationSettings(config.jev().batchSize(), config.jev().minConfidence()));
+  }
+
+  private StatementReader statementReader() {
+    return switch (config.reader()) {
+      case GEMINI -> statementReaders.select(GeminiStatementReaderAdapter.class).get();
+      case OPENROUTER -> statementReaders.select(OpenRouterStatementReaderAdapter.class).get();
+    };
   }
 }

@@ -1,0 +1,220 @@
+package com.jbh.finance.infra.adapters.out.ai;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.jbh.commons.exception.BusinessException;
+import com.jbh.finance.application.feature.statement.dto.ExtractedStatementDTO;
+import com.jbh.finance.application.feature.statement.ports.output.StatementReader;
+import com.jbh.finance.infra.adapters.exceptions.FinanceInfraBusinessExceptionType;
+import com.jbh.finance.infra.config.StatementImportConfig;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * Reads a statement with OpenRouter (REST {@code /chat/completions}).
+ *
+ * <p>PDFBox extracts the text locally; only the text is sent. OpenRouter tries the configured
+ * models in order and moves to the next one when a model is busy or fails. Active when {@code
+ * jbh.statement.reader=openrouter}; see {@code StatementUseCasesCDIConfig}.
+ *
+ * <p>The text, the answer and the movements are personal data: only HTTP status codes, error
+ * types, the model name and counts are logged.
+ */
+@ApplicationScoped
+public class OpenRouterStatementReaderAdapter implements StatementReader {
+
+  private static final Logger LOGGER =
+      LoggerFactory.getLogger(OpenRouterStatementReaderAdapter.class);
+
+  private static final int HTTP_OK = 200;
+  private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
+  private static final String CHAT_COMPLETIONS_PATH = "/chat/completions";
+  private static final String JSON_MIME_TYPE = "application/json";
+  private static final String AUTHORIZATION_HEADER = "Authorization";
+  private static final String BEARER = "Bearer ";
+  private static final String CONTENT_TYPE_HEADER = "Content-Type";
+  private static final String TITLE_HEADER = "X-OpenRouter-Title";
+  private static final String APP_TITLE = "JBH Personal Finance";
+  private static final String ROLE = "role";
+  private static final String CONTENT = "content";
+  private static final String ERROR = "error";
+  private static final String UNKNOWN = "unknown";
+
+  private static final String SYSTEM_PROMPT =
+      "You read the text of bank account and credit card statements. The text was extracted from a"
+          + " PDF, so table columns are separated by spaces. Return every movement row.\n"
+          + StatementExtractionFormat.RULES;
+
+  private static final String USER_PROMPT_START =
+      "Extract every movement from this bank statement.\n<statement>\n";
+  private static final String USER_PROMPT_END = "\n</statement>";
+
+  private static final String RESPONSE_SCHEMA =
+      """
+      {
+        "type": "object",
+        "properties": {
+          "openingBalance": { "type": ["string", "null"] },
+          "closingBalance": { "type": ["string", "null"] },
+          "movements": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "date": { "type": "string", "description": "yyyy-MM-dd" },
+                "description": { "type": "string" },
+                "amount": { "type": "string", "description": "Positive decimal, dot as decimal separator" },
+                "direction": { "type": "string", "enum": ["CREDIT", "DEBIT"] }
+              },
+              "required": ["date", "description", "amount", "direction"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["openingBalance", "closingBalance", "movements"],
+        "additionalProperties": false
+      }
+      """;
+
+  private final StatementImportConfig config;
+  private final ObjectMapper objectMapper;
+  private final PdfStatementTextExtractor textExtractor;
+  private final HttpClient httpClient;
+  private final JsonNode responseSchema;
+
+  @Inject
+  public OpenRouterStatementReaderAdapter(
+      final StatementImportConfig config,
+      final ObjectMapper objectMapper,
+      final PdfStatementTextExtractor textExtractor) {
+    this.config = config;
+    this.objectMapper = objectMapper;
+    this.textExtractor = textExtractor;
+    this.httpClient = HttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT).build();
+    try {
+      this.responseSchema = objectMapper.readTree(RESPONSE_SCHEMA);
+    } catch (final JsonProcessingException e) {
+      throw new IllegalStateException("Invalid OpenRouter response schema", e);
+    }
+  }
+
+  @Override
+  // The cause is dropped on purpose: it may carry parts of the request or the answer.
+  @SuppressWarnings("PMD.PreserveStackTrace")
+  public ExtractedStatementDTO read(final byte[] pdfContent) throws BusinessException {
+    final String apiKey =
+        config
+            .openRouter()
+            .apiKey()
+            .filter(key -> !key.isBlank())
+            .orElseThrow(
+                () ->
+                    new BusinessException(
+                        FinanceInfraBusinessExceptionType.STATEMENT_AI_NOT_CONFIGURED));
+
+    final String text = textExtractor.extract(pdfContent);
+
+    try {
+      final HttpResponse<byte[]> response =
+          httpClient.send(buildRequest(apiKey, text), HttpResponse.BodyHandlers.ofByteArray());
+      if (response.statusCode() != HTTP_OK) {
+        LOGGER.warn(
+            "OpenRouter returned HTTP {}, error type {}",
+            response.statusCode(),
+            errorTypeOf(response.body()));
+        throw readerFailed();
+      }
+      final JsonNode root = objectMapper.readTree(response.body());
+      if (root.has(ERROR)) {
+        // All models failed after the answer started; the HTTP status is still 200.
+        LOGGER.warn("OpenRouter returned an error, error type {}", errorTypeOf(root));
+        throw readerFailed();
+      }
+      return parseStatement(root);
+
+    } catch (final IOException e) {
+      LOGGER.warn("OpenRouter call failed: {}", e.getClass().getSimpleName());
+      throw readerFailed();
+    } catch (final InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw readerFailed();
+    }
+  }
+
+  private HttpRequest buildRequest(final String apiKey, final String text)
+      throws JsonProcessingException {
+    return HttpRequest.newBuilder(URI.create(config.openRouter().baseUrl() + CHAT_COMPLETIONS_PATH))
+        .timeout(Duration.ofSeconds(config.openRouter().timeoutSeconds()))
+        .header(CONTENT_TYPE_HEADER, JSON_MIME_TYPE)
+        .header(AUTHORIZATION_HEADER, BEARER + apiKey)
+        .header(TITLE_HEADER, APP_TITLE)
+        .POST(HttpRequest.BodyPublishers.ofByteArray(objectMapper.writeValueAsBytes(buildBody(text))))
+        .build();
+  }
+
+  private ObjectNode buildBody(final String text) {
+    final ObjectNode body = objectMapper.createObjectNode();
+
+    // Tried in order: the next model answers when one is busy or fails.
+    final ArrayNode models = body.putArray("models");
+    config.openRouter().models().forEach(models::add);
+
+    final ArrayNode messages = body.putArray("messages");
+    messages.addObject().put(ROLE, "system").put(CONTENT, SYSTEM_PROMPT);
+    messages.addObject().put(ROLE, "user").put(CONTENT, USER_PROMPT_START + text + USER_PROMPT_END);
+
+    body.put("temperature", 0);
+
+    final ObjectNode jsonSchema =
+        body.putObject("response_format").put("type", "json_schema").putObject("json_schema");
+    jsonSchema.put("name", "bank_statement");
+    jsonSchema.put("strict", true);
+    jsonSchema.set("schema", responseSchema);
+
+    // Skip providers that would ignore response_format instead of following it.
+    body.putObject("provider").put("require_parameters", true);
+
+    return body;
+  }
+
+  private ExtractedStatementDTO parseStatement(final JsonNode root)
+      throws BusinessException, JsonProcessingException {
+    final String content =
+        root.path("choices").path(0).path("message").path(CONTENT).asText("");
+    if (content.isBlank()) {
+      LOGGER.warn("OpenRouter returned no statement text");
+      throw readerFailed();
+    }
+
+    LOGGER.info("OpenRouter answered with model {}", root.path("model").asText(UNKNOWN));
+    return StatementExtractionFormat.parse(objectMapper.readTree(content));
+  }
+
+  /** The normalized error type of an error body, for example {@code rate_limit_exceeded}. */
+  private String errorTypeOf(final byte[] body) {
+    try {
+      return errorTypeOf(objectMapper.readTree(body));
+    } catch (final IOException e) {
+      return UNKNOWN;
+    }
+  }
+
+  private static String errorTypeOf(final JsonNode root) {
+    return root.path(ERROR).path("metadata").path("error_type").asText(UNKNOWN);
+  }
+
+  private static BusinessException readerFailed() {
+    return new BusinessException(FinanceInfraBusinessExceptionType.STATEMENT_READER_FAILED);
+  }
+}
