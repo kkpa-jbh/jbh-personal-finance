@@ -3,6 +3,7 @@ package com.jbh.finance.infra.adapters.out.ai;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.statement.dto.ExtractedStatementDTO;
 import com.jbh.finance.application.feature.statement.ports.output.StatementReader;
+import com.jbh.finance.infra.adapters.out.ai.llm.StatementLlm;
 import java.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,8 @@
-package com.jbh.finance.infra.adapters.out.ai;
+package com.jbh.finance.infra.adapters.out.ai.llm;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.statement.dto.ExtractedStatementDTO;
+import com.jbh.finance.infra.adapters.out.ai.StatementTextSource;
 
 /**
  * Step 2 of the statement reader: a language model finds the movements and balances in the text.

@@ -8,12 +8,12 @@ import com.jbh.finance.application.feature.statement.ports.output.MovementClassi
 import com.jbh.finance.application.feature.statement.ports.output.StatementReader;
 import com.jbh.finance.application.feature.statement.usecases.ExtractStatementMovementsUseCase;
 import com.jbh.finance.infra.adapters.out.ai.AzureLayoutTextSourceAdapter;
-import com.jbh.finance.infra.adapters.out.ai.GeminiLlmAdapter;
 import com.jbh.finance.infra.adapters.out.ai.OcrLlmStatementReaderAdapter;
-import com.jbh.finance.infra.adapters.out.ai.OpenRouterLlmAdapter;
 import com.jbh.finance.infra.adapters.out.ai.PdfBoxTextSource;
-import com.jbh.finance.infra.adapters.out.ai.StatementLlm;
 import com.jbh.finance.infra.adapters.out.ai.StatementTextSource;
+import com.jbh.finance.infra.adapters.out.ai.llm.GeminiLlmAdapter;
+import com.jbh.finance.infra.adapters.out.ai.llm.OpenRouterLlmAdapter;
+import com.jbh.finance.infra.adapters.out.ai.llm.StatementLlm;
 import com.jbh.finance.infra.config.StatementImportConfig;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.enterprise.context.ApplicationScoped;

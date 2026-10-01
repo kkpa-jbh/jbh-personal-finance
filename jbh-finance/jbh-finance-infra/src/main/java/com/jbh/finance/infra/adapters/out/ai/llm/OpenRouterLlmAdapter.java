@@ -1,4 +1,4 @@
-package com.jbh.finance.infra.adapters.out.ai;
+package com.jbh.finance.infra.adapters.out.ai.llm;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
