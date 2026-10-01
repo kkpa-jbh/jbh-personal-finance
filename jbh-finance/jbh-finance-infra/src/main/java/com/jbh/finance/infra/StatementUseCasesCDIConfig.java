@@ -7,8 +7,13 @@ import com.jbh.finance.application.feature.statement.ports.input.ExtractStatemen
 import com.jbh.finance.application.feature.statement.ports.output.MovementClassifier;
 import com.jbh.finance.application.feature.statement.ports.output.StatementReader;
 import com.jbh.finance.application.feature.statement.usecases.ExtractStatementMovementsUseCase;
-import com.jbh.finance.infra.adapters.out.ai.GeminiStatementReaderAdapter;
-import com.jbh.finance.infra.adapters.out.ai.OpenRouterStatementReaderAdapter;
+import com.jbh.finance.infra.adapters.out.ai.AzureLayoutTextSourceAdapter;
+import com.jbh.finance.infra.adapters.out.ai.GeminiLlmAdapter;
+import com.jbh.finance.infra.adapters.out.ai.OcrLlmStatementReaderAdapter;
+import com.jbh.finance.infra.adapters.out.ai.OpenRouterLlmAdapter;
+import com.jbh.finance.infra.adapters.out.ai.PdfBoxTextSource;
+import com.jbh.finance.infra.adapters.out.ai.StatementLlm;
+import com.jbh.finance.infra.adapters.out.ai.StatementTextSource;
 import com.jbh.finance.infra.config.StatementImportConfig;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -26,8 +31,11 @@ public class StatementUseCasesCDIConfig {
 
   @Inject CategoryService categoryService;
 
-  // Instance, not a plain injection: two readers exist, and jbh.statement.reader picks one.
-  @Inject @Any Instance<StatementReader> statementReaders;
+  // Instance, not a plain injection: each step has several implementations, and the config
+  // (jbh.statement.text-source, jbh.statement.llm) picks one of each.
+  @Inject @Any Instance<StatementTextSource> textSources;
+
+  @Inject @Any Instance<StatementLlm> llms;
 
   @Inject MovementClassifier movementClassifier;
 
@@ -45,9 +53,20 @@ public class StatementUseCasesCDIConfig {
   }
 
   private StatementReader statementReader() {
-    return switch (config.reader()) {
-      case GEMINI -> statementReaders.select(GeminiStatementReaderAdapter.class).get();
-      case OPENROUTER -> statementReaders.select(OpenRouterStatementReaderAdapter.class).get();
+    return new OcrLlmStatementReaderAdapter(textSource(), llm());
+  }
+
+  private StatementTextSource textSource() {
+    return switch (config.textSource()) {
+      case AZURE -> textSources.select(AzureLayoutTextSourceAdapter.class).get();
+      case PDFBOX -> textSources.select(PdfBoxTextSource.class).get();
+    };
+  }
+
+  private StatementLlm llm() {
+    return switch (config.llm()) {
+      case GEMINI -> llms.select(GeminiLlmAdapter.class).get();
+      case OPENROUTER -> llms.select(OpenRouterLlmAdapter.class).get();
     };
   }
 }

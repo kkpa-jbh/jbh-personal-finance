@@ -3,11 +3,9 @@ package com.jbh.finance.infra.adapters.out.ai;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.statement.dto.ExtractedStatementDTO;
-import com.jbh.finance.application.feature.statement.ports.output.StatementReader;
 import com.jbh.finance.infra.adapters.exceptions.FinanceInfraBusinessExceptionType;
 import com.jbh.finance.infra.config.StatementImportConfig;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -18,37 +16,30 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Reads a statement PDF with Google Gemini (REST {@code generateContent}).
+ * Extracts statement movements from text with Google Gemini (REST {@code generateContent}).
  *
- * <p>This is the only Gemini-specific class. Active when {@code jbh.statement.reader=gemini}; see
+ * <p>This is the only Gemini-specific class. Active when {@code jbh.statement.llm=gemini}; see
  * {@code StatementUseCasesCDIConfig}.
  *
- * <p>The PDF, the prompt answer and the movements are personal data: only HTTP status codes and
- * counts are logged.
+ * <p>The text, the answer and the movements are personal data: only HTTP status codes and counts
+ * are logged.
  */
 @ApplicationScoped
-public class GeminiStatementReaderAdapter implements StatementReader {
+public class GeminiLlmAdapter implements StatementLlm {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(GeminiStatementReaderAdapter.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(GeminiLlmAdapter.class);
 
   private static final int HTTP_OK = 200;
   private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
-  private static final String PDF_MIME_TYPE = "application/pdf";
   private static final String JSON_MIME_TYPE = "application/json";
   private static final String API_KEY_HEADER = "x-goog-api-key";
   private static final String CONTENT_TYPE_HEADER = "Content-Type";
-  private static final String USER_PROMPT = "Extract every movement from this bank statement.";
   private static final String TEXT = "text";
   private static final String PARTS = "parts";
-
-  private static final String SYSTEM_PROMPT =
-      "You read bank account and credit card statements. Return every movement row.\n"
-          + StatementExtractionFormat.RULES;
 
   private static final String RESPONSE_SCHEMA =
       """
@@ -81,7 +72,7 @@ public class GeminiStatementReaderAdapter implements StatementReader {
   private final JsonNode responseSchema;
 
   @Inject
-  public GeminiStatementReaderAdapter(
+  public GeminiLlmAdapter(
       final StatementImportConfig config, final ObjectMapper objectMapper) {
     this.config = config;
     this.objectMapper = objectMapper;
@@ -96,7 +87,7 @@ public class GeminiStatementReaderAdapter implements StatementReader {
   @Override
   // The cause is dropped on purpose: it may carry parts of the request or the answer.
   @SuppressWarnings("PMD.PreserveStackTrace")
-  public ExtractedStatementDTO read(final byte[] pdfContent) throws BusinessException {
+  public ExtractedStatementDTO extract(final String statementText) throws BusinessException {
     final String apiKey =
         config
             .gemini()
@@ -109,7 +100,8 @@ public class GeminiStatementReaderAdapter implements StatementReader {
 
     try {
       final HttpResponse<byte[]> response =
-          httpClient.send(buildRequest(apiKey, pdfContent), HttpResponse.BodyHandlers.ofByteArray());
+          httpClient.send(
+              buildRequest(apiKey, statementText), HttpResponse.BodyHandlers.ofByteArray());
       if (response.statusCode() != HTTP_OK) {
         LOGGER.warn("Gemini returned HTTP {}", response.statusCode());
         throw readerFailed();
@@ -125,7 +117,7 @@ public class GeminiStatementReaderAdapter implements StatementReader {
     }
   }
 
-  private HttpRequest buildRequest(final String apiKey, final byte[] pdfContent)
+  private HttpRequest buildRequest(final String apiKey, final String statementText)
       throws JsonProcessingException {
     final String url =
         config.gemini().baseUrl() + "/models/" + config.gemini().model() + ":generateContent";
@@ -134,22 +126,24 @@ public class GeminiStatementReaderAdapter implements StatementReader {
         .timeout(Duration.ofSeconds(config.gemini().timeoutSeconds()))
         .header(CONTENT_TYPE_HEADER, JSON_MIME_TYPE)
         .header(API_KEY_HEADER, apiKey)
-        .POST(HttpRequest.BodyPublishers.ofByteArray(objectMapper.writeValueAsBytes(buildBody(pdfContent))))
+        .POST(HttpRequest.BodyPublishers.ofByteArray(objectMapper.writeValueAsBytes(buildBody(statementText))))
         .build();
   }
 
-  private ObjectNode buildBody(final byte[] pdfContent) {
+  private ObjectNode buildBody(final String statementText) {
     final ObjectNode body = objectMapper.createObjectNode();
 
-    body.putObject("systemInstruction").putArray(PARTS).addObject().put(TEXT, SYSTEM_PROMPT);
+    body.putObject("systemInstruction")
+        .putArray(PARTS)
+        .addObject()
+        .put(TEXT, StatementExtractionFormat.SYSTEM_PROMPT);
 
     final ObjectNode content = body.putArray("contents").addObject();
     content.put("role", "user");
-    final ArrayNode parts = content.putArray(PARTS);
-    final ObjectNode inlineData = parts.addObject().putObject("inlineData");
-    inlineData.put("mimeType", PDF_MIME_TYPE);
-    inlineData.put("data", Base64.getEncoder().encodeToString(pdfContent));
-    parts.addObject().put(TEXT, USER_PROMPT);
+    content
+        .putArray(PARTS)
+        .addObject()
+        .put(TEXT, StatementExtractionFormat.userPrompt(statementText));
 
     final ObjectNode generationConfig = body.putObject("generationConfig");
     generationConfig.put("temperature", 0);

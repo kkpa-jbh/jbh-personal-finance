@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.statement.dto.ExtractedStatementDTO;
-import com.jbh.finance.application.feature.statement.ports.output.StatementReader;
 import com.jbh.finance.infra.adapters.exceptions.FinanceInfraBusinessExceptionType;
 import com.jbh.finance.infra.config.StatementImportConfig;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -22,20 +21,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Reads a statement with OpenRouter (REST {@code /chat/completions}).
+ * Extracts statement movements from text with OpenRouter (REST {@code /chat/completions}).
  *
- * <p>PDFBox extracts the text locally; only the text is sent. OpenRouter tries the configured
- * models in order and moves to the next one when a model is busy or fails. Active when {@code
- * jbh.statement.reader=openrouter}; see {@code StatementUseCasesCDIConfig}.
+ * <p>OpenRouter tries the configured models in order and moves to the next one when a model is busy
+ * or fails. Active when {@code jbh.statement.llm=openrouter}; see {@code
+ * StatementUseCasesCDIConfig}.
  *
  * <p>The text, the answer and the movements are personal data: only HTTP status codes, error
  * types, the model name and counts are logged.
  */
 @ApplicationScoped
-public class OpenRouterStatementReaderAdapter implements StatementReader {
+public class OpenRouterLlmAdapter implements StatementLlm {
 
-  private static final Logger LOGGER =
-      LoggerFactory.getLogger(OpenRouterStatementReaderAdapter.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(OpenRouterLlmAdapter.class);
 
   private static final int HTTP_OK = 200;
   private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
@@ -50,15 +48,6 @@ public class OpenRouterStatementReaderAdapter implements StatementReader {
   private static final String CONTENT = "content";
   private static final String ERROR = "error";
   private static final String UNKNOWN = "unknown";
-
-  private static final String SYSTEM_PROMPT =
-      "You read the text of bank account and credit card statements. The text was extracted from a"
-          + " PDF, so table columns are separated by spaces. Return every movement row.\n"
-          + StatementExtractionFormat.RULES;
-
-  private static final String USER_PROMPT_START =
-      "Extract every movement from this bank statement.\n<statement>\n";
-  private static final String USER_PROMPT_END = "\n</statement>";
 
   private static final String RESPONSE_SCHEMA =
       """
@@ -89,18 +78,13 @@ public class OpenRouterStatementReaderAdapter implements StatementReader {
 
   private final StatementImportConfig config;
   private final ObjectMapper objectMapper;
-  private final PdfStatementTextExtractor textExtractor;
   private final HttpClient httpClient;
   private final JsonNode responseSchema;
 
   @Inject
-  public OpenRouterStatementReaderAdapter(
-      final StatementImportConfig config,
-      final ObjectMapper objectMapper,
-      final PdfStatementTextExtractor textExtractor) {
+  public OpenRouterLlmAdapter(final StatementImportConfig config, final ObjectMapper objectMapper) {
     this.config = config;
     this.objectMapper = objectMapper;
-    this.textExtractor = textExtractor;
     this.httpClient = HttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT).build();
     try {
       this.responseSchema = objectMapper.readTree(RESPONSE_SCHEMA);
@@ -112,7 +96,7 @@ public class OpenRouterStatementReaderAdapter implements StatementReader {
   @Override
   // The cause is dropped on purpose: it may carry parts of the request or the answer.
   @SuppressWarnings("PMD.PreserveStackTrace")
-  public ExtractedStatementDTO read(final byte[] pdfContent) throws BusinessException {
+  public ExtractedStatementDTO extract(final String statementText) throws BusinessException {
     final String apiKey =
         config
             .openRouter()
@@ -123,11 +107,10 @@ public class OpenRouterStatementReaderAdapter implements StatementReader {
                     new BusinessException(
                         FinanceInfraBusinessExceptionType.STATEMENT_AI_NOT_CONFIGURED));
 
-    final String text = textExtractor.extract(pdfContent);
-
     try {
       final HttpResponse<byte[]> response =
-          httpClient.send(buildRequest(apiKey, text), HttpResponse.BodyHandlers.ofByteArray());
+          httpClient.send(
+              buildRequest(apiKey, statementText), HttpResponse.BodyHandlers.ofByteArray());
       if (response.statusCode() != HTTP_OK) {
         LOGGER.warn(
             "OpenRouter returned HTTP {}, error type {}",
@@ -152,18 +135,18 @@ public class OpenRouterStatementReaderAdapter implements StatementReader {
     }
   }
 
-  private HttpRequest buildRequest(final String apiKey, final String text)
+  private HttpRequest buildRequest(final String apiKey, final String statementText)
       throws JsonProcessingException {
     return HttpRequest.newBuilder(URI.create(config.openRouter().baseUrl() + CHAT_COMPLETIONS_PATH))
         .timeout(Duration.ofSeconds(config.openRouter().timeoutSeconds()))
         .header(CONTENT_TYPE_HEADER, JSON_MIME_TYPE)
         .header(AUTHORIZATION_HEADER, BEARER + apiKey)
         .header(TITLE_HEADER, APP_TITLE)
-        .POST(HttpRequest.BodyPublishers.ofByteArray(objectMapper.writeValueAsBytes(buildBody(text))))
+        .POST(HttpRequest.BodyPublishers.ofByteArray(objectMapper.writeValueAsBytes(buildBody(statementText))))
         .build();
   }
 
-  private ObjectNode buildBody(final String text) {
+  private ObjectNode buildBody(final String statementText) {
     final ObjectNode body = objectMapper.createObjectNode();
 
     // Tried in order: the next model answers when one is busy or fails.
@@ -171,8 +154,11 @@ public class OpenRouterStatementReaderAdapter implements StatementReader {
     config.openRouter().models().forEach(models::add);
 
     final ArrayNode messages = body.putArray("messages");
-    messages.addObject().put(ROLE, "system").put(CONTENT, SYSTEM_PROMPT);
-    messages.addObject().put(ROLE, "user").put(CONTENT, USER_PROMPT_START + text + USER_PROMPT_END);
+    messages.addObject().put(ROLE, "system").put(CONTENT, StatementExtractionFormat.SYSTEM_PROMPT);
+    messages
+        .addObject()
+        .put(ROLE, "user")
+        .put(CONTENT, StatementExtractionFormat.userPrompt(statementText));
 
     body.put("temperature", 0);
 

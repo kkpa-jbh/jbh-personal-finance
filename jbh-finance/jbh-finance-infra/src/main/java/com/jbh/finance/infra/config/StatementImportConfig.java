@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Settings of the bank statement import: OpenRouter or Gemini reads the PDF, Jev classifies each
- * movement.
+ * Settings of the bank statement import: a text source (Azure OCR or PDFBox) turns the PDF into
+ * text, an LLM (OpenRouter or Gemini) finds the movements, Jev classifies each movement.
  *
  * <p>An empty API key env var makes {@code apiKey()} empty, so the service still starts without
  * keys. The import endpoint then answers with a clear error.
@@ -19,8 +19,14 @@ public interface StatementImportConfig {
   @WithName("max-file-size-bytes")
   long maxFileSizeBytes();
 
-  /** Which provider reads the PDF. */
-  Reader reader();
+  /** Step 1: what turns the PDF into text. */
+  @WithName("text-source")
+  TextSource textSource();
+
+  /** Step 2: which LLM finds the movements in the text. */
+  Llm llm();
+
+  Azure azure();
 
   Gemini gemini();
 
@@ -29,10 +35,38 @@ public interface StatementImportConfig {
 
   Jev jev();
 
-  /** The {@code StatementReader} implementations. One is active at a time. */
-  enum Reader {
+  /** The {@code StatementTextSource} implementations. One is active at a time. */
+  enum TextSource {
+    AZURE,
+    PDFBOX
+  }
+
+  /** The {@code StatementLlm} implementations. One is active at a time. */
+  enum Llm {
     GEMINI,
     OPENROUTER
+  }
+
+  interface Azure {
+    /** The resource endpoint, for example https://my-resource.cognitiveservices.azure.com. */
+    Optional<String> endpoint();
+
+    @WithName("api-key")
+    Optional<String> apiKey();
+
+    @WithName("model-id")
+    String modelId();
+
+    @WithName("api-version")
+    String apiVersion();
+
+    /** Pages sent in each request; zero or less sends the whole PDF. The free tier reads 2. */
+    @WithName("pages-per-request")
+    int pagesPerRequest();
+
+    /** Maximum wait for one request, polling included. */
+    @WithName("timeout-seconds")
+    int timeoutSeconds();
   }
 
   interface Gemini {

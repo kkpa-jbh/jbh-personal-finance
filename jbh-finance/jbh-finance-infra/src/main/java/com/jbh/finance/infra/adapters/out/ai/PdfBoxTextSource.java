@@ -9,13 +9,14 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
 /**
- * Extracts the text of an unlocked statement PDF locally, with PDFBox, so only text leaves the
- * server.
+ * Extracts the text of an unlocked statement PDF locally, with PDFBox. Nothing leaves the server
+ * in this step. Active when {@code jbh.statement.text-source=pdfbox}.
  *
- * <p>The text is personal data: it is never logged.
+ * <p>No OCR: a scanned PDF has no text and fails with {@code STATEMENT_PDF_HAS_NO_TEXT}. The text
+ * is personal data: it is never logged.
  */
 @ApplicationScoped
-public class PdfStatementTextExtractor {
+public class PdfBoxTextSource implements StatementTextSource {
 
   /**
    * Returns the text of the PDF, page after page, with each row in reading order.
@@ -26,7 +27,8 @@ public class PdfStatementTextExtractor {
    */
   // The cause is dropped on purpose: PDFBox messages may carry details of the document.
   @SuppressWarnings("PMD.PreserveStackTrace")
-  public String extract(final byte[] pdfContent) throws BusinessException {
+  @Override
+  public String extractText(final byte[] pdfContent) throws BusinessException {
     final String text;
     try (PDDocument document = Loader.loadPDF(pdfContent)) {
       final PDFTextStripper stripper = new PDFTextStripper();
