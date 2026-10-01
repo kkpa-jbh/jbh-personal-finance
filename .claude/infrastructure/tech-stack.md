@@ -62,7 +62,7 @@
 **Authentication:** JSON Web Tokens (JWT)
 
 - Issued by `jbh-iam` (Consul name `jbh-iam-service`) at `/jbh-api/auth/signin`
-- Signed with an HMAC shared secret (env `JWT_SECRET`), the same value in `jbh-iam` and `jbh-gateway`
+- Signed with an HMAC shared secret (env `JBH_JWT_SECRET`), the same value in `jbh-iam` and `jbh-gateway`
 - Validated by `jbh-gateway` only (signature, expiration, `token_type=ACCESS`, `sub` = user id)
 - Access token: 15 minutes. Refresh token: 30 days.
 
