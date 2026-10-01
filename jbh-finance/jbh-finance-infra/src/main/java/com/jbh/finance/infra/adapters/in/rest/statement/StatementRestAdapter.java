@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 public class StatementRestAdapter extends BaseRestAdapter {
 
   private static final Logger LOG = LoggerFactory.getLogger(StatementRestAdapter.class);
+  private static final String LOG_PREFIX = "[StatementImport:Rest]";
   private static final String PDF_EXTENSION = ".pdf";
   private static final String PDF_MIME_TYPE = "application/pdf";
 
@@ -135,7 +136,7 @@ public class StatementRestAdapter extends BaseRestAdapter {
     final StatementClassificationDTO dto =
         useCase.extract(new ExtractStatementMovementsCommand(unlocked));
 
-    LOG.info("Statement import returned {} movements", dto.movements().size());
+    LOG.info(LOG_PREFIX + " Statement import returned {} movements", dto.movements().size());
     return Response.ok(StatementClassificationResponse.fromDTO(dto)).build();
   }
 

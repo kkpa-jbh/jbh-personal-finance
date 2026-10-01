@@ -27,9 +27,23 @@ import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 
+/**
+ * The bank statement import. It owns the 4 steps, so its log lines trace one import end to end.
+ *
+ * <p>Every line starts with {@code [StatementImport]}; the adapters use {@code
+ * [StatementImport:<Name>]}. {@code grep StatementImport} shows a whole import. Only counts, step
+ * names and times are logged: the statement content is personal data.
+ */
 public class ExtractStatementMovementsInputPort implements ExtractStatementMovementsUseCase {
   private static final Logger LOG =
       LoggerFactory.getLogger(ExtractStatementMovementsInputPort.class);
+
+  private static final String LOG_PREFIX = "[StatementImport]";
+  private static final String STEP_READ = "Step 1/4 read statement";
+  private static final String STEP_TOTALS = "Step 2/4 check totals";
+  private static final String STEP_CATEGORIES = "Step 3/4 load categories";
+  private static final String STEP_CLASSIFY = "Step 4/4 classify movements";
+  private static final long NANOS_PER_MILLI = 1_000_000L;
 
   private final StatementReader statementReader;
   private final MovementClassifier movementClassifier;
@@ -60,20 +74,65 @@ public class ExtractStatementMovementsInputPort implements ExtractStatementMovem
     }
     command.validate();
 
-    final ExtractedStatementDTO statement = statementReader.read(command.pdfContent());
-    final List<ExtractedMovementDTO> movements = statement.movements();
-    if (movements.isEmpty()) {
-      throw new BusinessException(BusinessApplicationExceptionType.STATEMENT_NO_MOVEMENTS_FOUND);
+    final byte[] pdfContent = command.pdfContent();
+    final long started = System.nanoTime();
+    LOG.info(LOG_PREFIX + " Start: PDF of {} bytes", pdfContent.length);
+
+    // Tells the failure line which step broke.
+    String step = STEP_READ;
+    try {
+      // Step 1: the StatementReader adapter turns the PDF into movements (OCR + LLM).
+      long stepStarted = startStep(step);
+      final ExtractedStatementDTO statement = statementReader.read(pdfContent);
+      final List<ExtractedMovementDTO> movements = statement.movements();
+      LOG.info(
+          LOG_PREFIX + " {} done in {} ms: {} movements",
+          step,
+          millisSince(stepStarted),
+          movements.size());
+      if (movements.isEmpty()) {
+        throw new BusinessException(BusinessApplicationExceptionType.STATEMENT_NO_MOVEMENTS_FOUND);
+      }
+
+      // Step 2: compare the movements with the balance change printed on the statement.
+      step = STEP_TOTALS;
+      final TotalsCheckDTO totals = totalsChecker.check(statement);
+      LOG.info(LOG_PREFIX + " {} done: {}", step, totals.status());
+
+      // Step 3: the categories the classifier may choose from (database).
+      step = STEP_CATEGORIES;
+      stepStarted = startStep(step);
+      final StatementCategoryCatalog catalog =
+          StatementCategoryCatalog.load(categoryQueryRepo, categoryService);
+      LOG.info(LOG_PREFIX + " {} done in {} ms", step, millisSince(stepStarted));
+
+      // Step 4: the MovementClassifier adapter picks one category per movement, in batches.
+      step = STEP_CLASSIFY;
+      stepStarted = startStep(step);
+      final Map<String, ClassificationAnswerDTO> answers = classify(movements, catalog);
+      final List<CategorizedMovementDTO> categorized = categorize(movements, answers, catalog);
+      LOG.info(LOG_PREFIX + " {} done in {} ms", step, millisSince(stepStarted));
+
+      LOG.info(
+          LOG_PREFIX + " Done in {} ms: {} movements, totals {}",
+          millisSince(started),
+          categorized.size(),
+          totals.status());
+      return new StatementClassificationDTO(categorized, totals);
+
+    } catch (final BusinessException e) {
+      LOG.warn(LOG_PREFIX + " Failed at {} after {} ms", step, millisSince(started));
+      throw e;
     }
+  }
 
-    final TotalsCheckDTO totals = totalsChecker.check(statement);
-    final StatementCategoryCatalog catalog =
-        StatementCategoryCatalog.load(categoryQueryRepo, categoryService);
+  private static long startStep(final String step) {
+    LOG.info(LOG_PREFIX + " {} started", step);
+    return System.nanoTime();
+  }
 
-    final Map<String, ClassificationAnswerDTO> answers = classify(movements, catalog);
-    final List<CategorizedMovementDTO> categorized = categorize(movements, answers, catalog);
-
-    return new StatementClassificationDTO(categorized, totals);
+  private static long millisSince(final long startNanos) {
+    return (System.nanoTime() - startNanos) / NANOS_PER_MILLI;
   }
 
   private Map<String, ClassificationAnswerDTO> classify(
@@ -86,17 +145,24 @@ public class ExtractStatementMovementsInputPort implements ExtractStatementMovem
 
     final Map<String, ClassificationAnswerDTO> answers = new HashMap<>();
     final int batchSize = settings.batchSize();
-    int batches = 0;
+    final int totalBatches = (questions.size() + batchSize - 1) / batchSize;
+    int batch = 0;
     for (int start = 0; start < questions.size(); start += batchSize) {
       final int end = Math.min(start + batchSize, questions.size());
+      batch++;
+      final long batchStarted = System.nanoTime();
       for (final ClassificationAnswerDTO answer :
           movementClassifier.classify(questions.subList(start, end))) {
         answers.put(answer.key(), answer);
       }
-      batches++;
+      LOG.info(
+          LOG_PREFIX + " {} batch {}/{} ({} movements) done in {} ms",
+          STEP_CLASSIFY,
+          batch,
+          totalBatches,
+          end - start,
+          millisSince(batchStarted));
     }
-
-    LOG.info("Classified {} statement movements in {} batches", movements.size(), batches);
     return answers;
   }
 
@@ -136,7 +202,8 @@ public class ExtractStatementMovementsInputPort implements ExtractStatementMovem
               lowConfidence));
     }
 
-    LOG.info("{} of {} statement movements need review", lowConfidenceCount, movements.size());
+    LOG.info(
+        LOG_PREFIX + " {} of {} movements need review", lowConfidenceCount, movements.size());
     return categorized;
   }
 }

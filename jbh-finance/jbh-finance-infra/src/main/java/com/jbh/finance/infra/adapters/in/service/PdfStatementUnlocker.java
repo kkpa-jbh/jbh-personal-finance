@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 public class PdfStatementUnlocker {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(PdfStatementUnlocker.class);
+  private static final String LOG_PREFIX = "[StatementImport:PdfBoxUnlock]";
   private static final String NO_PASSWORD = "";
 
   /**
@@ -38,7 +39,7 @@ public class PdfStatementUnlocker {
     try (PDDocument document =
         Loader.loadPDF(pdfContent, password == null ? NO_PASSWORD : password)) {
       if (!document.isEncrypted()) {
-        LOGGER.debug("Statement PDF is not encrypted");
+        LOGGER.info(LOG_PREFIX + " PDF is not encrypted");
         return pdfContent;
       }
 
@@ -46,7 +47,7 @@ public class PdfStatementUnlocker {
       document.setAllSecurityToBeRemoved(true);
       final ByteArrayOutputStream output = new ByteArrayOutputStream();
       document.save(output);
-      LOGGER.debug("Statement PDF unlocked");
+      LOGGER.info(LOG_PREFIX + " PDF unlocked");
       return output.toByteArray();
 
     } catch (final InvalidPasswordException e) {

@@ -10,6 +10,8 @@ import java.util.List;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Cuts an unlocked PDF into parts of a fixed number of pages, in memory, with PDFBox.
@@ -20,6 +22,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 @ApplicationScoped
 public class PdfStatementSplitter {
 
+  private static final Logger LOGGER = LoggerFactory.getLogger(PdfStatementSplitter.class);
+  private static final String LOG_PREFIX = "[StatementImport:PdfBoxSplit]";
   private static final int NO_SPLIT = 0;
 
   /**
@@ -40,6 +44,7 @@ public class PdfStatementSplitter {
 
     try (PDDocument document = Loader.loadPDF(pdfContent)) {
       if (document.getNumberOfPages() <= pagesPerPart) {
+        LOGGER.info(LOG_PREFIX + " No split needed: {} pages", document.getNumberOfPages());
         return List.of(pdfContent);
       }
 
@@ -53,6 +58,11 @@ public class PdfStatementSplitter {
           parts.add(output.toByteArray());
         }
       }
+      LOGGER.info(
+          LOG_PREFIX + " Split {} pages into {} parts of up to {} pages",
+          document.getNumberOfPages(),
+          parts.size(),
+          pagesPerPart);
       return parts;
 
     } catch (final IOException e) {

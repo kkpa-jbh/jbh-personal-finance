@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 public class OpenRouterLlmAdapter implements StatementLlm {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(OpenRouterLlmAdapter.class);
+  private static final String LOG_PREFIX = "[StatementImport:OpenRouter]";
 
   private static final int HTTP_OK = 200;
   private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
@@ -108,12 +109,21 @@ public class OpenRouterLlmAdapter implements StatementLlm {
                         FinanceInfraBusinessExceptionType.STATEMENT_AI_NOT_CONFIGURED));
 
     try {
+      final long started = System.nanoTime();
+      LOGGER.info(
+          LOG_PREFIX + " Sending {} characters to models {}",
+          statementText.length(),
+          config.openRouter().models());
       final HttpResponse<byte[]> response =
           httpClient.send(
               buildRequest(apiKey, statementText), HttpResponse.BodyHandlers.ofByteArray());
+      LOGGER.info(
+          LOG_PREFIX + " HTTP {} in {} ms",
+          response.statusCode(),
+          Duration.ofNanos(System.nanoTime() - started).toMillis());
       if (response.statusCode() != HTTP_OK) {
         LOGGER.warn(
-            "OpenRouter returned HTTP {}, error type {}",
+            LOG_PREFIX + " OpenRouter returned HTTP {}, error type {}",
             response.statusCode(),
             errorTypeOf(response.body()));
         throw readerFailed();
@@ -121,13 +131,13 @@ public class OpenRouterLlmAdapter implements StatementLlm {
       final JsonNode root = objectMapper.readTree(response.body());
       if (root.has(ERROR)) {
         // All models failed after the answer started; the HTTP status is still 200.
-        LOGGER.warn("OpenRouter returned an error, error type {}", errorTypeOf(root));
+        LOGGER.warn(LOG_PREFIX + " OpenRouter returned an error, error type {}", errorTypeOf(root));
         throw readerFailed();
       }
       return parseStatement(root);
 
     } catch (final IOException e) {
-      LOGGER.warn("OpenRouter call failed: {}", e.getClass().getSimpleName());
+      LOGGER.warn(LOG_PREFIX + " OpenRouter call failed: {}", e.getClass().getSimpleName());
       throw readerFailed();
     } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -179,11 +189,11 @@ public class OpenRouterLlmAdapter implements StatementLlm {
     final String content =
         root.path("choices").path(0).path("message").path(CONTENT).asText("");
     if (content.isBlank()) {
-      LOGGER.warn("OpenRouter returned no statement text");
+      LOGGER.warn(LOG_PREFIX + " OpenRouter returned no statement text");
       throw readerFailed();
     }
 
-    LOGGER.info("OpenRouter answered with model {}", root.path("model").asText(UNKNOWN));
+    LOGGER.info(LOG_PREFIX + " OpenRouter answered with model {}", root.path("model").asText(UNKNOWN));
     return StatementExtractionFormat.parse(objectMapper.readTree(content));
   }
 

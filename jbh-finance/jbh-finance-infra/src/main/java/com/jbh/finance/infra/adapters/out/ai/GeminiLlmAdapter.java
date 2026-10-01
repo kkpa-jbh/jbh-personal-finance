@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 public class GeminiLlmAdapter implements StatementLlm {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(GeminiLlmAdapter.class);
+  private static final String LOG_PREFIX = "[StatementImport:Gemini]";
 
   private static final int HTTP_OK = 200;
   private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
@@ -99,17 +100,26 @@ public class GeminiLlmAdapter implements StatementLlm {
                         FinanceInfraBusinessExceptionType.STATEMENT_AI_NOT_CONFIGURED));
 
     try {
+      final long started = System.nanoTime();
+      LOGGER.info(
+          LOG_PREFIX + " Sending {} characters to model {}",
+          statementText.length(),
+          config.gemini().model());
       final HttpResponse<byte[]> response =
           httpClient.send(
               buildRequest(apiKey, statementText), HttpResponse.BodyHandlers.ofByteArray());
+      LOGGER.info(
+          LOG_PREFIX + " HTTP {} in {} ms",
+          response.statusCode(),
+          Duration.ofNanos(System.nanoTime() - started).toMillis());
       if (response.statusCode() != HTTP_OK) {
-        LOGGER.warn("Gemini returned HTTP {}", response.statusCode());
+        LOGGER.warn(LOG_PREFIX + " Gemini returned HTTP {}", response.statusCode());
         throw readerFailed();
       }
       return parseStatement(objectMapper.readTree(response.body()));
 
     } catch (final IOException e) {
-      LOGGER.warn("Gemini call failed: {}", e.getClass().getSimpleName());
+      LOGGER.warn(LOG_PREFIX + " Gemini call failed: {}", e.getClass().getSimpleName());
       throw readerFailed();
     } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -159,7 +169,7 @@ public class GeminiLlmAdapter implements StatementLlm {
         root.path("candidates").path(0).path("content").path(PARTS).path(0).path(TEXT).asText("");
     if (text.isBlank()) {
       // For example a safety block (promptFeedback.blockReason).
-      LOGGER.warn("Gemini returned no statement text");
+      LOGGER.warn(LOG_PREFIX + " Gemini returned no statement text");
       throw readerFailed();
     }
 

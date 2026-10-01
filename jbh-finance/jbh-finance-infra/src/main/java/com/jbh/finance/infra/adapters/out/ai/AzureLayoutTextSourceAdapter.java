@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 public class AzureLayoutTextSourceAdapter implements StatementTextSource {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AzureLayoutTextSourceAdapter.class);
+  private static final String LOG_PREFIX = "[StatementImport:Azure]";
 
   private static final int HTTP_OK = 200;
   private static final int HTTP_ACCEPTED = 202;
@@ -81,19 +82,32 @@ public class AzureLayoutTextSourceAdapter implements StatementTextSource {
     final List<byte[]> parts = splitter.split(pdfContent, config.azure().pagesPerRequest());
     final StringBuilder text = new StringBuilder();
     try {
+      int partNumber = 0;
       for (final byte[] part : parts) {
+        partNumber++;
+        final long partStarted = System.nanoTime();
+        LOGGER.info(
+            LOG_PREFIX + " Part {}/{} sent ({} bytes)", partNumber, parts.size(), part.length);
         final URI operation = startAnalysis(endpoint, apiKey, part);
-        text.append(waitForContent(operation, apiKey)).append(PART_SEPARATOR);
+        final String content = waitForContent(operation, apiKey);
+        text.append(content).append(PART_SEPARATOR);
+        LOGGER.info(
+            LOG_PREFIX + " Part {}/{} done in {} ms: {} characters",
+            partNumber,
+            parts.size(),
+            Duration.ofNanos(System.nanoTime() - partStarted).toMillis(),
+            content.length());
       }
     } catch (final IOException e) {
-      LOGGER.warn("Azure call failed: {}", e.getClass().getSimpleName());
+      LOGGER.warn(LOG_PREFIX + " Azure call failed: {}", e.getClass().getSimpleName());
       throw readerFailed();
     } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
       throw readerFailed();
     }
 
-    LOGGER.info("Azure read the statement in {} parts", parts.size());
+    LOGGER.info(
+        LOG_PREFIX + " Read the statement in {} parts: {} characters", parts.size(), text.length());
     if (text.toString().isBlank()) {
       throw new BusinessException(FinanceInfraBusinessExceptionType.STATEMENT_PDF_HAS_NO_TEXT);
     }
@@ -120,7 +134,7 @@ public class AzureLayoutTextSourceAdapter implements StatementTextSource {
     final Optional<String> operation = response.headers().firstValue(OPERATION_LOCATION_HEADER);
     if (response.statusCode() != HTTP_ACCEPTED || operation.isEmpty()) {
       LOGGER.warn(
-          "Azure returned HTTP {}, error code {}", response.statusCode(), errorCodeOf(response));
+          LOG_PREFIX + " Azure returned HTTP {}, error code {}", response.statusCode(), errorCodeOf(response));
       throw readerFailed();
     }
     return URI.create(operation.get());
@@ -141,7 +155,7 @@ public class AzureLayoutTextSourceAdapter implements StatementTextSource {
       final HttpResponse<byte[]> response = sendThrottled(request);
       if (response.statusCode() != HTTP_OK) {
         LOGGER.warn(
-            "Azure returned HTTP {}, error code {}", response.statusCode(), errorCodeOf(response));
+            LOG_PREFIX + " Azure returned HTTP {}, error code {}", response.statusCode(), errorCodeOf(response));
         throw readerFailed();
       }
 
@@ -152,13 +166,13 @@ public class AzureLayoutTextSourceAdapter implements StatementTextSource {
       }
       if (STATUS_FAILED.equals(status)) {
         LOGGER.warn(
-            "Azure analysis failed, error code {}", result.path("error").path("code").asText(UNKNOWN));
+            LOG_PREFIX + " Azure analysis failed, error code {}", result.path("error").path("code").asText(UNKNOWN));
         throw readerFailed();
       }
       Thread.sleep(waitMillis(response));
     }
 
-    LOGGER.warn("Azure analysis did not end in {} seconds", config.azure().timeoutSeconds());
+    LOGGER.warn(LOG_PREFIX + " Azure analysis did not end in {} seconds", config.azure().timeoutSeconds());
     throw readerFailed();
   }
 
@@ -168,7 +182,7 @@ public class AzureLayoutTextSourceAdapter implements StatementTextSource {
     HttpResponse<byte[]> response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
     int attempt = 1;
     while (response.statusCode() == HTTP_TOO_MANY_REQUESTS && attempt < MAX_THROTTLED_ATTEMPTS) {
-      LOGGER.warn("Azure returned HTTP 429, retrying");
+      LOGGER.warn(LOG_PREFIX + " Azure returned HTTP 429, retrying");
       Thread.sleep(waitMillis(response));
       attempt++;
       response = httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());

@@ -6,7 +6,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import java.time.Duration;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Extracts the text of an unlocked statement PDF locally, with PDFBox. Nothing leaves the server
@@ -17,6 +20,9 @@ import org.apache.pdfbox.text.PDFTextStripper;
  */
 @ApplicationScoped
 public class PdfBoxTextSource implements StatementTextSource {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(PdfBoxTextSource.class);
+  private static final String LOG_PREFIX = "[StatementImport:PdfBoxText]";
 
   /**
    * Returns the text of the PDF, page after page, with each row in reading order.
@@ -29,6 +35,7 @@ public class PdfBoxTextSource implements StatementTextSource {
   @SuppressWarnings("PMD.PreserveStackTrace")
   @Override
   public String extractText(final byte[] pdfContent) throws BusinessException {
+    final long started = System.nanoTime();
     final String text;
     try (PDDocument document = Loader.loadPDF(pdfContent)) {
       final PDFTextStripper stripper = new PDFTextStripper();
@@ -40,8 +47,13 @@ public class PdfBoxTextSource implements StatementTextSource {
     }
 
     if (text == null || text.isBlank()) {
+      LOGGER.warn(LOG_PREFIX + " The PDF has no text");
       throw new BusinessException(FinanceInfraBusinessExceptionType.STATEMENT_PDF_HAS_NO_TEXT);
     }
+    LOGGER.info(
+        LOG_PREFIX + " Extracted {} characters in {} ms",
+        text.length(),
+        Duration.ofNanos(System.nanoTime() - started).toMillis());
     return text;
   }
 }

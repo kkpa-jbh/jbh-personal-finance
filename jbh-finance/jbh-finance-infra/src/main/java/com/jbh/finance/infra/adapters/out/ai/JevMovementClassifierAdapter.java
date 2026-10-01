@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 public class JevMovementClassifierAdapter implements MovementClassifier {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(JevMovementClassifierAdapter.class);
+  private static final String LOG_PREFIX = "[StatementImport:Jev]";
 
   private static final int HTTP_OK = 200;
   private static final int HTTP_TOO_MANY_REQUESTS = 429;
@@ -89,13 +90,13 @@ public class JevMovementClassifierAdapter implements MovementClassifier {
       final HttpRequest request = buildRequest(apiKey, questions);
       final HttpResponse<byte[]> response = sendWithRetry(request);
       if (response.statusCode() != HTTP_OK) {
-        LOGGER.warn("Jev returned HTTP {}", response.statusCode());
+        LOGGER.warn(LOG_PREFIX + " Jev returned HTTP {}", response.statusCode());
         throw classifierFailed();
       }
       return parseAnswers(objectMapper.readTree(response.body()), questions);
 
     } catch (final IOException e) {
-      LOGGER.warn("Jev call failed: {}", e.getClass().getSimpleName());
+      LOGGER.warn(LOG_PREFIX + " Jev call failed: {}", e.getClass().getSimpleName());
       throw classifierFailed();
     } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
@@ -111,7 +112,7 @@ public class JevMovementClassifierAdapter implements MovementClassifier {
         httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
 
     while (isRetryable(response.statusCode()) && attempt < MAX_ATTEMPTS) {
-      LOGGER.warn("Jev returned HTTP {}, retrying", response.statusCode());
+      LOGGER.warn(LOG_PREFIX + " Jev returned HTTP {}, retrying", response.statusCode());
       Thread.sleep(retryAfterMillis(response).orElse(waitMillis));
       waitMillis *= 2;
       attempt++;
@@ -193,7 +194,7 @@ public class JevMovementClassifierAdapter implements MovementClassifier {
                 question.key(), choice.asText(), BigDecimal.valueOf(confidence.asDouble())));
       }
     }
-    LOGGER.info("Jev answered {} of {} questions", result.size(), questions.size());
+    LOGGER.info(LOG_PREFIX + " Jev answered {} of {} questions", result.size(), questions.size());
     return result;
   }
 

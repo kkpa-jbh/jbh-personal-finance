@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 public final class StatementExtractionFormat {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(StatementExtractionFormat.class);
+  private static final String LOG_PREFIX = "[StatementImport:LlmParse]";
 
   /** The extraction rules, part of {@link #SYSTEM_PROMPT}. */
   private static final String RULES =
@@ -82,7 +83,7 @@ public final class StatementExtractionFormat {
         skipped++;
       }
     }
-    LOGGER.info("Read {} statement movements, skipped {}", movements.size(), skipped);
+    LOGGER.info(LOG_PREFIX + " Read {} statement movements, skipped {}", movements.size(), skipped);
 
     return new ExtractedStatementDTO(
         movements,
