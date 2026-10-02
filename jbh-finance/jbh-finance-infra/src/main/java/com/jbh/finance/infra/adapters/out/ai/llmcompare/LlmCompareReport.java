@@ -21,7 +21,7 @@ import java.util.List;
  */
 final class LlmCompareReport {
 
-  private static final DateTimeFormatter FOLDER_NAME =
+  static final DateTimeFormatter FOLDER_NAME =
       DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss-SSS");
   private static final String TXT = ".txt";
   private static final String NONE = "-";
