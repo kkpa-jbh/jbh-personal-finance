@@ -46,8 +46,18 @@ public class GeminiLlmAdapter implements StatementLlm {
       {
         "type": "OBJECT",
         "properties": {
-          "openingBalance": { "type": "STRING", "nullable": true },
-          "closingBalance": { "type": "STRING", "nullable": true },
+          "balances": {
+            "type": "ARRAY",
+            "items": {
+              "type": "OBJECT",
+              "properties": {
+                "currency": { "type": "STRING", "description": "ISO 4217 code, for example COP" },
+                "openingBalance": { "type": "STRING", "nullable": true },
+                "closingBalance": { "type": "STRING", "nullable": true }
+              },
+              "required": ["currency"]
+            }
+          },
           "movements": {
             "type": "ARRAY",
             "items": {
@@ -56,13 +66,14 @@ public class GeminiLlmAdapter implements StatementLlm {
                 "date": { "type": "STRING", "description": "yyyy-MM-dd" },
                 "description": { "type": "STRING" },
                 "amount": { "type": "STRING", "description": "Positive decimal, dot as decimal separator" },
+                "currency": { "type": "STRING", "description": "ISO 4217 code, for example COP" },
                 "direction": { "type": "STRING", "format": "enum", "enum": ["CREDIT", "DEBIT"] }
               },
-              "required": ["date", "description", "amount", "direction"]
+              "required": ["date", "description", "amount", "currency", "direction"]
             }
           }
         },
-        "required": ["movements"]
+        "required": ["balances", "movements"]
       }
       """;
 
@@ -123,6 +134,17 @@ public class GeminiLlmAdapter implements StatementLlm {
     } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
       throw readerFailed();
+    }
+  }
+
+  @Override
+  public String requestBody(final String statementText) {
+    try {
+      return objectMapper
+          .writerWithDefaultPrettyPrinter()
+          .writeValueAsString(buildBody(statementText));
+    } catch (final JsonProcessingException e) {
+      return "";
     }
   }
 

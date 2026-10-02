@@ -11,6 +11,7 @@ import com.jbh.finance.application.feature.statement.dto.ClassificationQuestionD
 import com.jbh.finance.application.feature.statement.dto.StatementMovementDirection;
 import com.jbh.finance.application.feature.statement.ports.output.MovementClassifier;
 import com.jbh.finance.infra.adapters.exceptions.FinanceInfraBusinessExceptionType;
+import com.jbh.finance.infra.adapters.out.ai.llmcompare.JevTrace;
 import com.jbh.finance.infra.config.StatementImportConfig;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -20,6 +21,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,13 +63,15 @@ public class JevMovementClassifierAdapter implements MovementClassifier {
 
   private final StatementImportConfig config;
   private final ObjectMapper objectMapper;
+  private final JevTrace trace;
   private final HttpClient httpClient;
 
   @Inject
   public JevMovementClassifierAdapter(
-      final StatementImportConfig config, final ObjectMapper objectMapper) {
+      final StatementImportConfig config, final ObjectMapper objectMapper, final JevTrace trace) {
     this.config = config;
     this.objectMapper = objectMapper;
+    this.trace = trace;
     this.httpClient = HttpClient.newBuilder().connectTimeout(CONNECT_TIMEOUT).build();
   }
 
@@ -87,8 +91,13 @@ public class JevMovementClassifierAdapter implements MovementClassifier {
                         FinanceInfraBusinessExceptionType.STATEMENT_AI_NOT_CONFIGURED));
 
     try {
-      final HttpRequest request = buildRequest(apiKey, questions);
+      final ObjectNode body = buildBody(questions);
+      final HttpRequest request = buildRequest(apiKey, body);
       final HttpResponse<byte[]> response = sendWithRetry(request);
+      // Temporary: for the LLM comparison files. Records nothing when the comparison is off.
+      trace.record(
+          objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(body),
+          new String(response.body(), StandardCharsets.UTF_8));
       if (response.statusCode() != HTTP_OK) {
         LOGGER.warn(LOG_PREFIX + " Jev returned HTTP {}", response.statusCode());
         throw classifierFailed();
@@ -139,14 +148,13 @@ public class JevMovementClassifierAdapter implements MovementClassifier {
     }
   }
 
-  private HttpRequest buildRequest(
-      final String apiKey, final List<ClassificationQuestionDTO> questions)
+  private HttpRequest buildRequest(final String apiKey, final ObjectNode body)
       throws JsonProcessingException {
     return HttpRequest.newBuilder(URI.create(config.jev().baseUrl() + SYSTEMONE_PATH))
         .timeout(Duration.ofSeconds(config.jev().timeoutSeconds()))
         .header("Authorization", "Bearer " + apiKey)
         .header("Content-Type", "application/json")
-        .POST(HttpRequest.BodyPublishers.ofByteArray(objectMapper.writeValueAsBytes(buildBody(questions))))
+        .POST(HttpRequest.BodyPublishers.ofByteArray(objectMapper.writeValueAsBytes(body)))
         .build();
   }
 

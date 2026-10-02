@@ -49,9 +49,10 @@ public class OllamaLlmAdapter implements StatementLlm {
       """
 
       Answer with one JSON object only, no other text:
-      {"openingBalance": "123.45" or null, "closingBalance": "123.45" or null,
+      {"balances": [{"currency": "COP", "openingBalance": "123.45" or null,
+                     "closingBalance": "123.45" or null}],
        "movements": [{"date": "yyyy-MM-dd", "description": "...", "amount": "123.45",
-                      "direction": "CREDIT" or "DEBIT"}]}
+                      "currency": "COP", "direction": "CREDIT" or "DEBIT"}]}
       """;
 
   private final LlmCompareConfig config;
@@ -104,6 +105,17 @@ public class OllamaLlmAdapter implements StatementLlm {
     } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
       throw readerFailed();
+    }
+  }
+
+  @Override
+  public String requestBody(final String statementText) {
+    try {
+      return objectMapper
+          .writerWithDefaultPrettyPrinter()
+          .writeValueAsString(buildBody(statementText));
+    } catch (final JsonProcessingException e) {
+      return "";
     }
   }
 

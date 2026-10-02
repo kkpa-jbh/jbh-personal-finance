@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.slf4j.Logger;
 
 /**
@@ -94,10 +95,11 @@ public class ExtractStatementMovementsInputPort implements ExtractStatementMovem
         throw new BusinessException(BusinessApplicationExceptionType.STATEMENT_NO_MOVEMENTS_FOUND);
       }
 
-      // Step 2: compare the movements with the balance change printed on the statement.
+      // Step 2: compare the movements with the balance change printed on the statement,
+      // once per currency.
       step = STEP_TOTALS;
-      final TotalsCheckDTO totals = totalsChecker.check(statement);
-      LOG.info(LOG_PREFIX + " {} done: {}", step, totals.status());
+      final List<TotalsCheckDTO> totals = totalsChecker.check(statement);
+      LOG.info(LOG_PREFIX + " {} done: {}", step, describe(totals));
 
       // Step 3: the categories the classifier may choose from (database).
       step = STEP_CATEGORIES;
@@ -117,13 +119,20 @@ public class ExtractStatementMovementsInputPort implements ExtractStatementMovem
           LOG_PREFIX + " Done in {} ms: {} movements, totals {}",
           millisSince(started),
           categorized.size(),
-          totals.status());
+          describe(totals));
       return new StatementClassificationDTO(categorized, totals);
 
     } catch (final BusinessException e) {
       LOG.warn(LOG_PREFIX + " Failed at {} after {} ms", step, millisSince(started));
       throw e;
     }
+  }
+
+  /** For example {@code COP MATCH, USD NOT_AVAILABLE}. */
+  private static String describe(final List<TotalsCheckDTO> totals) {
+    return totals.stream()
+        .map(check -> check.currency() + " " + check.status())
+        .collect(Collectors.joining(", "));
   }
 
   private static long startStep(final String step) {
@@ -195,6 +204,7 @@ public class ExtractStatementMovementsInputPort implements ExtractStatementMovem
               movement.date(),
               movement.description(),
               movement.amount(),
+              movement.currency(),
               movement.direction(),
               alias,
               catalog.displayNameOf(alias),

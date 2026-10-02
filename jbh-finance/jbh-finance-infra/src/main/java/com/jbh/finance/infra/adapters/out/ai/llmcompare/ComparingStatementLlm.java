@@ -31,6 +31,11 @@ class ComparingStatementLlm implements StatementLlm {
   }
 
   @Override
+  public String requestBody(final String statementText) {
+    return active.requestBody(statementText);
+  }
+
+  @Override
   public ExtractedStatementDTO extract(final String statementText) throws BusinessException {
     final long started = System.nanoTime();
     final String answer;

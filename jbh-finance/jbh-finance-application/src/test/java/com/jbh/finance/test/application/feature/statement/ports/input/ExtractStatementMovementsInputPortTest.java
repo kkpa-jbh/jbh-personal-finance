@@ -24,6 +24,7 @@ import com.jbh.finance.application.feature.statement.dto.ClassificationQuestionD
 import com.jbh.finance.application.feature.statement.dto.ClassificationSettings;
 import com.jbh.finance.application.feature.statement.dto.ExtractedMovementDTO;
 import com.jbh.finance.application.feature.statement.dto.ExtractedStatementDTO;
+import com.jbh.finance.application.feature.statement.dto.StatementBalanceDTO;
 import com.jbh.finance.application.feature.statement.dto.StatementClassificationDTO;
 import com.jbh.finance.application.feature.statement.dto.StatementMovementDirection;
 import com.jbh.finance.application.feature.statement.dto.TotalsCheckStatus;
@@ -54,6 +55,7 @@ class ExtractStatementMovementsInputPortTest {
   private static final String SALARY = "INC_SALARY";
   private static final byte[] PDF_BYTES = {37, 80, 68, 70};
   private static final LocalDate DATE = LocalDate.of(2026, 9, 1);
+  private static final String COP = "COP";
 
   @Mock private StatementReader statementReader;
 
@@ -80,7 +82,7 @@ class ExtractStatementMovementsInputPortTest {
   @Test
   void shouldThrowWhenStatementHasNoMovements() throws BusinessException {
     // Arrange
-    when(statementReader.read(any())).thenReturn(new ExtractedStatementDTO(List.of(), null, null));
+    when(statementReader.read(any())).thenReturn(new ExtractedStatementDTO(List.of(), List.of()));
 
     // Act
     final BusinessException exception =
@@ -195,9 +197,10 @@ class ExtractStatementMovementsInputPortTest {
     // Assert
     assertEquals("NOMINA EMPRESA", result.movements().get(0).description());
     assertEquals(SALARY, result.movements().get(0).categoryAlias());
+    assertEquals(COP, result.movements().get(0).currency());
     assertEquals("COMPRA EXITO", result.movements().get(1).description());
     assertEquals(GROCERY, result.movements().get(1).categoryAlias());
-    assertEquals(TotalsCheckStatus.MATCH, result.totalsCheck().status());
+    assertEquals(TotalsCheckStatus.MATCH, result.totalsChecks().get(0).status());
   }
 
   @Test
@@ -239,7 +242,9 @@ class ExtractStatementMovementsInputPortTest {
       final BigDecimal closing)
       throws BusinessException {
     when(statementReader.read(any()))
-        .thenReturn(new ExtractedStatementDTO(movements, opening, closing));
+        .thenReturn(
+            new ExtractedStatementDTO(
+                movements, List.of(new StatementBalanceDTO(COP, opening, closing))));
   }
 
   private void stubAnswers(final ClassificationAnswerDTO... answers) throws BusinessException {
@@ -260,7 +265,7 @@ class ExtractStatementMovementsInputPortTest {
 
   private static ExtractedMovementDTO movement(
       final String description, final String amount, final StatementMovementDirection direction) {
-    return new ExtractedMovementDTO(DATE, description, new BigDecimal(amount), direction);
+    return new ExtractedMovementDTO(DATE, description, new BigDecimal(amount), COP, direction);
   }
 
   private static CategoryDTO category(

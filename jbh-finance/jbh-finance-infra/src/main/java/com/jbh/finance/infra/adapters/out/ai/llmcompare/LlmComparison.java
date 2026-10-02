@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -68,8 +70,10 @@ public class LlmComparison {
   private void compare(final String statementText, final ProviderRun activeRun) {
     try {
       final List<CompletableFuture<ProviderRun>> others = new ArrayList<>();
+      final Map<String, String> requests = new LinkedHashMap<>();
       for (final Instance.Handle<StatementLlm> handle : llms.handles()) {
         final String name = handle.getBean().getBeanClass().getSimpleName();
+        requests.put(name, handle.get().requestBody(statementText));
         if (!name.equals(activeRun.provider())) {
           others.add(
               CompletableFuture.supplyAsync(
@@ -82,6 +86,7 @@ public class LlmComparison {
       others.forEach(other -> runs.add(other.join()));
 
       final Path folder = LlmCompareReport.write(Path.of(config.outputDir()), statementText, runs);
+      LlmCompareReport.writeRequests(folder, requests);
       LOGGER.info(
           LOG_PREFIX + " Compared {} providers. Results in {}", runs.size(), folder.toAbsolutePath());
     } catch (final IOException | RuntimeException e) {

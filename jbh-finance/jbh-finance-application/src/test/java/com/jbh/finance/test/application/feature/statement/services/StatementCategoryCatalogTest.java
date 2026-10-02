@@ -93,6 +93,7 @@ class StatementCategoryCatalogTest {
             LocalDate.of(2026, 9, 1),
             "COMPRA EXITO",
             new BigDecimal("120.50"),
+            "COP",
             StatementMovementDirection.DEBIT);
 
     // Act

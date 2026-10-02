@@ -54,8 +54,19 @@ public class OpenRouterLlmAdapter implements StatementLlm {
       {
         "type": "object",
         "properties": {
-          "openingBalance": { "type": ["string", "null"] },
-          "closingBalance": { "type": ["string", "null"] },
+          "balances": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "currency": { "type": "string", "description": "ISO 4217 code, for example COP" },
+                "openingBalance": { "type": ["string", "null"] },
+                "closingBalance": { "type": ["string", "null"] }
+              },
+              "required": ["currency", "openingBalance", "closingBalance"],
+              "additionalProperties": false
+            }
+          },
           "movements": {
             "type": "array",
             "items": {
@@ -64,14 +75,15 @@ public class OpenRouterLlmAdapter implements StatementLlm {
                 "date": { "type": "string", "description": "yyyy-MM-dd" },
                 "description": { "type": "string" },
                 "amount": { "type": "string", "description": "Positive decimal, dot as decimal separator" },
+                "currency": { "type": "string", "description": "ISO 4217 code, for example COP" },
                 "direction": { "type": "string", "enum": ["CREDIT", "DEBIT"] }
               },
-              "required": ["date", "description", "amount", "direction"],
+              "required": ["date", "description", "amount", "currency", "direction"],
               "additionalProperties": false
             }
           }
         },
-        "required": ["openingBalance", "closingBalance", "movements"],
+        "required": ["balances", "movements"],
         "additionalProperties": false
       }
       """;
@@ -141,6 +153,17 @@ public class OpenRouterLlmAdapter implements StatementLlm {
     } catch (final InterruptedException e) {
       Thread.currentThread().interrupt();
       throw readerFailed();
+    }
+  }
+
+  @Override
+  public String requestBody(final String statementText) {
+    try {
+      return objectMapper
+          .writerWithDefaultPrettyPrinter()
+          .writeValueAsString(buildBody(statementText));
+    } catch (final JsonProcessingException e) {
+      return "";
     }
   }
 

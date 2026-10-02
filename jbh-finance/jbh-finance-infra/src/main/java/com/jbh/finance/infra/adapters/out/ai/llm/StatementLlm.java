@@ -35,4 +35,15 @@ public interface StatementLlm {
   default ExtractedStatementDTO extract(final String statementText) throws BusinessException {
     return StatementExtractionFormat.parse(answer(statementText));
   }
+
+  /**
+   * The request body this provider sends for the text, as readable JSON. Only for the LLM
+   * comparison files (temporary). It never holds the API key: keys travel in headers.
+   *
+   * @param statementText the text from a {@link StatementTextSource}
+   * @return the JSON body, or an empty text when the provider does not show it
+   */
+  default String requestBody(final String statementText) {
+    return "";
+  }
 }

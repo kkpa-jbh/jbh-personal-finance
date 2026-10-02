@@ -10,6 +10,7 @@ import java.util.Map;
  * @param date posting date
  * @param description movement text
  * @param amount always positive
+ * @param currency ISO 4217 code, for example {@code COP}
  * @param direction money in or money out
  * @param categoryAlias suggested category alias
  * @param categoryDisplayName category name per language
@@ -20,6 +21,7 @@ public record CategorizedMovementDTO(
     LocalDate date,
     String description,
     BigDecimal amount,
+    String currency,
     StatementMovementDirection direction,
     String categoryAlias,
     Map<String, String> categoryDisplayName,
