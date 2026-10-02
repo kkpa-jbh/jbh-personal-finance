@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jbh.commons.exception.BusinessException;
-import com.jbh.finance.application.feature.statement.dto.ExtractedStatementDTO;
 import com.jbh.finance.infra.adapters.exceptions.FinanceInfraBusinessExceptionType;
 import com.jbh.finance.infra.config.StatementImportConfig;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -88,7 +87,7 @@ public class GeminiLlmAdapter implements StatementLlm {
   @Override
   // The cause is dropped on purpose: it may carry parts of the request or the answer.
   @SuppressWarnings("PMD.PreserveStackTrace")
-  public ExtractedStatementDTO extract(final String statementText) throws BusinessException {
+  public String answer(final String statementText) throws BusinessException {
     final String apiKey =
         config
             .gemini()
@@ -116,7 +115,7 @@ public class GeminiLlmAdapter implements StatementLlm {
         LOGGER.warn(LOG_PREFIX + " Gemini returned HTTP {}", response.statusCode());
         throw readerFailed();
       }
-      return parseStatement(objectMapper.readTree(response.body()));
+      return answerText(objectMapper.readTree(response.body()));
 
     } catch (final IOException e) {
       LOGGER.warn(LOG_PREFIX + " Gemini call failed: {}", e.getClass().getSimpleName());
@@ -163,8 +162,7 @@ public class GeminiLlmAdapter implements StatementLlm {
     return body;
   }
 
-  private ExtractedStatementDTO parseStatement(final JsonNode root)
-      throws BusinessException, JsonProcessingException {
+  private String answerText(final JsonNode root) throws BusinessException {
     final String text =
         root.path("candidates").path(0).path("content").path(PARTS).path(0).path(TEXT).asText("");
     if (text.isBlank()) {
@@ -173,7 +171,7 @@ public class GeminiLlmAdapter implements StatementLlm {
       throw readerFailed();
     }
 
-    return StatementExtractionFormat.parse(objectMapper.readTree(text));
+    return text;
   }
 
   private static BusinessException readerFailed() {

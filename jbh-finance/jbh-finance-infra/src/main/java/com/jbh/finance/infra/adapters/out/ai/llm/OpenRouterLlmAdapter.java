@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jbh.commons.exception.BusinessException;
-import com.jbh.finance.application.feature.statement.dto.ExtractedStatementDTO;
 import com.jbh.finance.infra.adapters.exceptions.FinanceInfraBusinessExceptionType;
 import com.jbh.finance.infra.config.StatementImportConfig;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -97,7 +96,7 @@ public class OpenRouterLlmAdapter implements StatementLlm {
   @Override
   // The cause is dropped on purpose: it may carry parts of the request or the answer.
   @SuppressWarnings("PMD.PreserveStackTrace")
-  public ExtractedStatementDTO extract(final String statementText) throws BusinessException {
+  public String answer(final String statementText) throws BusinessException {
     final String apiKey =
         config
             .openRouter()
@@ -134,7 +133,7 @@ public class OpenRouterLlmAdapter implements StatementLlm {
         LOGGER.warn(LOG_PREFIX + " OpenRouter returned an error, error type {}", errorTypeOf(root));
         throw readerFailed();
       }
-      return parseStatement(root);
+      return answerText(root);
 
     } catch (final IOException e) {
       LOGGER.warn(LOG_PREFIX + " OpenRouter call failed: {}", e.getClass().getSimpleName());
@@ -184,8 +183,7 @@ public class OpenRouterLlmAdapter implements StatementLlm {
     return body;
   }
 
-  private ExtractedStatementDTO parseStatement(final JsonNode root)
-      throws BusinessException, JsonProcessingException {
+  private String answerText(final JsonNode root) throws BusinessException {
     final String content =
         root.path("choices").path(0).path("message").path(CONTENT).asText("");
     if (content.isBlank()) {
@@ -194,7 +192,7 @@ public class OpenRouterLlmAdapter implements StatementLlm {
     }
 
     LOGGER.info(LOG_PREFIX + " OpenRouter answered with model {}", root.path("model").asText(UNKNOWN));
-    return StatementExtractionFormat.parse(objectMapper.readTree(content));
+    return content;
   }
 
   /** The normalized error type of an error body, for example {@code rate_limit_exceeded}. */

@@ -1,9 +1,13 @@
 package com.jbh.finance.infra.adapters.out.ai.llm;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.statement.dto.ExtractedMovementDTO;
 import com.jbh.finance.application.feature.statement.dto.ExtractedStatementDTO;
 import com.jbh.finance.application.feature.statement.dto.StatementMovementDirection;
+import com.jbh.finance.infra.adapters.exceptions.FinanceInfraBusinessExceptionType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -23,6 +27,10 @@ public final class StatementExtractionFormat {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(StatementExtractionFormat.class);
   private static final String LOG_PREFIX = "[StatementImport:LlmParse]";
+  private static final ObjectMapper JSON = new ObjectMapper();
+  private static final String CODE_FENCE = "```";
+  private static final char NEW_LINE = '\n';
+  private static final int NOT_FOUND = -1;
 
   /** The extraction rules, part of {@link #SYSTEM_PROMPT}. */
   private static final String RULES =
@@ -64,6 +72,39 @@ public final class StatementExtractionFormat {
   }
 
   /**
+   * Parses the answer of a provider: the JSON statement, as text. A markdown code fence around the
+   * JSON is removed first; providers without a JSON schema (for example Ollama Cloud) may add one.
+   *
+   * @param answer the model's answer
+   * @return the extracted statement
+   * @throws BusinessException when the answer is not valid JSON
+   */
+  // The cause is dropped on purpose: it may carry parts of the answer.
+  @SuppressWarnings("PMD.PreserveStackTrace")
+  public static ExtractedStatementDTO parse(final String answer) throws BusinessException {
+    try {
+      return parse(JSON.readTree(withoutCodeFence(answer)));
+    } catch (final JsonProcessingException e) {
+      LOGGER.warn(LOG_PREFIX + " The answer is not valid JSON: {}", e.getClass().getSimpleName());
+      throw new BusinessException(FinanceInfraBusinessExceptionType.STATEMENT_READER_FAILED);
+    }
+  }
+
+  /** Removes a markdown code fence (```json ... ```) around the JSON, if there is one. */
+  private static String withoutCodeFence(final String answer) {
+    final String trimmed = answer.strip();
+    if (!trimmed.startsWith(CODE_FENCE)) {
+      return trimmed;
+    }
+    final int firstLineEnd = trimmed.indexOf(NEW_LINE);
+    final int closingFence = trimmed.lastIndexOf(CODE_FENCE);
+    if (firstLineEnd == NOT_FOUND || closingFence <= firstLineEnd) {
+      return trimmed;
+    }
+    return trimmed.substring(firstLineEnd + 1, closingFence).strip();
+  }
+
+  /**
    * Parses the JSON statement answered by a provider.
    *
    * <p>A movement with a bad date, amount or direction is skipped; only the count is logged. A bad
@@ -73,7 +114,7 @@ public final class StatementExtractionFormat {
    *     closingBalance}
    * @return the extracted statement
    */
-  public static ExtractedStatementDTO parse(final JsonNode statement) {
+  private static ExtractedStatementDTO parse(final JsonNode statement) {
     final List<ExtractedMovementDTO> movements = new ArrayList<>();
     int skipped = 0;
     for (final JsonNode item : statement.path("movements")) {
