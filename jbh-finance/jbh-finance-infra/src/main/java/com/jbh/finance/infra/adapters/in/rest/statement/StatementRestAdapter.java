@@ -3,13 +3,11 @@ package com.jbh.finance.infra.adapters.in.rest.statement;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
 import com.jbh.finance.application.feature.statement.commands.ExtractStatementMovementsCommand;
-import com.jbh.finance.application.feature.statement.dto.StatementClassificationDTO;
-import com.jbh.finance.application.feature.statement.usecases.ExtractStatementMovementsUseCase;
 import com.jbh.finance.infra.adapters.exceptions.FinanceInfraBusinessExceptionType;
 import com.jbh.finance.infra.adapters.in.rest.common.BaseRestAdapter;
 import com.jbh.finance.infra.adapters.in.rest.common.FinanceApiRoutes;
-import com.jbh.finance.infra.adapters.in.rest.statement.response.StatementClassificationResponse;
 import com.jbh.finance.infra.adapters.in.service.PdfStatementUnlocker;
+import com.jbh.finance.infra.adapters.in.service.StatementImportDispatcher;
 import com.jbh.finance.infra.config.StatementImportConfig;
 import com.jbh.gateway.client.JbhGatewayException;
 import jakarta.enterprise.context.RequestScoped;
@@ -24,6 +22,7 @@ import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Locale;
+import java.util.Map;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -40,6 +39,10 @@ import org.slf4j.LoggerFactory;
  * Bank statement import: reads the movements of a PDF and suggests a category for each one.
  *
  * <p>The PDF password comes only as a multipart form field and is never logged. Nothing is saved.
+ *
+ * <p>For now the import runs in the background ({@link StatementImportDispatcher}): the call
+ * answers {@code 202} at once, and the result is only logged. This avoids HTTP timeouts while the
+ * OCR and LLM providers are tested.
  */
 @SuppressWarnings({"PMD.UnnecessaryAnnotationValueElement", "PMD.CallSuperInConstructor"})
 @RequestScoped
@@ -52,15 +55,17 @@ public class StatementRestAdapter extends BaseRestAdapter {
   private static final String PDF_EXTENSION = ".pdf";
   private static final String PDF_MIME_TYPE = "application/pdf";
 
-  private final ExtractStatementMovementsUseCase useCase;
+  private static final Map<String, String> PROCESSING = Map.of("status", "PROCESSING");
+
+  private final StatementImportDispatcher dispatcher;
   private final PdfStatementUnlocker unlocker;
   private final StatementImportConfig config;
 
   public StatementRestAdapter(
-      final ExtractStatementMovementsUseCase useCase,
+      final StatementImportDispatcher dispatcher,
       final PdfStatementUnlocker unlocker,
       final StatementImportConfig config) {
-    this.useCase = useCase;
+    this.dispatcher = dispatcher;
     this.unlocker = unlocker;
     this.config = config;
   }
@@ -72,17 +77,18 @@ public class StatementRestAdapter extends BaseRestAdapter {
   @Operation(
       summary = "Read and classify the movements of a bank statement PDF",
       description =
-          "Unlocks the PDF in memory, reads its movements with AI, checks the totals, and"
-              + " suggests one finance category per movement. Nothing is saved.")
+          "Checks and unlocks the PDF in memory, then answers at once. In the background it"
+              + " reads the movements with AI, checks the totals, and suggests one finance"
+              + " category per movement. The result is only logged for now. Nothing is saved.")
   @APIResponses(
       value = {
         @APIResponse(
-            responseCode = "200",
-            description = "Movements read and classified",
+            responseCode = "202",
+            description = "The PDF is valid; it is being processed in the background",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
-                    schema = @Schema(implementation = StatementClassificationResponse.class))),
+                    schema = @Schema(implementation = Map.class))),
         @APIResponse(
             responseCode = "401",
             description = "Unauthorized",
@@ -93,8 +99,7 @@ public class StatementRestAdapter extends BaseRestAdapter {
         @APIResponse(
             responseCode = "422",
             description =
-                "Missing, too large or unreadable PDF, missing or wrong password, no movements,"
-                    + " or the AI providers failed",
+                "Missing, too large or unreadable PDF, or missing or wrong password",
             content =
                 @Content(
                     mediaType = MediaType.APPLICATION_JSON,
@@ -133,11 +138,10 @@ public class StatementRestAdapter extends BaseRestAdapter {
     }
 
     final byte[] unlocked = unlocker.unlock(content, password);
-    final StatementClassificationDTO dto =
-        useCase.extract(new ExtractStatementMovementsCommand(unlocked));
+    dispatcher.dispatch(new ExtractStatementMovementsCommand(unlocked));
 
-    LOG.info(LOG_PREFIX + " Statement import returned {} movements", dto.movements().size());
-    return Response.ok(StatementClassificationResponse.fromDTO(dto)).build();
+    LOG.info(LOG_PREFIX + " Statement import accepted");
+    return Response.accepted(PROCESSING).build();
   }
 
   private static boolean isPdf(final FileUpload fileUpload) {
