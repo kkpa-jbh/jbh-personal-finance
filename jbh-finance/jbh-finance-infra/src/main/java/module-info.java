@@ -23,4 +23,8 @@ module jbh.finance.infra {
   requires org.apache.commons.collections4;
   requires jbh.commons;
   requires jakarta.cdi;
+  requires java.net.http;
+  requires com.fasterxml.jackson.core;
+  requires com.fasterxml.jackson.databind;
+  requires org.apache.pdfbox;
 }
