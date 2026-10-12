@@ -17,6 +17,7 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
@@ -48,6 +49,11 @@ public class ConsulServiceRegistration {
 
   @ConfigProperty(name = "consul.health-check.interval", defaultValue = "30s")
   String healthCheckInterval;
+
+  // Host Consul uses for the health check. Empty: the service address. Locally Consul runs in
+  // Docker, where 127.0.0.1 is the container itself, so dev sets host.docker.internal.
+  @ConfigProperty(name = "consul.health-check.host")
+  Optional<String> healthCheckHost;
 
   @ConfigProperty(name = "consul.prefer-ip-address", defaultValue = "false")
   boolean preferIpAddress;
@@ -93,8 +99,9 @@ public class ConsulServiceRegistration {
     final String serviceAddress = resolveServiceAddress();
     LOG.infof("Resolved service address: %s (preferIpAddress=%s)", serviceAddress, preferIpAddress);
 
+    final String checkHost = healthCheckHost.orElse(serviceAddress);
     final String healthCheckUrl =
-        String.format("http://%s:%d%s", serviceAddress, servicePort, healthCheckPath);
+        String.format("http://%s:%d%s", checkHost, servicePort, healthCheckPath);
     LOG.infof("Health check URL configured: %s (interval=%s)", healthCheckUrl, healthCheckInterval);
 
     final Map<String, Object> check =
