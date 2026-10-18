@@ -15,6 +15,7 @@ import com.jbh.finance.infra.adapters.out.ai.llm.GeminiLlmAdapter;
 import com.jbh.finance.infra.adapters.out.ai.llm.OpenRouterLlmAdapter;
 import com.jbh.finance.infra.adapters.out.ai.llm.StatementLlm;
 import com.jbh.finance.infra.adapters.out.ai.llmcompare.LlmComparison;
+import com.jbh.finance.infra.adapters.out.ai.llmcompare.OcrCache;
 import com.jbh.finance.infra.config.StatementImportConfig;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -42,8 +43,10 @@ public class StatementUseCasesCDIConfig {
 
   @Inject StatementImportConfig config;
 
-  // Temporary LLM comparison; a no-op unless jbh.statement.compare.enabled=true.
+  // Temporary LLM comparison and OCR cache; no-ops unless jbh.statement.compare.enabled=true.
   @Inject LlmComparison llmComparison;
+
+  @Inject OcrCache ocrCache;
 
   @Produces
   @ApplicationScoped
@@ -57,7 +60,8 @@ public class StatementUseCasesCDIConfig {
   }
 
   private StatementReader statementReader() {
-    return new OcrLlmStatementReaderAdapter(textSource(), llmComparison.wrap(llm()));
+    return new OcrLlmStatementReaderAdapter(
+        ocrCache.wrap(textSource()), llmComparison.wrap(llm()));
   }
 
   private StatementTextSource textSource() {
