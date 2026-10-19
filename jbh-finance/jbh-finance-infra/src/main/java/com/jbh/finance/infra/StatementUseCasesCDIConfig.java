@@ -48,6 +48,7 @@ public class StatementUseCasesCDIConfig {
 
   @Inject OcrCache ocrCache;
 
+
   @Produces
   @ApplicationScoped
   public ExtractStatementMovementsUseCase extractStatementMovementsUseCase() {

@@ -5,11 +5,11 @@ import io.smallrye.config.WithName;
 import java.util.Optional;
 
 /**
- * Settings of the temporary LLM comparison. Off by default: the statement import then works
- * exactly as before.
+ * Settings of the temporary LLM comparison. Off by default: the statement import then works exactly
+ * as before.
  *
- * <p>Temporary: delete this package, its {@code jbh.statement.compare.*} properties and the two
- * {@code wrap} calls in {@code StatementUseCasesCDIConfig} when the comparison is done.
+ * <p>Temporary: delete this package, its {@code jbh.statement.compare.*} properties and the {@code
+ * wrap} call in {@code StatementUseCasesCDIConfig} when the comparison is done.
  */
 @ConfigMapping(prefix = "jbh.statement.compare")
 public interface LlmCompareConfig {
