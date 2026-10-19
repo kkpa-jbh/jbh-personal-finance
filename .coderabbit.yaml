@@ -1,0 +1,189 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+#
+# CodeRabbit config for jbh-personal-finance.
+# The rules below come from .claude/CLAUDE.md, .claude/standards/ and .claude/architecture/.
+# When a standard changes there, update the matching path instruction here.
+
+language: "en-US"
+early_access: false
+
+tone_instructions: >-
+  Write in short, plain English sentences (B2 level). One idea per sentence.
+  Common words, no idioms. Keep class names and technical terms in English.
+  Say why a change is risky, not only what to change.
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  sequence_diagrams: true
+  changed_files_summary: true
+  review_status: true
+  collapse_walkthrough: false
+  poem: false
+
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - "main"
+      - "develop"
+    ignore_title_keywords:
+      - "WIP"
+
+  path_filters:
+    - "!**/target/**"
+    - "!**/.idea/**"
+    - "!.codegraph/**"
+    - "!kkpa/**"
+    - "!**/*.log"
+    - "!openspec/changes/archive/**"
+    - "!.claude/projects/**"
+    - "!.claude/settings.local.json"
+
+  path_instructions:
+    - path: "**/*.java"
+      instructions: |
+        General rules for all Java code in this repo:
+        - Declare variables, fields and method parameters `final` when possible.
+        - No literals inside `if` conditions. Use a named constant or a method.
+        - No boolean method parameters, except in constructors. Ask for a value object instead.
+        - At most 3 method parameters. More than 3: use a command object or a value object.
+        - Never throw or catch `java.lang.Exception` directly. Use specific exceptions.
+        - Money is always `BigDecimal`, scaled with `JbhMoneyUtils` (`withJBHDecimals`). Flag `double`/`float` for money and `BigDecimal.equals` where `compareTo` is meant.
+        - Log with SLF4J. Flag `System.out`, `printStackTrace()`, and logs that print secrets or full bank data.
+        - Flag new `Thread.sleep` calls in production code. They hide race conditions.
+
+    - path: "**/*-domain/src/main/java/**"
+      instructions: |
+        Domain layer (hexagonal core):
+        - ZERO framework dependencies. Flag any import of `jakarta.*`, `io.quarkus.*`, `org.hibernate.*`, Jackson, or any `*.infra.*` / `*.application.*` package.
+        - Entity invariants and value object rules live here (constructors, static factories, guard clauses). An entity or value object must never exist in an invalid state.
+        - Violations throw domain exceptions, not generic runtime exceptions.
+        - Value objects are immutable.
+        - Rule of thumb: would a domain expert recognize this rule with no knowledge of the system? If yes, it belongs in the domain.
+
+    - path: "**/*-application/src/main/java/**"
+      instructions: |
+        Application layer:
+        - NEVER depends on infrastructure. Flag imports of `*.infra.*`, `jakarta.ws.rs.*`, `jakarta.persistence.*`, `io.quarkus.*`, or any JPA/HTTP type.
+        - `*Request` and `*Response` classes do NOT belong here. They live in `*-infra` under `adapters.in.rest.<feature>`. Here we use `*DTO`, `*Command` and domain types.
+        - Input ports (`*InputPort`) only orchestrate a use case. Business rules go to domain objects or to one-concept services.
+        - Depend on output port interfaces (repositories split into Query and Writer ports), never on implementations.
+        - Use `UnitOfWork` for steps that must be atomic.
+        - Use case interfaces (`*UseCase`) need the JavaDoc template from `.claude/standards/javadoc.md`: validations and database operations.
+        - Code is organized by feature (`feature/<name>/...`), not by technical layer.
+
+    - path: "**/*-application/src/main/java/**/{async,feature/monthlybalance,feature/movement}/**"
+      instructions: |
+        Async balance sync (high risk area, a lost-update bug was found here):
+        - Look for read-modify-write races: data read on one thread and saved later on a background thread.
+        - Background tasks that change the same monthly balance must run in a fixed order.
+        - Flag executors created per call and never shared, and tasks with no clear order.
+        - Flag code that waits with `Thread.sleep` instead of a real signal (a future, or a join).
+        - Check that a failed async task is not silently lost (logged and registered, or sent to the caller).
+
+    - path: "**/*-infra/src/main/java/**/adapters/in/rest/**"
+      instructions: |
+        REST adapters:
+        - Request classes: package `...adapters.in.rest.<feature>.request`, suffix `*Request`. Used only as controller parameters.
+        - Response classes: package `...adapters.in.rest.<feature>.response`, suffix `*Response`, NEVER `*DTO`. Built from DTOs with a `fromDTO()` factory.
+        - Never return a DTO or a JPA entity from an endpoint.
+        - This app does not validate the JWT. The user id comes from `BaseRestAdapter.findUserId(...)` (it asks jbh-iam through jbh-gateway-client). Flag code that parses the token itself.
+        - Paths use the constants (`ApiConstants`, `FinanceApiRoutes`, `PreferencesApiConstants`, `NotificationRoutes`).
+        - A NEW top-level path under `/jbh-api` needs a route in `jbh-gateway` (`application.yml`) and an update of `jbh-deploy/README.md`. Remind the author when you see one.
+        - One REST adapter handles the HTTP concerns of one feature only.
+
+    - path: "**/*-infra/src/main/java/**/adapters/out/persistence/**"
+      instructions: |
+        Persistence adapters:
+        - JPA entities use the `*Entity` suffix, live in `...adapters.out.persistence.entity`, and never leave the persistence layer.
+        - Adapters implement application output ports and honor their contracts.
+        - Each module works only in its own PostgreSQL schema (`finance`, `preferences`, `notifications`). Flag queries that touch another module's schema.
+        - Look for N+1 queries and for loading whole entities when a projection is enough.
+
+    - path: "**/src/main/resources/db/changelog/**"
+      instructions: |
+        Liquibase migrations:
+        - NEVER edit a migration file that already exists on `main`. Every SQL change is a NEW file.
+        - File name: `NNN_descriptive_name.sql`, next number in sequence.
+        - The new file must be registered in the module's master XML (for example `finance-db-master.xml`). Flag a new file that is not registered.
+        - Objects go in the module's own schema.
+        - Prefer natural primary keys (`user_id`, `product_id`, `team_id`) over a new synthetic `id`, unless no natural key exists.
+        - Ask for an index plan that matches how the table is read.
+
+    - path: "**/module-info.java"
+      instructions: |
+        JPMS:
+        - Application modules must not `requires` an infra module.
+        - Keep `exports` and `opens` minimal. Flag a package opened only to make a test or a framework work, without a reason.
+
+    - path: "**/src/test/java/**"
+      instructions: |
+        Tests (see `.claude/standards/testing.md`):
+        - Domain and application code needs tests (minimum 50% coverage). `jbh-z-assembly` and `*-infra` do not.
+        - Test class name: `<ClassUnderTest>Test` or `<Scenario>Test`. NOT `*ITTest` and NOT `*MockTest`.
+        - In-memory fakes go in `testfixtures/fakes/<feature>/`. Fixture data classes use the `*Fixture` suffix. Helpers that are not JUnit classes must not end in `Test`.
+        - Fakes for multi-step state, Mockito mocks only for interaction checks.
+        - Flag changed expected values in existing assertions. Ask if the old value was really wrong, or if the test was weakened to pass.
+        - Flag new `Thread.sleep` waits. Suggest waiting on a future or a sentinel task instead.
+        - Flag tests that depend on shared static state between methods, when a failure in one method makes the next ones fail.
+        - Money values in assertions use `withJBHDecimals`.
+
+    - path: "jbh-notification/jbh-notification-contracts/**"
+      instructions: |
+        Shared contract. `jbh-gateway-client` and `jbh-iam` use it.
+        - Flag any breaking change (removed or renamed public class, field or method).
+        - Remind the author: publish the contracts first (`publish-contracts` workflow, or `mvn install` locally), then rebuild `jbh-gateway-client`, then the services.
+        - A change here must update `jbh-deploy/README.md` if it changes how services talk.
+
+    - path: "**/src/main/resources/application*.properties"
+      instructions: |
+        Configuration:
+        - Never commit a real secret. Secrets come from env vars with no real default (for example `${AZURE_DI_API_KEY}`).
+        - A change to `quarkus.http.port`, the Consul name, the database, or `JBH_GATEWAY_URL` affects other services. Remind the author to update `jbh-deploy/README.md` and the deploy env vars.
+
+    - path: ".github/workflows/**"
+      instructions: |
+        CI:
+        - The publish order matters: `publish-contracts` first, then `jbh-gateway-client`, then the `image` workflow.
+        - Maven runs with `-s .github/maven-settings.xml -Pgithub`. Reading other repos' packages needs the `PACKAGES_READ_TOKEN` secret.
+        - Keep `permissions` minimal. Pin actions to a version.
+
+    - path: "jbh-z-assembly/Dockerfile"
+      instructions: |
+        The image runs on a small VPS (2 vCPU) next to another app.
+        - Keep the image small and run as a non-root user.
+        - The JVM needs an explicit `-Xmx` limit.
+        - No secrets in the image or in build args.
+
+    - path: "openspec/**"
+      instructions: |
+        OpenSpec artifacts:
+        - design.md decisions (`D1`, `D2`, ...) must match the code in the same PR.
+        - Tasks in tasks.md are append-only. Flag deleted or rewritten tasks and acceptance criteria.
+
+  tools:
+    pmd:
+      enabled: true
+      config_file: "pmd-ruleset.xml"
+    gitleaks:
+      enabled: true
+    actionlint:
+      enabled: true
+    hadolint:
+      enabled: true
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - ".claude/CLAUDE.md"
+      - ".claude/standards/*.md"
+      - ".claude/architecture/*.md"
+      - ".claude/patterns/*.md"
+      - ".claude/infrastructure/database.md"
+      - "LOGGING_GUIDE.md"

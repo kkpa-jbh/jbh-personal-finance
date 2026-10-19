@@ -1,0 +1,7 @@
+schema: spec-driven
+
+context: |
+  Tech stack: Java 21, Quarkus modular monolith (Maven), hexagonal architecture, PostgreSQL.
+  Project rules: .claude/CLAUDE.md and .claude/standards/.
+  Change names start with the owning module, e.g. jbh-finance-fix-monthly-balance-race.
+  Writing: English, B2 level. Short sentences, common words.

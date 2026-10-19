@@ -117,3 +117,10 @@ Triggers for this repo:
 - Add a new module that exposes REST endpoints
 
 If you are not sure a change counts, read `../jbh-deploy/README.md` and check whether any line is now wrong.
+
+## Pipeline config (kkpa-orchestrate-change)
+
+- **Modules-Root:** `.` (the modules are `jbh-finance`, `jbh-notification`, `jbh-preferences`, `jbh-products`, `jbh-commons-lib`)
+- **Doc-Pack:** `.claude/CLAUDE.md`, `.claude/standards/code-quality.md`, `.claude/standards/testing.md`, `.claude/standards/naming.md`, `.claude/standards/business-rules.md`, `.claude/architecture/hexagonal-layers.md`
+- **Design-Gates:** `database`
+- **Git-Strategy:** `auto`
