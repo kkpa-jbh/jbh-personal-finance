@@ -16,63 +16,96 @@ Tasks run in parallel with no order. `syncForReversedMovement` has the same shap
 Failure: the second movement reads the month before the first background save is done. Both start
 from an empty 2025-03. The last save wins. Only -3 stays. Movement balance is -3.00, not 2.00.
 
-Production uses the same code: `ProductUseCasesCDIConfig` builds `new AsyncTaskExecutorImpl()` in
-the `processMonthlyBalanceService()` producer, which is `@ApplicationScoped`. So there is one executor
-instance in production.
+**The app runs as more than one instance** (project rule "Horizontal scaling", 2026-10-19). So the
+same lost update also happens between two instances, and no in-JVM fix can stop it. Facts checked
+on 2026-10-19:
 
-Callers of `persistBalancesAsync` (checked):
+- No flow takes a database lock. There is no `@Version` column and no `FOR UPDATE` in the code.
+- The monthly balance save is a blind `merge` of an entity built from a DTO. The last write wins.
+- `ProcessMovementServiceImpl.processMovement` reads the product and computes its new balance
+  **outside** any transaction. Only "save movement + save product" runs in `unitOfWork.execute`.
+  The monthly balance sync runs after that transaction, with no transaction of its own.
+- `RegisterMonthlyBalanceInputPort` and `AddMovementsUploadedFileInputPort` read and compute outside
+  any transaction. Each repository adapter is `@Transactional` per call.
+- The REST layer opens no transaction. Transactions come only from `QuarkusUnitOfWork` and the
+  repository adapters.
+- `QuarkusUnitOfWork.execute` catches and logs every exception, so the transaction commits anyway.
+- `finance.monthly_balances` already has `UNIQUE (product_id, period)`
+  (`uk_monthly_balances_product_period`, migration 001). Two rows for the same month fail at the
+  database.
+- Transfers call `addMovementToProduct` twice, in two separate transactions. No flow changes two
+  products in one transaction.
 
-- `ProcessMonthlyBalanceServiceImpl.syncForNewMovement` and `syncForReversedMovement`: change.
-- `MonthlyBalanceSyncForUploadedMovements.persistBalancesAsync` and
-  `syncForUploadedMovementsAsync`: **do not change**. They call the public method, which keeps its contract.
-  They already rely on "save, then adjust, in the background". They gain the submit order for free.
+Callers of `persistBalancesAsync`:
+
+- `ProcessMonthlyBalanceServiceImpl.syncForNewMovement` and `syncForReversedMovement`: change (D1).
+- `MonthlyBalanceSyncForUploadedMovements.syncForUploadedMovementsAsync`: its code does not change,
+  but its caller now runs it inside the locked transaction (D9).
 - Tests `RegisterMovementExecutionTest` and `UploadMultiMovementsExecutionTest` call it and read
-  `.get()`. The contract is kept, so they stay as they are.
+  `.get()`. The future still returns the adjusted balances, so their assertions stay.
 
 ## Goals / Non-Goals
 
 **Goals**
 
-- Two movements in the same month, one after the other, both stay.
-- Background tasks run in submit order.
+- Two movements for the same product and month both stay, on one instance or on two.
+- Every flow that changes a product's balances is correct with 2 or more instances.
+- A failure rolls back the whole flow. No half-saved movement, product or month.
 - Fix `RegisterMonthlyReportedProfitTest` (`registerReportWithRetefuente20252` and
   `shouldAddDebitsToReportedMonthlyBalance`) and `DeleteMovementUseCaseTest.deleteExpense30WithSnapshot`
   without editing any assertion.
+- Make `RegisterMonthlyReportedProfitTest.month4ProfitReport202411` and `month6ProfitReport202501`
+  pass every run. They failed at random (2026-10-19 diagnosis: `0.00` instead of `575.00` at line 640),
+  because they read the next month before the background task had finished.
+- Remove every `Thread.sleep` that waits for our own background work, in `main` and in tests.
+  A wait for background work must end when the work ends, not after a fixed time.
 
 **Non-Goals**
 
-- Concurrent HTTP requests for the same product. Two requests on two threads can still lose an
-  update at database level. A fix needs row locks or versions. That is a different change.
-- Making the upload flow (`syncForUploadedMovementsAsync`) read-after-save safe. Only its order improves.
-- Database change. None. No table, column, index, constraint or migration.
+- Flows that change a product but not its balances (`UpdateProductInputPort`, delete product). They
+  keep last-write-wins. Follow-up ticket.
+- A database lock timeout (`lock_timeout`) or a retry when a lock wait is long. PostgreSQL waits
+  without a limit by default. Follow-up if waits become a problem.
+- Database change. None. No table, column, index, constraint or migration (D10).
 - Replacing `YearMonth.now()` in the adjust step (existing FIXME).
 - Renaming `AsyncTaskExecutorImplTest.shouldExecuteMultipleTasksConcurrently` (see D2).
 - A DLQ or retry for failed adjust tasks (existing FIXME).
+- Sleeps that are not a wait for our own background work. They stay:
+  `AsyncTaskExecutorImplTest` (the sleep is inside the task and simulates work), and
+  `AzureLayoutTextSourceAdapter` / `JevMovementClassifierAdapter` (polling and `Retry-After` of an
+  external API).
+- An automated test with 2 real instances and PostgreSQL. Infra modules have no test rule, and the
+  pipeline never starts services. The user can run a manual check (tasks 7.4).
 
 ## Decisions
 
 ### D1: Save synchronously in the caller, adjust in the background
 
 `syncForNewMovement` and `syncForReversedMovement` do: read, assign (or reverse), then
-`saveMultiBalances` on the caller thread. Then they submit **only** the adjust step to the executor.
+`saveMultiBalances` on the caller thread, inside the caller's transaction (D5). Then they submit
+**only** the adjust step to the executor.
 
-The adjust task body is: `adjustCurrentAndNextMonthlyBalancesAsync(productId, period, period)`, then
-the fully-withdrawn update (`isFullyWithdrawn` / `updateWhenFullyWithdrawn`). This is the old task
-body without the save line. It moves to one private method used by both sync methods.
+The adjust task runs in its **own** transaction and locks the product first (D3). Its body:
+`adjustCurrentAndNextMonthlyBalancesAsync(productId, initPeriod, endPeriod)`, then the
+fully-withdrawn update (`isFullyWithdrawn` / `updateWhenFullyWithdrawn`). One private method builds
+this task. `syncForNewMovement`, `syncForReversedMovement` and `persistBalancesAsync` all use it.
 
-`persistBalancesAsync` keeps its old body (save, adjust, fully-withdrawn, all in the background).
+`persistBalancesAsync` changes the same way: it saves on the caller thread and submits only the
+adjust. Its future still returns the adjusted balances.
 
-Why: the next movement must read a month that is already saved. A read that follows a finished
-save cannot start from an empty month.
+Why: the next movement must read a month that is already saved. And the save must happen while the
+caller holds the product lock. A save in a background task runs after the lock is released, so
+another instance could change the month in between.
 
-Rejected: wait for the future inside the sync (`persistBalancesAsync(...).join()`). It blocks the
-request on the whole adjust step, which is slow for old periods, and it removes the async design.
+Precondition: the caller of `syncForNewMovement`, `syncForReversedMovement` and
+`persistBalancesAsync` holds the product lock in an open transaction. The JavaDoc of the three
+methods in `ProcessMonthlyBalanceService` says so.
+
+Rejected: wait for the future inside the sync (`persistBalancesAsync(...).join()`). It would wait for
+a task that waits for our own lock (D3), so it would block until the timeout.
 
 Returned value: `syncedMonthlyBalanceDTO` is the same object as before (balance after the
 movement, before the adjust). Callers see no change.
-
-Error behavior changes on purpose: a save error now reaches the caller. Before, it was only logged
-in the background thread. The adjust step is still fire and forget, as before.
 
 ### D2: One shared single-thread executor per `AsyncTaskExecutorImpl` instance
 
@@ -80,14 +113,16 @@ in the background thread. The adjust step is still fire and forget, as before.
 daemon thread factory, and `allowCoreThreadTimeOut(true)` with a keep-alive. `submitTask` submits to
 it. The `finally { shutdown(); close(); }` block is removed.
 
-Why:
+This is **not** what keeps data correct. D3 does that, across instances. D2 gives:
 
-- Same executor, one thread: tasks run in submit order, one at a time.
-- Daemon thread: it does not block JVM shutdown.
-- Core thread timeout: tests create many `AsyncTaskExecutorImpl` instances. An idle thread ends by
-  itself, so threads do not pile up. A new thread starts on demand. Order is kept because there is
-  still at most one thread.
-- One instance in production, so order is global, not per product (user decision).
+- local order: tasks of one instance run one at a time, in submit order, so they wait less on each
+  other's database lock;
+- the base for the exact wait in D6 (one thread, FIFO);
+- a fixed number of threads instead of one new thread per task.
+
+Daemon thread: it does not block JVM shutdown. Core thread timeout: tests create many
+`AsyncTaskExecutorImpl` instances. An idle thread ends by itself. Order is kept because there is
+still at most one thread.
 
 Rejected: one executor per product (more threads, more code, not asked). A static shared executor
 (hides state, couples separate service instances in tests).
@@ -99,94 +134,332 @@ stays. Other tests in that class (interrupt, null metadata, exception metadata) 
 on a thread per task. The interrupt test: the worker thread is interrupted by the task; the pool
 clears the flag before the next task, so later tasks are not affected.
 
-### D3: A private lock guards the two read-modify-write blocks
+### D3: The product row lock serializes balance writes across instances
 
-With D1 alone a new race remains. Adjust 1 (background) reads the month, then movement 2
-(caller) reads and saves, then adjust 1 saves its older copy over movement 2. Movement 2 is lost.
+New port method `ProductRepository.lockForUpdate(ProductId)`, exposed as
+`ProductLifecycleService.lockForUpdate(ProductId)`. The adapter loads the product row with
+`jpaRepo.findById(productId.value(), LockModeType.PESSIMISTIC_WRITE)`. PostgreSQL holds the row lock
+until the transaction ends. A second transaction that locks the same product waits.
 
-`ProcessMonthlyBalanceServiceImpl` gets one `private final Object` lock. It guards:
+The adapter method is `@Transactional(TxType.MANDATORY)`. Called without an open transaction, it
+fails at once. Without this, the adapter would open its own short transaction and release the lock
+at once. A missing product throws the same not-found error as `findOrThrowByIdProductId`.
 
-- the caller block: read the month, assign or reverse, save (in D1);
-- the background block: `adjustCurrentAndNextMonthlyBalancesAsync` (read next balances, recalculate,
-  save), and the save + adjust part of the `persistBalancesAsync` task.
+**One rule, everywhere:** every flow that changes a product's balances opens one transaction and
+calls `lockForUpdate(productId)` as its **first** statement. Then it reads, computes and saves.
 
-The fully-withdrawn update is outside the lock. Neither block waits for the future while holding the
-lock, and the background block never waits for the caller block. No deadlock is possible.
+| Flow | Transaction | Lock |
+|---|---|---|
+| `ProcessMovementServiceImpl.processMovement` (add, reverse, transfer side, liquidate, dividends) | one, the whole method | first statement |
+| Background adjust task (D1) | one per task | first statement |
+| `RegisterMonthlyBalanceInputPort.registerOfficialMonthlyBalance` | two (D7) | first statement of each |
+| `AddMovementsUploadedFileInputPort.uploadMovementsFromFile` | one, after the command validation (D9) | first statement |
 
-Result: adjust 1 either finishes before movement 2 reads (movement 2 sees the adjusted month), or
-starts after movement 2 saves (adjust 1 reads fresh data, because it reads at run time).
+Nested calls join the outer transaction (`REQUIRED`). A second `lockForUpdate` on the same row in the
+same transaction returns at once.
 
-Rejected: a lock per product (more code; there is no declared performance profile; one lock per
-service instance is simple and enough). A DB version column (database change, not wanted).
-Scope of the lock is one JVM, which matches the non-goal on multiple requests at database level.
+Why the product row: every balance write is for one product. One row per product is the smallest
+lock that covers the product balance and all its months. Locking month rows does not work: the
+adjust step creates months that do not exist yet.
 
-No new class, no new interface. This lock is a field of an existing class.
+Deadlock: no transaction locks two products (transfers use two transactions). A transaction never
+waits for a background task (D6 rule). So no deadlock. If a later flow must lock two products, it
+locks them in ascending `ProductId` order. PostgreSQL also detects a deadlock and fails one side.
+
+Rejected: an in-JVM lock (the old D3; it protects one instance only, which breaks the scaling rule).
+An optimistic `@Version` column (needs a migration and retry code in every writer). A PostgreSQL
+advisory lock (needs native SQL and a key mapping; the row lock does the same with JPA only).
 
 ### D4: SOLID scope
 
-SRP only. DIP already holds: the service uses the `AsyncTaskExecutor` interface. No new interface.
-The regression test uses the existing interface with a small test-side implementation.
+SRP and DIP (user decision, 2026-10-19). DIP holds:
 
-### D5: No database change
+- The application layer asks for the lock through its own port, `ProductRepository.lockForUpdate`.
+  `LockModeType` and `@Transactional` stay in infra.
+- It asks for transactions through its own `UnitOfWork` port (D5).
+- The wait (D6) is a method on the existing `AsyncTaskExecutor` port.
 
-No schema, index or migration. Reads and writes use the same repository methods as before,
-`findByAccountIdAndPeriod` and `saveMultiBalances`. Only the thread and the order change.
-The save now runs on the caller thread. The repository adapters already work without an HTTP
-request context (they ran on a plain background thread before), so they work on the caller thread too.
+The application layer keeps zero framework dependencies. No new interface. One new functional
+interface nested in `UnitOfWork` (D5).
+
+### D5: One transaction per flow, and it rolls back on any error
+
+`UnitOfWork` gets one method:
+
+```java
+<T> T executeInTransaction(TransactionalWork<T> work) throws BusinessException;
+
+@FunctionalInterface
+interface TransactionalWork<T> {
+  T run() throws BusinessException;
+}
+```
+
+It is needed because the flows throw the checked `BusinessException`, which `Runnable` and `Supplier`
+cannot. The exception reaches the caller unchanged, so REST error mapping stays as it is.
+
+`QuarkusUnitOfWork` (the known gap, now in scope by user decision 2026-10-19):
+
+- `execute` logs, then rethrows. It no longer swallows the error.
+- `executeWithResult` keeps its current behavior (log, wrap in `IllegalStateException`, throw).
+- `executeInTransaction` logs, then rethrows the same exception.
+- The class annotation becomes `@Transactional(rollbackOn = Exception.class)`. A checked
+  `BusinessException` then also rolls back. By default JTA commits on a checked exception.
+
+Result: a failure anywhere in the flow rolls back the movement, the product and the month together.
+
+Behavior change: callers of `execute` that hid an error before now get it. Today this is the
+movement flow and the upload flow. The error now reaches the REST layer.
+
+### D6: Wait for background work with a sentinel, not a sleep
+
+`AsyncTaskExecutor` gets one method: `void awaitIdle(Duration timeout)`. `AsyncTaskExecutorImpl`
+submits a no-op sentinel task to its one executor and waits for the sentinel's future, with the timeout.
+
+Why it is exact: D2 gives one thread and submit order. When the sentinel has run, every task
+submitted before it on this instance has finished. If nothing is pending, the sentinel runs at once.
+
+Rules:
+
+- Timeout: throw `IllegalStateException` with the timeout in the message.
+- Interrupted while waiting: restore the interrupt flag, then throw `IllegalStateException`.
+- Called from the executor's own worker thread: throw `IllegalStateException` at once. Detect the
+  worker with a `ThreadLocal` flag set by the task wrapper (or the thread factory).
+- A failed earlier task does not fail the wait. The wait is about "finished", not "succeeded".
+- **Never call it inside a transaction.** The background task locks the product (D3). If the caller
+  still holds that lock, the task waits for the caller and the caller waits for the task until the
+  timeout. The JavaDoc says so, and the register test checks it (Test contract).
+
+`ProcessMonthlyBalanceService` gets `void awaitPendingSync()`. `ProcessMonthlyBalanceServiceImpl`
+calls `asyncTaskExecutor.awaitIdle(...)` with a named constant of 10 seconds.
+
+Scaling: this wait is not a data guard. It only lets one request see the result of the background
+work that **this same request** started on **this** instance (D7), and lets tests wait. Data safety
+across instances comes from D3.
+
+Rejected: return the future from `syncForNewMovement` (changes the return type through
+`ProcessMovementService` and `AddMovementResultDTO`, and the REST response). `Thread.sleep` (slow
+when idle, too short when the machine is busy).
+
+### D7: Register runs in two transactions and waits between them
+
+`RegisterMonthlyBalanceInputPort` gets two more constructor arguments: `UnitOfWork` and
+`ProcessMonthlyBalanceService` (6 in total). `registerOfficialMonthlyBalance` does:
+
+1. `addMonthlyBalanceCommand.validate()` and `validatePeriod(...)`, as today (no database).
+2. **Transaction 1:** `lockForUpdate(accountId)`, `validateConsecutiveMonthlyBalances(...)`, read the
+   month. If the month does not exist, add the initial balance movement (`addMovementToProduct`).
+   Commit.
+3. Only if the initial movement was added: `awaitPendingSync()`, **outside** any transaction. This
+   replaces `Thread.sleep(2 s)` and its `FIXME TODO - This is a hack` comment.
+4. **Transaction 2:** `lockForUpdate(accountId)`, `validateConsecutiveMonthlyBalances(...)` again,
+   read the month, throw if it is missing, run the profit strategy (official report and dividend
+   movements). Commit.
+
+When the month already exists, step 3 is skipped. Transaction 1 then only validates and reads.
+
+Why two transactions: the official report must be written after the initial movement's adjust has
+run. Today the 2 s sleep gives that order. The adjust needs the product lock, so it cannot run while
+the register holds it. Commit, wait for our own adjust, then lock again.
+
+Why the wait is safe with 2 instances: it waits only for the adjust this request started, on this
+instance. Work from other instances is handled by the lock: it runs fully before transaction 2, or
+after it, and in both cases it reads fresh data.
+
+Between the two transactions another request can change the product. Transaction 2 validates again
+and reads the month again under the lock, so it never uses data from transaction 1.
+
+The constructor goes from 4 to 6 arguments. The project's 3-parameter rule is for methods; the
+constructors here already take 4. Wiring changes: `ProductUseCasesCDIConfig` (infra) and
+`UseCaseFixtureBuilder.buildRegisterMonthlyBalanceUseCase`.
+
+Rejected: one transaction with the wait inside (it blocks until the timeout, see D6). Running the
+initial movement's adjust on the caller thread (a second adjust path to keep in step).
+
+### D8: Tests wait with `awaitBackgroundTasks()`, and the test unit of work acts like the lock
+
+`UseCaseFixtureBuilder` holds one `private static final ProcessMonthlyBalanceService`.
+`buildProcessMonthlyBalanceSrv()` returns it. This is the same shape as production: one
+`@ApplicationScoped` bean, so one executor (D2).
+
+`UnitOfWorkTest` gets one `private static final ReentrantLock`. Each `execute`, `executeWithResult`
+and `executeInTransaction` holds it for the whole call. This copies what the product row lock does in
+PostgreSQL: a background adjust waits until the caller's transaction ends. It is coarser (one lock
+for all products), which is fine for tests. Reentrant, so nested units of work work.
+`InMemoryProductRepository.lockForUpdate` only checks that the product exists.
+
+This in-JVM lock lives in test code only. It stands in for the database, which the unit tests do not
+have. It does not break the scaling rule.
+
+`delayTests()` is renamed to `awaitBackgroundTasks()`. Its body becomes
+`SHARED_SERVICE.awaitPendingSync()`. `resetState()` calls `awaitBackgroundTasks()` first, so a task
+left by one test class cannot write into the next class after the storage is cleared.
+
+Mechanical rule for the cleanup (one rule, no judgment): every `Thread.sleep(...)` or `delayTests()`
+in a test that waits for background work is replaced one-for-one by `awaitBackgroundTasks()`.
+A call with nothing pending returns at once, so extra calls cost nothing. Do not delete calls and do not
+move them. Files: `DeleteMovementsFromPreviousMonthsUseCaseTest`, `DeleteMovementUseCaseTest`,
+`RegisterMonthlyReportedProfitTest`, `RegisterTCMovementTest`, `RegisterInvesmentMovementTest`,
+`RegisterCDTMovementTest`, `AddTransferProductsTest`, `RegisterMonthlyReportedWithoutProfitTest`,
+`DeleteMovementUCFixture`, `CreateProductTest`, `AddTransferRealEstateTest`,
+`AddMovementsAfterMonthlyReportedTest`, and `UseCaseFixtureBuilder` itself.
+After the cleanup, `/usr/bin/grep -rn "Thread.sleep\|delayTests" jbh-finance/jbh-finance-application/src/test`
+must list only `AsyncTaskExecutorImplTest`.
+
+Tests that build their own `ProcessMonthlyBalanceServiceImpl` or use case (`RegisterMovementValidationTest`,
+`RegisterMovementExecutionTest`, `UploadMultiMovementsExecutionTest`) get the new constructor
+arguments (`new UnitOfWorkTest()`). Nothing else changes in them.
+
+The in-memory fakes keep their `HashMap`. The test lock serializes the caller and the adjust, and
+tests read only after `awaitBackgroundTasks()`.
+
+AI-efficiency: one lock rule ("lock first, in one transaction"), one helper name, one replacement
+rule and one grep check. A worker applies them with no per-file judgment.
+
+### D9: Upload runs in one locked transaction
+
+`AddMovementsUploadedFileInputPort.uploadMovementsFromFile`: after `validateUploadedMovements`, the
+rest runs in one `executeInTransaction`: `lockForUpdate(accountId)`, find the product, map, sync the
+product balance, save movements and product, then `syncForUploadedMovementsAsync`.
+`persistMovementAndAccountUOW` no longer opens its own unit of work. The nested one would join anyway,
+so it is inlined into the outer one.
+
+`syncForUploadedMovementsAsync` reads the months, assigns the movements, and calls
+`persistBalancesAsync`, which now saves on the caller thread (D1). All of it runs under the lock.
+
+### D10: No database change
+
+No schema, index or migration. `UNIQUE (product_id, period)` already exists
+(`uk_monthly_balances_product_period`). The lock uses the existing primary key of `finance.products`.
+The `database` design gate is not touched.
+
+## Two instances: what happens
+
+Instance A and instance B, same product P.
+
+| Case | Result |
+|---|---|
+| A adds +5 to March, B adds -3 to March, at the same time | One locks P first. The other waits, then reads the month with +5 already saved. Both movements stay. |
+| A's background adjust for March runs while B adds a movement | Whoever locks P first runs fully. The other then reads fresh data. No old copy overwrites new data. |
+| A registers the report for February, B adds a dividend to March | Each holds the lock for its whole transaction. They run one after the other. |
+| A and B both create the April placeholder | Cannot happen under the lock. If a future flow skips the lock, the unique constraint fails one side and its transaction rolls back (D5). |
+| A crashes while holding the lock | PostgreSQL ends the session and releases the lock. The transaction rolls back. |
+| A's adjust fails | Its transaction rolls back. The month keeps the saved balance, not adjusted until the next movement. Same as today. |
 
 ## Responsibilities
 
 - `ProcessMonthlyBalanceServiceImpl` (changed): syncs the monthly balance with a new or reversed
-  movement, saves it, then starts the background adjust step. Gets one more job: the lock that keeps
-  caller sync and adjust from overwriting each other. This is part of the same job (safe sync of
-  one monthly balance). Changes when: monthly balance sync rules change.
-- `AsyncTaskExecutorImpl` (changed): runs background tasks in order on one shared thread. Changes
-  when: the async execution model changes.
-- `ProcessMonthlyBalanceServiceImplTest` (new test class): proves that two movements in the same month
-  both stay. Changes when: the sync contract changes.
-- `AsyncTaskExecutorImplTest` (one new method): proves submit order. Changes when: the execution
-  model changes.
+  movement, saves it, then starts the background adjust in its own locked transaction. Changes when:
+  monthly balance sync rules change.
+- `ProcessMonthlyBalanceService` (changed): the contract for monthly balance sync. Gets
+  `awaitPendingSync` and the lock precondition in its JavaDoc. Changes when: the sync contract changes.
+- `ProcessMovementServiceImpl` (changed): processes one movement for one product. Now runs it in one
+  locked transaction. Changes when: movement processing rules change.
+- `RegisterMonthlyBalanceInputPort` (changed): registers an official monthly report, in two locked
+  transactions with a wait between. Changes when: the report registration rules change.
+- `AddMovementsUploadedFileInputPort` (changed): imports movements from a file, in one locked
+  transaction. Changes when: the import rules change.
+- `ProductRepository`, `ProductLifecycleService`, `ProductLifecycleServiceImpl` (changed): get
+  `lockForUpdate`. Same job: access to the product. Changes when: product access changes.
+- `UnitOfWork` (changed): the port for transactions. Gets `executeInTransaction`. Changes when: the
+  transaction contract changes.
+- `AsyncTaskExecutorImpl` (changed): runs background tasks in order on one shared thread, and lets a
+  caller wait until earlier tasks are done (D6). Changes when: the async execution model changes.
+- `AsyncTaskExecutor` (changed): the port for background tasks. Gets `awaitIdle`. Changes when: the
+  async contract changes.
+- `ProductRepositoryAdapter` (changed, infra): product persistence. Gets the `PESSIMISTIC_WRITE` read.
+  Changes when: product persistence changes.
+- `QuarkusUnitOfWork` (changed, infra): runs work in one JTA transaction, rolls back and rethrows on
+  any error. Changes when: transaction handling changes.
+- `ProductUseCasesCDIConfig` (changed, infra): wiring only. Changes when: a constructor changes.
+- `UnitOfWorkTest`, `InMemoryProductRepository` (changed, test fakes): act like the transaction and the
+  row lock. Changes when: the ports change.
+- `UseCaseFixtureBuilder` (changed, test): builds use cases over in-memory fakes, and gives tests one
+  way to wait for background work (D8). Changes when: a use case constructor or the wait changes.
+- 12 test classes plus `DeleteMovementUCFixture` (changed): only the waits change (D8).
+- `RegisterMovementValidationTest`, `RegisterMovementExecutionTest`, `UploadMultiMovementsExecutionTest`
+  (changed): constructor arguments only.
+- New test classes: `ProcessMonthlyBalanceServiceImplTest`, `RegisterMonthlyBalanceInputPortTest`,
+  `ProcessMovementServiceImplLockTest`, `AddMovementsUploadedFileInputPortLockTest`.
+- `AsyncTaskExecutorImplTest` (new methods): proves submit order and the wait.
 - New production classes: none.
 
 ## Test contract
 
 Written before the implementation. Tests are offline unit tests in `jbh-finance-application`
-(in-memory fakes). Existing expected values are **not** changed.
+(in-memory fakes and Mockito). Existing expected values are **not** changed.
 
 ### New: `ProcessMonthlyBalanceServiceImplTest`
 
 Package `com.jbh.finance.test.application.feature.monthlybalance.services`. Uses the in-memory
-monthly balance fakes, `ProductLifecycleService` from `UseCaseFixtureBuilder`, and a fresh product
-and a fresh `ProcessMonthlyBalanceServiceImpl` per test. Period: 2025-03 (in the past, so the adjust
-step runs). Money values use `withJBHDecimals`.
+monthly balance fakes, `ProductLifecycleService` from `UseCaseFixtureBuilder`, `UnitOfWorkTest`, and a
+fresh product and a fresh `ProcessMonthlyBalanceServiceImpl` per test. Period: 2025-03 (in the past,
+so the adjust step runs). Money values use `withJBHDecimals`. Each sync call runs inside
+`unitOfWork.executeInTransaction(...)`, like a real caller (D1 precondition).
 
 | Test | Input | Expected |
 |---|---|---|
-| `shouldKeepBothMovementsWhenTwoMovementsAreSyncedInTheSameMonth` | real `AsyncTaskExecutorImpl`; `syncForNewMovement` deposit +5 on 2025-03-01, then at once withdrawal -3 on 2025-03-01; then wait for a no-op sentinel task submitted to the same executor | stored 2025-03: totalDebits 5.00, totalCredits 3.00, movementBalance 2.00, totalMovements 2 |
-| `shouldSaveMonthlyBalanceBeforeReturningWhenExecutorNeverRuns` | executor stub that drops every task; one `syncForNewMovement` deposit +5 | stored 2025-03 already has totalDebits 5.00, totalMovements 1; the stub received exactly 1 task |
+| `shouldKeepBothMovementsWhenTwoMovementsAreSyncedInTheSameMonth` | real `AsyncTaskExecutorImpl`; sync deposit +5 on 2025-03-01, then at once withdrawal -3 on 2025-03-01; then `awaitPendingSync()` | stored 2025-03: totalDebits 5.00, totalCredits 3.00, movementBalance 2.00, totalMovements 2 |
+| `shouldSaveMonthlyBalanceBeforeReturningWhenExecutorNeverRuns` | executor stub that drops every task; one sync deposit +5 | stored 2025-03 already has totalDebits 5.00, totalMovements 1; the stub received exactly 1 task |
 | `shouldRemoveReversedMovementFromStoredMonthWhenReversalIsSynced` | stub executor that drops tasks; sync deposit +10, sync withdrawal -4, then `syncForReversedMovement` of the withdrawal | stored 2025-03: totalDebits 10.00, totalCredits 0.00, movementBalance 10.00, totalMovements 1 |
 | `shouldPropagateExceptionWhenSaveFails` | `MonthlyBalanceLifecycleService` mock whose `saveMultiBalances` throws `IllegalStateException`; stub executor | exception reaches the caller; stub received 0 tasks |
+| `shouldLockProductBeforeReadingWhenAdjustRuns` | executor stub that runs the task on the calling thread; Mockito `ProductLifecycleService` and lifecycle service; Mockito `UnitOfWork` that runs the work | `InOrder`: `unitOfWork.executeInTransaction(...)`, then `lockForUpdate(productId)`, then `findNextBalancesFromPeriodInclusive(...)` |
 
-The stub is a lambda-style implementation of the existing `AsyncTaskExecutor` that counts calls and
-returns a never-completed future. If `ProductLifecycleService` or the lifecycle service is easier
-as a Mockito mock for the last test, use Mockito (the project allows mocks for interaction checks).
+The stub is a small implementation of the existing `AsyncTaskExecutor` that counts calls and
+returns a never-completed future (or runs the task, for the last test).
 
-### New method in `AsyncTaskExecutorImplTest` (append only)
+### New methods in `AsyncTaskExecutorImplTest` (append only)
 
-`shouldRunTasksInSubmitOrder`: submit 3 tasks on one instance. Task 0 sleeps 100 ms, task 1 sleeps
-10 ms, task 2 sleeps 0 ms. Each appends its number to a synchronized list. After all three futures
-complete, the list is `[0, 1, 2]`.
+| Test | Input | Expected |
+|---|---|---|
+| `shouldRunTasksInSubmitOrder` | 3 tasks on one instance; task 0 sleeps 100 ms, task 1 10 ms, task 2 0 ms; each appends its number to a synchronized list | after all futures complete, the list is `[0, 1, 2]` |
+| `shouldWaitForEarlierTasksWhenAwaitIdle` | submit a task that sleeps 200 ms, then sets an `AtomicBoolean`; call `awaitIdle(5 s)` | returns; the flag is true |
+| `shouldReturnAtOnceWhenAwaitIdleAndNothingPending` | fresh instance; `awaitIdle(1 s)` | returns with no exception |
+| `shouldThrowWhenAwaitIdleTimesOut` | submit a task that blocks on a `CountDownLatch`; `awaitIdle(50 ms)` | throws `IllegalStateException`; then release the latch |
+| `shouldThrowWhenAwaitIdleIsCalledFromWorkerThread` | submit a task whose body calls `awaitIdle(1 s)` | the task's future completes exceptionally with `IllegalStateException` (no hang) |
+| `shouldNotFailAwaitIdleWhenEarlierTaskFailed` | submit a task that throws; `awaitIdle(5 s)` | returns with no exception |
+
+### New: `RegisterMonthlyBalanceInputPortTest`
+
+Package `com.jbh.finance.test.application.feature.monthlybalance.ports.input`. Mockito mocks for the
+constructor arguments, except `UnitOfWork`: a small fake that runs the work and keeps an
+`inTransaction` flag. `CategoryService.findIncomeInitialBalance()` returns a fixture category.
+
+| Test | Input | Expected |
+|---|---|---|
+| `shouldLockProductBeforeReadingMonthWhenRegistering` | month exists; command with no profit | `InOrder`: `lockForUpdate(accountId)`, then `findByAccountIdYearAndMonth(...)` |
+| `shouldNotAwaitPendingSyncWhenMonthExists` | month exists | `awaitPendingSync()` never called |
+| `shouldAwaitPendingSyncBetweenTransactionsWhenFirstReport` | first read empty, second read returns the month | `InOrder`: `addMovementToProduct(...)`, `awaitPendingSync()`, `lockForUpdate(...)`, second read; `awaitPendingSync()` called once; when it is called, the fake's `inTransaction` flag is false |
+| `shouldNotSleepWhenFirstReport` | same as above | `assertTimeout(Duration.ofMillis(500), ...)` passes (the old code slept 2 s) |
+
+### New: `ProcessMovementServiceImplLockTest`
+
+Package `com.jbh.finance.test.application.feature.movement.services`. Mockito mocks for the
+collaborators; `UnitOfWork` is the same kind of flag fake.
+
+| Test | Input | Expected |
+|---|---|---|
+| `shouldLockProductFirstWhenAddingMovement` | `addMovementToProduct` with a valid deposit command | `InOrder`: `lockForUpdate(productId)`, `validateNewMovementForOfficialMonthlyReport(...)`, `syncByMovement(...)`, `syncForNewMovement(...)`; the fake's flag is true at `lockForUpdate` and at `syncForNewMovement` |
+| `shouldPropagateBusinessExceptionWhenValidationFails` | `validateNewMovementForOfficialMonthlyReport` throws `BusinessException` | the same exception reaches the caller; `syncForNewMovement` never called |
+
+### New: `AddMovementsUploadedFileInputPortLockTest`
+
+Package `com.jbh.finance.test.application.feature.movement.ports.input`. Same fake.
+
+| Test | Input | Expected |
+|---|---|---|
+| `shouldLockProductFirstWhenUploadingMovements` | 2 valid uploaded deposits | `InOrder`: `lockForUpdate(accountId)`, `findOrThrowByUserAndProductId(...)`, `syncByUploadedMovements(...)`, `syncForUploadedMovementsAsync(...)`; all inside one `executeInTransaction` call |
 
 ### Existing tests (expected values unchanged)
 
 1. `RegisterMonthlyReportedProfitTest.registerReportWithRetefuente20252` (order 7). Registering
    2025-02 (closing 582, profit 5, retefuente 3) must create, in 2025-03, a dividend deposit +5 and a
-   retefuente withdrawal -3. Expected 2025-03 after the 1 s wait: openingBalance 580.00,
+   retefuente withdrawal -3. Expected 2025-03 after `awaitBackgroundTasks()` (was a 1 s sleep): openingBalance 580.00,
    closingBalance 582.00, totalDebits 5.00, totalCredits 3.00, movementBalance 2.00,
    totalMovements 2, officialMonthlyReport false. Product: `movementBalance` = previous + profit
    (5) - retefuente (3), `netProfitBalance` 262.00, `currentBalance` = command closing balance. Why it passes
-   now: both movements are saved before the next one is read (D1); adjust runs in order and sets
-   opening 580 (D2, D3).
+   now: both movements are saved before the next one is read (D1); the adjusts run after the
+   register transaction and read fresh data (D2, D3, D8).
 2. `RegisterMonthlyReportedProfitTest.shouldAddDebitsToReportedMonthlyBalance` (order 18). Expected
    product `currentBalance` and `movementBalance` equal `FIRST_BALANCE_ZERO`, i.e. 582 in the
    shared static `finalAccountBalance`. It failed with 575 only because test 7 stopped before
@@ -195,34 +468,43 @@ complete, the list is `[0, 1, 2]`.
    currentBalance 160.00, netProfitBalance 10.00, netGrowthRate 6.67, and current month
    `monthlyNetProfit` 10.00 (line 327; the old run gave 110). Closing balance equals 160.00.
    The movement is gone from the repository.
+4. `RegisterMonthlyReportedProfitTest.month4ProfitReport202411` and `month6ProfitReport202501`.
+   Assertions unchanged. They read the next month right after register. With D8 the `setUp` and
+   in-test sleeps become `awaitBackgroundTasks()`. The step before each "next month" read must be an
+   `awaitBackgroundTasks()` call. If the one-for-one rule leaves no call there, add exactly one
+   before the read (lines ~497 and ~630 today). This is the only place where a call is added, not replaced.
+5. Every class in the module passes **5 runs in a row** (flaky failures were 1 in 3 before).
 
 #### Check: can `deleteExpense30WithSnapshot` still read before the adjust ends?
 
 `monthlyNetProfit` is set only by the adjust step (`recalculateBalances` in the adjust
-loop). The test calls `deleteMovementUseCase.deleteMovement(...)` and then reads. The monthly
-balances are read through `getCurrentMonthlyBalances()`, which calls `delayTests()` first. That is
-a 500 ms wait. The product is read by `getCurrentProductInfo()` with no wait, but the product is
-saved in the unit of work before the sync, so it needs no adjust.
-
-The old value 110 came from out-of-order tasks: older tasks, running in parallel, wrote over newer
-data. With D1 + D2 + D3 the tasks run in order and each reads fresh data. The in-memory adjust
-takes a few ms, so the existing 500 ms wait is enough. **No test change is needed and no new wait.**
-If the user still sees a read-before-finish failure, the next step is a test-side wait that is
-more exact than 500 ms. Candidate: a test helper that submits a no-op sentinel to the executor of
-the service under test and waits for it. That works only because tasks are in order (D2). It needs a
-way to reach the executor, so it is not planned here. Assertions stay as they are.
+loop). The test calls `deleteMovementUseCase.deleteMovement(...)` and then reads the monthly
+balances through `getCurrentMonthlyBalances()`, which waits first. D8 makes that wait
+`awaitBackgroundTasks()`, which ends exactly when the adjust ends. The old value 110 came from
+out-of-order tasks writing over newer data. With D1, D2 and the test lock (D8), each task runs in
+order and reads fresh data. Assertions stay as they are.
 
 ## Risks / Trade-offs
 
-- A global lock per service instance serializes balance syncs across products. The sections are short
-  (in-memory work plus a save). No performance profile is declared. If a profile appears later, move
-  to a lock per product.
-- `UseCaseFixtureBuilder.buildProcessMonthlyBalanceSrv()` creates a new service and a new executor
-  each call. Two services in one test have two executors and two locks, with no order between them.
-  The existing tests that matter use one service chain per use case; if a test shows
-  cross-instance order problems, share one executor in the builder. Not planned.
-- The single worker thread means one slow adjust delays all later adjusts. This is the
-  price of order, and was accepted in the interview.
-- A save error now fails the movement request after the movement and product are already
-  persisted in the unit of work. Before, the failure was silent. This is a visible failure instead of
-  silent data loss. A full rollback is out of scope.
+- Requests for the **same product** now wait for each other, on all instances. A long upload holds
+  the lock for its whole transaction (seconds for a big file), and other requests for that product
+  wait. Requests for other products do not wait. Accepted: correctness over speed for one product.
+- A background adjust also holds the product lock while it runs. A slow adjust of old periods delays
+  the next request for that product.
+- One worker thread per instance (D2). If its task waits for a lock held by another instance, later
+  tasks on this instance wait too, also for other products. Accepted with D2.
+- The adjust task is submitted inside the caller's transaction. It waits on the lock until the caller
+  commits. If the caller rolls back, the adjust still runs and recalculates from committed data, which
+  is harmless.
+- Register: if `awaitPendingSync()` times out (10 s), transaction 1 is already committed and the
+  report is not. The user sees an error and can retry. The retry finds the month and skips step 3.
+- D5 changes error behavior: errors that were only logged now fail the request, and checked
+  `BusinessException` now rolls back. This is a visible failure instead of silent data loss.
+- Hibernate may send `FOR NO KEY UPDATE` instead of `FOR UPDATE` for `PESSIMISTIC_WRITE` on
+  PostgreSQL. Both block each other, so the result is the same.
+- A flow that writes balances and skips the lock rule breaks the guarantee. The rule is in
+  `.claude/CLAUDE.md` ("Horizontal scaling") and in D3, and the new lock-order tests check the main
+  flows. Product-only edits are a non-goal.
+- D8 makes the test service and the test lock static and shared across test classes. A stuck task
+  affects the next class. `resetState()` waits first, and the 10 s timeout turns a stuck task into
+  a clear error.
