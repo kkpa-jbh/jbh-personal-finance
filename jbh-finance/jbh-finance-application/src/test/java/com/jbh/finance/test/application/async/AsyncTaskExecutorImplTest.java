@@ -1,5 +1,6 @@
 package com.jbh.finance.test.application.async;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -9,12 +10,18 @@ import static org.junit.jupiter.api.Assertions.fail;
 import com.jbh.finance.application.async.AsyncTaskExecutorImpl;
 import com.jbh.finance.application.async.vo.AsyncTask;
 import com.jbh.finance.application.async.vo.AsyncTaskType;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
@@ -274,5 +281,114 @@ public class AsyncTaskExecutorImplTest {
     final Long endTime = future.get(10, TimeUnit.SECONDS);
     assertTrue(endTime - startTime >= 500);
     assertTrue(future.isDone());
+  }
+
+  @Test
+  @DisplayName("Should run tasks in submit order")
+  void shouldRunTasksInSubmitOrder() throws Exception {
+    // Given
+    final List<Integer> order = Collections.synchronizedList(new ArrayList<>());
+    final long[] sleepMillis = {100, 10, 0};
+    final List<CompletableFuture<Integer>> futures = new ArrayList<>();
+
+    // When
+    for (int i = 0; i < sleepMillis.length; i++) {
+      final int taskNumber = i;
+      futures.add(
+          asyncTaskExecutor.submitTask(
+              testAsyncTask,
+              () -> {
+                Thread.sleep(sleepMillis[taskNumber]);
+                order.add(taskNumber);
+                return taskNumber;
+              }));
+    }
+    for (final CompletableFuture<Integer> future : futures) {
+      future.get(5, TimeUnit.SECONDS);
+    }
+
+    // Then
+    assertEquals(List.of(0, 1, 2), order);
+  }
+
+  @Test
+  @DisplayName("Should wait for earlier tasks when awaitIdle is called")
+  void shouldWaitForEarlierTasksWhenAwaitIdle() {
+    // Given
+    final AtomicBoolean finished = new AtomicBoolean(false);
+    asyncTaskExecutor.submitTask(
+        testAsyncTask,
+        () -> {
+          Thread.sleep(200);
+          finished.set(true);
+          return null;
+        });
+
+    // When
+    asyncTaskExecutor.awaitIdle(Duration.ofSeconds(5));
+
+    // Then
+    assertTrue(finished.get());
+  }
+
+  @Test
+  @DisplayName("Should return at once when awaitIdle is called and nothing is pending")
+  void shouldReturnAtOnceWhenAwaitIdleAndNothingPending() {
+    assertDoesNotThrow(() -> asyncTaskExecutor.awaitIdle(Duration.ofSeconds(1)));
+  }
+
+  @Test
+  @DisplayName("Should throw when awaitIdle times out")
+  void shouldThrowWhenAwaitIdleTimesOut() {
+    // Given
+    final CountDownLatch release = new CountDownLatch(1);
+    asyncTaskExecutor.submitTask(
+        testAsyncTask,
+        () -> {
+          release.await();
+          return null;
+        });
+
+    // When / Then
+    try {
+      assertThrows(
+          IllegalStateException.class, () -> asyncTaskExecutor.awaitIdle(Duration.ofMillis(50)));
+    } finally {
+      release.countDown();
+    }
+  }
+
+  @Test
+  @DisplayName("Should throw when awaitIdle is called from the worker thread")
+  void shouldThrowWhenAwaitIdleIsCalledFromWorkerThread() {
+    // Given
+    final CompletableFuture<Object> future =
+        asyncTaskExecutor.submitTask(
+            testAsyncTask,
+            () -> {
+              asyncTaskExecutor.awaitIdle(Duration.ofSeconds(1));
+              return null;
+            });
+
+    // When
+    final ExecutionException executionException =
+        assertThrows(ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS));
+
+    // Then
+    assertTrue(executionException.getCause() instanceof IllegalStateException);
+  }
+
+  @Test
+  @DisplayName("Should not fail awaitIdle when an earlier task failed")
+  void shouldNotFailAwaitIdleWhenEarlierTaskFailed() {
+    // Given
+    asyncTaskExecutor.submitTask(
+        testAsyncTask,
+        () -> {
+          throw new RuntimeException("Earlier task failed");
+        });
+
+    // When / Then
+    assertDoesNotThrow(() -> asyncTaskExecutor.awaitIdle(Duration.ofSeconds(5)));
   }
 }

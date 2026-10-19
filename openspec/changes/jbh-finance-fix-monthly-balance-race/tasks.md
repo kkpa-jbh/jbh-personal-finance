@@ -1,19 +1,19 @@
 ## 1. Shared ordered executor and the wait (D2, D6)
 
-- [ ] 1.1 Change `AsyncTaskExecutorImpl` (`jbh-finance-application/src/main/java/com/jbh/finance/application/async/`): one `ThreadPoolExecutor` per instance (core 1, max 1, unbounded queue, daemon threads, `allowCoreThreadTimeOut(true)`); remove the per-task executor and the `shutdown()/close()` in `finally`. Keep logging, DLQ and metadata behavior. Depends on: none.
-- [ ] 1.2 Add `void awaitIdle(Duration timeout)` to `AsyncTaskExecutor` and implement it with a no-op sentinel task (timeout, interrupt, worker-thread and failed-task rules in design.md D6; JavaDoc: never call inside a transaction). Depends on: 1.1 (same file).
-- [ ] 1.3 Append the 6 new methods to `AsyncTaskExecutorImplTest` (design.md, Test contract). Do not edit existing methods. Depends on: none (written against the contract).
+- [x] 1.1 Change `AsyncTaskExecutorImpl` (`jbh-finance-application/src/main/java/com/jbh/finance/application/async/`): one `ThreadPoolExecutor` per instance (core 1, max 1, unbounded queue, daemon threads, `allowCoreThreadTimeOut(true)`); remove the per-task executor and the `shutdown()/close()` in `finally`. Keep logging, DLQ and metadata behavior. Depends on: none.
+- [x] 1.2 Add `void awaitIdle(Duration timeout)` to `AsyncTaskExecutor` and implement it with a no-op sentinel task (timeout, interrupt, worker-thread and failed-task rules in design.md D6; JavaDoc: never call inside a transaction). Depends on: 1.1 (same file).
+- [x] 1.3 Append the 6 new methods to `AsyncTaskExecutorImplTest` (design.md, Test contract). Do not edit existing methods. Depends on: none (written against the contract).
 
 ## 2. Transaction and lock ports (D3, D5)
 
-- [ ] 2.1 `UnitOfWork`: add `executeInTransaction(TransactionalWork<T>)` and the nested `TransactionalWork<T>` functional interface (design.md D5). Depends on: none.
-- [ ] 2.2 `ProductRepository`, `ProductLifecycleService`, `ProductLifecycleServiceImpl`: add `lockForUpdate(ProductId)`; the service delegates to the repository. Depends on: none.
-- [ ] 2.3 Test fakes: `UnitOfWorkTest` holds one static `ReentrantLock` for each call and implements the new method; `InMemoryProductRepository.lockForUpdate` checks the product exists (design.md D8). Depends on: 2.1, 2.2.
+- [x] 2.1 `UnitOfWork`: add `executeInTransaction(TransactionalWork<T>)` and the nested `TransactionalWork<T>` functional interface (design.md D5). Depends on: none.
+- [x] 2.2 `ProductRepository`, `ProductLifecycleService`, `ProductLifecycleServiceImpl`: add `lockForUpdate(ProductId)`; the service delegates to the repository. Depends on: none.
+- [x] 2.3 Test fakes: `UnitOfWorkTest` holds one static `ReentrantLock` for each call and implements the new method; `InMemoryProductRepository.lockForUpdate` checks the product exists (design.md D8). Depends on: 2.1, 2.2.
 
 ## 3. Infra adapters (D3, D5; module `jbh-finance-infra`)
 
-- [ ] 3.1 `ProductRepositoryAdapter.lockForUpdate`: `@Transactional(TxType.MANDATORY)`, `jpaRepo.findById(productId.value(), LockModeType.PESSIMISTIC_WRITE)`, throw the existing not-found error when missing. Check the Panache API with Context7. Depends on: 2.2.
-- [ ] 3.2 `QuarkusUnitOfWork`: class annotation `@Transactional(rollbackOn = Exception.class)`; `execute` logs and rethrows; implement `executeInTransaction` (log, rethrow the same exception); keep `executeWithResult` as it is. Remove the two FIXME comments that this fixes. Depends on: 2.1.
+- [x] 3.1 `ProductRepositoryAdapter.lockForUpdate`: `@Transactional(TxType.MANDATORY)`, `jpaRepo.findById(productId.value(), LockModeType.PESSIMISTIC_WRITE)`, throw the existing not-found error when missing. Check the Panache API with Context7. Depends on: 2.2.
+- [x] 3.2 `QuarkusUnitOfWork`: class annotation `@Transactional(rollbackOn = Exception.class)`; `execute` logs and rethrows; implement `executeInTransaction` (log, rethrow the same exception); keep `executeWithResult` as it is. Remove the two FIXME comments that this fixes. Depends on: 2.1.
 
 ## 4. Monthly balance sync (D1, D6)
 

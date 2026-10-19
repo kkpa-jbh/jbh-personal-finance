@@ -73,4 +73,10 @@ public interface ProductLifecycleService {
   Optional<ProductDTO> findProductById(ProductId productId);
 
   void deleteProduct(ProductId productId);
+
+  /**
+   * Locks the product row until the current transaction ends. Every flow that changes product
+   * balances calls this first, inside its transaction.
+   */
+  void lockForUpdate(ProductId productId);
 }

@@ -5,7 +5,9 @@ import com.jbh.finance.application.feature.product.ports.output.ProductRepositor
 import com.jbh.finance.domain.product.vo.ProductId;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.LockModeType;
 import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -71,5 +73,19 @@ public class ProductRepositoryAdapter implements ProductRepository {
     }
 
     jpaRepo.delete(foundAccount.get());
+  }
+
+  @Override
+  @Transactional(TxType.MANDATORY)
+  public void lockForUpdate(final ProductId productId) {
+    // The repository id type is Long (PanacheRepository), so findById(UUID, lock) does not compile.
+    final Optional<ProductJPAEntity> locked =
+        jpaRepo
+            .find("id", productId.value())
+            .withLock(LockModeType.PESSIMISTIC_WRITE)
+            .firstResultOptional();
+    if (locked.isEmpty()) {
+      throw new IllegalArgumentException("Account not found");
+    }
   }
 }

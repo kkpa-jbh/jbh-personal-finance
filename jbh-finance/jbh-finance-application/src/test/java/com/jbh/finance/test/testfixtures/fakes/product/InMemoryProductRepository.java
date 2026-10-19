@@ -59,6 +59,13 @@ public class InMemoryProductRepository implements ProductRepository {
     log.warn("Deleted product with ID: " + productId);
   }
 
+  @Override
+  public void lockForUpdate(final ProductId productId) {
+    if (!storage.containsKey(productId.value())) {
+      throw new IllegalArgumentException("Account not found");
+    }
+  }
+
   public void clearStorage() {
     storage.clear();
   }

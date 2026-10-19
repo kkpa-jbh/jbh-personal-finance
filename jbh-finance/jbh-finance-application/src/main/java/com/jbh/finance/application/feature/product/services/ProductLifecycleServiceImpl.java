@@ -219,6 +219,11 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
     log.warn("Deleted product with id {}", productId);
   }
 
+  @Override
+  public void lockForUpdate(final ProductId productId) {
+    accountRepo.lockForUpdate(productId);
+  }
+
   private ProductDomain findDomainOrThrow(final ProductPK accountPK) throws BusinessException {
     final UUID userId = accountPK.userId();
     final ProductId accountId = accountPK.productId();
