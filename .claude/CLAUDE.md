@@ -10,6 +10,12 @@
 - Avoid boolean parameters (except in constructors) - use value objects instead
 - Maximum 3 method parameters - use command objects or value objects for more
 
+**Horizontal scaling (always):**
+- The app runs as more than one instance. Every design and fix must stay correct with 2 or more instances.
+- Never protect shared data with in-JVM state: no `synchronized`, in-memory locks, local caches, single-thread executors, or in-memory queues for correctness. They are allowed only to make one instance faster.
+- Protect shared data in PostgreSQL: a transaction with a row lock (`SELECT ... FOR UPDATE`), an optimistic `@Version` column, a unique constraint, or an atomic SQL update.
+- Every design must say what happens when 2 instances handle the same product at the same time.
+
 **Code Quality:**
 - See [Code Quality Standards](standards/code-quality.md) for PMD rules and SOLID principles
 - See [Naming Conventions](standards/naming.md) for comprehensive naming standards
@@ -93,7 +99,7 @@ This is a Quarkus multi-module monolith using **Hexagonal Architecture** with **
 - `jbh-gateway-client` - Java library used by the `*-infra` modules to call other services through the gateway
 
 **Architecture Model:**
-- Single deployable unit with well-defined modules (port 7777)
+- Single deployable unit with well-defined modules (port 7777), running as more than one instance (see "Horizontal scaling")
 - PostgreSQL with separate schema per module (database `jbh_finance`)
 - JWT (HMAC shared secret) is issued by `jbh-iam` and validated by `jbh-gateway`. This app does not validate the JWT itself: `BaseRestAdapter.findUserId(...)` asks `jbh-iam` for the user id through `jbh-gateway-client`.
 - `jbh-notification-contracts` is also used by `jbh-gateway-client` and `jbh-iam`. A change there needs `mvn install` before those repos build.

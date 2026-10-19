@@ -5,3 +5,7 @@ context: |
   Project rules: .claude/CLAUDE.md and .claude/standards/.
   Change names start with the owning module, e.g. jbh-finance-fix-monthly-balance-race.
   Writing: English, B2 level. Short sentences, common words.
+  Horizontal scaling: the app runs as more than one instance. Every design must stay correct
+  with 2 or more instances. Protect shared data in PostgreSQL (row lock, @Version, unique
+  constraint, atomic SQL), never with in-JVM locks, caches, or executors. The design must say
+  what happens when 2 instances change the same product at the same time.
