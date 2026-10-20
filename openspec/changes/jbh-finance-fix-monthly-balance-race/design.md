@@ -390,8 +390,9 @@ Instance A and instance B, same product P.
   rule or the movement flow contract changes.
 - `FinanceDatabaseTestProfile` (new, infra test): boots `jbh-finance-infra` on a throwaway
   PostgreSQL from Dev Services. Changes when: the finance datasource or Liquibase setup changes.
-- `test-create-finance-schema.sql` (new, infra test resource): creates the `finance` schema in the
-  Dev Services database before Liquibase runs. Changes when: the module schema name changes.
+- `test-create-finance-schema.sql` (new, infra test resource): prepares the Dev Services database
+  like a real one: the `finance` schema, and `search_path` set to `finance` for the app user.
+  Changes when: the module schema name changes.
 - `jbh-finance-infra/pom.xml` (changed): test dependency and surefire setup for the opt-in database
   test. Changes when: the module test setup changes.
 
@@ -523,14 +524,23 @@ Why this module and not `jbh-z-assembly`:
 |---|---|---|
 | `quarkus.datasource.finance.jdbc.url` | empty string | An empty value removes the URL from `application.properties`. Dev Services start only when no URL is set. |
 | `quarkus.datasource.finance.devservices.username` / `.password` | `postgres` / `postgres` | Same values as the configured datasource user, so container and pool always match. |
-| `quarkus.datasource.finance.devservices.init-script-path` | `db/test-create-finance-schema.sql` | The `finance` schema is created outside Liquibase in real setups (`jbh-deploy/initdb`). Liquibase needs it for its own tables. |
+| `quarkus.datasource.finance.devservices.init-script-path` | `db/test-create-finance-schema.sql` | The `finance` schema is created outside Liquibase in real setups (`jbh-deploy/initdb`). Liquibase needs it for its own tables. The script also sets the default schema (see below). |
 | `quarkus.hibernate-orm.finance.database.generation` | `none` | Liquibase owns the schema, as in dev and prod. |
 | `quarkus.datasource.devservices.enabled` | `false` | The module uses only `finance`. This stops a second, unused container for the default datasource. |
 | `quarkus.http.test-port` | `0` | A random free port. The test makes no HTTP call. |
 | `quarkus.arc.remove-unused-beans` | `false` | Same as the assembly at runtime. |
 | `quarkus.index-dependency.finance-domain.*` / `finance-application.*` | `com.jbh` / `jbh-finance-domain`, `jbh-finance-application` | Same index setup as the assembly. Keeps domain and application free of Jandex. |
 
-- `src/test/resources/db/test-create-finance-schema.sql`: `CREATE SCHEMA IF NOT EXISTS finance;`.
+- `src/test/resources/db/test-create-finance-schema.sql`, two statements:
+  - `CREATE SCHEMA IF NOT EXISTS finance;`
+  - `ALTER ROLE CURRENT_USER SET search_path TO finance, public;`
+  The default schema **is** needed. Production sets `?currentSchema=finance` in the JDBC URL. The
+  Dev Services URL does not. Tables and SQL are schema-qualified, but `MonthlyBalanceJPAEntity`
+  names `monthly_balances_seq` with no schema, so without it Hibernate fails with
+  `relation "monthly_balances_seq" does not exist`. The script runs at container start, as the same
+  user the pool uses, before the pool opens. So every app connection starts in `finance`.
+  `CURRENT_USER` works whatever user name Dev Services picked. A JDBC property override
+  (`jdbc.additional-jdbc-properties.currentSchema`) was tried and did not reach the connection.
 - `quarkus.liquibase.finance.migrate-at-start=true` stays as it is. It creates the tables and the
   system categories that the `ProcessMovementServiceImpl` constructor reads.
 - Not started or mocked, because nothing calls them: the gateway client (no REST call, so no

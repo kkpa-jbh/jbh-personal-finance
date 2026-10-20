@@ -57,5 +57,5 @@ only in infra. See `.claude/standards/naming.md`.
 
 - Unit tests live in `jbh-finance-application` (in-memory fakes in `testfixtures/fakes`,
   `UnitOfWorkTest`, Mockito). Wait for background work with `awaitBackgroundTasks()`, never a sleep.
-- `jbh-finance-infra` gets one opt-in `@QuarkusTest` on a real PostgreSQL (tag `database`). It needs
+- `jbh-finance-infra` has one opt-in `@QuarkusTest` on a real PostgreSQL (tag `database`). It needs
   Docker. Run it with `-Djbh.test.excludedGroups=none`. All other infra tests are plain JUnit.

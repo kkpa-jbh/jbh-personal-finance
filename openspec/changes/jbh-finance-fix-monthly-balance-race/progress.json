@@ -5,14 +5,12 @@
   "module": "jbh-finance",
   "roadmap": null,
   "request": "continue (resumed from: fix the race in monthly balance sync found by RegisterMonthlyReportedProfitTest; plan the fix, remove Thread.sleep waits, extend the JBH-62 change; then: designs must work with more than one instance)",
-  "status": "in-progress",
+  "status": "applied",
   "rollup": {
     "current": [
       "7.4"
     ],
-    "pending": [
-      "7.5"
-    ],
+    "pending": [],
     "blocked": [],
     "done": [
       "1.1",
@@ -37,11 +35,12 @@
       "6.4",
       "7.1",
       "7.2",
-      "7.3"
+      "7.3",
+      "7.5"
     ]
   },
   "created_at": "2026-10-19T21:12:50Z",
-  "updated_at": "2026-10-20T02:26:33Z",
+  "updated_at": "2026-10-20T15:19:04Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-opus-5-5"
@@ -683,14 +682,23 @@
         "7.2"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": "Added after review approval by user choice. Proves the PostgreSQL row lock, which the unit tests only fake.",
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-10-20T15:10:52Z",
+      "completed_at": "2026-10-20T15:19:04Z",
+      "duration_seconds": 492,
+      "notes": "DB lock test in jbh-finance-infra, opt-in (tag database). 5/5 pass on Dev Services Postgres. With the lock off: 5/5 fail (lost update). Fix rounds: search_path set by the test init script.",
+      "budget": {
+        "five_hour_pct_start": null,
+        "five_hour_pct_end": 25,
+        "five_hour_pct_delta": null,
+        "cost_usd_delta": 5.92,
+        "context_pct_end": 22,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "five_hour unavailable at start (bucket reset); includes artifact step, 2 fix rounds and leader runs; subagent cost not included"
+      }
     }
   ],
   "review": {
@@ -983,6 +991,21 @@
       "at": "2026-10-20T02:37:09Z",
       "agent": "leader",
       "event": "7.5 artifact step accepted (tasks.md 7.5, design.md test contract, new jbh-finance/AGENTS.md); openspec validate --strict valid; budget end five_hour=36 cost=7.34 (subagent cost not included). Waiting for user: opt-in vs always-on, test location"
+    },
+    {
+      "at": "2026-10-20T15:10:52Z",
+      "agent": "leader",
+      "event": "artifacts committed 6d9f21b; dispatched worker wave 4 (task 7.5) on opus via SendMessage; budget start five_hour=null (bucket reset) cost=7.52"
+    },
+    {
+      "at": "2026-10-20T15:16:30Z",
+      "agent": "leader",
+      "event": "7.5 run 1 (leader): Testcontainers 400 from Docker Engine 29.2.1 (min API 1.44) - environment, no code change; rerun with DOCKER_API_VERSION=1.44 -Dapi.version=1.44: boot ok, 5/5 errors 'relation monthly_balances_seq does not exist' - test profile lacks currentSchema=finance. Fix round 1 sent to the worker"
+    },
+    {
+      "at": "2026-10-20T15:19:04Z",
+      "agent": "leader",
+      "event": "wave 4 verified by the leader (assistantRunsTests): DOCKER_API_VERSION=1.44 mvn -pl jbh-finance/jbh-finance-infra -am test -Dtest=ProcessMovementServiceDatabaseLockTest -Dsurefire.failIfNoSpecifiedTests=false -Djbh.test.excludedGroups=none -Dapi.version=1.44 exit 0, 5/5; same with lock set to NONE: exit 1, 5/5 fail (file restored); mvn -pl jbh-finance/jbh-finance-infra -am test exit 0 (115+319+8, DB test skipped)"
     }
   ]
 }
