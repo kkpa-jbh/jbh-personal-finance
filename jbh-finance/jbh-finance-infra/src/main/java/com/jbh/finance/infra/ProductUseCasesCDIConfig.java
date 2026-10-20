@@ -124,7 +124,7 @@ public class ProductUseCasesCDIConfig {
   @ApplicationScoped
   public ProcessMonthlyBalanceService processMonthlyBalanceService() {
     return new ProcessMonthlyBalanceServiceImpl(
-        monthlyBalanceService(), new AsyncTaskExecutorImpl(), productsService());
+        monthlyBalanceService(), new AsyncTaskExecutorImpl(), productsService(), unitOfWork);
   }
 
   // TODO Validate if it's singleton
@@ -220,7 +220,9 @@ public class ProductUseCasesCDIConfig {
         monthlyBalanceService(),
         productsService(),
         accountMovementServiceApplication(),
-        categoryService());
+        categoryService(),
+        unitOfWork,
+        processMonthlyBalanceService());
   }
 
   @Produces

@@ -69,6 +69,21 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
 
     validateUploadedMovements(allUploadedMovCommand);
 
+    return unitOfWork.executeInTransaction(
+        () -> uploadMovementsLocked(userId, accountId, allUploadedMovCommand));
+  }
+
+  /**
+   * Runs in one transaction. The product row lock is the first statement, so other requests for
+   * this product, on any instance, wait until the movements and the monthly balances are saved.
+   */
+  private AddMultipleBasicMovementDTO uploadMovementsLocked(
+      final UUID userId,
+      final ProductId accountId,
+      final List<AddMovementUploadedFileCommand> allUploadedMovCommand)
+      throws BusinessException {
+    accountService.lockForUpdate(accountId);
+
     final ProductDomain accountDomain = findAccountOrElseThrow(userId, accountId);
 
     final List<MovementDomain> uploadedMovements =
@@ -78,10 +93,12 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
     final ProductDTO accountDTO =
         accountService.syncByUploadedMovements(accountDomain, uploadedMovements);
 
-    // Persist Movements and Account UOW
-    persistMovementAndAccountUOW(uploadedMovements, accountDTO);
+    LOG.info("Persisting Movements changes");
+    movementRepo.save(uploadedMovements.stream().map(MovementMapper::toDTO).toList());
+    LOG.info("Saving productDTO changes");
+    accountService.save(accountDTO);
 
-    // Sync monthly Balance Asynchronously
+    // Saves the monthly balances now and adjusts them in the background
     final List<MonthlyBalanceDTO> monthlyBalancesPersisted =
         monthlyBalanceSyncerService.syncForUploadedMovementsAsync(accountId, uploadedMovements);
 
@@ -150,17 +167,6 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
               }
             })
         .toList();
-  }
-
-  private void persistMovementAndAccountUOW(
-      final List<MovementDomain> newMovements, final ProductDTO accountDTO) {
-    unitOfWork.execute(
-        () -> {
-          LOG.info("Persisting Movements changes");
-          movementRepo.save(newMovements.stream().map(MovementMapper::toDTO).toList());
-          LOG.info("Saving productDTO changes");
-          accountService.save(accountDTO);
-        });
   }
 
   private CategoryDTO getOtherIncomeCategory() {

@@ -5,6 +5,7 @@ import static com.jbh.finance.application.feature.monthlybalance.mappers.Monthly
 import static com.jbh.finance.application.feature.monthlybalance.mappers.MonthlyBalanceMapper.toDomain;
 
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.finance.application.acid.UnitOfWork;
 import com.jbh.finance.application.async.AsyncTaskExecutor;
 import com.jbh.finance.application.async.vo.AsyncTask;
 import com.jbh.finance.application.async.vo.AsyncTaskType;
@@ -21,6 +22,7 @@ import com.jbh.finance.domain.monthlybalance.MonthlyBalanceDomain;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.ArrayList;
@@ -40,7 +42,10 @@ import org.slf4j.LoggerFactory;
 public class ProcessMonthlyBalanceServiceImpl implements ProcessMonthlyBalanceService {
   private static final Logger LOG = LoggerFactory.getLogger(ProcessMonthlyBalanceServiceImpl.class);
 
+  private static final Duration AWAIT_PENDING_SYNC_TIMEOUT = Duration.ofSeconds(10);
+
   private final AsyncTaskExecutor asyncTaskExecutor;
+  private final UnitOfWork unitOfWork;
   private final ProductLifecycleService accountService;
   private final MovementValidationStrategyFactory movValidationStrategyFactory;
   private final MonthlyBalanceLifecycleService lifecycleSrv;
@@ -48,9 +53,11 @@ public class ProcessMonthlyBalanceServiceImpl implements ProcessMonthlyBalanceSe
   public ProcessMonthlyBalanceServiceImpl(
       final MonthlyBalanceLifecycleService monthlyBalanceLifecycleService,
       final AsyncTaskExecutor asyncTaskExecutor,
-      final ProductLifecycleService accountService) {
+      final ProductLifecycleService accountService,
+      final UnitOfWork unitOfWork) {
     this.lifecycleSrv = monthlyBalanceLifecycleService;
     this.asyncTaskExecutor = asyncTaskExecutor;
+    this.unitOfWork = unitOfWork;
     this.accountService = accountService;
     this.movValidationStrategyFactory = new MovementValidationStrategyFactory();
   }
@@ -250,10 +257,20 @@ public class ProcessMonthlyBalanceServiceImpl implements ProcessMonthlyBalanceSe
       return CompletableFuture.completedFuture(Collections.emptyList());
     }
 
+    // Saved here, under the caller's product lock, so the next movement reads this month.
+    saveMultiBalances(monthlyBalances);
+
+    return submitAdjustTask(accountId, monthlyBalances);
+  }
+
+  /**
+   * Builds and submits the background adjust. It runs in its own transaction and takes the product
+   * lock first, so it never works on data that another request changes at the same time.
+   */
+  private CompletableFuture<List<MonthlyBalanceDTO>> submitAdjustTask(
+      final ProductId accountId, final List<MonthlyBalanceDTO> monthlyBalances) {
     final YearMonth initPeriod = monthlyBalances.getFirst().period();
     final YearMonth lastPeriod = monthlyBalances.getLast().period();
-
-    // Create AsyncTask metadata
     final Map<String, Object> metadata =
         new HashMap<>(
             Map.of(
@@ -265,40 +282,39 @@ public class ProcessMonthlyBalanceServiceImpl implements ProcessMonthlyBalanceSe
     final AsyncTask asyncTask = new AsyncTask(AsyncTaskType.MONTHLY_BALANCES_SYNC, metadata);
 
     LOG.info(
-        "Preparing to submit async task {} to persist balances from {} to {} for productDTO {}",
+        "Preparing to submit async task {} to adjust balances from {} to {} for productDTO {}",
         asyncTask,
         initPeriod,
         lastPeriod,
         accountId);
 
-    // Create Callable that contains the entire business logic
     return asyncTaskExecutor.submitTask(
         asyncTask,
-        () -> {
-          LOG.info(
-              String.format(
-                  "Starting async task for productDTO %s to persist balances from [%s- %s]",
-                  accountId, initPeriod, lastPeriod));
+        () ->
+            unitOfWork.executeInTransaction(
+                () -> adjustAndUpdateWhenFullyWithdrawn(accountId, initPeriod, lastPeriod)));
+  }
 
-          // Step 1: Save balances (executes first)
-          saveMultiBalances(monthlyBalances);
+  private List<MonthlyBalanceDTO> adjustAndUpdateWhenFullyWithdrawn(
+      final ProductId accountId, final YearMonth initPeriod, final YearMonth lastPeriod)
+      throws BusinessException {
+    accountService.lockForUpdate(accountId);
 
-          // Step 2: Return profit/opening balances (they contain the combined results)
-          // The monthly balances are already persisted in the database
-          final List<MonthlyBalanceDTO> updatedBalances =
-              adjustCurrentAndNextMonthlyBalancesAsync(accountId, initPeriod, lastPeriod);
+    final List<MonthlyBalanceDTO> updatedBalances =
+        adjustCurrentAndNextMonthlyBalancesAsync(accountId, initPeriod, lastPeriod);
 
-          LOG.info("Persisting monthly balances completed successfully {} ", asyncTask);
+    // Update Account Net Growth Rate when is fully withdrawl
+    if (accountService.isFullyWithdrawn(accountId)) {
+      accountService.updateWhenFullyWithdrawn(
+          accountId, lifecycleSrv.findAllByAccountIdUntilNow(accountId));
+    }
 
-          // Step 3: Update Account Net Growth Rate when is fully withdrawl
+    return updatedBalances;
+  }
 
-          if (accountService.isFullyWithdrawn(accountId)) {
-            accountService.updateWhenFullyWithdrawn(
-                accountId, lifecycleSrv.findAllByAccountIdUntilNow(accountId));
-          }
-
-          return updatedBalances;
-        });
+  @Override
+  public void awaitPendingSync() {
+    asyncTaskExecutor.awaitIdle(AWAIT_PENDING_SYNC_TIMEOUT);
   }
 
   @Override

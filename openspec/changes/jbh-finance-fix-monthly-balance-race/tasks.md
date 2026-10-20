@@ -17,23 +17,23 @@
 
 ## 4. Monthly balance sync (D1, D6)
 
-- [ ] 4.1 `ProcessMonthlyBalanceServiceImpl`: add `UnitOfWork` as constructor argument; in `syncForNewMovement`, `syncForReversedMovement` and `persistBalancesAsync`, save on the caller thread and submit only the adjust through one private method; the adjust task runs `unitOfWork.executeInTransaction(...)` with `lockForUpdate(productId)` first, then adjust, then the fully-withdrawn update. Depends on: 1.1, 2.1, 2.2.
-- [ ] 4.2 `ProcessMonthlyBalanceService`: add `void awaitPendingSync()` (10 s named constant in the impl) and the lock precondition in the JavaDoc of the 3 sync methods. Depends on: 1.2, 4.1 (same files).
-- [ ] 4.3 Add `ProcessMonthlyBalanceServiceImplTest` with the 5 tests in design.md (Test contract). Depends on: none (written against the contract).
+- [x] 4.1 `ProcessMonthlyBalanceServiceImpl`: add `UnitOfWork` as constructor argument; in `syncForNewMovement`, `syncForReversedMovement` and `persistBalancesAsync`, save on the caller thread and submit only the adjust through one private method; the adjust task runs `unitOfWork.executeInTransaction(...)` with `lockForUpdate(productId)` first, then adjust, then the fully-withdrawn update. Depends on: 1.1, 2.1, 2.2.
+- [x] 4.2 `ProcessMonthlyBalanceService`: add `void awaitPendingSync()` (10 s named constant in the impl) and the lock precondition in the JavaDoc of the 3 sync methods. Depends on: 1.2, 4.1 (same files).
+- [x] 4.3 Add `ProcessMonthlyBalanceServiceImplTest` with the 5 tests in design.md (Test contract). Depends on: none (written against the contract).
 
 ## 5. Flows take the lock (D3, D7, D9)
 
-- [ ] 5.1 `ProcessMovementServiceImpl.processMovement`: run the whole body in one `executeInTransaction`; `lockForUpdate(productPK.productId())` is the first statement; the old inner `unitOfWork.execute` block becomes plain code inside it. Depends on: 2.1, 2.2.
-- [ ] 5.2 `RegisterMonthlyBalanceInputPort`: add `UnitOfWork` and `ProcessMonthlyBalanceService` as constructor arguments; two transactions with `awaitPendingSync()` between them, only after an initial movement (design.md D7); remove the `Thread.sleep(2 s)` block and its FIXME comment. Depends on: 2.1, 2.2, 4.2.
-- [ ] 5.3 `AddMovementsUploadedFileInputPort.uploadMovementsFromFile`: after `validateUploadedMovements`, run the rest in one `executeInTransaction` with `lockForUpdate(accountId)` first; inline `persistMovementAndAccountUOW` into it (design.md D9). Depends on: 2.1, 2.2, 4.1.
-- [ ] 5.4 Wiring: `ProductUseCasesCDIConfig` (`jbh-finance-infra`, reuse the injected `unitOfWork` and the `processMonthlyBalanceService()` producer) and `UseCaseFixtureBuilder` (`new UnitOfWorkTest()`). Depends on: 4.1, 5.2.
-- [ ] 5.5 Add `RegisterMonthlyBalanceInputPortTest` (4 tests), `ProcessMovementServiceImplLockTest` (2 tests) and `AddMovementsUploadedFileInputPortLockTest` (1 test) from design.md (Test contract). Depends on: none (written against the contract).
+- [x] 5.1 `ProcessMovementServiceImpl.processMovement`: run the whole body in one `executeInTransaction`; `lockForUpdate(productPK.productId())` is the first statement; the old inner `unitOfWork.execute` block becomes plain code inside it. Depends on: 2.1, 2.2.
+- [x] 5.2 `RegisterMonthlyBalanceInputPort`: add `UnitOfWork` and `ProcessMonthlyBalanceService` as constructor arguments; two transactions with `awaitPendingSync()` between them, only after an initial movement (design.md D7); remove the `Thread.sleep(2 s)` block and its FIXME comment. Depends on: 2.1, 2.2, 4.2.
+- [x] 5.3 `AddMovementsUploadedFileInputPort.uploadMovementsFromFile`: after `validateUploadedMovements`, run the rest in one `executeInTransaction` with `lockForUpdate(accountId)` first; inline `persistMovementAndAccountUOW` into it (design.md D9). Depends on: 2.1, 2.2, 4.1.
+- [x] 5.4 Wiring: `ProductUseCasesCDIConfig` (`jbh-finance-infra`, reuse the injected `unitOfWork` and the `processMonthlyBalanceService()` producer) and `UseCaseFixtureBuilder` (`new UnitOfWorkTest()`). Depends on: 4.1, 5.2.
+- [x] 5.5 Add `RegisterMonthlyBalanceInputPortTest` (4 tests), `ProcessMovementServiceImplLockTest` (2 tests) and `AddMovementsUploadedFileInputPortLockTest` (1 test) from design.md (Test contract). Depends on: none (written against the contract).
 
 ## 6. Tests stop sleeping (D8)
 
 - [ ] 6.1 `UseCaseFixtureBuilder`: one `private static final` shared `ProcessMonthlyBalanceService`; `buildProcessMonthlyBalanceSrv()` returns it; rename `delayTests()` to `awaitBackgroundTasks()` with body `awaitPendingSync()`; `resetState()` calls it first. Depends on: 4.2, 5.4 (same file).
 - [ ] 6.2 Apply the one-for-one replacement rule (design.md D8) in the 12 test classes and `DeleteMovementUCFixture`. Add one call before the next-month read in `month4ProfitReport202411` and `month6ProfitReport202501` only if none is there. Fix the static imports of `delayTests`. Do not change any assertion. Depends on: 6.1.
-- [ ] 6.3 Constructor arguments only: `RegisterMovementValidationTest`, `RegisterMovementExecutionTest`, `UploadMultiMovementsExecutionTest` get `new UnitOfWorkTest()` where they build `ProcessMonthlyBalanceServiceImpl` or a changed use case. Depends on: 4.1, 5.2.
+- [x] 6.3 Constructor arguments only: `RegisterMovementValidationTest`, `RegisterMovementExecutionTest`, `UploadMultiMovementsExecutionTest` get `new UnitOfWorkTest()` where they build `ProcessMonthlyBalanceServiceImpl` or a changed use case. Depends on: 4.1, 5.2.
 - [ ] 6.4 Check: `/usr/bin/grep -rn "Thread.sleep\|delayTests" jbh-finance/jbh-finance-application/src/test` lists only `AsyncTaskExecutorImplTest`, and `/usr/bin/grep -rn "Thread.sleep" jbh-finance/jbh-finance-application/src/main` lists nothing. Depends on: 5.2, 6.2.
 
 ## 7. Verification (needs groups 1 to 6)

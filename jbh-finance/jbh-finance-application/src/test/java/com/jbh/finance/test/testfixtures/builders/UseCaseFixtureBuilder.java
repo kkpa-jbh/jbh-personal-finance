@@ -94,7 +94,9 @@ public class UseCaseFixtureBuilder {
         buildMonthlyBalanceLifecycleSrv(),
         buildProductLifecycleSrv(),
         buildProcessMovementService(accountMovementRepository),
-        categoryServiceMock);
+        categoryServiceMock,
+        new UnitOfWorkTest(),
+        buildProcessMonthlyBalanceSrv());
   }
 
   public static MonthlyBalanceLifecycleService buildMonthlyBalanceLifecycleSrv() {
@@ -119,7 +121,10 @@ public class UseCaseFixtureBuilder {
 
   public static ProcessMonthlyBalanceService buildProcessMonthlyBalanceSrv() {
     return new ProcessMonthlyBalanceServiceImpl(
-        buildMonthlyBalanceLifecycleSrv(), new AsyncTaskExecutorImpl(), buildProductLifecycleSrv());
+        buildMonthlyBalanceLifecycleSrv(),
+        new AsyncTaskExecutorImpl(),
+        buildProductLifecycleSrv(),
+        new UnitOfWorkTest());
   }
 
   public static FindMonthlyBalanceUseCase buildFindMonthlyBalanceUseCase() {

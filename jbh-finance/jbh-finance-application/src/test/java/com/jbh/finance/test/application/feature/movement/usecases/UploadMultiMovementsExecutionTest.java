@@ -102,7 +102,10 @@ public class UploadMultiMovementsExecutionTest {
 
     monthlyBalanceService =
         new ProcessMonthlyBalanceServiceImpl(
-            monthlyBalanceSrv, new AsyncTaskExecutorImpl(), accountService);
+            monthlyBalanceSrv,
+            new AsyncTaskExecutorImpl(),
+            accountService,
+            new UnitOfWorkTest());
     monthlyBalanceSyncerService = new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
 
     useCaseInstanceTest =
