@@ -5,18 +5,12 @@
   "module": "jbh-finance",
   "roadmap": null,
   "request": "continue (resumed from: fix the race in monthly balance sync found by RegisterMonthlyReportedProfitTest; plan the fix, remove Thread.sleep waits, extend the JBH-62 change; then: designs must work with more than one instance)",
-  "status": "in-progress",
+  "status": "applied",
   "rollup": {
-    "current": [],
-    "pending": [
-      "6.1",
-      "6.2",
-      "6.4",
-      "7.1",
-      "7.2",
-      "7.3",
+    "current": [
       "7.4"
     ],
+    "pending": [],
     "blocked": [],
     "done": [
       "1.1",
@@ -35,11 +29,17 @@
       "5.3",
       "5.4",
       "5.5",
-      "6.3"
+      "6.1",
+      "6.2",
+      "6.3",
+      "6.4",
+      "7.1",
+      "7.2",
+      "7.3"
     ]
   },
   "created_at": "2026-10-19T21:12:50Z",
-  "updated_at": "2026-10-20T02:11:36Z",
+  "updated_at": "2026-10-20T02:15:24Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-opus-5-5"
@@ -477,14 +477,23 @@
         "5.4"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:13:16Z",
+      "completed_at": "2026-10-20T02:13:43Z",
+      "duration_seconds": 27,
+      "notes": "Shared static ProcessMonthlyBalanceService in UseCaseFixtureBuilder; delayTests renamed awaitBackgroundTasks (awaitPendingSync); resetState waits first. Field placed after the in-memory repos it uses.",
+      "budget": {
+        "five_hour_pct_start": 12,
+        "five_hour_pct_end": 14,
+        "five_hour_pct_delta": 2,
+        "cost_usd_delta": 0.72,
+        "context_pct_end": 13,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 3 measured jointly (tasks 6.1-7.3), incl. leader test runs; subagent cost is not in the leader session cost"
+      }
     },
     {
       "id": "6.2",
@@ -494,14 +503,23 @@
         "6.1"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:13:16Z",
+      "completed_at": "2026-10-20T02:13:43Z",
+      "duration_seconds": 27,
+      "notes": "Every Thread.sleep/delayTests in 12 test classes and DeleteMovementUCFixture replaced one-for-one; one wait added in month4ProfitReport202411 and month6ProfitReport202501. No assertion changed.",
+      "budget": {
+        "five_hour_pct_start": 12,
+        "five_hour_pct_end": 14,
+        "five_hour_pct_delta": 2,
+        "cost_usd_delta": 0.72,
+        "context_pct_end": 13,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 3 measured jointly (tasks 6.1-7.3), incl. leader test runs; subagent cost is not in the leader session cost"
+      }
     },
     {
       "id": "6.3",
@@ -539,14 +557,23 @@
         "6.2"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:13:16Z",
+      "completed_at": "2026-10-20T02:13:43Z",
+      "duration_seconds": 27,
+      "notes": "Grep check passes: test sleeps only in AsyncTaskExecutorImplTest; none in src/main.",
+      "budget": {
+        "five_hour_pct_start": 12,
+        "five_hour_pct_end": 14,
+        "five_hour_pct_delta": 2,
+        "cost_usd_delta": 0.72,
+        "context_pct_end": 13,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 3 measured jointly (tasks 6.1-7.3), incl. leader test runs; subagent cost is not in the leader session cost"
+      }
     },
     {
       "id": "7.1",
@@ -558,14 +585,23 @@
         "5.3"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:13:16Z",
+      "completed_at": "2026-10-20T02:13:43Z",
+      "duration_seconds": 27,
+      "notes": "All sync callers lock first: ProcessMovementServiceImpl.processMovementLocked and AddMovementsUploadedFileInputPort (via MonthlyBalanceSyncForUploadedMovements), both inside executeInTransaction.",
+      "budget": {
+        "five_hour_pct_start": 12,
+        "five_hour_pct_end": 14,
+        "five_hour_pct_delta": 2,
+        "cost_usd_delta": 0.72,
+        "context_pct_end": 13,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 3 measured jointly (tasks 6.1-7.3), incl. leader test runs; subagent cost is not in the leader session cost"
+      }
     },
     {
       "id": "7.2",
@@ -576,14 +612,23 @@
         "7.1"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-10-20T02:14:00Z",
+      "completed_at": "2026-10-20T02:15:24Z",
+      "duration_seconds": 84,
+      "notes": "Leader ran target suites: 56 tests, 0 failures; jbh-finance-infra test-compile exit 0.",
+      "budget": {
+        "five_hour_pct_start": 12,
+        "five_hour_pct_end": 14,
+        "five_hour_pct_delta": 2,
+        "cost_usd_delta": 0.72,
+        "context_pct_end": 13,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 3 measured jointly (tasks 6.1-7.3), incl. leader test runs; subagent cost is not in the leader session cost"
+      }
     },
     {
       "id": "7.3",
@@ -593,14 +638,23 @@
         "7.2"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-10-20T02:14:00Z",
+      "completed_at": "2026-10-20T02:15:24Z",
+      "duration_seconds": 84,
+      "notes": "Leader ran full module suite 5 times: 319 tests, 0 failures each. RegisterMonthlyReportedProfitTest about 33 s before, 0.035-0.053 s after.",
+      "budget": {
+        "five_hour_pct_start": 12,
+        "five_hour_pct_end": 14,
+        "five_hour_pct_delta": 2,
+        "cost_usd_delta": 0.72,
+        "context_pct_end": 13,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 3 measured jointly (tasks 6.1-7.3), incl. leader test runs; subagent cost is not in the leader session cost"
+      }
     },
     {
       "id": "7.4",
@@ -610,13 +664,13 @@
         "7.2"
       ],
       "parallel_ok": false,
-      "status": "pending",
+      "status": "awaiting-user-verification",
       "agent": null,
       "model": null,
       "started_at": null,
       "completed_at": null,
       "duration_seconds": null,
-      "notes": null,
+      "notes": "Optional manual 2-instance check; the pipeline does not run it. Left for the user.",
       "budget": null
     }
   ],
@@ -680,6 +734,15 @@
       "decision": "accept two test-contract deviations: new shared fake RecordingUnitOfWork; Mockito ProductLifecycleService in ProcessMonthlyBalanceServiceImplTest",
       "why": "Contract asks for a fake with an inTransaction flag; three classes share it. The mock avoids seeding the shared in-memory repo. Tests still check the contract.",
       "covered_by": "design.md Test contract"
+    },
+    {
+      "id": "D7",
+      "at": "2026-10-20T02:15:24Z",
+      "scope": "task:7.4",
+      "made_by": "leader",
+      "decision": "advance to verify and review with 7.4 at awaiting-user-verification",
+      "why": "tasks.md marks 7.4 optional and not run by the pipeline; it needs 2 live instances, which the leader must not start. Listed at archive under Awaiting your verification.",
+      "covered_by": "tasks.md 7.4"
     }
   ],
   "events": [
@@ -732,6 +795,31 @@
       "at": "2026-10-20T02:11:36Z",
       "agent": "leader",
       "event": "wave 2 verified by the leader (assistantRunsTests): mvn -q -pl jbh-finance/jbh-finance-infra -am test-compile exit 0; mvn -pl jbh-finance/jbh-finance-application test exit 0, 319 tests, 0 failures"
+    },
+    {
+      "at": "2026-10-20T02:13:10Z",
+      "agent": "leader",
+      "event": "wave 2 committed e3f3c4e; checkpoint gate: five_hour 10%, context 14% (below 90/40); recommended /clear + resume before wave 3"
+    },
+    {
+      "at": "2026-10-20T02:13:00Z",
+      "agent": "leader",
+      "event": "resume in a fresh session; continue at Step 5 (wave 3)"
+    },
+    {
+      "at": "2026-10-20T02:13:00Z",
+      "agent": "leader",
+      "event": "dispatched worker wave 3 (tasks 6.1, 6.2, 6.4, 7.1) on sonnet; budget start five_hour=12 cost=0.5375605999999999"
+    },
+    {
+      "at": "2026-10-20T02:15:24Z",
+      "agent": "leader",
+      "event": "wave 3 report accepted; worker did not tick tasks.md, leader ticked 6.1, 6.2, 6.4, 7.1, 7.2, 7.3"
+    },
+    {
+      "at": "2026-10-20T02:15:24Z",
+      "agent": "leader",
+      "event": "wave 3 verified by the leader (assistantRunsTests): mvn -q -pl jbh-finance/jbh-finance-infra -am test-compile exit 0; target suites exit 0, 56 tests, 0 failures; full module suite 5 runs, each exit 0, 319 tests, 0 failures"
     }
   ]
 }

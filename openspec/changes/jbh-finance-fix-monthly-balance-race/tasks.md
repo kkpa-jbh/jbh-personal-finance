@@ -31,16 +31,16 @@
 
 ## 6. Tests stop sleeping (D8)
 
-- [ ] 6.1 `UseCaseFixtureBuilder`: one `private static final` shared `ProcessMonthlyBalanceService`; `buildProcessMonthlyBalanceSrv()` returns it; rename `delayTests()` to `awaitBackgroundTasks()` with body `awaitPendingSync()`; `resetState()` calls it first. Depends on: 4.2, 5.4 (same file).
-- [ ] 6.2 Apply the one-for-one replacement rule (design.md D8) in the 12 test classes and `DeleteMovementUCFixture`. Add one call before the next-month read in `month4ProfitReport202411` and `month6ProfitReport202501` only if none is there. Fix the static imports of `delayTests`. Do not change any assertion. Depends on: 6.1.
+- [x] 6.1 `UseCaseFixtureBuilder`: one `private static final` shared `ProcessMonthlyBalanceService`; `buildProcessMonthlyBalanceSrv()` returns it; rename `delayTests()` to `awaitBackgroundTasks()` with body `awaitPendingSync()`; `resetState()` calls it first. Depends on: 4.2, 5.4 (same file).
+- [x] 6.2 Apply the one-for-one replacement rule (design.md D8) in the 12 test classes and `DeleteMovementUCFixture`. Add one call before the next-month read in `month4ProfitReport202411` and `month6ProfitReport202501` only if none is there. Fix the static imports of `delayTests`. Do not change any assertion. Depends on: 6.1.
 - [x] 6.3 Constructor arguments only: `RegisterMovementValidationTest`, `RegisterMovementExecutionTest`, `UploadMultiMovementsExecutionTest` get `new UnitOfWorkTest()` where they build `ProcessMonthlyBalanceServiceImpl` or a changed use case. Depends on: 4.1, 5.2.
-- [ ] 6.4 Check: `/usr/bin/grep -rn "Thread.sleep\|delayTests" jbh-finance/jbh-finance-application/src/test` lists only `AsyncTaskExecutorImplTest`, and `/usr/bin/grep -rn "Thread.sleep" jbh-finance/jbh-finance-application/src/main` lists nothing. Depends on: 5.2, 6.2.
+- [x] 6.4 Check: `/usr/bin/grep -rn "Thread.sleep\|delayTests" jbh-finance/jbh-finance-application/src/test` lists only `AsyncTaskExecutorImplTest`, and `/usr/bin/grep -rn "Thread.sleep" jbh-finance/jbh-finance-application/src/main` lists nothing. Depends on: 5.2, 6.2.
 
 ## 7. Verification (needs groups 1 to 6)
 
-- [ ] 7.1 Check the lock rule: every caller of `syncForNewMovement`, `syncForReversedMovement` and `persistBalancesAsync` in `src/main` runs inside a transaction that called `lockForUpdate` first (codegraph callers). List any that do not. Depends on: 5.1, 5.2, 5.3.
-- [ ] 7.2 Leader or user runs the suites below. Expected: `RegisterMonthlyReportedProfitTest` (all methods, including `month4ProfitReport202411` and `month6ProfitReport202501`), `DeleteMovementUseCaseTest.deleteExpense30WithSnapshot`, `AsyncTaskExecutorImplTest`, `ProcessMonthlyBalanceServiceImplTest`, `RegisterMonthlyBalanceInputPortTest`, `ProcessMovementServiceImplLockTest`, `AddMovementsUploadedFileInputPortLockTest`, `RegisterMovementExecutionTest`, `UploadMultiMovementsExecutionTest` all pass; `jbh-finance-infra` compiles. Depends on: all tasks above.
-- [ ] 7.3 Run the full module suite 5 times in a row. All 5 runs pass. Report the run time of `RegisterMonthlyReportedProfitTest` before (about 33 s) and after. Depends on: 7.2.
+- [x] 7.1 Check the lock rule: every caller of `syncForNewMovement`, `syncForReversedMovement` and `persistBalancesAsync` in `src/main` runs inside a transaction that called `lockForUpdate` first (codegraph callers). List any that do not. Depends on: 5.1, 5.2, 5.3.
+- [x] 7.2 Leader or user runs the suites below. Expected: `RegisterMonthlyReportedProfitTest` (all methods, including `month4ProfitReport202411` and `month6ProfitReport202501`), `DeleteMovementUseCaseTest.deleteExpense30WithSnapshot`, `AsyncTaskExecutorImplTest`, `ProcessMonthlyBalanceServiceImplTest`, `RegisterMonthlyBalanceInputPortTest`, `ProcessMovementServiceImplLockTest`, `AddMovementsUploadedFileInputPortLockTest`, `RegisterMovementExecutionTest`, `UploadMultiMovementsExecutionTest` all pass; `jbh-finance-infra` compiles. Depends on: all tasks above.
+- [x] 7.3 Run the full module suite 5 times in a row. All 5 runs pass. Report the run time of `RegisterMonthlyReportedProfitTest` before (about 33 s) and after. Depends on: 7.2.
 - [ ] 7.4 Manual check by the user (optional, not run by the pipeline): start 2 instances on one database, send two movements for the same product and month at the same time (one to each instance), and check that the month keeps both. Depends on: 7.2.
 
 Suite commands (not run by the worker):

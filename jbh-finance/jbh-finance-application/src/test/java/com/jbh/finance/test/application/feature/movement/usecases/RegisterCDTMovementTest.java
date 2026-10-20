@@ -74,7 +74,7 @@ public class RegisterCDTMovementTest {
 
     liquidateAccountUseCase =
         UseCaseFixtureBuilder.buildLiquidateAccountUseCase(accountMovementRepository);
-    UseCaseFixtureBuilder.delayTests();
+    UseCaseFixtureBuilder.awaitBackgroundTasks();
   }
 
   @Test
@@ -143,7 +143,7 @@ public class RegisterCDTMovementTest {
                 mvmDate));
     assertNotNull(result);
 
-    UseCaseFixtureBuilder.delayTests();
+    UseCaseFixtureBuilder.awaitBackgroundTasks();
 
     final Optional<ProductDTO> updatedCDTAccount =
         inMemoryAccountRepo.findByProductId(cdtAccount.id());
@@ -164,7 +164,7 @@ public class RegisterCDTMovementTest {
         mvmDate,
         updatedCDTAccount.get().metadata().findCommonMetadata().getFullyWithdrawnDate(),
         "There is not fully withdrawn date");
-    UseCaseFixtureBuilder.delayTests();
+    UseCaseFixtureBuilder.awaitBackgroundTasks();
 
     final Optional<MonthlyBalanceDTO> cdtAccountMonthlyBalanceOpt =
         monthlyBalanceService.findByAccountIdAndPeriod(cdtAccount.id(), currentPeriod);

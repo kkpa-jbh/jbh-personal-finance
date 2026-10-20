@@ -1,7 +1,7 @@
 package com.jbh.finance.test.application.feature.movement.usecases.delete;
 
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.delayTests;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.awaitBackgroundTasks;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -162,7 +162,7 @@ import org.slf4j.LoggerFactory;
  * <ul>
  *   <li>Tests are ordered and stateful – each test builds on the previous one's in-memory state.
  *   <li>All shared state (captured DTOs, products, movements) is stored in static fields.
- *   <li>Extra {@code delayTests()} calls are used after cross-month deletions to allow the async
+ *   <li>Extra {@code awaitBackgroundTasks()} calls are used after cross-month deletions to allow the async
  *       cascade ({@code adjustCurrentAndNextMonthlyBalancesAsync}) to complete before asserting
  *       the opening balances of subsequent months.
  *   <li>No official monthly reports are registered; all monthly balances remain in calculated
@@ -288,7 +288,7 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
         AddMovementCommandFixtureBuilder.createInitialBalance(
             JANUARY.atDay(1), new BigDecimal("1000.00")));
 
-    delayTests();
+    awaitBackgroundTasks();
 
     final ProductDTO product = getCurrentProductInfo();
     assertEquals(
@@ -336,7 +336,7 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
         AddMovementCommandFixtureBuilder.createDepositIncome(
             JANUARY.atDay(10), new BigDecimal("500.00")));
 
-    delayTests();
+    awaitBackgroundTasks();
 
     final ProductDTO product = getCurrentProductInfo();
     assertEquals(withJBHDecimals(new BigDecimal("1500")), product.movementBalance());
@@ -380,7 +380,7 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
     janExpenseToReverse = result.movement();
     assertNotNull(janExpenseToReverse, "January expense movement must be captured");
 
-    delayTests();
+    awaitBackgroundTasks();
 
     final ProductDTO product = getCurrentProductInfo();
     assertEquals(
@@ -422,7 +422,7 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
         AddMovementCommandFixtureBuilder.createDepositIncome(
             FEBRUARY.atDay(5), new BigDecimal("300.00")));
 
-    delayTests();
+    awaitBackgroundTasks();
 
     final ProductDTO product = getCurrentProductInfo();
     assertEquals(withJBHDecimals(new BigDecimal("1600")), product.movementBalance());
@@ -467,7 +467,7 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
     febExpenseToReverse = result.movement();
     assertNotNull(febExpenseToReverse, "February expense movement must be captured");
 
-    delayTests();
+    awaitBackgroundTasks();
 
     final ProductDTO product = getCurrentProductInfo();
     assertEquals(withJBHDecimals(new BigDecimal("1500")), product.movementBalance());
@@ -512,7 +512,7 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
     febIncomeToReverse = result.movement();
     assertNotNull(febIncomeToReverse, "February income movement must be captured");
 
-    delayTests();
+    awaitBackgroundTasks();
 
     final ProductDTO product = getCurrentProductInfo();
     assertEquals(withJBHDecimals(new BigDecimal("1700")), product.movementBalance());
@@ -551,7 +551,7 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
         AddMovementCommandFixtureBuilder.createDepositIncome(
             MARCH.atDay(5), new BigDecimal("400.00")));
 
-    delayTests();
+    awaitBackgroundTasks();
 
     final ProductDTO product = getCurrentProductInfo();
     assertEquals(withJBHDecimals(new BigDecimal("2100")), product.movementBalance());
@@ -601,7 +601,7 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
     marExpenseToReverse = result.movement();
     assertNotNull(marExpenseToReverse, "March expense movement must be captured");
 
-    delayTests();
+    awaitBackgroundTasks();
 
     final ProductDTO product = getCurrentProductInfo();
     assertEquals(withJBHDecimals(new BigDecimal("1950")), product.movementBalance());
@@ -664,8 +664,8 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
   @Order(9)
   void verifyCompleteBaseStateBeforeAnyDeletions() {
     // Extra delay for the async opening-balance cascade to propagate Jan→Feb→Mar
-    delayTests();
-    delayTests();
+    awaitBackgroundTasks();
+    awaitBackgroundTasks();
 
     final List<MonthlyBalanceDTO> allBalances = getCurrentMonthlyBalances();
     assertFalse(allBalances.isEmpty(), "Monthly balances must have been created");
@@ -731,7 +731,7 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
   }
 
   private List<MonthlyBalanceDTO> getCurrentMonthlyBalances() {
-    delayTests();
+    awaitBackgroundTasks();
     return monthlyBalanceLifecycleSrv.findAllByAccountIdUntilNow(productDTO.id());
   }
 
@@ -776,7 +776,7 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
   @Order(10)
   void deleteMarchExpense_onlyCurrentMonthBalanceChanges() throws BusinessException {
     // Capture Jan and Feb snapshots now – they must be identical after the deletion
-    delayTests();
+    awaitBackgroundTasks();
     final List<MonthlyBalanceDTO> allBefore = getCurrentMonthlyBalances();
     final MonthlyBalanceDTO janMBBefore = MonthlyBalanceITUtils.getBalanceForPeriod(allBefore, JANUARY);
     final MonthlyBalanceDTO febMBBefore = MonthlyBalanceITUtils.getBalanceForPeriod(allBefore, FEBRUARY);
@@ -925,8 +925,8 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
     deleteMovementUseCase.deleteMovement(userId, productDTO.id(), janExpenseToReverse.id().value());
 
     // Extra delays for the two-level async cascade (Jan→Feb→Mar)
-    delayTests();
-    delayTests();
+    awaitBackgroundTasks();
+    awaitBackgroundTasks();
 
     // ── Movement must be gone ─────────────────────────────────────────────────
     assertTrue(
@@ -1074,7 +1074,7 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
   @Order(20)
   void deleteFebruaryIncome_cascadesToMarchOpeningBalance() throws BusinessException {
     // Snapshot January now – it must be untouched after this deletion
-    delayTests();
+    awaitBackgroundTasks();
     final List<MonthlyBalanceDTO> allBefore = getCurrentMonthlyBalances();
     janMBSnapshotBeforeDeletion = MonthlyBalanceITUtils.getBalanceForPeriod(allBefore, JANUARY);
 
@@ -1084,8 +1084,8 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
     deleteMovementUseCase.deleteMovement(userId, productDTO.id(), febIncomeToReverse.id().value());
 
     // Extra delay for the one-level async cascade (Feb→Mar)
-    delayTests();
-    delayTests();
+    awaitBackgroundTasks();
+    awaitBackgroundTasks();
 
     // ── Movement must be gone ─────────────────────────────────────────────────
     assertTrue(
@@ -1218,7 +1218,7 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
   @Order(21)
   void deleteFebruaryExpense_accumulatesWithPreviousFebruaryDeletion() throws BusinessException {
     // Snapshot January now – it must be untouched after this deletion
-    delayTests();
+    awaitBackgroundTasks();
     final List<MonthlyBalanceDTO> allBefore = getCurrentMonthlyBalances();
     janMBSnapshotBeforeDeletion = MonthlyBalanceITUtils.getBalanceForPeriod(allBefore, JANUARY);
 
@@ -1229,8 +1229,8 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
     deleteMovementUseCase.deleteMovement(userId, productDTO.id(), febExpenseToReverse.id().value());
 
     // Extra delay for the one-level async cascade (Feb→Mar)
-    delayTests();
-    delayTests();
+    awaitBackgroundTasks();
+    awaitBackgroundTasks();
 
     // ── Movement must be gone ─────────────────────────────────────────────────
     assertTrue(
@@ -1348,8 +1348,8 @@ public class DeleteMovementsFromPreviousMonthsUseCaseTest {
   @Order(30)
   void verifyFinalStateAfterAllFourDeletions() {
     // Allow any remaining async tasks to finish
-    delayTests();
-    delayTests();
+    awaitBackgroundTasks();
+    awaitBackgroundTasks();
 
     // ── Product ───────────────────────────────────────────────────────────────
     final ProductDTO product = getCurrentProductInfo();

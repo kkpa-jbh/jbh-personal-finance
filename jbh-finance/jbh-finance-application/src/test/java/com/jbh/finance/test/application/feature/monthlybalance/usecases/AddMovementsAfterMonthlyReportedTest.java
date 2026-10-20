@@ -205,11 +205,7 @@ public class AddMovementsAfterMonthlyReportedTest {
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
-    try {
-      Thread.sleep(Duration.ofSeconds(2).toMillis());
-    } catch (final InterruptedException e) {
-      throw new RuntimeException(e);
-    }
+    UseCaseFixtureBuilder.awaitBackgroundTasks();
   }
 
   @Test

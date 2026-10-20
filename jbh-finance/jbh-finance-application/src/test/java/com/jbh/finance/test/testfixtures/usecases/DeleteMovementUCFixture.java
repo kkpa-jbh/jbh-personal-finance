@@ -1,6 +1,6 @@
 package com.jbh.finance.test.testfixtures.usecases;
 
-import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.delayTests;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.awaitBackgroundTasks;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.application.feature.movement.ports.input.DeleteMovementInputPort;
@@ -36,6 +36,6 @@ public class DeleteMovementUCFixture implements DeleteMovementUseCase {
   public void deleteMovement(final UUID userId, final ProductId productId, final UUID movementId)
       throws BusinessException {
     deleteMovementInputPort.deleteMovement(userId, productId, movementId);
-    delayTests();
+    awaitBackgroundTasks();
   }
 }
