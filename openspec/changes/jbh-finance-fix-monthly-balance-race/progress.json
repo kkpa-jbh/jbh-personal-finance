@@ -5,12 +5,14 @@
   "module": "jbh-finance",
   "roadmap": null,
   "request": "continue (resumed from: fix the race in monthly balance sync found by RegisterMonthlyReportedProfitTest; plan the fix, remove Thread.sleep waits, extend the JBH-62 change; then: designs must work with more than one instance)",
-  "status": "changes-requested",
+  "status": "in-progress",
   "rollup": {
     "current": [
       "7.4"
     ],
-    "pending": [],
+    "pending": [
+      "7.5"
+    ],
     "blocked": [],
     "done": [
       "1.1",
@@ -39,7 +41,7 @@
     ]
   },
   "created_at": "2026-10-19T21:12:50Z",
-  "updated_at": "2026-10-20T02:21:48Z",
+  "updated_at": "2026-10-20T02:26:33Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-opus-5-5"
@@ -672,10 +674,27 @@
       "duration_seconds": null,
       "notes": "Optional manual 2-instance check; the pipeline does not run it. Left for the user.",
       "budget": null
+    },
+    {
+      "id": "7.5",
+      "title": "Automated DB lock test: 2 concurrent movements, same product and month, real Postgres",
+      "module": "jbh-finance",
+      "depends_on": [
+        "7.2"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "Added after review approval by user choice. Proves the PostgreSQL row lock, which the unit tests only fake.",
+      "budget": null
     }
   ],
   "review": {
-    "status": "changes-requested",
+    "status": "reviewer-approved",
     "agent": "jbh-finance-reviewer",
     "brief": "Review JBH-62 diff 0cb3b19..HEAD in jbh-finance (module code only). User-confirmed design (decision D3): async adjust + product row lock (PESSIMISTIC_WRITE, TxType.MANDATORY) as FIRST statement of every balance-writing transaction; in-JVM lock rejected; @Version rejected; QuarkusUnitOfWork now rethrows and rolls back on any Exception. Check: (1) every flow in design.md D3 table locks first inside one transaction, incl. background adjust task, register (two transactions, D7) and upload (D9); (2) no in-JVM state is used for correctness (project 'Horizontal scaling' rule); the single-thread executor (D2) is ordering-only; (3) no transaction waits for a background task (D6); awaitPendingSync runs outside transactions; (4) no Thread.sleep left in src/main or tests except AsyncTaskExecutorImplTest; existing test assertions unchanged; (5) Test contract in design.md: new test classes exist and check the stated expected values; accepted deviations (decision D6): shared fake RecordingUnitOfWork, Mockito ProductLifecycleService in ProcessMonthlyBalanceServiceImplTest. No DB migration (D10, unique constraint already exists). Signals: build + module suite (319 tests) and 5 repeat runs were run by the leader (assistantRunsTests), all green; task 7.4 (manual 2-instance check) is user-pending and optional. Judge test quality by reading the tests. Performance-Profile: none.",
     "rounds": [
@@ -686,14 +705,14 @@
           {
             "id": "R1-1",
             "severity": "major",
-            "status": "open",
+            "status": "fixed",
             "note": "jbh-finance-infra ProductUseCasesCDIConfig.java:113, 157, 225 (producer at :125-127): processMonthlyBalanceService() is a producer called as a plain method from other producers. Each call builds a new ProcessMonthlyBalanceServiceImpl with its own new AsyncTaskExecutorImpl(). So the PMBS that RegisterMonthlyBalanceInputPort gets (:225) is not the one inside accountMovementServiceApplication() (:113) that receives the initial movement's adjust task. awaitPendingSync() then waits on an idle executor and returns at once, so tx2 can write the report before the adjust (the ordering D7 replaces the 2 s sleep for). The row lock still protects data, but the order guarantee (D2, D6, D7) is lost in production. design.md D8 claim 'one @ApplicationScoped bean, so one executor' is not true for this wiring (unit tests use one shared instance, so they cannot see it). Fix: one shared instance for all uses (e.g. @Inject ProcessMonthlyBalanceService field, or a single field), and the same for ProcessMovementService used by register. If the leader proves ArC returns the one bean here, record the proof in design.md and close this.",
             "triage": "accepted"
           },
           {
             "id": "R1-2",
             "severity": "minor",
-            "status": "open",
+            "status": "fixed",
             "note": "jbh-finance-infra StatementUseCasesCDIConfig.java:46: stray blank line added, unrelated file with no other change. Revert it.",
             "triage": "accepted"
           }
@@ -708,6 +727,22 @@
           "source": "statusline-cache",
           "approx": true,
           "note": "end read after leader triage, fixes and test runs; reviewer subagent cost is not in the leader session cost"
+        }
+      },
+      {
+        "round": 2,
+        "verdict": "approved",
+        "findings": [],
+        "duration_seconds": 12,
+        "budget": {
+          "five_hour_pct_start": 21,
+          "five_hour_pct_end": 23,
+          "five_hour_pct_delta": 2,
+          "cost_usd_delta": 0.44,
+          "context_pct_end": 15,
+          "source": "statusline-cache",
+          "approx": true,
+          "note": "re-verify only; reviewer subagent cost is not in the leader session cost"
         }
       }
     ]
@@ -775,6 +810,42 @@
       "decision": "advance to verify and review with 7.4 at awaiting-user-verification",
       "why": "tasks.md marks 7.4 optional and not run by the pipeline; it needs 2 live instances, which the leader must not start. Listed at archive under Awaiting your verification.",
       "covered_by": "tasks.md 7.4"
+    },
+    {
+      "id": "D8",
+      "at": "2026-10-20T02:26:33Z",
+      "scope": "task:7.5",
+      "made_by": "user",
+      "decision": "add task 7.5: automated DB-backed lock test (Postgres Dev Services, 2 threads) before archive",
+      "why": "Leader may not start services, so manual 7.4 cannot run here. The DB lock is the core of the fix and no test checks it.",
+      "covered_by": "tasks.md 7.5"
+    },
+    {
+      "id": "D9",
+      "at": "2026-10-20T02:26:33Z",
+      "scope": "task:7.5",
+      "made_by": "leader",
+      "decision": "dispatch 7.5 artifact step on opus (escalation)",
+      "why": "First @QuarkusTest in finance: module placement, JPMS, Dev Services, Consul off. Cross-cutting setup, more than sonnet's usual task.",
+      "covered_by": null
+    },
+    {
+      "id": "D10",
+      "at": "2026-10-20T15:10:46Z",
+      "scope": "task:7.5",
+      "made_by": "user",
+      "decision": "DB lock test is opt-in (tag database, excluded unless -Djbh.test.excludedGroups=none) and lives in jbh-finance-infra",
+      "why": "Never breaks a build without Docker; infra already has the beans, lock adapter and Liquibase. Run now to close 7.4.",
+      "covered_by": "design.md Test contract, tasks.md 7.5"
+    },
+    {
+      "id": "D11",
+      "at": "2026-10-20T15:10:46Z",
+      "scope": "task:7.5",
+      "made_by": "leader",
+      "decision": "implement 7.5 on the same opus worker via SendMessage",
+      "why": "It already holds the setup research (JPMS, Dev Services, JUnit pin). A fresh sonnet worker would redo it.",
+      "covered_by": null
     }
   ],
   "events": [
@@ -887,6 +958,31 @@
       "at": "2026-10-20T02:21:48Z",
       "agent": "leader",
       "event": "triage round 1: R1-1 accepted, CDI does not proxy this.method() calls between producers; fixed with injected producer parameters (one executor per instance). R1-2 accepted, blank line reverted"
+    },
+    {
+      "at": "2026-10-20T02:22:27Z",
+      "agent": "leader",
+      "event": "round 1 fixes committed 4f79634; signalled jbh-finance-reviewer for round 2 re-verify; budget start five_hour=22 cost=2.3785251000000005"
+    },
+    {
+      "at": "2026-10-20T02:22:54Z",
+      "agent": "leader",
+      "event": "reviewer round 2 approved (review.status reviewer-approved set by the reviewer); change status reconciled; checkpoint gate: five_hour 23%, context 15% (below 90/40)"
+    },
+    {
+      "at": "2026-10-20T02:26:33Z",
+      "agent": "leader",
+      "event": "scope extended by the user after round 2 approval: task 7.5 appended; change back to in-progress; round 2 approval covers commits up to 4f79634, a new review round is needed for 7.5. Checker error on 7.4 at reviewer-approved noted as skill/checker mismatch"
+    },
+    {
+      "at": "2026-10-20T02:26:37Z",
+      "agent": "leader",
+      "event": "dispatched worker artifact step for task 7.5 (tasks.md + design.md test contract) on opus; budget start five_hour=24 cost=3.36"
+    },
+    {
+      "at": "2026-10-20T02:37:09Z",
+      "agent": "leader",
+      "event": "7.5 artifact step accepted (tasks.md 7.5, design.md test contract, new jbh-finance/AGENTS.md); openspec validate --strict valid; budget end five_hour=36 cost=7.34 (subagent cost not included). Waiting for user: opt-in vs always-on, test location"
     }
   ]
 }

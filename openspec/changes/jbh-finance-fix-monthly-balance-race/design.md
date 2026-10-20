@@ -76,6 +76,8 @@ Callers of `persistBalancesAsync`:
   external API).
 - An automated test with 2 real instances and PostgreSQL. Infra modules have no test rule, and the
   pipeline never starts services. The user can run a manual check (tasks 7.4).
+  A smaller automated check is in scope (user decision, 2026-10-20): one JVM, two threads, a real
+  PostgreSQL from Dev Services (task 7.5, Test contract).
 
 ## Decisions
 
@@ -383,6 +385,15 @@ Instance A and instance B, same product P.
   `ProcessMovementServiceImplLockTest`, `AddMovementsUploadedFileInputPortLockTest`.
 - `AsyncTaskExecutorImplTest` (new methods): proves submit order and the wait.
 - New production classes: none.
+- `ProcessMovementServiceDatabaseLockTest` (new, infra test): proves on a real PostgreSQL that two
+  movements for the same product and month, sent at the same time, both stay. Changes when: the lock
+  rule or the movement flow contract changes.
+- `FinanceDatabaseTestProfile` (new, infra test): boots `jbh-finance-infra` on a throwaway
+  PostgreSQL from Dev Services. Changes when: the finance datasource or Liquibase setup changes.
+- `test-create-finance-schema.sql` (new, infra test resource): creates the `finance` schema in the
+  Dev Services database before Liquibase runs. Changes when: the module schema name changes.
+- `jbh-finance-infra/pom.xml` (changed): test dependency and surefire setup for the opt-in database
+  test. Changes when: the module test setup changes.
 
 ## Test contract
 
@@ -484,6 +495,116 @@ balances through `getCurrentMonthlyBalances()`, which waits first. D8 makes that
 out-of-order tasks writing over newer data. With D1, D2 and the test lock (D8), each task runs in
 order and reads fresh data. Assertions stay as they are.
 
+### New: `ProcessMovementServiceDatabaseLockTest` (real PostgreSQL, task 7.5)
+
+The one exception to "offline unit tests": the user asked for it (2026-10-20). The unit tests above
+prove the order of calls with fakes. Only a real database proves that `PESSIMISTIC_WRITE` really
+makes the second transaction wait. The lock lives in PostgreSQL, so two threads in one JVM, each in
+its own transaction, act like two instances.
+
+**Location.** Module `jbh-finance-infra`, file
+`jbh-finance/jbh-finance-infra/src/test/java/com/jbh/finance/test/infra/movement/ProcessMovementServiceDatabaseLockTest.java`.
+Why this module and not `jbh-z-assembly`:
+
+- It holds everything the flow needs: the producers (`ProductUseCasesCDIConfig`),
+  `QuarkusUnitOfWork`, the JPA adapters with the lock, the entities and the Liquibase changelog.
+- It has only one datasource (`finance`), so Dev Services start one container. The assembly also
+  boots `preferences`, `notifications`, the default datasource, the mailer and Consul registration.
+- It is inside the module that owns the change.
+
+**Setup.**
+
+- Class annotations: `@QuarkusTest`, `@TestProfile(FinanceDatabaseTestProfile.class)`,
+  `@Tag("database")`.
+- `FinanceDatabaseTestProfile` (same package) implements `QuarkusTestProfile`. `getConfigOverrides()`
+  returns:
+
+| Key | Value | Why |
+|---|---|---|
+| `quarkus.datasource.finance.jdbc.url` | empty string | An empty value removes the URL from `application.properties`. Dev Services start only when no URL is set. |
+| `quarkus.datasource.finance.devservices.username` / `.password` | `postgres` / `postgres` | Same values as the configured datasource user, so container and pool always match. |
+| `quarkus.datasource.finance.devservices.init-script-path` | `db/test-create-finance-schema.sql` | The `finance` schema is created outside Liquibase in real setups (`jbh-deploy/initdb`). Liquibase needs it for its own tables. |
+| `quarkus.hibernate-orm.finance.database.generation` | `none` | Liquibase owns the schema, as in dev and prod. |
+| `quarkus.datasource.devservices.enabled` | `false` | The module uses only `finance`. This stops a second, unused container for the default datasource. |
+| `quarkus.http.test-port` | `0` | A random free port. The test makes no HTTP call. |
+| `quarkus.arc.remove-unused-beans` | `false` | Same as the assembly at runtime. |
+| `quarkus.index-dependency.finance-domain.*` / `finance-application.*` | `com.jbh` / `jbh-finance-domain`, `jbh-finance-application` | Same index setup as the assembly. Keeps domain and application free of Jandex. |
+
+- `src/test/resources/db/test-create-finance-schema.sql`: `CREATE SCHEMA IF NOT EXISTS finance;`.
+- `quarkus.liquibase.finance.migrate-at-start=true` stays as it is. It creates the tables and the
+  system categories that the `ProcessMovementServiceImpl` constructor reads.
+- Not started or mocked, because nothing calls them: the gateway client (no REST call, so no
+  `findUserId`), Azure, OpenRouter, Gemini and Jev (their keys are already optional). Consul and Gmail
+  are not on this module's classpath.
+- No REST and no JWT. The test calls the CDI beans directly.
+- Injected beans: `ProcessMovementService`, `ProcessMonthlyBalanceService` (the same
+  `@ApplicationScoped` instance the movement service uses, so `awaitPendingSync()` waits on the right
+  executor), `CreateProductInputPort`, `CategoryService`, `ProductLifecycleService`,
+  `MovementLifecycleService`, `UnitOfWork`.
+- `@RepeatedTest(5)`. Each repetition makes a new user and a new product, so no cleanup is needed.
+  The container lives for the whole test run.
+
+**Scenario (each repetition).**
+
+1. `userId = UUID.randomUUID()`. Create the product with
+   `createProductInputPort.execute(new CreateProductCommand(userId, "lock-test", SAVINGS, ProductMetadata.empty()))`.
+   SAVINGS updates monthly balances. `productPK = new ProductPK(userId, product.id())`.
+2. Seed, one call, no race: `addMovementToProduct(productPK, ...)` with a DEPOSIT of `100` on
+   2025-02-01, category `categoryService.findIncomeOther()`. Then `awaitPendingSync()`. The seed puts
+   money in the product before the race. Without it, a withdrawal that runs first on a zero balance
+   marks the product "fully withdrawn", and the product values would depend on thread order.
+3. The race. Two commands for 2025-03-01, the same product:
+   - thread A: DEPOSIT `5`, category `findIncomeOther()`;
+   - thread B: WITHDRAWAL `3`, category `findExpenseUnknown()`.
+   The values match `shouldKeepBothMovementsWhenTwoMovementsAreSyncedInTheSameMonth`.
+4. Start gate. A test-only `ExecutorService` with 2 threads. A `CountDownLatch ready = new
+   CountDownLatch(2)` and a `CountDownLatch start = new CountDownLatch(1)`. Each task calls
+   `ready.countDown()`, then `start.await()`, then `addMovementToProduct(...)`. The main thread calls
+   `ready.await(10, SECONDS)`, then `start.countDown()`. So both calls start at the same moment,
+   each in its own transaction (`executeInTransaction` on its own thread).
+5. Wait. `futureA.get(30, SECONDS)` and `futureB.get(30, SECONDS)`. A failed call fails the test with
+   its cause. Then `processMonthlyBalanceService.awaitPendingSync()`, on the main thread, outside any
+   transaction. Both adjust tasks were submitted before the calls returned, so the wait ends exactly
+   when both adjusts are done (D6). Shut the executor down in `finally`.
+6. Read inside `unitOfWork.executeInTransaction(...)`: the 2025-03 month
+   (`processMonthlyBalanceService.findByAccountIdAndPeriod(productId, 2025-03)`), the product
+   (`productLifecycleService.findOrThrowByIdProductId(productId)`) and the movements
+   (`movementLifecycleService.findByAccountId(productId)`).
+
+**Expected values** (money with `withJBHDecimals`):
+
+| What | Expected |
+|---|---|
+| 2025-03 `totalDebits` | 5.00 |
+| 2025-03 `totalCredits` | 3.00 |
+| 2025-03 `movementBalance` | 2.00 |
+| 2025-03 `totalMovements` | 2 |
+| product `currentBalance` | 102.00 (100 + 5 - 3) |
+| product `movementBalance` | 102.00 |
+| movements of the product | 3 rows; amounts 100.00, 5.00, -3.00 in any order |
+| both futures | complete with no exception |
+
+Thread order is not fixed. Every value above is the same for both orders.
+
+**If the lock were missing.** Both transactions read the product (balance 100) and the 2025-03 row
+before either commits. Each saves its own copy with a blind `merge`, and the last write wins. The
+movement inserts do not conflict, so the test would show: 3 movement rows, but 2025-03 with
+`totalMovements` 1 (only 5.00 or only -3.00), and product `currentBalance` 105.00 or 97.00. The month
+and product assertions fail. A race does not lose an update on every run, so the test runs 5
+repetitions to make a miss very unlikely. With the lock, the second transaction blocks on
+`SELECT ... FOR UPDATE` until the first commits, then reads the fresh row. All 5 repetitions pass.
+
+**Commands** (the leader or the user runs them; Docker must run):
+
+```
+mvn -pl jbh-finance/jbh-finance-infra -am test -Dtest=ProcessMovementServiceDatabaseLockTest -Dsurefire.failIfNoSpecifiedTests=false -Djbh.test.excludedGroups=none
+```
+
+**Open question for the user: opt-in or always on.** Default in task 7.5: opt-in. The pom excludes
+the tag `database` (`jbh.test.excludedGroups=database`), so `mvn install` and CI do not need Docker.
+The other option: always on. Then every build of `jbh-finance-infra`, CI included, needs Docker and
+starts a PostgreSQL container (about 5 to 15 s more per build).
+
 ## Risks / Trade-offs
 
 - Requests for the **same product** now wait for each other, on all instances. A long upload holds
@@ -508,3 +629,19 @@ order and reads fresh data. Assertions stay as they are.
 - D8 makes the test service and the test lock static and shared across test classes. A stuck task
   affects the next class. `resetState()` waits first, and the 10 s timeout turns a stuck task into
   a clear error.
+- `ProcessMovementServiceDatabaseLockTest` needs Docker. Without Docker, Dev Services cannot start,
+  the `finance` datasource has no URL, and Quarkus fails to boot. That is why the test is opt-in
+  (tag `database`).
+- It is the first `@QuarkusTest` in `jbh-finance`. Setup risks, each with its fallback:
+  - JPMS: Quarkus tests do not run on the module path, so the infra surefire uses
+    `useModulePath=false`. Tests then run on the classpath.
+  - JUnit versions: `jbh-finance/pom.xml` pins `junit-jupiter` to `${junit.version}` (5.10.2), and
+    `quarkus-junit5` from the Quarkus BOM brings a newer JUnit. If the enforcer
+    (`dependencyConvergence`) or the JUnit launcher fails, align the versions in the infra pom only.
+  - Empty URL override: if Dev Services still see a URL and do not start, replace the URL override
+    with a `QuarkusTestResourceLifecycleManager` that starts one Testcontainers PostgreSQL and returns
+    the URL (the Testcontainers version comes from the Quarkus BOM).
+  - Default datasource: if the boot fails with "datasource '<default>' is not configured", remove
+    the `quarkus.datasource.devservices.enabled=false` override. A second, unused container is harmless.
+- A race test does not fail on every run when the lock is missing. Five repetitions make a miss
+  very unlikely, not impossible. Five green repetitions are strong evidence, not a proof.
