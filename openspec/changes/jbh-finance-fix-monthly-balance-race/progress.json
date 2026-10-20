@@ -5,7 +5,7 @@
   "module": "jbh-finance",
   "roadmap": null,
   "request": "continue (resumed from: fix the race in monthly balance sync found by RegisterMonthlyReportedProfitTest; plan the fix, remove Thread.sleep waits, extend the JBH-62 change; then: designs must work with more than one instance)",
-  "status": "applied",
+  "status": "changes-requested",
   "rollup": {
     "current": [
       "7.4"
@@ -39,7 +39,7 @@
     ]
   },
   "created_at": "2026-10-19T21:12:50Z",
-  "updated_at": "2026-10-20T02:15:24Z",
+  "updated_at": "2026-10-20T02:21:48Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-opus-5-5"
@@ -675,10 +675,42 @@
     }
   ],
   "review": {
-    "status": "pending",
-    "agent": null,
-    "brief": null,
-    "rounds": []
+    "status": "changes-requested",
+    "agent": "jbh-finance-reviewer",
+    "brief": "Review JBH-62 diff 0cb3b19..HEAD in jbh-finance (module code only). User-confirmed design (decision D3): async adjust + product row lock (PESSIMISTIC_WRITE, TxType.MANDATORY) as FIRST statement of every balance-writing transaction; in-JVM lock rejected; @Version rejected; QuarkusUnitOfWork now rethrows and rolls back on any Exception. Check: (1) every flow in design.md D3 table locks first inside one transaction, incl. background adjust task, register (two transactions, D7) and upload (D9); (2) no in-JVM state is used for correctness (project 'Horizontal scaling' rule); the single-thread executor (D2) is ordering-only; (3) no transaction waits for a background task (D6); awaitPendingSync runs outside transactions; (4) no Thread.sleep left in src/main or tests except AsyncTaskExecutorImplTest; existing test assertions unchanged; (5) Test contract in design.md: new test classes exist and check the stated expected values; accepted deviations (decision D6): shared fake RecordingUnitOfWork, Mockito ProductLifecycleService in ProcessMonthlyBalanceServiceImplTest. No DB migration (D10, unique constraint already exists). Signals: build + module suite (319 tests) and 5 repeat runs were run by the leader (assistantRunsTests), all green; task 7.4 (manual 2-instance check) is user-pending and optional. Judge test quality by reading the tests. Performance-Profile: none.",
+    "rounds": [
+      {
+        "round": 1,
+        "verdict": "changes-requested",
+        "findings": [
+          {
+            "id": "R1-1",
+            "severity": "major",
+            "status": "open",
+            "note": "jbh-finance-infra ProductUseCasesCDIConfig.java:113, 157, 225 (producer at :125-127): processMonthlyBalanceService() is a producer called as a plain method from other producers. Each call builds a new ProcessMonthlyBalanceServiceImpl with its own new AsyncTaskExecutorImpl(). So the PMBS that RegisterMonthlyBalanceInputPort gets (:225) is not the one inside accountMovementServiceApplication() (:113) that receives the initial movement's adjust task. awaitPendingSync() then waits on an idle executor and returns at once, so tx2 can write the report before the adjust (the ordering D7 replaces the 2 s sleep for). The row lock still protects data, but the order guarantee (D2, D6, D7) is lost in production. design.md D8 claim 'one @ApplicationScoped bean, so one executor' is not true for this wiring (unit tests use one shared instance, so they cannot see it). Fix: one shared instance for all uses (e.g. @Inject ProcessMonthlyBalanceService field, or a single field), and the same for ProcessMovementService used by register. If the leader proves ArC returns the one bean here, record the proof in design.md and close this.",
+            "triage": "accepted"
+          },
+          {
+            "id": "R1-2",
+            "severity": "minor",
+            "status": "open",
+            "note": "jbh-finance-infra StatementUseCasesCDIConfig.java:46: stray blank line added, unrelated file with no other change. Revert it.",
+            "triage": "accepted"
+          }
+        ],
+        "duration_seconds": 124,
+        "budget": {
+          "five_hour_pct_start": 16,
+          "five_hour_pct_end": 21,
+          "five_hour_pct_delta": 5,
+          "cost_usd_delta": 1.53,
+          "context_pct_end": 14,
+          "source": "statusline-cache",
+          "approx": true,
+          "note": "end read after leader triage, fixes and test runs; reviewer subagent cost is not in the leader session cost"
+        }
+      }
+    ]
   },
   "decisions": [
     {
@@ -820,6 +852,41 @@
       "at": "2026-10-20T02:15:24Z",
       "agent": "leader",
       "event": "wave 3 verified by the leader (assistantRunsTests): mvn -q -pl jbh-finance/jbh-finance-infra -am test-compile exit 0; target suites exit 0, 56 tests, 0 failures; full module suite 5 runs, each exit 0, 319 tests, 0 failures"
+    },
+    {
+      "at": "2026-10-20T02:15:34Z",
+      "agent": "leader",
+      "event": "wave 3 committed ff7d8cd; checkpoint gate: five_hour 14%, context 13% (below 90/40); recommended /clear + resume before Step 6 verify and Step 7 review"
+    },
+    {
+      "at": "2026-10-20T02:16:40Z",
+      "agent": "leader",
+      "event": "resume in a fresh session; continue at Step 6 (verify)"
+    },
+    {
+      "at": "2026-10-20T02:17:02Z",
+      "agent": "leader",
+      "event": "Step 6 verified by the leader (assistantRunsTests): mvn -q -pl jbh-finance/jbh-finance-infra -am test-compile exit 0; mvn -pl jbh-finance/jbh-finance-application test exit 0, 319 tests, 0 failures; openspec validate --strict valid"
+    },
+    {
+      "at": "2026-10-20T02:17:19Z",
+      "agent": "leader",
+      "event": "dispatched reviewer jbh-finance-reviewer round 1 on sonnet; budget start five_hour=16 cost=0.6121178"
+    },
+    {
+      "at": "2026-10-20T02:19:23Z",
+      "agent": "leader",
+      "event": "reviewer round 1 returned changes-requested (R1-1 major, R1-2 minor); both accepted"
+    },
+    {
+      "at": "2026-10-20T02:21:48Z",
+      "agent": "leader",
+      "event": "round 1 fixes verified by the leader (assistantRunsTests): mvn -q -pl jbh-finance/jbh-finance-infra -am test-compile exit 0; mvn -pl jbh-finance/jbh-finance-application test exit 0, 319 tests, 0 failures; mvn -q -pl jbh-z-assembly -am package -DskipTests exit 0 (ArC bean validation)"
+    },
+    {
+      "at": "2026-10-20T02:21:48Z",
+      "agent": "leader",
+      "event": "triage round 1: R1-1 accepted, CDI does not proxy this.method() calls between producers; fixed with injected producer parameters (one executor per instance). R1-2 accepted, blank line reverted"
     }
   ]
 }

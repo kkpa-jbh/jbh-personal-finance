@@ -100,17 +100,19 @@ public class ProductUseCasesCDIConfig {
 
   @Produces
   @ApplicationScoped
-  public AddMovementInputPort registeringAddMovementUseCase() {
-    return new AddMovementInputPort(accountMovementServiceApplication(), productsService());
+  public AddMovementInputPort registeringAddMovementUseCase(
+      final ProcessMovementService processMovementService) {
+    return new AddMovementInputPort(processMovementService, productsService());
   }
 
   @Produces
   @ApplicationScoped
-  public ProcessMovementService accountMovementServiceApplication() {
+  public ProcessMovementService accountMovementServiceApplication(
+      final ProcessMonthlyBalanceService processMonthlyBalanceService) {
     return new ProcessMovementServiceImpl(
         movementService(),
         productsService(),
-        processMonthlyBalanceService(),
+        processMonthlyBalanceService,
         unitOfWork,
         categoryService());
   }
@@ -120,6 +122,8 @@ public class ProductUseCasesCDIConfig {
     return new MovementLifecycleServiceImpl(accountMovementWriterRepo, accountMovementQueryRepo);
   }
 
+  // Injected as a parameter everywhere: a direct call would build a second executor, and
+  // awaitPendingSync() would then wait on an executor that holds no task.
   @Produces
   @ApplicationScoped
   public ProcessMonthlyBalanceService processMonthlyBalanceService() {
@@ -142,19 +146,21 @@ public class ProductUseCasesCDIConfig {
 
   @Produces
   @ApplicationScoped
-  public AddMovementsUploadedFileInputPort registeringAddMovementsUploadedFileUseCase() {
+  public AddMovementsUploadedFileInputPort registeringAddMovementsUploadedFileUseCase(
+      final MonthlyBalanceSyncForUploadedMovements uploadedMovementsBalanceSynchronizer) {
     return new AddMovementsUploadedFileInputPort(
         productsService(),
         accountMovementWriterRepo,
         unitOfWork,
-        uploadedMovementsBalanceSynchronizer(),
+        uploadedMovementsBalanceSynchronizer,
         categoryService());
   }
 
   @Produces
   @ApplicationScoped
-  public MonthlyBalanceSyncForUploadedMovements uploadedMovementsBalanceSynchronizer() {
-    return new MonthlyBalanceSyncForUploadedMovements(processMonthlyBalanceService());
+  public MonthlyBalanceSyncForUploadedMovements uploadedMovementsBalanceSynchronizer(
+      final ProcessMonthlyBalanceService processMonthlyBalanceService) {
+    return new MonthlyBalanceSyncForUploadedMovements(processMonthlyBalanceService);
   }
 
   @Produces
@@ -201,28 +207,32 @@ public class ProductUseCasesCDIConfig {
 
   @Produces
   @ApplicationScoped
-  public AddTransferJbhProductsUseCase addTransferJbhAccountsUseCase() {
+  public AddTransferJbhProductsUseCase addTransferJbhAccountsUseCase(
+      final ProcessMovementService processMovementService) {
     return new AddTransferJbhProductsInputPort(
-        productsService(), accountMovementServiceApplication(), categoryService());
+        productsService(), processMovementService, categoryService());
   }
 
   @Produces
   @ApplicationScoped
-  public LiquidateProductUseCase liquidateAccountUseCase() {
+  public LiquidateProductUseCase liquidateAccountUseCase(
+      final ProcessMovementService processMovementService) {
     return new LiquidateProductInputPort(
-        productsService(), accountMovementServiceApplication(), categoryService());
+        productsService(), processMovementService, categoryService());
   }
 
   @Produces
   @ApplicationScoped
-  public RegisterMonthlyBalanceUseCase registerMonthlyBalanceUseCase() {
+  public RegisterMonthlyBalanceUseCase registerMonthlyBalanceUseCase(
+      final ProcessMovementService processMovementService,
+      final ProcessMonthlyBalanceService processMonthlyBalanceService) {
     return new RegisterMonthlyBalanceInputPort(
         monthlyBalanceService(),
         productsService(),
-        accountMovementServiceApplication(),
+        processMovementService,
         categoryService(),
         unitOfWork,
-        processMonthlyBalanceService());
+        processMonthlyBalanceService);
   }
 
   @Produces
@@ -239,8 +249,9 @@ public class ProductUseCasesCDIConfig {
 
   @Produces
   @ApplicationScoped
-  public DeleteMovementUseCase deleteMovementUseCase() {
+  public DeleteMovementUseCase deleteMovementUseCase(
+      final ProcessMovementService processMovementService) {
     return new DeleteMovementInputPort(
-        movementService(), productsService(), accountMovementServiceApplication());
+        movementService(), productsService(), processMovementService);
   }
 }

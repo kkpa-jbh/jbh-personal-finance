@@ -43,7 +43,6 @@ public class StatementUseCasesCDIConfig {
 
   @Inject StatementImportConfig config;
 
-
   // Temporary LLM comparison and OCR cache; no-ops unless jbh.statement.compare.enabled=true.
   @Inject LlmComparison llmComparison;
 
