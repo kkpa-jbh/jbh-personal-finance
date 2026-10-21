@@ -1,11 +1,50 @@
 schema: spec-driven
 
 context: |
-  Tech stack: Java 21, Quarkus modular monolith (Maven), hexagonal architecture, PostgreSQL.
-  Project rules: .claude/CLAUDE.md and .claude/standards/.
-  Change names start with the owning module, e.g. jbh-finance-fix-monthly-balance-race.
+  Project: jbh-personal-finance, one service of the JBH system. The system map is
+  ../jbh-deploy/README.md. Project rules: .claude/CLAUDE.md and .claude/standards/.
+  Specs here describe capability behavior, not architecture.
+  Tech stack: Java 21, Quarkus modular monolith (Maven), hexagonal architecture, PostgreSQL,
+  Liquibase.
+  Modules: jbh-finance, jbh-notification, jbh-preferences, jbh-products, jbh-commons-lib.
+  Each OpenSpec domain maps to one module.
   Writing: English, B2 level. Short sentences, common words.
   Horizontal scaling: the app runs as more than one instance. Every design must stay correct
   with 2 or more instances. Protect shared data in PostgreSQL (row lock, @Version, unique
   constraint, atomic SQL), never with in-JVM locks, caches, or executors. The design must say
   what happens when 2 instances change the same product at the same time.
+  Archive rules ("archive" is not a valid key under rules:, so they live here):
+  - Archive under openspec/changes/archive/<domain>/YYYY-MM-DD-<change-name>, never flat.
+  - Domains: finance, notification, preferences, products, commons, platform (cross-cutting).
+    Pick the module the change most advances. Create the folder if missing.
+  - Never archive a change whose progress.json exists and review.status is not
+    reviewer-approved.
+
+rules:
+  proposal:
+    - Must use the grill-me skill.
+    - Change names start with the owning module - <module>-<verb-noun-slug>
+      (e.g. jbh-finance-fix-monthly-balance-race). Use platform- for cross-cutting changes.
+    - State whether the change is breaking and which modules it affects.
+    - If the change touches the database or a hot read path, name the read paths it affects.
+    - 'If the change came from a ticket, the header carries "Source ticket: <TICKET> - <url>".'
+    - If the change spans more than one module, do not write one big change. Use a roadmap
+      (kkpa-orchestrate-change, references/roadmap.md) with one module change per tier.
+  specs:
+    - Use GIVEN/WHEN/THEN for scenarios.
+    - Describe behavior (WHAT). Implementation (HOW) goes in design.md.
+  design:
+    - design.md is required for any change that touches the database. Never skip it as "simple".
+    - Each new or changed DB object (table, column, index, constraint, view) must include the
+      full schema, the Liquibase changeset, the reason for the design and rejected options, and
+      an index plan based on the real read queries.
+    - Keep persistence inside the owning module - its own PostgreSQL schema and its changelog in
+      <module>/<module>-infra/src/main/resources/db/changelog. No cross-module queries.
+    - Prefer natural primary keys (.claude/infrastructure/database.md).
+  tasks:
+    - Use checkbox tasks. Each task is atomic and testable.
+    - Tick tasks.md checkboxes live while you work, so any session can resume.
+    - Group tasks into independent sub-tasks with an explicit "Depends on:" line, so separate
+      agents can run them in parallel when they touch different files.
+    - progress.json belongs to the kkpa-orchestrate-change skill. Follow its contract; do not
+      restate it here.
