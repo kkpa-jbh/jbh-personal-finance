@@ -5,11 +5,9 @@
   "module": "jbh-finance",
   "roadmap": null,
   "request": "continue (resumed from: fix the race in monthly balance sync found by RegisterMonthlyReportedProfitTest; plan the fix, remove Thread.sleep waits, extend the JBH-62 change; then: designs must work with more than one instance)",
-  "status": "applied",
+  "status": "archived",
   "rollup": {
-    "current": [
-      "7.4"
-    ],
+    "current": [],
     "pending": [],
     "blocked": [],
     "done": [
@@ -36,11 +34,12 @@
       "7.1",
       "7.2",
       "7.3",
+      "7.4",
       "7.5"
     ]
   },
   "created_at": "2026-10-19T21:12:50Z",
-  "updated_at": "2026-10-20T15:19:04Z",
+  "updated_at": "2026-10-21T23:38:53Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-opus-5-5"
@@ -665,13 +664,13 @@
         "7.2"
       ],
       "parallel_ok": false,
-      "status": "awaiting-user-verification",
-      "agent": null,
+      "status": "done",
+      "agent": "user",
       "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": "Optional manual 2-instance check; the pipeline does not run it. Left for the user.",
+      "started_at": "2026-10-21T23:38:45Z",
+      "completed_at": "2026-10-21T23:38:45Z",
+      "duration_seconds": 0,
+      "notes": "Closed by user decision D12: the automated DB lock test 7.5 (two threads, real PostgreSQL) covers the manual 2-instance check. Not run by hand.",
       "budget": null
     },
     {
@@ -704,7 +703,7 @@
   "review": {
     "status": "reviewer-approved",
     "agent": "jbh-finance-reviewer",
-    "brief": "Review JBH-62 diff 0cb3b19..HEAD in jbh-finance (module code only). User-confirmed design (decision D3): async adjust + product row lock (PESSIMISTIC_WRITE, TxType.MANDATORY) as FIRST statement of every balance-writing transaction; in-JVM lock rejected; @Version rejected; QuarkusUnitOfWork now rethrows and rolls back on any Exception. Check: (1) every flow in design.md D3 table locks first inside one transaction, incl. background adjust task, register (two transactions, D7) and upload (D9); (2) no in-JVM state is used for correctness (project 'Horizontal scaling' rule); the single-thread executor (D2) is ordering-only; (3) no transaction waits for a background task (D6); awaitPendingSync runs outside transactions; (4) no Thread.sleep left in src/main or tests except AsyncTaskExecutorImplTest; existing test assertions unchanged; (5) Test contract in design.md: new test classes exist and check the stated expected values; accepted deviations (decision D6): shared fake RecordingUnitOfWork, Mockito ProductLifecycleService in ProcessMonthlyBalanceServiceImplTest. No DB migration (D10, unique constraint already exists). Signals: build + module suite (319 tests) and 5 repeat runs were run by the leader (assistantRunsTests), all green; task 7.4 (manual 2-instance check) is user-pending and optional. Judge test quality by reading the tests. Performance-Profile: none.",
+    "brief": "Review JBH-62 diff 0cb3b19..HEAD in jbh-finance (module code only). User-confirmed design (decision D3): async adjust + product row lock (PESSIMISTIC_WRITE, TxType.MANDATORY) as FIRST statement of every balance-writing transaction; in-JVM lock rejected; @Version rejected; QuarkusUnitOfWork now rethrows and rolls back on any Exception. Check: (1) every flow in design.md D3 table locks first inside one transaction, incl. background adjust task, register (two transactions, D7) and upload (D9); (2) no in-JVM state is used for correctness (project 'Horizontal scaling' rule); the single-thread executor (D2) is ordering-only; (3) no transaction waits for a background task (D6); awaitPendingSync runs outside transactions; (4) no Thread.sleep left in src/main or tests except AsyncTaskExecutorImplTest; existing test assertions unchanged; (5) Test contract in design.md: new test classes exist and check the stated expected values; accepted deviations (decision D6): shared fake RecordingUnitOfWork, Mockito ProductLifecycleService in ProcessMonthlyBalanceServiceImplTest. No DB migration (D10, unique constraint already exists). Signals: build + module suite (319 tests) and 5 repeat runs were run by the leader (assistantRunsTests), all green; task 7.4 (manual 2-instance check) is user-pending and optional. Judge test quality by reading the tests. Performance-Profile: none. ROUND 3 (scope extended by the user, decisions D8, D10): review only 4f79634..3842268 - task 7.5 opt-in DB lock test in jbh-finance-infra (pom, test profile, init SQL, test class) and the jbh-finance/AGENTS.md. Leader runs: 5/5 pass; with LockModeType.NONE 5/5 fail; infra suite green with the test skipped.",
     "rounds": [
       {
         "round": 1,
@@ -751,6 +750,22 @@
           "source": "statusline-cache",
           "approx": true,
           "note": "re-verify only; reviewer subagent cost is not in the leader session cost"
+        }
+      },
+      {
+        "round": 3,
+        "verdict": "approved",
+        "findings": [],
+        "duration_seconds": 32,
+        "budget": {
+          "five_hour_pct_start": 25,
+          "five_hour_pct_end": 29,
+          "five_hour_pct_delta": 4,
+          "cost_usd_delta": 0.85,
+          "context_pct_end": 22,
+          "source": "statusline-cache",
+          "approx": true,
+          "note": "reviewer subagent cost is not in the leader session cost"
         }
       }
     ]
@@ -854,6 +869,15 @@
       "decision": "implement 7.5 on the same opus worker via SendMessage",
       "why": "It already holds the setup research (JPMS, Dev Services, JUnit pin). A fresh sonnet worker would redo it.",
       "covered_by": null
+    },
+    {
+      "id": "D12",
+      "at": "2026-10-21T23:38:45Z",
+      "scope": "task:7.4",
+      "made_by": "user",
+      "decision": "task 7.5 covers the manual 2-instance check 7.4; mark 7.4 done without a manual run",
+      "why": "7.5 proves the row lock with two concurrent transactions on real PostgreSQL: 5/5 pass with the lock, 5/5 fail without it.",
+      "covered_by": "tasks.md 7.5"
     }
   ],
   "events": [
@@ -1006,6 +1030,31 @@
       "at": "2026-10-20T15:19:04Z",
       "agent": "leader",
       "event": "wave 4 verified by the leader (assistantRunsTests): DOCKER_API_VERSION=1.44 mvn -pl jbh-finance/jbh-finance-infra -am test -Dtest=ProcessMovementServiceDatabaseLockTest -Dsurefire.failIfNoSpecifiedTests=false -Djbh.test.excludedGroups=none -Dapi.version=1.44 exit 0, 5/5; same with lock set to NONE: exit 1, 5/5 fail (file restored); mvn -pl jbh-finance/jbh-finance-infra -am test exit 0 (115+319+8, DB test skipped)"
+    },
+    {
+      "at": "2026-10-20T15:19:18Z",
+      "agent": "leader",
+      "event": "wave 4 committed 3842268; Step 6 verified by the wave 4 leader runs on the same commit"
+    },
+    {
+      "at": "2026-10-20T15:19:18Z",
+      "agent": "leader",
+      "event": "signalled jbh-finance-reviewer for round 3 (7.5 only); budget start five_hour=25 cost=13.44"
+    },
+    {
+      "at": "2026-10-20T15:20:07Z",
+      "agent": "leader",
+      "event": "reviewer round 3 approved (review.status set by the reviewer); checkpoint gate: five_hour 29%, context 22% (below 90/40). Waiting for user on 7.4"
+    },
+    {
+      "at": "2026-10-21T23:38:45Z",
+      "agent": "leader",
+      "event": "resume: user decision D12 closes 7.4 (covered by 7.5). Change status mirrors review.status reviewer-approved, set by the reviewer in round 3. Budget five_hour=27 context=12. Starting Step 8 archive"
+    },
+    {
+      "at": "2026-10-21T23:38:53Z",
+      "agent": "leader",
+      "event": "archived to openspec/changes/archive/finance/2026-10-21-jbh-finance-fix-monthly-balance-race; delta spec synced to openspec/specs/monthly-balance-sync/spec.md (8 requirements added)"
     }
   ]
 }
