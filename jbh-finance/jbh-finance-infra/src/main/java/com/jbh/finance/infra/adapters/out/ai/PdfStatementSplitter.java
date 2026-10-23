@@ -53,9 +53,7 @@ public class PdfStatementSplitter {
       final List<byte[]> parts = new ArrayList<>();
       for (final PDDocument part : splitter.split(document)) {
         try (part) {
-          final ByteArrayOutputStream output = new ByteArrayOutputStream();
-          part.save(output);
-          parts.add(output.toByteArray());
+          parts.add(toBytes(part));
         }
       }
       LOGGER.info(
@@ -68,5 +66,11 @@ public class PdfStatementSplitter {
     } catch (final IOException e) {
       throw new BusinessException(FinanceInfraBusinessExceptionType.STATEMENT_UNREADABLE_PDF);
     }
+  }
+
+  private static byte[] toBytes(final PDDocument part) throws IOException {
+    final ByteArrayOutputStream output = new ByteArrayOutputStream();
+    part.save(output);
+    return output.toByteArray();
   }
 }
