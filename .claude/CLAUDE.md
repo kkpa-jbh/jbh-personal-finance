@@ -2,13 +2,16 @@
 
 ## Quick Rules
 
-**Development Practices:**
-- Always use Context7 MCP when you need library/API documentation, code generation, setup, or configuration steps
+**Development Practices** (details in [code-quality.md](standards/code-quality.md) and [testing.md](standards/testing.md)):
 - Generate unit tests for all new code (minimum 50% coverage) except `jbh-z-assembly` and `jbh-*-infra` modules
 - Declare all variables `final` when possible
 - Avoid using literals in if statements
 - Avoid boolean parameters (except in constructors) - use value objects instead
 - Maximum 3 method parameters - use command objects or value objects for more
+- PMD: CI fails on any violation of `pmd-ruleset.xml` (almost all PMD categories). Check "Common traps" in code-quality.md before you finish.
+
+**Build & verify:** the suite command is `mvn clean verify` (tests + PMD + SpotBugs, like CI).
+`mvn test` and `mvn package` skip PMD. One module: `mvn -pl <module-path> -am verify -DskipTests`.
 
 **Horizontal scaling (always):**
 - The app runs as more than one instance. Every design and fix must stay correct with 2 or more instances.
@@ -16,25 +19,9 @@
 - Protect shared data in PostgreSQL: a transaction with a row lock (`SELECT ... FOR UPDATE`), an optimistic `@Version` column, a unique constraint, or an atomic SQL update.
 - Every design must say what happens when 2 instances handle the same product at the same time.
 
-**Code Quality:**
-- See [Code Quality Standards](standards/code-quality.md) for PMD rules and SOLID principles
-- See [Naming Conventions](standards/naming.md) for comprehensive naming standards
-- See [Testing Requirements](standards/testing.md) for test patterns and coverage rules
-- See [Business Rules Distribution](standards/business-rules.md) for where to place validations, constraints, and business logic across domain/application/infra layers
-
-**Documentation:**
-- See [JavaDoc Standards](standards/javadoc.md) for use case documentation templates
-
 ## Architecture
 
 This is a Quarkus multi-module monolith using **Hexagonal Architecture** with **feature-based organization**.
-
-**Core Concepts:**
-- [Architecture Overview](architecture/README.md) - Start here for hexagonal architecture principles
-- [Hexagonal Layers](architecture/hexagonal-layers.md) - Application vs Infrastructure module responsibilities
-- [Feature Structure](architecture/feature-structure.md) - Feature-based package organization
-- [REST Organization](architecture/rest-organization.md) - Feature-based REST API structure
-- [Dependency Rules](architecture/dependency-rules.md) - JPMS and Jandex configuration
 
 **Key Principles:**
 - **Dependency Direction**: Application layer NEVER depends on Infrastructure
@@ -42,69 +29,36 @@ This is a Quarkus multi-module monolith using **Hexagonal Architecture** with **
 - **Feature-Based**: Organize by business features (vertical slices), not technical layers
 - **Framework Independence**: Domain/application modules have ZERO framework dependencies
 
-## Standards
+## Docs index
 
-**Naming Conventions:**
-- [Complete Naming Guide](standards/naming.md) - Entity, DTO, Request, Response, UseCase, InputPort naming patterns
+| Topic | Doc | Read it when |
+|-------|-----|--------------|
+| Architecture | [architecture/README.md](architecture/README.md) | Start here for hexagonal principles |
+| | [hexagonal-layers.md](architecture/hexagonal-layers.md) | Placing a class in application vs infra |
+| | [feature-structure.md](architecture/feature-structure.md) | Creating a feature package |
+| | [rest-organization.md](architecture/rest-organization.md) | Adding a REST endpoint |
+| | [dependency-rules.md](architecture/dependency-rules.md) | Touching JPMS or Jandex config |
+| Standards | [code-quality.md](standards/code-quality.md) | PMD rules and SOLID |
+| | [naming.md](standards/naming.md) | Naming an Entity, DTO, Request, Response, UseCase, InputPort |
+| | [testing.md](standards/testing.md) | Writing unit tests |
+| | [business-rules.md](standards/business-rules.md) | Placing a validation or business rule |
+| | [javadoc.md](standards/javadoc.md) | Documenting a use case interface |
+| Patterns | [use-case-complete.md](patterns/use-case-complete.md) | Building a full use case (all layers) |
+| | [mapping-flow.md](patterns/mapping-flow.md) | Mapping Entity → DTO → Response |
+| Infrastructure | [database.md](infrastructure/database.md) | Schemas, primary keys, migrations |
+| | [deployment.md](infrastructure/deployment.md) | Port, instances, hosting, monitoring |
+| | [tech-stack.md](infrastructure/tech-stack.md) | Quarkus, PostgreSQL, JWT, Consul, gateway |
 
-**Code Quality:**
-- [PMD Rules & SOLID Principles](standards/code-quality.md) - Code quality standards and best practices
-
-**Documentation:**
-- [JavaDoc Templates](standards/javadoc.md) - Use case interface documentation (class & method level)
-
-**Testing:**
-- [Testing Standards](standards/testing.md) - Coverage requirements, patterns, and best practices
-
-**Business Rules:**
-- [Business Rules Distribution](standards/business-rules.md) - Where to place validations and rules across domain, application, and infrastructure layers
-
-## Patterns
-
-**Use Case Implementation:**
-- [Complete Use Case Pattern](patterns/use-case-complete.md) - Full 12-layer use case example with all components
-
-**Data Flow:**
-- [Mapping Flow](patterns/mapping-flow.md) - Entity → DTO → Response transformation pattern
-
-## Infrastructure
-
-**Database:**
-- [Database Guidelines](infrastructure/database.md) - PostgreSQL, schema-per-module, natural primary keys
-
-**Deployment:**
-- [Deployment Strategy](infrastructure/deployment.md) - Single unit deployment, monitoring, tracing
-
-**Technology Stack:**
-- [Tech Stack](infrastructure/tech-stack.md) - Quarkus, Maven, PostgreSQL, JWT, Consul
+How this service connects to the other JBH services: `../jbh-deploy/README.md`.
 
 ## Agents & Skills
 
-**Agents:**
-- [Quarkus Multimodule Architect](agents/quarkus-multimodule-architect.md) - Architecture guidance agent
-
-**Available Skills:**
-- `/build-usecase` - Generate complete use case implementation
-- `/validate-api-naming` - Validate API naming conventions
-- `/fe-api-instructions` - Generate frontend instructions from backend API specs
-- `/jbh-generate-tests` - Generate unit tests for domain/application classes following project test standards
-- `/jbh-review-business-rules` - Review a Maven module and verify business rules are placed in the correct hexagonal layer
-
-## Current Infrastructure
-
-**Existing Services** (sibling repos; full map in `../jbh-deploy/README.md`):
-- `jbh-gateway` - API Gateway (Kotlin, Spring Cloud Gateway, port 8080). Routes `/jbh-api/finance|products|preferences|notifications/**` here.
-- `jbh-discovery-nexus` - Service discovery (Consul in Docker, port 8500). This app registers as `jbh-personal-finance`.
-- `jbh-iam` - User authentication and authorization (Consul name `jbh-iam-service`, port 9999)
-- `jbh-gateway-client` - Java library used by the `*-infra` modules to call other services through the gateway
-
-**Architecture Model:**
-- Single deployable unit with well-defined modules (port 7777), running as more than one instance (see "Horizontal scaling")
-- PostgreSQL with separate schema per module (database `jbh_finance`)
-- JWT (HMAC shared secret) is issued by `jbh-iam` and validated by `jbh-gateway`. This app does not validate the JWT itself: `BaseRestAdapter.findUserId(...)` asks `jbh-iam` for the user id through `jbh-gateway-client`.
-- `jbh-notification-contracts` is also used by `jbh-gateway-client` and `jbh-iam`. A change there needs `mvn install` before those repos build.
-- Consul service discovery
-- Budget constraint: Cost-effective hosting solutions only (no cloud provider dependencies)
+- Agent: [Quarkus Multimodule Architect](agents/quarkus-multimodule-architect.md) - Architecture guidance
+- `/jbh-build-usecase` - Generate a complete use case implementation
+- `/jbh-validate-api-convention` - Validate API naming conventions
+- `/jbh-fe-api-instructions` - Generate frontend instructions from backend API specs
+- `/jbh-generate-tests` - Generate unit tests for domain/application classes
+- `/jbh-review-business-rules` - Check that business rules sit in the correct hexagonal layer
 
 ## System map sync (`../jbh-deploy/README.md`)
 

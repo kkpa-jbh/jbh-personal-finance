@@ -6,7 +6,14 @@ This document defines code quality rules, PMD enforcement, SOLID principles, and
 
 ## PMD Rules
 
-These rules are **mandatory** and must be followed in all code:
+**Source of truth: `pmd-ruleset.xml`** (repo root). It turns on almost every PMD Java category:
+bestpractices, codestyle, design, documentation, errorprone, performance, security.
+Only the rules under `<exclude>` are off. CI runs `mvn clean verify` with `failOnViolation=true`:
+**one violation of any priority fails the build.**
+
+The rules below are the most common ones, not the full list. Before you finish, check new code
+against them and against [Common traps](#6-common-traps).
+PMD runs only in the `verify` phase: `mvn test` and `mvn package` skip it.
 
 ### 1. Final Variables
 **Rule:** Declare all variables `final` when possible
@@ -149,6 +156,20 @@ public MovementDTO addMovement(
   // implementation
 }
 ```
+
+### 6. Common traps
+
+Rules that generated code broke before. Add a row when CI fails on a new rule.
+
+| Rule | Bad | Good |
+|------|-----|------|
+| `NullAssignment`, `UnusedAssignment` | Record compact constructor: `data = data == null ? null : data.clone();` | Write the full canonical constructor and assign `this.data`. Use an empty value (`new byte[0]`, `List.of()`), never `null`. |
+| `ExceptionAsFlowControl` | `throw new BusinessException(...)` inside a `try` that catches `BusinessException` in the same method | Move the `try` body to a private method, or log where you throw. |
+| `AvoidFieldNameMatchingMethodName` | Field `unknownAlias` and method `unknownAlias()` | Rename the field (`unknownCategoryAlias`), or use a record. |
+| `AvoidInstantiatingObjectsInLoops` | `list.add(new OptionDTO(...))` inside a `for` | `source.stream().map(...).toList()` |
+| `LawOfDemeter` | `a.getB().getC().getD()` (trust radius is 2) | Ask the nearest object for what you need. |
+| `AvoidLiteralsInIfCondition` | `if (size > 0)` | `private static final int EMPTY = 0;` then `if (size > EMPTY)` |
+| `UseUtilityClass` | Class with only static methods and a public constructor | `final` class with a `private` constructor. |
 
 ---
 
@@ -538,6 +559,7 @@ public class AddMovementInputPort implements AddMovementUseCase {
 - [ ] No literals in if statements
 - [ ] No generic exception handling
 - [ ] No explicit `java.lang.Exception` throws
+- [ ] No pattern from [Common traps](#6-common-traps); `mvn clean verify` passes (PMD runs there)
 - [ ] SOLID principles applied
 - [ ] Methods have ≤ 3 parameters (use Value Objects if needed)
 - [ ] No boolean parameters (except constructors)
