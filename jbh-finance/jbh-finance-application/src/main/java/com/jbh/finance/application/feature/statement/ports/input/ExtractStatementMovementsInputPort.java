@@ -83,17 +83,8 @@ public class ExtractStatementMovementsInputPort implements ExtractStatementMovem
     String step = STEP_READ;
     try {
       // Step 1: the StatementReader adapter turns the PDF into movements (OCR + LLM).
-      long stepStarted = startStep(step);
-      final ExtractedStatementDTO statement = statementReader.read(pdfContent);
+      final ExtractedStatementDTO statement = readStatement(pdfContent);
       final List<ExtractedMovementDTO> movements = statement.movements();
-      LOG.info(
-          LOG_PREFIX + " {} done in {} ms: {} movements",
-          step,
-          millisSince(stepStarted),
-          movements.size());
-      if (movements.isEmpty()) {
-        throw new BusinessException(BusinessApplicationExceptionType.STATEMENT_NO_MOVEMENTS_FOUND);
-      }
 
       // Step 2: compare the movements with the balance change printed on the statement,
       // once per currency.
@@ -103,7 +94,7 @@ public class ExtractStatementMovementsInputPort implements ExtractStatementMovem
 
       // Step 3: the categories the classifier may choose from (database).
       step = STEP_CATEGORIES;
-      stepStarted = startStep(step);
+      long stepStarted = startStep(step);
       final StatementCategoryCatalog catalog =
           StatementCategoryCatalog.load(categoryQueryRepo, categoryService);
       LOG.info(LOG_PREFIX + " {} done in {} ms", step, millisSince(stepStarted));
@@ -126,6 +117,22 @@ public class ExtractStatementMovementsInputPort implements ExtractStatementMovem
       LOG.warn(LOG_PREFIX + " Failed at {} after {} ms", step, millisSince(started));
       throw e;
     }
+  }
+
+  /** Step 1. Its own method: a throw inside the caller's try would be flow control (PMD). */
+  private ExtractedStatementDTO readStatement(final byte[] pdfContent) throws BusinessException {
+    final long stepStarted = startStep(STEP_READ);
+    final ExtractedStatementDTO statement = statementReader.read(pdfContent);
+    final List<ExtractedMovementDTO> movements = statement.movements();
+    LOG.info(
+        LOG_PREFIX + " {} done in {} ms: {} movements",
+        STEP_READ,
+        millisSince(stepStarted),
+        movements.size());
+    if (movements.isEmpty()) {
+      throw new BusinessException(BusinessApplicationExceptionType.STATEMENT_NO_MOVEMENTS_FOUND);
+    }
+    return statement;
   }
 
   /** For example {@code COP MATCH, USD NOT_AVAILABLE}. */

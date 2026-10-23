@@ -8,11 +8,11 @@ import com.jbh.finance.application.feature.statement.dto.ClassificationQuestionD
 import com.jbh.finance.application.feature.statement.dto.ExtractedMovementDTO;
 import com.jbh.finance.application.feature.statement.dto.StatementMovementDirection;
 import com.jbh.finance.domain.category.vo.CategorySourceVO;
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * The categories a statement movement may get, built once per request.
@@ -30,15 +30,15 @@ public final class StatementCategoryCatalog {
 
   private final Map<CategorySourceVO, List<CategoryOptionDTO>> optionsBySource;
   private final Map<String, CategoryDTO> categoriesByAlias;
-  private final String unknownAlias;
+  private final String unknownCategoryAlias;
 
   private StatementCategoryCatalog(
       final Map<CategorySourceVO, List<CategoryOptionDTO>> optionsBySource,
       final Map<String, CategoryDTO> categoriesByAlias,
-      final String unknownAlias) {
+      final String unknownCategoryAlias) {
     this.optionsBySource = optionsBySource;
     this.categoriesByAlias = categoriesByAlias;
-    this.unknownAlias = unknownAlias;
+    this.unknownCategoryAlias = unknownCategoryAlias;
   }
 
   /**
@@ -59,19 +59,24 @@ public final class StatementCategoryCatalog {
     final Map<String, CategoryDTO> categoriesByAlias = new HashMap<>();
 
     for (final CategorySourceVO source : CategorySourceVO.values()) {
-      final List<CategoryOptionDTO> options = new ArrayList<>();
-      for (final CategoryDTO category : categoryQueryRepo.findActiveBySource(source)) {
-        if (!unknownAlias.equals(category.getAlias())) {
-          options.add(new CategoryOptionDTO(category.getAlias(), ruleOf(category)));
-        }
-        categoriesByAlias.put(category.getAlias(), category);
-      }
-      options.add(unknownOption);
-      optionsBySource.put(source, List.copyOf(options));
+      final List<CategoryDTO> categories = categoryQueryRepo.findActiveBySource(source);
+      categories.forEach(category -> categoriesByAlias.put(category.getAlias(), category));
+      optionsBySource.put(source, optionsOf(categories, unknownOption));
     }
     categoriesByAlias.put(unknownAlias, unknown);
 
     return new StatementCategoryCatalog(optionsBySource, categoriesByAlias, unknownAlias);
+  }
+
+  /** The options of one source: its categories without Unknown, then Unknown last. */
+  private static List<CategoryOptionDTO> optionsOf(
+      final List<CategoryDTO> categories, final CategoryOptionDTO unknownOption) {
+    final String unknownAlias = unknownOption.alias();
+    final Stream<CategoryOptionDTO> known =
+        categories.stream()
+            .filter(category -> !unknownAlias.equals(category.getAlias()))
+            .map(category -> new CategoryOptionDTO(category.getAlias(), ruleOf(category)));
+    return Stream.concat(known, Stream.of(unknownOption)).toList();
   }
 
   private static String ruleOf(final CategoryDTO category) {
@@ -142,7 +147,7 @@ public final class StatementCategoryCatalog {
   }
 
   public String unknownAlias() {
-    return unknownAlias;
+    return unknownCategoryAlias;
   }
 
   /**

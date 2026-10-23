@@ -6,7 +6,8 @@ import com.jbh.finance.application.shared.validation.CommandValidator;
 /**
  * Asks to read and classify the movements of an unlocked statement PDF.
  *
- * <p>The PDF bytes are personal data: {@link #toString()} prints only their size.
+ * <p>The PDF bytes are personal data: {@link #toString()} prints only their size. A {@code null}
+ * PDF is kept as an empty array, so {@link #validate()} rejects it.
  *
  * @param pdfContent the unlocked PDF bytes
  */
@@ -14,25 +15,24 @@ public record ExtractStatementMovementsCommand(byte[] pdfContent) implements Com
 
   private static final int EMPTY_LENGTH = 0;
 
-  public ExtractStatementMovementsCommand {
-    pdfContent = pdfContent == null ? null : pdfContent.clone();
+  public ExtractStatementMovementsCommand(final byte[] pdfContent) {
+    this.pdfContent = pdfContent == null ? new byte[EMPTY_LENGTH] : pdfContent.clone();
   }
 
   @Override
   public byte[] pdfContent() {
-    return pdfContent == null ? null : pdfContent.clone();
+    return pdfContent.clone();
   }
 
   @Override
   public void validate() {
-    if (pdfContent == null || pdfContent.length == EMPTY_LENGTH) {
+    if (pdfContent.length == EMPTY_LENGTH) {
       throw new GenericSpecificationException("PDF content cannot be empty");
     }
   }
 
   @Override
   public String toString() {
-    final int size = pdfContent == null ? EMPTY_LENGTH : pdfContent.length;
-    return "ExtractStatementMovementsCommand[pdfContent=" + size + " bytes]";
+    return "ExtractStatementMovementsCommand[pdfContent=" + pdfContent.length + " bytes]";
   }
 }

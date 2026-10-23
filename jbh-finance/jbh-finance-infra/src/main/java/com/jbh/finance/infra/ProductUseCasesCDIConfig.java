@@ -147,12 +147,12 @@ public class ProductUseCasesCDIConfig {
   @Produces
   @ApplicationScoped
   public AddMovementsUploadedFileInputPort registeringAddMovementsUploadedFileUseCase(
-      final MonthlyBalanceSyncForUploadedMovements uploadedMovementsBalanceSynchronizer) {
+      final MonthlyBalanceSyncForUploadedMovements balanceSynchronizer) {
     return new AddMovementsUploadedFileInputPort(
         productsService(),
         accountMovementWriterRepo,
         unitOfWork,
-        uploadedMovementsBalanceSynchronizer,
+        balanceSynchronizer,
         categoryService());
   }
 
