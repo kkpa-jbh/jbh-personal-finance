@@ -170,6 +170,14 @@ Rules that generated code broke before. Add a row when CI fails on a new rule.
 | `LawOfDemeter` | `a.getB().getC().getD()` (trust radius is 2) | Ask the nearest object for what you need. |
 | `AvoidLiteralsInIfCondition` | `if (size > 0)` | `private static final int EMPTY = 0;` then `if (size > EMPTY)` |
 | `UseUtilityClass` | Class with only static methods and a public constructor | `final` class with a `private` constructor. |
+| `LongVariable` | Name of 30 characters or more: `uploadedMovementsBalanceSynchronizer` | `balanceSynchronizer` |
+| `ShortClassName` | Type name under 5 characters, also nested: `interface Jev` | `JevApi` |
+| `AvoidDuplicateLiterals` | Same string 4 times, e.g. `@WithName("api-key")` in a `@ConfigMapping` | Drop `@WithName` when it equals the default kebab-case name (`apiKey()` reads `api-key`). |
+| `CloseResource` | `AutoCloseable` that PMD cannot see closed (a CDI `Instance.Handle`, a resource closed in a helper) | Close it with `try (x)` in the same method. If closing is wrong, `@SuppressWarnings("PMD.CloseResource")` with a comment that says why. |
+
+To check before you push (static, builds nothing), run the PMD 7 CLI with the repo ruleset on the changed files:
+`pmd check -R pmd-ruleset.xml --use-version java-21 --aux-classpath <target/classes + API jars> -d <files>`.
+Without the aux classpath, PMD reports false `UnnecessaryImport` and `InvalidLogMessageFormat`.
 
 ---
 
