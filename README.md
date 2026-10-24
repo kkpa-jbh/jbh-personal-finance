@@ -25,10 +25,11 @@ It is one service of the JBH system. How it connects to the other services (gate
 
 ## Run it
 
-You need Java 21, Docker (for the database tests) and PostgreSQL on `localhost:5432`.
+You need Java 21, `unzip` (the Maven wrapper uses it), Docker (for the database tests) and PostgreSQL on `localhost:5432`.
 
 ```bash
-# 1. Env vars. Dev mode has local defaults, so this is optional for a first run.
+# 1. Env vars. Optional for a first run: without .env, dev mode uses the password postgres.
+#    If you copy it, set DATABASE_PASSWORD to your local PostgreSQL password.
 cp .env.example .env
 
 # 2. Database jbh_finance and one schema per module
