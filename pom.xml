@@ -26,6 +26,10 @@
           <artifactId>maven-surefire-plugin</artifactId>
           <configuration>
             <useModulePath>true</useModulePath> <!-- Ensures compatibility with Java 9+ JPMS / module-info.java-->
+            <!-- Docker 29+ accepts only API 1.44+. Testcontainers 1.20 falls back to 1.32 and fails with 400. -->
+            <environmentVariables>
+              <DOCKER_API_VERSION>1.44</DOCKER_API_VERSION>
+            </environmentVariables>
           </configuration>
           <groupId>org.apache.maven.plugins</groupId>
           <version>${maven-surefire-plugin.version}</version>
