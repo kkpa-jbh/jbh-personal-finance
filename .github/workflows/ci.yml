@@ -28,16 +28,16 @@ jobs:
         uses: actions/checkout@v4
 
       # Step 2: Install Java 21 (required for Quarkus and project)
-      # Uses Eclipse Temurin JDK distribution with Maven dependency caching
+      # Uses Eclipse Temurin JDK distribution
       - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: maven
 
       # Step 3: Cache Maven dependencies to speed up subsequent builds
       # Caches ~/.m2 (Maven local repository) based on pom.xml changes
+      # This is the only ~/.m2 cache: security-scan restores it by this key.
       - name: Cache Maven dependencies
         uses: actions/cache@v4
         with:
