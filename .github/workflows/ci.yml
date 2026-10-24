@@ -151,28 +151,43 @@ jobs:
       # Step 1: Download source code (needed for file system scan)
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      # Step 2: Scan for known vulnerabilities in dependencies and code
+
+      # Step 2: Restore the ~/.m2 cache that test-and-analyze saved (same key).
+      # Trivy reads parent POMs from it instead of downloading them.
+      - name: Restore Maven dependencies
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      # Step 3: Scan for known vulnerabilities in dependencies and code
       # Uses file system scan to check both dependencies and source code
       # Outputs results directly to build log (no Advanced Security required)
+      # TRIVY_OFFLINE_SCAN: no calls to Maven Central. It blocks shared runner IPs
+      # with "429 Too Many Requests". A POM missing from ~/.m2 is skipped.
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
+        env:
+          TRIVY_OFFLINE_SCAN: true
         with:
           scan-type: 'fs'
           scan-ref: '.'
           format: 'table'
           exit-code: '0'
 
-      # Step 3: Generate Trivy report as artifact (alternative to Security tab)
+      # Step 4: Generate Trivy report as artifact (alternative to Security tab)
       - name: Generate Trivy report file
         uses: aquasecurity/trivy-action@master
+        env:
+          TRIVY_OFFLINE_SCAN: true
         with:
           scan-type: 'fs'
           scan-ref: '.'
           format: 'json'
           output: 'trivy-results.json'
 
-      # Step 4: Archive Trivy security report as build artifact
+      # Step 5: Archive Trivy security report as build artifact
       - name: Archive Trivy security report
         uses: actions/upload-artifact@v4
         if: always()
