@@ -226,8 +226,8 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
   }
 
   /**
-   * Core movement processing pipeline. Validates, syncs product balance, persists, and updates the
-   * monthly balance in a single transactional unit.
+   * Core movement processing pipeline. Locks the product, validates, syncs the product balance,
+   * persists, and updates the monthly balance in one transaction.
    *
    * <p>Steps:
    *
@@ -236,7 +236,7 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
    *   <li>Syncs the product balance via {@link ProductLifecycleService#syncByMovement}.
    *   <li>Validates the movement against the specific product-type rules.
    *   <li>Persists the product balance (always) and the movement (unless {@link
-   *       ProcessMovementOptions#movementToReverse()} is {@code true}) inside a {@link UnitOfWork}.
+   *       ProcessMovementOptions#movementToReverse()} is {@code true}).
    *   <li>Optionally syncs the monthly balance if the product type requires it.
    * </ol>
    *
@@ -263,6 +263,21 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
       throw new GenericSpecificationException("Process Movement options cannot be null");
     }
 
+    return unitOfWork.executeInTransaction(
+        () -> processMovementLocked(movementDTO, productPK, inputMovOptions));
+  }
+
+  /**
+   * Runs inside the transaction of {@link #processMovement}. The product row lock is the first
+   * statement, so two requests for the same product, on any instance, run one after the other.
+   */
+  private AddMovementResultDTO processMovementLocked(
+      final MovementDTO movementDTO,
+      final ProductPK productPK,
+      final ProcessMovementOptionsVO inputMovOptions)
+      throws BusinessException {
+    productLifecycleService.lockForUpdate(productPK.productId());
+
     final boolean movementToReverse = inputMovOptions.operation().toRemove();
 
     // Validates that the movement period is not locked by an official monthly report
@@ -283,20 +298,16 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
     // Applies product-type-specific business rules (e.g. CDT cannot have withdrawals)
     validateMovementByProductType(syncedAccountDTO, movementDTO);
 
-    // Atomically persists the movement and the updated product balance
-    unitOfWork.execute(
-        () -> {
-          if (JbhBooleanUtils.isFalse(movementToReverse)) {
-            log.info("Persisting Movement {} ", movementDTO.movementDate());
-            persistMovementDTO(movementDTO);
-          } else if (movementToReverse) {
-            log.info("Deleting Movement {} ", movementDTO.movementDate());
-            movementLifecycleService.delete(movementDTO.id().value());
-          }
+    if (JbhBooleanUtils.isFalse(movementToReverse)) {
+      log.info("Persisting Movement {} ", movementDTO.movementDate());
+      persistMovementDTO(movementDTO);
+    } else {
+      log.info("Deleting Movement {} ", movementDTO.movementDate());
+      movementLifecycleService.delete(movementDTO.id().value());
+    }
 
-          productLifecycleService.save(syncedAccountDTO);
-          log.info("Movement and Account {} persisted successfully", syncedAccountDTO.name());
-        });
+    productLifecycleService.save(syncedAccountDTO);
+    log.info("Movement and Account {} persisted successfully", syncedAccountDTO.name());
 
     // Updates (or creates) the monthly balance entry if the product type requires tracking it
     log.info("Syncing Monthly Balance for new movement {}", movementDTO);

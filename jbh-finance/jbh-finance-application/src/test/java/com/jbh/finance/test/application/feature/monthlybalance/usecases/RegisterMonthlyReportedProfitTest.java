@@ -4,7 +4,7 @@ import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.test.testfixtures.builders.TestDataFactory.getAddMonthlyBalanceCommandsWithProfit;
 import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.DEFAULT_ACCOUNT_NAME;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.delayTests;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.awaitBackgroundTasks;
 import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createBasicAccountCommand;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -102,8 +102,8 @@ public class RegisterMonthlyReportedProfitTest {
 
     addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
 
-    UseCaseFixtureBuilder.delayTests();
-    UseCaseFixtureBuilder.delayTests();
+    UseCaseFixtureBuilder.awaitBackgroundTasks();
+    UseCaseFixtureBuilder.awaitBackgroundTasks();
   }
 
   @Test
@@ -294,11 +294,7 @@ public class RegisterMonthlyReportedProfitTest {
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
-    try {
-      Thread.sleep(Duration.ofSeconds(2).toMillis());
-    } catch (final InterruptedException e) {
-      throw new RuntimeException(e);
-    }
+    UseCaseFixtureBuilder.awaitBackgroundTasks();
   }
 
   @Test
@@ -493,6 +489,7 @@ public class RegisterMonthlyReportedProfitTest {
         finalAccountBalance.movementBalance(),
         "Movement Balance");
 
+    awaitBackgroundTasks();
     // Assertions for the next month
     final var nextPeriod = currentCommand.monthlyPeriod().plusMonths(1);
     final MonthlyBalanceDTO nextMonthBalance =
@@ -574,7 +571,7 @@ public class RegisterMonthlyReportedProfitTest {
   void month6ProfitReport202501() throws BusinessException {
     ++commandIndex;
 
-    delayTests();
+    awaitBackgroundTasks();
 
     final AddMonthlyBalanceCommand command = getCurrentCommand();
     final AddMonthlyBalanceCommand previousCommand = getPreviousCommand();
@@ -626,6 +623,7 @@ public class RegisterMonthlyReportedProfitTest {
     assertEquals(command.closingBalance(), finalAccountBalance.currentBalance(), "Account Balance");
     assertEquals(new BigDecimal("1030.00"), finalAccountBalance.movementBalance());
 
+    awaitBackgroundTasks();
     // Assertions for the next month 202502
     final var nextPeriod = command.monthlyPeriod().plusMonths(1);
     final MonthlyBalanceDTO nextMonthBalance =
@@ -673,11 +671,7 @@ public class RegisterMonthlyReportedProfitTest {
         useCaseTest.registerOfficialMonthlyBalance(runningDate, userId, accountId, command);
     assertNotNull(finalReportedMonthlyBalance);
 
-    try {
-      Thread.sleep(1000l);
-    } catch (final InterruptedException e) {
-      throw new RuntimeException(e);
-    }
+    UseCaseFixtureBuilder.awaitBackgroundTasks();
 
     verify(accountMovementRepository, times(2)).save(any(MovementDTO.class));
 

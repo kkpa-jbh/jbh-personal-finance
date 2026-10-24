@@ -9,6 +9,9 @@
 - All modules are packaged together into one deployment artifact
 - Modules are separated logically but deployed as a monolith
 - Clear module boundaries allow future microservices extraction if needed
+- Runs on port 7777 (`quarkus.http.port`) and registers in Consul as `jbh-personal-finance`
+- Runs as more than one instance. Every design must stay correct with 2 or more instances
+  (see "Horizontal scaling" in `../CLAUDE.md`)
 
 ### Budget Constraint
 

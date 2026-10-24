@@ -66,7 +66,9 @@ public class LlmComparison {
   }
 
   // A background task: any failure is logged here, or it would be lost.
-  @SuppressWarnings("PMD.AvoidCatchingGenericException")
+  // CloseResource: every StatementLlm is @ApplicationScoped, so Handle.close() does nothing,
+  // and the async run below still needs handle.get().
+  @SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.CloseResource"})
   private void compare(final String statementText, final ProviderRun activeRun) {
     try {
       final List<CompletableFuture<ProviderRun>> others = new ArrayList<>();
@@ -110,6 +112,8 @@ public class LlmComparison {
   }
 
   /** The bean class name of {@code active}. A CDI client proxy is a subclass of the bean class. */
+  // CloseResource: the handles hold @ApplicationScoped beans; Handle.close() does nothing.
+  @SuppressWarnings("PMD.CloseResource")
   private String providerName(final StatementLlm active) {
     for (final Instance.Handle<StatementLlm> handle : llms.handles()) {
       final Class<?> beanClass = handle.getBean().getBeanClass();

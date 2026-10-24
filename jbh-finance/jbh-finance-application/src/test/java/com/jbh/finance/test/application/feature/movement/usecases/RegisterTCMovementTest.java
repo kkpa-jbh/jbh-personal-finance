@@ -66,7 +66,7 @@ public class RegisterTCMovementTest {
     addMovementUseCase = UseCaseFixtureBuilder.buildAddMovementUseCase(accountMovementRepository);
     monthlyBalanceService = UseCaseFixtureBuilder.buildProcessMonthlyBalanceSrv();
 
-    UseCaseFixtureBuilder.delayTests();
+    UseCaseFixtureBuilder.awaitBackgroundTasks();
   }
 
   @Test
@@ -157,7 +157,7 @@ public class RegisterTCMovementTest {
 
     assertProduct(expectedAccount, updatedAccount);
 
-    UseCaseFixtureBuilder.delayTests();
+    UseCaseFixtureBuilder.awaitBackgroundTasks();
     LOG.info("Checking Monthly Balance for period in test {} ", period);
 
     final MonthlyBalanceDTO actualMonthlyBalance =
@@ -204,7 +204,7 @@ public class RegisterTCMovementTest {
 
     assertProduct(expectedAccount, updatedAccount);
 
-    UseCaseFixtureBuilder.delayTests();
+    UseCaseFixtureBuilder.awaitBackgroundTasks();
     LOG.info("Checking Monthly Balance for period in test {} ", period);
 
     final MonthlyBalanceDTO actualMonthlyBalance =
@@ -265,7 +265,7 @@ public class RegisterTCMovementTest {
 
     assertProduct(expectedAccount, updatedAccount);
 
-    UseCaseFixtureBuilder.delayTests();
+    UseCaseFixtureBuilder.awaitBackgroundTasks();
     LOG.info("Checking Monthly Balance for period in test {} ", period);
 
     final MonthlyBalanceDTO actualMonthlyBalance =

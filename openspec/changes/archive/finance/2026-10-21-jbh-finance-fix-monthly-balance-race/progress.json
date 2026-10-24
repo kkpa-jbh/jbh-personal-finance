@@ -1,0 +1,1060 @@
+{
+  "schema_version": 1,
+  "kind": "change",
+  "change": "jbh-finance-fix-monthly-balance-race",
+  "module": "jbh-finance",
+  "roadmap": null,
+  "request": "continue (resumed from: fix the race in monthly balance sync found by RegisterMonthlyReportedProfitTest; plan the fix, remove Thread.sleep waits, extend the JBH-62 change; then: designs must work with more than one instance)",
+  "status": "archived",
+  "rollup": {
+    "current": [],
+    "pending": [],
+    "blocked": [],
+    "done": [
+      "1.1",
+      "1.2",
+      "1.3",
+      "2.1",
+      "2.2",
+      "2.3",
+      "3.1",
+      "3.2",
+      "4.1",
+      "4.2",
+      "4.3",
+      "5.1",
+      "5.2",
+      "5.3",
+      "5.4",
+      "5.5",
+      "6.1",
+      "6.2",
+      "6.3",
+      "6.4",
+      "7.1",
+      "7.2",
+      "7.3",
+      "7.4",
+      "7.5"
+    ]
+  },
+  "created_at": "2026-10-19T21:12:50Z",
+  "updated_at": "2026-10-21T23:38:53Z",
+  "leader": {
+    "assistant": "Claude Code",
+    "model": "claude-opus-5-5"
+  },
+  "git": {
+    "strategy": "auto",
+    "branch": "ft/CH1-JBH-62-jbh-finance-fix-monthly-balance-race",
+    "base": "0cb3b19",
+    "ticket": "JBH-62",
+    "ticket_url": "https://linear.app/kkpa/issue/JBH-62/jbh-finance-fix-lost-update-in-the-async-monthly-balance-sync",
+    "ticket_tracker": "linear",
+    "created_at": "2026-10-19T21:12:50Z"
+  },
+  "tasks": [
+    {
+      "id": "1.1",
+      "title": "AsyncTaskExecutorImpl: one shared single-thread executor per instance",
+      "module": "jbh-finance",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-19T21:13:58Z",
+      "completed_at": "2026-10-19T21:18:25Z",
+      "duration_seconds": 267,
+      "notes": "One ThreadPoolExecutor per instance (core/max 1, unbounded queue, daemon, 30 s core timeout). Per-task executor and shutdown/close removed. Logging, DLQ, metadata unchanged.",
+      "budget": {
+        "five_hour_pct_start": 27,
+        "five_hour_pct_end": 32,
+        "five_hour_pct_delta": 5,
+        "cost_usd_delta": null,
+        "context_pct_end": 26,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 1 measured jointly (tasks 1.1-3.2); subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "1.2",
+      "title": "AsyncTaskExecutor.awaitIdle with a sentinel task",
+      "module": "jbh-finance",
+      "depends_on": [
+        "1.1"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-19T21:13:58Z",
+      "completed_at": "2026-10-19T21:18:25Z",
+      "duration_seconds": 267,
+      "notes": "awaitIdle(Duration) with sentinel on the same thread; timeout, interrupt, worker-thread throw IllegalStateException; failed earlier task does not fail the wait. JavaDoc: never inside a transaction.",
+      "budget": {
+        "five_hour_pct_start": 27,
+        "five_hour_pct_end": 32,
+        "five_hour_pct_delta": 5,
+        "cost_usd_delta": null,
+        "context_pct_end": 26,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 1 measured jointly (tasks 1.1-3.2); subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "1.3",
+      "title": "AsyncTaskExecutorImplTest: 6 new methods (order + awaitIdle)",
+      "module": "jbh-finance",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-19T21:13:58Z",
+      "completed_at": "2026-10-19T21:18:25Z",
+      "duration_seconds": 267,
+      "notes": "6 contract tests appended to AsyncTaskExecutorImplTest; existing methods untouched.",
+      "budget": {
+        "five_hour_pct_start": 27,
+        "five_hour_pct_end": 32,
+        "five_hour_pct_delta": 5,
+        "cost_usd_delta": null,
+        "context_pct_end": 26,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 1 measured jointly (tasks 1.1-3.2); subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "2.1",
+      "title": "UnitOfWork.executeInTransaction + TransactionalWork",
+      "module": "jbh-finance",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-19T21:13:58Z",
+      "completed_at": "2026-10-19T21:18:25Z",
+      "duration_seconds": 267,
+      "notes": "UnitOfWork.executeInTransaction + nested TransactionalWork<T>.",
+      "budget": {
+        "five_hour_pct_start": 27,
+        "five_hour_pct_end": 32,
+        "five_hour_pct_delta": 5,
+        "cost_usd_delta": null,
+        "context_pct_end": 26,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 1 measured jointly (tasks 1.1-3.2); subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "2.2",
+      "title": "lockForUpdate on ProductRepository and ProductLifecycleService",
+      "module": "jbh-finance",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-19T21:13:58Z",
+      "completed_at": "2026-10-19T21:18:25Z",
+      "duration_seconds": 267,
+      "notes": "lockForUpdate(ProductId) on ProductRepository, ProductLifecycleService, Impl (delegates).",
+      "budget": {
+        "five_hour_pct_start": 27,
+        "five_hour_pct_end": 32,
+        "five_hour_pct_delta": 5,
+        "cost_usd_delta": null,
+        "context_pct_end": 26,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 1 measured jointly (tasks 1.1-3.2); subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "2.3",
+      "title": "Test fakes: UnitOfWorkTest lock, InMemoryProductRepository.lockForUpdate",
+      "module": "jbh-finance",
+      "depends_on": [
+        "2.1",
+        "2.2"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-19T21:13:58Z",
+      "completed_at": "2026-10-19T21:18:25Z",
+      "duration_seconds": 267,
+      "notes": "UnitOfWorkTest holds one static ReentrantLock per call; InMemoryProductRepository.lockForUpdate throws when the product is missing.",
+      "budget": {
+        "five_hour_pct_start": 27,
+        "five_hour_pct_end": 32,
+        "five_hour_pct_delta": 5,
+        "cost_usd_delta": null,
+        "context_pct_end": 26,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 1 measured jointly (tasks 1.1-3.2); subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "3.1",
+      "title": "ProductRepositoryAdapter.lockForUpdate (PESSIMISTIC_WRITE, MANDATORY)",
+      "module": "jbh-finance",
+      "depends_on": [
+        "2.2"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-19T21:13:58Z",
+      "completed_at": "2026-10-19T21:18:25Z",
+      "duration_seconds": 267,
+      "notes": "MANDATORY tx; find(\"id\", uuid).withLock(PESSIMISTIC_WRITE) because PanacheRepository id type is Long, so findById(UUID, lock) does not compile. Same behavior.",
+      "budget": {
+        "five_hour_pct_start": 27,
+        "five_hour_pct_end": 32,
+        "five_hour_pct_delta": 5,
+        "cost_usd_delta": null,
+        "context_pct_end": 26,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 1 measured jointly (tasks 1.1-3.2); subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "3.2",
+      "title": "QuarkusUnitOfWork: rollback on any exception and rethrow",
+      "module": "jbh-finance",
+      "depends_on": [
+        "2.1"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-19T21:13:58Z",
+      "completed_at": "2026-10-19T21:18:25Z",
+      "duration_seconds": 267,
+      "notes": "@Transactional(rollbackOn = Exception.class); execute logs and rethrows; executeInTransaction rethrows same exception; executeWithResult unchanged; FIXMEs removed.",
+      "budget": {
+        "five_hour_pct_start": 27,
+        "five_hour_pct_end": 32,
+        "five_hour_pct_delta": 5,
+        "cost_usd_delta": null,
+        "context_pct_end": 26,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 1 measured jointly (tasks 1.1-3.2); subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "4.1",
+      "title": "ProcessMonthlyBalanceServiceImpl: sync save, locked background adjust",
+      "module": "jbh-finance",
+      "depends_on": [
+        "1.1",
+        "2.1",
+        "2.2"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:03:40Z",
+      "completed_at": "2026-10-20T02:11:36Z",
+      "duration_seconds": 476,
+      "notes": "UnitOfWork is the 4th constructor argument. persistBalancesAsync saves on the caller thread; private submitAdjustTask(accountId, balances) submits only the adjust, which runs executeInTransaction with lockForUpdate first.",
+      "budget": {
+        "five_hour_pct_start": 2,
+        "five_hour_pct_end": 10,
+        "five_hour_pct_delta": 8,
+        "cost_usd_delta": 2.32,
+        "context_pct_end": 14,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 2 measured jointly (tasks 4.1-6.3), incl. fix round 1; subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "4.2",
+      "title": "ProcessMonthlyBalanceService.awaitPendingSync + lock precondition JavaDoc",
+      "module": "jbh-finance",
+      "depends_on": [
+        "1.2",
+        "4.1"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:03:40Z",
+      "completed_at": "2026-10-20T02:11:36Z",
+      "duration_seconds": 476,
+      "notes": "awaitPendingSync() calls awaitIdle with a 10 s constant. Lock precondition JavaDoc on the 3 sync methods.",
+      "budget": {
+        "five_hour_pct_start": 2,
+        "five_hour_pct_end": 10,
+        "five_hour_pct_delta": 8,
+        "cost_usd_delta": 2.32,
+        "context_pct_end": 14,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 2 measured jointly (tasks 4.1-6.3), incl. fix round 1; subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "4.3",
+      "title": "ProcessMonthlyBalanceServiceImplTest (5 tests)",
+      "module": "jbh-finance",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:03:40Z",
+      "completed_at": "2026-10-20T02:11:36Z",
+      "duration_seconds": 476,
+      "notes": "ProcessMonthlyBalanceServiceImplTest, 5 tests. Product service is a Mockito mock instead of the fixture service (see decisions D6).",
+      "budget": {
+        "five_hour_pct_start": 2,
+        "five_hour_pct_end": 10,
+        "five_hour_pct_delta": 8,
+        "cost_usd_delta": 2.32,
+        "context_pct_end": 14,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 2 measured jointly (tasks 4.1-6.3), incl. fix round 1; subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "5.1",
+      "title": "ProcessMovementServiceImpl.processMovement in one locked transaction",
+      "module": "jbh-finance",
+      "depends_on": [
+        "2.1",
+        "2.2"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:03:40Z",
+      "completed_at": "2026-10-20T02:11:36Z",
+      "duration_seconds": 476,
+      "notes": "processMovement runs in one executeInTransaction with lockForUpdate first; old inner execute block is plain code.",
+      "budget": {
+        "five_hour_pct_start": 2,
+        "five_hour_pct_end": 10,
+        "five_hour_pct_delta": 8,
+        "cost_usd_delta": 2.32,
+        "context_pct_end": 14,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 2 measured jointly (tasks 4.1-6.3), incl. fix round 1; subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "5.2",
+      "title": "RegisterMonthlyBalanceInputPort: two locked transactions, wait between",
+      "module": "jbh-finance",
+      "depends_on": [
+        "2.1",
+        "2.2",
+        "4.2"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:03:40Z",
+      "completed_at": "2026-10-20T02:11:36Z",
+      "duration_seconds": 476,
+      "notes": "Two locked transactions; awaitPendingSync() between them only after an initial movement. Thread.sleep and its FIXME removed.",
+      "budget": {
+        "five_hour_pct_start": 2,
+        "five_hour_pct_end": 10,
+        "five_hour_pct_delta": 8,
+        "cost_usd_delta": 2.32,
+        "context_pct_end": 14,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 2 measured jointly (tasks 4.1-6.3), incl. fix round 1; subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "5.3",
+      "title": "AddMovementsUploadedFileInputPort in one locked transaction",
+      "module": "jbh-finance",
+      "depends_on": [
+        "2.1",
+        "2.2",
+        "4.1"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:03:40Z",
+      "completed_at": "2026-10-20T02:11:36Z",
+      "duration_seconds": 476,
+      "notes": "uploadMovementsFromFile runs in one locked transaction after validation; persistMovementAndAccountUOW inlined.",
+      "budget": {
+        "five_hour_pct_start": 2,
+        "five_hour_pct_end": 10,
+        "five_hour_pct_delta": 8,
+        "cost_usd_delta": 2.32,
+        "context_pct_end": 14,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 2 measured jointly (tasks 4.1-6.3), incl. fix round 1; subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "5.4",
+      "title": "Wiring: ProductUseCasesCDIConfig and UseCaseFixtureBuilder",
+      "module": "jbh-finance",
+      "depends_on": [
+        "4.1",
+        "5.2"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:03:40Z",
+      "completed_at": "2026-10-20T02:11:36Z",
+      "duration_seconds": 476,
+      "notes": "ProductUseCasesCDIConfig and UseCaseFixtureBuilder pass the new constructor arguments. Fix round 1: removed extra args wrongly added to AddTransfer and Liquidate builders.",
+      "budget": {
+        "five_hour_pct_start": 2,
+        "five_hour_pct_end": 10,
+        "five_hour_pct_delta": 8,
+        "cost_usd_delta": 2.32,
+        "context_pct_end": 14,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 2 measured jointly (tasks 4.1-6.3), incl. fix round 1; subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "5.5",
+      "title": "New lock-order and register tests (3 classes, 7 tests)",
+      "module": "jbh-finance",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:03:40Z",
+      "completed_at": "2026-10-20T02:11:36Z",
+      "duration_seconds": 476,
+      "notes": "RegisterMonthlyBalanceInputPortTest (4), ProcessMovementServiceImplLockTest (2), AddMovementsUploadedFileInputPortLockTest (1). Shared new fake RecordingUnitOfWork (see decisions D6).",
+      "budget": {
+        "five_hour_pct_start": 2,
+        "five_hour_pct_end": 10,
+        "five_hour_pct_delta": 8,
+        "cost_usd_delta": 2.32,
+        "context_pct_end": 14,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 2 measured jointly (tasks 4.1-6.3), incl. fix round 1; subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "6.1",
+      "title": "UseCaseFixtureBuilder: shared service, awaitBackgroundTasks, resetState waits",
+      "module": "jbh-finance",
+      "depends_on": [
+        "4.2",
+        "5.4"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:13:16Z",
+      "completed_at": "2026-10-20T02:13:43Z",
+      "duration_seconds": 27,
+      "notes": "Shared static ProcessMonthlyBalanceService in UseCaseFixtureBuilder; delayTests renamed awaitBackgroundTasks (awaitPendingSync); resetState waits first. Field placed after the in-memory repos it uses.",
+      "budget": {
+        "five_hour_pct_start": 12,
+        "five_hour_pct_end": 14,
+        "five_hour_pct_delta": 2,
+        "cost_usd_delta": 0.72,
+        "context_pct_end": 13,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 3 measured jointly (tasks 6.1-7.3), incl. leader test runs; subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "6.2",
+      "title": "Replace test sleeps one-for-one with awaitBackgroundTasks",
+      "module": "jbh-finance",
+      "depends_on": [
+        "6.1"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:13:16Z",
+      "completed_at": "2026-10-20T02:13:43Z",
+      "duration_seconds": 27,
+      "notes": "Every Thread.sleep/delayTests in 12 test classes and DeleteMovementUCFixture replaced one-for-one; one wait added in month4ProfitReport202411 and month6ProfitReport202501. No assertion changed.",
+      "budget": {
+        "five_hour_pct_start": 12,
+        "five_hour_pct_end": 14,
+        "five_hour_pct_delta": 2,
+        "cost_usd_delta": 0.72,
+        "context_pct_end": 13,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 3 measured jointly (tasks 6.1-7.3), incl. leader test runs; subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "6.3",
+      "title": "Constructor arguments in 3 existing test classes",
+      "module": "jbh-finance",
+      "depends_on": [
+        "4.1",
+        "5.2"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:03:40Z",
+      "completed_at": "2026-10-20T02:11:36Z",
+      "duration_seconds": 476,
+      "notes": "new UnitOfWorkTest() added in 3 existing test classes; no assertion changed.",
+      "budget": {
+        "five_hour_pct_start": 2,
+        "five_hour_pct_end": 10,
+        "five_hour_pct_delta": 8,
+        "cost_usd_delta": 2.32,
+        "context_pct_end": 14,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 2 measured jointly (tasks 4.1-6.3), incl. fix round 1; subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "6.4",
+      "title": "Grep check: no Thread.sleep or delayTests left",
+      "module": "jbh-finance",
+      "depends_on": [
+        "5.2",
+        "6.2"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:13:16Z",
+      "completed_at": "2026-10-20T02:13:43Z",
+      "duration_seconds": 27,
+      "notes": "Grep check passes: test sleeps only in AsyncTaskExecutorImplTest; none in src/main.",
+      "budget": {
+        "five_hour_pct_start": 12,
+        "five_hour_pct_end": 14,
+        "five_hour_pct_delta": 2,
+        "cost_usd_delta": 0.72,
+        "context_pct_end": 13,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 3 measured jointly (tasks 6.1-7.3), incl. leader test runs; subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "7.1",
+      "title": "Check every sync caller runs in a locked transaction",
+      "module": "jbh-finance",
+      "depends_on": [
+        "5.1",
+        "5.2",
+        "5.3"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-20T02:13:16Z",
+      "completed_at": "2026-10-20T02:13:43Z",
+      "duration_seconds": 27,
+      "notes": "All sync callers lock first: ProcessMovementServiceImpl.processMovementLocked and AddMovementsUploadedFileInputPort (via MonthlyBalanceSyncForUploadedMovements), both inside executeInTransaction.",
+      "budget": {
+        "five_hour_pct_start": 12,
+        "five_hour_pct_end": 14,
+        "five_hour_pct_delta": 2,
+        "cost_usd_delta": 0.72,
+        "context_pct_end": 13,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 3 measured jointly (tasks 6.1-7.3), incl. leader test runs; subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "7.2",
+      "title": "Run the target suites and infra test-compile",
+      "module": "jbh-finance",
+      "depends_on": [
+        "6.4",
+        "7.1"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-10-20T02:14:00Z",
+      "completed_at": "2026-10-20T02:15:24Z",
+      "duration_seconds": 84,
+      "notes": "Leader ran target suites: 56 tests, 0 failures; jbh-finance-infra test-compile exit 0.",
+      "budget": {
+        "five_hour_pct_start": 12,
+        "five_hour_pct_end": 14,
+        "five_hour_pct_delta": 2,
+        "cost_usd_delta": 0.72,
+        "context_pct_end": 13,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 3 measured jointly (tasks 6.1-7.3), incl. leader test runs; subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "7.3",
+      "title": "Run the full module suite 5 times; report run time",
+      "module": "jbh-finance",
+      "depends_on": [
+        "7.2"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-10-20T02:14:00Z",
+      "completed_at": "2026-10-20T02:15:24Z",
+      "duration_seconds": 84,
+      "notes": "Leader ran full module suite 5 times: 319 tests, 0 failures each. RegisterMonthlyReportedProfitTest about 33 s before, 0.035-0.053 s after.",
+      "budget": {
+        "five_hour_pct_start": 12,
+        "five_hour_pct_end": 14,
+        "five_hour_pct_delta": 2,
+        "cost_usd_delta": 0.72,
+        "context_pct_end": 13,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave 3 measured jointly (tasks 6.1-7.3), incl. leader test runs; subagent cost is not in the leader session cost"
+      }
+    },
+    {
+      "id": "7.4",
+      "title": "Manual 2-instance check (user, optional)",
+      "module": "jbh-finance",
+      "depends_on": [
+        "7.2"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "user",
+      "model": null,
+      "started_at": "2026-10-21T23:38:45Z",
+      "completed_at": "2026-10-21T23:38:45Z",
+      "duration_seconds": 0,
+      "notes": "Closed by user decision D12: the automated DB lock test 7.5 (two threads, real PostgreSQL) covers the manual 2-instance check. Not run by hand.",
+      "budget": null
+    },
+    {
+      "id": "7.5",
+      "title": "Automated DB lock test: 2 concurrent movements, same product and month, real Postgres",
+      "module": "jbh-finance",
+      "depends_on": [
+        "7.2"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-10-20T15:10:52Z",
+      "completed_at": "2026-10-20T15:19:04Z",
+      "duration_seconds": 492,
+      "notes": "DB lock test in jbh-finance-infra, opt-in (tag database). 5/5 pass on Dev Services Postgres. With the lock off: 5/5 fail (lost update). Fix rounds: search_path set by the test init script.",
+      "budget": {
+        "five_hour_pct_start": null,
+        "five_hour_pct_end": 25,
+        "five_hour_pct_delta": null,
+        "cost_usd_delta": 5.92,
+        "context_pct_end": 22,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "five_hour unavailable at start (bucket reset); includes artifact step, 2 fix rounds and leader runs; subagent cost not included"
+      }
+    }
+  ],
+  "review": {
+    "status": "reviewer-approved",
+    "agent": "jbh-finance-reviewer",
+    "brief": "Review JBH-62 diff 0cb3b19..HEAD in jbh-finance (module code only). User-confirmed design (decision D3): async adjust + product row lock (PESSIMISTIC_WRITE, TxType.MANDATORY) as FIRST statement of every balance-writing transaction; in-JVM lock rejected; @Version rejected; QuarkusUnitOfWork now rethrows and rolls back on any Exception. Check: (1) every flow in design.md D3 table locks first inside one transaction, incl. background adjust task, register (two transactions, D7) and upload (D9); (2) no in-JVM state is used for correctness (project 'Horizontal scaling' rule); the single-thread executor (D2) is ordering-only; (3) no transaction waits for a background task (D6); awaitPendingSync runs outside transactions; (4) no Thread.sleep left in src/main or tests except AsyncTaskExecutorImplTest; existing test assertions unchanged; (5) Test contract in design.md: new test classes exist and check the stated expected values; accepted deviations (decision D6): shared fake RecordingUnitOfWork, Mockito ProductLifecycleService in ProcessMonthlyBalanceServiceImplTest. No DB migration (D10, unique constraint already exists). Signals: build + module suite (319 tests) and 5 repeat runs were run by the leader (assistantRunsTests), all green; task 7.4 (manual 2-instance check) is user-pending and optional. Judge test quality by reading the tests. Performance-Profile: none. ROUND 3 (scope extended by the user, decisions D8, D10): review only 4f79634..3842268 - task 7.5 opt-in DB lock test in jbh-finance-infra (pom, test profile, init SQL, test class) and the jbh-finance/AGENTS.md. Leader runs: 5/5 pass; with LockModeType.NONE 5/5 fail; infra suite green with the test skipped.",
+    "rounds": [
+      {
+        "round": 1,
+        "verdict": "changes-requested",
+        "findings": [
+          {
+            "id": "R1-1",
+            "severity": "major",
+            "status": "fixed",
+            "note": "jbh-finance-infra ProductUseCasesCDIConfig.java:113, 157, 225 (producer at :125-127): processMonthlyBalanceService() is a producer called as a plain method from other producers. Each call builds a new ProcessMonthlyBalanceServiceImpl with its own new AsyncTaskExecutorImpl(). So the PMBS that RegisterMonthlyBalanceInputPort gets (:225) is not the one inside accountMovementServiceApplication() (:113) that receives the initial movement's adjust task. awaitPendingSync() then waits on an idle executor and returns at once, so tx2 can write the report before the adjust (the ordering D7 replaces the 2 s sleep for). The row lock still protects data, but the order guarantee (D2, D6, D7) is lost in production. design.md D8 claim 'one @ApplicationScoped bean, so one executor' is not true for this wiring (unit tests use one shared instance, so they cannot see it). Fix: one shared instance for all uses (e.g. @Inject ProcessMonthlyBalanceService field, or a single field), and the same for ProcessMovementService used by register. If the leader proves ArC returns the one bean here, record the proof in design.md and close this.",
+            "triage": "accepted"
+          },
+          {
+            "id": "R1-2",
+            "severity": "minor",
+            "status": "fixed",
+            "note": "jbh-finance-infra StatementUseCasesCDIConfig.java:46: stray blank line added, unrelated file with no other change. Revert it.",
+            "triage": "accepted"
+          }
+        ],
+        "duration_seconds": 124,
+        "budget": {
+          "five_hour_pct_start": 16,
+          "five_hour_pct_end": 21,
+          "five_hour_pct_delta": 5,
+          "cost_usd_delta": 1.53,
+          "context_pct_end": 14,
+          "source": "statusline-cache",
+          "approx": true,
+          "note": "end read after leader triage, fixes and test runs; reviewer subagent cost is not in the leader session cost"
+        }
+      },
+      {
+        "round": 2,
+        "verdict": "approved",
+        "findings": [],
+        "duration_seconds": 12,
+        "budget": {
+          "five_hour_pct_start": 21,
+          "five_hour_pct_end": 23,
+          "five_hour_pct_delta": 2,
+          "cost_usd_delta": 0.44,
+          "context_pct_end": 15,
+          "source": "statusline-cache",
+          "approx": true,
+          "note": "re-verify only; reviewer subagent cost is not in the leader session cost"
+        }
+      },
+      {
+        "round": 3,
+        "verdict": "approved",
+        "findings": [],
+        "duration_seconds": 32,
+        "budget": {
+          "five_hour_pct_start": 25,
+          "five_hour_pct_end": 29,
+          "five_hour_pct_delta": 4,
+          "cost_usd_delta": 0.85,
+          "context_pct_end": 22,
+          "source": "statusline-cache",
+          "approx": true,
+          "note": "reviewer subagent cost is not in the leader session cost"
+        }
+      }
+    ]
+  },
+  "decisions": [
+    {
+      "id": "D1",
+      "at": "2026-10-19T21:12:50Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "leader wrote and extended the artifacts directly, no artifact worker",
+      "why": "Diagnosis and interview ran in this session; the user reviewed both briefings. A worker would re-derive the same context.",
+      "covered_by": null
+    },
+    {
+      "id": "D2",
+      "at": "2026-10-19T21:12:50Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "use the existing branch ft/CH1-JBH-62-... (no progress.json recorded it)",
+      "why": "Name matches the change; artifacts and .work-counter already committed there. User replied OK to the briefing that asked this.",
+      "covered_by": null
+    },
+    {
+      "id": "D3",
+      "at": "2026-10-19T21:12:50Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "option B: async adjust + product row lock (PESSIMISTIC_WRITE); include QuarkusUnitOfWork rollback fix",
+      "why": "New horizontal-scaling rule; in-JVM lock rejected. Option A (sync) and C (@Version) rejected by the user.",
+      "covered_by": "design.md D3, D5"
+    },
+    {
+      "id": "D4",
+      "at": "2026-10-19T21:12:50Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "unique constraint answer needs no action",
+      "why": "uk_monthly_balances_product_period UNIQUE (product_id, period) already exists in migration 001. No migration, database gate untouched.",
+      "covered_by": "design.md D10"
+    },
+    {
+      "id": "D5",
+      "at": "2026-10-19T21:12:50Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "3 waves: W1 ports+executor+infra+fakes; W2 all main flows + wiring + new tests + 6.3; W3 test sleep cleanup + checks",
+      "why": "Constructor changes in 4.1/5.2 break compilation unless wiring (5.4) and test args (6.3) land in the same wave.",
+      "covered_by": null
+    },
+    {
+      "id": "D6",
+      "at": "2026-10-20T02:11:36Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "accept two test-contract deviations: new shared fake RecordingUnitOfWork; Mockito ProductLifecycleService in ProcessMonthlyBalanceServiceImplTest",
+      "why": "Contract asks for a fake with an inTransaction flag; three classes share it. The mock avoids seeding the shared in-memory repo. Tests still check the contract.",
+      "covered_by": "design.md Test contract"
+    },
+    {
+      "id": "D7",
+      "at": "2026-10-20T02:15:24Z",
+      "scope": "task:7.4",
+      "made_by": "leader",
+      "decision": "advance to verify and review with 7.4 at awaiting-user-verification",
+      "why": "tasks.md marks 7.4 optional and not run by the pipeline; it needs 2 live instances, which the leader must not start. Listed at archive under Awaiting your verification.",
+      "covered_by": "tasks.md 7.4"
+    },
+    {
+      "id": "D8",
+      "at": "2026-10-20T02:26:33Z",
+      "scope": "task:7.5",
+      "made_by": "user",
+      "decision": "add task 7.5: automated DB-backed lock test (Postgres Dev Services, 2 threads) before archive",
+      "why": "Leader may not start services, so manual 7.4 cannot run here. The DB lock is the core of the fix and no test checks it.",
+      "covered_by": "tasks.md 7.5"
+    },
+    {
+      "id": "D9",
+      "at": "2026-10-20T02:26:33Z",
+      "scope": "task:7.5",
+      "made_by": "leader",
+      "decision": "dispatch 7.5 artifact step on opus (escalation)",
+      "why": "First @QuarkusTest in finance: module placement, JPMS, Dev Services, Consul off. Cross-cutting setup, more than sonnet's usual task.",
+      "covered_by": null
+    },
+    {
+      "id": "D10",
+      "at": "2026-10-20T15:10:46Z",
+      "scope": "task:7.5",
+      "made_by": "user",
+      "decision": "DB lock test is opt-in (tag database, excluded unless -Djbh.test.excludedGroups=none) and lives in jbh-finance-infra",
+      "why": "Never breaks a build without Docker; infra already has the beans, lock adapter and Liquibase. Run now to close 7.4.",
+      "covered_by": "design.md Test contract, tasks.md 7.5"
+    },
+    {
+      "id": "D11",
+      "at": "2026-10-20T15:10:46Z",
+      "scope": "task:7.5",
+      "made_by": "leader",
+      "decision": "implement 7.5 on the same opus worker via SendMessage",
+      "why": "It already holds the setup research (JPMS, Dev Services, JUnit pin). A fresh sonnet worker would redo it.",
+      "covered_by": null
+    },
+    {
+      "id": "D12",
+      "at": "2026-10-21T23:38:45Z",
+      "scope": "task:7.4",
+      "made_by": "user",
+      "decision": "task 7.5 covers the manual 2-instance check 7.4; mark 7.4 done without a manual run",
+      "why": "7.5 proves the row lock with two concurrent transactions on real PostgreSQL: 5/5 pass with the lock, 5/5 fail without it.",
+      "covered_by": "tasks.md 7.5"
+    }
+  ],
+  "events": [
+    {
+      "at": "2026-10-19T21:12:50Z",
+      "agent": "leader",
+      "event": "artifacts committed 9afd2d2 (rule commit b2f5175); progress.json created"
+    },
+    {
+      "at": "2026-10-19T21:13:58Z",
+      "agent": "leader",
+      "event": "dispatched worker wave 1 (tasks 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 3.1, 3.2) on sonnet; budget start five_hour=29 cost=8.528061599999997"
+    },
+    {
+      "at": "2026-10-19T21:13:58Z",
+      "agent": "leader",
+      "event": "Linear JBH-62: Todo -> In Progress (kkpa-pickup-linear-ticket in-progress)"
+    },
+    {
+      "at": "2026-10-19T21:18:25Z",
+      "agent": "leader",
+      "event": "wave 1 report accepted; worker gave placeholder timestamps (00:00:00Z), leader recorded dispatch/return times instead"
+    },
+    {
+      "at": "2026-10-19T21:18:25Z",
+      "agent": "leader",
+      "event": "wave 1 verified by the leader (assistantRunsTests): mvn -q -pl jbh-finance/jbh-finance-infra -am test-compile exit 0; mvn -pl jbh-finance/jbh-finance-application test exit 0, 307 tests, 0 failures"
+    },
+    {
+      "at": "2026-10-19T21:18:39Z",
+      "agent": "leader",
+      "event": "wave 1 committed e8a2741; checkpoint gate: five_hour 32%, context 26% (below 90/40); recommended /clear + resume before wave 2"
+    },
+    {
+      "at": "2026-10-20T02:03:40Z",
+      "agent": "leader",
+      "event": "resume in a fresh session; continue at Step 5 (wave 2)"
+    },
+    {
+      "at": "2026-10-20T02:03:40Z",
+      "agent": "leader",
+      "event": "dispatched worker wave 2 (tasks 4.1, 4.2, 4.3, 5.1, 5.2, 5.3, 5.4, 5.5, 6.3) on sonnet; budget start five_hour=2 cost=0.6612696"
+    },
+    {
+      "at": "2026-10-20T02:08:47Z",
+      "agent": "leader",
+      "event": "wave 2 report accepted; test-compile failed (extra args in AddTransfer/Liquidate builders); fix round 1 sent to the same worker"
+    },
+    {
+      "at": "2026-10-20T02:11:36Z",
+      "agent": "leader",
+      "event": "wave 2 verified by the leader (assistantRunsTests): mvn -q -pl jbh-finance/jbh-finance-infra -am test-compile exit 0; mvn -pl jbh-finance/jbh-finance-application test exit 0, 319 tests, 0 failures"
+    },
+    {
+      "at": "2026-10-20T02:13:10Z",
+      "agent": "leader",
+      "event": "wave 2 committed e3f3c4e; checkpoint gate: five_hour 10%, context 14% (below 90/40); recommended /clear + resume before wave 3"
+    },
+    {
+      "at": "2026-10-20T02:13:00Z",
+      "agent": "leader",
+      "event": "resume in a fresh session; continue at Step 5 (wave 3)"
+    },
+    {
+      "at": "2026-10-20T02:13:00Z",
+      "agent": "leader",
+      "event": "dispatched worker wave 3 (tasks 6.1, 6.2, 6.4, 7.1) on sonnet; budget start five_hour=12 cost=0.5375605999999999"
+    },
+    {
+      "at": "2026-10-20T02:15:24Z",
+      "agent": "leader",
+      "event": "wave 3 report accepted; worker did not tick tasks.md, leader ticked 6.1, 6.2, 6.4, 7.1, 7.2, 7.3"
+    },
+    {
+      "at": "2026-10-20T02:15:24Z",
+      "agent": "leader",
+      "event": "wave 3 verified by the leader (assistantRunsTests): mvn -q -pl jbh-finance/jbh-finance-infra -am test-compile exit 0; target suites exit 0, 56 tests, 0 failures; full module suite 5 runs, each exit 0, 319 tests, 0 failures"
+    },
+    {
+      "at": "2026-10-20T02:15:34Z",
+      "agent": "leader",
+      "event": "wave 3 committed ff7d8cd; checkpoint gate: five_hour 14%, context 13% (below 90/40); recommended /clear + resume before Step 6 verify and Step 7 review"
+    },
+    {
+      "at": "2026-10-20T02:16:40Z",
+      "agent": "leader",
+      "event": "resume in a fresh session; continue at Step 6 (verify)"
+    },
+    {
+      "at": "2026-10-20T02:17:02Z",
+      "agent": "leader",
+      "event": "Step 6 verified by the leader (assistantRunsTests): mvn -q -pl jbh-finance/jbh-finance-infra -am test-compile exit 0; mvn -pl jbh-finance/jbh-finance-application test exit 0, 319 tests, 0 failures; openspec validate --strict valid"
+    },
+    {
+      "at": "2026-10-20T02:17:19Z",
+      "agent": "leader",
+      "event": "dispatched reviewer jbh-finance-reviewer round 1 on sonnet; budget start five_hour=16 cost=0.6121178"
+    },
+    {
+      "at": "2026-10-20T02:19:23Z",
+      "agent": "leader",
+      "event": "reviewer round 1 returned changes-requested (R1-1 major, R1-2 minor); both accepted"
+    },
+    {
+      "at": "2026-10-20T02:21:48Z",
+      "agent": "leader",
+      "event": "round 1 fixes verified by the leader (assistantRunsTests): mvn -q -pl jbh-finance/jbh-finance-infra -am test-compile exit 0; mvn -pl jbh-finance/jbh-finance-application test exit 0, 319 tests, 0 failures; mvn -q -pl jbh-z-assembly -am package -DskipTests exit 0 (ArC bean validation)"
+    },
+    {
+      "at": "2026-10-20T02:21:48Z",
+      "agent": "leader",
+      "event": "triage round 1: R1-1 accepted, CDI does not proxy this.method() calls between producers; fixed with injected producer parameters (one executor per instance). R1-2 accepted, blank line reverted"
+    },
+    {
+      "at": "2026-10-20T02:22:27Z",
+      "agent": "leader",
+      "event": "round 1 fixes committed 4f79634; signalled jbh-finance-reviewer for round 2 re-verify; budget start five_hour=22 cost=2.3785251000000005"
+    },
+    {
+      "at": "2026-10-20T02:22:54Z",
+      "agent": "leader",
+      "event": "reviewer round 2 approved (review.status reviewer-approved set by the reviewer); change status reconciled; checkpoint gate: five_hour 23%, context 15% (below 90/40)"
+    },
+    {
+      "at": "2026-10-20T02:26:33Z",
+      "agent": "leader",
+      "event": "scope extended by the user after round 2 approval: task 7.5 appended; change back to in-progress; round 2 approval covers commits up to 4f79634, a new review round is needed for 7.5. Checker error on 7.4 at reviewer-approved noted as skill/checker mismatch"
+    },
+    {
+      "at": "2026-10-20T02:26:37Z",
+      "agent": "leader",
+      "event": "dispatched worker artifact step for task 7.5 (tasks.md + design.md test contract) on opus; budget start five_hour=24 cost=3.36"
+    },
+    {
+      "at": "2026-10-20T02:37:09Z",
+      "agent": "leader",
+      "event": "7.5 artifact step accepted (tasks.md 7.5, design.md test contract, new jbh-finance/AGENTS.md); openspec validate --strict valid; budget end five_hour=36 cost=7.34 (subagent cost not included). Waiting for user: opt-in vs always-on, test location"
+    },
+    {
+      "at": "2026-10-20T15:10:52Z",
+      "agent": "leader",
+      "event": "artifacts committed 6d9f21b; dispatched worker wave 4 (task 7.5) on opus via SendMessage; budget start five_hour=null (bucket reset) cost=7.52"
+    },
+    {
+      "at": "2026-10-20T15:16:30Z",
+      "agent": "leader",
+      "event": "7.5 run 1 (leader): Testcontainers 400 from Docker Engine 29.2.1 (min API 1.44) - environment, no code change; rerun with DOCKER_API_VERSION=1.44 -Dapi.version=1.44: boot ok, 5/5 errors 'relation monthly_balances_seq does not exist' - test profile lacks currentSchema=finance. Fix round 1 sent to the worker"
+    },
+    {
+      "at": "2026-10-20T15:19:04Z",
+      "agent": "leader",
+      "event": "wave 4 verified by the leader (assistantRunsTests): DOCKER_API_VERSION=1.44 mvn -pl jbh-finance/jbh-finance-infra -am test -Dtest=ProcessMovementServiceDatabaseLockTest -Dsurefire.failIfNoSpecifiedTests=false -Djbh.test.excludedGroups=none -Dapi.version=1.44 exit 0, 5/5; same with lock set to NONE: exit 1, 5/5 fail (file restored); mvn -pl jbh-finance/jbh-finance-infra -am test exit 0 (115+319+8, DB test skipped)"
+    },
+    {
+      "at": "2026-10-20T15:19:18Z",
+      "agent": "leader",
+      "event": "wave 4 committed 3842268; Step 6 verified by the wave 4 leader runs on the same commit"
+    },
+    {
+      "at": "2026-10-20T15:19:18Z",
+      "agent": "leader",
+      "event": "signalled jbh-finance-reviewer for round 3 (7.5 only); budget start five_hour=25 cost=13.44"
+    },
+    {
+      "at": "2026-10-20T15:20:07Z",
+      "agent": "leader",
+      "event": "reviewer round 3 approved (review.status set by the reviewer); checkpoint gate: five_hour 29%, context 22% (below 90/40). Waiting for user on 7.4"
+    },
+    {
+      "at": "2026-10-21T23:38:45Z",
+      "agent": "leader",
+      "event": "resume: user decision D12 closes 7.4 (covered by 7.5). Change status mirrors review.status reviewer-approved, set by the reviewer in round 3. Budget five_hour=27 context=12. Starting Step 8 archive"
+    },
+    {
+      "at": "2026-10-21T23:38:53Z",
+      "agent": "leader",
+      "event": "archived to openspec/changes/archive/finance/2026-10-21-jbh-finance-fix-monthly-balance-race; delta spec synced to openspec/specs/monthly-balance-sync/spec.md (8 requirements added)"
+    }
+  ]
+}

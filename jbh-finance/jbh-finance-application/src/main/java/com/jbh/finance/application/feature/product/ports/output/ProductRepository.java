@@ -17,4 +17,11 @@ public interface ProductRepository {
   ProductDTO save(ProductDTO account);
 
   void deleteById(ProductId productId);
+
+  /**
+   * Locks the product row until the current transaction ends. Needs an open transaction.
+   *
+   * @throws IllegalArgumentException when the product does not exist
+   */
+  void lockForUpdate(ProductId productId);
 }

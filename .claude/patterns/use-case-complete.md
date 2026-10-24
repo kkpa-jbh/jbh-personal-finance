@@ -417,10 +417,8 @@ com.jbh.finance.application.feature.<feature>/
 ```
 
 ### PMD Rules
-- All variables FINAL when possible
-- NO literals in if statements
-- NO generic exceptions (Exception, RuntimeException, NullPointerException)
-- NO explicit throws of java.lang.Exception
+- See [PMD Rules](../standards/code-quality.md#pmd-rules). `pmd-ruleset.xml` enables almost all PMD
+  categories, and CI fails on any violation.
 
 ### Test Coverage
 - Minimum 50% coverage

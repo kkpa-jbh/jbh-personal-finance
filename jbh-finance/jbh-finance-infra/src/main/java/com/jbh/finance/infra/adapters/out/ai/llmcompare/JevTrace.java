@@ -16,7 +16,7 @@ import java.util.List;
 public class JevTrace {
 
   private final LlmCompareConfig config;
-  private final List<Batch> batches = new ArrayList<>();
+  private final List<Batch> recordedBatches = new ArrayList<>();
 
   @Inject
   public JevTrace(final LlmCompareConfig config) {
@@ -31,7 +31,7 @@ public class JevTrace {
    */
   public void record(final String request, final String response) {
     if (config.enabled()) {
-      batches.add(new Batch(request, response));
+      recordedBatches.add(new Batch(request, response));
     }
   }
 
@@ -41,7 +41,7 @@ public class JevTrace {
    * @return a copy of the batches
    */
   public List<Batch> batches() {
-    return List.copyOf(batches);
+    return List.copyOf(recordedBatches);
   }
 
   /**

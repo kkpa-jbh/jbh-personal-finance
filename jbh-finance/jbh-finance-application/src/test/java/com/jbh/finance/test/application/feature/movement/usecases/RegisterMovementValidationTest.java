@@ -76,7 +76,10 @@ public class RegisterMovementValidationTest {
 
     processMonthlyBalanceService =
         new ProcessMonthlyBalanceServiceImpl(
-            monthlyBalanceLifecycleService, new AsyncTaskExecutorImpl(), accountService);
+            monthlyBalanceLifecycleService,
+            new AsyncTaskExecutorImpl(),
+            accountService,
+            new UnitOfWorkTest());
 
     final MonthlyBalanceSyncForUploadedMovements monthlyBalanceSyncerService =
         new MonthlyBalanceSyncForUploadedMovements(processMonthlyBalanceService);

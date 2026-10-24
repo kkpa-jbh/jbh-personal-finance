@@ -48,7 +48,7 @@ public class AddTransferRealEstateTest {
 
     updateProductUseCase = UseCaseFixtureBuilder.buildUpdateProductUseCase();
 
-    UseCaseFixtureBuilder.delayTests();
+    UseCaseFixtureBuilder.awaitBackgroundTasks();
   }
 
   @Test

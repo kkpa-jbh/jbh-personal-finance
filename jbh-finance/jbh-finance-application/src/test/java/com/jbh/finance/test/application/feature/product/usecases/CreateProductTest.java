@@ -2,7 +2,7 @@ package com.jbh.finance.test.application.feature.product.usecases;
 
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.PERSONAL;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.PUBLIC_SERVICES;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.delayTests;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.awaitBackgroundTasks;
 import static com.jbh.finance.test.testfixtures.builders.commands.AddMovementCommandFixtureBuilder.withCategory;
 import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createBasicAccountCommand;
 import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createCDTCommand;
@@ -188,7 +188,7 @@ public class CreateProductTest {
 
     assertProduct(expectedAccount, updatedAccount);
 
-    delayTests();
+    awaitBackgroundTasks();
 
     final var publicServicesExpense1 = new BigDecimal("500.00");
     addMovementUseCase.addMovement(

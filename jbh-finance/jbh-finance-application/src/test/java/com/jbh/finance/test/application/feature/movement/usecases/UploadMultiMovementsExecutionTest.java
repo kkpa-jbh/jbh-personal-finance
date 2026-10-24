@@ -102,7 +102,10 @@ public class UploadMultiMovementsExecutionTest {
 
     monthlyBalanceService =
         new ProcessMonthlyBalanceServiceImpl(
-            monthlyBalanceSrv, new AsyncTaskExecutorImpl(), accountService);
+            monthlyBalanceSrv,
+            new AsyncTaskExecutorImpl(),
+            accountService,
+            new UnitOfWorkTest());
     monthlyBalanceSyncerService = new MonthlyBalanceSyncForUploadedMovements(monthlyBalanceService);
 
     useCaseInstanceTest =
@@ -185,6 +188,9 @@ public class UploadMultiMovementsExecutionTest {
             processedResponse.set(
                 useCaseInstanceTest.uploadMovementsFromFile(
                     userId, accountId, allSimpleMovements)));
+    // The upload starts a background adjust that calls the query repo mock. Stubbing a mock
+    // while another thread calls it can attach the stub to the wrong call, so wait first.
+    monthlyBalanceService.awaitPendingSync();
 
     verify(accountMovementRepository).save(anyList());
 
@@ -499,6 +505,8 @@ public class UploadMultiMovementsExecutionTest {
         () ->
             processedResponse.set(
                 useCaseInstanceTest.uploadMovementsFromFile(userId, accountId, testData)));
+    // Wait for the upload's background adjust before stubbing the shared mock.
+    monthlyBalanceService.awaitPendingSync();
 
     final ProductDTO actualAccount = processedResponse.get().productDTO();
 
@@ -762,6 +770,8 @@ public class UploadMultiMovementsExecutionTest {
         () ->
             processedResponse.set(
                 useCaseInstanceTest.uploadMovementsFromFile(userId, accountId, testData)));
+    // Wait for the upload's background adjust before stubbing the shared mock.
+    monthlyBalanceService.awaitPendingSync();
 
     final ProductDTO actualAccount = processedResponse.get().productDTO();
 

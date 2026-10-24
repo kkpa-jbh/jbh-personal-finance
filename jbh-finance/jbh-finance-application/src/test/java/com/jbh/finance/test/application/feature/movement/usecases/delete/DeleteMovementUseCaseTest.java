@@ -1,7 +1,7 @@
 package com.jbh.finance.test.application.feature.movement.usecases.delete;
 
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.delayTests;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.awaitBackgroundTasks;
 import static com.jbh.finance.test.testfixtures.utils.IgnoreProductOptions.IGNORE_NET_GROWTH_RATE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -105,7 +105,7 @@ public class DeleteMovementUseCaseTest {
             AddMovementCommandFixtureBuilder.createDepositIncomeWithSnapshot(
                 INITIAL_PERIOD.atDay(dayOfMonth++), amount, balanceSnapshot));
 
-    delayTests();
+    awaitBackgroundTasks();
 
     return result.movement();
   }
@@ -116,7 +116,7 @@ public class DeleteMovementUseCaseTest {
 
     updateLatestInfoBeforeReversion();
 
-    delayTests();
+    awaitBackgroundTasks();
 
     final List<MonthlyBalanceDTO> monthlyBalanceBefore = getCurrentMonthlyBalances();
 
@@ -131,13 +131,13 @@ public class DeleteMovementUseCaseTest {
     final AddMovementResultDTO resultDTO =
         addMovementUseCase.addMovement(userId, productDTO.id(), command);
 
-    delayTests();
+    awaitBackgroundTasks();
 
     expenseToBeReversed = resultDTO.movement();
   }
 
   private void updateLatestInfoBeforeReversion() {
-    delayTests();
+    awaitBackgroundTasks();
 
     latestProductBeforeReversion = getCurrentProductInfo();
 
@@ -153,7 +153,7 @@ public class DeleteMovementUseCaseTest {
   }
 
   private List<MonthlyBalanceDTO> getCurrentMonthlyBalances() {
-    delayTests();
+    awaitBackgroundTasks();
     return monthlyBalanceLifecycleSrv.findAllByAccountIdUntilNow(productDTO.id());
   }
 
@@ -164,7 +164,7 @@ public class DeleteMovementUseCaseTest {
   @Test
   @Order(3)
   void deleteExpense10() throws BusinessException {
-    delayTests();
+    awaitBackgroundTasks();
 
     final var movToReverse = expenseToBeReversed;
 
@@ -291,7 +291,7 @@ public class DeleteMovementUseCaseTest {
             AddMovementCommandFixtureBuilder.createUnknownExpenseWithSnapshot(
                 INITIAL_PERIOD.atDay(dayOfMonth++), amount, balanceSnapshot));
 
-    delayTests();
+    awaitBackgroundTasks();
 
     return result.movement();
   }

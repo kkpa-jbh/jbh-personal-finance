@@ -4,7 +4,7 @@ import static com.jbh.commons.util.JbhMoneyUtils.JBH_ZERO;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.INCOME_INITIAL_BALANCE;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.PERSONAL;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.delayTests;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.awaitBackgroundTasks;
 import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createInvestmentCommand;
 import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createLiquidateCommandToExternal;
 import static com.jbh.finance.test.testfixtures.utils.MonthlyBalanceITUtils.assertMonthlyBalance;
@@ -91,7 +91,7 @@ public class RegisterInvesmentMovementTest {
     liquidateAccountUseCase =
         UseCaseFixtureBuilder.buildLiquidateAccountUseCase(accountMovementRepository);
 
-    delayTests();
+    awaitBackgroundTasks();
   }
 
   @Test
@@ -261,7 +261,7 @@ public class RegisterInvesmentMovementTest {
               assertEquals(withJBHDecimals("1.31"), updatedAcciCuenta.netGrowthRate());
             });
 
-    delayTests();
+    awaitBackgroundTasks();
     currentMonthlyBalance =
         monthlyBalanceService
             .findByAccountIdAndPeriod(acciCuentaId, YearMonth.of(2025, entryDate.getMonthValue()))
@@ -324,8 +324,8 @@ public class RegisterInvesmentMovementTest {
         liquidateAccountUseCase.liquidateAccount(userId, acciCuentaId, liquidateCommand);
     assertTrue(result.valid());
 
-    delayTests();
-    delayTests();
+    awaitBackgroundTasks();
+    awaitBackgroundTasks();
 
     final ProductDTO updatedAccount =
         inMemoryProductRepo.findByProductId(acciCuentaId).orElse(null);

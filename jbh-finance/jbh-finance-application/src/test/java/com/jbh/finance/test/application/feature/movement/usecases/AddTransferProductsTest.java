@@ -3,7 +3,7 @@ package com.jbh.finance.test.application.feature.movement.usecases;
 import static com.jbh.commons.util.JbhMoneyUtils.withJBHDecimals;
 import static com.jbh.finance.test.testfixtures.CategoryFixturesTestApp.INCOME_INITIAL_BALANCE;
 import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.DEFAULT_ACCOUNT_TYPE;
-import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.delayTests;
+import static com.jbh.finance.test.testfixtures.builders.UseCaseFixtureBuilder.awaitBackgroundTasks;
 import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createBasicAccountCommand;
 import static com.jbh.finance.test.testfixtures.builders.commands.GeneralCommandFixtureBuilder.createLoanCommand;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -89,7 +89,7 @@ public class AddTransferProductsTest {
 
     updateProductUseCase = UseCaseFixtureBuilder.buildUpdateProductUseCase();
 
-    UseCaseFixtureBuilder.delayTests();
+    UseCaseFixtureBuilder.awaitBackgroundTasks();
   }
 
   @Test
@@ -225,7 +225,7 @@ public class AddTransferProductsTest {
         new AddTransferCommand(
             new ProductPK(loanAccount.userId(), loanAccount.id()), transferAmount, transferDate));
 
-    delayTests();
+    awaitBackgroundTasks();
 
     final ProductDTO loanAccountUpdated = accountService.findOrThrowByIdProductId(loanAccount.id());
     assertEquals(
@@ -318,7 +318,7 @@ public class AddTransferProductsTest {
         new AddTransferCommand(
             new ProductPK(loanAccount.userId(), loanAccount.id()), transferAmount, transferDate));
 
-    delayTests();
+    awaitBackgroundTasks();
 
     final ProductDTO loanAccountUpdated = accountService.findOrThrowByIdProductId(loanAccount.id());
     assertEquals(

@@ -7,14 +7,49 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
 
   private static final Logger LOG = LoggerFactory.getLogger(AsyncTaskExecutorImpl.class);
+  private static final long KEEP_ALIVE_SECONDS = 30L;
+  private static final String WORKER_THREAD_NAME = "async-task-worker";
+
+  private final ThreadLocal<Boolean> workerThreadFlag = new ThreadLocal<>();
+
+  // One thread keeps the tasks of this instance in submit order. Data safety across instances comes
+  // from the database lock, not from this executor.
+  private final ThreadPoolExecutor executorService = createExecutor();
+
+  private ThreadPoolExecutor createExecutor() {
+    final ThreadPoolExecutor executor =
+        new ThreadPoolExecutor(
+            1,
+            1,
+            KEEP_ALIVE_SECONDS,
+            TimeUnit.SECONDS,
+            new LinkedBlockingQueue<>(),
+            runnable -> {
+              final Thread thread =
+                  new Thread(
+                      () -> {
+                        workerThreadFlag.set(Boolean.TRUE);
+                        runnable.run();
+                      },
+                      WORKER_THREAD_NAME);
+              thread.setDaemon(true);
+              return thread;
+            });
+    executor.allowCoreThreadTimeOut(true);
+    return executor;
+  }
 
   @Override
   public <T> CompletableFuture<T> submitTask(final AsyncTask asyncTask, final Callable<T> task) {
@@ -25,7 +60,6 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
     }
 
     final CompletableFuture<T> future = new CompletableFuture<>();
-    final ExecutorService executorService = Executors.newSingleThreadExecutor();
     LOG.info("[START] task: " + asyncTask);
     final Instant start = Instant.now();
     executorService.submit(
@@ -61,13 +95,31 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
             }
             registerToDLQ(asyncTask, exception);
             future.completeExceptionally(exception);
-          } finally {
-            executorService.shutdown();
-            executorService.close();
           }
         });
 
     return future;
+  }
+
+  @Override
+  public void awaitIdle(final Duration timeout) {
+    if (Boolean.TRUE.equals(workerThreadFlag.get())) {
+      throw new IllegalStateException("awaitIdle cannot be called from the executor worker thread");
+    }
+    // One thread and FIFO order: when the sentinel has run, earlier tasks are finished.
+    final Future<?> sentinel = executorService.submit(() -> {});
+    try {
+      sentinel.get(timeout.toNanos(), TimeUnit.NANOSECONDS);
+    } catch (final TimeoutException exception) {
+      sentinel.cancel(false);
+      throw new IllegalStateException(
+          "Timed out after " + timeout + " waiting for pending async tasks", exception);
+    } catch (final InterruptedException exception) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException("Interrupted while waiting for pending async tasks", exception);
+    } catch (final ExecutionException exception) {
+      throw new IllegalStateException("Unexpected failure waiting for pending async tasks", exception);
+    }
   }
 
   // FIXME: Am I getting everything that I need to retry?

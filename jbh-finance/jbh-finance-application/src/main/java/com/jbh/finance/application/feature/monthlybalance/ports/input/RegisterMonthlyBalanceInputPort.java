@@ -1,6 +1,7 @@
 package com.jbh.finance.application.feature.monthlybalance.ports.input;
 
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.finance.application.acid.UnitOfWork;
 import com.jbh.finance.application.feature.category.dto.CategoryDTO;
 import com.jbh.finance.application.feature.category.services.CategoryService;
 import com.jbh.finance.application.feature.monthlybalance.commands.AddMonthlyBalanceCommand;
@@ -8,6 +9,7 @@ import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.mappers.MonthlyBalanceMapper;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceLifecycleService;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceProfitStrategy;
+import com.jbh.finance.application.feature.monthlybalance.services.ProcessMonthlyBalanceService;
 import com.jbh.finance.application.feature.monthlybalance.services.ReportedProfitStrategy;
 import com.jbh.finance.application.feature.monthlybalance.services.UnreportedProfitStrategy;
 import com.jbh.finance.application.feature.monthlybalance.usecases.RegisterMonthlyBalanceUseCase;
@@ -19,7 +21,6 @@ import com.jbh.finance.domain.monthlybalance.MonthlyBalanceDomain;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductPK;
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.Optional;
@@ -35,6 +36,8 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
   private final ProductLifecycleService accountService;
   private final ProcessMovementService accountMovementService;
   private final CategoryService categoryService;
+  private final UnitOfWork unitOfWork;
+  private final ProcessMonthlyBalanceService processMonthlyBalanceService;
 
   private final CategoryDTO incomeInitialBalanceCat;
 
@@ -42,7 +45,11 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
       final MonthlyBalanceLifecycleService monthlyBalanceService,
       final ProductLifecycleService accountService,
       final ProcessMovementService accountMovementService,
-      final CategoryService categoryService) {
+      final CategoryService categoryService,
+      final UnitOfWork unitOfWork,
+      final ProcessMonthlyBalanceService processMonthlyBalanceService) {
+    this.unitOfWork = unitOfWork;
+    this.processMonthlyBalanceService = processMonthlyBalanceService;
     this.accountMovementService = accountMovementService;
     this.accountService = accountService;
     this.monthlyBalanceService = monthlyBalanceService;
@@ -86,49 +93,20 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
 
     validatePeriod(runningDate, periodToRegister);
 
-    validateConsecutiveMonthlyBalances(accountId, periodToRegister);
+    // Transaction 1: lock, validate, and add the initial balance movement when the month is new.
+    final boolean initialMovementAdded =
+        unitOfWork.executeInTransaction(
+            () -> addInitialMovementWhenMissing(userId, accountId, addMonthlyBalanceCommand));
 
-    // FIXME TODO - Move all this logic to the service itself
-    MonthlyBalanceDomain monthlyBalanceDomain =
-        findMonthlyBalanceByPeriod(accountId, periodToRegister);
-
-    // If it's the first monthly balance, create a movement and it will create the monthly balance
-    if (monthlyBalanceDomain == null) {
-      log.info(
-          "The monthly balanced has not been reported before. Creating Initial Balance Movement");
-      final AddMovementCommand movementCommand =
-          new AddMovementCommand(
-              addMonthlyBalanceCommand.monthlyPeriod().atDay(1),
-              addMonthlyBalanceCommand.closingBalance(),
-              null,
-              MovementType.DEPOSIT,
-              incomeInitialBalanceCat,
-              null);
-
-      accountMovementService.addMovementToProduct(
-          new ProductPK(userId, accountId), movementCommand);
-
-      try {
-        // FIXME TODO - This is a hack to wait for the async task to be executed and the report is
-        // created
-        Thread.sleep(Duration.ofSeconds(2).toMillis());
-      } catch (final InterruptedException e) {
-        log.error("Error waiting for the async task to be executed", e);
-      }
-      log.info("The monthly balance should be created by the movement. Finding it again");
-      monthlyBalanceDomain = findMonthlyBalanceByPeriod(accountId, periodToRegister);
+    // The adjust of the initial movement needs the product lock, so wait outside any transaction.
+    if (initialMovementAdded) {
+      processMonthlyBalanceService.awaitPendingSync();
     }
 
-    if (monthlyBalanceDomain == null) {
-      throw new IllegalArgumentException("Monthly Balance not found");
-    }
-    final ProductPK accountPK = new ProductPK(userId, accountId);
+    // Transaction 2: lock again and read fresh data before writing the report.
     final MonthlyBalanceDTO monthlyBalanceDTO =
-        findProfitStrategy(addMonthlyBalanceCommand)
-            .registerOfficialMonthlyBalance(
-                accountPK,
-                MonthlyBalanceMapper.toDTO(monthlyBalanceDomain),
-                addMonthlyBalanceCommand);
+        unitOfWork.executeInTransaction(
+            () -> registerReport(userId, accountId, addMonthlyBalanceCommand));
 
     log.info(
         "Monthly Balance registration completed successfully for productDTO:{} and period: {}",
@@ -136,6 +114,54 @@ public class RegisterMonthlyBalanceInputPort implements RegisterMonthlyBalanceUs
         periodToRegister);
 
     return monthlyBalanceDTO;
+  }
+
+  private boolean addInitialMovementWhenMissing(
+      final UUID userId, final ProductId accountId, final AddMonthlyBalanceCommand command)
+      throws BusinessException {
+    accountService.lockForUpdate(accountId);
+
+    final YearMonth periodToRegister = command.monthlyPeriod();
+    validateConsecutiveMonthlyBalances(accountId, periodToRegister);
+
+    if (findMonthlyBalanceByPeriod(accountId, periodToRegister) != null) {
+      return false;
+    }
+
+    // If it's the first monthly balance, create a movement and it will create the monthly balance
+    log.info("The monthly balanced has not been reported before. Creating Initial Balance Movement");
+    final AddMovementCommand movementCommand =
+        new AddMovementCommand(
+            periodToRegister.atDay(1),
+            command.closingBalance(),
+            null,
+            MovementType.DEPOSIT,
+            incomeInitialBalanceCat,
+            null);
+
+    accountMovementService.addMovementToProduct(new ProductPK(userId, accountId), movementCommand);
+    return true;
+  }
+
+  private MonthlyBalanceDTO registerReport(
+      final UUID userId, final ProductId accountId, final AddMonthlyBalanceCommand command)
+      throws BusinessException {
+    accountService.lockForUpdate(accountId);
+
+    final YearMonth periodToRegister = command.monthlyPeriod();
+    validateConsecutiveMonthlyBalances(accountId, periodToRegister);
+
+    final MonthlyBalanceDomain monthlyBalanceDomain =
+        findMonthlyBalanceByPeriod(accountId, periodToRegister);
+    if (monthlyBalanceDomain == null) {
+      throw new IllegalArgumentException("Monthly Balance not found");
+    }
+
+    return findProfitStrategy(command)
+        .registerOfficialMonthlyBalance(
+            new ProductPK(userId, accountId),
+            MonthlyBalanceMapper.toDTO(monthlyBalanceDomain),
+            command);
   }
 
   private void validatePeriod(final LocalDate runningDate, final YearMonth periodToRegister)

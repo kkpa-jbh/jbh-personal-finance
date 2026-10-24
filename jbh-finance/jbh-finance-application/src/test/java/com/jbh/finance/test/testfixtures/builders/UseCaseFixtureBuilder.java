@@ -57,6 +57,14 @@ public class UseCaseFixtureBuilder {
       new InMemoryMovementQueryRepository();
   private static final MovementWriterRepository movementInMemoWriter =
       new InMemoryMovementRepository(movementInMemoQuery);
+  // One shared service, like the single production bean, so all tests share one executor.
+  private static final ProcessMonthlyBalanceService SHARED_PROCESS_MONTHLY_BALANCE_SERVICE =
+      new ProcessMonthlyBalanceServiceImpl(
+          new MonthlyBalanceLifecycleServiceImpl(
+              monthlyBalanceInMemoQuery, monthlyBalanceInMemoWriter),
+          new AsyncTaskExecutorImpl(),
+          new ProductLifecycleServiceImpl(inMemoryProductRepo),
+          new UnitOfWorkTest());
 
   private static CategoryService buildCategoryServiceMock() {
     return new CategoryServiceMock();
@@ -94,7 +102,9 @@ public class UseCaseFixtureBuilder {
         buildMonthlyBalanceLifecycleSrv(),
         buildProductLifecycleSrv(),
         buildProcessMovementService(accountMovementRepository),
-        categoryServiceMock);
+        categoryServiceMock,
+        new UnitOfWorkTest(),
+        buildProcessMonthlyBalanceSrv());
   }
 
   public static MonthlyBalanceLifecycleService buildMonthlyBalanceLifecycleSrv() {
@@ -118,8 +128,7 @@ public class UseCaseFixtureBuilder {
   }
 
   public static ProcessMonthlyBalanceService buildProcessMonthlyBalanceSrv() {
-    return new ProcessMonthlyBalanceServiceImpl(
-        buildMonthlyBalanceLifecycleSrv(), new AsyncTaskExecutorImpl(), buildProductLifecycleSrv());
+    return SHARED_PROCESS_MONTHLY_BALANCE_SERVICE;
   }
 
   public static FindMonthlyBalanceUseCase buildFindMonthlyBalanceUseCase() {
@@ -131,12 +140,8 @@ public class UseCaseFixtureBuilder {
     return inMemoryMonthlyBalanceRepos;
   }
 
-  public static void delayTests() {
-    try {
-      Thread.sleep(500);
-    } catch (final InterruptedException e) {
-      throw new RuntimeException(e);
-    }
+  public static void awaitBackgroundTasks() {
+    SHARED_PROCESS_MONTHLY_BALANCE_SERVICE.awaitPendingSync();
   }
 
   public static AddTransferJbhProductsUseCase buildAddTransferUseCase(
@@ -186,6 +191,7 @@ public class UseCaseFixtureBuilder {
   }
 
   public static void resetState() {
+    awaitBackgroundTasks();
     inMemoryProductRepo.clearStorage();
     inMemoryMonthlyBalanceRepos.clearStorage();
     movementInMemoQuery.clearStorage();

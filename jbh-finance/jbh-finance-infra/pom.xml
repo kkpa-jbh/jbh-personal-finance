@@ -107,6 +107,20 @@
         <version>3.13.0</version>
       </plugin>
 
+      <!-- Quarkus tests do not run on the module path. Tests tagged "database" need Docker,
+           so they run only with -Djbh.test.excludedGroups=none -->
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludedGroups>${jbh.test.excludedGroups}</excludedGroups>
+          <systemPropertyVariables>
+            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+          </systemPropertyVariables>
+          <useModulePath>false</useModulePath>
+        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+      </plugin>
+
 
     </plugins>
   </build>
@@ -233,6 +247,13 @@
       <version>1.3.0</version>
     </dependency>
 
+    <!-- Boots the module with a real PostgreSQL (Dev Services) for the database lock test -->
+    <dependency>
+      <artifactId>quarkus-junit5</artifactId>
+      <groupId>io.quarkus</groupId>
+      <scope>test</scope>
+    </dependency>
+
 
   </dependencies>
   <modelVersion>4.0.0</modelVersion>
@@ -247,6 +268,7 @@
 
   <properties>
     <jacoco.skip>true</jacoco.skip>
+    <jbh.test.excludedGroups>database</jbh.test.excludedGroups>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <pdfbox.version>3.0.8</pdfbox.version>
