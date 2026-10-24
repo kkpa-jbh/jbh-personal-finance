@@ -63,15 +63,24 @@ public class BaseRestAdapter {
   private static void throwLookupError(final JbhHttpResponse gatewayResponse)
       throws InternalSystemException, JbhGatewayException {
     final int statusCode = gatewayResponse.getStatusCode();
-    final Optional<String> body = gatewayResponse.getBody();
-    if (statusCode == UNAUTHORIZED && body.isPresent()) {
-      final Map<String, String> bodyMap = JbhJsonUtils.jsonToMap(body.get());
-      throw new InternalSystemException(bodyMap.get(MESSAGE_KEY), bodyMap.get(ERROR_CODE_KEY));
-    }
     if (statusCode == UNAUTHORIZED) {
-      throw new InternalSystemException(UNAUTHENTICATED_MESSAGE, UNAUTHENTICATED_CODE);
+      final Optional<Map<String, String>> bodyMap =
+          gatewayResponse.getBody().flatMap(BaseRestAdapter::parseErrorBody);
+      throw bodyMap
+          .map(map -> new InternalSystemException(map.get(MESSAGE_KEY), map.get(ERROR_CODE_KEY)))
+          .orElseGet(
+              () -> new InternalSystemException(UNAUTHENTICATED_MESSAGE, UNAUTHENTICATED_CODE));
     }
     throw new JbhGatewayException(
         LOOKUP_FAILED_MESSAGE + statusCode, LOOKUP_FAILED_CODE, statusCode);
+  }
+
+  /** Reads the IAM error body. Empty when the body is not a flat JSON object. */
+  private static Optional<Map<String, String>> parseErrorBody(final String body) {
+    try {
+      return Optional.ofNullable(JbhJsonUtils.jsonToMap(body));
+    } catch (final IllegalArgumentException e) {
+      return Optional.empty();
+    }
   }
 }

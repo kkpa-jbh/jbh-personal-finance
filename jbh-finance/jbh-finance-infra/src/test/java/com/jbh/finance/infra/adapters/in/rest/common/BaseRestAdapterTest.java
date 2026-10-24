@@ -97,6 +97,21 @@ class BaseRestAdapterTest {
   }
 
   @Test
+  void shouldThrowUnauthenticatedWhenIamReturns401WithInvalidJsonBody() throws Exception {
+    // Given
+    when(userClient.findUserId(anyMap()))
+        .thenReturn(JbhHttpResponse.builder().statusCode(401).body("<html>401</html>").build());
+
+    // When
+    final InternalSystemException exception =
+        assertThrows(InternalSystemException.class, () -> adapter.findUserId(BEARER_TOKEN));
+
+    // Then
+    assertEquals(UNAUTHENTICATED_MESSAGE, exception.getMessage());
+    assertEquals(UNAUTHENTICATED_CODE, exception.getErrorCode());
+  }
+
+  @Test
   void shouldThrowGatewayExceptionWithStatusWhenIamReturns500() throws Exception {
     // Given
     when(userClient.findUserId(anyMap()))
