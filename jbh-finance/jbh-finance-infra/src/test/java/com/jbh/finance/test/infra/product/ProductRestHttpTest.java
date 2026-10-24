@@ -1,8 +1,8 @@
 package com.jbh.finance.test.infra.product;
 
-import static com.jbh.finance.test.infra.fakes.FakeGatewayClientFactory.USER_A_ID;
-import static com.jbh.finance.test.infra.fakes.FakeGatewayClientFactory.USER_A_TOKEN;
-import static com.jbh.finance.test.infra.fakes.FakeGatewayClientFactory.USER_B_TOKEN;
+import static com.jbh.finance.test.testfixtures.fakes.gateway.FakeGatewayClientFactory.USER_A_ID;
+import static com.jbh.finance.test.testfixtures.fakes.gateway.FakeGatewayClientFactory.USER_A_TOKEN;
+import static com.jbh.finance.test.testfixtures.fakes.gateway.FakeGatewayClientFactory.USER_B_TOKEN;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;

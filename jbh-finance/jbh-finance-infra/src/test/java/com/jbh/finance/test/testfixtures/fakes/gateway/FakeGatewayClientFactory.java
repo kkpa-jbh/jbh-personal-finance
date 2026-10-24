@@ -1,4 +1,4 @@
-package com.jbh.finance.test.infra.fakes;
+package com.jbh.finance.test.testfixtures.fakes.gateway;
 
 import com.jbh.finance.infra.gateway.GatewayClientFactory;
 import com.jbh.gateway.client.JbhHttpResponse;
