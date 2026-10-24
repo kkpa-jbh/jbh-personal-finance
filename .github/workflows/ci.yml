@@ -56,7 +56,7 @@ jobs:
         # -U: the ~/.m2 cache is restored, so force a check for a newer SNAPSHOT.
         # excludedGroups=none: also run the "database" tests. They start PostgreSQL in Docker.
         run: |
-          mvn -U -s .github/maven-settings.xml -Pgithub clean verify \
+          ./mvnw -U -s .github/maven-settings.xml -Pgithub clean verify \
             -Dpmd.failOnViolation=true \
             -Dspotbugs.failOnError=true \
             -Djbh.test.excludedGroups=none
