@@ -153,10 +153,7 @@ public class MonthlyBalanceDomain {
       throw new GenericSpecificationException("Opening balance cannot be null");
     }
 
-    // final var previousProfitReported = previousMonthlyBalance.getMonthlyProfitReported();
     // TODO Review if it's correct to adjust the opening balance for a profit report
-    // final boolean wasProfitReported =
-    // previousMonthlyBalance.isOfficialMonthlyReport() && previousProfitReported != null;
     this.openingBalance = withJBHDecimals(inputOpeningBalance);
 
     LOG.info("Adjusted Opening Balance {} for next period: {}", this.openingBalance, this.period);
