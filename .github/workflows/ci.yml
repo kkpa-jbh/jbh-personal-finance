@@ -69,6 +69,34 @@ jobs:
           path: '**/target/surefire-reports/TEST-*.xml'
           reporter: java-junit
 
+      # Step 5b: Show line coverage per module in the job summary.
+      # mvn verify already writes target/site/jacoco/jacoco.csv in each module with JaCoCo.
+      - name: Coverage summary
+        if: success() || failure()
+        run: |
+          {
+            echo "## Line coverage (JaCoCo)"
+            echo ""
+            echo "| Module | Lines covered | Coverage |"
+            echo "|---|---|---|"
+            find . -path '*/target/site/jacoco/jacoco.csv' | sort | while read -r csv; do
+              module=$(echo "$csv" | sed -E 's|^\./||; s|/target/site/jacoco/jacoco.csv$||')
+              # Columns 8 and 9 are LINE_MISSED and LINE_COVERED.
+              awk -F, -v m="$module" 'NR > 1 { miss += $8; cov += $9 }
+                END { total = miss + cov; pct = total ? 100 * cov / total : 0;
+                      printf "| %s | %d / %d | %.1f%% |\n", m, cov, total, pct }' "$csv"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Step 5c: Keep the HTML coverage reports for 30 days
+      - name: Archive coverage reports
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: coverage-reports
+          path: '**/target/site/jacoco/'
+          retention-days: 30
+
       # Step 6: Archive PMD analysis reports as build artifacts
       # Always uploads PMD reports (even on build failure) for 30 days
       - name: Archive PMD reports
