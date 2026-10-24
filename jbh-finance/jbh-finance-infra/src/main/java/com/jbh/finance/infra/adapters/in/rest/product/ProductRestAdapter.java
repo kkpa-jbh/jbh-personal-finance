@@ -118,9 +118,9 @@ public class ProductRestAdapter extends BaseRestAdapter {
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
       throws JbhGatewayException, BusinessException, InternalSystemException {
-    LOG.info("Creating Product for user {}", authorizationHeader);
-
     final UUID userId = findUserId(authorizationHeader);
+
+    LOG.info("Creating Product for user {}", userId);
 
     final ProductDTO createdProduct =
         createProductUseCase.execute(

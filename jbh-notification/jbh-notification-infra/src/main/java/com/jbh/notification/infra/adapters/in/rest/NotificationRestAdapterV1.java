@@ -84,10 +84,9 @@ public class NotificationRestAdapterV1 {
 
     if (LOG.isInfoEnabled()) {
       LOG.info(
-          "Received request to send {} notification to recipient: {} Request {}",
+          "Received request to send {} notification to recipient: {}",
           type,
-          request.recipientId(),
-          request);
+          request.recipientId());
     }
 
     final NotificationDTO result;
