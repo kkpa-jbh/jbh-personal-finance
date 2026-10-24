@@ -27,7 +27,6 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @RequestScoped
 @Path(PRODUCTS_API_PATH)
 @Tag(name = "Product Configuration", description = "Product configuration and metadata operations")
-// TODO Conflict with ProductRestAdapter
 // TODO: This class shares @Path with ProductRestAdapter.
 // Ensure sub-paths remain distinct to avoid routing conflicts.
 // Consider consolidating in future refactoring.
