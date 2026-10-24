@@ -186,4 +186,4 @@ knowledge_base:
       - ".claude/architecture/*.md"
       - ".claude/patterns/*.md"
       - ".claude/infrastructure/database.md"
-      - "LOGGING_GUIDE.md"
+      - "docs/guides/logging.md"
