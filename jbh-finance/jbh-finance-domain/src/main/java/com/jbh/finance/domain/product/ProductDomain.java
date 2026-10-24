@@ -292,9 +292,9 @@ public class ProductDomain {
         this.netGrowthRate =
             metricsCalculator.calculateNetGrowthReate(openingBalance, this, movementAmount);
       } catch (final BusinessException e) {
-        // FIXME figure out why it's failing
-        // NU Test Closing Balance
-        LOG.error("Error in calculating net Growth Rate {}", movementAmount);
+        // TODO: known bug, root cause not found. The calculation fails for some products (seen
+        // with the "NU" test closing balance). We keep the old rate and log the error.
+        LOG.error("Error in calculating net Growth Rate {}", movementAmount, e);
       }
     }
   }

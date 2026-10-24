@@ -63,8 +63,8 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
     expRetefuenteCat = categoryService.findExpenseRetefuente();
   }
 
-  // TODO: Move this out of the service. This service should be responsible of
-  // adding the dividends generically
+  // TODO: move the dividend logic out of this service. This service should add movements of any
+  // type, without knowing about dividends.
   @Override
   public void addDividendsMovementForNextMonth(
       final ProductPK productPK, final AddMonthlyBalanceCommand nextMonthlyBalanceCommand)

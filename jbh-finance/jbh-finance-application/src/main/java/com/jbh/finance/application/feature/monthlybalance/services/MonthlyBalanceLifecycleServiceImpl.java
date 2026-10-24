@@ -69,7 +69,7 @@ public class MonthlyBalanceLifecycleServiceImpl implements MonthlyBalanceLifecyc
 
   @Override
   public List<MonthlyBalanceDTO> findAllByAccountIdUntilNow(final ProductId accountId) {
-    // TODO: Check if it's necessary to return until the current period
+    // TODO: check if callers need only the months up to now, or all months.
     return queryRepo.findAllByAccountIdUntilNow(accountId);
   }
 

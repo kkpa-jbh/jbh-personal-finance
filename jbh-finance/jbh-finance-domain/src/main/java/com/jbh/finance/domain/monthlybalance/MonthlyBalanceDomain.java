@@ -153,7 +153,7 @@ public class MonthlyBalanceDomain {
       throw new GenericSpecificationException("Opening balance cannot be null");
     }
 
-    // TODO Review if it's correct to adjust the opening balance for a profit report
+    // TODO: check if a profit report should change the opening balance of the next month.
     this.openingBalance = withJBHDecimals(inputOpeningBalance);
 
     LOG.info("Adjusted Opening Balance {} for next period: {}", this.openingBalance, this.period);
@@ -227,7 +227,7 @@ public class MonthlyBalanceDomain {
       throw new IllegalArgumentException(
           "The opening Balance is not set for " + this.getProductId());
     }
-    // I think it's for file upload
+    // Nothing to compute: no movements and no opening balance.
     if (isZero(totalCredits) && isZero(totalDebits) && isZero(openingBalance)) {
       return;
     }
@@ -235,7 +235,7 @@ public class MonthlyBalanceDomain {
     // if it's not reported, or it was reported without a profit, calculate the monthly net profit
     if (!this.officialMonthlyReport || isZero(monthlyProfitReported)) {
       final var movementBalance = getMovementBalance();
-      // FIXME: For Credit Cards, it's not possible to calculate the monthly net profit
+      // TODO: this formula is wrong for credit cards. They need their own net profit rule.
       monthlyNetProfit = closingBalance.subtract(openingBalance).subtract(movementBalance);
     }
   }

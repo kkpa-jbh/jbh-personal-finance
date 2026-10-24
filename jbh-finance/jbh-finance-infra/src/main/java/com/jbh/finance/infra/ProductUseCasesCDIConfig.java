@@ -131,7 +131,8 @@ public class ProductUseCasesCDIConfig {
         monthlyBalanceService(), new AsyncTaskExecutorImpl(), productsService(), unitOfWork);
   }
 
-  // TODO Validate if it's singleton
+  // TODO: no scope here means @Dependent: each injection point builds a new CategoryServiceImpl,
+  // and each one loads the categories. Check if a wider scope is safe.
   @Produces
   public CategoryService categoryService() {
     return new CategoryServiceImpl(categoryQueryRepo);

@@ -130,7 +130,8 @@ public class MovementDomain {
   }
 
   private void validateCategoryRequirement() throws BusinessException {
-    // FIXME Duplicated
+    // TODO: the category rules for BALANCE_SNAPSHOT live here and in validateMovementType.
+    // Keep them in one place.
     if (CategoryDomain.isEmpty(category) && movementType != MovementType.BALANCE_SNAPSHOT) {
 
       throw new BusinessException(BusinessDomainExceptionType.EMPTY_CATEGORY);

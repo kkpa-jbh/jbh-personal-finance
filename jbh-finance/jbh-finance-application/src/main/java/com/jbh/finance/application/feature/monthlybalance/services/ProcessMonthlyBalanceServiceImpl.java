@@ -171,7 +171,7 @@ public class ProcessMonthlyBalanceServiceImpl implements ProcessMonthlyBalanceSe
     final List<MonthlyBalanceDomain> profitBalancesSynced = new ArrayList<>();
 
     // Syncing current and next monthly balances
-    // FIXME: Using now() is not a good idea
+    // TODO: inject a Clock instead of YearMonth.now(), so tests can fix the date.
     final YearMonth now = YearMonth.now();
     LOG.info("Syncing current and next monthly balances {} - {} ", currentPeriod, endPeriod);
     while (isAvailablePeriod(now, currentPeriod, endPeriod)) {
