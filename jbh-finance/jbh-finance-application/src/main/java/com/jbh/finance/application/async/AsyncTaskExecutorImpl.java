@@ -60,7 +60,7 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
     }
 
     final CompletableFuture<T> future = new CompletableFuture<>();
-    LOG.info("[START] task: " + asyncTask);
+    LOG.info("[START] task: {}", asyncTask);
     final Instant start = Instant.now();
     executorService.submit(
         () -> {
@@ -68,7 +68,7 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
             final T result = task.call();
             future.complete(result);
             final long durationMs = Duration.between(start, Instant.now()).toMillis();
-            LOG.info("[COMPLETED] task " + asyncTask + " completed in " + durationMs + " ms");
+            LOG.info("[COMPLETED] task {} completed in {} ms", asyncTask, durationMs);
           } catch (final InterruptedException exception) {
             Thread.currentThread().interrupt();
             LOG.error("Task was interrupted: {}", asyncTask.type(), exception);
@@ -122,7 +122,7 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
     }
   }
 
-  // FIXME: Am I getting everything that I need to retry?
+  // TODO: this only logs the task. There is no real DLQ yet, so a failed task cannot be retried.
   private void registerToDLQ(final AsyncTask asyncTask, final Throwable throwable) {
     LOG.warn(
         "Registering async task {}-{} to DLQ {}",

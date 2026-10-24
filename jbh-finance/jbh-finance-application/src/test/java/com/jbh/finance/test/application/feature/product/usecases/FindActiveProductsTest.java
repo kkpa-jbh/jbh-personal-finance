@@ -7,14 +7,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.jbh.finance.application.feature.product.commands.FindProductCommand;
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.ports.input.FindActiveProductsInputPort;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
+import com.jbh.finance.application.feature.product.services.ProductLifecycleServiceImpl;
 import com.jbh.finance.application.feature.product.usecases.FindProductsUseCase;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductType;
+import com.jbh.finance.test.testfixtures.fakes.product.InMemoryProductRepository;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,13 +28,19 @@ import org.mockito.MockitoAnnotations;
 public class FindActiveProductsTest {
 
   private static final UUID TEST_USER_ID = UUID.randomUUID();
+  private static final UUID OTHER_USER_ID = UUID.randomUUID();
   private FindProductsUseCase useCase;
+  private FindProductsUseCase findByIdUseCase;
+  private InMemoryProductRepository productRepository;
   @Mock private ProductLifecycleService accountRepository;
 
   @BeforeEach
   public void setUp() {
     MockitoAnnotations.openMocks(this);
     useCase = new FindActiveProductsInputPort(accountRepository);
+    productRepository = new InMemoryProductRepository();
+    findByIdUseCase =
+        new FindActiveProductsInputPort(new ProductLifecycleServiceImpl(productRepository));
   }
 
   @Test
@@ -95,5 +105,43 @@ public class FindActiveProductsTest {
     assertTrue(result.get(0).isActive());
 
     verify(accountRepository).findActiveByUserId(TEST_USER_ID);
+  }
+
+  @Test
+  public void shouldReturnProductWhenOwnerAsksForIt() {
+    final ProductDTO product = saveProductOf(TEST_USER_ID);
+
+    final Optional<ProductDTO> result =
+        findByIdUseCase.findProductById(new FindProductCommand(TEST_USER_ID, product.id()));
+
+    assertTrue(result.isPresent());
+    assertEquals(product.id(), result.get().id());
+  }
+
+  @Test
+  public void shouldReturnEmptyWhenAnotherUserAsksForProduct() {
+    final ProductDTO product = saveProductOf(TEST_USER_ID);
+
+    final Optional<ProductDTO> result =
+        findByIdUseCase.findProductById(new FindProductCommand(OTHER_USER_ID, product.id()));
+
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  public void shouldReturnEmptyWhenProductDoesNotExist() {
+    final Optional<ProductDTO> result =
+        findByIdUseCase.findProductById(
+            new FindProductCommand(TEST_USER_ID, ProductId.generate()));
+
+    assertTrue(result.isEmpty());
+  }
+
+  private ProductDTO saveProductOf(final UUID ownerId) {
+    final ProductDTO product =
+        ProductDTO.defaultBuilder(
+                ownerId, ProductId.generate(), "Owned Account", ProductType.SAVINGS)
+            .build();
+    return productRepository.save(product);
   }
 }

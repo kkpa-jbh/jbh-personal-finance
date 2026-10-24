@@ -17,6 +17,7 @@ import java.util.UUID;
  * <ul>
  *   <li>Active products query excludes deleted and inactive products
  *   <li>Product lookup by ID returns the product regardless of status
+ *   <li>Product lookup by ID returns nothing when the product belongs to another user
  *   <li>Read-only operations with no database modifications
  * </ul>
  */
@@ -43,12 +44,13 @@ public interface FindProductsUseCase {
   List<ProductDTO> findActiveByUserId(UUID userId);
 
   /**
-   * Finds a product by its ID regardless of status.
+   * Finds a product of the user by its ID, regardless of status.
    *
    * <p><strong>Validations:</strong>
    *
    * <ul>
    *   <li>None (query returns empty if not found)
+   *   <li>Returns empty when the product belongs to another user
    * </ul>
    *
    * <p><strong>Database Operations:</strong>
@@ -57,8 +59,8 @@ public interface FindProductsUseCase {
    *   <li>SELECT: Product by ID (regardless of active/deleted status)
    * </ul>
    *
-   * @param findProductCommand contains the product ID to search for
-   * @return Optional containing the product DTO if found, empty otherwise
+   * @param findProductCommand contains the user ID and the product ID to search for
+   * @return Optional containing the product DTO if found and owned by the user, empty otherwise
    */
   Optional<ProductDTO> findProductById(FindProductCommand findProductCommand);
 }

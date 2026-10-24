@@ -29,6 +29,6 @@ jobs:
 
       # -am also deploys the parent POMs; a consumer cannot resolve the contracts without them.
       - name: Deploy contracts
-        run: mvn -B -s .github/maven-settings.xml -pl jbh-notification/jbh-notification-contracts -am -DskipTests deploy
+        run: ./mvnw -B -s .github/maven-settings.xml -pl jbh-notification/jbh-notification-contracts -am -DskipTests deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

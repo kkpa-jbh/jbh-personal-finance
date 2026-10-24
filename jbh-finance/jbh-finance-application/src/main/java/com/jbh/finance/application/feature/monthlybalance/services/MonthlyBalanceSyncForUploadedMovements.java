@@ -61,7 +61,8 @@ public class MonthlyBalanceSyncForUploadedMovements {
                   .map(MonthlyBalanceMapper::toDomain)
                   .orElseGet(() -> MonthlyBalanceDomain.withPeriod(accountId, monthlyPeriodKey));
 
-          // TODO Should It return a AccountBusinessException?
+          // TODO: a BusinessException here becomes a RuntimeException. Decide if it should stay
+          // a BusinessException, so the caller gets a clear 4xx error.
           for (final MovementDomain movement : movementsInPeriod) {
             try {
               accountMonthlyBalance.assignMovement(movement);
