@@ -26,6 +26,9 @@ public class FindActiveProductsInputPort implements FindProductsUseCase {
 
   @Override
   public Optional<ProductDTO> findProductById(final FindProductCommand findProductCommand) {
-    return accountService.findProductById(findProductCommand.productId());
+    final UUID userId = findProductCommand.userId();
+    return accountService
+        .findProductById(findProductCommand.productId())
+        .filter(product -> userId.equals(product.userId()));
   }
 }
