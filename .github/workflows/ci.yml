@@ -167,7 +167,7 @@ jobs:
       # TRIVY_OFFLINE_SCAN: no calls to Maven Central. It blocks shared runner IPs
       # with "429 Too Many Requests". A POM missing from ~/.m2 is skipped.
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         env:
           TRIVY_OFFLINE_SCAN: true
         with:
@@ -178,7 +178,7 @@ jobs:
 
       # Step 4: Generate Trivy report as artifact (alternative to Security tab)
       - name: Generate Trivy report file
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         env:
           TRIVY_OFFLINE_SCAN: true
         with:
