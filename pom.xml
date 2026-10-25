@@ -86,7 +86,7 @@
               <plugin>
                 <artifactId>findsecbugs-plugin</artifactId>
                 <groupId>com.h3xstream.findsecbugs</groupId>
-                <version>1.13.0</version>
+                <version>1.14.0</version>
               </plugin>
             </plugins>
             <threshold>Low</threshold>
@@ -201,7 +201,11 @@
         <groupId>ch.qos.logback</groupId>
         <version>${logback.version}</version>
       </dependency>
-
+      <dependency>
+        <groupId>com.github.spotbugs</groupId>
+        <artifactId>spotbugs-maven-plugin</artifactId>
+        <version>4.10.5.0</version>
+      </dependency>
     </dependencies>
   </dependencyManagement>
   <!-- Publishes jbh-notification-contracts (and its parent POMs) for CI builds of other repos. -->
@@ -258,36 +262,36 @@
 
   <properties>
     <!-- Java & Encoding -->
-    <jandex-plugin.version>3.1.2</jandex-plugin.version>
+    <jandex-plugin.version>3.6.0</jandex-plugin.version>
     <java.version>21</java.version>
     <junit.version>5.10.2</junit.version>
-    <logback.version>1.5.6</logback.version>
+    <logback.version>1.6.5</logback.version>
 
     <!-- Plugins -->
-    <lombok.version>1.18.30</lombok.version>
-    <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
-    <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
-    <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
+    <lombok.version>1.18.48</lombok.version>
+    <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
+    <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
+    <maven-failsafe-plugin.version>3.6.0</maven-failsafe-plugin.version>
 
     <!-- Test Maven Plugins -->
-    <maven-pmd-plugin.version>3.25.0</maven-pmd-plugin.version>
-    <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+    <maven-pmd-plugin.version>3.28.0</maven-pmd-plugin.version>
+    <maven-surefire-plugin.version>3.6.0</maven-surefire-plugin.version>
     <maven.compiler.release>${java.version}</maven.compiler.release>
 
     <!-- External Libraries -->
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
 
-    <maven.jacoco.plugin.version>0.8.12</maven.jacoco.plugin.version>
-    <mockito.version>5.10.0</mockito.version>
+    <maven.jacoco.plugin.version>0.8.15</maven.jacoco.plugin.version>
+    <mockito.version>5.24.0</mockito.version>
 
     <!-- Static Analysis Configuration -->
     <pmd.failOnViolation>true</pmd.failOnViolation>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <quarkus.version>3.18.4</quarkus.version>
-    <slf4j.version>2.0.13</slf4j.version>
+    <quarkus.version>3.40.1.1</quarkus.version>
+    <slf4j.version>2.0.20</slf4j.version>
     <spotbugs.failOnError>false</spotbugs.failOnError>
     <testcontainers.version>1.19.5</testcontainers.version>
   </properties>
