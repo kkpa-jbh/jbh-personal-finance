@@ -5,7 +5,7 @@
   "module": "platform",
   "roadmap": null,
   "request": "Implement this plan kkpa/plans/architecture/quarkus-3-33-lts-upgrade-2026-10-24.md.",
-  "status": "verified",
+  "status": "changes-requested",
   "rollup": {
     "current": [
       "T8"
@@ -23,7 +23,7 @@
     ]
   },
   "created_at": "2026-10-25T02:44:34Z",
-  "updated_at": "2026-10-25T03:13:04Z",
+  "updated_at": "2026-10-25T03:16:54Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-sonnet-5-5"
@@ -188,10 +188,65 @@
     }
   ],
   "review": {
-    "status": "pending",
-    "agent": null,
+    "status": "changes-requested",
+    "agent": "platform-reviewer",
     "brief": "Check: (1) D6 user decision: hibernate-types replaced by @JdbcTypeCode(SqlTypes.JSON), columns and Liquibase untouched; (2) tests never weakened (git diff for test dirs: only FinanceDatabaseTestProfile key rename and pom artifact rename); (3) no in-JVM state, no change to row-lock/@Version code; (4) JPMS fixes and asm dependency are minimal; (5) breaking-changes.md matches the code; (6) docs match; (7) Java stays 21. Signals: assistant-run: ./mvnw -B clean verify exit 0 and ./mvnw -q -B pmd:check exit 0 (leader, assistantRunsTests). User-reported: none yet; T8 app startup/Liquibase/health checks are the user's and pending. No unit tests were added (D7: none needed, all infra/config). test_first skipped.",
-    "rounds": []
+    "rounds": [
+      {
+        "round": 1,
+        "at": "2026-10-25T03:30:00Z",
+        "verdict": "changes-requested",
+        "security": {
+          "status": "passed",
+          "ran_at": "2026-10-25T03:30:00Z",
+          "scope": "git.base",
+          "findings": [],
+          "note": "origin/HEAD diff listed other files; applied the skill to git diff ad6f9a8...HEAD. No vulnerability on added lines (poms, JSON mapping annotations, config keys, wrapper SHA-256)."
+        },
+        "findings": [
+          {
+            "id": "R1",
+            "lens": "intent",
+            "severity": "major",
+            "note": "specs/platform-quarkus-runtime/spec.md scenario 'No unknown or deprecated key' requires 0 'Unrecognized configuration key' warnings. 9 remain (jbh-z-assembly application.properties: quarkus.smallrye-openapi.{scan-classes,jwt,auto-add-servers}; infra properties: quarkus.liquibase.<name>.{schemas,datasource}). D9 is an autopilot decision, not a user decision. Get a user decision: accept the gap (made_by user, scope review:R1) or remove the dead keys / change the spec. Also: breaking-changes.md section 7 says the liquibase keys were 'likely' ignored in 3.18.4 and not proven.",
+            "status": "fixed",
+            "triage": "accepted"
+          },
+          {
+            "id": "R2",
+            "lens": "intent",
+            "severity": "minor",
+            "note": "tasks.md: T3.4 is still '[ ]' while progress.json has T3 done (leader ran dependency:tree, see breaking-changes.md section 12). Tick it or explain. T7.3 (move plan to executed) is also open while T7 is done.",
+            "status": "fixed",
+            "triage": "accepted"
+          },
+          {
+            "id": "R3",
+            "lens": "design",
+            "severity": "minor",
+            "note": "design.md Responsibilities is out of date: it does not list the module-info.java changes 'requires io.smallrye.config' (finance-infra, preferences-infra) and 'requires org.eclipse.microprofile.config' (jbh-z-assembly/src/main/java/module-info.java:6), nor the new org.ow2.asm:asm dependency in jbh-preferences-infra/pom.xml:111-115.",
+            "status": "fixed",
+            "triage": "accepted"
+          },
+          {
+            "id": "R4",
+            "lens": "conventions",
+            "severity": "minor",
+            "note": "breaking-changes.md is not consistent with the code: section 8.3 row at line 258 still says the JPMS names smallrye.config.core and microprofile.config.api stay (code renamed both; section 12 only admits smallrye); section 14 line 392 says section 9 proved the 9 keys invalid in 3.18.4, but section 9/7 proves it only for the 3 openapi keys.",
+            "status": "fixed",
+            "triage": "accepted"
+          },
+          {
+            "id": "R5",
+            "lens": "architecture",
+            "severity": "minor",
+            "note": "The branch diff holds files unrelated to the upgrade: tracked .DS_Store (.claude/.DS_Store, openspec/.DS_Store, ...) and OpenSpec tooling under .claude/commands/opsx and .claude/skills/openspec-* (added in commit b25b161). Remove .DS_Store from git; confirm the tooling files are wanted in this PR. Real size is 52 files / ~3281 lines incl. openspec, not the 33 files recorded.",
+            "status": "fixed",
+            "triage": "accepted"
+          }
+        ]
+      }
+    ]
   },
   "decisions": [
     {
@@ -265,6 +320,14 @@
       "made_by": "autopilot",
       "decision": "Left 9 pre-existing unrecognized quarkus keys unchanged",
       "why": "Not valid in 3.18.4 either; removing them changes nothing, renaming needs a startup run"
+    },
+    {
+      "id": "D10",
+      "at": "2026-10-25T03:16:54Z",
+      "scope": "review:R1",
+      "made_by": "user",
+      "decision": "Remove the 9 unrecognized quarkus.* keys",
+      "why": "User chose removal at review R1; spec scenario then holds (0 warnings)"
     }
   ],
   "events": [
@@ -317,6 +380,11 @@
       "at": "2026-10-25T03:13:04Z",
       "agent": "leader",
       "event": "wave 4 (T7) reconciled; status verified on the recorded green suite (docs-only wave, no new run). Size:  33 files changed, 1033 insertions(+), 116 deletions(-)"
+    },
+    {
+      "at": "2026-10-25T03:16:54Z",
+      "agent": "leader",
+      "event": "review round 1 triaged, all 5 accepted and fixed: R1 keys removed (clean verify exit 0, 738 tests 0 failures, 0 unrecognized-key warnings, pmd:check exit 0); R2-R4 artifacts fixed; R5 20 stray files untracked (git rm --cached)."
     }
   ]
 }

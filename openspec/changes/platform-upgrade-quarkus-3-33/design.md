@@ -39,6 +39,8 @@ No new read path. Index plan: not applicable.
 Fix for breaking-changes 5.1 (D5/D6): JSON columns use Hibernate's own `@JdbcTypeCode(SqlTypes.JSON)`.
 No class is new. Each class below only changes the JSON mapping annotation (its job is unchanged).
 
+- `module-info.java` (finance-infra, preferences-infra, z-assembly): declares the JPMS requires. Only the module names change (`io.smallrye.config`, `org.eclipse.microprofile.config`).
+- `jbh-preferences-infra/pom.xml`: adds `org.ow2.asm:asm` so `io.smallrye.config` resolves on the module path.
 - `CategoryJPAEntity` (finance-infra): maps the `category` table; `displayName` and `description` are `jsonb`.
 - `ProductJPAEntity` (finance-infra): maps the `product` table; `metadata` is `jsonb`.
 - `MovementJPAEntity` (finance-infra): maps the `movement` table; `metadata` is `jsonb`.
