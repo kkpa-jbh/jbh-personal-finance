@@ -5,12 +5,13 @@ Nobody runs a build or tests in T1 to T7. T8 is for the user.
 
 ## T1. Collect the breaking changes
 Depends on: none. Goals: G2, G3. Files: `openspec/changes/platform-upgrade-quarkus-3-33/breaking-changes.md` (new).
-- [ ] T1.1 Find the newest 3.33.x LTS patch on <https://quarkus.io/releases> and write it at the top of `breaking-changes.md`.
-- [ ] T1.2 Read the migration guides 3.19 to 3.33 (<https://github.com/quarkusio/quarkus/wiki/Migration-Guides>). Use Context7 (`/websites/quarkus_io_guides`) and <https://quarkus.io/guides/update-quarkus> if the wiki is hard to read.
-- [ ] T1.3 Write a checklist with only the items that touch this repo: the extensions in use (`quarkus-arc`, `quarkus-rest`, `quarkus-rest-jackson`, `quarkus-smallrye-openapi`, `quarkus-smallrye-health`, `quarkus-hibernate-orm-panache`, `quarkus-hibernate-validator`, `quarkus-jdbc-postgresql`, `quarkus-liquibase`, `quarkus-mailer`, `quarkus-qute`, `quarkus-junit5`, `quarkus-junit5-mockito`), `quarkus.*` properties, JPMS/Jandex, Liquibase, named persistence units, Qute, mailer, OpenAPI, test support. Mark each item with the task that handles it (T2 to T6).
-- [ ] T1.4 State the Java baseline of 3.33. If it is above 21, STOP and ask the user (D4).
-- [ ] T1.5 State whether the Liquibase version change affects checksums of existing change sets (D6). If yes, STOP and ask the user.
-- [ ] T1.6 Note Hibernate ORM, Hibernate Validator, `quarkus-rest` and Jackson changes, and the supported release of `quarkus-hibernate-types`.
+- [x] T1.1 Find the newest 3.33.x LTS patch on <https://quarkus.io/releases> and write it at the top of `breaking-changes.md`.
+- [x] T1.2 Read the migration guides 3.19 to 3.33 (<https://github.com/quarkusio/quarkus/wiki/Migration-Guides>). Use Context7 (`/websites/quarkus_io_guides`) and <https://quarkus.io/guides/update-quarkus> if the wiki is hard to read.
+- [x] T1.3 Write a checklist with only the items that touch this repo: the extensions in use (`quarkus-arc`, `quarkus-rest`, `quarkus-rest-jackson`, `quarkus-smallrye-openapi`, `quarkus-smallrye-health`, `quarkus-hibernate-orm-panache`, `quarkus-hibernate-validator`, `quarkus-jdbc-postgresql`, `quarkus-liquibase`, `quarkus-mailer`, `quarkus-qute`, `quarkus-junit5`, `quarkus-junit5-mockito`), `quarkus.*` properties, JPMS/Jandex, Liquibase, named persistence units, Qute, mailer, OpenAPI, test support. Mark each item with the task that handles it (T2 to T6).
+- [x] T1.4 State the Java baseline of 3.33. If it is above 21, STOP and ask the user (D4).
+- [x] T1.5 State whether the Liquibase version change affects checksums of existing change sets (D6). If yes, STOP and ask the user.
+- [x] T1.6 Note Hibernate ORM, Hibernate Validator, `quarkus-rest` and Jackson changes, and the supported release of `quarkus-hibernate-types`.
+- [x] T1.7 Add a section "Transitive dependencies" to `breaking-changes.md` (user instruction): (a) libraries the 3.33 BOM manages differently from 3.18 (Hibernate, Jackson, Liquibase, Jakarta APIs, Mutiny/Vert.x, Netty, JDBC driver, SnakeYAML); (b) versions this repo pins or gets from non-Quarkus dependencies that could conflict or be ignored; (c) JPMS impact (`requires`, automatic-module names). Done: section 8 of `breaking-changes.md`.
 
 ## T2. Bump the Quarkus version
 Depends on: T1. Goals: G1. Files: `pom.xml`.
@@ -22,6 +23,7 @@ Depends on: T1, T2. Goals: G2. Files: `pom.xml`, `jbh-finance/jbh-finance-infra/
 - [ ] T3.1 Set `io.quarkiverse.hibernatetypes:quarkus-hibernate-types` (now 2.2.0) to the release that supports 3.33. If the BOM manages it, remove the explicit `<version>`. Explain why a dependency changes (code-quality.md, Delivery Rules).
 - [ ] T3.2 If the extension is incompatible with the Hibernate ORM version, replace its usage per its docs. Record this in `breaking-changes.md`. If the replacement needs code in several modules, add it under T5.
 - [ ] T3.3 Check `testcontainers.version` (1.19.5), `mockito.version` (5.10.0), JaCoCo, PMD and SpotBugs plugin versions. Raise one only when T1 or the Quarkus BOM requires it. Write the reason in `breaking-changes.md`.
+- [ ] T3.4 Check transitive dependencies (user instruction). After the bump, the leader runs `mvn dependency:tree` and `mvn dependency:tree -Dverbose` per module and compares with the T1.7 list. Look for: version conflicts, an explicit `<version>` or exclusion that now overrides or blocks a BOM-managed version, duplicate or removed artifacts, and changed Jakarta or Hibernate versions. Fix in the pom and write each finding in `breaking-changes.md`.
 
 ## T4. Update `application.properties` keys
 Depends on: T1. Goals: G3. Files: the 4 `application.properties` (finance-infra, preferences-infra, notification-infra, z-assembly).

@@ -5,11 +5,10 @@
   "module": "platform",
   "roadmap": null,
   "request": "Implement this plan kkpa/plans/architecture/quarkus-3-33-lts-upgrade-2026-10-24.md.",
-  "status": "proposed",
+  "status": "in-progress",
   "rollup": {
     "current": [],
     "pending": [
-      "T1",
       "T2",
       "T3",
       "T4",
@@ -19,10 +18,12 @@
       "T8"
     ],
     "blocked": [],
-    "done": []
+    "done": [
+      "T1"
+    ]
   },
   "created_at": "2026-10-25T02:44:34Z",
-  "updated_at": "2026-10-25T02:44:34Z",
+  "updated_at": "2026-10-25T02:55:00Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-sonnet-5-5"
@@ -49,13 +50,13 @@
       "module": "platform",
       "depends_on": [],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": "",
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-25T02:44:45Z",
+      "completed_at": "2026-10-25T02:55:00Z",
+      "duration_seconds": 615,
+      "notes": "Target 3.33.4.1. Java 21 ok. No Liquibase checksum risk. Found: hibernate-types breaks on ORM 7.2; Maven 3.9.12 needed; pool max-size 50. See breaking-changes.md.",
       "budget": null
     },
     {
@@ -239,6 +240,16 @@
       "at": "2026-10-25T02:44:34Z",
       "agent": "leader",
       "event": "artifacts written and validated; design gate not touched (no DB change)"
+    },
+    {
+      "at": "2026-10-25T02:44:45Z",
+      "agent": "leader",
+      "event": "dispatched worker for wave 1 (T1)"
+    },
+    {
+      "at": "2026-10-25T02:55:00Z",
+      "agent": "leader",
+      "event": "wave 1 (T1) reconciled; doc-only wave, no suite run. Worker times were estimates."
     }
   ]
 }
