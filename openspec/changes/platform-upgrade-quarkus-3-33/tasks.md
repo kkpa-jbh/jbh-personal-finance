@@ -33,14 +33,14 @@ Depends on: T1. Goals: G3. Files: the 4 `application.properties` (finance-infra,
 
 ## T5. Fix source code for breaking changes
 Depends on: T1, T2, T3. Goals: G2. Files: decided by the T1 list (tests only when D7 says so; likely `module-info.java`, `*-infra` Panache/Hibernate entities, REST adapters, Qute templates, `@QuarkusTest` classes).
-- [ ] T5.1 For each T1 item marked "T5", find usages with CodeGraph (`codegraph_search`, `codegraph_impact`) and edit. A refactor is allowed if the Quarkus change needs it (D3). Tie each one to a named item in `breaking-changes.md`.
-- [ ] T5.2 Keep the hexagonal rules: no framework import in domain or application. Respect `pmd-ruleset.xml` ("Common traps" in code-quality.md).
-- [ ] T5.3 Do not touch row lock or `@Version` code paths unless a break forces it. Never add in-JVM state.
-- [ ] T5.3a For every new or changed class, add one line (class, its one job) to the Responsibilities section of design.md.
-- [ ] T5.4 Decide per fix: test needed? yes/no. Write one line per fix in `breaking-changes.md`. Yes only if the fix changes logic or behavior in a domain or application module (D7).
-- [ ] T5.5 For each "yes", add the unit test in the same task as the fix, per `.claude/standards/testing.md`. No test for `jbh-*-infra` or `jbh-z-assembly`.
-- [ ] T5.6 If an existing test breaks because of a Quarkus API change, adapt it. Keep its assertions. Never weaken or delete it. If it looks wrong, report `blocked`.
-- [ ] T5.7 If the T1 list holds no code item, tick T5 and write "no code change needed" in `breaking-changes.md`.
+- [x] T5.1 For each T1 item marked "T5", find usages with CodeGraph (`codegraph_search`, `codegraph_impact`) and edit. A refactor is allowed if the Quarkus change needs it (D3). Tie each one to a named item in `breaking-changes.md`.
+- [x] T5.2 Keep the hexagonal rules: no framework import in domain or application. Respect `pmd-ruleset.xml` ("Common traps" in code-quality.md).
+- [x] T5.3 Do not touch row lock or `@Version` code paths unless a break forces it. Never add in-JVM state.
+- [x] T5.3a For every new or changed class, add one line (class, its one job) to the Responsibilities section of design.md.
+- [x] T5.4 Decide per fix: test needed? yes/no. Write one line per fix in `breaking-changes.md`. Yes only if the fix changes logic or behavior in a domain or application module (D7).
+- [x] T5.5 For each "yes", add the unit test in the same task as the fix, per `.claude/standards/testing.md`. No test for `jbh-*-infra` or `jbh-z-assembly`.
+- [x] T5.6 If an existing test breaks because of a Quarkus API change, adapt it. Keep its assertions. Never weaken or delete it. If it looks wrong, report `blocked`.
+- [x] T5.7 If the T1 list holds no code item, tick T5 and write "no code change needed" in `breaking-changes.md`.
 
 ## T6. Check CI, image and scripts
 Depends on: T1, T2. Goals: G2. Files: `.github/workflows/ci.yml`, `.github/workflows/image.yml`, `Makefile`, `scripts/`, `jbh-z-assembly/Dockerfile` (change only if version-specific).

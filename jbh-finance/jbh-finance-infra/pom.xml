@@ -179,12 +179,6 @@
       <artifactId>quarkus-hibernate-orm-panache</artifactId>
       <groupId>io.quarkus</groupId>
     </dependency>
-    <!-- https://mvnrepository.com/artifact/io.quarkiverse.hibernatetypes/quarkus-hibernate-types -->
-    <dependency>
-      <artifactId>quarkus-hibernate-types</artifactId>
-      <groupId>io.quarkiverse.hibernatetypes</groupId>
-      <version>2.2.0</version>
-    </dependency>
     <dependency>
       <artifactId>quarkus-jdbc-postgresql</artifactId>
       <groupId>io.quarkus</groupId>

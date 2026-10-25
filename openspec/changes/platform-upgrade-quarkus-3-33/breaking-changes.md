@@ -346,3 +346,36 @@ Nothing was built or run. Versions below were checked on Maven Central.
 - `hypersistence-utils-hibernate-63` 3.7.4 arrives only through `quarkus-hibernate-types`. It is removed together with it in T5.
 - JPMS: `smallrye-config-core` 3.16.0 now ships a real `module-info`. The module name changed from `smallrye.config.core` to `io.smallrye.config`. Fixed in the two infra `module-info.java` files. Section 8 above said the names stay; that was wrong for this one. Other `requires` names must be re-checked at compile time.
 - Compile now fails only on `org.hibernate.query.BindableType` (removed in Hibernate 7). This confirms the `quarkus-hibernate-types` replacement (D6) in T5.
+
+## 13. T5 applied: replace `quarkus-hibernate-types` (user decision D6, Option B)
+
+Nothing was built or run.
+
+- 6 entities (7 attributes): `@Type(JsonBinaryType.class)` replaced by `@JdbcTypeCode(SqlTypes.JSON)`
+  (`org.hibernate.annotations.JdbcTypeCode`, `org.hibernate.type.SqlTypes`). `@Column(... columnDefinition = "jsonb")`
+  and the Java field types are unchanged, so the schema and the Liquibase change sets do not change.
+  Files: `CategoryJPAEntity` (2), `ProductJPAEntity`, `MovementJPAEntity`, `TeamPreferencesJPAEntity`,
+  `UserPreferencesJPAEntity`, `NotificationEntity`.
+- Removed the `io.quarkiverse.hibernatetypes:quarkus-hibernate-types` dependency from `jbh-finance-infra`, `jbh-preferences-infra`
+  and `jbh-notification-infra` poms. This also drops `hypersistence-utils-hibernate-63` (section 12).
+- Removed `requires io.hypersistence.utils.hibernate.type;` from the `module-info.java` of finance-infra and preferences-infra.
+  `requires org.hibernate.orm.core;` stays: the new annotations live in `hibernate-core`. Notification-infra has no `module-info.java`.
+  No `opens` change: Hibernate reads entities through the Quarkus bytecode setup as before.
+- Jackson check: Hibernate 7 JSON uses the Quarkus format mapper, which is backed by the Quarkus `ObjectMapper`
+  (the old extension also supplied that mapper). Field types: `Map<String,String>`, `Map<String,Object>`,
+  `Map<ProductMetadataKey,Object>`, `Map<MovementMetadataKey,Object>`. All are Maps with String or enum keys and plain values.
+  Jackson handles them with no annotation. No POJO is stored. No Jackson annotation needed.
+  Residual risk: `Object` values read back as `Integer`/`Long`/`Double`/`String`/`List`/`Map` by Jackson defaults
+  (the old type did the same). Check one existing row with metadata in T8.5.
+- Search for other uses (`hypersistence`, `hibernate-types`, `JsonBinaryType`) in `*.java`, `pom.xml`: 0 hits.
+
+### T5.4 Test decisions (D7)
+
+- JSON mapping annotation in 6 entities: test needed? **no**. `*-infra`, no logic change (testing.md). Proof: `@QuarkusTest` Dev Services tests and T8.
+- Pom dependency removal (3 poms): test needed? **no**. Build change only.
+- `module-info.java` `requires` removal (2 files): test needed? **no**. Compile check only.
+
+### T5.6 / T5.7
+
+- Existing tests broken by a Quarkus API change in this task: none found (no test uses `JsonBinaryType` or the removed dependency). No test was changed.
+- T5.7 does not apply: T5 had code items (above).

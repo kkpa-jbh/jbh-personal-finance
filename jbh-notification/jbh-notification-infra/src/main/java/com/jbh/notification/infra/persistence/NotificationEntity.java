@@ -3,7 +3,6 @@ package com.jbh.notification.infra.persistence;
 import com.jbh.notification.contracts.NotificationType;
 import com.jbh.notification.contracts.email.EmailTemplate;
 import com.jbh.notification.infra.dto.NotificationDTO;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,7 +17,8 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Getter
@@ -60,7 +60,7 @@ public class NotificationEntity extends PanacheEntityBase {
   @Column(name = "status", nullable = false, length = 50)
   private NotificationStatus status = NotificationStatus.PENDING;
 
-  @Type(JsonBinaryType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "metadata", columnDefinition = "jsonb")
   private Map<String, Object> metadata;
 

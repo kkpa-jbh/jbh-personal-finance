@@ -36,8 +36,18 @@ No new read path. Index plan: not applicable.
 
 ## Responsibilities
 
-To be filled in during T5. List every new or changed class with its one job, one line each, and the
-breaking change that needs it. If T5 adds or changes no class, write `none`.
+Fix for breaking-changes 5.1 (D5/D6): JSON columns use Hibernate's own `@JdbcTypeCode(SqlTypes.JSON)`.
+No class is new. Each class below only changes the JSON mapping annotation (its job is unchanged).
+
+- `CategoryJPAEntity` (finance-infra): maps the `category` table; `displayName` and `description` are `jsonb`.
+- `ProductJPAEntity` (finance-infra): maps the `product` table; `metadata` is `jsonb`.
+- `MovementJPAEntity` (finance-infra): maps the `movement` table; `metadata` is `jsonb`.
+- `TeamPreferencesJPAEntity` (preferences-infra): maps team preferences; `metadata` is `jsonb`.
+- `UserPreferencesJPAEntity` (preferences-infra): maps user preferences; `metadata` is `jsonb`.
+- `NotificationEntity` (notification-infra): maps notifications; `metadata` is `jsonb`.
+- `module-info.java` of finance-infra and preferences-infra: declare module reads; the
+  `io.hypersistence.utils.hibernate.type` line is removed (`org.hibernate.orm.core` stays: it holds
+  `JdbcTypeCode` and `SqlTypes`).
 
 ## Concurrency
 

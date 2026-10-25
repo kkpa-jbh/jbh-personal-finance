@@ -3,7 +3,6 @@ package com.jbh.preferences.infra.adapters.out.persistence;
 import com.jbh.preferences.application.core.dto.TeamPreferencesDTO;
 import com.jbh.preferences.domain.vo.Currency;
 import com.jbh.preferences.domain.vo.PreferencesMetadata;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,7 +18,8 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Getter
@@ -38,7 +38,7 @@ public class TeamPreferencesJPAEntity extends PanacheEntityBase {
   @Column(name = "savings_goal", precision = 20, scale = 2)
   private BigDecimal savingsGoal = BigDecimal.ZERO;
 
-  @Type(JsonBinaryType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "metadata", columnDefinition = "jsonb")
   private Map<String, Object> metadata;
 

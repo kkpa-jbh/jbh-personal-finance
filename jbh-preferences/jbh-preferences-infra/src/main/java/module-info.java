@@ -10,7 +10,6 @@ module jbh.preferences.infra {
   requires org.eclipse.microprofile.openapi;
   requires quarkus.core;
   requires jbh.preferences.domain;
-  requires io.hypersistence.utils.hibernate.type;
   requires org.hibernate.orm.core;
   requires static lombok;
   requires resteasy.reactive.common;

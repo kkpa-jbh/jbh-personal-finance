@@ -10,7 +10,6 @@ module jbh.finance.infra {
   requires org.eclipse.microprofile.openapi;
   requires quarkus.core;
   requires jbh.finance.domain;
-  requires io.hypersistence.utils.hibernate.type;
   requires org.hibernate.orm.core;
   requires static lombok;
   requires org.apache.poi.ooxml;
