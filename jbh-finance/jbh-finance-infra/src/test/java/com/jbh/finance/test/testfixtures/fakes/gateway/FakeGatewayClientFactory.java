@@ -22,16 +22,26 @@ public class FakeGatewayClientFactory implements GatewayClientFactory {
 
   private static final int OK = 200;
   private static final int UNAUTHORIZED = 401;
+  private static final int NOT_FOUND = 404;
   private static final Map<String, UUID> USER_IDS_BY_TOKEN =
       Map.of(USER_A_TOKEN, USER_A_ID, USER_B_TOKEN, USER_B_ID);
 
   @Override
   public JbhUserGatewayClient getUserClient() {
-    return headers -> {
-      final UUID userId = USER_IDS_BY_TOKEN.get(headers.get(HttpHeaders.AUTHORIZATION));
-      return userId == null
-          ? JbhHttpResponse.builder().statusCode(UNAUTHORIZED).build()
-          : JbhHttpResponse.builder().statusCode(OK).typedBody(userId).build();
+    return new JbhUserGatewayClient() {
+      @Override
+      public JbhHttpResponse findUserId(final Map<String, String> headers) {
+        final UUID userId = USER_IDS_BY_TOKEN.get(headers.get(HttpHeaders.AUTHORIZATION));
+        return userId == null
+            ? JbhHttpResponse.builder().statusCode(UNAUTHORIZED).build()
+            : JbhHttpResponse.builder().statusCode(OK).typedBody(userId).build();
+      }
+
+      /** Finance never asks for a team. */
+      @Override
+      public JbhHttpResponse findUserGroup(final UUID groupId, final Map<String, String> headers) {
+        return JbhHttpResponse.builder().statusCode(NOT_FOUND).build();
+      }
     };
   }
 }

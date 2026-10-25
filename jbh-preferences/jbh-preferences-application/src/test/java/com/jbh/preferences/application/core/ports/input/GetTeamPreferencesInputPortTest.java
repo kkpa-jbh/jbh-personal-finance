@@ -4,8 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.jbh.commons.exception.BusinessException;
+import com.jbh.commons.exception.InternalSystemException;
 import com.jbh.preferences.application.core.dto.TeamPreferencesDTO;
+import com.jbh.preferences.application.core.services.TeamMembershipGuard;
 import com.jbh.preferences.application.core.services.TeamPreferencesService;
+import com.jbh.preferences.application.core.vo.CallerToken;
 import com.jbh.preferences.domain.exceptions.PreferencesBusinessExceptionType;
 import com.jbh.preferences.domain.vo.Currency;
 import com.jbh.preferences.domain.vo.PreferencesMetadata;
@@ -21,13 +24,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class GetTeamPreferencesInputPortTest {
 
+  private static final CallerToken CALLER = new CallerToken("Bearer member");
+
   @Mock private TeamPreferencesService preferencesService;
 
   private GetTeamPreferencesInputPort inputPort;
 
   @BeforeEach
   void setUp() {
-    inputPort = new GetTeamPreferencesInputPort(preferencesService);
+    inputPort =
+        new GetTeamPreferencesInputPort(
+            preferencesService, new TeamMembershipGuard((team, caller) -> true));
   }
 
   @Test
@@ -73,5 +80,32 @@ class GetTeamPreferencesInputPortTest {
 
     assertThrows(NullPointerException.class, () -> inputPort.execute(null));
     verify(preferencesService).getPreferences(null);
+  }
+
+  @Test
+  void executeForCaller_shouldReturnThePreferencesToAMember()
+      throws BusinessException, InternalSystemException {
+    final UUID teamId = UUID.randomUUID();
+    final TeamPreferencesDTO expectedDto = createSampleDTO(teamId);
+    when(preferencesService.getPreferences(teamId)).thenReturn(expectedDto);
+
+    final TeamPreferencesDTO result = inputPort.execute(teamId, CALLER);
+
+    assertEquals(expectedDto, result);
+  }
+
+  @Test
+  void executeForCaller_shouldRejectANonMemberAndNotReadThePreferences() {
+    final UUID teamId = UUID.randomUUID();
+    final GetTeamPreferencesInputPort nonMemberPort =
+        new GetTeamPreferencesInputPort(
+            preferencesService, new TeamMembershipGuard((team, caller) -> false));
+
+    final BusinessException exception =
+        assertThrows(BusinessException.class, () -> nonMemberPort.execute(teamId, CALLER));
+
+    assertEquals(
+        PreferencesBusinessExceptionType.TEAM_NOT_FOUND, exception.getBusinessExceptionType());
+    verifyNoInteractions(preferencesService);
   }
 }

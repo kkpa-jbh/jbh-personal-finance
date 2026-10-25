@@ -9,6 +9,7 @@ import com.jbh.preferences.application.core.dto.TeamPreferencesDTO;
 import com.jbh.preferences.application.core.ports.input.CreateTeamPreferencesInputPort;
 import com.jbh.preferences.application.core.ports.input.GetTeamPreferencesInputPort;
 import com.jbh.preferences.application.core.ports.input.UpdateTeamPreferencesInputPort;
+import com.jbh.preferences.application.core.vo.CallerToken;
 import com.jbh.preferences.infra.adapters.in.rest.vo.CreateTeamPreferencesRequest;
 import com.jbh.preferences.infra.adapters.in.rest.vo.TeamPreferencesResponse;
 import com.jbh.preferences.infra.adapters.in.rest.vo.UpdateTeamPreferencesRequest;
@@ -87,7 +88,8 @@ public class TeamPreferencesRestAdapter {
     final UUID userId = baseRestAdapter.findUserId(authorizationHeader);
     LOG.debug("Getting preferences for team: {} (requested by user: {})", teamId, userId);
 
-    final TeamPreferencesDTO preferences = getPreferencesUseCase.execute(teamId);
+    final TeamPreferencesDTO preferences =
+        getPreferencesUseCase.execute(teamId, new CallerToken(authorizationHeader));
     return Response.ok(TeamPreferencesResponse.fromDTO(preferences)).build();
   }
 
@@ -128,7 +130,8 @@ public class TeamPreferencesRestAdapter {
     LOG.debug("Updating preferences {} for team: {} by user: {}", request, teamId, userId);
 
     final TeamPreferencesDTO updated =
-        updatePreferencesUseCase.execute(teamId, request.toCommand(userId));
+        updatePreferencesUseCase.execute(
+            teamId, request.toCommand(userId), new CallerToken(authorizationHeader));
     return Response.ok(TeamPreferencesResponse.fromDTO(updated)).build();
   }
 
@@ -167,7 +170,8 @@ public class TeamPreferencesRestAdapter {
     LOG.debug("Creating default preferences for team: {} by user: {}", request.teamId(), userId);
 
     final TeamPreferencesDTO created =
-        createPreferencesUseCase.execute(request.teamId(), userId);
+        createPreferencesUseCase.execute(
+            request.teamId(), userId, new CallerToken(authorizationHeader));
     return Response.status(Response.Status.CREATED)
         .entity(TeamPreferencesResponse.fromDTO(created))
         .build();
