@@ -390,3 +390,14 @@ Fixes found only by the build, all JPMS or dependency related:
 - `jbh-preferences-infra/pom.xml`: add `org.ow2.asm:asm` (BOM version 9.9.1). `io.smallrye.config` requires `org.objectweb.asm` on the module path.
 - Stale `jbh-gateway-client` in `~/.m2` (env issue, not the upgrade): the user reinstalled it.
 Build log showed 9 "Unrecognized configuration key" warnings (review R1: the user chose to remove them; they are removed from the 4 `application.properties` files): `quarkus.smallrye-openapi.{scan-classes,jwt,auto-add-servers}` and `quarkus.liquibase.<finance|preferences|notifications>.{schemas,datasource}`. Section 9 found they were not valid in 3.18.4 either. They were unrecognized in 3.33.4; the 3.18.4 claim for the Liquibase keys was not proven. The startup check (T8.2/T8.3) stays with the user.
+
+## 15. Startup test by the leader (user gave permission) and one more break
+
+User run found: the app did not start. Quarkus 3.33 refuses to use the REST ObjectMapper for JSON columns when `quarkus.jackson.write-dates-as-timestamps=false` (the Quarkus default). Fix: `quarkus.hibernate-orm.mapping.format.global=ignore` in `jbh-z-assembly/src/main/resources/application.properties`. The key exists only as a global key (no per-persistence-unit form). Hibernate then uses its own Jackson mapper, like `quarkus-hibernate-types` did before. The earlier per-unit form (`quarkus.hibernate-orm.<name>.mapping.format.global`) is NOT valid.
+Why no test caught it: the test profiles do not start all 3 persistence units with the real Quarkus JSON config.
+Run by the leader: `java -jar jbh-z-assembly/target/quarkus-app/quarkus-run.jar` with local Postgres (jbh_finance) and Consul up, `CONSUL_ENABLED=false`, dummy `GMAIL_*` values.
+- Started in 2.8 s. 0 "Unrecognized configuration key" warnings.
+- Liquibase: 3 change logs, `Run: 0`, previously run 7 / 2 / 1, no checksum error.
+- `/q/health`: UP for `finance`, `preferences`, `notifications` and `<default>`. `/q/openapi`: HTTP 200.
+Not tested: endpoints with a real login and reading an existing `jsonb` row (IAM and the gateway were not running).
+Side note (existing bug, not from this change): `MailerConfigLogger.maskEmail` throws `StringIndexOutOfBoundsException` when `GMAIL_USERNAME` has no `@` (default `whoknows`). The app then fails to start.
