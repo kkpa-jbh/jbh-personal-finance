@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "kind": "change",
+  "change": "platform-upgrade-quarkus-3-33",
+  "module": "platform",
+  "roadmap": null,
+  "request": "Implement this plan kkpa/plans/architecture/quarkus-3-33-lts-upgrade-2026-10-24.md.",
+  "status": "proposed",
+  "rollup": {
+    "current": [],
+    "pending": [
+      "T1",
+      "T2",
+      "T3",
+      "T4",
+      "T5",
+      "T6",
+      "T7",
+      "T8"
+    ],
+    "blocked": [],
+    "done": []
+  },
+  "created_at": "2026-10-25T02:44:34Z",
+  "updated_at": "2026-10-25T02:44:34Z",
+  "leader": {
+    "assistant": "Claude Code",
+    "model": "claude-sonnet-5-5"
+  },
+  "git": {
+    "strategy": "auto",
+    "branch": "ft/CH2-z-assembly-upgrade-quarkus-3-33",
+    "base": "kkpa/score-repo-2026-10-24",
+    "ticket": null,
+    "ticket_url": null,
+    "ticket_tracker": null,
+    "created_at": "2026-10-25T02:44:34Z"
+  },
+  "test_first": {
+    "status": "skipped",
+    "commit": null,
+    "tests": [],
+    "approved_at": null
+  },
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Collect the breaking changes",
+      "module": "platform",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "",
+      "budget": null
+    },
+    {
+      "id": "T2",
+      "title": "Bump the Quarkus version",
+      "module": "platform",
+      "depends_on": [
+        "T1"
+      ],
+      "parallel_ok": true,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "",
+      "budget": null
+    },
+    {
+      "id": "T3",
+      "title": "Check non-managed dependency versions",
+      "module": "platform",
+      "depends_on": [
+        "T1",
+        "T2"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "",
+      "budget": null
+    },
+    {
+      "id": "T4",
+      "title": "Update application.properties keys",
+      "module": "platform",
+      "depends_on": [
+        "T1"
+      ],
+      "parallel_ok": true,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "",
+      "budget": null
+    },
+    {
+      "id": "T5",
+      "title": "Fix source code for breaking changes",
+      "module": "platform",
+      "depends_on": [
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "",
+      "budget": null
+    },
+    {
+      "id": "T6",
+      "title": "Check CI, image and scripts",
+      "module": "platform",
+      "depends_on": [
+        "T1",
+        "T2"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "",
+      "budget": null
+    },
+    {
+      "id": "T7",
+      "title": "Update docs and close the plan",
+      "module": "platform",
+      "depends_on": [
+        "T2",
+        "T3",
+        "T4",
+        "T5",
+        "T6"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "",
+      "budget": null
+    },
+    {
+      "id": "T8",
+      "title": "User verification (not run by agents)",
+      "module": "platform",
+      "depends_on": [
+        "T7"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "",
+      "budget": null
+    }
+  ],
+  "review": {
+    "status": "pending",
+    "agent": null,
+    "brief": "",
+    "rounds": []
+  },
+  "decisions": [
+    {
+      "id": "D1",
+      "at": "2026-10-25T02:44:34Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "One change, owner platform, no ticket",
+      "why": "Version bump cannot be split by module"
+    },
+    {
+      "id": "D2",
+      "at": "2026-10-25T02:44:34Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Tests only if needed; refactors allowed; only Java version change is out of scope",
+      "why": "User instruction after the design briefing"
+    },
+    {
+      "id": "D3",
+      "at": "2026-10-25T02:44:34Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Accepted size over cap (14-35 files, 250-900 lines)",
+      "why": "User chose Accept at the size-cap gate; real size measured after T1"
+    },
+    {
+      "id": "D4",
+      "at": "2026-10-25T02:44:34Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "Concurrency check: no race risk found in tasks",
+      "why": "Upgrade adds no shared state; design.md Concurrency section is none"
+    },
+    {
+      "id": "D5",
+      "at": "2026-10-25T02:44:34Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "test_first skipped",
+      "why": "Test need unknown until T1; no blueprint possible"
+    }
+  ],
+  "events": [
+    {
+      "at": "2026-10-25T02:44:34Z",
+      "agent": "leader",
+      "event": "artifacts written and validated; design gate not touched (no DB change)"
+    }
+  ]
+}
