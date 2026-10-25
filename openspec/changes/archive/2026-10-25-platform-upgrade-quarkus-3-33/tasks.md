@@ -55,11 +55,11 @@ Depends on: T2, T3, T4, T5, T6. Goals: G4. Files: `.claude/infrastructure/tech-s
 
 ## T8. User verification (not run by agents)
 Depends on: T7.
-- [ ] T8.1 `./mvnw clean verify` passes (tests, PMD, SpotBugs).
-- [ ] T8.2 Build log has no "unrecognized configuration key" or deprecation warning. Fix the key in the matching file if it has.
-- [ ] T8.3 Start the app with local Postgres and Consul (`../jbh-deploy/README.md`, "Start order"). Liquibase runs the 3 change logs with no error.
-- [ ] T8.4 `http://localhost:7777/q/health` returns UP. The OpenAPI page responds.
-- [ ] T8.5 One finance endpoint and one preferences endpoint work through the gateway with a real login.
+- [x] T8.1 `./mvnw clean verify` passes (tests, PMD, SpotBugs).
+- [x] T8.2 Build log has no "unrecognized configuration key" or deprecation warning. Fix the key in the matching file if it has.
+- [x] T8.3 Start the app with local Postgres and Consul (`../jbh-deploy/README.md`, "Start order"). Liquibase runs the 3 change logs with no error.
+- [x] T8.4 `http://localhost:7777/q/health` returns UP. The OpenAPI page responds.
+- [x] T8.5 One finance endpoint and one preferences endpoint work through the gateway with a real login.
 - [ ] T8.6 Push the branch, open a PR, `ci.yml` is green. `image.yml` builds the image. Deploy to a test environment before production.
 
 ## T9. Liquibase migration tests per module and schema (added by user request)

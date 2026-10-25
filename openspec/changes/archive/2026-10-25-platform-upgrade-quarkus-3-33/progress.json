@@ -7,9 +7,7 @@
   "request": "Implement this plan kkpa/plans/architecture/quarkus-3-33-lts-upgrade-2026-10-24.md.",
   "status": "verified",
   "rollup": {
-    "current": [
-      "T8"
-    ],
+    "current": [],
     "pending": [],
     "blocked": [],
     "done": [
@@ -20,7 +18,8 @@
       "T5",
       "T6",
       "T7",
-      "T9"
+      "T9",
+      "T8"
     ]
   },
   "created_at": "2026-10-25T02:44:34Z",
@@ -178,13 +177,13 @@
         "T7"
       ],
       "parallel_ok": false,
-      "status": "awaiting-user-verification",
+      "status": "done",
       "agent": null,
       "model": null,
       "started_at": null,
-      "completed_at": null,
+      "completed_at": "2026-10-25T11:53:33Z",
       "duration_seconds": null,
-      "notes": "Leader ran app: health UP, openapi 200, Liquibase Run 0. Open for user: endpoints with login, one jsonb row read, CI.",
+      "notes": "User tested endpoints with login (T8.5): OK. T8.6 (CI green, image build, test deploy) is open after the PR.",
       "budget": null
     },
     {
@@ -391,6 +390,14 @@
       "made_by": "user",
       "decision": "Add one Testcontainers Liquibase test per module/schema (T9), checked against databasechangelog",
       "why": "User wants proof that migrations run per schema; the test replaces a manual script"
+    },
+    {
+      "id": "D12",
+      "made_by": "user",
+      "scope": "change",
+      "why": "User go-ahead",
+      "at": "2026-10-25T11:53:33Z",
+      "decision": "Push branch and open PR after T8.5 passed"
     }
   ],
   "events": [
@@ -463,6 +470,11 @@
       "at": "2026-10-25T03:50:03Z",
       "agent": "leader",
       "event": "wave 5 (T9) reconciled. clean verify -Djbh.test.excludedGroups=none exit 0, 769 tests 0 failures; pmd:check exit 0; jar start health UP. Worker experiment read user's local jbh_finance (read only); removed."
+    },
+    {
+      "at": "2026-10-25T11:53:33Z",
+      "agent": "leader",
+      "event": "user reported T8.5 works (finance + preferences endpoints with login). User asked to push and open PR. T8.6 CI/image/test deploy remains after the PR."
     }
   ]
 }
