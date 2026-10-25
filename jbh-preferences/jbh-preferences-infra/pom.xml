@@ -108,6 +108,12 @@
 
   <dependencies>
 
+    <!-- io.smallrye.config (JPMS module since 3.16) requires org.objectweb.asm on the module path. Version: Quarkus BOM. -->
+    <dependency>
+      <artifactId>asm</artifactId>
+      <groupId>org.ow2.asm</groupId>
+    </dependency>
+
     <dependency>
       <artifactId>jbh-commons-lib</artifactId>
       <groupId>com.jbh</groupId>

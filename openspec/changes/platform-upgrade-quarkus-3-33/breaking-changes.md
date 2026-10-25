@@ -379,3 +379,14 @@ Nothing was built or run.
 
 - Existing tests broken by a Quarkus API change in this task: none found (no test uses `JsonBinaryType` or the removed dependency). No test was changed.
 - T5.7 does not apply: T5 had code items (above).
+
+## 14. Leader build results (after wave 3)
+
+`./mvnw -B clean verify` exit 0 (BUILD SUCCESS, all 13 modules, PMD and SpotBugs included). `./mvnw -q -B pmd:check` (Complexity-Check) exit 0. Tests: 0 failures, 0 errors, 0 skipped, including the database-backed tests.
+Fixes found only by the build, all JPMS or dependency related:
+- `jbh-finance/pom.xml`: pin `commons-collections4` 4.5.0 (enforcer convergence).
+- `requires smallrye.config.core` -> `requires io.smallrye.config` (finance-infra, preferences-infra).
+- `requires microprofile.config.api` -> `requires org.eclipse.microprofile.config` (z-assembly).
+- `jbh-preferences-infra/pom.xml`: add `org.ow2.asm:asm` (BOM version 9.9.1). `io.smallrye.config` requires `org.objectweb.asm` on the module path.
+- Stale `jbh-gateway-client` in `~/.m2` (env issue, not the upgrade): the user reinstalled it.
+Build log still shows 9 "Unrecognized configuration key" warnings: `quarkus.smallrye-openapi.{scan-classes,jwt,auto-add-servers}` and `quarkus.liquibase.<finance|preferences|notifications>.{schemas,datasource}`. Section 9 found they were not valid in 3.18.4 either. Left unchanged on purpose (no behavior change). The startup check (T8.2/T8.3) stays with the user.
