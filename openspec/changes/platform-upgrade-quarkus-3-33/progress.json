@@ -5,13 +5,12 @@
   "module": "platform",
   "roadmap": null,
   "request": "Implement this plan kkpa/plans/architecture/quarkus-3-33-lts-upgrade-2026-10-24.md.",
-  "status": "in-progress",
+  "status": "verified",
   "rollup": {
-    "current": [],
-    "pending": [
-      "T7",
+    "current": [
       "T8"
     ],
+    "pending": [],
     "blocked": [],
     "done": [
       "T1",
@@ -19,11 +18,12 @@
       "T3",
       "T4",
       "T5",
-      "T6"
+      "T6",
+      "T7"
     ]
   },
   "created_at": "2026-10-25T02:44:34Z",
-  "updated_at": "2026-10-25T03:12:20Z",
+  "updated_at": "2026-10-25T03:13:04Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-sonnet-5-5"
@@ -160,13 +160,13 @@
         "T6"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": "",
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-25T03:12:24Z",
+      "completed_at": "2026-10-25T03:13:04Z",
+      "duration_seconds": 40,
+      "notes": "README and tech-stack.md updated to Quarkus 3.33 LTS; Maven 3.9.12 note. jbh-deploy README needs no change.",
       "budget": null
     },
     {
@@ -177,20 +177,20 @@
         "T7"
       ],
       "parallel_ok": false,
-      "status": "pending",
+      "status": "awaiting-user-verification",
       "agent": null,
       "model": null,
       "started_at": null,
       "completed_at": null,
       "duration_seconds": null,
-      "notes": "",
+      "notes": "User runs the app with Postgres and Consul, checks health, OpenAPI, endpoints, CI.",
       "budget": null
     }
   ],
   "review": {
     "status": "pending",
     "agent": null,
-    "brief": "",
+    "brief": "Check: (1) D6 user decision: hibernate-types replaced by @JdbcTypeCode(SqlTypes.JSON), columns and Liquibase untouched; (2) tests never weakened (git diff for test dirs: only FinanceDatabaseTestProfile key rename and pom artifact rename); (3) no in-JVM state, no change to row-lock/@Version code; (4) JPMS fixes and asm dependency are minimal; (5) breaking-changes.md matches the code; (6) docs match; (7) Java stays 21. Signals: assistant-run: ./mvnw -B clean verify exit 0 and ./mvnw -q -B pmd:check exit 0 (leader, assistantRunsTests). User-reported: none yet; T8 app startup/Liquibase/health checks are the user's and pending. No unit tests were added (D7: none needed, all infra/config). test_first skipped.",
     "rounds": []
   },
   "decisions": [
@@ -307,6 +307,16 @@
       "at": "2026-10-25T03:12:20Z",
       "agent": "leader",
       "event": "leader ran ./mvnw -B clean verify -> exit 0 (BUILD SUCCESS, 0 test failures, PMD+SpotBugs ok) and ./mvnw -q -B pmd:check (Complexity-Check) -> exit 0; user reinstalled jbh-gateway-client first. Leader fixes: commons-collections4 pin, JPMS names (io.smallrye.config, org.eclipse.microprofile.config), asm dependency in preferences-infra. T3,T4,T5 -> done. App startup (T8) still with the user."
+    },
+    {
+      "at": "2026-10-25T03:12:24Z",
+      "agent": "leader",
+      "event": "commit 8c2e4c0; dispatched worker for wave 4 (T7)"
+    },
+    {
+      "at": "2026-10-25T03:13:04Z",
+      "agent": "leader",
+      "event": "wave 4 (T7) reconciled; status verified on the recorded green suite (docs-only wave, no new run). Size:  33 files changed, 1033 insertions(+), 116 deletions(-)"
     }
   ]
 }

@@ -4,7 +4,7 @@
 
 ### Quarkus with GraalVM
 
-**Runtime Framework:** Quarkus
+**Runtime Framework:** Quarkus 3.33 LTS (3.33.4.1), Hibernate ORM 7.2, Java 21
 
 - Supersonic Subatomic Java
 - Native compilation support with GraalVM

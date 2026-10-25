@@ -49,8 +49,8 @@ Depends on: T1, T2. Goals: G2. Files: `.github/workflows/ci.yml`, `.github/workf
 
 ## T7. Update docs and close the plan
 Depends on: T2, T3, T4, T5, T6. Goals: G4. Files: `.claude/infrastructure/tech-stack.md`, `README.md`, `docs/`, `.claude/CLAUDE.md` (only where they name the version), the source plan file.
-- [ ] T7.1 Run `/usr/bin/grep -rn "3\.18\|Quarkus 3" README.md docs .claude` and replace the old version with the new one.
-- [ ] T7.2 Grep `../jbh-deploy/README.md` for a Quarkus version. Edit only if a line is wrong.
+- [x] T7.1 Run `/usr/bin/grep -rn "3\.18\|Quarkus 3" README.md docs .claude` and replace the old version with the new one.
+- [x] T7.2 Grep `../jbh-deploy/README.md` for a Quarkus version. Edit only if a line is wrong.
 - [ ] T7.3 At the end of the work, the leader or user moves the plan to `kkpa/plans/executed/architecture/` and adds its Execution Notes (as the plan asks).
 
 ## T8. User verification (not run by agents)
