@@ -16,7 +16,7 @@ public class MonthlyBalanceWriterRepoAdapter implements MonthlyBalanceWriterRepo
   @Inject MonthlyBalanceJPARepository jpaRepo;
 
   @Override
-  // FIXME: Improve it to save all at once
+  // TODO: save all balances in one batch. Today existing rows are saved one by one.
   public List<MonthlyBalanceDTO> saveMultiBalances(
       final List<MonthlyBalanceDTO> accountMonthlyBalance) {
     try {

@@ -54,10 +54,12 @@ jobs:
           PACKAGES_READ_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN }}
         # -Pgithub: jbh-gateway-client comes from GitHub Packages, not ~/.m2.
         # -U: the ~/.m2 cache is restored, so force a check for a newer SNAPSHOT.
+        # excludedGroups=none: also run the "database" tests. They start PostgreSQL in Docker.
         run: |
-          mvn -U -s .github/maven-settings.xml -Pgithub clean verify \
+          ./mvnw -U -s .github/maven-settings.xml -Pgithub clean verify \
             -Dpmd.failOnViolation=true \
-            -Dspotbugs.failOnError=true
+            -Dspotbugs.failOnError=true \
+            -Djbh.test.excludedGroups=none
       
       # Step 5: Generate human-readable test reports from JUnit XML
       # Runs even if tests fail to provide visibility into test results
@@ -68,6 +70,34 @@ jobs:
           name: Maven Tests
           path: '**/target/surefire-reports/TEST-*.xml'
           reporter: java-junit
+
+      # Step 5b: Show line coverage per module in the job summary.
+      # mvn verify already writes target/site/jacoco/jacoco.csv in each module with JaCoCo.
+      - name: Coverage summary
+        if: success() || failure()
+        run: |
+          {
+            echo "## Line coverage (JaCoCo)"
+            echo ""
+            echo "| Module | Lines covered | Coverage |"
+            echo "|---|---|---|"
+            find . -path '*/target/site/jacoco/jacoco.csv' | sort | while read -r csv; do
+              module=$(echo "$csv" | sed -E 's|^\./||; s|/target/site/jacoco/jacoco.csv$||')
+              # Columns 8 and 9 are LINE_MISSED and LINE_COVERED.
+              awk -F, -v m="$module" 'NR > 1 { miss += $8; cov += $9 }
+                END { total = miss + cov; pct = total ? 100 * cov / total : 0;
+                      printf "| %s | %d / %d | %.1f%% |\n", m, cov, total, pct }' "$csv"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Step 5c: Keep the HTML coverage reports for 30 days
+      - name: Archive coverage reports
+        uses: actions/upload-artifact@v4
+        if: success() || failure()
+        with:
+          name: coverage-reports
+          path: '**/target/site/jacoco/'
+          retention-days: 30
 
       # Step 6: Archive PMD analysis reports as build artifacts
       # Always uploads PMD reports (even on build failure) for 30 days
@@ -167,7 +197,7 @@ jobs:
       # TRIVY_OFFLINE_SCAN: no calls to Maven Central. It blocks shared runner IPs
       # with "429 Too Many Requests". A POM missing from ~/.m2 is skipped.
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         env:
           TRIVY_OFFLINE_SCAN: true
         with:
@@ -178,7 +208,7 @@ jobs:
 
       # Step 4: Generate Trivy report as artifact (alternative to Security tab)
       - name: Generate Trivy report file
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
         env:
           TRIVY_OFFLINE_SCAN: true
         with:

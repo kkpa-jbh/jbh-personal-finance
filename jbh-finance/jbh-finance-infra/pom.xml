@@ -254,6 +254,13 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- HTTP calls in ProductRestHttpTest. Version comes from the Quarkus BOM. -->
+    <dependency>
+      <artifactId>rest-assured</artifactId>
+      <groupId>io.rest-assured</groupId>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <artifactId>mockito-core</artifactId>
       <groupId>org.mockito</groupId>

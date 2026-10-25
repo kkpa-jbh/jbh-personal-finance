@@ -66,3 +66,8 @@ replay_pid*
 
 # Application specific
 application-local.properties
+
+# Local env files with secrets
+.env
+.env.*
+!.env.example

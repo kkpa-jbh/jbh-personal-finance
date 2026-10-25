@@ -1,0 +1,23 @@
+# Weekly update PRs for Maven and GitHub Actions.
+# Minor and patch updates come in one PR per ecosystem, to keep the PR count low.
+version: 2
+updates:
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    ignore:
+      # Our own libraries (jbh-gateway-client, contracts). They are SNAPSHOTs from GitHub Packages.
+      - dependency-name: "com.jbh:*"
+    groups:
+      maven-minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
