@@ -291,7 +291,7 @@
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <pdfbox.version>3.0.8</pdfbox.version>
-    <poi.version>5.4.1</poi.version>
+    <poi.version>6.0.0</poi.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
