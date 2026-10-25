@@ -35,6 +35,19 @@
         </executions>
         <groupId>io.smallrye</groupId>
       </plugin>
+
+      <!-- Tests tagged "database" need Docker, so they run only with -Djbh.test.excludedGroups=none -->
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludedGroups>${jbh.test.excludedGroups}</excludedGroups>
+          <systemPropertyVariables>
+            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+          </systemPropertyVariables>
+          <useModulePath>false</useModulePath>
+        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+      </plugin>
     </plugins>
   </build>
 
@@ -119,6 +132,13 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- Throwaway PostgreSQL for the Liquibase migration test. Version comes from the Quarkus BOM. -->
+    <dependency>
+      <artifactId>testcontainers-postgresql</artifactId>
+      <groupId>org.testcontainers</groupId>
+      <scope>test</scope>
+    </dependency>
+
     <!-- Test Dependencies -->
     <dependency>
       <artifactId>quarkus-junit</artifactId>
@@ -163,6 +183,7 @@
   </parent>
 
   <properties>
+    <jbh.test.excludedGroups>database</jbh.test.excludedGroups>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

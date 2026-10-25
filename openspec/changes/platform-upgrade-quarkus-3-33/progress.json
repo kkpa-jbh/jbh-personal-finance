@@ -5,7 +5,7 @@
   "module": "platform",
   "roadmap": null,
   "request": "Implement this plan kkpa/plans/architecture/quarkus-3-33-lts-upgrade-2026-10-24.md.",
-  "status": "changes-requested",
+  "status": "verified",
   "rollup": {
     "current": [
       "T8"
@@ -19,11 +19,12 @@
       "T4",
       "T5",
       "T6",
-      "T7"
+      "T7",
+      "T9"
     ]
   },
   "created_at": "2026-10-25T02:44:34Z",
-  "updated_at": "2026-10-25T03:26:14Z",
+  "updated_at": "2026-10-25T03:50:03Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-sonnet-5-5"
@@ -185,12 +186,29 @@
       "duration_seconds": null,
       "notes": "Leader ran app: health UP, openapi 200, Liquibase Run 0. Open for user: endpoints with login, one jsonb row read, CI.",
       "budget": null
+    },
+    {
+      "id": "T9",
+      "title": "Liquibase migration tests per module and schema",
+      "module": "platform",
+      "depends_on": [
+        "T5"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-25T03:32:17Z",
+      "completed_at": "2026-10-25T03:50:03Z",
+      "duration_seconds": 1066,
+      "notes": "3 Liquibase migration tests (7 each) on Testcontainers. Moved format.global key to infra modules. Preferences/notification use a Testcontainers resource. clean verify: 769 tests, 0 failures.",
+      "budget": null
     }
   ],
   "review": {
     "status": "approved",
     "agent": "platform-reviewer",
-    "brief": "Check: (1) D6 user decision: hibernate-types replaced by @JdbcTypeCode(SqlTypes.JSON), columns and Liquibase untouched; (2) tests never weakened (git diff for test dirs: only FinanceDatabaseTestProfile key rename and pom artifact rename); (3) no in-JVM state, no change to row-lock/@Version code; (4) JPMS fixes and asm dependency are minimal; (5) breaking-changes.md matches the code; (6) docs match; (7) Java stays 21. Signals: assistant-run: ./mvnw -B clean verify exit 0 and ./mvnw -q -B pmd:check exit 0 (leader, assistantRunsTests). User-reported: none yet; T8 app startup/Liquibase/health checks are the user's and pending. No unit tests were added (D7: none needed, all infra/config). test_first skipped.",
+    "brief": "Check: (1) D6 user decision: hibernate-types replaced by @JdbcTypeCode(SqlTypes.JSON), columns and Liquibase untouched; (2) tests never weakened (git diff for test dirs: only FinanceDatabaseTestProfile key rename and pom artifact rename); (3) no in-JVM state, no change to row-lock/@Version code; (4) JPMS fixes and asm dependency are minimal; (5) breaking-changes.md matches the code; (6) docs match; (7) Java stays 21. Signals: assistant-run: ./mvnw -B clean verify exit 0 and ./mvnw -q -B pmd:check exit 0 (leader, assistantRunsTests). User-reported: none yet; T8 app startup/Liquibase/health checks are the user's and pending. No unit tests were added (D7: none needed, all infra/config). test_first skipped. ROUND 3: new since round 2: T9 (3 Liquibase migration tests, D11 user decision), format.global key moved to the 3 infra application.properties, test resource classes, surefire/testcontainers changes in preferences-infra and notification-infra poms. Signals (assistant-run by leader): ./mvnw -B clean verify -Djbh.test.excludedGroups=none exit 0, 769 tests 0 failures; pmd:check exit 0; jar start health UP. Note: tests carry tag 'database'. A worker experiment briefly read the local jbh_finance DB (read only, removed).",
     "rounds": [
       {
         "round": 1,
@@ -342,6 +360,14 @@
       "made_by": "user",
       "decision": "Remove the 9 unrecognized quarkus.* keys",
       "why": "User chose removal at review R1; spec scenario then holds (0 warnings)"
+    },
+    {
+      "id": "D11",
+      "at": "2026-10-25T03:32:17Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Add one Testcontainers Liquibase test per module/schema (T9), checked against databasechangelog",
+      "why": "User wants proof that migrations run per schema; the test replaces a manual script"
     }
   ],
   "events": [
@@ -404,6 +430,16 @@
       "at": "2026-10-25T03:26:14Z",
       "agent": "leader",
       "event": "user ran the app: failed on JSON format mapper (Quarkus 3.33). Leader fix: quarkus.hibernate-orm.mapping.format.global=ignore (global key). Leader then ran the jar with user permission: started, health UP (4 datasources), openapi 200, Liquibase Run 0 on all 3, 0 unrecognized keys. clean verify exit 0, 738 tests, pmd:check exit 0. Not tested: endpoints with login, jsonb read."
+    },
+    {
+      "at": "2026-10-25T03:32:17Z",
+      "agent": "leader",
+      "event": "user asked for Liquibase tests; added T9; dispatched worker for wave 5 (T9)"
+    },
+    {
+      "at": "2026-10-25T03:50:03Z",
+      "agent": "leader",
+      "event": "wave 5 (T9) reconciled. clean verify -Djbh.test.excludedGroups=none exit 0, 769 tests 0 failures; pmd:check exit 0; jar start health UP. Worker experiment read user's local jbh_finance (read only); removed."
     }
   ]
 }

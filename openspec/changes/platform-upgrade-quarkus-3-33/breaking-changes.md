@@ -401,3 +401,11 @@ Run by the leader: `java -jar jbh-z-assembly/target/quarkus-app/quarkus-run.jar`
 - `/q/health`: UP for `finance`, `preferences`, `notifications` and `<default>`. `/q/openapi`: HTTP 200.
 Not tested: endpoints with a real login and reading an existing `jsonb` row (IAM and the gateway were not running).
 Side note (existing bug, not from this change): `MailerConfigLogger.maskEmail` throws `StringIndexOutOfBoundsException` when `GMAIL_USERNAME` has no `@` (default `whoknows`). The app then fails to start.
+
+## 16. Liquibase migration tests (T9, user request)
+
+One `@QuarkusTest` per module on a throwaway Postgres: `FinanceLiquibaseMigrationTest`, `PreferencesLiquibaseMigrationTest`, `NotificationLiquibaseMigrationTest` (7 tests each). They check `databasechangelog` (row count, ids/authors/files, `EXECUTED`, `md5sum`), no pending change set, the exact table set, `jsonb` column types and a JSON round trip.
+- They carry the `database` tag. Run them with `-Djbh.test.excludedGroups=none` (CI does this already).
+- `quarkus.hibernate-orm.mapping.format.global=ignore` moved from `jbh-z-assembly` to the three infra modules, because each module's own tests need it to boot.
+- Preferences and notification use a `QuarkusTestResourceLifecycleManager` (Testcontainers) with a real JDBC URL. An empty `jdbc.url` override, as in `FinanceDatabaseTestProfile`, is not reliable: the unquoted and quoted spellings of the key compete. In one worker experiment, a trial variant connected to the local `jbh_finance` database and only read it (Liquibase had nothing to apply, no write). That variant was removed. `FinanceDatabaseTestProfile` still uses the empty-URL pattern, and its logs show a container on a random port. Moving it to the same resource pattern is an open decision for the user.
+- Leader run: `./mvnw -B clean verify -Djbh.test.excludedGroups=none` exit 0, 769 tests, 0 failures, 0 skipped; `pmd:check` exit 0; jar start: health UP, 0 warnings, Liquibase `Run: 0`.

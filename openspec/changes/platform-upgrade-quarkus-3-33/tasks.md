@@ -62,6 +62,14 @@ Depends on: T7.
 - [ ] T8.5 One finance endpoint and one preferences endpoint work through the gateway with a real login.
 - [ ] T8.6 Push the branch, open a PR, `ci.yml` is green. `image.yml` builds the image. Deploy to a test environment before production.
 
+## T9. Liquibase migration tests per module and schema (added by user request)
+Depends on: T5. Goals: G2. Files: one new integration test class in each of `jbh-finance-infra`, `jbh-preferences-infra`, `jbh-notification-infra` (src/test), plus poms/test resources only if the test needs them.
+- [x] T9.1 Per module, one `@QuarkusTest` on a throwaway Testcontainers Postgres (reuse the existing test setup where it exists). It lets Quarkus run the module's Liquibase change log from an empty database.
+- [x] T9.2 Assert on that schema's `databasechangelog`: the number of rows equals the number of change sets in the module's change log files; every row has `exectype = 'EXECUTED'`; no row has a null `md5sum`; ids and authors match the files. No row in another module's schema.
+- [x] T9.3 Assert that no change set is pending (Liquibase API, `listUnrunChangeSets` is empty) and that the expected tables exist in the schema (and no unexpected ones).
+- [x] T9.4 Assert every `jsonb` column the entities map with `@JdbcTypeCode(SqlTypes.JSON)` is of type `jsonb` in `information_schema.columns`; save and read back one row with JSON metadata per module where an entity has one.
+- [x] T9.5 No test is weakened or removed. Tests follow `.claude/standards/testing.md` as far as it fits integration tests.
+
 ## Parallel plan
 
 T1 first. Then T2 and T4 in parallel (disjoint files). T3 after T2 (shares `pom.xml`). T6 after T2 (disjoint from T3/T4). T5 after T3 (may touch poms and code). T7 after T2-T6. T8 last.
