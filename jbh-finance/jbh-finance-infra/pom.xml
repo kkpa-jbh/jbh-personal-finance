@@ -242,6 +242,13 @@
     </dependency>
 
     <!-- Boots the module with a real PostgreSQL (Dev Services) for the database lock test -->
+    <!-- Throwaway PostgreSQL for the database tests. Version comes from the Quarkus BOM. -->
+    <dependency>
+      <artifactId>testcontainers-postgresql</artifactId>
+      <groupId>org.testcontainers</groupId>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <artifactId>quarkus-junit</artifactId>
       <groupId>io.quarkus</groupId>
