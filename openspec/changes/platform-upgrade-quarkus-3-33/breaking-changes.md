@@ -292,3 +292,57 @@ UBI 9 images (the `Dockerfile` uses `eclipse-temurin`), `quarkus.hibernate-orm.d
 Rule: unit test only when a fix changes logic in a domain or application module. Planned T5 fixes touch only `*-infra`
 (entities, `module-info.java`) and poms. Result: **no new unit test planned.** Adapted tests: none known; `FinanceDatabaseTestProfile` key rename keeps its behavior.
 The existing suite (`mvn clean verify`) and T8 are the proof.
+
+## 11. Changes applied in the first wave (T2, T3, T4, T6)
+
+Nothing was built or run. Versions below were checked on Maven Central.
+
+### T2 - Quarkus version
+- `pom.xml`: `quarkus.version` 3.18.4 to 3.33.4.1. `grep 3\.18 --include=pom.xml` finds no other hit.
+
+### T3 - dependencies and pins
+- `quarkus-hibernate-types` 2.2.0: **not changed in this wave.** No newer release exists (section 5.1). The user chose Option B
+  (`@JdbcTypeCode(SqlTypes.JSON)`). **T5 owns it**: the 6 entities, the 3 pom dependencies and the `requires io.hypersistence.utils.hibernate.type`
+  lines in `module-info.java`. Removing the dependency now would break compilation.
+- Renamed `quarkus-junit5` to `quarkus-junit` and `quarkus-junit5-mockito` to `quarkus-junit-mockito` in `jbh-finance-infra`, `jbh-notification-infra`
+  and `jbh-z-assembly`. Reason: JUnit 6 rename in 3.31. Both artifacts exist at 3.33.4 on Central and `quarkus-junit` is in the BOM.
+- Root `pom.xml`: removed the `junit-bom` import and the `junit.version` property (5.10.2). Reason: the Quarkus BOM (JUnit 6.0.3) is imported first and wins; the import was dead.
+- `jbh-finance/pom.xml` and `jbh-preferences/pom.xml` (`dependencyManagement`): removed `junit-jupiter` (5.10.2), `mockito-core` (5.10.0) and
+  `junit-platform-surefire-provider` (1.1.0). Reason: a module-level entry beats the imported BOM, so they forced JUnit 5 / Mockito 5.10 next to
+  JUnit 6 / Mockito 5.21; the provider is dead because Surefire uses the JUnit Platform. The preferences parent had the same three entries
+  (section 8.2 named only the finance parent). All users declare `<scope>test</scope>` themselves, so the dropped scope has no effect.
+- Removed the `mockito.version` property and its uses in `jbh-z-assembly` and `jbh-preferences-application` (`mockito-core`, `mockito-junit-jupiter`): the BOM now sets 5.21.0.
+- Removed the `testcontainers.version` property (1.19.5). No pom or source uses it; Dev Services use the BOM version (2.0.4).
+  The `DOCKER_API_VERSION=1.44` Surefire variable stays (harmless).
+- `maven-surefire-plugin` and `maven-failsafe-plugin` 3.2.5 to **3.5.4**. Reason: JUnit 6. 3.5.4 exists on Central, and
+  `io.quarkus:quarkus-parent:3.33.4` uses `version.surefire.plugin` 3.5.4 for the same reason. No `<argLine>` is set in any pom.
+- Not changed: `archunit-junit5` 1.3.0 (explicit in 4 poms + `archunit.version`). Not BOM-managed; I could not prove it loads on JUnit Platform 6.
+  If ArchUnit tests fail to load in T8.1, raise it (1.5.1 is the newest I saw). `assertj-core` 3.25.3: not in the BOM, kept.
+  JaCoCo 0.8.12, PMD plugin 3.25.0 and SpotBugs: Quarkus does not require a change (not verified further).
+- T3.4 is the leader's (`dependency:tree`).
+
+### T4 - application.properties
+- `database.generation=none` to `schema-management.strategy=none` for the `finance`, `preferences` and `notifications` PUs (`%dev` and `%prod`),
+  and in `FinanceDatabaseTestProfile` (same value, same meaning).
+- Added `quarkus.datasource.<name>.jdbc.max-size=20` for `finance`, `preferences`, `notifications` and the default datasource (assembly). Keeps the 3.18 pool size (default is 50 since 3.31).
+- `quarkus.hibernate-orm.active=false` for the default PU: **not applied.** My evidence (item 9 above) says only that the default PU "may" start with 0 entities;
+  I could not read the 3.29 guide text, and the key was not proven safe. No code injects the default `EntityManager`. Open question for the leader: check the T8.3 startup log
+  for an extra default PU or pool, and add the key only if it shows up.
+- Left as is, on purpose (item 10): `quarkus.smallrye-openapi.scan-classes`, `auto-add-servers`, `jwt`, and `quarkus.liquibase.<name>.schemas` / `.datasource`.
+  Not in the 3.33.4 config model; not in 3.18.4 either for OpenAPI. Removing or renaming them proves nothing without a run, and a rename could change behavior.
+  Compare the "unrecognized key" warnings in T8.2.
+
+### T6 - wrapper, CI, image
+- `.mvn/wrapper/maven-wrapper.properties`: Maven 3.9.9 to **3.9.12** (URL returns 200 on Central). `distributionSha256Sum` updated to
+  `305773a68d6ddfd413df58c82b3f8050e89778e777f3a745c8e5b8cbea4018ef` (I downloaded the zip and computed it; its SHA-512 matches the `.sha512` file on Central).
+  The old sum would fail the wrapper download check.
+- `ci.yml`, `image.yml`, `publish-contracts.yml` call `./mvnw`, so they pick up 3.9.12. Java 21 in all three, `.github/readme.md` and `Dockerfile` (`eclipse-temurin:21-jre-alpine`): unchanged.
+  `Makefile`, `scripts/export-schema.sh`, `dependabot.yml`: no Quarkus, Maven or Java version text. No change.
+- Local `mvn` outside the wrapper must be 3.9.12 or newer (tell the user, T8).
+
+## 12. Leader findings from `mvn clean verify` after wave 2 (T3.4, transitive dependencies)
+
+- `maven-enforcer` DependencyConvergence failed in `jbh-finance-infra`: `commons-collections4` came as 4.5.0 (Liquibase 4.33.0 via opencsv) and 4.4 (POI 5.4.1). Fix: pinned 4.5.0 in `jbh-finance/pom.xml` `dependencyManagement`.
+- `hypersistence-utils-hibernate-63` 3.7.4 arrives only through `quarkus-hibernate-types`. It is removed together with it in T5.
+- JPMS: `smallrye-config-core` 3.16.0 now ships a real `module-info`. The module name changed from `smallrye.config.core` to `io.smallrye.config`. Fixed in the two infra `module-info.java` files. Section 8 above said the names stay; that was wrong for this one. Other `requires` names must be re-checked at compile time.
+- Compile now fails only on `org.hibernate.query.BindableType` (removed in Hibernate 7). This confirms the `quarkus-hibernate-types` replacement (D6) in T5.

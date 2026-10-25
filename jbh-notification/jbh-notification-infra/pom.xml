@@ -127,7 +127,7 @@
 
     <!-- Test Dependencies -->
     <dependency>
-      <artifactId>quarkus-junit5</artifactId>
+      <artifactId>quarkus-junit</artifactId>
       <groupId>io.quarkus</groupId>
       <scope>test</scope>
     </dependency>

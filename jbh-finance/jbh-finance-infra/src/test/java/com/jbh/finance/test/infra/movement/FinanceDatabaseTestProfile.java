@@ -21,7 +21,7 @@ public class FinanceDatabaseTestProfile implements QuarkusTestProfile {
         Map.entry(
             "quarkus.datasource.finance.devservices.init-script-path",
             "db/test-create-finance-schema.sql"),
-        Map.entry("quarkus.hibernate-orm.finance.database.generation", "none"),
+        Map.entry("quarkus.hibernate-orm.finance.schema-management.strategy", "none"),
         // Only the finance datasource is used. This avoids a second, unused container.
         Map.entry("quarkus.datasource.devservices.enabled", "false"),
         Map.entry("quarkus.http.test-port", "0"),

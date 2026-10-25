@@ -16,7 +16,7 @@ module jbh.finance.infra {
   requires org.apache.poi.ooxml;
   requires resteasy.reactive.common;
   requires jakarta.resource;
-  requires smallrye.config.core;
+  requires io.smallrye.config;
   requires com.jbh.gateway;
   requires org.apache.commons.lang3;
   requires com.opencsv;

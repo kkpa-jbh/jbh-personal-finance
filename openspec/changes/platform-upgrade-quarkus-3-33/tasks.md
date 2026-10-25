@@ -15,21 +15,21 @@ Depends on: none. Goals: G2, G3. Files: `openspec/changes/platform-upgrade-quark
 
 ## T2. Bump the Quarkus version
 Depends on: T1. Goals: G1. Files: `pom.xml`.
-- [ ] T2.1 Change `<quarkus.version>3.18.4</quarkus.version>` to the patch from T1.1. Change nothing else in that property block.
-- [ ] T2.2 Run `/usr/bin/grep -rn "3\.18" --include=pom.xml .` and fix any hit that names Quarkus.
+- [x] T2.1 Change `<quarkus.version>3.18.4</quarkus.version>` to the patch from T1.1. Change nothing else in that property block.
+- [x] T2.2 Run `/usr/bin/grep -rn "3\.18" --include=pom.xml .` and fix any hit that names Quarkus.
 
 ## T3. Check non-managed dependency versions
 Depends on: T1, T2. Goals: G2. Files: `pom.xml`, `jbh-finance/jbh-finance-infra/pom.xml`, `jbh-notification/jbh-notification-infra/pom.xml`, `jbh-preferences/jbh-preferences-infra/pom.xml`.
-- [ ] T3.1 Set `io.quarkiverse.hibernatetypes:quarkus-hibernate-types` (now 2.2.0) to the release that supports 3.33. If the BOM manages it, remove the explicit `<version>`. Explain why a dependency changes (code-quality.md, Delivery Rules).
-- [ ] T3.2 If the extension is incompatible with the Hibernate ORM version, replace its usage per its docs. Record this in `breaking-changes.md`. If the replacement needs code in several modules, add it under T5.
-- [ ] T3.3 Check `testcontainers.version` (1.19.5), `mockito.version` (5.10.0), JaCoCo, PMD and SpotBugs plugin versions. Raise one only when T1 or the Quarkus BOM requires it. Write the reason in `breaking-changes.md`.
+- [x] T3.1 Set `io.quarkiverse.hibernatetypes:quarkus-hibernate-types` (now 2.2.0) to the release that supports 3.33. If the BOM manages it, remove the explicit `<version>`. Explain why a dependency changes (code-quality.md, Delivery Rules).
+- [x] T3.2 If the extension is incompatible with the Hibernate ORM version, replace its usage per its docs. Record this in `breaking-changes.md`. If the replacement needs code in several modules, add it under T5.
+- [x] T3.3 Check `testcontainers.version` (1.19.5), `mockito.version` (5.10.0), JaCoCo, PMD and SpotBugs plugin versions. Raise one only when T1 or the Quarkus BOM requires it. Write the reason in `breaking-changes.md`.
 - [ ] T3.4 Check transitive dependencies (user instruction). After the bump, the leader runs `mvn dependency:tree` and `mvn dependency:tree -Dverbose` per module and compares with the T1.7 list. Look for: version conflicts, an explicit `<version>` or exclusion that now overrides or blocks a BOM-managed version, duplicate or removed artifacts, and changed Jakarta or Hibernate versions. Fix in the pom and write each finding in `breaking-changes.md`.
 
 ## T4. Update `application.properties` keys
 Depends on: T1. Goals: G3. Files: the 4 `application.properties` (finance-infra, preferences-infra, notification-infra, z-assembly).
-- [ ] T4.1 Compare each `quarkus.*` key with the 3.33 config reference (<https://quarkus.io/guides/all-config>, via Context7) and the T1 list.
-- [ ] T4.2 Check first: `quarkus.datasource.<name>.*`, `quarkus.hibernate-orm.<name>.*`, `quarkus.liquibase.<name>.*`, `quarkus.index-dependency.*`, `quarkus.arc.*`, `quarkus.http.body.*`, `quarkus.mailer.*`, `quarkus.qute.*`, `quarkus.smallrye-openapi.*`, `quarkus.log.category.*`.
-- [ ] T4.3 Rename or remove only the keys that changed. Keep meaning and values. Do not touch secrets or `${ENV}` references.
+- [x] T4.1 Compare each `quarkus.*` key with the 3.33 config reference (<https://quarkus.io/guides/all-config>, via Context7) and the T1 list.
+- [x] T4.2 Check first: `quarkus.datasource.<name>.*`, `quarkus.hibernate-orm.<name>.*`, `quarkus.liquibase.<name>.*`, `quarkus.index-dependency.*`, `quarkus.arc.*`, `quarkus.http.body.*`, `quarkus.mailer.*`, `quarkus.qute.*`, `quarkus.smallrye-openapi.*`, `quarkus.log.category.*`.
+- [x] T4.3 Rename or remove only the keys that changed. Keep meaning and values. Do not touch secrets or `${ENV}` references.
 
 ## T5. Fix source code for breaking changes
 Depends on: T1, T2, T3. Goals: G2. Files: decided by the T1 list (tests only when D7 says so; likely `module-info.java`, `*-infra` Panache/Hibernate entities, REST adapters, Qute templates, `@QuarkusTest` classes).
@@ -44,8 +44,8 @@ Depends on: T1, T2, T3. Goals: G2. Files: decided by the T1 list (tests only whe
 
 ## T6. Check CI, image and scripts
 Depends on: T1, T2. Goals: G2. Files: `.github/workflows/ci.yml`, `.github/workflows/image.yml`, `Makefile`, `scripts/`, `jbh-z-assembly/Dockerfile` (change only if version-specific).
-- [ ] T6.1 Confirm Java 21 still works for 3.33 (T1.4). If not, STOP and ask the user.
-- [ ] T6.2 Search `Makefile`, `scripts/`, `jbh-z-assembly/Dockerfile`, `src/main/docker` (if present) and the workflows for Quarkus version or base-image text. Fix only version-specific text.
+- [x] T6.1 Confirm Java 21 still works for 3.33 (T1.4). If not, STOP and ask the user.
+- [x] T6.2 Search `Makefile`, `scripts/`, `jbh-z-assembly/Dockerfile`, `src/main/docker` (if present) and the workflows for Quarkus version or base-image text. Fix only version-specific text.
 
 ## T7. Update docs and close the plan
 Depends on: T2, T3, T4, T5, T6. Goals: G4. Files: `.claude/infrastructure/tech-stack.md`, `README.md`, `docs/`, `.claude/CLAUDE.md` (only where they name the version), the source plan file.

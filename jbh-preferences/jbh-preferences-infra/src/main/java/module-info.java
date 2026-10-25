@@ -14,7 +14,7 @@ module jbh.preferences.infra {
   requires org.hibernate.orm.core;
   requires static lombok;
   requires resteasy.reactive.common;
-  requires smallrye.config.core;
+  requires io.smallrye.config;
   requires com.jbh.gateway;
   requires jbh.commons;
 
