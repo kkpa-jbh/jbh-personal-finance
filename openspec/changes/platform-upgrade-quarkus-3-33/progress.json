@@ -277,6 +277,29 @@
         },
         "findings": [],
         "note": "R1-R5 verified fixed. R1: 9 keys gone from the 4 application.properties (grep: 0 hits), D10 is made_by user. R2: T3.4 ticked. R3: design.md lists module-info renames and asm. R4: breaking-changes.md lines 258 and 392 corrected. R5: git diff --name-status ad6f9a8 HEAD shows no .DS_Store or openspec tooling files. Round 2 code diff is properties only; no code, test or pom change."
+      },
+      {
+        "round": 3,
+        "at": "2026-10-25T04:05:00Z",
+        "verdict": "approved",
+        "security": {
+          "status": "passed",
+          "ran_at": "2026-10-25T04:05:00Z",
+          "scope": "git.base",
+          "findings": [],
+          "note": "origin/HEAD diff lists unrelated files; applied the skill to git diff ad6f9a8...HEAD. New code is test-scope Testcontainers resources, a dummy mailer password in a test profile, and one config key. No vulnerability."
+        },
+        "findings": [
+          {
+            "id": "R6",
+            "lens": "conventions",
+            "severity": "minor",
+            "note": "jbh-preferences-infra/pom.xml (~line 199): two stacked comments on the testcontainers dependency; the first ('Dev Services') is wrong now, the test uses a Testcontainers resource. Also breaking-changes.md section 15 still says the format.global fix is in jbh-z-assembly; section 16 says it moved. Fix when cheap.",
+            "status": "fixed",
+            "triage": "accepted"
+          }
+        ],
+        "note": "No existing test changed: test diff since round 2 is only added files (3 migration tests, 3 resources/profiles, fake, 2 SQL scripts). useModulePath=false in preferences-infra and notification-infra (finance-infra already had it): the 5 existing preferences-infra and 2 notification-infra unit tests are plain Mockito/entity tests that still run; only module-path loading of test classes is no longer exercised, and module-info is still compiled in the main build (notification-infra has no module-info). Database tests use container URLs from the test resource, no real DB URL or secret; observation: no assertion guards against a real URL. Dependency testcontainers-postgresql is test scope, version from BOM. 'database' tag is skipped by default (excludedGroups=database) in finance, preferences and notification infra; ci.yml and README pass -Djbh.test.excludedGroups=none. FinanceDatabaseTestProfile pattern left as is (open user decision). Leader signals used, nothing run by me. Change-level status left for the leader."
       }
     ]
   },

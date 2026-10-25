@@ -196,7 +196,6 @@
       <version>1.3.0</version>
     </dependency>
 
-    <!-- Boots the module with a real PostgreSQL (Dev Services) for the Liquibase migration test -->
     <!-- Throwaway PostgreSQL for the Liquibase migration test. Version comes from the Quarkus BOM. -->
     <dependency>
       <artifactId>testcontainers-postgresql</artifactId>

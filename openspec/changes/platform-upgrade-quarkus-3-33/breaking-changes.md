@@ -393,7 +393,7 @@ Build log showed 9 "Unrecognized configuration key" warnings (review R1: the use
 
 ## 15. Startup test by the leader (user gave permission) and one more break
 
-User run found: the app did not start. Quarkus 3.33 refuses to use the REST ObjectMapper for JSON columns when `quarkus.jackson.write-dates-as-timestamps=false` (the Quarkus default). Fix: `quarkus.hibernate-orm.mapping.format.global=ignore` in `jbh-z-assembly/src/main/resources/application.properties`. The key exists only as a global key (no per-persistence-unit form). Hibernate then uses its own Jackson mapper, like `quarkus-hibernate-types` did before. The earlier per-unit form (`quarkus.hibernate-orm.<name>.mapping.format.global`) is NOT valid.
+User run found: the app did not start. Quarkus 3.33 refuses to use the REST ObjectMapper for JSON columns when `quarkus.jackson.write-dates-as-timestamps=false` (the Quarkus default). Fix: `quarkus.hibernate-orm.mapping.format.global=ignore` (first in `jbh-z-assembly`; later moved to the 3 infra `application.properties`, see section 16). The key exists only as a global key (no per-persistence-unit form). Hibernate then uses its own Jackson mapper, like `quarkus-hibernate-types` did before. The earlier per-unit form (`quarkus.hibernate-orm.<name>.mapping.format.global`) is NOT valid.
 Why no test caught it: the test profiles do not start all 3 persistence units with the real Quarkus JSON config.
 Run by the leader: `java -jar jbh-z-assembly/target/quarkus-app/quarkus-run.jar` with local Postgres (jbh_finance) and Consul up, `CONSUL_ENABLED=false`, dummy `GMAIL_*` values.
 - Started in 2.8 s. 0 "Unrecognized configuration key" warnings.
