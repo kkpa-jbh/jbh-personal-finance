@@ -106,7 +106,7 @@ public class MovementDomain {
 
   private void validateMovementDate() throws BusinessException {
     if (movementDate == null) {
-      throw new BusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_TYPE);
+      throw new BusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENT_DATE);
     }
   }
 
