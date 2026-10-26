@@ -102,11 +102,31 @@
         <version>3.13.0</version>
       </plugin>
 
+      <!-- Quarkus tests do not run on the module path. Tests tagged "database" need Docker,
+           so they run only with -Djbh.test.excludedGroups=none -->
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <excludedGroups>${jbh.test.excludedGroups}</excludedGroups>
+          <systemPropertyVariables>
+            <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+          </systemPropertyVariables>
+          <useModulePath>false</useModulePath>
+        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+      </plugin>
+
 
     </plugins>
   </build>
 
   <dependencies>
+
+    <!-- io.smallrye.config (JPMS module since 3.16) requires org.objectweb.asm on the module path. Version: Quarkus BOM. -->
+    <dependency>
+      <artifactId>asm</artifactId>
+      <groupId>org.ow2.asm</groupId>
+    </dependency>
 
     <dependency>
       <artifactId>jbh-commons-lib</artifactId>
@@ -160,12 +180,6 @@
     </dependency>
 
     <dependency>
-      <artifactId>quarkus-hibernate-types</artifactId>
-      <groupId>io.quarkiverse.hibernatetypes</groupId>
-      <version>2.2.0</version>
-    </dependency>
-
-    <dependency>
       <artifactId>quarkus-jdbc-postgresql</artifactId>
       <groupId>io.quarkus</groupId>
     </dependency>
@@ -180,6 +194,19 @@
       <groupId>com.tngtech.archunit</groupId>
       <scope>test</scope>
       <version>1.3.0</version>
+    </dependency>
+
+    <!-- Throwaway PostgreSQL for the Liquibase migration test. Version comes from the Quarkus BOM. -->
+    <dependency>
+      <artifactId>testcontainers-postgresql</artifactId>
+      <groupId>org.testcontainers</groupId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <artifactId>quarkus-junit</artifactId>
+      <groupId>io.quarkus</groupId>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
@@ -220,6 +247,7 @@
 
   <properties>
     <jacoco.skip>true</jacoco.skip>
+    <jbh.test.excludedGroups>database</jbh.test.excludedGroups>
     <maven.compiler.source>21</maven.compiler.source>
     <maven.compiler.target>21</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

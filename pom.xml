@@ -144,14 +144,6 @@
       </dependency>
 
       <dependency>
-        <artifactId>junit-bom</artifactId>
-        <groupId>org.junit</groupId>
-        <scope>import</scope> <!-- latest stable -->
-        <type>pom</type>
-        <version>${junit.version}</version>
-      </dependency>
-
-      <dependency>
         <artifactId>jbh-finance-infra</artifactId>
         <groupId>com.jbh</groupId>
         <version>${project.version}</version>
@@ -260,18 +252,17 @@
     <!-- Java & Encoding -->
     <jandex-plugin.version>3.1.2</jandex-plugin.version>
     <java.version>21</java.version>
-    <junit.version>5.10.2</junit.version>
     <logback.version>1.5.6</logback.version>
 
     <!-- Plugins -->
     <lombok.version>1.18.30</lombok.version>
     <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
     <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
-    <maven-failsafe-plugin.version>3.2.5</maven-failsafe-plugin.version>
+    <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
 
     <!-- Test Maven Plugins -->
     <maven-pmd-plugin.version>3.25.0</maven-pmd-plugin.version>
-    <maven-surefire-plugin.version>3.2.5</maven-surefire-plugin.version>
+    <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
     <maven.compiler.release>${java.version}</maven.compiler.release>
 
     <!-- External Libraries -->
@@ -279,17 +270,15 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
 
     <maven.jacoco.plugin.version>0.8.12</maven.jacoco.plugin.version>
-    <mockito.version>5.10.0</mockito.version>
 
     <!-- Static Analysis Configuration -->
     <pmd.failOnViolation>true</pmd.failOnViolation>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <quarkus.version>3.18.4</quarkus.version>
+    <quarkus.version>3.33.4.1</quarkus.version>
     <slf4j.version>2.0.13</slf4j.version>
     <spotbugs.failOnError>false</spotbugs.failOnError>
-    <testcontainers.version>1.19.5</testcontainers.version>
   </properties>
 
 

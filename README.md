@@ -26,6 +26,7 @@ It is one service of the JBH system. How it connects to the other services (gate
 ## Run it
 
 You need Java 21, `unzip` (the Maven wrapper uses it), Docker (for the database tests) and PostgreSQL on `localhost:5432`.
+The Maven wrapper uses Maven 3.9.12. If you run `mvn` yourself, use 3.9.12 or newer (the Quarkus plugin needs it).
 
 ```bash
 # 1. Env vars. Optional for a first run: without .env, dev mode uses the password postgres.
@@ -138,7 +139,7 @@ Maven plugin.
   lost, and there is no real dead-letter queue yet (`AsyncTaskExecutorImpl`).
 - The net profit formula does not work for credit cards yet (`MonthlyBalanceDomain`).
 - `/jbh-api/notifications/**` has no service-to-service credential. Production blocks it at Caddy.
-- Quarkus 3.18 is out of community support. It should move to a current LTS release.
+- Quarkus runs on 3.33 LTS (3.33.4.1). Plan the next LTS move before this line goes out of support.
 - The statement import does not save movements yet.
 
 ## Makefile

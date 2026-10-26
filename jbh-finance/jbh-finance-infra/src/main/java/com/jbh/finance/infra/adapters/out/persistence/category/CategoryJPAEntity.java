@@ -3,7 +3,6 @@ package com.jbh.finance.infra.adapters.out.persistence.category;
 import com.jbh.finance.application.feature.category.dto.CategoryDTO;
 import com.jbh.finance.domain.category.vo.CategorySourceVO;
 import com.jbh.finance.domain.category.vo.CategoryTypeVO;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,7 +18,8 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Getter
@@ -46,11 +46,11 @@ public class CategoryJPAEntity extends PanacheEntityBase {
   @Column(name = "system", nullable = false)
   public boolean system;
 
-  @Type(JsonBinaryType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "display_name", columnDefinition = "jsonb")
   public Map<String, String> displayName;
 
-  @Type(JsonBinaryType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "description", columnDefinition = "jsonb")
   public Map<String, String> description;
 

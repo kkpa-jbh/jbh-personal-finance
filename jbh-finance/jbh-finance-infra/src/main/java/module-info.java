@@ -10,13 +10,12 @@ module jbh.finance.infra {
   requires org.eclipse.microprofile.openapi;
   requires quarkus.core;
   requires jbh.finance.domain;
-  requires io.hypersistence.utils.hibernate.type;
   requires org.hibernate.orm.core;
   requires static lombok;
   requires org.apache.poi.ooxml;
   requires resteasy.reactive.common;
   requires jakarta.resource;
-  requires smallrye.config.core;
+  requires io.smallrye.config;
   requires com.jbh.gateway;
   requires org.apache.commons.lang3;
   requires com.opencsv;

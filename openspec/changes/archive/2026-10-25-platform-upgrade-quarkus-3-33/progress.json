@@ -1,0 +1,480 @@
+{
+  "schema_version": 1,
+  "kind": "change",
+  "change": "platform-upgrade-quarkus-3-33",
+  "module": "platform",
+  "roadmap": null,
+  "request": "Implement this plan kkpa/plans/architecture/quarkus-3-33-lts-upgrade-2026-10-24.md.",
+  "status": "verified",
+  "rollup": {
+    "current": [],
+    "pending": [],
+    "blocked": [],
+    "done": [
+      "T1",
+      "T2",
+      "T3",
+      "T4",
+      "T5",
+      "T6",
+      "T7",
+      "T9",
+      "T8"
+    ]
+  },
+  "created_at": "2026-10-25T02:44:34Z",
+  "updated_at": "2026-10-25T03:50:03Z",
+  "leader": {
+    "assistant": "Claude Code",
+    "model": "claude-sonnet-5-5"
+  },
+  "git": {
+    "strategy": "auto",
+    "branch": "ft/CH2-z-assembly-upgrade-quarkus-3-33",
+    "base": "kkpa/score-repo-2026-10-24",
+    "ticket": null,
+    "ticket_url": null,
+    "ticket_tracker": null,
+    "created_at": "2026-10-25T02:44:34Z"
+  },
+  "test_first": {
+    "status": "skipped",
+    "commit": null,
+    "tests": [],
+    "approved_at": null
+  },
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Collect the breaking changes",
+      "module": "platform",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-25T02:44:45Z",
+      "completed_at": "2026-10-25T02:55:00Z",
+      "duration_seconds": 615,
+      "notes": "Target 3.33.4.1. Java 21 ok. No Liquibase checksum risk. Found: hibernate-types breaks on ORM 7.2; Maven 3.9.12 needed; pool max-size 50. See breaking-changes.md.",
+      "budget": null
+    },
+    {
+      "id": "T2",
+      "title": "Bump the Quarkus version",
+      "module": "platform",
+      "depends_on": [
+        "T1"
+      ],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-25T02:56:08Z",
+      "completed_at": "2026-10-25T03:00:19Z",
+      "duration_seconds": 251,
+      "notes": "quarkus.version = 3.33.4.1.",
+      "budget": null
+    },
+    {
+      "id": "T3",
+      "title": "Check non-managed dependency versions",
+      "module": "platform",
+      "depends_on": [
+        "T1",
+        "T2"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-25T02:56:08Z",
+      "completed_at": "2026-10-25T03:00:19Z",
+      "duration_seconds": 251,
+      "notes": "BOM pin clean-up, quarkus-junit rename, surefire 3.5.4. Leader added commons-collections4 4.5.0 pin (enforcer). T3.4 done by leader; suite not green yet.",
+      "budget": null
+    },
+    {
+      "id": "T4",
+      "title": "Update application.properties keys",
+      "module": "platform",
+      "depends_on": [
+        "T1"
+      ],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-25T02:56:08Z",
+      "completed_at": "2026-10-25T03:00:19Z",
+      "duration_seconds": 251,
+      "notes": "schema-management.strategy and jdbc.max-size=20 in 4 files + test profile. Unclear keys left; check startup log.",
+      "budget": null
+    },
+    {
+      "id": "T5",
+      "title": "Fix source code for breaking changes",
+      "module": "platform",
+      "depends_on": [
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-25T03:00:33Z",
+      "completed_at": "2026-10-25T03:02:20Z",
+      "duration_seconds": 107,
+      "notes": "6 entities: @Type(JsonBinaryType) -> @JdbcTypeCode(SqlTypes.JSON). Removed hibernate-types from 3 poms and 2 module-info. Main code compiles. No new test (infra).",
+      "budget": null
+    },
+    {
+      "id": "T6",
+      "title": "Check CI, image and scripts",
+      "module": "platform",
+      "depends_on": [
+        "T1",
+        "T2"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-25T02:56:08Z",
+      "completed_at": "2026-10-25T03:00:19Z",
+      "duration_seconds": 251,
+      "notes": "Maven wrapper 3.9.12 with SHA-256. CI, Dockerfile, Makefile, scripts need no change.",
+      "budget": null
+    },
+    {
+      "id": "T7",
+      "title": "Update docs and close the plan",
+      "module": "platform",
+      "depends_on": [
+        "T2",
+        "T3",
+        "T4",
+        "T5",
+        "T6"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-25T03:12:24Z",
+      "completed_at": "2026-10-25T03:13:04Z",
+      "duration_seconds": 40,
+      "notes": "README and tech-stack.md updated to Quarkus 3.33 LTS; Maven 3.9.12 note. jbh-deploy README needs no change.",
+      "budget": null
+    },
+    {
+      "id": "T8",
+      "title": "User verification (not run by agents)",
+      "module": "platform",
+      "depends_on": [
+        "T7"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": "2026-10-25T11:53:33Z",
+      "duration_seconds": null,
+      "notes": "User tested endpoints with login (T8.5): OK. T8.6 (CI green, image build, test deploy) is open after the PR.",
+      "budget": null
+    },
+    {
+      "id": "T9",
+      "title": "Liquibase migration tests per module and schema",
+      "module": "platform",
+      "depends_on": [
+        "T5"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-10-25T03:32:17Z",
+      "completed_at": "2026-10-25T03:50:03Z",
+      "duration_seconds": 1066,
+      "notes": "3 Liquibase migration tests (7 each) on Testcontainers. Moved format.global key to infra modules. Preferences/notification use a Testcontainers resource. clean verify: 769 tests, 0 failures.",
+      "budget": null
+    }
+  ],
+  "review": {
+    "status": "approved",
+    "agent": "platform-reviewer",
+    "brief": "Check: (1) D6 user decision: hibernate-types replaced by @JdbcTypeCode(SqlTypes.JSON), columns and Liquibase untouched; (2) tests never weakened (git diff for test dirs: only FinanceDatabaseTestProfile key rename and pom artifact rename); (3) no in-JVM state, no change to row-lock/@Version code; (4) JPMS fixes and asm dependency are minimal; (5) breaking-changes.md matches the code; (6) docs match; (7) Java stays 21. Signals: assistant-run: ./mvnw -B clean verify exit 0 and ./mvnw -q -B pmd:check exit 0 (leader, assistantRunsTests). User-reported: none yet; T8 app startup/Liquibase/health checks are the user's and pending. No unit tests were added (D7: none needed, all infra/config). test_first skipped. ROUND 3: new since round 2: T9 (3 Liquibase migration tests, D11 user decision), format.global key moved to the 3 infra application.properties, test resource classes, surefire/testcontainers changes in preferences-infra and notification-infra poms. Signals (assistant-run by leader): ./mvnw -B clean verify -Djbh.test.excludedGroups=none exit 0, 769 tests 0 failures; pmd:check exit 0; jar start health UP. Note: tests carry tag 'database'. A worker experiment briefly read the local jbh_finance DB (read only, removed).",
+    "rounds": [
+      {
+        "round": 1,
+        "at": "2026-10-25T03:30:00Z",
+        "verdict": "changes-requested",
+        "security": {
+          "status": "passed",
+          "ran_at": "2026-10-25T03:30:00Z",
+          "scope": "git.base",
+          "findings": [],
+          "note": "origin/HEAD diff listed other files; applied the skill to git diff ad6f9a8...HEAD. No vulnerability on added lines (poms, JSON mapping annotations, config keys, wrapper SHA-256)."
+        },
+        "findings": [
+          {
+            "id": "R1",
+            "lens": "intent",
+            "severity": "major",
+            "note": "specs/platform-quarkus-runtime/spec.md scenario 'No unknown or deprecated key' requires 0 'Unrecognized configuration key' warnings. 9 remain (jbh-z-assembly application.properties: quarkus.smallrye-openapi.{scan-classes,jwt,auto-add-servers}; infra properties: quarkus.liquibase.<name>.{schemas,datasource}). D9 is an autopilot decision, not a user decision. Get a user decision: accept the gap (made_by user, scope review:R1) or remove the dead keys / change the spec. Also: breaking-changes.md section 7 says the liquibase keys were 'likely' ignored in 3.18.4 and not proven.",
+            "status": "fixed",
+            "triage": "accepted"
+          },
+          {
+            "id": "R2",
+            "lens": "intent",
+            "severity": "minor",
+            "note": "tasks.md: T3.4 is still '[ ]' while progress.json has T3 done (leader ran dependency:tree, see breaking-changes.md section 12). Tick it or explain. T7.3 (move plan to executed) is also open while T7 is done.",
+            "status": "fixed",
+            "triage": "accepted"
+          },
+          {
+            "id": "R3",
+            "lens": "design",
+            "severity": "minor",
+            "note": "design.md Responsibilities is out of date: it does not list the module-info.java changes 'requires io.smallrye.config' (finance-infra, preferences-infra) and 'requires org.eclipse.microprofile.config' (jbh-z-assembly/src/main/java/module-info.java:6), nor the new org.ow2.asm:asm dependency in jbh-preferences-infra/pom.xml:111-115.",
+            "status": "fixed",
+            "triage": "accepted"
+          },
+          {
+            "id": "R4",
+            "lens": "conventions",
+            "severity": "minor",
+            "note": "breaking-changes.md is not consistent with the code: section 8.3 row at line 258 still says the JPMS names smallrye.config.core and microprofile.config.api stay (code renamed both; section 12 only admits smallrye); section 14 line 392 says section 9 proved the 9 keys invalid in 3.18.4, but section 9/7 proves it only for the 3 openapi keys.",
+            "status": "fixed",
+            "triage": "accepted"
+          },
+          {
+            "id": "R5",
+            "lens": "architecture",
+            "severity": "minor",
+            "note": "The branch diff holds files unrelated to the upgrade: tracked .DS_Store (.claude/.DS_Store, openspec/.DS_Store, ...) and OpenSpec tooling under .claude/commands/opsx and .claude/skills/openspec-* (added in commit b25b161). Remove .DS_Store from git; confirm the tooling files are wanted in this PR. Real size is 52 files / ~3281 lines incl. openspec, not the 33 files recorded.",
+            "status": "fixed",
+            "triage": "accepted"
+          }
+        ]
+      },
+      {
+        "round": 2,
+        "at": "2026-10-25T03:40:00Z",
+        "verdict": "approved",
+        "security": {
+          "status": "passed",
+          "ran_at": "2026-10-25T03:40:00Z",
+          "scope": "git.base",
+          "findings": [],
+          "note": "origin/HEAD diff lists other files; applied the skill to git diff ad6f9a8...HEAD. Round 2 only removes 9 unrecognized config keys and fixes docs. No vulnerability."
+        },
+        "findings": [],
+        "note": "R1-R5 verified fixed. R1: 9 keys gone from the 4 application.properties (grep: 0 hits), D10 is made_by user. R2: T3.4 ticked. R3: design.md lists module-info renames and asm. R4: breaking-changes.md lines 258 and 392 corrected. R5: git diff --name-status ad6f9a8 HEAD shows no .DS_Store or openspec tooling files. Round 2 code diff is properties only; no code, test or pom change."
+      },
+      {
+        "round": 3,
+        "at": "2026-10-25T04:05:00Z",
+        "verdict": "approved",
+        "security": {
+          "status": "passed",
+          "ran_at": "2026-10-25T04:05:00Z",
+          "scope": "git.base",
+          "findings": [],
+          "note": "origin/HEAD diff lists unrelated files; applied the skill to git diff ad6f9a8...HEAD. New code is test-scope Testcontainers resources, a dummy mailer password in a test profile, and one config key. No vulnerability."
+        },
+        "findings": [
+          {
+            "id": "R6",
+            "lens": "conventions",
+            "severity": "minor",
+            "note": "jbh-preferences-infra/pom.xml (~line 199): two stacked comments on the testcontainers dependency; the first ('Dev Services') is wrong now, the test uses a Testcontainers resource. Also breaking-changes.md section 15 still says the format.global fix is in jbh-z-assembly; section 16 says it moved. Fix when cheap.",
+            "status": "fixed",
+            "triage": "accepted"
+          }
+        ],
+        "note": "No existing test changed: test diff since round 2 is only added files (3 migration tests, 3 resources/profiles, fake, 2 SQL scripts). useModulePath=false in preferences-infra and notification-infra (finance-infra already had it): the 5 existing preferences-infra and 2 notification-infra unit tests are plain Mockito/entity tests that still run; only module-path loading of test classes is no longer exercised, and module-info is still compiled in the main build (notification-infra has no module-info). Database tests use container URLs from the test resource, no real DB URL or secret; observation: no assertion guards against a real URL. Dependency testcontainers-postgresql is test scope, version from BOM. 'database' tag is skipped by default (excludedGroups=database) in finance, preferences and notification infra; ci.yml and README pass -Djbh.test.excludedGroups=none. FinanceDatabaseTestProfile pattern left as is (open user decision). Leader signals used, nothing run by me. Change-level status left for the leader."
+      }
+    ]
+  },
+  "decisions": [
+    {
+      "id": "D1",
+      "at": "2026-10-25T02:44:34Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "One change, owner platform, no ticket",
+      "why": "Version bump cannot be split by module"
+    },
+    {
+      "id": "D2",
+      "at": "2026-10-25T02:44:34Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Tests only if needed; refactors allowed; only Java version change is out of scope",
+      "why": "User instruction after the design briefing"
+    },
+    {
+      "id": "D3",
+      "at": "2026-10-25T02:44:34Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Accepted size over cap (14-35 files, 250-900 lines)",
+      "why": "User chose Accept at the size-cap gate; real size measured after T1"
+    },
+    {
+      "id": "D4",
+      "at": "2026-10-25T02:44:34Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "Concurrency check: no race risk found in tasks",
+      "why": "Upgrade adds no shared state; design.md Concurrency section is none"
+    },
+    {
+      "id": "D5",
+      "at": "2026-10-25T02:44:34Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "test_first skipped",
+      "why": "Test need unknown until T1; no blueprint possible"
+    },
+    {
+      "id": "D6",
+      "at": "2026-10-25T02:56:08Z",
+      "scope": "task:T5",
+      "made_by": "user",
+      "decision": "Replace quarkus-hibernate-types with @JdbcTypeCode(SqlTypes.JSON)",
+      "why": "2.2.0 likely breaks on Hibernate ORM 7.2; user chose native JSON"
+    },
+    {
+      "id": "D7",
+      "at": "2026-10-25T02:56:08Z",
+      "scope": "task:T6",
+      "made_by": "user",
+      "decision": "Bump Maven wrapper to 3.9.12",
+      "why": "quarkus-maven-plugin 3.33.4.1 requires it"
+    },
+    {
+      "id": "D8",
+      "at": "2026-10-25T02:56:08Z",
+      "scope": "task:T3",
+      "made_by": "autopilot",
+      "decision": "Batch T2,T3,T4,T6 in one serial worker; hibernate-types removal moved fully to T5",
+      "why": "Removing the dependency in T3 would break compile before entities change in T5"
+    },
+    {
+      "id": "D9",
+      "at": "2026-10-25T03:12:20Z",
+      "scope": "task:T4",
+      "made_by": "autopilot",
+      "decision": "Left 9 pre-existing unrecognized quarkus keys unchanged",
+      "why": "Not valid in 3.18.4 either; removing them changes nothing, renaming needs a startup run"
+    },
+    {
+      "id": "D10",
+      "at": "2026-10-25T03:16:54Z",
+      "scope": "review:R1",
+      "made_by": "user",
+      "decision": "Remove the 9 unrecognized quarkus.* keys",
+      "why": "User chose removal at review R1; spec scenario then holds (0 warnings)"
+    },
+    {
+      "id": "D11",
+      "at": "2026-10-25T03:32:17Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Add one Testcontainers Liquibase test per module/schema (T9), checked against databasechangelog",
+      "why": "User wants proof that migrations run per schema; the test replaces a manual script"
+    },
+    {
+      "id": "D12",
+      "made_by": "user",
+      "scope": "change",
+      "why": "User go-ahead",
+      "at": "2026-10-25T11:53:33Z",
+      "decision": "Push branch and open PR after T8.5 passed"
+    }
+  ],
+  "events": [
+    {
+      "at": "2026-10-25T02:44:34Z",
+      "agent": "leader",
+      "event": "artifacts written and validated; design gate not touched (no DB change)"
+    },
+    {
+      "at": "2026-10-25T02:44:45Z",
+      "agent": "leader",
+      "event": "dispatched worker for wave 1 (T1)"
+    },
+    {
+      "at": "2026-10-25T02:55:00Z",
+      "agent": "leader",
+      "event": "wave 1 (T1) reconciled; doc-only wave, no suite run. Worker times were estimates."
+    },
+    {
+      "at": "2026-10-25T02:56:08Z",
+      "agent": "leader",
+      "event": "dispatched worker for wave 2 (T2,T3,T4,T6)"
+    },
+    {
+      "at": "2026-10-25T03:00:19Z",
+      "agent": "leader",
+      "event": "wave 2 reconciled. Leader ran ./mvnw dependency:tree (exit 0) and ./mvnw clean verify (exit 1): enforcer convergence fixed, JPMS name smallrye fixed, now fails on hibernate-types (BindableType) -> T5."
+    },
+    {
+      "at": "2026-10-25T03:00:33Z",
+      "agent": "leader",
+      "event": "wave 2 commit b465b03; dispatched worker for wave 3 (T5)"
+    },
+    {
+      "at": "2026-10-25T03:02:20Z",
+      "agent": "leader",
+      "event": "wave 3 (T5) reconciled. ./mvnw clean verify exit 1: finance-infra test compile fails in FakeGatewayClientFactory (findUserGroup missing). Cause: stale jbh-gateway-client jar in ~/.m2, not the upgrade. Waiting for the user to reinstall it."
+    },
+    {
+      "at": "2026-10-25T03:12:20Z",
+      "agent": "leader",
+      "event": "leader ran ./mvnw -B clean verify -> exit 0 (BUILD SUCCESS, 0 test failures, PMD+SpotBugs ok) and ./mvnw -q -B pmd:check (Complexity-Check) -> exit 0; user reinstalled jbh-gateway-client first. Leader fixes: commons-collections4 pin, JPMS names (io.smallrye.config, org.eclipse.microprofile.config), asm dependency in preferences-infra. T3,T4,T5 -> done. App startup (T8) still with the user."
+    },
+    {
+      "at": "2026-10-25T03:12:24Z",
+      "agent": "leader",
+      "event": "commit 8c2e4c0; dispatched worker for wave 4 (T7)"
+    },
+    {
+      "at": "2026-10-25T03:13:04Z",
+      "agent": "leader",
+      "event": "wave 4 (T7) reconciled; status verified on the recorded green suite (docs-only wave, no new run). Size:  33 files changed, 1033 insertions(+), 116 deletions(-)"
+    },
+    {
+      "at": "2026-10-25T03:16:54Z",
+      "agent": "leader",
+      "event": "review round 1 triaged, all 5 accepted and fixed: R1 keys removed (clean verify exit 0, 738 tests 0 failures, 0 unrecognized-key warnings, pmd:check exit 0); R2-R4 artifacts fixed; R5 20 stray files untracked (git rm --cached)."
+    },
+    {
+      "at": "2026-10-25T03:26:14Z",
+      "agent": "leader",
+      "event": "user ran the app: failed on JSON format mapper (Quarkus 3.33). Leader fix: quarkus.hibernate-orm.mapping.format.global=ignore (global key). Leader then ran the jar with user permission: started, health UP (4 datasources), openapi 200, Liquibase Run 0 on all 3, 0 unrecognized keys. clean verify exit 0, 738 tests, pmd:check exit 0. Not tested: endpoints with login, jsonb read."
+    },
+    {
+      "at": "2026-10-25T03:32:17Z",
+      "agent": "leader",
+      "event": "user asked for Liquibase tests; added T9; dispatched worker for wave 5 (T9)"
+    },
+    {
+      "at": "2026-10-25T03:50:03Z",
+      "agent": "leader",
+      "event": "wave 5 (T9) reconciled. clean verify -Djbh.test.excludedGroups=none exit 0, 769 tests 0 failures; pmd:check exit 0; jar start health UP. Worker experiment read user's local jbh_finance (read only); removed."
+    },
+    {
+      "at": "2026-10-25T11:53:33Z",
+      "agent": "leader",
+      "event": "user reported T8.5 works (finance + preferences endpoints with login). User asked to push and open PR. T8.6 CI/image/test deploy remains after the PR."
+    }
+  ]
+}

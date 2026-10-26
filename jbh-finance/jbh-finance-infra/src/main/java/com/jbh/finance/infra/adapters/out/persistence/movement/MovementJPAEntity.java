@@ -8,7 +8,6 @@ import com.jbh.finance.domain.movement.vo.MovementMetadataKey;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.infra.adapters.out.persistence.category.CategoryJPAEntity;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,7 +26,8 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Getter
@@ -62,7 +62,7 @@ public class MovementJPAEntity extends PanacheEntityBase {
   @Column(name = "description", columnDefinition = "TEXT")
   public String description;
 
-  @Type(JsonBinaryType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "metadata", columnDefinition = "jsonb")
   public Map<MovementMetadataKey, Object> metadata;
 

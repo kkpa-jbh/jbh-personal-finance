@@ -3,7 +3,7 @@ module jbh.z.assembly {
   requires jakarta.cdi;
   requires jakarta.inject;
   requires quarkus.core;
-  requires microprofile.config.api;
+  requires org.eclipse.microprofile.config;
   requires java.net.http;
   requires com.fasterxml.jackson.databind;
   requires resteasy.reactive.common;

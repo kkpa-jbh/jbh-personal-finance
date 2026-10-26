@@ -4,7 +4,6 @@ import com.jbh.preferences.application.core.dto.UserPreferencesDTO;
 import com.jbh.preferences.domain.vo.Currency;
 import com.jbh.preferences.domain.vo.Language;
 import com.jbh.preferences.domain.vo.PreferencesMetadata;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -20,7 +19,8 @@ import java.util.Map;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Getter
@@ -45,7 +45,7 @@ public class UserPreferencesJPAEntity extends PanacheEntityBase {
   @Column(name = "default_product_id")
   private UUID defaultProductId;
 
-  @Type(JsonBinaryType.class)
+  @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "metadata", columnDefinition = "jsonb")
   private Map<String, Object> metadata;
 
