@@ -238,7 +238,7 @@
       <artifactId>archunit-junit5</artifactId>
       <groupId>com.tngtech.archunit</groupId>
       <scope>test</scope>
-      <version>1.3.0</version>
+      <version>1.5.1</version>
     </dependency>
 
     <!-- Boots the module with a real PostgreSQL (Dev Services) for the database lock test -->
@@ -296,4 +296,14 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.16.0</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 </project>
