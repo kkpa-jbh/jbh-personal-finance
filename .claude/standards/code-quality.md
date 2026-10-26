@@ -561,6 +561,15 @@ public class AddMovementInputPort implements AddMovementUseCase {
 
 ---
 
+## Delivery Rules
+
+- **Dependencies:** Do not add a dependency without saying why it is needed and why no existing one works.
+- **Tests:** Never weaken a test or an assertion to make the build pass. Fix the code, or explain why the test was wrong.
+- **Final summary:** List the checks you could not run (for example `mvn clean verify`) and the risks that remain.
+- **Design:** Explain important design decisions and trade-offs in the final summary.
+
+---
+
 ## Architecture Quality Checklist
 
 - [ ] All variables declared `final` when possible
@@ -578,3 +587,5 @@ public class AddMovementInputPort implements AddMovementUseCase {
 - [ ] Low coupling between modules
 - [ ] Separation of concerns maintained
 - [ ] Framework-agnostic domain/application layers
+- [ ] New dependencies explained; no test weakened
+- [ ] Summary lists checks not run, remaining risks, and design trade-offs

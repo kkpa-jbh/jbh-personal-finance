@@ -84,3 +84,4 @@ If you are not sure a change counts, read `../jbh-deploy/README.md` and check wh
 - **Doc-Pack:** `.claude/CLAUDE.md`, `.claude/standards/code-quality.md`, `.claude/standards/testing.md`, `.claude/standards/naming.md`, `.claude/standards/business-rules.md`, `.claude/architecture/hexagonal-layers.md`
 - **Design-Gates:** `database`
 - **Git-Strategy:** `auto`
+- **Complexity-Check:** `mvn -q pmd:check` (uses `pmd-ruleset.xml`: CyclomaticComplexity, NPathComplexity)

@@ -3,7 +3,9 @@ package com.jbh.preferences.infra.config;
 import com.jbh.preferences.application.core.ports.input.CreateTeamPreferencesInputPort;
 import com.jbh.preferences.application.core.ports.input.GetTeamPreferencesInputPort;
 import com.jbh.preferences.application.core.ports.input.UpdateTeamPreferencesInputPort;
+import com.jbh.preferences.application.core.ports.output.TeamMembershipQueryRepository;
 import com.jbh.preferences.application.core.ports.output.TeamPreferencesRepository;
+import com.jbh.preferences.application.core.services.TeamMembershipGuard;
 import com.jbh.preferences.application.core.services.TeamPreferencesService;
 import com.jbh.preferences.application.core.services.TeamPreferencesServiceImpl;
 import io.quarkus.runtime.annotations.RegisterForReflection;
@@ -21,6 +23,7 @@ import jakarta.inject.Inject;
 public class TeamPreferencesUseCasesCDIConfig {
 
   @Inject TeamPreferencesRepository preferencesRepository;
+  @Inject TeamMembershipQueryRepository membershipRepository;
 
   @Produces
   @ApplicationScoped
@@ -30,19 +33,25 @@ public class TeamPreferencesUseCasesCDIConfig {
 
   @Produces
   @ApplicationScoped
+  public TeamMembershipGuard teamMembershipGuard() {
+    return new TeamMembershipGuard(membershipRepository);
+  }
+
+  @Produces
+  @ApplicationScoped
   public GetTeamPreferencesInputPort getTeamPreferencesUseCase() {
-    return new GetTeamPreferencesInputPort(teamPreferencesService());
+    return new GetTeamPreferencesInputPort(teamPreferencesService(), teamMembershipGuard());
   }
 
   @Produces
   @ApplicationScoped
   public UpdateTeamPreferencesInputPort updateTeamPreferencesUseCase() {
-    return new UpdateTeamPreferencesInputPort(teamPreferencesService());
+    return new UpdateTeamPreferencesInputPort(teamPreferencesService(), teamMembershipGuard());
   }
 
   @Produces
   @ApplicationScoped
   public CreateTeamPreferencesInputPort createTeamPreferencesUseCase() {
-    return new CreateTeamPreferencesInputPort(teamPreferencesService());
+    return new CreateTeamPreferencesInputPort(teamPreferencesService(), teamMembershipGuard());
   }
 }

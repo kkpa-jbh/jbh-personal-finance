@@ -7,6 +7,7 @@ public enum PreferencesBusinessExceptionType implements BusinessExceptionType {
   PREFERENCES_ALREADY_EXIST("User preferences already exist for user ID: %s"),
   TEAM_PREFERENCES_NOT_FOUND("Team preferences not found for team ID: %s"),
   TEAM_PREFERENCES_ALREADY_EXIST("Team preferences already exist for team ID: %s"),
+  TEAM_NOT_FOUND("Team not found for team ID: %s"),
   INVALID_SAVINGS_GOAL("Savings goal cannot be negative"),
   INVALID_LANGUAGE_CODE("Invalid language code: %s"),
   INVALID_CURRENCY_CODE("Invalid currency code: %s");

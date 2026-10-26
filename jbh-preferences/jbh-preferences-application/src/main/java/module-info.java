@@ -14,5 +14,7 @@ module jbh.preferences.application {
       jbh.preferences.infra;
   exports com.jbh.preferences.application.core.vo.commands to
       jbh.preferences.infra;
+  exports com.jbh.preferences.application.core.vo to
+      jbh.preferences.infra;
   exports com.jbh.preferences.application.core.services;
 }
