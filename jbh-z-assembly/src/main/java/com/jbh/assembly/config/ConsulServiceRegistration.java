@@ -55,6 +55,11 @@ public class ConsulServiceRegistration {
   @ConfigProperty(name = "consul.health-check.host")
   Optional<String> healthCheckHost;
 
+  // Address saved in Consul. When set, it replaces the host name or IP. Local Docker needs one
+  // name that the gateway container and the Mac can both resolve.
+  @ConfigProperty(name = "consul.service.address")
+  Optional<String> configuredAddress;
+
   @ConfigProperty(name = "consul.prefer-ip-address", defaultValue = "false")
   boolean preferIpAddress;
 
@@ -150,6 +155,11 @@ public class ConsulServiceRegistration {
 
   private String resolveServiceAddress() throws UnknownHostException {
     LOG.debug("Resolving service address for Consul registration");
+    final Optional<String> address = configuredAddress.filter(value -> !value.isBlank());
+    if (address.isPresent()) {
+      LOG.debugf("Using configured address: %s", address.get());
+      return address.get();
+    }
     try {
       if (preferIpAddress) {
         final String ipAddress = InetAddress.getLocalHost().getHostAddress();
