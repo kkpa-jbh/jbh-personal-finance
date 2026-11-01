@@ -19,6 +19,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -68,6 +69,10 @@ public class MovementJPAEntity extends PanacheEntityBase {
 
   @Column(name = "created_at", nullable = false, updatable = false)
   public LocalDateTime createdAt;
+
+  // Not persisted yet: the column statement_import_id arrives with migration 007, and the
+  // mapping follows with it.
+  @Transient public UUID statementImportId;
 
   public static MovementJPAEntity toEntity(final MovementDTO productMovement) {
     final MovementJPAEntity entity = new MovementJPAEntity();

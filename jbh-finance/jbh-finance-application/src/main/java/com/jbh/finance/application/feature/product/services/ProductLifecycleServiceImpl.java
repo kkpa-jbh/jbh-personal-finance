@@ -179,6 +179,15 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
 
   @Override
   public ProductDTO syncByUploadedMovements(
+      final ProductDomain accountDomain,
+      final List<MovementDomain> uploadedMovements,
+      final ProcessMovementOptionsVO movementOptions)
+      throws BusinessException {
+    throw new UnsupportedOperationException("not implemented");
+  }
+
+  @Override
+  public ProductDTO syncByUploadedMovements(
       final ProductDomain accountDomain, final List<MovementDomain> uploadedMovements)
       throws BusinessException {
 

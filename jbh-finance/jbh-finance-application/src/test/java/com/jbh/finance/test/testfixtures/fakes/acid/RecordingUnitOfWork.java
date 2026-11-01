@@ -12,6 +12,7 @@ public class RecordingUnitOfWork implements UnitOfWork {
 
   private boolean inTransaction;
   private int transactionCount;
+  private int rollbackCount;
 
   public boolean isInTransaction() {
     return inTransaction;
@@ -19,6 +20,11 @@ public class RecordingUnitOfWork implements UnitOfWork {
 
   public int transactionCount() {
     return transactionCount;
+  }
+
+  /** How many transactions ended with an exception, which a real unit of work rolls back. */
+  public int rollbackCount() {
+    return rollbackCount;
   }
 
   @Override
@@ -49,6 +55,9 @@ public class RecordingUnitOfWork implements UnitOfWork {
     transactionCount++;
     try {
       return work.run();
+    } catch (final BusinessException | RuntimeException e) {
+      rollbackCount++;
+      throw e;
     } finally {
       inTransaction = wasInTransaction;
     }

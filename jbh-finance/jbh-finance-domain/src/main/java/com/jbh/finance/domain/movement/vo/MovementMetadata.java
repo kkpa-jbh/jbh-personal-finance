@@ -57,4 +57,8 @@ public final class MovementMetadata {
     put(MovementMetadataKey.FILE_IMPORTED_AT_TAG, importedAt);
     put(MovementMetadataKey.FILE_IMPORT_TAG, true);
   }
+
+  public void putStatementReview(final MovementReviewVO review) {
+    throw new UnsupportedOperationException("not implemented");
+  }
 }

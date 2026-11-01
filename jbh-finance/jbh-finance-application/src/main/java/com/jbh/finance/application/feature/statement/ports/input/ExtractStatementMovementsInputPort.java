@@ -111,7 +111,7 @@ public class ExtractStatementMovementsInputPort implements ExtractStatementMovem
           millisSince(started),
           categorized.size(),
           describe(totals));
-      return new StatementClassificationDTO(categorized, totals);
+      return new StatementClassificationDTO(categorized, totals, List.of());
 
     } catch (final BusinessException e) {
       LOG.warn(LOG_PREFIX + " Failed at {} after {} ms", step, millisSince(started));
@@ -216,7 +216,8 @@ public class ExtractStatementMovementsInputPort implements ExtractStatementMovem
               alias,
               catalog.displayNameOf(alias),
               confidence,
-              lowConfidence));
+              lowConfidence,
+              null));
     }
 
     LOG.info(

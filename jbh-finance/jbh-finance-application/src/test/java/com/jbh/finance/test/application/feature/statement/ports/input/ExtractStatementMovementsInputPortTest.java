@@ -51,6 +51,8 @@ import org.mockito.MockitoAnnotations;
 class ExtractStatementMovementsInputPortTest {
 
   private static final String UNKNOWN = "UNK";
+  private static final String OTHER_INCOME = "INC_OTHER";
+  private static final Long GROCERY_CATEGORY_ID = 20L;
   private static final String GROCERY = "EXP_GROCERY";
   private static final String SALARY = "INC_SALARY";
   private static final byte[] PDF_BYTES = {37, 80, 68, 70};
@@ -131,7 +133,7 @@ class ExtractStatementMovementsInputPortTest {
   }
 
   @Test
-  void shouldMarkLowConfidenceWhenConfidenceIsBelowMinimum() throws BusinessException {
+  void shouldFallBackToUnknownExpenseWhenDebitConfidenceIsBelowMinimum() throws BusinessException {
     // Arrange
     stubCategories();
     stubStatement(debits(1), null, null);
@@ -141,8 +143,120 @@ class ExtractStatementMovementsInputPortTest {
     final CategorizedMovementDTO movement = inputPort.extract(command()).movements().get(0);
 
     // Assert
-    assertEquals(GROCERY, movement.categoryAlias());
+    assertEquals(UNKNOWN, movement.categoryAlias());
+    assertEquals(0, new BigDecimal("0.5").compareTo(movement.confidence()));
     assertTrue(movement.lowConfidence());
+  }
+
+  @Test
+  void shouldFallBackToOtherIncomeWhenCreditConfidenceIsBelowMinimum() throws BusinessException {
+    // Arrange
+    stubCategories();
+    stubStatement(credits(1), null, null);
+    stubAnswers(new ClassificationAnswerDTO("m_0", SALARY, new BigDecimal("0.4")));
+
+    // Act
+    final CategorizedMovementDTO movement = inputPort.extract(command()).movements().get(0);
+
+    // Assert
+    assertEquals(OTHER_INCOME, movement.categoryAlias());
+    assertEquals(0, new BigDecimal("0.4").compareTo(movement.confidence()));
+    assertTrue(movement.lowConfidence());
+  }
+
+  @Test
+  void shouldFallBackToOtherIncomeWhenCreditHasNoAnswer() throws BusinessException {
+    // Arrange
+    stubCategories();
+    stubStatement(credits(1), null, null);
+    stubAnswers();
+
+    // Act
+    final CategorizedMovementDTO movement = inputPort.extract(command()).movements().get(0);
+
+    // Assert
+    assertEquals(OTHER_INCOME, movement.categoryAlias());
+    assertEquals(0, BigDecimal.ZERO.compareTo(movement.confidence()));
+    assertTrue(movement.lowConfidence());
+  }
+
+  @Test
+  void shouldFallBackToUnknownExpenseWhenDebitHasNoAnswer() throws BusinessException {
+    // Arrange
+    stubCategories();
+    stubStatement(debits(1), null, null);
+    stubAnswers();
+
+    // Act
+    final CategorizedMovementDTO movement = inputPort.extract(command()).movements().get(0);
+
+    // Assert
+    assertEquals(UNKNOWN, movement.categoryAlias());
+    assertEquals(0, BigDecimal.ZERO.compareTo(movement.confidence()));
+    assertTrue(movement.lowConfidence());
+  }
+
+  @Test
+  void shouldFallBackToOtherIncomeWhenCreditAnswerIsTheExpenseUnknown() throws BusinessException {
+    // Arrange
+    stubCategories();
+    stubStatement(credits(1), null, null);
+    stubAnswers(new ClassificationAnswerDTO("m_0", UNKNOWN, new BigDecimal("0.95")));
+
+    // Act
+    final CategorizedMovementDTO movement = inputPort.extract(command()).movements().get(0);
+
+    // Assert
+    assertEquals(OTHER_INCOME, movement.categoryAlias());
+    assertEquals(0, BigDecimal.ZERO.compareTo(movement.confidence()));
+    assertTrue(movement.lowConfidence());
+  }
+
+  @Test
+  void shouldKeepCreditCategoryWhenConfidenceEqualsMinimum() throws BusinessException {
+    // Arrange
+    stubCategories();
+    stubStatement(credits(1), null, null);
+    stubAnswers(new ClassificationAnswerDTO("m_0", SALARY, new BigDecimal("0.7")));
+
+    // Act
+    final CategorizedMovementDTO movement = inputPort.extract(command()).movements().get(0);
+
+    // Assert
+    assertEquals(SALARY, movement.categoryAlias());
+    assertFalse(movement.lowConfidence());
+  }
+
+  @Test
+  void shouldCarryChosenCategoryWhenAnswerIsValid() throws BusinessException {
+    // Arrange
+    stubCategories();
+    stubStatement(debits(1), null, null);
+    stubAnswers(new ClassificationAnswerDTO("m_0", GROCERY, new BigDecimal("0.9")));
+
+    // Act
+    final CategorizedMovementDTO movement = inputPort.extract(command()).movements().get(0);
+
+    // Assert
+    assertEquals(GROCERY, movement.categoryAlias());
+    assertFalse(movement.lowConfidence());
+    assertEquals(GROCERY_CATEGORY_ID, movement.category().getCategoryId());
+  }
+
+  @Test
+  void shouldReturnBalancesWhenReaderReturnsThem() throws BusinessException {
+    // Arrange
+    stubCategories();
+    stubStatement(debits(1), new BigDecimal("1000"), new BigDecimal("990"));
+    stubAnswers();
+
+    // Act
+    final StatementClassificationDTO result = inputPort.extract(command());
+
+    // Assert
+    assertEquals(
+        List.of(new StatementBalanceDTO(COP, new BigDecimal("1000"), new BigDecimal("990"))),
+        result.balances());
   }
 
   @Test
@@ -233,7 +347,8 @@ class ExtractStatementMovementsInputPortTest {
     when(categoryQueryRepo.findActiveBySource(CategorySourceVO.INCOME))
         .thenReturn(List.of(category(CategorySourceVO.INCOME, SALARY, "Salary")));
     when(categoryQueryRepo.findActiveBySource(CategorySourceVO.EXPENSE))
-        .thenReturn(List.of(category(CategorySourceVO.EXPENSE, GROCERY, "Market")));
+        .thenReturn(
+            List.of(category(CategorySourceVO.EXPENSE, GROCERY, "Market", GROCERY_CATEGORY_ID)));
   }
 
   private void stubStatement(
@@ -255,6 +370,14 @@ class ExtractStatementMovementsInputPortTest {
     return new ExtractStatementMovementsCommand(PDF_BYTES.clone());
   }
 
+  private static List<ExtractedMovementDTO> credits(final int count) {
+    final List<ExtractedMovementDTO> movements = new ArrayList<>();
+    for (int i = 0; i < count; i++) {
+      movements.add(movement("ABONO " + i, "10", StatementMovementDirection.CREDIT));
+    }
+    return movements;
+  }
+
   private static List<ExtractedMovementDTO> debits(final int count) {
     final List<ExtractedMovementDTO> movements = new ArrayList<>();
     for (int i = 0; i < count; i++) {
@@ -270,9 +393,14 @@ class ExtractStatementMovementsInputPortTest {
 
   private static CategoryDTO category(
       final CategorySourceVO source, final String alias, final String name) {
+    return category(source, alias, name, 1L);
+  }
+
+  private static CategoryDTO category(
+      final CategorySourceVO source, final String alias, final String name, final Long id) {
     return CategoryDTO.withEntity(
         new CategoryTypeVO(source, alias),
-        1L,
+        id,
         Map.of("en", name, "es", name),
         true,
         Map.of("en", name + " description", "es", name));

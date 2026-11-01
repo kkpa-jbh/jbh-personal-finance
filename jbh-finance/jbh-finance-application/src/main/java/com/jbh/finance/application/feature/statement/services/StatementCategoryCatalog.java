@@ -146,6 +146,27 @@ public final class StatementCategoryCatalog {
     return optionsFor(direction).stream().anyMatch(option -> option.alias().equals(alias));
   }
 
+  /**
+   * The alias a movement gets when the classifier has no valid answer: Other income for money in,
+   * Unknown expense for money out.
+   *
+   * @param direction money in or money out
+   * @return the fallback alias
+   */
+  public String fallbackAliasFor(final StatementMovementDirection direction) {
+    throw new UnsupportedOperationException("not implemented");
+  }
+
+  /**
+   * The category of an alias.
+   *
+   * @param alias the category alias, one of the options or a fallback
+   * @return the category
+   */
+  public CategoryDTO categoryOf(final String alias) {
+    throw new UnsupportedOperationException("not implemented");
+  }
+
   public String unknownAlias() {
     return unknownCategoryAlias;
   }

@@ -68,6 +68,12 @@ public interface ProductLifecycleService {
   ProductDTO syncByUploadedMovements(
       ProductDomain accountDomain, List<MovementDomain> uploadedMovements) throws BusinessException;
 
+  ProductDTO syncByUploadedMovements(
+      ProductDomain accountDomain,
+      List<MovementDomain> uploadedMovements,
+      ProcessMovementOptionsVO movementOptions)
+      throws BusinessException;
+
   List<ProductDTO> findActiveByUserId(UUID userId);
 
   Optional<ProductDTO> findProductById(ProductId productId);

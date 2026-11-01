@@ -8,6 +8,7 @@ import com.jbh.finance.application.feature.category.services.CategoryService;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.finance.application.feature.movement.commands.AddMovementUploadedFileCommand;
+import com.jbh.finance.application.feature.movement.commands.UploadMovementsBatchCommand;
 import com.jbh.finance.application.feature.movement.dto.AddMultipleBasicMovementDTO;
 import com.jbh.finance.application.feature.movement.mappers.CategoryMapper;
 import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
@@ -71,6 +72,13 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
 
     return unitOfWork.executeInTransaction(
         () -> uploadMovementsLocked(userId, accountId, allUploadedMovCommand));
+  }
+
+  @Override
+  public AddMultipleBasicMovementDTO uploadMovementsFromFile(
+      final UUID userId, final ProductId accountId, final UploadMovementsBatchCommand batch)
+      throws BusinessException {
+    throw new UnsupportedOperationException("not implemented");
   }
 
   /**

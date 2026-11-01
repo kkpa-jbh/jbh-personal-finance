@@ -1,0 +1,749 @@
+{
+  "schema_version": 1,
+  "kind": "change",
+  "change": "jbh-finance-save-statement-movements",
+  "module": "jbh-finance",
+  "roadmap": null,
+  "request": "I'd like to save the movements into the database. Whenever Jev is not able to find a good transaction category... that will be set to \"UNKNOWN\" right? After saving the movements to the database, I'd like to show them in a table on the front end side. So, return all the movements extracted , sorted by date with the category label for each one. Find the best use case to add the movements to the account/product. There should be already a usecase on the application module. Be sure the API that sends the bank's statement it's also including the productID related to that bank's statement.",
+  "status": "proposed",
+  "rollup": {
+    "current": [
+      "0.1",
+      "0.2",
+      "0.3",
+      "0.4",
+      "0.5",
+      "0.6",
+      "0.7"
+    ],
+    "pending": [
+      "1.1",
+      "1.2",
+      "1.3",
+      "2.1",
+      "2.2",
+      "2.3",
+      "2.4",
+      "3.1",
+      "3.2",
+      "3.3",
+      "3.4",
+      "3.5",
+      "3.6",
+      "4.1",
+      "4.2",
+      "4.3",
+      "5.1",
+      "5.2",
+      "5.3",
+      "5.4",
+      "5.5",
+      "5.6",
+      "6.1",
+      "6.2",
+      "7.1",
+      "7.2",
+      "7.3"
+    ],
+    "blocked": [],
+    "done": []
+  },
+  "created_at": "2026-11-01T12:53:35Z",
+  "updated_at": "2026-11-01T12:54:02Z",
+  "leader": {
+    "assistant": "Claude Code",
+    "model": "claude-opus-5-5"
+  },
+  "git": {
+    "strategy": "auto",
+    "branch": "ft/CH3-JBH-73-jbh-finance-save-statement-movements",
+    "base": "849e8b44fbd0421a25ee3d4060ed2504874fdc45",
+    "ticket": "JBH-73",
+    "ticket_url": "https://linear.app/kkpa/issue/JBH-73/save-imported-statement-movements-to-a-product",
+    "ticket_tracker": "linear",
+    "created_at": "2026-11-01T12:53:35Z"
+  },
+  "tasks": [
+    {
+      "id": "0.1",
+      "title": "Skeleton, domain (jbh-finance-domain)",
+      "module": "jbh-finance",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "in-progress",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T12:54:02Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "0.2",
+      "title": "Skeleton, application movement",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.1"
+      ],
+      "parallel_ok": false,
+      "status": "in-progress",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T12:54:02Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "0.3",
+      "title": "Skeleton, application statement",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.1",
+        "0.2"
+      ],
+      "parallel_ok": false,
+      "status": "in-progress",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T12:54:02Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "0.4",
+      "title": "Domain tests",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.1"
+      ],
+      "parallel_ok": false,
+      "status": "in-progress",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T12:54:02Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "0.5",
+      "title": "Application tests, movement",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.2"
+      ],
+      "parallel_ok": false,
+      "status": "in-progress",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T12:54:02Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "0.6",
+      "title": "Application tests, statement helpers",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.3"
+      ],
+      "parallel_ok": false,
+      "status": "in-progress",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T12:54:02Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "0.7",
+      "title": "Application tests, use cases",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.2",
+        "0.3"
+      ],
+      "parallel_ok": false,
+      "status": "in-progress",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T12:54:02Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "1.1",
+      "title": "ProductType.allowsStatementImport()",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.4"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "1.2",
+      "title": "ProcessMovementOptionsVO",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.4",
+        "0.1"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "1.3",
+      "title": "MovementMetadata.putStatementReview (two keys); MovementDomain.statementImportId kept b",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.4"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "2.1",
+      "title": "ProductLifecycleServiceImpl",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.5",
+        "1.2"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "2.2",
+      "title": "UploadMovementsBatchCommand",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.5",
+        "1.2"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "2.3",
+      "title": "AddMovementsUploadedFileInputPort",
+      "module": "jbh-finance",
+      "depends_on": [
+        "2.1",
+        "2.2",
+        "1.3"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "2.4",
+      "title": "MovementMapper.toDTO / toDomain and MovementDTO carry statementImportId",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.5",
+        "1.3"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "3.1",
+      "title": "StatementCategoryCatalog",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.6"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "3.2",
+      "title": "ExtractStatementMovementsInputPort",
+      "module": "jbh-finance",
+      "depends_on": [
+        "3.1"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "3.3",
+      "title": "PdfSha256 and StatementMainCurrencyPolicy (D20)",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.6"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "3.4",
+      "title": "StartStatementImportInputPort (+ use case, command)",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.7",
+        "1.1",
+        "3.3"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "3.5",
+      "title": "RunStatementImportInputPort (+ use case, command; takes a Clock)",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.7",
+        "2.3",
+        "2.4",
+        "3.2",
+        "3.3"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "3.6",
+      "title": "FindStatementImportInputPort (+ use case, command)",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.7",
+        "2.4"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "4.1",
+      "title": "Liquibase",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.3"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "4.2",
+      "title": "StatementImportJPAEntity (finance.statement_imports, summary as @JdbcTypeCode(SqlTyp",
+      "module": "jbh-finance",
+      "depends_on": [
+        "3.4",
+        "4.1"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "4.3",
+      "title": "MovementJPAEntity.statementImportId (plain UUID column, no association); toEntity and",
+      "module": "jbh-finance",
+      "depends_on": [
+        "2.4",
+        "4.1"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "5.1",
+      "title": "FinanceApiRoutes",
+      "module": "jbh-finance",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "5.2",
+      "title": "Responses (rest/statement/response)",
+      "module": "jbh-finance",
+      "depends_on": [
+        "3.6"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "5.3",
+      "title": "StatementImportRestAdapter (replaces StatementRestAdapter, which is deleted)",
+      "module": "jbh-finance",
+      "depends_on": [
+        "3.4",
+        "3.6",
+        "5.1",
+        "5.2",
+        "5.4"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "5.4",
+      "title": "StatementImportDispatcher and StatementImportRunner",
+      "module": "jbh-finance",
+      "depends_on": [
+        "3.5"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "5.5",
+      "title": "FinanceGlobalExceptionHandler",
+      "module": "jbh-finance",
+      "depends_on": [
+        "0.3"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "5.6",
+      "title": "StatementUseCasesCDIConfig",
+      "module": "jbh-finance",
+      "depends_on": [
+        "3.4",
+        "3.5",
+        "3.6",
+        "4.2"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "6.1",
+      "title": "StatementImportRestHttpTest (@QuarkusTest, tag database)",
+      "module": "jbh-finance",
+      "depends_on": [
+        "5.3",
+        "5.6"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "6.2",
+      "title": "StatementImportDatabaseTest (@QuarkusTest, tag database)",
+      "module": "jbh-finance",
+      "depends_on": [
+        "4.2",
+        "5.6"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "7.1",
+      "title": "Update jbh-finance/AGENTS.md",
+      "module": "jbh-finance",
+      "depends_on": [
+        "5.6"
+      ],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "7.2",
+      "title": "Sync notes (no edit)",
+      "module": "jbh-finance",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    },
+    {
+      "id": "7.3",
+      "title": "Leader checks (run by the leader or the user, not by workers)",
+      "module": "jbh-finance",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "pending",
+      "agent": null,
+      "model": null,
+      "started_at": null,
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": null,
+      "budget": null
+    }
+  ],
+  "test_first": {
+    "status": "pending",
+    "commit": null,
+    "tests": [],
+    "approved_at": null
+  },
+  "review": {
+    "status": "pending",
+    "agent": null,
+    "brief": null,
+    "rounds": []
+  },
+  "decisions": [
+    {
+      "id": "D1",
+      "at": "2026-11-01T12:53:35Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Interview outcomes D1-D15 + D25 (design.md): async+poll, Unknown rule, main currency, PDF hash 409, reuse AddMovementsUploadedFileUseCase, SAVINGS+CREDIT_CARD, FK link, summary jsonb, stale timeout, skip funds check, product-in-path API, remove old endpoint, SRP+DIP, 3 use cases, future rows skipped",
+      "why": "Step 2 grill-me + Step 3a answers",
+      "covered_by": "design.md Decisions"
+    },
+    {
+      "id": "D2",
+      "at": "2026-11-01T12:53:35Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Design briefing approved; size ~3800 lines / 92 files accepted over the 500/15 cap",
+      "why": "No cut gives a usable feature between parts",
+      "covered_by": null
+    },
+    {
+      "id": "D3",
+      "at": "2026-11-01T12:53:35Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Database gate confirmed: finance.statement_imports, movements.statement_import_id, index plan (design.md)",
+      "why": "Step 3 design gate",
+      "covered_by": null
+    },
+    {
+      "id": "D4",
+      "at": "2026-11-01T12:53:35Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "Concurrency check (Step 3b): no new race risk; C1-C6 in design.md cover every task",
+      "why": "Leader check of all tasks; stale-after 10 min is tight for ~10-page PDFs but configurable",
+      "covered_by": null
+    },
+    {
+      "id": "D5",
+      "at": "2026-11-01T12:53:35Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "Fixed spec wording (SHALL/MUST) myself instead of re-dispatching",
+      "why": "One-word validation fix; re-dispatch costs more",
+      "covered_by": null
+    },
+    {
+      "id": "D6",
+      "at": "2026-11-01T12:53:35Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "Accepted worker D25 sub-choices: OTHER_CURRENCY wins over FUTURE_DATE; main currency from all rows; nothing to save ends DONE with 0 saved",
+      "why": "Consistent with D3/D25; alternative (FAILED on empty) hides a valid result",
+      "covered_by": "D25"
+    }
+  ],
+  "events": [
+    {
+      "at": "2026-11-01T12:53:35Z",
+      "agent": "leader",
+      "event": "artifacts committed 770e570; progress.json created"
+    },
+    {
+      "at": "2026-11-01T12:53:35Z",
+      "agent": "leader",
+      "event": "check-progress.py refuses scope 'concurrency' (SKILL.md Step 3b asks for it); used scope 'change'. Skill/script mismatch to fix."
+    },
+    {
+      "at": "2026-11-01T12:54:02Z",
+      "agent": "leader",
+      "event": "Step 4a: dispatched jbh-finance worker (blueprint mode, sonnet) for wave 0 (0.1-0.7). budget start: 5h 23%, cost $10.69, context 22%"
+    }
+  ]
+}

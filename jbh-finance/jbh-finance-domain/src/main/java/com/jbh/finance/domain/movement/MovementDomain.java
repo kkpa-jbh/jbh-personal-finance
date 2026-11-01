@@ -13,6 +13,7 @@ import com.jbh.finance.domain.shared.exceptions.BusinessDomainExceptionType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.UUID;
 import lombok.Getter;
 
 @Getter
@@ -34,6 +35,9 @@ public class MovementDomain {
   private final BigDecimal balanceSnapshot;
   private final MovementMetadata metadata;
   private final String description;
+
+  /** The statement import that created this movement, or {@code null}. */
+  private final UUID statementImportId;
 
   private final LocalDateTime createdAt;
 
@@ -68,6 +72,30 @@ public class MovementDomain {
       final BigDecimal balanceSnapshot,
       final MovementMetadata metadata,
       final String description) {
+    this(
+        id,
+        productId,
+        movementType,
+        category,
+        movementAmount,
+        movementDate,
+        balanceSnapshot,
+        metadata,
+        description,
+        null);
+  }
+
+  public MovementDomain(
+      final MovementId id,
+      final ProductId productId,
+      final MovementType movementType,
+      final CategoryDomain category,
+      final BigDecimal movementAmount,
+      final LocalDate movementDate,
+      final BigDecimal balanceSnapshot,
+      final MovementMetadata metadata,
+      final String description,
+      final UUID statementImportId) {
     this.id = id;
     this.productId = productId;
     this.movementType = movementType;
@@ -77,6 +105,7 @@ public class MovementDomain {
     this.balanceSnapshot = JbhMoneyUtils.withJBHDecimals(balanceSnapshot);
     this.metadata = metadata;
     this.description = description;
+    this.statementImportId = statementImportId;
     this.createdAt = LocalDateTime.now();
   }
 

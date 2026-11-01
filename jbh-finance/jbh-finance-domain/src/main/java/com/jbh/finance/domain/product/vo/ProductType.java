@@ -24,6 +24,10 @@ public enum ProductType {
     return this == SAVINGS || this == CREDIT_CARD || this == INVESTMENT;
   }
 
+  public boolean allowsStatementImport() {
+    throw new UnsupportedOperationException("not implemented");
+  }
+
   public List<ProductType> addingMovementsProductsAllowed() {
     return ADDING_MOVEMENTS_PRODUCTS_ALLOWED;
   }

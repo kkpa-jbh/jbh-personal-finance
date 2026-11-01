@@ -2,6 +2,8 @@ package com.jbh.finance.test.application.feature.statement.services;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +16,7 @@ import com.jbh.finance.application.feature.statement.dto.StatementMovementDirect
 import com.jbh.finance.application.feature.statement.services.StatementCategoryCatalog;
 import com.jbh.finance.domain.category.vo.CategorySourceVO;
 import com.jbh.finance.domain.category.vo.CategoryTypeVO;
+import com.jbh.finance.test.testfixtures.CategoryFixturesTestApp;
 import com.jbh.finance.test.testfixtures.CategoryServiceMock;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -29,6 +32,7 @@ import org.mockito.MockitoAnnotations;
 class StatementCategoryCatalogTest {
 
   private static final String UNKNOWN = "UNK";
+  private static final String OTHER_INCOME = "INC_OTHER";
 
   @Mock private CategoryQueryRepo categoryQueryRepo;
 
@@ -50,12 +54,12 @@ class StatementCategoryCatalogTest {
   }
 
   @Test
-  void shouldListIncomeOptionsThenUnknownWhenCredit() {
+  void shouldListIncomeOptionsThenOtherIncomeWhenCredit() {
     // Act
     final List<CategoryOptionDTO> options = catalog.optionsFor(StatementMovementDirection.CREDIT);
 
     // Assert
-    assertEquals(List.of("INC_SALARY", UNKNOWN), aliases(options));
+    assertEquals(List.of("INC_SALARY", OTHER_INCOME), aliases(options));
   }
 
   @Test
@@ -111,7 +115,49 @@ class StatementCategoryCatalogTest {
     // Act & Assert
     assertFalse(catalog.isAllowed(StatementMovementDirection.DEBIT, "INC_SALARY"));
     assertTrue(catalog.isAllowed(StatementMovementDirection.DEBIT, "EXP_GROCERY"));
-    assertTrue(catalog.isAllowed(StatementMovementDirection.CREDIT, UNKNOWN));
+    assertFalse(catalog.isAllowed(StatementMovementDirection.CREDIT, UNKNOWN));
+    assertTrue(catalog.isAllowed(StatementMovementDirection.CREDIT, OTHER_INCOME));
+  }
+
+  @Test
+  void shouldReturnOtherIncomeFallbackWhenDirectionIsCredit() {
+    // Act & Assert
+    assertEquals(OTHER_INCOME, catalog.fallbackAliasFor(StatementMovementDirection.CREDIT));
+  }
+
+  @Test
+  void shouldReturnUnknownExpenseFallbackWhenDirectionIsDebit() {
+    // Act & Assert
+    assertEquals(UNKNOWN, catalog.fallbackAliasFor(StatementMovementDirection.DEBIT));
+  }
+
+  @Test
+  void shouldEndCreditOptionsWithOtherIncomeAndNotWithUnknownExpense() {
+    // Act
+    final List<String> aliases =
+        aliases(catalog.optionsFor(StatementMovementDirection.CREDIT));
+
+    // Assert
+    assertEquals(OTHER_INCOME, aliases.get(aliases.size() - 1));
+    assertNotEquals(UNKNOWN, aliases.get(aliases.size() - 1));
+  }
+
+  @Test
+  void shouldEndDebitOptionsWithUnknownExpense() {
+    // Act
+    final List<String> aliases = aliases(catalog.optionsFor(StatementMovementDirection.DEBIT));
+
+    // Assert
+    assertEquals(UNKNOWN, aliases.get(aliases.size() - 1));
+  }
+
+  @Test
+  void shouldReturnCategoryWhenAliasIsKnownOrAFallback() {
+    // Act & Assert
+    assertEquals("Market", catalog.categoryOf("EXP_GROCERY").getDisplayName().get("en"));
+    assertEquals("INC_SALARY", catalog.categoryOf("INC_SALARY").getAlias());
+    assertSame(CategoryFixturesTestApp.EXPENSE_UNKNOWN, catalog.categoryOf(UNKNOWN));
+    assertSame(CategoryFixturesTestApp.INCOME_OTHER, catalog.categoryOf(OTHER_INCOME));
   }
 
   @Test

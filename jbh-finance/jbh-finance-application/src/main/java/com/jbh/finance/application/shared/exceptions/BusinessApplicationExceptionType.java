@@ -58,8 +58,22 @@ public enum BusinessApplicationExceptionType implements BusinessExceptionType {
   SNAPSHOT_AFTER_OFFICIAL_REPORT(
       "Cannot add a snapshot after the monthly balance was officially reported",
       "No se puede añadir un snapshot después de que el balance anual fue reportado"),
+  STATEMENT_ALREADY_IMPORTED(
+      "This statement was already imported for this product",
+      "Este extracto ya fue importado para este producto"),
+  STATEMENT_IMPORT_FAILED(
+      "The statement import failed", "La importación del extracto falló"),
+  STATEMENT_IMPORT_NOT_FOUND(
+      "Statement import not found for the given product",
+      "Importación de extracto no encontrada para el producto indicado"),
+  STATEMENT_IMPORT_TIMED_OUT(
+      "The statement import took too long and was cancelled",
+      "La importación del extracto tardó demasiado y fue cancelada"),
   STATEMENT_NO_MOVEMENTS_FOUND(
       "No movements were found in this PDF", "No se encontraron movimientos en este PDF"),
+  STATEMENT_PRODUCT_TYPE_NOT_ALLOWED(
+      "Statements cannot be imported into this product type",
+      "No se pueden importar extractos en este tipo de producto"),
   WITHDRAWAL_EXCEEDS_BALANCE(
       "The new withdrawal exceeds the monthly balance %s",
       "La retirada excede el saldo reportado del mes %s");
