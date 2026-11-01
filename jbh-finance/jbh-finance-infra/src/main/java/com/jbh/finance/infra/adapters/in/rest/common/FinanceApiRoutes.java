@@ -22,7 +22,8 @@ public class FinanceApiRoutes {
   // Categories API
   public static final String CATEGORIES_API_PATH = BASE_API_PATH + "/categories";
 
-  // Statements API
-  public static final String STATEMENTS_API_PATH = BASE_API_PATH + "/statements";
-  public static final String STATEMENTS_EXTRACT_API = "/extract";
+  // Statement imports API
+  public static final String STATEMENT_IMPORTS_API_PATH =
+      PRODUCTS_API_PATH + "/{productId}/statement-imports";
+  public static final String STATEMENT_IMPORT_ID_PATH = "/{importId}";
 }

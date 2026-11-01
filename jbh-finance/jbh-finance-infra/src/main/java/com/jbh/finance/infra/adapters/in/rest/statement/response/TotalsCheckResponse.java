@@ -4,10 +4,7 @@ import com.jbh.finance.application.feature.statement.dto.TotalsCheckDTO;
 import java.math.BigDecimal;
 
 public record TotalsCheckResponse(
-    String currency,
-    String status,
-    BigDecimal expectedBalanceChange,
-    BigDecimal movementsBalanceChange) {
+    String currency, String status, BigDecimal expectedChange, BigDecimal movementsChange) {
 
   public static TotalsCheckResponse fromDTO(final TotalsCheckDTO dto) {
     return new TotalsCheckResponse(

@@ -83,6 +83,8 @@ module jbh.finance.application {
       jbh.finance.infra;
   exports com.jbh.finance.application.feature.statement.usecases to
       jbh.finance.infra;
+  exports com.jbh.finance.application.feature.statement.vo to
+      jbh.finance.infra;
 
   exports com.jbh.finance.application.feature.category.dto;
   exports com.jbh.finance.application.feature.category.ports.output;

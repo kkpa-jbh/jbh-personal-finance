@@ -19,7 +19,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -70,9 +69,8 @@ public class MovementJPAEntity extends PanacheEntityBase {
   @Column(name = "created_at", nullable = false, updatable = false)
   public LocalDateTime createdAt;
 
-  // Not persisted yet: the column statement_import_id arrives with migration 007, and the
-  // mapping follows with it.
-  @Transient public UUID statementImportId;
+  @Column(name = "statement_import_id")
+  public UUID statementImportId;
 
   public static MovementJPAEntity toEntity(final MovementDTO productMovement) {
     final MovementJPAEntity entity = new MovementJPAEntity();
@@ -87,6 +85,7 @@ public class MovementJPAEntity extends PanacheEntityBase {
         productMovement.metadata() != null ? productMovement.metadata().asMap() : null);
     entity.setDescription(productMovement.description());
     entity.setCreatedAt(productMovement.createdAt());
+    entity.setStatementImportId(productMovement.statementImportId());
     entity.setDescription(productMovement.description());
     entity.setCategory(CategoryJPAEntity.fromDTO(productMovement.category()));
 
@@ -118,6 +117,7 @@ public class MovementJPAEntity extends PanacheEntityBase {
         .metadata(metadata != null ? MovementMetadata.of(metadata) : null)
         .createdAt(createdAt)
         .description(description)
+        .statementImportId(statementImportId)
         .build();
   }
 }

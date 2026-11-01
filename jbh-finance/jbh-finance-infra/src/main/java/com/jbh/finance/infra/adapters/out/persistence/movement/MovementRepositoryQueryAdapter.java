@@ -36,6 +36,6 @@ public class MovementRepositoryQueryAdapter implements MovementQueryRepository {
 
   @Override
   public List<MovementDTO> findByStatementImportId(final UUID statementImportId) {
-    throw new UnsupportedOperationException("not implemented");
+    return jpaRepo.findByStatementImportId(statementImportId);
   }
 }

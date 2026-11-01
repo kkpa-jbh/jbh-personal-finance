@@ -3,6 +3,7 @@ package com.jbh.finance.infra.adapters.exceptions;
 import com.jbh.commons.api.ApiResponse;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
+import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
 import jakarta.ws.rs.NotSupportedException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
@@ -34,6 +35,8 @@ import org.slf4j.LoggerFactory;
 public class FinanceGlobalExceptionHandler implements ExceptionMapper<Exception> {
 
   private static final Logger LOG = LoggerFactory.getLogger(FinanceGlobalExceptionHandler.class);
+  private static final int UNPROCESSABLE_ENTITY = 422;
+  private static final int CONFLICT = Response.Status.CONFLICT.getStatusCode();
 
   @Override
   public Response toResponse(final Exception exception) {
@@ -71,9 +74,15 @@ public class FinanceGlobalExceptionHandler implements ExceptionMapper<Exception>
 
     LOG.warn("Business exception: {}", errorMessage);
 
-    return Response.status(422) // HTTP 422 - Unprocessable Entity
-        .entity(errorResponse)
-        .build();
+    return Response.status(statusOf(exception)).entity(errorResponse).build();
+  }
+
+  /** 422 for every business error, except a statement that was already imported (409). */
+  private static int statusOf(final BusinessException exception) {
+    return exception.getBusinessExceptionType()
+            == BusinessApplicationExceptionType.STATEMENT_ALREADY_IMPORTED
+        ? CONFLICT
+        : UNPROCESSABLE_ENTITY;
   }
 
   private Response handleInternalSystemException(final InternalSystemException exception) {

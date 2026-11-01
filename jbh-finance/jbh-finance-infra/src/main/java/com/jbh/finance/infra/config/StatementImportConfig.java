@@ -3,6 +3,7 @@ package com.jbh.finance.infra.config;
 import io.smallrye.config.ConfigMapping;
 import io.smallrye.config.WithName;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,9 @@ import java.util.Optional;
 public interface StatementImportConfig {
 
   long maxFileSizeBytes();
+
+  /** A {@code PROCESSING} import older than this counts as failed. */
+  Duration staleAfter();
 
   /** Step 1: what turns the PDF into text. */
   TextSource textSource();
