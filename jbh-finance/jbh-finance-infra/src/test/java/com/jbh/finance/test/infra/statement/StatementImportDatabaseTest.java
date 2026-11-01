@@ -21,7 +21,11 @@ import com.jbh.finance.application.feature.product.ports.input.CreateProductInpu
 import com.jbh.finance.application.feature.statement.commands.ExtractStatementMovementsCommand;
 import com.jbh.finance.application.feature.statement.commands.RunStatementImportCommand;
 import com.jbh.finance.application.feature.statement.dto.NewStatementImportDTO;
+import com.jbh.finance.application.feature.statement.dto.SkippedStatementMovementDTO;
 import com.jbh.finance.application.feature.statement.dto.StatementImportDTO;
+import com.jbh.finance.application.feature.statement.dto.StatementMovementDirection;
+import com.jbh.finance.application.feature.statement.dto.TotalsCheckDTO;
+import com.jbh.finance.application.feature.statement.dto.TotalsCheckStatus;
 import com.jbh.finance.application.feature.statement.dto.StatementImportStatus;
 import com.jbh.finance.application.feature.statement.dto.StatementImportSummaryDTO;
 import com.jbh.finance.application.feature.statement.ports.output.StatementImportRepository;
@@ -42,7 +46,9 @@ import jakarta.inject.Inject;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
@@ -59,7 +65,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Checks the statement import persistence on a real PostgreSQL: the conditional status changes, the
  * rollback when the job finishes after the stale time, the unique index under a race, and the
- * migration. The expected values come from the integration test contract (IT6, IT8, IT11).
+ * migration. The expected values come from the agreed behavior, not from the implementation.
  */
 @QuarkusTest
 @TestProfile(FinanceDatabaseTestProfile.class)
@@ -108,7 +114,7 @@ class StatementImportDatabaseTest {
   @DataSource("finance")
   javax.sql.DataSource dataSource;
 
-  // IT6
+  // A late finish must not overwrite a row that was freed as stale.
   @Test
   void shouldRefuseToMarkDoneARowThatIsAlreadyFailedAndKeepItUnchanged() throws SQLException {
     final UUID userId = UUID.randomUUID();
@@ -124,7 +130,7 @@ class StatementImportDatabaseTest {
     assertNull(row.summary());
   }
 
-  // IT6
+  // A late finish after the stale time rolls back the movements and the balance.
   @Test
   void shouldRollBackTheMovementsWhenTheJobFinishesAfterTheImportWasMarkedStale()
       throws SQLException, BusinessException {
@@ -149,7 +155,49 @@ class StatementImportDatabaseTest {
     assertEquals(TIMED_OUT, string(dataSource, "SELECT error_code FROM finance.statement_imports WHERE id = ?", importId));
   }
 
-  // IT8
+  // Money in the stored summary must come back exact: 5.00 stays 5.00, not 5.0.
+  @Test
+  void shouldReadSummaryAmountsBackWithTheirExactScale() throws SQLException {
+    final UUID userId = UUID.randomUUID();
+    final ProductId productId = createSavingsProduct(userId);
+    final UUID importId = UUID.randomUUID();
+    importRepository.insertProcessing(
+        new NewStatementImportDTO(importId, userId, productId, PdfSha256.of(newPdf())));
+    final SkippedStatementMovementDTO skipped =
+        new SkippedStatementMovementDTO(
+            LocalDate.of(2026, 9, 2),
+            "AMAZON",
+            new BigDecimal("1234.56"),
+            "USD",
+            StatementMovementDirection.DEBIT,
+            SkippedStatementMovementDTO.SkipReason.OTHER_CURRENCY,
+            "EXP_SHOPPING",
+            Map.of("en", "Shopping"),
+            new BigDecimal("0.90"),
+            false);
+    final TotalsCheckDTO check =
+        new TotalsCheckDTO(
+            StatementImportTestSupport.COP,
+            TotalsCheckStatus.MATCH,
+            new BigDecimal("5.00"),
+            new BigDecimal("5.00"));
+    final StatementImportSummaryDTO summary =
+        new StatementImportSummaryDTO(
+            StatementImportTestSupport.COP, 1, 1, 0, List.of(check), List.of(skipped));
+
+    assertTrue(importRepository.markDone(importId, summary));
+
+    final StatementImportSummaryDTO stored =
+        importRepository.findByIdAndProduct(importId, productId).orElseThrow().summary();
+    final SkippedStatementMovementDTO storedSkipped = stored.notSavedMovements().get(0);
+    assertEquals(0, new BigDecimal("1234.56").compareTo(storedSkipped.amount()));
+    assertEquals(2, storedSkipped.amount().scale());
+    assertEquals(LocalDate.of(2026, 9, 2), storedSkipped.date());
+    assertEquals(0, new BigDecimal("5.00").compareTo(stored.totalsChecks().get(0).expectedChange()));
+    assertEquals(2, stored.totalsChecks().get(0).expectedChange().scale());
+  }
+
+  // The partial unique index lets only one of two racing inserts win.
   @RepeatedTest(REPETITIONS)
   void shouldInsertOnlyOneProcessingRowWhenTwoThreadsInsertTheSamePdfAtTheSameTime()
       throws SQLException, InterruptedException, ExecutionException, TimeoutException {
@@ -163,7 +211,7 @@ class StatementImportDatabaseTest {
     assertEquals(1, count(dataSource, ACTIVE_ROWS_SQL, productId.value(), sha.value()));
   }
 
-  // IT11
+  // The migration created the table, the partial unique index and the movement link.
   @Test
   void shouldCreateTheStatementImportsTableTheUniquePartialIndexAndTheMovementLink()
       throws SQLException {

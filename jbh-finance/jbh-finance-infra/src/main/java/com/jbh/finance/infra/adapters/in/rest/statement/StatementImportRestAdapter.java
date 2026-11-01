@@ -12,6 +12,7 @@ import com.jbh.finance.application.feature.statement.vo.PdfSha256;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.infra.adapters.in.rest.common.BaseRestAdapter;
 import com.jbh.finance.infra.adapters.in.rest.common.FinanceApiRoutes;
+import com.jbh.finance.infra.adapters.in.rest.statement.request.StatementImportUploadRequest;
 import com.jbh.finance.infra.adapters.in.rest.statement.response.StatementImportAcceptedResponse;
 import com.jbh.finance.infra.adapters.in.rest.statement.response.StatementImportResponse;
 import com.jbh.finance.infra.adapters.in.service.PdfStatementUnlocker;
@@ -19,8 +20,8 @@ import com.jbh.finance.infra.adapters.in.service.StatementImportDispatcher;
 import com.jbh.finance.infra.adapters.in.service.StatementUploadReader;
 import com.jbh.gateway.client.JbhGatewayException;
 import jakarta.enterprise.context.RequestScoped;
+import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
@@ -38,7 +39,6 @@ import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
-import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,18 +122,14 @@ public class StatementImportRestAdapter extends BaseRestAdapter {
   @SecurityRequirement(name = "JWT")
   public Response startImport(
       @PathParam("productId") final UUID productId,
-      @FormParam("file") @Parameter(description = "Bank statement PDF", required = true)
-          final FileUpload fileUpload,
-      @FormParam("password")
-          @Parameter(description = "PDF password, only for locked PDFs. Never saved.")
-          final String password,
+      @BeanParam final StatementImportUploadRequest form,
       @HeaderParam("Authorization") @Parameter(description = "JWT Bearer token", required = true)
           final String authorizationHeader)
       throws JbhGatewayException, BusinessException, InternalSystemException {
 
     final UUID userId = findUserId(authorizationHeader);
-    final byte[] original = uploadReader.read(fileUpload);
-    final byte[] unlocked = unlocker.unlock(original, password);
+    final byte[] original = uploadReader.read(form.file);
+    final byte[] unlocked = unlocker.unlock(original, form.password);
 
     final ProductId product = ProductId.of(productId);
     final UUID importId =

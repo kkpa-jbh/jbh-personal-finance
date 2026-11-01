@@ -13,7 +13,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
-import java.util.Map;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
@@ -47,9 +46,10 @@ public class StatementImportJPAEntity extends PanacheEntityBase {
   @Column(name = "error_code", columnDefinition = "TEXT")
   public String errorCode;
 
+  // Read as JSON text, so the numbers keep their exact decimals (5.00 stays 5.00).
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "summary", columnDefinition = "jsonb")
-  public Map<String, Object> summary;
+  public String summary;
 
   @Column(name = "started_at")
   public Instant startedAt;

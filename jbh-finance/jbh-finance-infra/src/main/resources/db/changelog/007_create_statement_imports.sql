@@ -26,7 +26,7 @@ CREATE TABLE finance.statement_imports
         FOREIGN KEY (product_id) REFERENCES finance.products (id) ON DELETE CASCADE
 );
 
--- D4: the same PDF cannot be PROCESSING or DONE twice in one product. FAILED rows do not count.
+-- The same PDF cannot be PROCESSING or DONE twice in one product. FAILED rows do not count.
 CREATE UNIQUE INDEX uk_statement_imports_product_pdf_active
     ON finance.statement_imports (product_id, pdf_sha256)
     WHERE status <> 'FAILED';
@@ -34,7 +34,7 @@ CREATE UNIQUE INDEX uk_statement_imports_product_pdf_active
 -- Needed by the ON DELETE CASCADE from products (the partial index above skips FAILED rows).
 CREATE INDEX idx_statement_imports_product_id ON finance.statement_imports (product_id);
 
--- D8: link from a movement to the import that created it.
+-- Link from a movement to the import that created it.
 ALTER TABLE finance.movements
     ADD COLUMN statement_import_id UUID NULL
         CONSTRAINT fk_movements_statement_import_id

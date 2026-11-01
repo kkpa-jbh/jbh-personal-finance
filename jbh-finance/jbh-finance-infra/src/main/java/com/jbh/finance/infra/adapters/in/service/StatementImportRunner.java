@@ -34,18 +34,27 @@ public class StatementImportRunner {
   }
 
   /**
-   * Runs the import. The use case never throws; it marks the import {@code FAILED} instead.
+   * Runs the import. The use case marks the import {@code FAILED} on its own failures. This
+   * method also catches anything else (for example a failed {@code markFailed} or report write)
+   * and logs only the class name, because nothing reads the result of a background task.
    *
    * @param command the import id, user, product and the unlocked PDF
    */
   @ActivateRequestContext
+  // A background task: any failure is logged here, or it would be lost.
+  @SuppressWarnings("PMD.AvoidCatchingGenericException")
   public void run(final RunStatementImportCommand command) {
-    useCase
-        .run(command)
-        .ifPresent(
-            classification -> {
-              LOG.info(LOG_PREFIX + " Finished: {} movements", classification.movements().size());
-              jevReport.write(classification);
-            });
+    try {
+      useCase
+          .run(command)
+          .ifPresent(
+              classification -> {
+                LOG.info(LOG_PREFIX + " Finished: {} movements", classification.movements().size());
+                jevReport.write(classification);
+              });
+    } catch (final RuntimeException e) {
+      // Only the class name: the message may carry statement data.
+      LOG.error(LOG_PREFIX + " Run failed: {}", e.getClass().getSimpleName());
+    }
   }
 }

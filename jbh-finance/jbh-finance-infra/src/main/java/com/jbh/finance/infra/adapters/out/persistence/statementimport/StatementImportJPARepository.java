@@ -1,9 +1,14 @@
 package com.jbh.finance.infra.adapters.out.persistence.statementimport;
 
+import com.jbh.finance.application.feature.statement.dto.NewStatementImportDTO;
+import com.jbh.finance.application.feature.statement.vo.PdfSha256;
+import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
+import com.jbh.finance.domain.product.vo.ProductId;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Parameters;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.persistence.PersistenceUnit;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -16,6 +21,9 @@ public class StatementImportJPARepository implements PanacheRepository<Statement
   private static final String PRODUCT_ID_PARAM = "productId";
   private static final String SHA_PARAM = "pdfSha256";
   private static final String ERROR_CODE_PARAM = "errorCode";
+  private static final String TIMED_OUT_CODE =
+      BusinessApplicationExceptionType.STATEMENT_IMPORT_TIMED_OUT.name();
+  private static final double MILLIS_PER_SECOND = 1000.0;
 
   private static final String INSERT_PROCESSING =
       "INSERT INTO finance.statement_imports (id, user_id, product_id, pdf_sha256, status)"
@@ -41,25 +49,24 @@ public class StatementImportJPARepository implements PanacheRepository<Statement
           + " WHERE id = :id AND status = 'PROCESSING'";
 
   /** Returns the rows inserted: 1, or 0 when the PDF is already PROCESSING or DONE. */
-  public int insertProcessing(
-      final UUID id, final UUID userId, final UUID productId, final String pdfSha256) {
+  public int insertProcessing(final NewStatementImportDTO newImport) {
     return getEntityManager()
         .createNativeQuery(INSERT_PROCESSING)
-        .setParameter(ID_PARAM, id)
-        .setParameter("userId", userId)
-        .setParameter(PRODUCT_ID_PARAM, productId)
-        .setParameter(SHA_PARAM, pdfSha256)
+        .setParameter(ID_PARAM, newImport.id())
+        .setParameter("userId", newImport.userId())
+        .setParameter(PRODUCT_ID_PARAM, newImport.productId().value())
+        .setParameter(SHA_PARAM, newImport.pdfSha256().value())
         .executeUpdate();
   }
 
   public int markStaleAsFailed(
-      final UUID productId, final String pdfSha256, final String errorCode, final double seconds) {
+      final ProductId productId, final PdfSha256 pdfSha256, final Duration staleAfter) {
     return getEntityManager()
         .createNativeQuery(MARK_STALE)
-        .setParameter(ERROR_CODE_PARAM, errorCode)
-        .setParameter(PRODUCT_ID_PARAM, productId)
-        .setParameter(SHA_PARAM, pdfSha256)
-        .setParameter("staleSeconds", seconds)
+        .setParameter(ERROR_CODE_PARAM, TIMED_OUT_CODE)
+        .setParameter(PRODUCT_ID_PARAM, productId.value())
+        .setParameter(SHA_PARAM, pdfSha256.value())
+        .setParameter("staleSeconds", staleAfter.toMillis() / MILLIS_PER_SECOND)
         .executeUpdate();
   }
 

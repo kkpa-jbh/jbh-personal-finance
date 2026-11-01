@@ -19,8 +19,8 @@ import org.slf4j.Logger;
 
 /**
  * Runs one admitted statement import in the background. The long AI work happens before the
- * transaction, so no database connection is held during it. It never throws: every failure ends in
- * a {@code FAILED} row.
+ * transaction, so no database connection is held during it. Every failure of the import itself ends
+ * in a {@code FAILED} row and is not rethrown.
  */
 public class RunStatementImportInputPort implements RunStatementImportUseCase {
   private static final Logger LOG = LoggerFactory.getLogger(RunStatementImportInputPort.class);
@@ -62,7 +62,8 @@ public class RunStatementImportInputPort implements RunStatementImportUseCase {
       return fail(command, errorCodeOf(e.getBusinessExceptionType()));
     } catch (final RuntimeException e) {
       // The background job must end in a FAILED row, whatever went wrong.
-      LOG.error(LOG_PREFIX + " Unexpected failure", e);
+      // Only the class name: the message and stack trace may carry statement data.
+      LOG.error(LOG_PREFIX + " Unexpected failure: {}", e.getClass().getSimpleName());
       return fail(command, GENERIC_ERROR_CODE);
     }
   }

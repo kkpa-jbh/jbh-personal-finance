@@ -27,8 +27,9 @@ transaction. Find (the poll) returns the status, the summary and the saved movem
   It asks for transactions through `UnitOfWork` and for the product lock through
   `ProductLifecycleService.lockForUpdate`.
 - `jbh-finance-infra`: REST adapters, Request/Response objects, JPA entities and adapters,
-  `QuarkusUnitOfWork`, CDI wiring (`ProductUseCasesCDIConfig`, `StatementUseCasesCDIConfig`),
-  Liquibase changelog, bank statement import adapters.
+  `QuarkusUnitOfWork`, CDI wiring (`ProductUseCasesCDIConfig`, `StatementUseCasesCDIConfig` for
+  the extract use case, `StatementImportUseCasesCDIConfig` for the start, run and find import use
+  cases), Liquibase changelog, bank statement import adapters.
 
 ## Public interface
 

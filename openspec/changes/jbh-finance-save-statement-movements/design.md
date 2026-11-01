@@ -216,6 +216,9 @@ New classes (one job each):
 | `StatementImportCommands` (`StartStatementImportCommand`, `RunStatementImportCommand`, `FindStatementImportCommand`) | application | Input of each use case. |
 | `StatementImportStatus`, `StatementImportDTO`, `NewStatementImportDTO`, `StatementImportSummaryDTO`, `SkippedStatementMovementDTO`, `StatementImportResultDTO`, `StatementImportMovementDTO`, `StatementImportSettings` | application (dto) | Data carriers only. |
 | `MovementReviewVO` | domain | Confidence and needs-review of one movement. |
+| `StatementImportPlan` | application (ports/input) | Split the extracted rows into saved and not saved (D3, D25), order them by date, and build the summary and the upload commands. Changes when the save rules change. |
+| `StatementUploadReader` | infra (adapters/in/service) | Check the uploaded file (present, PDF, size) and read its original bytes. Changes when the upload rules change. |
+| `StatementImportUseCasesCDIConfig` | infra | CDI wiring of the start, run and find import use cases. Changes when their constructors change. |
 | `StatementImportRestAdapter` | infra | HTTP only: POST and GET, request and response mapping. |
 | `StatementImportJPAEntity`, `StatementImportJPARepository`, `StatementImportRepositoryAdapter` | infra | Persist and read `statement_imports`; implement the port. |
 | Responses: `StatementImportAcceptedResponse`, `StatementImportResponse`, `StatementImportSummaryResponse`, `StatementImportMovementResponse`, `SkippedStatementMovementResponse`, `TotalsCheckResponse` (kept, moved use) | infra | API contract. |

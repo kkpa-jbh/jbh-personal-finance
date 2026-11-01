@@ -59,7 +59,7 @@ import org.junit.jupiter.api.Test;
  * Calls the statement import API over HTTP on a real PostgreSQL. The statement reader and the
  * classifier are replaced by {@link FakeExtractStatementMovementsUseCase}, and IAM by {@code
  * FakeGatewayClientFactory}, so nothing here calls an AI provider. The expected values come from
- * the integration test contract (IT1 to IT10), not from the implementation.
+ * the agreed API behavior, not from the implementation.
  */
 @QuarkusTest
 @TestProfile(FinanceDatabaseTestProfile.class)
@@ -106,7 +106,7 @@ class StatementImportRestHttpTest {
     fakeReader.returning(cannedStatement(categories));
   }
 
-  // IT1
+  // Happy path: the main-currency rows are saved in date order and the product balance changes.
   @Test
   void shouldSaveTheMainCurrencyMovementsSortedByDateWhenAPdfIsImported() throws SQLException {
     final String productId = createProduct(USER_A_TOKEN, SAVINGS, Map.of());
@@ -160,7 +160,7 @@ class StatementImportRestHttpTest {
     assertEquals(0, count(dataSource, NOT_SAVED_MOVEMENTS_SQL, importUuid));
   }
 
-  // IT2
+  // Duplicate PDF: only the same PDF in the same product is refused.
   @Test
   void shouldAnswerConflictOnlyForTheSamePdfInTheSameProduct() {
     final String firstProduct = createProduct(USER_A_TOKEN, SAVINGS, Map.of());
@@ -184,7 +184,7 @@ class StatementImportRestHttpTest {
     awaitFinished(USER_A_TOKEN, firstProduct, body(otherPdf).get("importId").asText());
   }
 
-  // IT3
+  // Admission: wrong product type or another user's product is refused and stores nothing.
   @Test
   void shouldRejectAProductTypeThatIsNotAllowedAndAProductOfAnotherUser() throws SQLException {
     final String cdtProduct = createProduct(USER_A_TOKEN, CDT, Map.of());
@@ -203,7 +203,7 @@ class StatementImportRestHttpTest {
     assertEquals(0, count(dataSource, ROWS_OF_PRODUCT_SQL, UUID.fromString(foreignProduct)));
   }
 
-  // IT4
+  // A failed import can be retried with the same PDF.
   @Test
   void shouldMarkTheImportFailedAndAllowARetryWhenTheReaderFails() {
     final String productId = createProduct(USER_A_TOKEN, SAVINGS, Map.of());
@@ -231,7 +231,7 @@ class StatementImportRestHttpTest {
     assertEquals(FAILED, awaitFinished(USER_A_TOKEN, productId, firstId).get("status").asText());
   }
 
-  // IT5
+  // A stale PROCESSING row counts as failed and is freed by a new upload.
   @Test
   void shouldTreatAStaleProcessingImportAsFailedAndFreeItForANewUpload() throws SQLException {
     final String productId = createProduct(USER_A_TOKEN, SAVINGS, Map.of());
@@ -260,7 +260,7 @@ class StatementImportRestHttpTest {
         .body("errors", hasItem(BusinessApplicationExceptionType.STATEMENT_ALREADY_IMPORTED.getMessage()));
   }
 
-  // IT7
+  // The funds check is off for statement imports.
   @Test
   void shouldSaveADebitOverTheCreditLimitWhenTheStatementIsTheTruth() {
     final String productId =
@@ -276,7 +276,7 @@ class StatementImportRestHttpTest {
     assertMoney("-500.00", currentBalance(USER_A_TOKEN, productId));
   }
 
-  // IT9
+  // The poll is hidden from other users and from other products.
   @Test
   void shouldHideAnImportFromOtherUsersAndFromOtherProducts() {
     final String productId = createProduct(USER_A_TOKEN, SAVINGS, Map.of());
@@ -300,7 +300,7 @@ class StatementImportRestHttpTest {
         .body("errors", hasItem(BusinessApplicationExceptionType.STATEMENT_IMPORT_NOT_FOUND.getMessage()));
   }
 
-  // IT10
+  // The old extract endpoint is gone.
   @Test
   void shouldAnswerNotFoundWhenTheOldExtractEndpointIsCalled() {
     given()

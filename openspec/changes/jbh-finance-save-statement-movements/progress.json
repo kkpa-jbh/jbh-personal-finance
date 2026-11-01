@@ -5,7 +5,7 @@
   "module": "jbh-finance",
   "roadmap": null,
   "request": "I'd like to save the movements into the database. Whenever Jev is not able to find a good transaction category... that will be set to \"UNKNOWN\" right? After saving the movements to the database, I'd like to show them in a table on the front end side. So, return all the movements extracted , sorted by date with the category label for each one. Find the best use case to add the movements to the account/product. There should be already a usecase on the application module. Be sure the API that sends the bank's statement it's also including the productID related to that bank's statement.",
-  "status": "applied",
+  "status": "in-review",
   "rollup": {
     "current": [],
     "pending": [],
@@ -48,7 +48,7 @@
     ]
   },
   "created_at": "2026-11-01T12:53:35Z",
-  "updated_at": "2026-11-01T15:18:51Z",
+  "updated_at": "2026-11-01T16:37:33Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-opus-5-5"
@@ -970,10 +970,75 @@
     "approved_at": "2026-11-01T14:15:54Z"
   },
   "review": {
-    "status": "pending",
-    "agent": null,
-    "brief": null,
-    "rounds": []
+    "status": "changes-requested",
+    "agent": "jbh-finance-reviewer",
+    "brief": "Review brief - jbh-finance-save-statement-movements (JBH-73). Diff: git diff 849e8b4...HEAD (100 files, +7342/-321; size over the 500/15 cap was accepted by the user - review by task group).\nUser-confirmed designs and decisions (made_by user): design.md D1-D15 and D25 (interview), the database gate (finance.statement_imports, partial unique index uk_statement_imports_product_pdf_active WHERE status <> 'FAILED', idx_statement_imports_product_id, movements.statement_import_id FK ON DELETE SET NULL, idx_movements_statement_import_date; migration 007 must match design.md exactly), SOLID = SRP + DIP only, the SRP split (Start/Run/Find + StatementMainCurrencyPolicy + StatementImportRepository), progress.json decisions with made_by user (incl. the FinanceGlobalExceptionHandler change: WebApplicationException keeps its own status).\nCheck specifically: (1) every status write is one atomic SQL statement, no check-then-act in Java, no in-JVM lock/cache/queue for correctness (C1-C6, 2+ instances); (2) D16: upload + markDone in one transaction, markDone=false rolls back everything; (3) D11 funds check skipped only for statement imports, no boolean method parameters; (4) D2 Unknown rule: CREDIT -> Other income, DEBIT -> Unknown expense, also when confidence < min-confidence; (5) never log statement content or the PDF password; (6) owner checks on POST and GET (product of the JWT user, import of that product); (7) summary jsonb money values (worker note: numbers come back as doubles - check precision/scale for amounts); (8) agent decisions D16-D24 and leader decisions in progress.json are sound.\nApproved test blueprint: test_first.commit 70ca68a, files in test_first.tests - frozen; diff them against 70ca68a (no assertion may change).\nDispatch values: Performance-Profile none; Test-Execution-Policy = project default (assistant runs nothing; leader runs the suite, assistantRunsTests); Test-First on; Language English (B2).\nSignals: ALL assistant-run by the leader - mvn -o clean verify (exit 0), mvn -o -q pmd:check (exit 0), DB tests with -Djbh.test.excludedGroups=none (all pass, IT1-IT11). Only failures: 9 in DeleteMovementUseCaseTest, a pre-existing date bug in an untouched file (fixed in separate PR #22, user decision) - not a finding for this change. Pre-existing SpotBugs IMPROPER_UNICODE in untouched CategoryDomain/CategoryDTO. Judge test quality by reading the tests.\nSecurity-Gate: run (user decision).",
+    "rounds": [
+      {
+        "round": 1,
+        "verdict": "changes-requested",
+        "reviewed_at": "2026-11-01T15:26:50Z",
+        "duration_seconds": 900,
+        "findings": [
+          {
+            "id": "R1",
+            "severity": "major",
+            "note": "risk: jbh-finance-application/.../RunStatementImportInputPort.java:65 logs the full exception (LOG.error(..., e)). Its message can carry statement text (Jackson snippet, SQL 'Failing row' detail with descriptions). The old runner logged only the class name on purpose. Log the class name only; QuarkusUnitOfWork also logs e on this path (pre-existing).",
+            "status": "fixed",
+            "triage": "accepted"
+          },
+          {
+            "id": "R2",
+            "severity": "major",
+            "note": "conventions: max 3 method parameters broken: StatementImportRestAdapter.java:123 startImport has 4; StatementImportJPARepository.java:44 insertProcessing and :55 markStaleAsFailed have 4 each. Group file+password in a @BeanParam/form object; group the repository values in a small record.",
+            "status": "fixed",
+            "triage": "accepted"
+          },
+          {
+            "id": "R3",
+            "severity": "minor",
+            "note": "risk: StatementImportRepositoryAdapter.java:72 reads summary jsonb as Map<String,Object>, so money comes back as Double then BigDecimal: scale is lost (5.00 -> 5.0), precision limited to double. No test covers it. Read the column as text/JsonNode or enable BigDecimal for floats, and add an exact-amount test.",
+            "status": "fixed",
+            "triage": "accepted"
+          },
+          {
+            "id": "R4",
+            "severity": "minor",
+            "note": "risk: StatementImportRunner.run no longer has a catch-all. If markFailed (RunStatementImportInputPort fail()) or jevReport.write throws, executor.submit (StatementImportDispatcher.java:34) swallows it with no log. Row stays PROCESSING until stale. Log the class name in the runner; fix the 'never throws' javadoc.",
+            "status": "fixed",
+            "triage": "accepted"
+          },
+          {
+            "id": "R5",
+            "severity": "minor",
+            "note": "conventions: comments cite design ids: 007_create_statement_imports.sql:29 ('D4') and :37 ('D8'); test javadocs and '// IT1..IT11' tags in StatementImportRestHttpTest/StatementImportDatabaseTest cite the design test contract. Replace with the reason itself (the SQL was fixed by the DB gate, so ask the user before editing it).",
+            "status": "fixed",
+            "triage": "accepted"
+          },
+          {
+            "id": "R6",
+            "severity": "minor",
+            "note": "conventions: StatementImportRepositoryAdapter.java:22 hard-codes 'STATEMENT_IMPORT_TIMED_OUT'. Use BusinessApplicationExceptionType.STATEMENT_IMPORT_TIMED_OUT.name() so the port contract and the enum cannot drift.",
+            "status": "fixed",
+            "triage": "accepted"
+          },
+          {
+            "id": "R7",
+            "severity": "minor",
+            "note": "design: design.md Responsibilities list is out of date: StatementImportPlan, StatementUploadReader and StatementImportUseCasesCDIConfig are not listed (design names StatementUseCasesCDIConfig). AGENTS.md also names only StatementUseCasesCDIConfig.",
+            "status": "fixed",
+            "triage": "accepted"
+          }
+        ],
+        "security": {
+          "status": "passed",
+          "ran_at": "2026-11-01T15:26:50Z",
+          "scope": "origin/HEAD",
+          "findings": [],
+          "note": "/security-review found no high-confidence issue: queries are parameterized, owner checks on POST and GET, PDF and password not stored or logged. Full-exception logging is R1."
+        }
+      }
+    ]
   },
   "decisions": [
     {
@@ -1092,6 +1157,24 @@
       "decision": "Fix FinanceGlobalExceptionHandler in this change: WebApplicationException keeps its own status (404/405/...) instead of 500",
       "why": "IT10 showed every unknown path answered 500; small, undoable fix",
       "covered_by": "D13"
+    },
+    {
+      "id": "D14",
+      "at": "2026-11-01T15:22:44Z",
+      "scope": "review:security-gate",
+      "made_by": "user",
+      "decision": "Run /security-review in the review",
+      "why": "Diff touches file upload with password, native SQL, owner checks, global exception handler",
+      "covered_by": null
+    },
+    {
+      "id": "D15",
+      "at": "2026-11-01T16:33:57Z",
+      "scope": "review:R5",
+      "made_by": "user",
+      "decision": "Allow editing only the two comment lines in migration 007 (D-ID references -> reason in words); schema unchanged",
+      "why": "Comment rule; 007 never ran outside test containers, no checksum risk",
+      "covered_by": null
     }
   ],
   "events": [
@@ -1179,6 +1262,31 @@
       "at": "2026-11-01T15:18:51Z",
       "agent": "leader",
       "event": "wave 3 run 2 by the leader (assistantRunsTests): same command exit 0; all DB tests pass (infra 49/0, IT1-IT11); mvn -o -q pmd:check exit 0. Only failures: 9 DeleteMovementUseCaseTest pre-existing date bug (PR #22)."
+    },
+    {
+      "at": "2026-11-01T15:19:08Z",
+      "agent": "leader",
+      "event": "wave 3 committed 8f40226"
+    },
+    {
+      "at": "2026-11-01T15:19:08Z",
+      "agent": "leader",
+      "event": "Step 6 verified: recorded pass = leader run (clean verify incl. DB tests, exit 0) + openspec validate --strict. Real size git diff --shortstat 849e8b4...HEAD: 100 files, +7342/-321 (estimate ~3800 lines, 92 files)."
+    },
+    {
+      "at": "2026-11-01T15:22:44Z",
+      "agent": "leader",
+      "event": "review round 1 dispatched: jbh-finance-reviewer (sonnet), Security-Gate: run. budget start: 5h bucket just reset (null), cost $24.27, context 33%"
+    },
+    {
+      "at": "2026-11-01T16:33:57Z",
+      "agent": "leader",
+      "event": "review round 1: changes-requested, security passed. Triage: R1-R7 all accepted (leader checked R1, R2, R5 in code). Fix dispatched to the wave-2 jbh-finance worker (sonnet). budget: 5h 7%, cost $26.31, context 34%"
+    },
+    {
+      "at": "2026-11-01T16:37:33Z",
+      "agent": "leader",
+      "event": "round 1 fixes verified by the leader (assistantRunsTests): mvn -o clean verify -Djbh.test.excludedGroups=none -Dmaven.test.failure.ignore=true exit 0 (infra 50/0 incl. new exact-amount test), mvn -o -q pmd:check exit 0; only the known DeleteMovementUseCaseTest date bug fails. Migration 007: 2 comment lines changed, SQL unchanged."
     }
   ]
 }
