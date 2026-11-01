@@ -28,6 +28,6 @@ public record ProcessMovementOptionsVO(
    * @return the options
    */
   public static ProcessMovementOptionsVO forStatementImport() {
-    throw new UnsupportedOperationException("not implemented");
+    return new ProcessMovementOptionsVO(false, EntityOperationVO.ADD, true);
   }
 }

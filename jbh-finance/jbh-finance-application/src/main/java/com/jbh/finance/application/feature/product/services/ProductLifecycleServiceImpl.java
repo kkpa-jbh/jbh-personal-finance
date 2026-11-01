@@ -183,13 +183,6 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
       final List<MovementDomain> uploadedMovements,
       final ProcessMovementOptionsVO movementOptions)
       throws BusinessException {
-    throw new UnsupportedOperationException("not implemented");
-  }
-
-  @Override
-  public ProductDTO syncByUploadedMovements(
-      final ProductDomain accountDomain, final List<MovementDomain> uploadedMovements)
-      throws BusinessException {
 
     if (uploadedMovements == null || uploadedMovements.isEmpty()) {
       throw new BusinessException(BusinessDomainExceptionType.EMPTY_MOVEMENTS);
@@ -197,10 +190,9 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
     final List<MovementDomain> filteredMovements =
         uploadedMovements.stream().filter(Objects::nonNull).toList();
 
-    final var movOptions = new ProcessMovementOptionsVO(false, EntityOperationVO.ADD);
     for (final MovementDomain movement : filteredMovements) {
       try {
-        syncAccountDomainBalanceByMovement(accountDomain, movement, movOptions);
+        syncAccountDomainBalanceByMovement(accountDomain, movement, movementOptions);
       } catch (final BusinessException ex) {
         log.error("Error syncing productDTO movement by movement {}", movement);
         throw ex;
@@ -208,6 +200,16 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
     }
 
     return toDTO(accountDomain);
+  }
+
+  @Override
+  public ProductDTO syncByUploadedMovements(
+      final ProductDomain accountDomain, final List<MovementDomain> uploadedMovements)
+      throws BusinessException {
+    return syncByUploadedMovements(
+        accountDomain,
+        uploadedMovements,
+        new ProcessMovementOptionsVO(false, EntityOperationVO.ADD));
   }
 
   @Override

@@ -156,7 +156,9 @@ public class ProductDomain {
       throw new BusinessException(BusinessDomainExceptionType.PRODUCT_MISMATCH);
     }
 
-    validateInsufficientNetFlow(movement);
+    if (!movementOptions.skipFundsCheck()) {
+      validateInsufficientNetFlow(movement);
+    }
 
     applyMovement(movement, movementOptions);
   }

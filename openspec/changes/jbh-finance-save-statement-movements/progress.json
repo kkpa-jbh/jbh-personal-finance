@@ -5,31 +5,10 @@
   "module": "jbh-finance",
   "roadmap": null,
   "request": "I'd like to save the movements into the database. Whenever Jev is not able to find a good transaction category... that will be set to \"UNKNOWN\" right? After saving the movements to the database, I'd like to show them in a table on the front end side. So, return all the movements extracted , sorted by date with the category label for each one. Find the best use case to add the movements to the account/product. There should be already a usecase on the application module. Be sure the API that sends the bank's statement it's also including the productID related to that bank's statement.",
-  "status": "proposed",
+  "status": "in-progress",
   "rollup": {
-    "current": [
-      "0.1",
-      "0.2",
-      "0.3",
-      "0.4",
-      "0.5",
-      "0.6",
-      "0.7"
-    ],
+    "current": [],
     "pending": [
-      "1.1",
-      "1.2",
-      "1.3",
-      "2.1",
-      "2.2",
-      "2.3",
-      "2.4",
-      "3.1",
-      "3.2",
-      "3.3",
-      "3.4",
-      "3.5",
-      "3.6",
       "4.1",
       "4.2",
       "4.3",
@@ -46,10 +25,31 @@
       "7.3"
     ],
     "blocked": [],
-    "done": []
+    "done": [
+      "0.1",
+      "0.2",
+      "0.3",
+      "0.4",
+      "0.5",
+      "0.6",
+      "0.7",
+      "1.1",
+      "1.2",
+      "1.3",
+      "2.1",
+      "2.2",
+      "2.3",
+      "2.4",
+      "3.1",
+      "3.2",
+      "3.3",
+      "3.4",
+      "3.5",
+      "3.6"
+    ]
   },
   "created_at": "2026-11-01T12:53:35Z",
-  "updated_at": "2026-11-01T12:54:02Z",
+  "updated_at": "2026-11-01T14:25:17Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-opus-5-5"
@@ -70,14 +70,23 @@
       "module": "jbh-finance",
       "depends_on": [],
       "parallel_ok": false,
-      "status": "in-progress",
+      "status": "done",
       "agent": "jbh-finance",
       "model": "claude-sonnet-5-5",
       "started_at": "2026-11-01T12:54:02Z",
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "completed_at": "2026-11-01T13:07:48Z",
+      "duration_seconds": 826,
+      "notes": "Domain skeleton: allowsStatementImport, skipFundsCheck, forStatementImport, MovementReviewVO, metadata keys, statementImportId. New methods throw.",
+      "budget": {
+        "five_hour_pct_start": 23,
+        "five_hour_pct_end": 39,
+        "five_hour_pct_delta": 16,
+        "cost_usd_delta": 3.72,
+        "context_pct_end": 25,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 0.1-0.7 incl. red-check fix; wave delta copied to each task"
+      }
     },
     {
       "id": "0.2",
@@ -87,14 +96,23 @@
         "0.1"
       ],
       "parallel_ok": false,
-      "status": "in-progress",
+      "status": "done",
       "agent": "jbh-finance",
       "model": "claude-sonnet-5-5",
       "started_at": "2026-11-01T12:54:02Z",
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "completed_at": "2026-11-01T13:07:48Z",
+      "duration_seconds": 826,
+      "notes": "Movement skeleton: command fields, UploadMovementsBatchCommand, 3-arg sync, findByStatementImportId; MovementJPAEntity.statementImportId @Transient (red-check fix).",
+      "budget": {
+        "five_hour_pct_start": 23,
+        "five_hour_pct_end": 39,
+        "five_hour_pct_delta": 16,
+        "cost_usd_delta": 3.72,
+        "context_pct_end": 25,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 0.1-0.7 incl. red-check fix; wave delta copied to each task"
+      }
     },
     {
       "id": "0.3",
@@ -105,14 +123,23 @@
         "0.2"
       ],
       "parallel_ok": false,
-      "status": "in-progress",
+      "status": "done",
       "agent": "jbh-finance",
       "model": "claude-sonnet-5-5",
       "started_at": "2026-11-01T12:54:02Z",
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "completed_at": "2026-11-01T13:07:48Z",
+      "duration_seconds": 826,
+      "notes": "Statement skeleton: 5 error types, PdfSha256, currency policy, repository port, DTOs, commands, 3 use cases and input ports. Methods throw.",
+      "budget": {
+        "five_hour_pct_start": 23,
+        "five_hour_pct_end": 39,
+        "five_hour_pct_delta": 16,
+        "cost_usd_delta": 3.72,
+        "context_pct_end": 25,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 0.1-0.7 incl. red-check fix; wave delta copied to each task"
+      }
     },
     {
       "id": "0.4",
@@ -122,14 +149,23 @@
         "0.1"
       ],
       "parallel_ok": false,
-      "status": "in-progress",
+      "status": "done",
       "agent": "jbh-finance",
       "model": "claude-sonnet-5-5",
       "started_at": "2026-11-01T12:54:02Z",
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "completed_at": "2026-11-01T13:07:48Z",
+      "duration_seconds": 826,
+      "notes": "U8-U11: ProcessMovementOptionsVOTest, ProductTypeTest, MovementMetadataTest, 3 new ProductDomainTest cases.",
+      "budget": {
+        "five_hour_pct_start": 23,
+        "five_hour_pct_end": 39,
+        "five_hour_pct_delta": 16,
+        "cost_usd_delta": 3.72,
+        "context_pct_end": 25,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 0.1-0.7 incl. red-check fix; wave delta copied to each task"
+      }
     },
     {
       "id": "0.5",
@@ -139,14 +175,23 @@
         "0.2"
       ],
       "parallel_ok": false,
-      "status": "in-progress",
+      "status": "done",
       "agent": "jbh-finance",
       "model": "claude-sonnet-5-5",
       "started_at": "2026-11-01T12:54:02Z",
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "completed_at": "2026-11-01T13:07:48Z",
+      "duration_seconds": 826,
+      "notes": "U12, U13; Lock test stub moved to 3-arg sync (no assertion removed). U12 passes now: compatibility guard.",
+      "budget": {
+        "five_hour_pct_start": 23,
+        "five_hour_pct_end": 39,
+        "five_hour_pct_delta": 16,
+        "cost_usd_delta": 3.72,
+        "context_pct_end": 25,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 0.1-0.7 incl. red-check fix; wave delta copied to each task"
+      }
     },
     {
       "id": "0.6",
@@ -156,14 +201,23 @@
         "0.3"
       ],
       "parallel_ok": false,
-      "status": "in-progress",
+      "status": "done",
       "agent": "jbh-finance",
       "model": "claude-sonnet-5-5",
       "started_at": "2026-11-01T12:54:02Z",
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "completed_at": "2026-11-01T13:07:48Z",
+      "duration_seconds": 826,
+      "notes": "U1-U4: PdfSha256Test, StatementMainCurrencyPolicyTest, new/updated catalog and extract cases for the D2 Unknown rule.",
+      "budget": {
+        "five_hour_pct_start": 23,
+        "five_hour_pct_end": 39,
+        "five_hour_pct_delta": 16,
+        "cost_usd_delta": 3.72,
+        "context_pct_end": 25,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 0.1-0.7 incl. red-check fix; wave delta copied to each task"
+      }
     },
     {
       "id": "0.7",
@@ -174,14 +228,23 @@
         "0.3"
       ],
       "parallel_ok": false,
-      "status": "in-progress",
+      "status": "done",
       "agent": "jbh-finance",
       "model": "claude-sonnet-5-5",
       "started_at": "2026-11-01T12:54:02Z",
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "completed_at": "2026-11-01T13:07:48Z",
+      "duration_seconds": 826,
+      "notes": "InMemoryStatementImportRepository fake; U5 Start, U6 Run (incl. D25), U7 Find.",
+      "budget": {
+        "five_hour_pct_start": 23,
+        "five_hour_pct_end": 39,
+        "five_hour_pct_delta": 16,
+        "cost_usd_delta": 3.72,
+        "context_pct_end": 25,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 0.1-0.7 incl. red-check fix; wave delta copied to each task"
+      }
     },
     {
       "id": "1.1",
@@ -191,14 +254,23 @@
         "0.4"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T14:16:56Z",
+      "completed_at": "2026-11-01T14:25:17Z",
+      "duration_seconds": 501,
+      "notes": "allowsStatementImport: SAVINGS, CREDIT_CARD via private static list.",
+      "budget": {
+        "five_hour_pct_start": 49,
+        "five_hour_pct_end": 59,
+        "five_hour_pct_delta": 10,
+        "cost_usd_delta": 2.74,
+        "context_pct_end": 29,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for wave 1 (1.1-3.6) incl. fix round 1; wave delta copied to each task"
+      }
     },
     {
       "id": "1.2",
@@ -209,14 +281,23 @@
         "0.1"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T14:16:56Z",
+      "completed_at": "2026-11-01T14:25:17Z",
+      "duration_seconds": 501,
+      "notes": "forStatementImport(); syncBalancesByMovement skips validateInsufficientNetFlow when skipFundsCheck (D11).",
+      "budget": {
+        "five_hour_pct_start": 49,
+        "five_hour_pct_end": 59,
+        "five_hour_pct_delta": 10,
+        "cost_usd_delta": 2.74,
+        "context_pct_end": 29,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for wave 1 (1.1-3.6) incl. fix round 1; wave delta copied to each task"
+      }
     },
     {
       "id": "1.3",
@@ -226,14 +307,23 @@
         "0.4"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T14:16:56Z",
+      "completed_at": "2026-11-01T14:25:17Z",
+      "duration_seconds": 501,
+      "notes": "putStatementReview stores confidence + needs-review keys (D9).",
+      "budget": {
+        "five_hour_pct_start": 49,
+        "five_hour_pct_end": 59,
+        "five_hour_pct_delta": 10,
+        "cost_usd_delta": 2.74,
+        "context_pct_end": 29,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for wave 1 (1.1-3.6) incl. fix round 1; wave delta copied to each task"
+      }
     },
     {
       "id": "2.1",
@@ -244,14 +334,23 @@
         "1.2"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T14:16:56Z",
+      "completed_at": "2026-11-01T14:25:17Z",
+      "duration_seconds": 501,
+      "notes": "3-arg syncByUploadedMovements holds logic; 2-arg delegates with default options.",
+      "budget": {
+        "five_hour_pct_start": 49,
+        "five_hour_pct_end": 59,
+        "five_hour_pct_delta": 10,
+        "cost_usd_delta": 2.74,
+        "context_pct_end": 29,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for wave 1 (1.1-3.6) incl. fix round 1; wave delta copied to each task"
+      }
     },
     {
       "id": "2.2",
@@ -262,14 +361,23 @@
         "1.2"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T14:16:56Z",
+      "completed_at": "2026-11-01T14:25:17Z",
+      "duration_seconds": 501,
+      "notes": "UploadMovementsBatchCommand forFile/forStatement/validate; UploadMovementsBatchCommandTest (5) added for JaCoCo (fix round 1).",
+      "budget": {
+        "five_hour_pct_start": 49,
+        "five_hour_pct_end": 59,
+        "five_hour_pct_delta": 10,
+        "cost_usd_delta": 2.74,
+        "context_pct_end": 29,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for wave 1 (1.1-3.6) incl. fix round 1; wave delta copied to each task"
+      }
     },
     {
       "id": "2.3",
@@ -281,14 +389,23 @@
         "1.3"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T14:16:56Z",
+      "completed_at": "2026-11-01T14:25:17Z",
+      "duration_seconds": 501,
+      "notes": "New overload; old method uses forFile; mapCommandToDomain split into toMovementDomain + resolveCategory.",
+      "budget": {
+        "five_hour_pct_start": 49,
+        "five_hour_pct_end": 59,
+        "five_hour_pct_delta": 10,
+        "cost_usd_delta": 2.74,
+        "context_pct_end": 29,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for wave 1 (1.1-3.6) incl. fix round 1; wave delta copied to each task"
+      }
     },
     {
       "id": "2.4",
@@ -299,14 +416,23 @@
         "1.3"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T14:16:56Z",
+      "completed_at": "2026-11-01T14:25:17Z",
+      "duration_seconds": 501,
+      "notes": "MovementMapper carries statementImportId.",
+      "budget": {
+        "five_hour_pct_start": 49,
+        "five_hour_pct_end": 59,
+        "five_hour_pct_delta": 10,
+        "cost_usd_delta": 2.74,
+        "context_pct_end": 29,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for wave 1 (1.1-3.6) incl. fix round 1; wave delta copied to each task"
+      }
     },
     {
       "id": "3.1",
@@ -316,14 +442,23 @@
         "0.6"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T14:16:56Z",
+      "completed_at": "2026-11-01T14:25:17Z",
+      "duration_seconds": 501,
+      "notes": "Catalog loads Other income; per-direction fallback last; fallbackAliasFor, categoryOf (D2).",
+      "budget": {
+        "five_hour_pct_start": 49,
+        "five_hour_pct_end": 59,
+        "five_hour_pct_delta": 10,
+        "cost_usd_delta": 2.74,
+        "context_pct_end": 29,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for wave 1 (1.1-3.6) incl. fix round 1; wave delta copied to each task"
+      }
     },
     {
       "id": "3.2",
@@ -333,14 +468,23 @@
         "3.1"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T14:16:56Z",
+      "completed_at": "2026-11-01T14:25:17Z",
+      "duration_seconds": 501,
+      "notes": "categorizeOne applies Unknown rule (D2, D21); fills category and balances (D22).",
+      "budget": {
+        "five_hour_pct_start": 49,
+        "five_hour_pct_end": 59,
+        "five_hour_pct_delta": 10,
+        "cost_usd_delta": 2.74,
+        "context_pct_end": 29,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for wave 1 (1.1-3.6) incl. fix round 1; wave delta copied to each task"
+      }
     },
     {
       "id": "3.3",
@@ -350,14 +494,23 @@
         "0.6"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T14:16:56Z",
+      "completed_at": "2026-11-01T14:25:17Z",
+      "duration_seconds": 501,
+      "notes": "PdfSha256 hex; StatementMainCurrencyPolicy with tie rule (D20).",
+      "budget": {
+        "five_hour_pct_start": 49,
+        "five_hour_pct_end": 59,
+        "five_hour_pct_delta": 10,
+        "cost_usd_delta": 2.74,
+        "context_pct_end": 29,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for wave 1 (1.1-3.6) incl. fix round 1; wave delta copied to each task"
+      }
     },
     {
       "id": "3.4",
@@ -369,14 +522,23 @@
         "3.3"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T14:16:56Z",
+      "completed_at": "2026-11-01T14:25:17Z",
+      "duration_seconds": 501,
+      "notes": "Start: owner + type check, markStaleAsFailed, insertProcessing, 409 type on duplicate (D4, D6, D10, D17).",
+      "budget": {
+        "five_hour_pct_start": 49,
+        "five_hour_pct_end": 59,
+        "five_hour_pct_delta": 10,
+        "cost_usd_delta": 2.74,
+        "context_pct_end": 29,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for wave 1 (1.1-3.6) incl. fix round 1; wave delta copied to each task"
+      }
     },
     {
       "id": "3.5",
@@ -390,14 +552,23 @@
         "3.3"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T14:16:56Z",
+      "completed_at": "2026-11-01T14:25:17Z",
+      "duration_seconds": 501,
+      "notes": "Run: extract, StatementImportPlan (split, summary, commands; added in fix round 1 for PMD coupling), upload + markDone in one transaction (D16, D24, D25).",
+      "budget": {
+        "five_hour_pct_start": 49,
+        "five_hour_pct_end": 59,
+        "five_hour_pct_delta": 10,
+        "cost_usd_delta": 2.74,
+        "context_pct_end": 29,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for wave 1 (1.1-3.6) incl. fix round 1; wave delta copied to each task"
+      }
     },
     {
       "id": "3.6",
@@ -408,14 +579,23 @@
         "2.4"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T14:16:56Z",
+      "completed_at": "2026-11-01T14:25:17Z",
+      "duration_seconds": 501,
+      "notes": "Find: owner check, effective stale status, movements mapped and sorted by date (D10).",
+      "budget": {
+        "five_hour_pct_start": 49,
+        "five_hour_pct_end": 59,
+        "five_hour_pct_delta": 10,
+        "cost_usd_delta": 2.74,
+        "context_pct_end": 29,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for wave 1 (1.1-3.6) incl. fix round 1; wave delta copied to each task"
+      }
     },
     {
       "id": "4.1",
@@ -662,10 +842,25 @@
     }
   ],
   "test_first": {
-    "status": "pending",
-    "commit": null,
-    "tests": [],
-    "approved_at": null
+    "status": "approved",
+    "commit": "70ca68a",
+    "tests": [
+      "jbh-finance/jbh-finance-application/src/test/java/com/jbh/finance/test/application/feature/movement/commands/AddMovementUploadedFileCommandTest.java",
+      "jbh-finance/jbh-finance-application/src/test/java/com/jbh/finance/test/application/feature/movement/ports/input/AddMovementsUploadedFileInputPortLockTest.java",
+      "jbh-finance/jbh-finance-application/src/test/java/com/jbh/finance/test/application/feature/movement/ports/input/AddMovementsUploadedFileInputPortStatementTest.java",
+      "jbh-finance/jbh-finance-application/src/test/java/com/jbh/finance/test/application/feature/statement/ports/input/ExtractStatementMovementsInputPortTest.java",
+      "jbh-finance/jbh-finance-application/src/test/java/com/jbh/finance/test/application/feature/statement/ports/input/FindStatementImportInputPortTest.java",
+      "jbh-finance/jbh-finance-application/src/test/java/com/jbh/finance/test/application/feature/statement/ports/input/RunStatementImportInputPortTest.java",
+      "jbh-finance/jbh-finance-application/src/test/java/com/jbh/finance/test/application/feature/statement/ports/input/StartStatementImportInputPortTest.java",
+      "jbh-finance/jbh-finance-application/src/test/java/com/jbh/finance/test/application/feature/statement/services/StatementCategoryCatalogTest.java",
+      "jbh-finance/jbh-finance-application/src/test/java/com/jbh/finance/test/application/feature/statement/services/StatementMainCurrencyPolicyTest.java",
+      "jbh-finance/jbh-finance-application/src/test/java/com/jbh/finance/test/application/feature/statement/vo/PdfSha256Test.java",
+      "jbh-finance/jbh-finance-domain/src/test/java/com/jbh/finance/domain/entity/ProductDomainTest.java",
+      "jbh-finance/jbh-finance-domain/src/test/java/com/jbh/finance/domain/movement/vo/MovementMetadataTest.java",
+      "jbh-finance/jbh-finance-domain/src/test/java/com/jbh/finance/domain/movement/vo/ProcessMovementOptionsVOTest.java",
+      "jbh-finance/jbh-finance-domain/src/test/java/com/jbh/finance/domain/product/vo/ProductTypeTest.java"
+    ],
+    "approved_at": "2026-11-01T14:15:54Z"
   },
   "review": {
     "status": "pending",
@@ -727,6 +922,51 @@
       "decision": "Accepted worker D25 sub-choices: OTHER_CURRENCY wins over FUTURE_DATE; main currency from all rows; nothing to save ends DONE with 0 saved",
       "why": "Consistent with D3/D25; alternative (FAILED on empty) hides a valid result",
       "covered_by": "D25"
+    },
+    {
+      "id": "D7",
+      "at": "2026-11-01T13:07:48Z",
+      "scope": "task:0.7",
+      "made_by": "leader",
+      "decision": "Used leader bracket times for wave 0 started_at/completed_at",
+      "why": "Worker reported placeholder times; the bracket times are real",
+      "covered_by": null
+    },
+    {
+      "id": "D8",
+      "at": "2026-11-01T13:07:48Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "Kept 7 new tests that already pass (AddMovementUploadedFileCommandTest x5, ProcessMovementOptionsVOTest x2)",
+      "why": "They guard existing constructors that D5/D11 must not change; re-dispatch would delete useful regression guards",
+      "covered_by": "D5, D11"
+    },
+    {
+      "id": "D9",
+      "at": "2026-11-01T14:15:54Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Red gate approved: blueprint tests at 70ca68a frozen",
+      "why": "Step 4a red gate review",
+      "covered_by": null
+    },
+    {
+      "id": "D10",
+      "at": "2026-11-01T14:15:54Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "DeleteMovementUseCaseTest 1st-of-month date bug fixed in a separate PR, not in this change",
+      "why": "Keep this PR clean; failures recorded as pre-existing until merged",
+      "covered_by": null
+    },
+    {
+      "id": "D11",
+      "at": "2026-11-01T14:16:56Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "3 waves by layer (domain+application / infra / integration tests), each one serial worker running its tasks in dependency order",
+      "why": "Fewer dispatches and doc-pack reads than one wave per dependency level; layers touch disjoint files",
+      "covered_by": null
     }
   ],
   "events": [
@@ -744,6 +984,36 @@
       "at": "2026-11-01T12:54:02Z",
       "agent": "leader",
       "event": "Step 4a: dispatched jbh-finance worker (blueprint mode, sonnet) for wave 0 (0.1-0.7). budget start: 5h 23%, cost $10.69, context 22%"
+    },
+    {
+      "at": "2026-11-01T13:07:48Z",
+      "agent": "leader",
+      "event": "red check round 1: test-compile exit 0; DtoEntityFieldMatchingTest failed (skeleton gap) -> worker fix (@Transient field)"
+    },
+    {
+      "at": "2026-11-01T13:07:48Z",
+      "agent": "leader",
+      "event": "red check round 2 by the leader (assistantRunsTests): mvn -o test-compile exit 0; mvn -o test -Dmaven.test.failure.ignore=true exit 0. New/changed: 71 fail (missing behavior), 53 pass. Old: 687 pass, 9 fail = DeleteMovementUseCaseTest pre-existing date bug (YearMonth.now().atDay(2..) on the 1st), unchanged file."
+    },
+    {
+      "at": "2026-11-01T13:07:48Z",
+      "agent": "leader",
+      "event": "wave 0 committed 70ca68a; test_first red"
+    },
+    {
+      "at": "2026-11-01T14:16:56Z",
+      "agent": "leader",
+      "event": "wave 1 dispatched: jbh-finance worker (sonnet), tasks 1.1, 1.2, 1.3, 2.1, 2.2, 2.3, 2.4, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6. budget start: 5h 49%, cost $16.59, context 26%"
+    },
+    {
+      "at": "2026-11-01T14:25:17Z",
+      "agent": "leader",
+      "event": "wave 1 run 1 by the leader (assistantRunsTests): mvn -o clean verify -Dmaven.test.failure.ignore=true exit 1: PMD CouplingBetweenObjects (RunStatementImportInputPort), JaCoCo UploadMovementsBatchCommand 0% branches. Frozen tests all pass. -> fix round 1"
+    },
+    {
+      "at": "2026-11-01T14:25:17Z",
+      "agent": "leader",
+      "event": "wave 1 run 2 by the leader: mvn -o clean verify -Dmaven.test.failure.ignore=true exit 0 (PMD, SpotBugs, JaCoCo pass); mvn -o -q pmd:check exit 0. Tests: domain 127/0, application 399 with 9 errors = DeleteMovementUseCaseTest pre-existing date bug (PR #22), infra 16/0. Frozen tests unchanged vs 70ca68a. SpotBugs IMPROPER_UNICODE only in untouched CategoryDomain/CategoryDTO."
     }
   ]
 }

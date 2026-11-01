@@ -30,7 +30,8 @@ public final class MovementMapper {
         dto.movementDate(),
         dto.balanceSnapshot(),
         dto.metadata(),
-        dto.description());
+        dto.description(),
+        dto.statementImportId());
   }
 
   /**
@@ -75,6 +76,7 @@ public final class MovementMapper {
         .balanceSnapshot(domain.getBalanceSnapshot())
         .metadata(domain.getMetadata())
         .description(domain.getDescription())
+        .statementImportId(domain.getStatementImportId())
         .createdAt(domain.getCreatedAt())
         .build();
   }

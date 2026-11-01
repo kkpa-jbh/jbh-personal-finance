@@ -111,7 +111,7 @@ public class ExtractStatementMovementsInputPort implements ExtractStatementMovem
           millisSince(started),
           categorized.size(),
           describe(totals));
-      return new StatementClassificationDTO(categorized, totals, List.of());
+      return new StatementClassificationDTO(categorized, totals, statement.balances());
 
     } catch (final BusinessException e) {
       LOG.warn(LOG_PREFIX + " Failed at {} after {} ms", step, millisSince(started));
@@ -187,41 +187,48 @@ public class ExtractStatementMovementsInputPort implements ExtractStatementMovem
       final Map<String, ClassificationAnswerDTO> answers,
       final StatementCategoryCatalog catalog) {
     final List<CategorizedMovementDTO> categorized = new ArrayList<>(movements.size());
-    int lowConfidenceCount = 0;
-
     for (int i = 0; i < movements.size(); i++) {
-      final ExtractedMovementDTO movement = movements.get(i);
       final ClassificationAnswerDTO answer = answers.get(StatementCategoryCatalog.keyOf(i));
-      final boolean validAnswer =
-          answer != null
-              && answer.confidence() != null
-              && catalog.isAllowed(movement.direction(), answer.alias());
-
-      final String alias = validAnswer ? answer.alias() : catalog.unknownAlias();
-      final BigDecimal confidence = validAnswer ? answer.confidence() : BigDecimal.ZERO;
-      final boolean lowConfidence =
-          alias.equals(catalog.unknownAlias())
-              || confidence.compareTo(settings.minConfidence()) < 0;
-      if (lowConfidence) {
-        lowConfidenceCount++;
-      }
-
-      categorized.add(
-          new CategorizedMovementDTO(
-              movement.date(),
-              movement.description(),
-              movement.amount(),
-              movement.currency(),
-              movement.direction(),
-              alias,
-              catalog.displayNameOf(alias),
-              confidence,
-              lowConfidence,
-              null));
+      categorized.add(categorizeOne(movements.get(i), answer, catalog));
     }
 
+    final long lowConfidenceCount =
+        categorized.stream().filter(CategorizedMovementDTO::lowConfidence).count();
     LOG.info(
         LOG_PREFIX + " {} of {} movements need review", lowConfidenceCount, movements.size());
     return categorized;
+  }
+
+  /**
+   * A valid answer keeps its category when its confidence reaches the minimum. Otherwise the
+   * movement gets the fallback of its direction. A weak answer keeps the confidence the classifier
+   * gave; no valid answer gives zero.
+   */
+  private CategorizedMovementDTO categorizeOne(
+      final ExtractedMovementDTO movement,
+      final ClassificationAnswerDTO answer,
+      final StatementCategoryCatalog catalog) {
+    final String fallbackAlias = catalog.fallbackAliasFor(movement.direction());
+    final boolean validAnswer =
+        answer != null
+            && answer.confidence() != null
+            && catalog.isAllowed(movement.direction(), answer.alias());
+    final BigDecimal confidence = validAnswer ? answer.confidence() : BigDecimal.ZERO;
+    final boolean confident = validAnswer && confidence.compareTo(settings.minConfidence()) >= 0;
+
+    final String alias = confident ? answer.alias() : fallbackAlias;
+    final boolean lowConfidence = !confident || alias.equals(fallbackAlias);
+
+    return new CategorizedMovementDTO(
+        movement.date(),
+        movement.description(),
+        movement.amount(),
+        movement.currency(),
+        movement.direction(),
+        alias,
+        catalog.displayNameOf(alias),
+        confidence,
+        lowConfidence,
+        catalog.categoryOf(alias));
   }
 }

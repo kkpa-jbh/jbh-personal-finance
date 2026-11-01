@@ -14,6 +14,8 @@ public enum ProductType {
 
   private static final List<ProductType> ADDING_MOVEMENTS_PRODUCTS_ALLOWED =
       List.of(SAVINGS, CREDIT_CARD, INVESTMENT, CDT);
+  private static final List<ProductType> STATEMENT_IMPORT_PRODUCTS_ALLOWED =
+      List.of(SAVINGS, CREDIT_CARD);
   private final String translationKey;
 
   ProductType(final String eng, final String es) {
@@ -25,7 +27,7 @@ public enum ProductType {
   }
 
   public boolean allowsStatementImport() {
-    throw new UnsupportedOperationException("not implemented");
+    return STATEMENT_IMPORT_PRODUCTS_ALLOWED.contains(this);
   }
 
   public List<ProductType> addingMovementsProductsAllowed() {

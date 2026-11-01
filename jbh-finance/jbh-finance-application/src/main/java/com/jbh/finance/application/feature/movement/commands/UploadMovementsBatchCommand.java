@@ -1,6 +1,7 @@
 package com.jbh.finance.application.feature.movement.commands;
 
 import com.jbh.finance.domain.movement.vo.ProcessMovementOptionsVO;
+import com.jbh.finance.domain.shared.vo.EntityOperationVO;
 import java.util.List;
 
 /**
@@ -20,7 +21,8 @@ public record UploadMovementsBatchCommand(
    */
   public static UploadMovementsBatchCommand forFile(
       final List<AddMovementUploadedFileCommand> movements) {
-    throw new UnsupportedOperationException("not implemented");
+    return new UploadMovementsBatchCommand(
+        movements, new ProcessMovementOptionsVO(EntityOperationVO.ADD));
   }
 
   /**
@@ -31,6 +33,14 @@ public record UploadMovementsBatchCommand(
    */
   public static UploadMovementsBatchCommand forStatement(
       final List<AddMovementUploadedFileCommand> movements) {
-    throw new UnsupportedOperationException("not implemented");
+    return new UploadMovementsBatchCommand(
+        movements, ProcessMovementOptionsVO.forStatementImport());
+  }
+
+  /** Rejects a null or empty movement list. */
+  public void validate() {
+    if (movements == null || movements.isEmpty()) {
+      throw new IllegalArgumentException("Movement list cannot be null or empty");
+    }
   }
 }

@@ -59,6 +59,7 @@ public final class MovementMetadata {
   }
 
   public void putStatementReview(final MovementReviewVO review) {
-    throw new UnsupportedOperationException("not implemented");
+    put(MovementMetadataKey.STATEMENT_CONFIDENCE, review.confidence());
+    put(MovementMetadataKey.STATEMENT_NEEDS_REVIEW, review.needsReview());
   }
 }

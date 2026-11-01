@@ -16,25 +16,25 @@ with compatibility constructors. Each new test must fail because the behavior is
 
 ## 1. Domain (D5, D9, D11, D6, D8)
 
-- [ ] 1.1 `ProductType.allowsStatementImport()`: true for SAVINGS and CREDIT_CARD (use a private static `List`, like `ADDING_MOVEMENTS_PRODUCTS_ALLOWED`). Depends on: 0.4.
-- [ ] 1.2 `ProcessMovementOptionsVO`: implement `forStatementImport()` (ADD, not month-reported, `skipFundsCheck` true). `ProductDomain.syncBalancesByMovement`: call `validateInsufficientNetFlow` only when `skipFundsCheck` is false. No boolean method parameter. Depends on: 0.4 (same files as 0.1).
-- [ ] 1.3 `MovementMetadata.putStatementReview` (two keys); `MovementDomain.statementImportId` kept by `MovementMapper` (see 2.4). Depends on: 0.4.
+- [x] 1.1 `ProductType.allowsStatementImport()`: true for SAVINGS and CREDIT_CARD (use a private static `List`, like `ADDING_MOVEMENTS_PRODUCTS_ALLOWED`). Depends on: 0.4.
+- [x] 1.2 `ProcessMovementOptionsVO`: implement `forStatementImport()` (ADD, not month-reported, `skipFundsCheck` true). `ProductDomain.syncBalancesByMovement`: call `validateInsufficientNetFlow` only when `skipFundsCheck` is false. No boolean method parameter. Depends on: 0.4 (same files as 0.1).
+- [x] 1.3 `MovementMetadata.putStatementReview` (two keys); `MovementDomain.statementImportId` kept by `MovementMapper` (see 2.4). Depends on: 0.4.
 
 ## 2. Application, movement (D5, D11, D23)
 
-- [ ] 2.1 `ProductLifecycleServiceImpl`: implement the 3-argument `syncByUploadedMovements`; the 2-argument method delegates with `new ProcessMovementOptionsVO(false, EntityOperationVO.ADD)`. Depends on: 0.5, 1.2.
-- [ ] 2.2 `UploadMovementsBatchCommand`: `forFile` (default options), `forStatement` (`ProcessMovementOptionsVO.forStatementImport()`); `validate()` rejects null or empty list. Depends on: 0.5, 1.2.
-- [ ] 2.3 `AddMovementsUploadedFileInputPort`: implement the new overload; the old method calls it with `forFile`. Split `mapCommandToDomain` first into `toMovementDomain` and `resolveCategory` (see Complexity notes in design.md); use the command category when present, else today's default; set description, `statementImportId`, review metadata. Depends on: 2.1, 2.2, 1.3.
-- [ ] 2.4 `MovementMapper.toDTO` / `toDomain` and `MovementDTO` carry `statementImportId`. Depends on: 0.5, 1.3.
+- [x] 2.1 `ProductLifecycleServiceImpl`: implement the 3-argument `syncByUploadedMovements`; the 2-argument method delegates with `new ProcessMovementOptionsVO(false, EntityOperationVO.ADD)`. Depends on: 0.5, 1.2.
+- [x] 2.2 `UploadMovementsBatchCommand`: `forFile` (default options), `forStatement` (`ProcessMovementOptionsVO.forStatementImport()`); `validate()` rejects null or empty list. Depends on: 0.5, 1.2.
+- [x] 2.3 `AddMovementsUploadedFileInputPort`: implement the new overload; the old method calls it with `forFile`. Split `mapCommandToDomain` first into `toMovementDomain` and `resolveCategory` (see Complexity notes in design.md); use the command category when present, else today's default; set description, `statementImportId`, review metadata. Depends on: 2.1, 2.2, 1.3.
+- [x] 2.4 `MovementMapper.toDTO` / `toDomain` and `MovementDTO` carry `statementImportId`. Depends on: 0.5, 1.3.
 
 ## 3. Application, statement (D2, D3, D4, D6, D10, D15, D16, D20 to D22, D24, D25)
 
-- [ ] 3.1 `StatementCategoryCatalog`: load `findIncomeOther`; per-direction fallback and last option; `fallbackAliasFor`, `categoryOf`; `isAllowed(CREDIT, expense Unknown)` is false. Depends on: 0.6.
-- [ ] 3.2 `ExtractStatementMovementsInputPort`: per-row `categorizeOne` with the Unknown rule (D2, D21); fill `CategorizedMovementDTO.category` and `StatementClassificationDTO.balances`. Depends on: 3.1.
-- [ ] 3.3 `PdfSha256` and `StatementMainCurrencyPolicy` (D20). Depends on: 0.6.
-- [ ] 3.4 `StartStatementImportInputPort` (+ use case, command): owner check, `allowsStatementImport`, `markStaleAsFailed`, `insertProcessing` with a new `UUID`, `STATEMENT_ALREADY_IMPORTED` on `false`. Depends on: 0.7, 1.1, 3.3.
-- [ ] 3.5 `RunStatementImportInputPort` (+ use case, command; takes a `Clock`): extract, main currency, split rows into saved and not saved (`OTHER_CURRENCY`, then `FUTURE_DATE` when the date is after `LocalDate.now(clock)`; skip the upload when nothing is left, D25), sort by date, map rows, summary, one `executeInTransaction` with upload then `markDone` (D16), failure marking, `Optional<StatementClassificationDTO>` result. Depends on: 0.7, 2.3, 2.4, 3.2, 3.3.
-- [ ] 3.6 `FindStatementImportInputPort` (+ use case, command): owner check, row lookup, effective status with `Clock` and `staleAfter`, movements via `findByStatementImportId`, mapping (direction from type, absolute amount, metadata to confidence and needs-review), stable sort by (date, createdAt). Depends on: 0.7, 2.4.
+- [x] 3.1 `StatementCategoryCatalog`: load `findIncomeOther`; per-direction fallback and last option; `fallbackAliasFor`, `categoryOf`; `isAllowed(CREDIT, expense Unknown)` is false. Depends on: 0.6.
+- [x] 3.2 `ExtractStatementMovementsInputPort`: per-row `categorizeOne` with the Unknown rule (D2, D21); fill `CategorizedMovementDTO.category` and `StatementClassificationDTO.balances`. Depends on: 3.1.
+- [x] 3.3 `PdfSha256` and `StatementMainCurrencyPolicy` (D20). Depends on: 0.6.
+- [x] 3.4 `StartStatementImportInputPort` (+ use case, command): owner check, `allowsStatementImport`, `markStaleAsFailed`, `insertProcessing` with a new `UUID`, `STATEMENT_ALREADY_IMPORTED` on `false`. Depends on: 0.7, 1.1, 3.3.
+- [x] 3.5 `RunStatementImportInputPort` (+ use case, command; takes a `Clock`): extract, main currency, split rows into saved and not saved (`OTHER_CURRENCY`, then `FUTURE_DATE` when the date is after `LocalDate.now(clock)`; skip the upload when nothing is left, D25), sort by date, map rows, summary, one `executeInTransaction` with upload then `markDone` (D16), failure marking, `Optional<StatementClassificationDTO>` result. Depends on: 0.7, 2.3, 2.4, 3.2, 3.3.
+- [x] 3.6 `FindStatementImportInputPort` (+ use case, command): owner check, row lookup, effective status with `Clock` and `staleAfter`, movements via `findByStatementImportId`, mapping (direction from type, absolute amount, metadata to confidence and needs-review), stable sort by (date, createdAt). Depends on: 0.7, 2.4.
 
 ## 4. Database and persistence, infra (D7, D8, D9, D10, D17)
 
