@@ -14,6 +14,12 @@ Personal finance products, their movements, and their monthly balances. It keeps
 balance and the monthly balances correct when movements are added, removed, uploaded from a file,
 or when an official monthly report is registered.
 
+It also imports a bank statement PDF into a SAVINGS or CREDIT_CARD product, in 3 use cases.
+Start admits the import (owner and type check, SHA-256 duplicate block, `statement_imports` row
+`PROCESSING`) and answers `202`. Run reads the PDF with AI in the background, keeps the main
+currency rows, saves them through the file upload use case and marks the import `DONE` in one
+transaction. Find (the poll) returns the status, the summary and the saved movements.
+
 ## Sub-modules
 
 - `jbh-finance-domain`: domain entities and value objects. No framework.
@@ -39,7 +45,7 @@ or when an official monthly report is registered.
 ## Data
 
 - PostgreSQL, database `jbh_finance`, schema `finance`, datasource and persistence unit `finance`.
-- Tables: `products`, `movements`, `monthly_balances`, `categories`.
+- Tables: `products`, `movements`, `monthly_balances`, `categories`, `statement_imports`.
 - Migrations: `jbh-finance-infra/src/main/resources/db/finance-db-master.xml` (Liquibase,
   run at start). The schema itself is created outside Liquibase.
 
@@ -57,5 +63,9 @@ only in infra. See `.claude/standards/naming.md`.
 
 - Unit tests live in `jbh-finance-application` (in-memory fakes in `testfixtures/fakes`,
   `UnitOfWorkTest`, Mockito). Wait for background work with `awaitBackgroundTasks()`, never a sleep.
-- `jbh-finance-infra` has one opt-in `@QuarkusTest` on a real PostgreSQL (tag `database`). It needs
-  Docker. Run it with `-Djbh.test.excludedGroups=none`. All other infra tests are plain JUnit.
+- `jbh-finance-infra` has opt-in `@QuarkusTest` classes on a real PostgreSQL (tag `database`),
+  including the statement import tests. They need Docker. Run them with
+  `-Djbh.test.excludedGroups=none`. All other infra tests are plain JUnit.
+- In those tests `FakeExtractStatementMovementsUseCase` replaces the AI reader and classifier, so no
+  test calls Azure, OpenRouter or Jev. Wait for a background import by polling the GET with a time
+  limit, never a fixed sleep.

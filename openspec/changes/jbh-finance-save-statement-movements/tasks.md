@@ -53,14 +53,14 @@ with compatibility constructors. Each new test must fail because the behavior is
 
 ## 6. Integration tests (written against the contract in design.md; do not read the implementation)
 
-- [ ] 6.1 `StatementImportRestHttpTest` (`@QuarkusTest`, tag `database`): IT1, IT2, IT3, IT4, IT5, IT7, IT9, IT10. Depends on: 5.3, 5.6.
-- [ ] 6.2 `StatementImportDatabaseTest` (`@QuarkusTest`, tag `database`): IT6, IT8, IT11. Depends on: 4.2, 5.6.
+- [x] 6.1 `StatementImportRestHttpTest` (`@QuarkusTest`, tag `database`): IT1, IT2, IT3, IT4, IT5, IT7, IT9, IT10. Depends on: 5.3, 5.6.
+- [x] 6.2 `StatementImportDatabaseTest` (`@QuarkusTest`, tag `database`): IT6, IT8, IT11. Depends on: 4.2, 5.6.
 
 ## 7. Docs and verification
 
-- [ ] 7.1 Update `jbh-finance/AGENTS.md`: add `statement_imports` to the Tables list and a line about the statement import (admission, run, find) under Responsibility. Depends on: 5.6.
-- [ ] 7.2 Sync notes (no edit): `../jbh-deploy/README.md` needs no route change (the paths stay under `/jbh-api/finance/**`, no new top-level path, no port or Consul change). After this change, run `kkpa-context-curate` for `kkpa/context/use-case/jbh-finance/extract-statement-movements.md` and `kkpa/context/input-port/jbh-finance/import-statement.md`. Do not edit those two files by hand. Depends on: none.
-- [ ] 7.3 Leader checks (run by the leader or the user, not by workers): `mvn clean verify` (tests + PMD + SpotBugs), `mvn -q pmd:check` (complexity), and the opt-in database tests: `mvn -pl jbh-finance/jbh-finance-infra -am verify -Djbh.test.excludedGroups=none` (needs Docker). Depends on: all groups.
+- [x] 7.1 Update `jbh-finance/AGENTS.md`: add `statement_imports` to the Tables list and a line about the statement import (admission, run, find) under Responsibility. Depends on: 5.6.
+- [x] 7.2 Sync notes (no edit): `../jbh-deploy/README.md` needs no route change (the paths stay under `/jbh-api/finance/**`, no new top-level path, no port or Consul change). After this change, run `kkpa-context-curate` for `kkpa/context/use-case/jbh-finance/extract-statement-movements.md` and `kkpa/context/input-port/jbh-finance/import-statement.md`. Do not edit those two files by hand. Depends on: none.
+- [x] 7.3 Leader checks (run by the leader or the user, not by workers): `mvn clean verify` (tests + PMD + SpotBugs), `mvn -q pmd:check` (complexity), and the opt-in database tests: `mvn -pl jbh-finance/jbh-finance-infra -am verify -Djbh.test.excludedGroups=none` (needs Docker). Depends on: all groups.
 
 Dependency summary: group 0 first. Then 1, then 2, then 3 and 4 can run in parallel after 2.4 and 1.x (3.1 to 3.3 need only group 0). Group 5 needs 3 and 4. Group 6 needs 5. Files in parallel tasks are disjoint, except 1.2 / 0.1 and 3.2 / 3.1 / 0.6, which are marked.
 

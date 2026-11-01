@@ -5,16 +5,10 @@
   "module": "jbh-finance",
   "roadmap": null,
   "request": "I'd like to save the movements into the database. Whenever Jev is not able to find a good transaction category... that will be set to \"UNKNOWN\" right? After saving the movements to the database, I'd like to show them in a table on the front end side. So, return all the movements extracted , sorted by date with the category label for each one. Find the best use case to add the movements to the account/product. There should be already a usecase on the application module. Be sure the API that sends the bank's statement it's also including the productID related to that bank's statement.",
-  "status": "in-progress",
+  "status": "applied",
   "rollup": {
     "current": [],
-    "pending": [
-      "6.1",
-      "6.2",
-      "7.1",
-      "7.2",
-      "7.3"
-    ],
+    "pending": [],
     "blocked": [],
     "done": [
       "0.1",
@@ -45,11 +39,16 @@
       "5.3",
       "5.4",
       "5.5",
-      "5.6"
+      "5.6",
+      "6.1",
+      "6.2",
+      "7.1",
+      "7.2",
+      "7.3"
     ]
   },
   "created_at": "2026-11-01T12:53:35Z",
-  "updated_at": "2026-11-01T14:32:17Z",
+  "updated_at": "2026-11-01T15:18:51Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-opus-5-5"
@@ -847,14 +846,23 @@
         "5.6"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T14:32:27Z",
+      "completed_at": "2026-11-01T15:18:51Z",
+      "duration_seconds": 2784,
+      "notes": "StatementImportRestHttpTest: IT1-IT5, IT7, IT9, IT10 (8 tests). IT10 found 500 for unknown paths -> FinanceGlobalExceptionHandler keeps WebApplicationException status (user decision).",
+      "budget": {
+        "five_hour_pct_start": 65,
+        "five_hour_pct_end": 79,
+        "five_hour_pct_delta": 14,
+        "cost_usd_delta": 2.77,
+        "context_pct_end": 33,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for wave 3 (6.1, 6.2, 7.1) incl. fix round 1; wave delta copied to each task"
+      }
     },
     {
       "id": "6.2",
@@ -865,14 +873,23 @@
         "5.6"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T14:32:27Z",
+      "completed_at": "2026-11-01T15:18:51Z",
+      "duration_seconds": 2784,
+      "notes": "StatementImportDatabaseTest: IT6 (2), IT8 race (@RepeatedTest x5), IT11 schema. FinanceLiquibaseMigrationTest expects statement_imports.",
+      "budget": {
+        "five_hour_pct_start": 65,
+        "five_hour_pct_end": 79,
+        "five_hour_pct_delta": 14,
+        "cost_usd_delta": 2.77,
+        "context_pct_end": 33,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for wave 3 (6.1, 6.2, 7.1) incl. fix round 1; wave delta copied to each task"
+      }
     },
     {
       "id": "7.1",
@@ -882,14 +899,23 @@
         "5.6"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "jbh-finance",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-01T14:32:27Z",
+      "completed_at": "2026-11-01T15:18:51Z",
+      "duration_seconds": 2784,
+      "notes": "AGENTS.md: statement_imports table, statement import responsibility, testing notes.",
+      "budget": {
+        "five_hour_pct_start": 65,
+        "five_hour_pct_end": 79,
+        "five_hour_pct_delta": 14,
+        "cost_usd_delta": 2.77,
+        "context_pct_end": 33,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for wave 3 (6.1, 6.2, 7.1) incl. fix round 1; wave delta copied to each task"
+      }
     },
     {
       "id": "7.2",
@@ -897,13 +923,13 @@
       "module": "jbh-finance",
       "depends_on": [],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
+      "status": "done",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-11-01T15:18:51Z",
+      "completed_at": "2026-11-01T15:18:51Z",
+      "duration_seconds": 0,
+      "notes": "jbh-deploy/README.md needs no change; KB refresh after archive.",
       "budget": null
     },
     {
@@ -912,13 +938,13 @@
       "module": "jbh-finance",
       "depends_on": [],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
+      "status": "done",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-11-01T15:18:51Z",
+      "completed_at": "2026-11-01T15:18:51Z",
+      "duration_seconds": 0,
+      "notes": "Leader ran clean verify, pmd:check, and DB tests (excludedGroups=none): all green except the known date bug.",
       "budget": null
     }
   ],
@@ -1057,6 +1083,15 @@
       "decision": "Accepted worker deviations: separate StatementImportUseCasesCDIConfig, StatementUploadReader, Clock built inline, TotalsCheckResponse field rename, module-info export of statement.vo",
       "why": "All keep PMD coupling low or follow the API contract; build and PMD pass; old endpoint was the only user of the renamed fields",
       "covered_by": "D12, D13"
+    },
+    {
+      "id": "D13",
+      "at": "2026-11-01T15:18:51Z",
+      "scope": "task:6.1",
+      "made_by": "user",
+      "decision": "Fix FinanceGlobalExceptionHandler in this change: WebApplicationException keeps its own status (404/405/...) instead of 500",
+      "why": "IT10 showed every unknown path answered 500; small, undoable fix",
+      "covered_by": "D13"
     }
   ],
   "events": [
@@ -1124,6 +1159,26 @@
       "at": "2026-11-01T14:32:17Z",
       "agent": "leader",
       "event": "wave 2 run by the leader (assistantRunsTests): mvn -o clean verify -Dmaven.test.failure.ignore=true exit 0; mvn -o -q pmd:check exit 0. Tests: domain 127/0, application 399 with 9 errors = DeleteMovementUseCaseTest pre-existing date bug (PR #22), infra 16/0, assembly 8/0. Frozen tests unchanged. DB-backed paths not exercised yet (wave 3 ITs)."
+    },
+    {
+      "at": "2026-11-01T14:32:27Z",
+      "agent": "leader",
+      "event": "wave 2 committed 68889f5"
+    },
+    {
+      "at": "2026-11-01T14:32:27Z",
+      "agent": "leader",
+      "event": "checkpoint gate: 5h 65%, context 31% - clear. wave 3 dispatched: jbh-finance worker (sonnet), tasks 6.1, 6.2, 7.1. budget start: 5h 65%, cost $21.18"
+    },
+    {
+      "at": "2026-11-01T15:18:51Z",
+      "agent": "leader",
+      "event": "wave 3 run 1 by the leader: mvn -o clean verify -Djbh.test.excludedGroups=none -Dmaven.test.failure.ignore=true exit 0; IT10 failed (500 instead of 404) -> user decision -> fix round 1 in FinanceGlobalExceptionHandler"
+    },
+    {
+      "at": "2026-11-01T15:18:51Z",
+      "agent": "leader",
+      "event": "wave 3 run 2 by the leader (assistantRunsTests): same command exit 0; all DB tests pass (infra 49/0, IT1-IT11); mvn -o -q pmd:check exit 0. Only failures: 9 DeleteMovementUseCaseTest pre-existing date bug (PR #22)."
     }
   ]
 }

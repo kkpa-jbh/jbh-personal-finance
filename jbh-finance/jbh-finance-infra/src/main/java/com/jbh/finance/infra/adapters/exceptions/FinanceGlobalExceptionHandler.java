@@ -5,6 +5,7 @@ import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
 import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
 import jakarta.ws.rs.NotSupportedException;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
@@ -40,6 +41,10 @@ public class FinanceGlobalExceptionHandler implements ExceptionMapper<Exception>
 
   @Override
   public Response toResponse(final Exception exception) {
+    if (isRoutingError(exception)) {
+      return handleWebApplicationException((WebApplicationException) exception);
+    }
+
     LOG.error("Exception caught by GlobalExceptionHandler", exception);
 
     if (exception instanceof final BusinessException accountBusinessException) {
@@ -60,6 +65,19 @@ public class FinanceGlobalExceptionHandler implements ExceptionMapper<Exception>
 
     // Default handler for unexpected exceptions
     return handleGenericException(exception);
+  }
+
+  /** A JAX-RS error such as an unknown path (404) or a wrong method (405): not a server error. */
+  private static boolean isRoutingError(final Exception exception) {
+    return exception instanceof WebApplicationException
+        && !(exception instanceof NotSupportedException);
+  }
+
+  private Response handleWebApplicationException(final WebApplicationException exception) {
+    final int status = exception.getResponse().getStatus();
+    LOG.warn("HTTP {} raised by the framework: {}", status, exception.getMessage());
+
+    return Response.status(status).entity(ApiResponse.error(exception.getMessage())).build();
   }
 
   private Response handleAccountBusinessException(final BusinessException exception) {
