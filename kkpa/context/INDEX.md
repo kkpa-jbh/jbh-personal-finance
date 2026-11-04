@@ -12,6 +12,8 @@
 | import statement | `ExtractStatementMovementsUseCase` | use case | `use-case/jbh-finance/extract-statement-movements.md` |
 | extracto bancario | `ExtractStatementMovementsUseCase` | use case | `use-case/jbh-finance/extract-statement-movements.md` |
 | upload monthly bank report | `ExtractStatementMovementsUseCase` | use case | `use-case/jbh-finance/extract-statement-movements.md` |
+| statement import | `ExtractStatementMovementsUseCase` | use case | `use-case/jbh-finance/extract-statement-movements.md` |
+| save statement movements | `ExtractStatementMovementsUseCase` | use case | `use-case/jbh-finance/extract-statement-movements.md` |
 
 ## Input ports — pages & endpoints
 
