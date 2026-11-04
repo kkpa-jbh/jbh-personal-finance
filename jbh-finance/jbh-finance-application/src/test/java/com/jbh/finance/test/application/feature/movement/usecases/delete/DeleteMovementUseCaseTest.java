@@ -43,7 +43,8 @@ import org.slf4j.LoggerFactory;
 public class DeleteMovementUseCaseTest {
 
   static final BigDecimal INITIAL_DEPOSIT = new BigDecimal("100.00");
-  static final YearMonth INITIAL_PERIOD = YearMonth.now();
+  // Last month, so that every day of the period is in the past, also on the 1st of a month.
+  static final YearMonth INITIAL_PERIOD = YearMonth.now().minusMonths(1);
   static final UUID userId = UUID.randomUUID();
   private static ProductDTO productDTO;
   private static MovementDTO expenseToBeReversed;
