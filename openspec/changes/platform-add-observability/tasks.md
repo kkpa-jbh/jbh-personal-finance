@@ -41,14 +41,14 @@ the sentence. Add no log line. Keep variables `final`. Remove any import that be
 
 ## Group D - Cleanup and docs. Depends on: A (D2 needs the final key names)
 
-- [ ] D1 Delete `INFRA/src/main/resources/logback-spring.xml` (D9). First grep the repo for other references (`logback-spring`); only `docs/guides/logging.md` is expected.
-- [ ] D2 Rewrite the Logback part of `docs/guides/logging.md`: JSON in prod, MDC fields, `traceId`/`spanId`, the privacy rule (what never goes in a log: amounts, balances, statement or OCR text, LLM prompts or answers, IBAN or account numbers, e-mail addresses, client IP address, API keys, transaction lists, whole domain objects), the env vars (`OTEL_SDK_DISABLED`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_TRACES_SAMPLER`, `OTEL_TRACES_SAMPLER_ARG`, `QUARKUS_OBSERVABILITY_ENABLED`), `/q/metrics`.
-- [ ] D3 Add a short "Observability" paragraph to `.claude/infrastructure/deployment.md`: `/q/metrics` on port 7777 for Alloy, the OTLP endpoint `jbh-alloy:4317`, and that the compose env vars land in `jbh-deploy` with JBH-56.
+- [x] D1 Delete `INFRA/src/main/resources/logback-spring.xml` (D9). First grep the repo for other references (`logback-spring`); only `docs/guides/logging.md` is expected.
+- [x] D2 Rewrite the Logback part of `docs/guides/logging.md`: JSON in prod, MDC fields, `traceId`/`spanId`, the privacy rule (what never goes in a log: amounts, balances, statement or OCR text, LLM prompts or answers, IBAN or account numbers, e-mail addresses, client IP address, API keys, transaction lists, whole domain objects), the env vars (`OTEL_SDK_DISABLED`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_TRACES_SAMPLER`, `OTEL_TRACES_SAMPLER_ARG`, `QUARKUS_OBSERVABILITY_ENABLED`), `/q/metrics`.
+- [x] D3 Add a short "Observability" paragraph to `.claude/infrastructure/deployment.md`: `/q/metrics` on port 7777 for Alloy, the OTLP endpoint `jbh-alloy:4317`, and that the compose env vars land in `jbh-deploy` with JBH-56.
 - Acceptance: no doc names `logback-spring.xml` as a live config.
 
 ## Group E - Verification (leader or user). Depends on: A, B, C, D
 
-- [ ] E1 Leader runs `mvn clean verify` (tests, PMD, SpotBugs). Compile errors from JPMS `requires` or a wrong key are fixed by the owner of the group.
+- [x] E1 Leader runs `mvn clean verify` (tests, PMD, SpotBugs). Compile errors from JPMS `requires` or a wrong key are fixed by the owner of the group.
 - [ ] E2 Run integration checks I1 to I9 of design.md. I2, I5 and I6 need a collector or Docker. Report any miss.
 
 Size estimate: 33 files, ~520 changed lines (tests and docs included)
