@@ -5,7 +5,7 @@
   "module": "platform",
   "roadmap": null,
   "request": "Source ticket: JBH-60 — https://linear.app/kkpa/issue/JBH-60/jbh-personal-finance-json-logs-opentelemetry-traces-and-metrics-safe\nProject: JBH-Platform   Priority: Medium\n\n## BASE BRANCH (user requirement, mandatory)\nCreate the new CH<N> feature branch FROM the existing feature branch `ft/CH3-JBH-73-jbh-finance-save-statement-movements` (the current branch in jbh-personal-finance), NOT from `main`.\n\n## jbh-personal-finance: JSON logs, OpenTelemetry traces and metrics, safe log content\n\nPart 5 of JBH-55 (https://linear.app/kkpa/issue/JBH-55/observability-centralized-logs-metrics-traces-and-alerts-grafana-cloud). Needs part 1 (Alloy) to see results, and part 2 (`jbh-gateway-client`) for the `findUserId` trace.\n\nStack: Quarkus 3.33.4.1 modular monolith, Maven (root `pom.xml`, checked on 2026-11-04). Today only `quarkus-smallrye-health` (`jbh-z-assembly/pom.xml`).\n\n## Finding: DEBUG logs in production\n\n`jbh-z-assembly/src/main/resources/application.properties` line 15:\n\n```\nquarkus.log.category.\"com.jbh.**\".level=DEBUG\n```\n\nIt has no `%dev` prefix, and `jbh-deploy` sets no override. So production logs all `com.jbh` code at DEBUG. Once logs go to Grafana Cloud, this costs quota and may send bank statement data out of the VPS. Fix it here: `%dev` keeps DEBUG, `%prod` uses INFO.\n\n## What to do\n\n1. **Log level** — fix the finding above.\n2. **JSON logs in** `prod`**.** Add `quarkus-logging-json` and turn on JSON console output only for `%prod`. Check the exact property name for 3.33. Keep the MDC fields that exist today (`trackingId`, `userId`, `productId`, `transactionId`, `module`).\n3. **Traces.** Add `quarkus-opentelemetry`. Endpoint (`quarkus.otel.exporter.otlp.endpoint`) from an env var pointing to `jbh-alloy`. Sampling 100% at start, env-overridable. Check that `traceId` and `spanId` show in the JSON logs.\n4. **Metrics.** See the open question. Common tags `service=jbh-personal-finance`, `env=prod`.\n5. **Outgoing calls** to Azure Document Intelligence, OpenRouter / Gemini and Jev: they should show as child spans with duration and status. They are the slowest part of the statement import.\n6. **Use the trace-aware** `jbh-gateway-client` (part 2) for `findUserId`. Note: the AI adapters (point 5) also use `java.net.http.HttpClient`, so Quarkus does not trace them by itself. They need manual spans.\n7. `jbh-deploy/compose.yaml`**:** add the new env vars to `jbh-personal-finance`.\n\n## Open question for the proposal\n\n* **Which metrics path?** In Quarkus 3.18, OpenTelemetry metrics (`quarkus.otel.metrics.enabled`) were tech preview and a build-time flag. The project is now on 3.33: check their status again. Options: (a) OTel metrics over OTLP, same path as traces; (b) Micrometer with a Prometheus registry, and Alloy scrapes `/q/metrics` on `jbh-private`. Choose one and write why.\n\n## Catch\n\n* **Log content (most important).** Logs leave the VPS. Never log: statement files, OCR text, LLM prompts or answers, IBAN or account numbers, transaction lists, email addresses, API keys. Check the statement import and notification code paths.\n* `jbh-finance-infra/src/main/resources/logback-spring.xml` looks unused (Quarkus uses JBoss LogManager). Confirm it, and do not rely on it.\n* **Metric labels:** no user id, product id or raw path. `userId` stays in logs only.\n* Locally, export is off unless the env var is set.\n* Do not build. The user builds.\n\n## Done when\n\n- [ ] Production log level for `com.jbh` is INFO.\n- [ ] Finance logs are JSON on the VPS and show `traceId`.\n- [ ] A statement import shows as one trace, with the OCR and LLM calls as child spans.\n- [ ] JVM, HTTP and DB pool metrics for `service=jbh-personal-finance` show in Grafana Cloud.\n- [ ] A search in Grafana Cloud for one test IBAN or statement text finds nothing.\n\n## Interview agenda (for pipeline Step 2)\n- MANDATORY — run `grill-me` for ticket comprehension before writing any artifact: scope, what is out of scope, acceptance condition, behaviour that must not change. This is NOT the performance/design grill and does not depend on a design gate firing.\n- Metrics path: (a) OTel metrics over OTLP, or (b) Micrometer + Prometheus registry scraped by Alloy on `/q/metrics`? Check the OTel metrics status in Quarkus 3.33 first.\n- Point 6 depends on JBH-57 (trace-aware `jbh-gateway-client`), not done yet. In scope now, or defer to after JBH-57 is published?\n- Point 7 changes `jbh-deploy/compose.yaml` (another repo). Do it in this run as a separate jbh-deploy commit, or leave it to JBH-56/JBH-61?\n- Point 5: how to make manual spans for the AI adapters (they use `java.net.http.HttpClient`)? For example `@WithSpan` / `opentelemetry-api` in the infra adapters only, keeping application/domain free of OTel.\n- Local dev: also add `quarkus-observability-devservices-lgtm` (scope `provided`) so Grafana runs locally in `quarkus:dev`? Not in the ticket; confirm in or out.\n- Ticket requests /grill-me — no skill directive in the ticket body.\n\n## Pipeline scope for this run\nHALT AFTER STEP 4. Produce the OpenSpec artifacts (proposal / design / specs / tasks) and progress.json, then stop and report. Do NOT dispatch implementation workers (Step 5+), do NOT run the reviewer, do NOT archive. The user reviews the proposal before implementation. Record the source ticket ID and URL in the proposal header so the change is traceable back to Linear.\n",
-  "status": "in-progress",
+  "status": "in-review",
   "rollup": {
     "current": [
       "E2"
@@ -34,7 +34,7 @@
     ]
   },
   "created_at": "2026-11-04T18:13:25Z",
-  "updated_at": "2026-11-04T21:33:22Z",
+  "updated_at": "2026-11-04T21:41:00Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-opus-5-5"
@@ -568,10 +568,55 @@
     }
   ],
   "review": {
-    "status": "pending",
-    "agent": null,
-    "brief": null,
-    "rounds": []
+    "status": "approved",
+    "agent": "platform-reviewer",
+    "brief": "Change platform-add-observability (JBH-60), cross-cutting, base db22813 (branch from ft/CH3-JBH-73). Diff: git diff db22813...HEAD. Check against design.md D1-D12 and the user decisions D2-D12, D16, D18, D19 in progress.json decisions[]. Key points: (1) %dev DEBUG / %prod INFO; JSON console only in %prod, MDC fields kept; (2) OTel endpoint and sampler from env, SDK disabled unless env set; (3) Micrometer Prometheus at /q/metrics with common tags service+env (MetricsTagsConfig), no high-cardinality labels; (4) @WithSpan only on the 4 infra AI adapter methods, no @SpanAttribute, no OTel type in application or domain; Context.current().wrap in StatementImportDispatcher; (5) log audit: no amounts, balances, statement/OCR/LLM text, IBAN, e-mail, client IP, API keys, whole domain objects in INFO/WARN/ERROR args (D12 table, I9); (6) logback-spring.xml deleted, docs updated. No DB change, no design gate. Test blueprint approved and frozen: commit 06048fb, tests MetricsTagsConfigTest.java and ObservabilityConfigPropertiesTest.java (jbh-z-assembly/src/test/java/com/jbh/assembly/config/); diff them against 06048fb. Signals: assistant-run by the leader: mvn clean verify exit 0 (399 tests; 2 pre-existing DeleteMovementUseCaseTest errors accepted as D15, date bug, untouched module), PMD and SpotBugs pass, mvn -q pmd:check exit 0, I9 grep audit pass. Not run: I1-I8 (need services), E2 awaiting-user-verification by user decision D18. Security-Gate: run.",
+    "rounds": [
+      {
+        "round": 1,
+        "at": "2026-11-04T21:38:24Z",
+        "verdict": "changes-requested",
+        "security": {
+          "status": "passed",
+          "ran_at": "2026-11-04T21:38:24Z",
+          "scope": "git.base",
+          "findings": [],
+          "note": "Skill diff (origin/HEAD) lists other files; method applied to git.base...HEAD. No exploitable issue. Change removes PII from logs. /q/metrics is not routed by the gateway."
+        },
+        "findings": [
+          {
+            "id": "R1",
+            "lens": "intent",
+            "severity": "major",
+            "note": "jbh-z-assembly/src/main/resources/application.properties:~99: only quarkus.datasource.metrics.enabled=true is set. It covers the default datasource only. Real traffic uses the named datasources finance and preferences (jbh-finance-infra and jbh-preferences-infra application.properties). Their pool metrics (agroal_*) will not appear, so spec 'datasource metrics' and goal G4 fail. I3 would pass wrongly from the idle default pool. Fix: add quarkus.datasource.finance.metrics.enabled=true and quarkus.datasource.preferences.metrics.enabled=true (new keys; the frozen test stays valid).",
+            "status": "rejected",
+            "triage": "rejected",
+            "justification": "Quarkus datasource guide (Context7, /websites/quarkus_io_guides): quarkus.datasource.metrics.enabled is a global setting, not per datasource; with a metrics extension present Agroal collects metrics for all datasources, named ones included. quarkus.datasource.<name>.metrics.enabled does not exist; the per-datasource key is <name>.jdbc.metrics.enabled and is only needed to opt out."
+          }
+        ]
+      },
+      {
+        "round": 2,
+        "at": "2026-11-04T21:40:23Z",
+        "verdict": "approved",
+        "security": {
+          "status": "passed",
+          "ran_at": "2026-11-04T21:40:23Z",
+          "scope": "git.base",
+          "findings": [],
+          "note": "Reused from round 1: diff unchanged (HEAD 16ded07). No exploitable issue; change removes PII from logs."
+        },
+        "findings": [
+          {
+            "id": "R1",
+            "lens": "intent",
+            "severity": "major",
+            "note": "Rejection accepted (my round-1 claim was wrong). Global quarkus.datasource.metrics.enabled=true covers named datasources finance, preferences, notifications. No <name>.metrics.enabled key exists; no per-datasource opt-out is set in any application.properties.",
+            "status": "rejected"
+          }
+        ]
+      }
+    ]
   },
   "decisions": [
     {
@@ -726,6 +771,33 @@
       "decision": "Wave 1 = 2 parallel sonnet workers: A1-A3+B1-B3 (serial, B2/B3 after B1) and C1-C5",
       "why": "Disjoint files, 17 audit files is large, 5h bucket at 41%; B2/B3 folded into wave 1 because one serial worker does B1 first. Rejected: one worker with 12 tasks",
       "covered_by": null
+    },
+    {
+      "id": "D18",
+      "at": "2026-11-04T21:35:41Z",
+      "scope": "task:E2",
+      "made_by": "user",
+      "decision": "Start the review now; I1-I8 stay awaiting-user-verification",
+      "why": "Suite and static checks pass; I1-I8 confirm runtime config and need services the leader never starts",
+      "covered_by": null
+    },
+    {
+      "id": "D19",
+      "at": "2026-11-04T21:38:24Z",
+      "scope": "review:security-gate",
+      "made_by": "user",
+      "decision": "Run /security-review in the review",
+      "why": "Diff adds dependencies, changes LoggingFilter, and adds an OTLP export; the change is about what data leaves the VPS",
+      "covered_by": null
+    },
+    {
+      "id": "D20",
+      "at": "2026-11-04T21:39:59Z",
+      "scope": "review:R1",
+      "made_by": "leader",
+      "decision": "Reject R1 (named datasource metrics keys)",
+      "why": "Quarkus docs: quarkus.datasource.metrics.enabled is global and covers finance, preferences, notifications; suggested key does not exist",
+      "covered_by": null
     }
   ],
   "events": [
@@ -803,6 +875,41 @@
       "at": "2026-11-04T21:33:22Z",
       "agent": "leader",
       "event": "E2: I9 grep audit pass (leader). I1-I8 need running services (jar + Postgres, collector, Docker): left awaiting-user-verification."
+    },
+    {
+      "at": "2026-11-04T21:33:36Z",
+      "agent": "leader",
+      "event": "wave-2 commit 16ded07; checkpoint gate: 5h 16%, ctx 13%, clear."
+    },
+    {
+      "at": "2026-11-04T21:33:36Z",
+      "agent": "leader",
+      "event": "Step 6 size: git diff --shortstat db22813...HEAD = 39 files, +1796/-289 (estimate 33 files, ~520 lines; actual includes openspec artifacts and progress.json)."
+    },
+    {
+      "at": "2026-11-04T21:35:41Z",
+      "agent": "leader",
+      "event": "Step 6: openspec validate --strict pass; suite pass recorded (E1, leader run); status verified. User chose review now (D18)."
+    },
+    {
+      "at": "2026-11-04T21:38:24Z",
+      "agent": "leader",
+      "event": "Step 7: review brief written; dispatched platform-reviewer round 1 (sonnet), Security-Gate: run; budget start 5h 17%"
+    },
+    {
+      "at": "2026-11-04T21:39:59Z",
+      "agent": "leader",
+      "event": "review round 1: security passed; changes-requested with R1 (major). Leader triage: R1 rejected with docs citation (D20). No code change. Signalling platform-reviewer to re-verify."
+    },
+    {
+      "at": "2026-11-04T21:41:00Z",
+      "agent": "leader",
+      "event": "review round 2: platform-reviewer approved R1 rejection; security passed (reused, diff unchanged). review.status approved; change status left in-review."
+    },
+    {
+      "at": "2026-11-04T21:41:00Z",
+      "agent": "leader",
+      "event": "skill conflict: check-progress.py allows reviewer-approved only when all tasks are done, but E2 is awaiting-user-verification (D18) and SKILL.md Step 8 expects such tasks at archive. Also reviewer file says it writes only review.*, schema says it sets change status. Stopped; E2 needs the user's I1-I8 run."
     }
   ]
 }
