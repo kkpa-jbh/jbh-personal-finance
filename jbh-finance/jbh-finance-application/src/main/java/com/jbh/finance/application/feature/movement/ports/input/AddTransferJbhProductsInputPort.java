@@ -54,10 +54,7 @@ public class AddTransferJbhProductsInputPort implements AddTransferJbhProductsUs
     final var toAccountName = toAccountDTO.name();
 
     LOG.info(
-        "Sending transfer from {} to {} for {}",
-        fromAccountName,
-        toAccountDTO.name(),
-        transferAmount);
+        "Sending transfer from {} to {}", fromAccount.productId(), toAccountDTO.id());
 
     final CategoryDTO incomeTransferCategory = categoryService.findIncomeTransfer();
     final MovementType movementType =
@@ -87,11 +84,12 @@ public class AddTransferJbhProductsInputPort implements AddTransferJbhProductsUs
 
     transferValidationTO(toAccountDTO, movementCommandTo);
 
-    LOG.info("Registering the deposit movement for the productDTO {}", toAccountName);
+    LOG.info("Registering the deposit movement for the productDTO {}", toAccountDTO.id());
     processMovementService.addMovementToProduct(
         new ProductPK(toAccountDTO.userId(), toAccountDTO.id()), movementCommandFrom);
 
-    LOG.info("Registering the withdrawal movement for the productDTO {}", fromAccountName);
+    LOG.info(
+        "Registering the withdrawal movement for the productDTO {}", fromAccount.productId());
     processMovementService.addMovementToProduct(fromAccount, movementCommandTo);
   }
 

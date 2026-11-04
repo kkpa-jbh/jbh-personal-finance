@@ -47,8 +47,8 @@ public class CreateProductInputPort implements CreateProductUseCase {
     final ProductDTO accountDTO = accountService.save(accountDomain);
 
     LOG.info(
-        "Account '{}' (type: {}) created successfully for user {}",
-        accountDTO.name(),
+        "Account (id: {}, type: {}) created successfully for user {}",
+        accountDTO.id().value(),
         accountDTO.type(),
         command.userId());
 

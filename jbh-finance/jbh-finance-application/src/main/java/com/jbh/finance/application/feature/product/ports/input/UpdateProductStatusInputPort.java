@@ -34,8 +34,7 @@ public class UpdateProductStatusInputPort implements UpdateProductStatusUseCase 
 
     if (productDTO.isActive() == command.active()) {
       LOG.info(
-          "Product '{}' (id: {}) is already {} for user {}",
-          productDTO.name(),
+          "Product (id: {}) is already {} for user {}",
           productDTO.id().value(),
           command.active() ? "active" : "inactive",
           command.userId());
@@ -48,8 +47,7 @@ public class UpdateProductStatusInputPort implements UpdateProductStatusUseCase 
     final ProductDTO savedProduct = accountService.save(productDomain);
 
     LOG.info(
-        "Product '{}' (id: {}) status updated to {} for user {}",
-        savedProduct.name(),
+        "Product (id: {}) status updated to {} for user {}",
         savedProduct.id().value(),
         command.active() ? "active" : "inactive",
         command.userId());

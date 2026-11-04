@@ -26,4 +26,7 @@ module jbh.finance.infra {
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
   requires org.apache.pdfbox;
+  requires io.opentelemetry.api;
+  requires io.opentelemetry.context;
+  requires io.opentelemetry.instrumentation_annotations;
 }

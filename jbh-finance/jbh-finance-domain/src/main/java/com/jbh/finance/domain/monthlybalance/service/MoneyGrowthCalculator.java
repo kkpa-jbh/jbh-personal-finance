@@ -55,12 +55,7 @@ public class MoneyGrowthCalculator {
     // Skip when opening balance is zero (First month)
     // Failing the Execution Mock Test and not sure when there is a zero opening balance
     if (isNotZero(openingBalance) && growthRate.compareTo(MAX_NET_GROWTH_RATE) > 0) {
-      log.warn(
-          "Opening {} Closing {} Movement {} = Growth {}",
-          openingBalance,
-          closingBalance,
-          movementBalance,
-          growthRate);
+      log.warn("Net growth is above the maximum");
       throw new BusinessException(BusinessDomainExceptionType.EXCEEDED_MAXIMUM_NET_GROWTH);
     }
 

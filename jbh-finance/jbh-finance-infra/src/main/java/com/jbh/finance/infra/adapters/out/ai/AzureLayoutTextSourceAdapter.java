@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.infra.adapters.exceptions.FinanceInfraBusinessExceptionType;
 import com.jbh.finance.infra.config.StatementImportConfig;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
@@ -75,6 +76,7 @@ public class AzureLayoutTextSourceAdapter implements StatementTextSource {
   @Override
   // The cause is dropped on purpose: it may carry parts of the request or the answer.
   @SuppressWarnings("PMD.PreserveStackTrace")
+  @WithSpan("ai.azure.extract-text")
   public String extractText(final byte[] pdfContent) throws BusinessException {
     final String endpoint = required(config.azure().endpoint());
     final String apiKey = required(config.azure().apiKey());
