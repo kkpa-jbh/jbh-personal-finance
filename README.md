@@ -47,6 +47,10 @@ make create-all-schemas
 Without Consul, start with `CONSUL_ENABLED=false`. Then the gateway cannot find the service, but
 you can call it directly on port 7777.
 
+The address saved in Consul is `CONSUL_DISCOVERY_HOSTNAME` when it is set. If it is empty, the
+service saves its container IP (`CONSUL_PREFER_IP=true`). When the gateway runs in Docker and this
+service runs on your host, set `CONSUL_DISCOVERY_HOSTNAME=host.docker.internal`.
+
 - Health check: `GET http://localhost:7777/q/health`
 - OpenAPI (dev mode): `http://localhost:7777/q/swagger-ui`
 
