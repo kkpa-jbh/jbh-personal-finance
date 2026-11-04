@@ -7,9 +7,9 @@ Paths: `APP`, `DOM`, `NOT` are defined in design.md D12. `ASM` = `jbh-z-assembly
 
 ## Group T - Test blueprint (Test-First). Depends on: none
 
-- [ ] T1 Write `ASM/src/test/java/com/jbh/assembly/config/MetricsTagsConfigTest.java`: the 4 tests of the design.md contract (`SimpleMeterRegistry`, `MeterFilter`).
-- [ ] T2 Write `ASM/src/test/java/com/jbh/assembly/config/ObservabilityConfigPropertiesTest.java`: the 10 tests of the contract. Load `src/main/resources/application.properties` by relative path with `java.util.Properties`.
-- [ ] T3 Skeleton so T1 compiles: `ASM/src/main/java/com/jbh/assembly/config/MetricsTagsConfig.java` (constructor with `service` and `env`, `commonTags()` returns `MeterFilter`, body throws `UnsupportedOperationException("not implemented")`, no CDI logic yet), plus the dependency `io.quarkus:quarkus-micrometer-registry-prometheus` in `ASM/pom.xml` and `requires micrometer.core;` in `ASM/src/main/java/module-info.java` (VERIFY the name).
+- [x] T1 Write `ASM/src/test/java/com/jbh/assembly/config/MetricsTagsConfigTest.java`: the 4 tests of the design.md contract (`SimpleMeterRegistry`, `MeterFilter`).
+- [x] T2 Write `ASM/src/test/java/com/jbh/assembly/config/ObservabilityConfigPropertiesTest.java`: the 10 tests of the contract. Load `src/main/resources/application.properties` by relative path with `java.util.Properties`.
+- [x] T3 Skeleton so T1 compiles: `ASM/src/main/java/com/jbh/assembly/config/MetricsTagsConfig.java` (constructor with `service` and `env`, `commonTags()` returns `MeterFilter`, body throws `UnsupportedOperationException("not implemented")`, no CDI logic yet), plus the dependency `io.quarkus:quarkus-micrometer-registry-prometheus` in `ASM/pom.xml` and `requires micrometer.core;` in `ASM/src/main/java/module-info.java` (VERIFY the name).
 - Acceptance: both test classes compile; `MetricsTagsConfigTest` fails with "not implemented"; `ObservabilityConfigPropertiesTest` fails on missing keys; `ConsulServiceRegistrationTest` still passes.
 
 ## Group A - Runtime config and dependencies (jbh-z-assembly). Depends on: T

@@ -8,6 +8,7 @@ module jbh.z.assembly {
   requires com.fasterxml.jackson.databind;
   requires resteasy.reactive.common;
   requires jakarta.ws.rs;
+  requires micrometer.core;
 
   opens com.jbh.assembly to
       quarkus.core;
