@@ -4,14 +4,11 @@
   "change": "platform-add-observability",
   "module": "platform",
   "roadmap": null,
-  "request": "Source ticket: JBH-60 \u2014 https://linear.app/kkpa/issue/JBH-60/jbh-personal-finance-json-logs-opentelemetry-traces-and-metrics-safe\nProject: JBH-Platform   Priority: Medium\n\n## BASE BRANCH (user requirement, mandatory)\nCreate the new CH<N> feature branch FROM the existing feature branch `ft/CH3-JBH-73-jbh-finance-save-statement-movements` (the current branch in jbh-personal-finance), NOT from `main`.\n\n## jbh-personal-finance: JSON logs, OpenTelemetry traces and metrics, safe log content\n\nPart 5 of JBH-55 (https://linear.app/kkpa/issue/JBH-55/observability-centralized-logs-metrics-traces-and-alerts-grafana-cloud). Needs part 1 (Alloy) to see results, and part 2 (`jbh-gateway-client`) for the `findUserId` trace.\n\nStack: Quarkus 3.33.4.1 modular monolith, Maven (root `pom.xml`, checked on 2026-11-04). Today only `quarkus-smallrye-health` (`jbh-z-assembly/pom.xml`).\n\n## Finding: DEBUG logs in production\n\n`jbh-z-assembly/src/main/resources/application.properties` line 15:\n\n```\nquarkus.log.category.\"com.jbh.**\".level=DEBUG\n```\n\nIt has no `%dev` prefix, and `jbh-deploy` sets no override. So production logs all `com.jbh` code at DEBUG. Once logs go to Grafana Cloud, this costs quota and may send bank statement data out of the VPS. Fix it here: `%dev` keeps DEBUG, `%prod` uses INFO.\n\n## What to do\n\n1. **Log level** \u2014 fix the finding above.\n2. **JSON logs in** `prod`**.** Add `quarkus-logging-json` and turn on JSON console output only for `%prod`. Check the exact property name for 3.33. Keep the MDC fields that exist today (`trackingId`, `userId`, `productId`, `transactionId`, `module`).\n3. **Traces.** Add `quarkus-opentelemetry`. Endpoint (`quarkus.otel.exporter.otlp.endpoint`) from an env var pointing to `jbh-alloy`. Sampling 100% at start, env-overridable. Check that `traceId` and `spanId` show in the JSON logs.\n4. **Metrics.** See the open question. Common tags `service=jbh-personal-finance`, `env=prod`.\n5. **Outgoing calls** to Azure Document Intelligence, OpenRouter / Gemini and Jev: they should show as child spans with duration and status. They are the slowest part of the statement import.\n6. **Use the trace-aware** `jbh-gateway-client` (part 2) for `findUserId`. Note: the AI adapters (point 5) also use `java.net.http.HttpClient`, so Quarkus does not trace them by itself. They need manual spans.\n7. `jbh-deploy/compose.yaml`**:** add the new env vars to `jbh-personal-finance`.\n\n## Open question for the proposal\n\n* **Which metrics path?** In Quarkus 3.18, OpenTelemetry metrics (`quarkus.otel.metrics.enabled`) were tech preview and a build-time flag. The project is now on 3.33: check their status again. Options: (a) OTel metrics over OTLP, same path as traces; (b) Micrometer with a Prometheus registry, and Alloy scrapes `/q/metrics` on `jbh-private`. Choose one and write why.\n\n## Catch\n\n* **Log content (most important).** Logs leave the VPS. Never log: statement files, OCR text, LLM prompts or answers, IBAN or account numbers, transaction lists, email addresses, API keys. Check the statement import and notification code paths.\n* `jbh-finance-infra/src/main/resources/logback-spring.xml` looks unused (Quarkus uses JBoss LogManager). Confirm it, and do not rely on it.\n* **Metric labels:** no user id, product id or raw path. `userId` stays in logs only.\n* Locally, export is off unless the env var is set.\n* Do not build. The user builds.\n\n## Done when\n\n- [ ] Production log level for `com.jbh` is INFO.\n- [ ] Finance logs are JSON on the VPS and show `traceId`.\n- [ ] A statement import shows as one trace, with the OCR and LLM calls as child spans.\n- [ ] JVM, HTTP and DB pool metrics for `service=jbh-personal-finance` show in Grafana Cloud.\n- [ ] A search in Grafana Cloud for one test IBAN or statement text finds nothing.\n\n## Interview agenda (for pipeline Step 2)\n- MANDATORY \u2014 run `grill-me` for ticket comprehension before writing any artifact: scope, what is out of scope, acceptance condition, behaviour that must not change. This is NOT the performance/design grill and does not depend on a design gate firing.\n- Metrics path: (a) OTel metrics over OTLP, or (b) Micrometer + Prometheus registry scraped by Alloy on `/q/metrics`? Check the OTel metrics status in Quarkus 3.33 first.\n- Point 6 depends on JBH-57 (trace-aware `jbh-gateway-client`), not done yet. In scope now, or defer to after JBH-57 is published?\n- Point 7 changes `jbh-deploy/compose.yaml` (another repo). Do it in this run as a separate jbh-deploy commit, or leave it to JBH-56/JBH-61?\n- Point 5: how to make manual spans for the AI adapters (they use `java.net.http.HttpClient`)? For example `@WithSpan` / `opentelemetry-api` in the infra adapters only, keeping application/domain free of OTel.\n- Local dev: also add `quarkus-observability-devservices-lgtm` (scope `provided`) so Grafana runs locally in `quarkus:dev`? Not in the ticket; confirm in or out.\n- Ticket requests /grill-me \u2014 no skill directive in the ticket body.\n\n## Pipeline scope for this run\nHALT AFTER STEP 4. Produce the OpenSpec artifacts (proposal / design / specs / tasks) and progress.json, then stop and report. Do NOT dispatch implementation workers (Step 5+), do NOT run the reviewer, do NOT archive. The user reviews the proposal before implementation. Record the source ticket ID and URL in the proposal header so the change is traceable back to Linear.\n",
+  "request": "Source ticket: JBH-60 — https://linear.app/kkpa/issue/JBH-60/jbh-personal-finance-json-logs-opentelemetry-traces-and-metrics-safe\nProject: JBH-Platform   Priority: Medium\n\n## BASE BRANCH (user requirement, mandatory)\nCreate the new CH<N> feature branch FROM the existing feature branch `ft/CH3-JBH-73-jbh-finance-save-statement-movements` (the current branch in jbh-personal-finance), NOT from `main`.\n\n## jbh-personal-finance: JSON logs, OpenTelemetry traces and metrics, safe log content\n\nPart 5 of JBH-55 (https://linear.app/kkpa/issue/JBH-55/observability-centralized-logs-metrics-traces-and-alerts-grafana-cloud). Needs part 1 (Alloy) to see results, and part 2 (`jbh-gateway-client`) for the `findUserId` trace.\n\nStack: Quarkus 3.33.4.1 modular monolith, Maven (root `pom.xml`, checked on 2026-11-04). Today only `quarkus-smallrye-health` (`jbh-z-assembly/pom.xml`).\n\n## Finding: DEBUG logs in production\n\n`jbh-z-assembly/src/main/resources/application.properties` line 15:\n\n```\nquarkus.log.category.\"com.jbh.**\".level=DEBUG\n```\n\nIt has no `%dev` prefix, and `jbh-deploy` sets no override. So production logs all `com.jbh` code at DEBUG. Once logs go to Grafana Cloud, this costs quota and may send bank statement data out of the VPS. Fix it here: `%dev` keeps DEBUG, `%prod` uses INFO.\n\n## What to do\n\n1. **Log level** — fix the finding above.\n2. **JSON logs in** `prod`**.** Add `quarkus-logging-json` and turn on JSON console output only for `%prod`. Check the exact property name for 3.33. Keep the MDC fields that exist today (`trackingId`, `userId`, `productId`, `transactionId`, `module`).\n3. **Traces.** Add `quarkus-opentelemetry`. Endpoint (`quarkus.otel.exporter.otlp.endpoint`) from an env var pointing to `jbh-alloy`. Sampling 100% at start, env-overridable. Check that `traceId` and `spanId` show in the JSON logs.\n4. **Metrics.** See the open question. Common tags `service=jbh-personal-finance`, `env=prod`.\n5. **Outgoing calls** to Azure Document Intelligence, OpenRouter / Gemini and Jev: they should show as child spans with duration and status. They are the slowest part of the statement import.\n6. **Use the trace-aware** `jbh-gateway-client` (part 2) for `findUserId`. Note: the AI adapters (point 5) also use `java.net.http.HttpClient`, so Quarkus does not trace them by itself. They need manual spans.\n7. `jbh-deploy/compose.yaml`**:** add the new env vars to `jbh-personal-finance`.\n\n## Open question for the proposal\n\n* **Which metrics path?** In Quarkus 3.18, OpenTelemetry metrics (`quarkus.otel.metrics.enabled`) were tech preview and a build-time flag. The project is now on 3.33: check their status again. Options: (a) OTel metrics over OTLP, same path as traces; (b) Micrometer with a Prometheus registry, and Alloy scrapes `/q/metrics` on `jbh-private`. Choose one and write why.\n\n## Catch\n\n* **Log content (most important).** Logs leave the VPS. Never log: statement files, OCR text, LLM prompts or answers, IBAN or account numbers, transaction lists, email addresses, API keys. Check the statement import and notification code paths.\n* `jbh-finance-infra/src/main/resources/logback-spring.xml` looks unused (Quarkus uses JBoss LogManager). Confirm it, and do not rely on it.\n* **Metric labels:** no user id, product id or raw path. `userId` stays in logs only.\n* Locally, export is off unless the env var is set.\n* Do not build. The user builds.\n\n## Done when\n\n- [ ] Production log level for `com.jbh` is INFO.\n- [ ] Finance logs are JSON on the VPS and show `traceId`.\n- [ ] A statement import shows as one trace, with the OCR and LLM calls as child spans.\n- [ ] JVM, HTTP and DB pool metrics for `service=jbh-personal-finance` show in Grafana Cloud.\n- [ ] A search in Grafana Cloud for one test IBAN or statement text finds nothing.\n\n## Interview agenda (for pipeline Step 2)\n- MANDATORY — run `grill-me` for ticket comprehension before writing any artifact: scope, what is out of scope, acceptance condition, behaviour that must not change. This is NOT the performance/design grill and does not depend on a design gate firing.\n- Metrics path: (a) OTel metrics over OTLP, or (b) Micrometer + Prometheus registry scraped by Alloy on `/q/metrics`? Check the OTel metrics status in Quarkus 3.33 first.\n- Point 6 depends on JBH-57 (trace-aware `jbh-gateway-client`), not done yet. In scope now, or defer to after JBH-57 is published?\n- Point 7 changes `jbh-deploy/compose.yaml` (another repo). Do it in this run as a separate jbh-deploy commit, or leave it to JBH-56/JBH-61?\n- Point 5: how to make manual spans for the AI adapters (they use `java.net.http.HttpClient`)? For example `@WithSpan` / `opentelemetry-api` in the infra adapters only, keeping application/domain free of OTel.\n- Local dev: also add `quarkus-observability-devservices-lgtm` (scope `provided`) so Grafana runs locally in `quarkus:dev`? Not in the ticket; confirm in or out.\n- Ticket requests /grill-me — no skill directive in the ticket body.\n\n## Pipeline scope for this run\nHALT AFTER STEP 4. Produce the OpenSpec artifacts (proposal / design / specs / tasks) and progress.json, then stop and report. Do NOT dispatch implementation workers (Step 5+), do NOT run the reviewer, do NOT archive. The user reviews the proposal before implementation. Record the source ticket ID and URL in the proposal header so the change is traceable back to Linear.\n",
   "status": "proposed",
   "rollup": {
     "current": [],
     "pending": [
-      "T1",
-      "T2",
-      "T3",
       "A1",
       "A2",
       "A3",
@@ -30,10 +27,14 @@
       "E2"
     ],
     "blocked": [],
-    "done": []
+    "done": [
+      "T1",
+      "T2",
+      "T3"
+    ]
   },
   "created_at": "2026-11-04T18:13:25Z",
-  "updated_at": "2026-11-04T18:13:25Z",
+  "updated_at": "2026-11-04T19:42:21Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-opus-5-5"
@@ -49,9 +50,12 @@
     "created_at": "2026-11-04T18:13:25Z"
   },
   "test_first": {
-    "status": "pending",
+    "status": "red",
     "commit": null,
-    "tests": [],
+    "tests": [
+      "jbh-z-assembly/src/test/java/com/jbh/assembly/config/MetricsTagsConfigTest.java",
+      "jbh-z-assembly/src/test/java/com/jbh/assembly/config/ObservabilityConfigPropertiesTest.java"
+    ],
     "approved_at": null
   },
   "tasks": [
@@ -61,14 +65,23 @@
       "module": "platform",
       "depends_on": [],
       "parallel_ok": true,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T19:38:31Z",
+      "completed_at": "2026-11-04T19:39:52Z",
+      "duration_seconds": 81,
+      "notes": "MetricsTagsConfigTest: 4 contract tests with SimpleMeterRegistry; JUnit Assertions (no AssertJ in pom).",
+      "budget": {
+        "five_hour_pct_start": 38,
+        "five_hour_pct_end": 41,
+        "five_hour_pct_delta": 3,
+        "cost_usd_delta": 0.99,
+        "context_pct_end": 16,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave delta for T1+T2+T3 (one serial worker) plus the leader's red check"
+      }
     },
     {
       "id": "T2",
@@ -76,14 +89,23 @@
       "module": "platform",
       "depends_on": [],
       "parallel_ok": true,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T19:38:31Z",
+      "completed_at": "2026-11-04T19:39:52Z",
+      "duration_seconds": 81,
+      "notes": "ObservabilityConfigPropertiesTest: 10 contract tests; reads src/main/resources/application.properties by relative path (surefire cwd = module dir).",
+      "budget": {
+        "five_hour_pct_start": 38,
+        "five_hour_pct_end": 41,
+        "five_hour_pct_delta": 3,
+        "cost_usd_delta": 0.99,
+        "context_pct_end": 16,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave delta for T1+T2+T3 (one serial worker) plus the leader's red check"
+      }
     },
     {
       "id": "T3",
@@ -91,14 +113,23 @@
       "module": "platform",
       "depends_on": [],
       "parallel_ok": true,
-      "status": "pending",
-      "agent": null,
-      "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
-      "budget": null
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T19:38:31Z",
+      "completed_at": "2026-11-04T19:39:52Z",
+      "duration_seconds": 81,
+      "notes": "Skeleton MetricsTagsConfig throws not implemented; quarkus-micrometer-registry-prometheus added; requires micrometer.core (Automatic-Module-Name from micrometer-core 1.17.1 jar).",
+      "budget": {
+        "five_hour_pct_start": 38,
+        "five_hour_pct_end": 41,
+        "five_hour_pct_delta": 3,
+        "cost_usd_delta": 0.99,
+        "context_pct_end": 16,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave delta for T1+T2+T3 (one serial worker) plus the leader's red check"
+      }
     },
     {
       "id": "A1",
@@ -533,6 +564,24 @@
       "decision": "Concurrency check: no race risk found in any task",
       "why": "Stateless telemetry config, final fields, immutable Context copy; no shared business data",
       "covered_by": null
+    },
+    {
+      "id": "D14",
+      "at": "2026-11-04T19:42:21Z",
+      "scope": "task:T1",
+      "made_by": "leader",
+      "decision": "Task timestamps from the leader bracket, not the worker report",
+      "why": "Worker reported placeholder times 00:00:00Z; dispatch and return times are known exactly",
+      "covered_by": null
+    },
+    {
+      "id": "D15",
+      "at": "2026-11-04T19:42:21Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "Red check accepted with 2 old errors in DeleteMovementUseCaseTest",
+      "why": "Pre-existing date bug: YearMonth.now() plus day counter makes future dates on Nov 4; module untouched by this change; not fixed as a side effect, raised to the user",
+      "covered_by": null
     }
   ],
   "events": [
@@ -555,6 +604,21 @@
       "at": "2026-11-04T18:13:25Z",
       "agent": "leader",
       "event": "skill drift: SKILL.md Step 3b says scope 'concurrency', check-progress.py rejects it; used scope 'change'"
+    },
+    {
+      "at": "2026-11-04T19:38:31Z",
+      "agent": "leader",
+      "event": "resume: Step 4a; dispatched worker 'platform' (blueprint mode, sonnet) for wave 0 (T1, T2, T3); budget start 5h 38%, ctx 14%, cost 0.858"
+    },
+    {
+      "at": "2026-11-04T19:39:52Z",
+      "agent": "leader",
+      "event": "wave 0 returned; worker report OK (doc pack named, D4/D5 compliance)"
+    },
+    {
+      "at": "2026-11-04T19:42:21Z",
+      "agent": "leader",
+      "event": "red check by the leader (assistantRunsTests): mvn clean verify -fae -Dmaven.test.failure.ignore=true, exit 1. Compiles. 14/14 new tests fail as expected (4 not implemented, 10 missing keys). Old: all pass except DeleteMovementUseCaseTest 2 errors (pre-existing, date-dependent). PMD: 2 UnusedFormalParameter on the skeleton, fixed by A3."
     }
   ]
 }

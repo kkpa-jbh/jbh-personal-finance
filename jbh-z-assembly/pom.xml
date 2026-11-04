@@ -71,6 +71,11 @@
       <artifactId>quarkus-rest-jackson</artifactId>
     </dependency>
 
+    <!-- Metrics: Micrometer with the Prometheus registry (/q/metrics) -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
+    </dependency>
 
     <!-- Infrastructure Modules -->
     <!-- FIXED: Remove explicit version, use dependency management -->
