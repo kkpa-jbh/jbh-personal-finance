@@ -296,7 +296,7 @@ public class ProductDomain {
       } catch (final BusinessException e) {
         // TODO: known bug, root cause not found. The calculation fails for some products (seen
         // with the "NU" test closing balance). We keep the old rate and log the error.
-        LOG.error("Error in calculating net Growth Rate {}", movementAmount, e);
+        LOG.error("Error in calculating net Growth Rate", e);
       }
     }
   }

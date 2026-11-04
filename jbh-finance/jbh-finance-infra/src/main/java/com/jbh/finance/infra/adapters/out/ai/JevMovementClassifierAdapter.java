@@ -13,6 +13,7 @@ import com.jbh.finance.application.feature.statement.ports.output.MovementClassi
 import com.jbh.finance.infra.adapters.exceptions.FinanceInfraBusinessExceptionType;
 import com.jbh.finance.infra.adapters.out.ai.llmcompare.JevTrace;
 import com.jbh.finance.infra.config.StatementImportConfig;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
@@ -78,6 +79,7 @@ public class JevMovementClassifierAdapter implements MovementClassifier {
   @Override
   // The cause is dropped on purpose: it may carry parts of the request or the answer.
   @SuppressWarnings("PMD.PreserveStackTrace")
+  @WithSpan("ai.jev.classify")
   public List<ClassificationAnswerDTO> classify(final List<ClassificationQuestionDTO> questions)
       throws BusinessException {
     final String apiKey =

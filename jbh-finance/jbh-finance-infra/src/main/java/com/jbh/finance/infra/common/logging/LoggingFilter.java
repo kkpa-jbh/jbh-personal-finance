@@ -45,10 +45,9 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
     requestContext.setProperty(START_TIME_PROPERTY, System.currentTimeMillis());
 
     logger.info(
-        "Incoming request: {} {} from IP: {}",
+        "Incoming request: {} {}",
         sanitize(requestContext.getMethod()),
-        sanitize(requestContext.getUriInfo().getRequestUri().getPath()),
-        sanitize(getClientIP(requestContext)));
+        sanitize(requestContext.getUriInfo().getRequestUri().getPath()));
   }
 
   private String extractTrackingId(final ContainerRequestContext request) {
@@ -59,22 +58,6 @@ public class LoggingFilter implements ContainerRequestFilter, ContainerResponseF
   private String extractRequestId(final ContainerRequestContext request) {
     final String requestId = request.getHeaderString(REQUEST_ID_HEADER);
     return requestId != null ? requestId : UUID.randomUUID().toString();
-  }
-
-  private String getClientIP(final ContainerRequestContext request) {
-    final String xForwardedFor = request.getHeaderString("X-Forwarded-For");
-    if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
-      return xForwardedFor.split(",")[0].trim();
-    }
-
-    final String xRealIP = request.getHeaderString("X-Real-IP");
-    if (xRealIP != null && !xRealIP.isEmpty()) {
-      return xRealIP;
-    }
-
-    // In Quarkus, we can't easily get the remote address from ContainerRequestContext
-    // This would need to be done differently or use Vert.x context
-    return "unknown";
   }
 
   @Override

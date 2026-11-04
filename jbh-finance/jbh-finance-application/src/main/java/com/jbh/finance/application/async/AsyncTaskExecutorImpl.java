@@ -60,7 +60,7 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
     }
 
     final CompletableFuture<T> future = new CompletableFuture<>();
-    LOG.info("[START] task: {}", asyncTask);
+    LOG.info("[START] task: {}", asyncTask.type());
     final Instant start = Instant.now();
     executorService.submit(
         () -> {
@@ -68,7 +68,7 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
             final T result = task.call();
             future.complete(result);
             final long durationMs = Duration.between(start, Instant.now()).toMillis();
-            LOG.info("[COMPLETED] task {} completed in {} ms", asyncTask, durationMs);
+            LOG.info("[COMPLETED] task {} completed in {} ms", asyncTask.type(), durationMs);
           } catch (final InterruptedException exception) {
             Thread.currentThread().interrupt();
             LOG.error("Task was interrupted: {}", asyncTask.type(), exception);
@@ -125,9 +125,8 @@ public class AsyncTaskExecutorImpl implements AsyncTaskExecutor {
   // TODO: this only logs the task. There is no real DLQ yet, so a failed task cannot be retried.
   private void registerToDLQ(final AsyncTask asyncTask, final Throwable throwable) {
     LOG.warn(
-        "Registering async task {}-{} to DLQ {}",
+        "Registering async task {} to DLQ {}",
         asyncTask.type(),
-        asyncTask.metadata(),
         throwable.getMessage());
   }
 }

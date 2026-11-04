@@ -38,8 +38,7 @@ public class DeleteProductInputPort implements DeleteProductUseCase {
     productsService.deleteProduct(productDTO.id());
 
     LOG.info(
-        "Product '{}' (id: {}) soft deleted successfully for user {}",
-        productDTO.name(),
+        "Product (id: {}) soft deleted successfully for user {}",
         productDTO.id().value(),
         command.userId());
   }

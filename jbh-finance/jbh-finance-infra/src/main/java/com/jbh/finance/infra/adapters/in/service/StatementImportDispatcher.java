@@ -1,6 +1,7 @@
 package com.jbh.finance.infra.adapters.in.service;
 
 import com.jbh.finance.application.feature.statement.commands.RunStatementImportCommand;
+import io.opentelemetry.context.Context;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.concurrent.ExecutorService;
@@ -31,7 +32,7 @@ public class StatementImportDispatcher {
    * @param command the import id, user, product and the unlocked PDF
    */
   public void dispatch(final RunStatementImportCommand command) {
-    executor.submit(() -> runner.run(command));
+    executor.submit(Context.current().wrap(() -> runner.run(command)));
     LOG.info(LOG_PREFIX + " Started in the background");
   }
 
