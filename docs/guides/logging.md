@@ -481,6 +481,12 @@ Every metric has the tags `service=jbh-personal-finance` and `env=<profile>`. HT
 template (`/jbh-api/products/{productId}`), so ids never become labels. The gateway routes only
 `/jbh-api/**`, so `/q/metrics` is not public. Alloy scrapes it on the private network.
 
+**Circuit breaker of the IAM calls.** `jbh-gateway-client` has a circuit breaker around `findUserId` and
+`findUserGroup`. Both `GatewayClientBuilder` classes pass the `MeterRegistry`, so `/q/metrics` also has
+`resilience4j_circuitbreaker_*` with `name=JBH_FINANCE_API.User` (finance) and `name=JBH_PREFERENCES_API.User`
+(preferences). While the breaker is open, the call fails with error code `CIRCUIT_OPEN`.
+Rules and metric list: `jbh-gateway-client/README.md`, "Circuit breaker". Dashboard: `jbh-deploy/observability/grafana/`.
+
 ## Traces
 
 OpenTelemetry traces are off until `OTEL_SDK_DISABLED=false`. The four AI calls have their own spans:
