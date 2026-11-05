@@ -323,6 +323,17 @@ MDC entries (`trackingId`, `userId`, `productId`, `transactionId`, `module`, and
 `traceId`, `spanId`, `sampled`) are top-level fields because of `quarkus.log.console.json.mdc.flat-fields=true`.
 `traceId`, `spanId` and `sampled` appear only while the SDK is on and a span is active.
 
+In dev the console is plain text. Each line prints `traceId=... spanId=...` (empty while the SDK is off):
+
+```
+2026-11-04 19:30:12,345 INFO  traceId=6273cd5f1fb6002a22538d67e9853981 spanId=a1b2c3d4e5f60718 [c.j.f.i.a.i.r.m.MovementRestAdapter] (executor-thread-1) Adding movement to Product 0b6f1c2e-5d4a-4f3b-9c1d-2e7a8b9c0d1e
+```
+
+Copy the `traceId` into Grafana → Explore → Tempo → TraceQL to open the request.
+In dev, `%dev.quarkus.otel.logs.enabled=true` also sends the logs to the local LGTM stack (see below). Query them in
+Explore → Loki with `{service_name="jbh-personal-finance"}`. Each record carries `trace_id`, with a link to Tempo.
+Prod does not export logs with OpenTelemetry: it writes JSON to stdout, and Alloy collects it.
+
 ## Privacy Rule
 
 Never put these in a log line (any level):
@@ -415,13 +426,23 @@ error("Failed to process transaction");
 | Variable | Default | Effect |
 |----------|---------|--------|
 | `OTEL_SDK_DISABLED` | `true` | Set to `false` to turn traces on. While `true`, nothing is exported and no exporter error appears. |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:4317` | OTLP gRPC endpoint of the collector (`http://jbh-alloy:4317` in prod). |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:4317` | Prod profile only. OTLP gRPC endpoint of the collector (`http://jbh-alloy:4317` in prod). Dev always uses `http://localhost:4317` (the local LGTM stack). |
 | `OTEL_TRACES_SAMPLER` | `parentbased_traceidratio` | Sampler. It honors the parent decision. |
 | `OTEL_TRACES_SAMPLER_ARG` | `1.0` | Sampling ratio. `1.0` samples every trace. |
-| `QUARKUS_OBSERVABILITY_ENABLED` | `false` | Set to `true` in dev to start the local Grafana LGTM stack (needs Docker). |
 
 To see traces in prod, set both `OTEL_SDK_DISABLED=false` and `OTEL_EXPORTER_OTLP_ENDPOINT`.
-For the local LGTM stack, set `QUARKUS_OBSERVABILITY_ENABLED=true` and `OTEL_SDK_DISABLED=false`.
+In dev, traces and logs go to `http://localhost:4317` by default (`OTEL_SDK_DISABLED` defaults to `false` in dev).
+
+### Local LGTM stack (Grafana, Tempo, Loki, Prometheus)
+
+It runs in the `kkpa-docker-lab` repo (`~/cpena/sw/github/kkpa-docker-lab`), shared by all projects:
+
+```bash
+make lgtm up      # Grafana on http://localhost:3000 (admin / admin), data kept in a Docker volume
+```
+
+Its Prometheus pulls `host.docker.internal:7777/q/metrics`. While the stack is down, dev mode still
+starts, and the console shows OTLP export warnings. To silence them, start dev with `OTEL_SDK_DISABLED=true`.
 
 ### Application Properties
 
@@ -437,14 +458,14 @@ quarkus.log.console.json.enabled=false
 quarkus.log.console.json.mdc.flat-fields=true
 # Traces
 quarkus.otel.sdk.disabled=${OTEL_SDK_DISABLED:true}
-quarkus.otel.exporter.otlp.endpoint=${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4317}
+%dev.quarkus.otel.sdk.disabled=${OTEL_SDK_DISABLED:false}
+%prod.quarkus.otel.exporter.otlp.endpoint=${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4317}
+%dev.quarkus.otel.exporter.otlp.endpoint=http://localhost:4317
 quarkus.otel.traces.sampler=${OTEL_TRACES_SAMPLER:parentbased_traceidratio}
 quarkus.otel.traces.sampler.arg=${OTEL_TRACES_SAMPLER_ARG:1.0}
 # Metrics
 quarkus.datasource.metrics.enabled=true
 jbh.metrics.env=prod
-# Local LGTM stack (dev only)
-quarkus.observability.enabled=false
 ```
 
 ### Profile-Based Configuration

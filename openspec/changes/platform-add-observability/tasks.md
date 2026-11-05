@@ -51,4 +51,13 @@ the sentence. Add no log line. Keep variables `final`. Remove any import that be
 - [x] E1 Leader runs `mvn clean verify` (tests, PMD, SpotBugs). Compile errors from JPMS `requires` or a wrong key are fixed by the owner of the group.
 - [ ] E2 Run integration checks I1 to I9 of design.md. I2, I5 and I6 need a collector or Docker. Report any miss.
 
+## Group F - Fix found in local Grafana (leader). Depends on: E1
+
+- [x] F1 Endpoint only in `%prod`: `%prod.quarkus.otel.exporter.otlp.endpoint=...` in `ASM/src/main/resources/application.properties`, so the LGTM Dev Service sets it in dev. Test `shouldReadEndpointFromEnvWhenConfigured` reads the `%prod` key (user decision D22); new test `shouldLeaveEndpointUnsetOutsideProdSoDevServiceCanSetIt`. Update `docs/guides/logging.md` and design.md D3.
+- [x] F2 Dev console format with `traceId=%X{traceId} spanId=%X{spanId}`, and `%dev.quarkus.otel.logs.enabled=true` (user decision D23). Two new tests in `ObservabilityConfigPropertiesTest`. Update `docs/guides/logging.md` and design.md D3.
+- [x] F3 Move the local stack to `kkpa-docker-lab` (user decision D24): remove `quarkus-observability-devservices-lgtm` and `quarkus.observability.enabled`; dev exports by default to `http://localhost:4317`. Replace test `shouldKeepLgtmOffWhenNoEnvVar` with `shouldNotConfigureLgtmDevService`; add `shouldExportByDefaultInDevToLocalStack`. Update spec, design.md D8, `docs/guides/logging.md`.
+- Acceptance: suite passes; with `make lgtm up` in kkpa-docker-lab, dev shows traces, logs and metrics in Grafana on port 3000; dev starts without Docker.
+- [x] F4 Statement text source default `pdfbox` instead of `azure` (user decision D26; the Azure subscription is disabled): `jbh-finance-infra` `application.properties`, `.env.example`. Azure stays available with `STATEMENT_TEXT_SOURCE=azure`. jbh-deploy commit: compose files, env examples, Fargate default, README.
+- Acceptance: suite passes; a dev import with no `STATEMENT_TEXT_SOURCE` reads the PDF with pdfbox and makes no Azure call.
+
 Size estimate: 33 files, ~520 changed lines (tests and docs included)

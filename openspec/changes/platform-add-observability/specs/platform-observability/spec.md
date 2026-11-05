@@ -100,19 +100,20 @@ No INFO, WARN or ERROR log line SHALL write amounts, balances, statement or OCR 
 - WHEN the INFO and ERROR lines are read
 - THEN none holds the address, the subject or an exception message that can hold the address
 
-### Requirement: Local telemetry stack is opt-in
-The service SHALL start in dev mode without Docker. The local LGTM stack SHALL start only when an env var turns it on.
+### Requirement: Local telemetry stack is shared and external
+The service SHALL start in dev mode without Docker. The service SHALL NOT start a telemetry container itself.
+In dev it SHALL send traces and logs to the shared local stack at `localhost:4317` by default.
 
-#### Scenario: Default dev start
-- GIVEN no observability env var and no Docker
+#### Scenario: Default dev start without the stack
+- GIVEN no observability env var and the local stack is not running
 - WHEN the service starts with `quarkus:dev`
 - THEN it starts as before
-- AND no LGTM container is started
+- AND no telemetry container is started
 
-#### Scenario: LGTM on
-- GIVEN `QUARKUS_OBSERVABILITY_ENABLED=true` and `OTEL_SDK_DISABLED=false` and Docker
-- WHEN a statement import runs
-- THEN its traces and metrics can be seen in the local Grafana
+#### Scenario: Shared stack running
+- GIVEN the local stack runs (`make lgtm up` in kkpa-docker-lab)
+- WHEN a statement import runs in dev
+- THEN its traces, logs and metrics can be seen in the local Grafana on port 3000
 
 ### Requirement: Existing behavior is unchanged
 The change SHALL NOT change the REST API, the Consul registration, the health endpoints or the existing tests.

@@ -36,7 +36,7 @@ Dependency `io.quarkus:quarkus-opentelemetry` in `jbh-z-assembly`.
 ```
 quarkus.application.name=jbh-personal-finance
 quarkus.otel.sdk.disabled=${OTEL_SDK_DISABLED:true}
-quarkus.otel.exporter.otlp.endpoint=${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4317}
+%prod.quarkus.otel.exporter.otlp.endpoint=${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4317}
 quarkus.otel.traces.sampler=${OTEL_TRACES_SAMPLER:parentbased_traceidratio}
 quarkus.otel.traces.sampler.arg=${OTEL_TRACES_SAMPLER_ARG:1.0}
 ```
@@ -52,6 +52,12 @@ quarkus.otel.traces.sampler.arg=${OTEL_TRACES_SAMPLER_ARG:1.0}
 - `traceId`, `spanId` and `sampled` are put in the MDC by the extension, so they appear in the JSON
   logs with D2. When the SDK is disabled there are no spans, so these fields are absent. This is expected.
 - `/q/*` URIs are not traced (default `quarkus.otel.traces.suppress-non-application-uris=true`).
+- The endpoint key is `%prod` only (fix F1, user decision D22). The LGTM Dev Service sets the endpoint
+  and the protocol in dev, but an explicit key in `application.properties` wins over it. With a base
+  key, dev sent traces to `localhost:4317`, where nothing listens, and Tempo stayed empty.
+- Dev console format prints `traceId` and `spanId`, and dev exports logs with OpenTelemetry
+  (`%dev.quarkus.otel.logs.enabled=true`, build time, tech preview) so Loki in the LGTM stack links
+  logs to traces (fix F2, user decision D23). Prod keeps JSON on stdout for Alloy; no OTel log export.
 - Exporter protocol: gRPC on 4317 (the default). Alloy receives OTLP on `jbh-private`.
 - Trace attributes: the HTTP server span has the raw `url.path`. Span attributes are not metric labels, so
   the cardinality rule does not apply. The query string is not recorded by the extension.
@@ -139,6 +145,12 @@ thread today. That is an existing behavior and stays out of scope.
 User-confirmed: the extra file is accepted. It is needed for acceptance G5.
 
 ### D8. Local dev with LGTM, off by default
+**Replaced by F3 (user decision D24):** the LGTM Dev Service is removed. The stack runs in
+`kkpa-docker-lab` (`lgtm/`, fixed ports 3000/4317/4318/9090, data in a Docker volume, Prometheus job for
+`host.docker.internal:7777`). Dev exports by default: `%dev.quarkus.otel.sdk.disabled=${OTEL_SDK_DISABLED:false}`
+and `%dev.quarkus.otel.exporter.otlp.endpoint=http://localhost:4317`. Dev without Docker still starts; the
+console shows OTLP export warnings. The text below is the original decision.
+
 Dependency `io.quarkus:quarkus-observability-devservices-lgtm`, scope `provided` (dev and test only;
 not in the prod package), in `jbh-z-assembly`.
 ```
@@ -260,7 +272,12 @@ modules also ship an `application.properties`). It guards the static acceptance 
 | `shouldWriteMdcAsTopLevelFieldsWhenJsonIsOn` | `quarkus.log.console.json.mdc.flat-fields` = `true` |
 | `shouldDisableOtelSdkByDefaultWhenNoEnvVar` | `quarkus.otel.sdk.disabled` = `${OTEL_SDK_DISABLED:true}` |
 | `shouldSampleAllByDefaultWhenNoSamplerEnvVar` | `quarkus.otel.traces.sampler.arg` = `${OTEL_TRACES_SAMPLER_ARG:1.0}` |
-| `shouldReadEndpointFromEnvWhenConfigured` | `quarkus.otel.exporter.otlp.endpoint` starts with `${OTEL_EXPORTER_OTLP_ENDPOINT:` |
+| `shouldReadEndpointFromEnvWhenConfigured` | `%prod.quarkus.otel.exporter.otlp.endpoint` starts with `${OTEL_EXPORTER_OTLP_ENDPOINT:` (key changed by F1, D22) |
+| `shouldLeaveBaseEndpointUnset` | `quarkus.otel.exporter.otlp.endpoint` is absent (added by F1, renamed by F3) |
+| `shouldNotConfigureLgtmDevService` | `quarkus.observability.enabled` is absent (replaces `shouldKeepLgtmOffWhenNoEnvVar`, F3, D24) |
+| `shouldExportByDefaultInDevToLocalStack` | `%dev.quarkus.otel.sdk.disabled` is `${OTEL_SDK_DISABLED:false}`; `%dev` endpoint is `http://localhost:4317` (added by F3) |
+| `shouldPrintTraceAndSpanIdsInDevConsole` | `%dev.quarkus.log.console.format` contains `traceId=%X{traceId}` and `spanId=%X{spanId}` (added by F2) |
+| `shouldExportLogsToOtelOnlyInDev` | `%dev.quarkus.otel.logs.enabled` is `true`; base and `%prod` keys absent (added by F2) |
 | `shouldKeepLgtmOffWhenNoEnvVar` | `quarkus.observability.enabled` = `false` |
 | `shouldEnableDatasourceMetrics` | `quarkus.datasource.metrics.enabled` = `true` |
 | `shouldSetEnvPerProfileWhenTagging` | `jbh.metrics.env` = `prod`; `%dev.jbh.metrics.env` = `dev`; `%test.jbh.metrics.env` = `test` |

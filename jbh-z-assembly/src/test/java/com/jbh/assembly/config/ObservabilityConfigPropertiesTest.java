@@ -3,6 +3,7 @@ package com.jbh.assembly.config;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -69,15 +70,27 @@ class ObservabilityConfigPropertiesTest {
 
   @Test
   void shouldReadEndpointFromEnvWhenConfigured() {
-    final String endpoint = PROPS.getProperty("quarkus.otel.exporter.otlp.endpoint");
+    final String endpoint = PROPS.getProperty("%prod.quarkus.otel.exporter.otlp.endpoint");
 
     assertNotNull(endpoint);
     assertTrue(endpoint.startsWith("${OTEL_EXPORTER_OTLP_ENDPOINT:"));
   }
 
   @Test
-  void shouldKeepLgtmOffWhenNoEnvVar() {
-    assertEquals("false", PROPS.getProperty("quarkus.observability.enabled"));
+  void shouldLeaveBaseEndpointUnset() {
+    assertNull(PROPS.getProperty("quarkus.otel.exporter.otlp.endpoint"));
+  }
+
+  @Test
+  void shouldNotConfigureLgtmDevService() {
+    assertNull(PROPS.getProperty("quarkus.observability.enabled"));
+  }
+
+  @Test
+  void shouldExportByDefaultInDevToLocalStack() {
+    assertEquals("${OTEL_SDK_DISABLED:false}", PROPS.getProperty("%dev.quarkus.otel.sdk.disabled"));
+    assertEquals(
+        "http://localhost:4317", PROPS.getProperty("%dev.quarkus.otel.exporter.otlp.endpoint"));
   }
 
   @Test
@@ -90,5 +103,21 @@ class ObservabilityConfigPropertiesTest {
     assertEquals("prod", PROPS.getProperty(ENV_KEY));
     assertEquals("dev", PROPS.getProperty("%dev." + ENV_KEY));
     assertEquals("test", PROPS.getProperty("%test." + ENV_KEY));
+  }
+
+  @Test
+  void shouldPrintTraceAndSpanIdsInDevConsole() {
+    final String format = PROPS.getProperty("%dev.quarkus.log.console.format");
+
+    assertNotNull(format);
+    assertTrue(format.contains("traceId=%X{traceId}"));
+    assertTrue(format.contains("spanId=%X{spanId}"));
+  }
+
+  @Test
+  void shouldExportLogsToOtelOnlyInDev() {
+    assertEquals("true", PROPS.getProperty("%dev.quarkus.otel.logs.enabled"));
+    assertNull(PROPS.getProperty("quarkus.otel.logs.enabled"));
+    assertNull(PROPS.getProperty("%prod.quarkus.otel.logs.enabled"));
   }
 }

@@ -89,13 +89,6 @@
       <artifactId>quarkus-opentelemetry</artifactId>
     </dependency>
 
-    <!-- Local Grafana LGTM stack: dev and test only, never in the prod package -->
-    <dependency>
-      <groupId>io.quarkus</groupId>
-      <artifactId>quarkus-observability-devservices-lgtm</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
     <!-- Infrastructure Modules -->
     <!-- FIXED: Remove explicit version, use dependency management -->
     <dependency>

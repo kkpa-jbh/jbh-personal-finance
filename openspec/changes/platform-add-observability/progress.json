@@ -5,10 +5,14 @@
   "module": "platform",
   "roadmap": null,
   "request": "Source ticket: JBH-60 — https://linear.app/kkpa/issue/JBH-60/jbh-personal-finance-json-logs-opentelemetry-traces-and-metrics-safe\nProject: JBH-Platform   Priority: Medium\n\n## BASE BRANCH (user requirement, mandatory)\nCreate the new CH<N> feature branch FROM the existing feature branch `ft/CH3-JBH-73-jbh-finance-save-statement-movements` (the current branch in jbh-personal-finance), NOT from `main`.\n\n## jbh-personal-finance: JSON logs, OpenTelemetry traces and metrics, safe log content\n\nPart 5 of JBH-55 (https://linear.app/kkpa/issue/JBH-55/observability-centralized-logs-metrics-traces-and-alerts-grafana-cloud). Needs part 1 (Alloy) to see results, and part 2 (`jbh-gateway-client`) for the `findUserId` trace.\n\nStack: Quarkus 3.33.4.1 modular monolith, Maven (root `pom.xml`, checked on 2026-11-04). Today only `quarkus-smallrye-health` (`jbh-z-assembly/pom.xml`).\n\n## Finding: DEBUG logs in production\n\n`jbh-z-assembly/src/main/resources/application.properties` line 15:\n\n```\nquarkus.log.category.\"com.jbh.**\".level=DEBUG\n```\n\nIt has no `%dev` prefix, and `jbh-deploy` sets no override. So production logs all `com.jbh` code at DEBUG. Once logs go to Grafana Cloud, this costs quota and may send bank statement data out of the VPS. Fix it here: `%dev` keeps DEBUG, `%prod` uses INFO.\n\n## What to do\n\n1. **Log level** — fix the finding above.\n2. **JSON logs in** `prod`**.** Add `quarkus-logging-json` and turn on JSON console output only for `%prod`. Check the exact property name for 3.33. Keep the MDC fields that exist today (`trackingId`, `userId`, `productId`, `transactionId`, `module`).\n3. **Traces.** Add `quarkus-opentelemetry`. Endpoint (`quarkus.otel.exporter.otlp.endpoint`) from an env var pointing to `jbh-alloy`. Sampling 100% at start, env-overridable. Check that `traceId` and `spanId` show in the JSON logs.\n4. **Metrics.** See the open question. Common tags `service=jbh-personal-finance`, `env=prod`.\n5. **Outgoing calls** to Azure Document Intelligence, OpenRouter / Gemini and Jev: they should show as child spans with duration and status. They are the slowest part of the statement import.\n6. **Use the trace-aware** `jbh-gateway-client` (part 2) for `findUserId`. Note: the AI adapters (point 5) also use `java.net.http.HttpClient`, so Quarkus does not trace them by itself. They need manual spans.\n7. `jbh-deploy/compose.yaml`**:** add the new env vars to `jbh-personal-finance`.\n\n## Open question for the proposal\n\n* **Which metrics path?** In Quarkus 3.18, OpenTelemetry metrics (`quarkus.otel.metrics.enabled`) were tech preview and a build-time flag. The project is now on 3.33: check their status again. Options: (a) OTel metrics over OTLP, same path as traces; (b) Micrometer with a Prometheus registry, and Alloy scrapes `/q/metrics` on `jbh-private`. Choose one and write why.\n\n## Catch\n\n* **Log content (most important).** Logs leave the VPS. Never log: statement files, OCR text, LLM prompts or answers, IBAN or account numbers, transaction lists, email addresses, API keys. Check the statement import and notification code paths.\n* `jbh-finance-infra/src/main/resources/logback-spring.xml` looks unused (Quarkus uses JBoss LogManager). Confirm it, and do not rely on it.\n* **Metric labels:** no user id, product id or raw path. `userId` stays in logs only.\n* Locally, export is off unless the env var is set.\n* Do not build. The user builds.\n\n## Done when\n\n- [ ] Production log level for `com.jbh` is INFO.\n- [ ] Finance logs are JSON on the VPS and show `traceId`.\n- [ ] A statement import shows as one trace, with the OCR and LLM calls as child spans.\n- [ ] JVM, HTTP and DB pool metrics for `service=jbh-personal-finance` show in Grafana Cloud.\n- [ ] A search in Grafana Cloud for one test IBAN or statement text finds nothing.\n\n## Interview agenda (for pipeline Step 2)\n- MANDATORY — run `grill-me` for ticket comprehension before writing any artifact: scope, what is out of scope, acceptance condition, behaviour that must not change. This is NOT the performance/design grill and does not depend on a design gate firing.\n- Metrics path: (a) OTel metrics over OTLP, or (b) Micrometer + Prometheus registry scraped by Alloy on `/q/metrics`? Check the OTel metrics status in Quarkus 3.33 first.\n- Point 6 depends on JBH-57 (trace-aware `jbh-gateway-client`), not done yet. In scope now, or defer to after JBH-57 is published?\n- Point 7 changes `jbh-deploy/compose.yaml` (another repo). Do it in this run as a separate jbh-deploy commit, or leave it to JBH-56/JBH-61?\n- Point 5: how to make manual spans for the AI adapters (they use `java.net.http.HttpClient`)? For example `@WithSpan` / `opentelemetry-api` in the infra adapters only, keeping application/domain free of OTel.\n- Local dev: also add `quarkus-observability-devservices-lgtm` (scope `provided`) so Grafana runs locally in `quarkus:dev`? Not in the ticket; confirm in or out.\n- Ticket requests /grill-me — no skill directive in the ticket body.\n\n## Pipeline scope for this run\nHALT AFTER STEP 4. Produce the OpenSpec artifacts (proposal / design / specs / tasks) and progress.json, then stop and report. Do NOT dispatch implementation workers (Step 5+), do NOT run the reviewer, do NOT archive. The user reviews the proposal before implementation. Record the source ticket ID and URL in the proposal header so the change is traceable back to Linear.\n",
-  "status": "in-review",
+  "status": "in-progress",
   "rollup": {
     "current": [
-      "E2"
+      "E2",
+      "F1",
+      "F2",
+      "F3",
+      "F4"
     ],
     "pending": [],
     "blocked": [],
@@ -34,7 +38,7 @@
     ]
   },
   "created_at": "2026-11-04T18:13:25Z",
-  "updated_at": "2026-11-04T21:41:00Z",
+  "updated_at": "2026-11-05T02:08:50Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-opus-5-5"
@@ -565,6 +569,74 @@
       "duration_seconds": null,
       "notes": "I9 grep audit run by the leader: pass (hits are ids, periods, dates, message words only). I1-I8 need the jar, Postgres, Docker or a collector: the leader starts no services, so they wait for the user.",
       "budget": null
+    },
+    {
+      "id": "F1",
+      "title": "Endpoint only in %prod so the LGTM Dev Service sets it in dev",
+      "module": "platform",
+      "depends_on": [
+        "E1"
+      ],
+      "parallel_ok": false,
+      "status": "awaiting-user-verification",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-11-05T00:02:13Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "Endpoint key now %prod only; LGTM Dev Service sets it in dev. Test reads %prod key (D22); new test asserts base key absent. logging.md and design.md D3 updated. Suite not run yet: mvn clean would break the user's running dev mode.",
+      "budget": null
+    },
+    {
+      "id": "F2",
+      "title": "Dev console prints traceId/spanId; dev exports logs to LGTM Loki",
+      "module": "platform",
+      "depends_on": [
+        "F1"
+      ],
+      "parallel_ok": false,
+      "status": "awaiting-user-verification",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-11-05T01:02:02Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "%dev console format with traceId/spanId; %dev.quarkus.otel.logs.enabled=true (build time, tech preview). 2 new config tests; approved tests unchanged. logging.md and design.md D3 updated. Suite pending.",
+      "budget": null
+    },
+    {
+      "id": "F3",
+      "title": "Move local LGTM stack to kkpa-docker-lab; dev exports by default",
+      "module": "platform",
+      "depends_on": [
+        "F2"
+      ],
+      "parallel_ok": false,
+      "status": "awaiting-user-verification",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-11-05T01:29:39Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "Removed devservices-lgtm and quarkus.observability.enabled; %dev SDK on and endpoint localhost:4317. Test replaced (D24) + 1 new. Spec, D8, logging.md updated. Lab side: kkpa-docker-lab lgtm/ (compose, prometheus.yaml, README).",
+      "budget": null
+    },
+    {
+      "id": "F4",
+      "title": "Statement text source default pdfbox (Azure via STATEMENT_TEXT_SOURCE=azure)",
+      "module": "platform",
+      "depends_on": [
+        "F3"
+      ],
+      "parallel_ok": false,
+      "status": "awaiting-user-verification",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-11-05T02:08:50Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "Default azure -> pdfbox in jbh-finance-infra application.properties and .env.example. jbh-deploy: compose.yaml, compose.local.yaml, .env.example, .env.local.example, Fargate default, README AI line. Root cause of import failure: disabled Azure subscription (401).",
+      "budget": null
     }
   ],
   "review": {
@@ -798,6 +870,60 @@
       "decision": "Reject R1 (named datasource metrics keys)",
       "why": "Quarkus docs: quarkus.datasource.metrics.enabled is global and covers finance, preferences, notifications; suggested key does not exist",
       "covered_by": null
+    },
+    {
+      "id": "D21",
+      "at": "2026-11-04T21:44:23Z",
+      "scope": "task:E2",
+      "made_by": "user",
+      "decision": "Close E2 with I1, I3, I4, I7, I8 (jar/dev only); I2, I5, I6 move to JBH-56/JBH-61",
+      "why": "I2, I5, I6 need Docker LGTM or an OTLP collector; Alloy and Grafana Cloud come with JBH-56/JBH-61",
+      "covered_by": "design.md D8 / decision D8"
+    },
+    {
+      "id": "D22",
+      "at": "2026-11-05T00:02:13Z",
+      "scope": "task:F1",
+      "made_by": "user",
+      "decision": "Fix OTLP endpoint so traces reach Grafana in dev (LGTM) and prod; allow test shouldReadEndpointFromEnvWhenConfigured to read the %prod key",
+      "why": "User: 'I'd like to be able to see everything locally and prod. So, traces working on grafana is what i want'",
+      "covered_by": null
+    },
+    {
+      "id": "D23",
+      "at": "2026-11-05T01:02:02Z",
+      "scope": "task:F2",
+      "made_by": "user",
+      "decision": "Add dev console format with traceId/spanId and %dev.quarkus.otel.logs.enabled=true",
+      "why": "User: 'yes please, i want to see traceId spanId for both local prod.' Prod JSON already has them",
+      "covered_by": null
+    },
+    {
+      "id": "D24",
+      "at": "2026-11-05T01:29:39Z",
+      "scope": "task:F3",
+      "made_by": "user",
+      "decision": "Move local LGTM to kkpa-docker-lab; remove Dev Service; replace approved test shouldKeepLgtmOffWhenNoEnvVar; update spec requirement",
+      "why": "User: wants one Grafana, centralized in docker-lab, with fixed port and kept data, not a separate temporary one",
+      "covered_by": null
+    },
+    {
+      "id": "D25",
+      "at": "2026-11-05T01:29:39Z",
+      "scope": "task:F3",
+      "made_by": "user",
+      "decision": "Dev exports traces and logs by default (%dev OTEL_SDK_DISABLED default false)",
+      "why": "User chose on by default: the lab is the normal setup; export warnings accepted while it is down",
+      "covered_by": null
+    },
+    {
+      "id": "D26",
+      "at": "2026-11-05T02:08:50Z",
+      "scope": "task:F4",
+      "made_by": "user",
+      "decision": "Statement text source default pdfbox; Azure OCR only with STATEMENT_TEXT_SOURCE=azure; placed in JBH-60 as F4",
+      "why": "Azure subscription disabled (ReadOnlyDisabledSubscription -> HTTP 401); user chose pdfbox default and F4 placement over a separate change",
+      "covered_by": null
     }
   ],
   "events": [
@@ -910,6 +1036,46 @@
       "at": "2026-11-04T21:41:00Z",
       "agent": "leader",
       "event": "skill conflict: check-progress.py allows reviewer-approved only when all tasks are done, but E2 is awaiting-user-verification (D18) and SKILL.md Step 8 expects such tasks at archive. Also reviewer file says it writes only review.*, schema says it sets change status. Stopped; E2 needs the user's I1-I8 run."
+    },
+    {
+      "at": "2026-11-04T21:44:23Z",
+      "agent": "leader",
+      "event": "E2: user runs I1, I3, I4, I7, I8 (D21); leader waits for the report."
+    },
+    {
+      "at": "2026-11-05T00:02:13Z",
+      "agent": "leader",
+      "event": "user test in local Grafana: Prometheus OK, I4 pass (uri template). Tempo empty: base quarkus.otel.exporter.otlp.endpoint overrides the LGTM Dev Service endpoint, nothing listens on localhost:4317. Defect found after review approval; status back to in-progress; leader fix F1 (D22)."
+    },
+    {
+      "at": "2026-11-05T00:02:50Z",
+      "agent": "leader",
+      "event": "F1 written by the leader (application.properties, ObservabilityConfigPropertiesTest, logging.md, design.md, tasks.md). Suite deferred until the user stops dev mode; user restarts dev with LGTM first to check Tempo (I5)."
+    },
+    {
+      "at": "2026-11-05T00:24:18Z",
+      "agent": "leader",
+      "event": "F1 check (leader, Tempo API on the user's dev run with LGTM): 2 traces from jbh-personal-finance arrive (were 0 before F1). ai.* spans not seen yet: no statement import since restart."
+    },
+    {
+      "at": "2026-11-05T00:52:52Z",
+      "agent": "leader",
+      "event": "I5/I6 partial (leader, Tempo API, user's dev run): 16 traces; import trace 6273cd5f has POST span + async ai.azure.extract-text in same trace (context wrap OK); span ERROR with exception.type BusinessException, no response text. LLM/Jev spans not reached: Azure OCR failed (env/provider issue, adapter only got @WithSpan)."
+    },
+    {
+      "at": "2026-11-05T01:02:02Z",
+      "agent": "leader",
+      "event": "F2 written by the leader (D23): application.properties, ObservabilityConfigPropertiesTest (+2 tests), logging.md, design.md, tasks.md. Suite pending (user's dev mode running)."
+    },
+    {
+      "at": "2026-11-05T01:29:39Z",
+      "agent": "leader",
+      "event": "F3 written by the leader (D24, D25). kkpa-docker-lab: lgtm/compose.yml, prometheus.yaml, README.md, README row; docker compose config OK. Finance: pom, properties, test, logging.md, design D8, spec, tasks. Suite pending."
+    },
+    {
+      "at": "2026-11-05T02:08:50Z",
+      "agent": "leader",
+      "event": "Azure debug: free GET on model info -> HTTP 401; user upload log confirms 'Azure returned HTTP 401'; portal shows ReadOnlyDisabledSubscription. Root cause: disabled Azure subscription, not code. F4 (D26): default text source pdfbox, finance + jbh-deploy."
     }
   ]
 }
