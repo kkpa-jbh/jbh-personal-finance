@@ -209,6 +209,13 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- MeterRegistry bean for GatewayClientBuilder in @QuarkusTest. At runtime it comes from jbh-z-assembly. -->
+    <dependency>
+      <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
+      <groupId>io.quarkus</groupId>
+      <scope>test</scope>
+    </dependency>
+
     <dependency>
       <artifactId>junit-jupiter</artifactId>
       <groupId>org.junit.jupiter</groupId>

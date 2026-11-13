@@ -15,7 +15,6 @@ public class MailerConfigLogger {
   private static final Logger LOG = LoggerFactory.getLogger(MailerConfigLogger.class);
   private static final String NOT_SET = "NOT_SET";
   private static final String TRUE_VALUE = "true";
-  private static final int MIN_EMAIL_PREFIX_LENGTH = 2;
   private static final int MIN_PASSWORD_VISIBLE_LENGTH = 4;
 
   @ConfigProperty(name = "quarkus.mailer.host", defaultValue = NOT_SET)
@@ -53,9 +52,9 @@ public class MailerConfigLogger {
       LOG.info("quarkus.mailer.mock     = {}", mock);
       LOG.info("quarkus.mailer.host     = {}", host);
       LOG.info("quarkus.mailer.port     = {}", port);
-      LOG.info("quarkus.mailer.from     = {}", from);
+      LOG.info("quarkus.mailer.from     = {}", describePresence(from));
       LOG.info("quarkus.mailer.tls      = {}", tls);
-      LOG.info("quarkus.mailer.username = {}", maskEmail(username));
+      LOG.info("quarkus.mailer.username = {}", describePresence(username));
       LOG.info("quarkus.mailer.password = {}", maskPassword(password));
       LOG.info("========================================");
     }
@@ -78,15 +77,11 @@ public class MailerConfigLogger {
     }
   }
 
-  private String maskEmail(final String email) {
-    if (email == null || NOT_SET.equals(email) || email.isEmpty()) {
-      return email;
+  private String describePresence(final String value) {
+    if (value == null || NOT_SET.equals(value) || value.isEmpty()) {
+      return "not set";
     }
-    final int atIndex = email.indexOf('@');
-    if (atIndex <= MIN_EMAIL_PREFIX_LENGTH) {
-      return "***" + email.substring(atIndex);
-    }
-    return email.substring(0, MIN_EMAIL_PREFIX_LENGTH) + "***" + email.substring(atIndex);
+    return "set";
   }
 
   @SuppressWarnings("HARD_CODE_PASSWORD")

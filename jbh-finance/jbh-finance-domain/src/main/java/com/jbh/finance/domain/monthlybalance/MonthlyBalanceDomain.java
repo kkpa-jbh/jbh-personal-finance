@@ -156,7 +156,7 @@ public class MonthlyBalanceDomain {
     // TODO: check if a profit report should change the opening balance of the next month.
     this.openingBalance = withJBHDecimals(inputOpeningBalance);
 
-    LOG.info("Adjusted Opening Balance {} for next period: {}", this.openingBalance, this.period);
+    LOG.info("Adjusted Opening Balance for next period: {}", this.period);
   }
 
   public void assignMovement(final MovementDomain movement) throws BusinessException {

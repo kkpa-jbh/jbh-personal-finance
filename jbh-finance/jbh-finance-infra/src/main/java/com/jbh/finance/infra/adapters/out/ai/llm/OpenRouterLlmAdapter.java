@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.infra.adapters.exceptions.FinanceInfraBusinessExceptionType;
 import com.jbh.finance.infra.config.StatementImportConfig;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import java.io.IOException;
@@ -108,6 +109,7 @@ public class OpenRouterLlmAdapter implements StatementLlm {
   @Override
   // The cause is dropped on purpose: it may carry parts of the request or the answer.
   @SuppressWarnings("PMD.PreserveStackTrace")
+  @WithSpan("ai.openrouter.answer")
   public String answer(final String statementText) throws BusinessException {
     final String apiKey =
         config

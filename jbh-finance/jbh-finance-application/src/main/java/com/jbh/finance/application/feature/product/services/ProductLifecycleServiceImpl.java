@@ -89,11 +89,7 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
     final var accountDomain = findDomainOrThrow(accountId);
     accountDomain.setCurrentBalance(closingBalance);
     accountDomain.setCalculatedNetProfit(calculatedNetProfit);
-    log.info(
-        "Setting {} Net Profit and {} current Balance for productDTO {}",
-        calculatedNetProfit,
-        closingBalance,
-        accountId.value());
+    log.info("Setting Net Profit and current Balance for productDTO {}", accountId.value());
     save(accountDomain);
   }
 
@@ -112,7 +108,7 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
     final var accountDomain = findDomainOrThrow(accountId);
     accountDomain.setCurrentBalance(closingBalance);
 
-    log.info("Setting {} current Balance for productDTO {}", closingBalance, accountId.value());
+    log.info("Setting current Balance for productDTO {}", accountId.value());
     save(accountDomain);
   }
 
@@ -164,7 +160,8 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
     syncAccountDomainBalanceByMovement(
         accountDomain, MovementMapper.toDomain(movement), movementOptions);
 
-    log.info("Account {} was synced by Movement.. {}", accountDomain.getName(), movement);
+    log.info(
+        "Account {} was synced by Movement.. {}", accountDomain.getId().value(), movement.id());
 
     return toDTO(accountDomain);
   }
@@ -194,7 +191,7 @@ public class ProductLifecycleServiceImpl implements ProductLifecycleService {
       try {
         syncAccountDomainBalanceByMovement(accountDomain, movement, movementOptions);
       } catch (final BusinessException ex) {
-        log.error("Error syncing productDTO movement by movement {}", movement);
+        log.error("Error syncing productDTO movement by movement {}", movement.getId().value());
         throw ex;
       }
     }

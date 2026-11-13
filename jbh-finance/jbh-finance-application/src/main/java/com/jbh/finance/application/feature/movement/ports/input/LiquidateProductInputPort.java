@@ -71,7 +71,7 @@ public class LiquidateProductInputPort implements LiquidateProductUseCase {
       final ProductDTO syncedAccountDTO)
       throws BusinessException {
     if (toInternalAccount != null) {
-      LOG.info("Deposit dividends to internal productDTO {} ", toInternalAccount);
+      LOG.info("Deposit dividends to internal productDTO {} ", toInternalAccount.id().value());
       final var internalAccountId = toInternalAccount.id();
       final var totalAmount = liquidationCommand.currentBalance();
       final var transferDate = liquidationCommand.liquidatedDate();

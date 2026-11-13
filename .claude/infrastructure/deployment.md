@@ -66,3 +66,13 @@
 - OpenTelemetry instrumentation
 - Trace context propagation via HTTP headers
 - Sample strategically to control storage costs
+
+## Observability (JBH-60)
+
+- Logs: JSON on the console in prod. Fields include `traceId`, `spanId`, `trackingId`, `userId`.
+- Metrics: Micrometer at `/q/metrics` on port 7777. Alloy scrapes it on the private network. The gateway
+  does not route it. Every metric has the tags `service` and `env`.
+- Traces: OpenTelemetry, off by default. The OTLP endpoint is `jbh-alloy:4317` (gRPC).
+  Switch on with `OTEL_SDK_DISABLED=false` and `OTEL_EXPORTER_OTLP_ENDPOINT=http://jbh-alloy:4317`.
+- The compose env vars land in `jbh-deploy` with JBH-56.
+- Details and the privacy rule: `docs/guides/logging.md`.

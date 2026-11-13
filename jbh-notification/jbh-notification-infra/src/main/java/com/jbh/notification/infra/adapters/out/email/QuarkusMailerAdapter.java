@@ -32,8 +32,7 @@ public class QuarkusMailerAdapter implements EmailSenderPort {
     @Override
     public Uni<Void> sendAsync(final EmailRequest emailRequest) {
         if (LOG.isInfoEnabled()) {
-            LOG.info("Sending async email to: {} with subject: {}",
-                emailRequest.to(), emailRequest.subject());
+            LOG.info("Sending async email");
         }
 
         final Mail mail = buildMail(emailRequest);
@@ -41,38 +40,37 @@ public class QuarkusMailerAdapter implements EmailSenderPort {
         return reactiveMailer
             .send(mail)
             .onItem()
-            .invoke(() -> logSuccessIfEnabled(emailRequest.to()))
+            .invoke(this::logSuccessIfEnabled)
             .onFailure()
-            .invoke(error -> logErrorIfEnabled(emailRequest.to(), error));
+            .invoke(this::logErrorIfEnabled);
     }
 
     @Override
     public void sendSync(final EmailRequest emailRequest) {
         if (LOG.isInfoEnabled()) {
-            LOG.info("Sending sync email to: {} with subject: {}",
-                emailRequest.to(), emailRequest.subject());
+            LOG.info("Sending sync email");
         }
 
         final Mail mail = buildMail(emailRequest);
 
         try {
             mailer.send(mail);
-            logSuccessIfEnabled(emailRequest.to());
+            logSuccessIfEnabled();
         } catch (final IllegalStateException | IllegalArgumentException e) {
-            logErrorIfEnabled(emailRequest.to(), e);
+            logErrorIfEnabled(e);
             throw e;
         }
     }
 
-    private void logSuccessIfEnabled(final String recipient) {
+    private void logSuccessIfEnabled() {
         if (LOG.isInfoEnabled()) {
-            LOG.info("Email sent successfully to: {}", recipient);
+            LOG.info("Email sent successfully");
         }
     }
 
-    private void logErrorIfEnabled(final String recipient, final Throwable error) {
+    private void logErrorIfEnabled(final Throwable error) {
         if (LOG.isErrorEnabled()) {
-            LOG.error("Failed to send email to: {}. Error: {}", recipient, error.getMessage());
+            LOG.error("Failed to send email. Error: {}", error.getClass().getSimpleName());
         }
     }
 

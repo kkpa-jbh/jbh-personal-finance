@@ -5,7 +5,7 @@
 This guide explains how to use the centralized logging system across all modules in the JBH Personal Finance
 application.
 
-The logging system uses **SLF4J + Logback** with **MDC (Mapped Diagnostic Context)** support for tracking requests
+The logging system uses the **SLF4J API** on Quarkus (JBoss LogManager) with **MDC (Mapped Diagnostic Context)** support for tracking requests
 across modules.
 
 ## Architecture
@@ -13,9 +13,9 @@ across modules.
 ### Components
 
 1. **SLF4J API**: Framework-agnostic logging facade
-2. **Logback Classic**: High-performance implementation
+2. **JBoss LogManager**: The Quarkus implementation behind SLF4J (`logback-classic` is test scope only)
 3. **MDC Context**: For tracking request metadata
-4. **Logback Configuration**: Centralized in `logback-spring.xml`
+4. **Quarkus logging configuration**: `application.properties` (JSON in prod, level per profile)
 5. **Utility Classes**: For easy logging setup
 
 ### Module Structure
@@ -77,22 +77,18 @@ Each module includes the SLF4J API dependency:
 
 ## Configuration
 
-### Logback Configuration (`logback-spring.xml`)
+### Logging Configuration
 
-Located in: `jbh-finance-infra/src/main/resources/logback-spring.xml`
+Quarkus runs on JBoss LogManager. There is no Logback configuration file. Everything is in
+`jbh-z-assembly/src/main/resources/application.properties` (see "Configuration Options" below).
+`logback-classic` is on the test classpath only. Code still logs through the SLF4J API.
 
 **Key Features:**
 
-- **MDC Support**: Tracks `trackingId`, `userId`, `productId`, `module`
-- **Multiple Appenders**: Console, File, JSON, Async
-- **Rolling Policy**: Time-based with size limits
-- **Profile-based Configuration**: Different settings for dev/test/prod
-
-**Log Pattern:**
-
-```
-%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{trackingId:-NO-TRACKING}] [%X{accountId:-}] [%X{userId:-}] [%X{transactionId:-}] [%X{module:-}] %logger{36} - %msg%n
-```
+- **MDC Support**: Tracks `trackingId`, `userId`, `productId`, `transactionId`, `module`
+- **JSON in prod**: `quarkus-logging-json`, one JSON object per line. Dev and test use plain text.
+- **Trace correlation**: `traceId` and `spanId` come from OpenTelemetry when the SDK is on
+- **Level per profile**: `com.jbh` is DEBUG in dev and INFO in prod
 
 ## Utility Classes
 
@@ -165,7 +161,7 @@ private static final StructuredLogger structuredLogger =
 - Auto-generates `trackingId` and `requestId`
 - Extracts `userId` from headers
 - Logs request/response timing
-- Handles X-Forwarded-For for IP tracking
+- Does not log the client IP address (privacy rule)
 
 ## Usage Examples
 
@@ -182,12 +178,12 @@ public class AccountDomain {
   private static final Logger logger = LoggerFactory.getLogger(AccountDomain.class);
 
   public void syncBalances(TransactionDomain transaction) {
-    logger.debug("Syncing balance for product: {}, transaction amount: {}",
-        getId().value(), transaction.getAmount());
+    logger.debug("Syncing balance for product: {}, transaction: {}",
+        getId().value(), transaction.getId().value());
 
     // Business logic
 
-    logger.info("Balance updated successfully to: {}", getBalance());
+    logger.info("Balance updated successfully for product: {}", getId().value());
   }
 }
 ```
@@ -298,39 +294,62 @@ public class AsyncTransactionProcessor {
 
 ## Log Output Examples
 
-### Console Output
+Fields in the examples are illustrative. Ids are fake.
+
+### Console Output (dev and test)
 
 ```
-2025-01-15 14:30:15.123 [http-nio-8080-exec-1] INFO  [abc-123-def] [acc-789] [user-456] [txn-001] [account-controller] c.j.a.i.controllers.AccountController - Received transaction request for account: acc-789
-2025-01-15 14:30:15.124 [http-nio-8080-exec-1] INFO  [abc-123-def] [acc-789] [user-456] [] [account-application] c.j.a.a.p.input.AddTransactionInputPort - Starting transaction addition for account: acc-789
-2025-01-15 14:30:15.125 [http-nio-8080-exec-1] DEBUG [abc-123-def] [acc-789] [user-456] [txn-001] [account-application] c.j.a.a.p.input.AddTransactionInputPort - Created transaction domain with ID: txn-001
+2025-01-15 14:30:15,123 INFO  [com.jbh.finance.infra.adapters.in.rest.product.ProductRestAdapter] (executor-thread-1) Received request for product: 4b1f0c1e
 ```
 
-### File Output (Structured)
-
-```
-2025-01-15 14:30:15.123 [http-nio-8080-exec-1] INFO  [abc-123-def] [acc-789] [user-456] [txn-001] [account-controller] c.j.a.i.controllers.AccountController - Received transaction request for account: acc-789
-```
-
-### JSON Output
+### JSON Output (prod)
 
 ```json
 {
-  "@timestamp": "2025-01-15T14:30:15.123Z",
+  "timestamp": "2025-01-15T14:30:15.123Z",
   "level": "INFO",
-  "thread": "http-nio-8080-exec-1",
-  "logger": "c.j.a.i.controllers.AccountController",
-  "message": "Received transaction request for product: acc-789",
-  "mdc": {
-    "trackingId": "abc-123-def",
-    "accountId": "acc-789",
-    "userId": "user-456",
-    "transactionId": "txn-001",
-    "module": "product-controller"
-  },
-  "application": "jbh-personal-finance"
+  "loggerName": "com.jbh.finance.infra.adapters.in.rest.product.ProductRestAdapter",
+  "message": "Received request for product: 4b1f0c1e",
+  "trackingId": "abc-123-def",
+  "userId": "user-456",
+  "module": "product-controller",
+  "traceId": "4bf92f3577b34da6a3ce929d0e0e4736",
+  "spanId": "00f067aa0ba902b7",
+  "sampled": "true"
 }
 ```
+
+MDC entries (`trackingId`, `userId`, `productId`, `transactionId`, `module`, and the OpenTelemetry
+`traceId`, `spanId`, `sampled`) are top-level fields because of `quarkus.log.console.json.mdc.flat-fields=true`.
+`traceId`, `spanId` and `sampled` appear only while the SDK is on and a span is active.
+
+In dev the console is plain text. Each line prints `traceId=... spanId=...` (empty while the SDK is off):
+
+```
+2026-11-04 19:30:12,345 INFO  traceId=6273cd5f1fb6002a22538d67e9853981 spanId=a1b2c3d4e5f60718 [c.j.f.i.a.i.r.m.MovementRestAdapter] (executor-thread-1) Adding movement to Product 0b6f1c2e-5d4a-4f3b-9c1d-2e7a8b9c0d1e
+```
+
+Copy the `traceId` into Grafana → Explore → Tempo → TraceQL to open the request.
+In dev, `%dev.quarkus.otel.logs.enabled=true` also sends the logs to the local LGTM stack (see below). Query them in
+Explore → Loki with `{service_name="jbh-personal-finance"}`. Each record carries `trace_id`, with a link to Tempo.
+Prod does not export logs with OpenTelemetry: it writes JSON to stdout, and Alloy collects it.
+
+## Privacy Rule
+
+Never put these in a log line (any level):
+
+- amounts and balances
+- statement text, OCR text
+- LLM prompts or answers
+- IBAN or account numbers
+- e-mail addresses
+- client IP address
+- API keys
+- transaction lists
+- whole domain objects, DTOs or commands (`toString` can print any field)
+
+Log ids, counts, periods, enum names and exception class names instead. A product name is free text
+typed by the user, so log the product id.
 
 ## Best Practices
 
@@ -404,52 +423,82 @@ error("Failed to process transaction");
 
 ### Environment Variables
 
-- `LOG_LEVEL`: Set logging level (DEBUG, INFO, WARN, ERROR)
-- `LOG_FILE`: Path to log file (default: `/tmp/jbh-personal-finance.log`)
+| Variable | Default | Effect |
+|----------|---------|--------|
+| `OTEL_SDK_DISABLED` | `true` | Set to `false` to turn traces on. While `true`, nothing is exported and no exporter error appears. |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:4317` | Prod profile only. OTLP gRPC endpoint of the collector (`http://jbh-alloy:4317` in prod). Dev always uses `http://localhost:4317` (the local LGTM stack). |
+| `OTEL_TRACES_SAMPLER` | `parentbased_traceidratio` | Sampler. It honors the parent decision. |
+| `OTEL_TRACES_SAMPLER_ARG` | `1.0` | Sampling ratio. `1.0` samples every trace. |
+
+To see traces in prod, set both `OTEL_SDK_DISABLED=false` and `OTEL_EXPORTER_OTLP_ENDPOINT`.
+In dev, traces and logs go to `http://localhost:4317` by default (`OTEL_SDK_DISABLED` defaults to `false` in dev).
+
+### Local LGTM stack (Grafana, Tempo, Loki, Prometheus)
+
+It runs in the `kkpa-docker-lab` repo (`~/cpena/sw/github/kkpa-docker-lab`), shared by all projects:
+
+```bash
+make lgtm up      # Grafana on http://localhost:3000 (admin / admin), data kept in a Docker volume
+```
+
+Its Prometheus pulls `host.docker.internal:7777/q/metrics`. While the stack is down, dev mode still
+starts, and the console shows OTLP export warnings. To silence them, start dev with `OTEL_SDK_DISABLED=true`.
 
 ### Application Properties
 
+All keys are in `jbh-z-assembly/src/main/resources/application.properties`, section `OBSERVABILITY`.
+
 ```properties
-# Quarkus logging properties
-quarkus.log.level=INFO
-quarkus.log.console.enable=true
-quarkus.log.file.enable=true
-quarkus.log.file.path=/tmp/jbh-personal-finance.log
+# com.jbh logs DEBUG in dev and INFO in prod. test uses the Quarkus default (INFO).
+%dev.quarkus.log.category."com.jbh.**".level=DEBUG
+%prod.quarkus.log.category."com.jbh.**".level=INFO
+# JSON only in prod. MDC entries become top-level JSON fields.
+quarkus.log.console.json.enabled=false
+%prod.quarkus.log.console.json.enabled=true
+quarkus.log.console.json.mdc.flat-fields=true
+# Traces
+quarkus.otel.sdk.disabled=${OTEL_SDK_DISABLED:true}
+%dev.quarkus.otel.sdk.disabled=${OTEL_SDK_DISABLED:false}
+%prod.quarkus.otel.exporter.otlp.endpoint=${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4317}
+%dev.quarkus.otel.exporter.otlp.endpoint=http://localhost:4317
+quarkus.otel.traces.sampler=${OTEL_TRACES_SAMPLER:parentbased_traceidratio}
+quarkus.otel.traces.sampler.arg=${OTEL_TRACES_SAMPLER_ARG:1.0}
+# Metrics
+quarkus.datasource.metrics.enabled=true
+jbh.metrics.env=prod
 ```
 
 ### Profile-Based Configuration
 
-- **dev/local**: Console + File logging with DEBUG level
-- **test**: Console only with DEBUG level
-- **prod/production**: Async File + JSON logging with INFO level
+- **dev**: plain-text console, `com.jbh` at DEBUG, metric tag `env=dev`.
+- **test**: plain-text console, default level (INFO), metric tag `env=test`.
+- **prod**: JSON console, `com.jbh` at INFO, metric tag `env=prod`.
+
+## Metrics
+
+The app publishes Micrometer metrics (JVM, HTTP server, Agroal datasource) at `/q/metrics` on port 7777.
+Every metric has the tags `service=jbh-personal-finance` and `env=<profile>`. HTTP metrics use the URI
+template (`/jbh-api/products/{productId}`), so ids never become labels. The gateway routes only
+`/jbh-api/**`, so `/q/metrics` is not public. Alloy scrapes it on the private network.
+
+**Circuit breaker of the IAM calls.** `jbh-gateway-client` has a circuit breaker around `findUserId` and
+`findUserGroup`. Both `GatewayClientBuilder` classes pass the `MeterRegistry`, so `/q/metrics` also has
+`resilience4j_circuitbreaker_*` with `name=JBH_FINANCE_API.User` (finance) and `name=JBH_PREFERENCES_API.User`
+(preferences). While the breaker is open, the call fails with error code `CIRCUIT_OPEN`.
+Rules and metric list: `jbh-gateway-client/README.md`, "Circuit breaker". Dashboard: `jbh-deploy/observability/grafana/`.
+
+## Traces
+
+OpenTelemetry traces are off until `OTEL_SDK_DISABLED=false`. The four AI calls have their own spans:
+`ai.azure.extract-text`, `ai.openrouter.answer`, `ai.gemini.answer`, `ai.jev.classify`. A span has only a
+name, a duration, a status and the exception. It never has text, prompts or answers. `/q/*` is not traced.
 
 ## Monitoring & Analysis
 
-### Log Aggregation
+Logs, traces and metrics go to Grafana (Loki, Tempo, Prometheus) through Alloy. To follow one request:
 
-The JSON output format is designed for easy integration with:
+1. Take the `traceId` from a log line in Loki.
+2. Open the same `traceId` in Tempo to see the spans.
+3. Use `trackingId` to find all lines of one request, including other modules.
 
-- ELK Stack (Elasticsearch, Logstash, Kibana)
-- Splunk
-- CloudWatch Logs
-- Datadog
-
-### Metrics & Alerts
-
-Set up alerts based on:
-
-- Error rate increase
-- Missing tracking IDs
-- Performance degradation (execution time in logs)
-
-### Request Tracing
-
-Use the `trackingId` to trace requests across:
-
-- Multiple microservices
-- Async operations
-- Database transactions
-- External API calls
-
-This logging system provides comprehensive visibility into your application's behavior while maintaining high
-performance and easy maintenance across all modules.
+Metrics and traces are per instance. Grafana merges them. The app runs as 2 or more instances.

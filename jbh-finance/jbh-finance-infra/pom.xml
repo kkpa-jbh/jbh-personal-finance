@@ -163,6 +163,17 @@
       <artifactId>quarkus-rest</artifactId>
       <groupId>io.quarkus</groupId>
     </dependency>
+
+    <!-- @WithSpan on the AI adapters; the OpenTelemetry extension itself lives in jbh-z-assembly -->
+    <dependency>
+      <artifactId>opentelemetry-instrumentation-annotations</artifactId>
+      <groupId>io.opentelemetry.instrumentation</groupId>
+    </dependency>
+    <!-- Context.current().wrap(...) in StatementImportDispatcher -->
+    <dependency>
+      <artifactId>opentelemetry-api</artifactId>
+      <groupId>io.opentelemetry</groupId>
+    </dependency>
     <!-- Add Jackson for JSON support -->
     <dependency>
       <artifactId>quarkus-rest-jackson</artifactId>
@@ -251,6 +262,13 @@
 
     <dependency>
       <artifactId>quarkus-junit</artifactId>
+      <groupId>io.quarkus</groupId>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- MeterRegistry bean for GatewayClientBuilder in @QuarkusTest. At runtime it comes from jbh-z-assembly. -->
+    <dependency>
+      <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
       <groupId>io.quarkus</groupId>
       <scope>test</scope>
     </dependency>

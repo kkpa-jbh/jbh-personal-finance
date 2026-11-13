@@ -283,7 +283,7 @@ public class ProcessMonthlyBalanceServiceImpl implements ProcessMonthlyBalanceSe
 
     LOG.info(
         "Preparing to submit async task {} to adjust balances from {} to {} for productDTO {}",
-        asyncTask,
+        asyncTask.type(),
         initPeriod,
         lastPeriod,
         accountId);

@@ -64,7 +64,7 @@ public class NotificationService implements NotificationServicePort {
 
     final NotificationDTO notification = mapRequestToDTO(request);
     if (LOG.isInfoEnabled()) {
-      LOG.info("Processing {} notification for recipient: {}", type, notification.recipientEmail());
+      LOG.info("Processing {} notification: {}", type, notification.id());
     }
 
     final String userLanguage = resolveUserLanguage(notification.recipientId());
@@ -120,7 +120,7 @@ public class NotificationService implements NotificationServicePort {
 
   private NotificationDTO sendEmailNotification(final NotificationDTO notification) {
     if (LOG.isInfoEnabled()) {
-      LOG.info("Sending EMAIL notification to: {}", notification.recipientEmail());
+      LOG.info("Sending EMAIL notification: {}", notification.id());
     }
 
     final EmailRequest emailRequest = buildEmailRequest(notification);
@@ -148,7 +148,7 @@ public class NotificationService implements NotificationServicePort {
       LOG.error(
           "Failed to send email for notification: {}. Error: {}",
           notificationId,
-          failure.getMessage());
+          failure.getClass().getSimpleName());
     }
     updateNotificationStatus(notificationId, NotificationStatus.FAILED);
   }

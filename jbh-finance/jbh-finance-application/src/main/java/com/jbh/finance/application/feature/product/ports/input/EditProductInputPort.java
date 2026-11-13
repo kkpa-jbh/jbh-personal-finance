@@ -53,8 +53,7 @@ public class EditProductInputPort implements EditProductUseCase {
     final ProductDTO savedProduct = accountService.save(productDomain);
 
     LOG.info(
-        "Product '{}' (id: {}) edited successfully for user {}",
-        savedProduct.name(),
+        "Product (id: {}) edited successfully for user {}",
         savedProduct.id().value(),
         command.userId());
 

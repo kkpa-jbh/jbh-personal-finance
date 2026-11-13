@@ -71,6 +71,23 @@
       <artifactId>quarkus-rest-jackson</artifactId>
     </dependency>
 
+    <!-- Metrics: Micrometer with the Prometheus registry (/q/metrics) -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-micrometer-registry-prometheus</artifactId>
+    </dependency>
+
+    <!-- Logs: JSON console output (enabled in prod only) -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-logging-json</artifactId>
+    </dependency>
+
+    <!-- Traces: OpenTelemetry SDK, switched on with OTEL_SDK_DISABLED=false -->
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-opentelemetry</artifactId>
+    </dependency>
 
     <!-- Infrastructure Modules -->
     <!-- FIXED: Remove explicit version, use dependency management -->

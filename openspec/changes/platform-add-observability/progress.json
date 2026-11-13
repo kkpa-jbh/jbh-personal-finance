@@ -1,0 +1,1081 @@
+{
+  "schema_version": 1,
+  "kind": "change",
+  "change": "platform-add-observability",
+  "module": "platform",
+  "roadmap": null,
+  "request": "Source ticket: JBH-60 — https://linear.app/kkpa/issue/JBH-60/jbh-personal-finance-json-logs-opentelemetry-traces-and-metrics-safe\nProject: JBH-Platform   Priority: Medium\n\n## BASE BRANCH (user requirement, mandatory)\nCreate the new CH<N> feature branch FROM the existing feature branch `ft/CH3-JBH-73-jbh-finance-save-statement-movements` (the current branch in jbh-personal-finance), NOT from `main`.\n\n## jbh-personal-finance: JSON logs, OpenTelemetry traces and metrics, safe log content\n\nPart 5 of JBH-55 (https://linear.app/kkpa/issue/JBH-55/observability-centralized-logs-metrics-traces-and-alerts-grafana-cloud). Needs part 1 (Alloy) to see results, and part 2 (`jbh-gateway-client`) for the `findUserId` trace.\n\nStack: Quarkus 3.33.4.1 modular monolith, Maven (root `pom.xml`, checked on 2026-11-04). Today only `quarkus-smallrye-health` (`jbh-z-assembly/pom.xml`).\n\n## Finding: DEBUG logs in production\n\n`jbh-z-assembly/src/main/resources/application.properties` line 15:\n\n```\nquarkus.log.category.\"com.jbh.**\".level=DEBUG\n```\n\nIt has no `%dev` prefix, and `jbh-deploy` sets no override. So production logs all `com.jbh` code at DEBUG. Once logs go to Grafana Cloud, this costs quota and may send bank statement data out of the VPS. Fix it here: `%dev` keeps DEBUG, `%prod` uses INFO.\n\n## What to do\n\n1. **Log level** — fix the finding above.\n2. **JSON logs in** `prod`**.** Add `quarkus-logging-json` and turn on JSON console output only for `%prod`. Check the exact property name for 3.33. Keep the MDC fields that exist today (`trackingId`, `userId`, `productId`, `transactionId`, `module`).\n3. **Traces.** Add `quarkus-opentelemetry`. Endpoint (`quarkus.otel.exporter.otlp.endpoint`) from an env var pointing to `jbh-alloy`. Sampling 100% at start, env-overridable. Check that `traceId` and `spanId` show in the JSON logs.\n4. **Metrics.** See the open question. Common tags `service=jbh-personal-finance`, `env=prod`.\n5. **Outgoing calls** to Azure Document Intelligence, OpenRouter / Gemini and Jev: they should show as child spans with duration and status. They are the slowest part of the statement import.\n6. **Use the trace-aware** `jbh-gateway-client` (part 2) for `findUserId`. Note: the AI adapters (point 5) also use `java.net.http.HttpClient`, so Quarkus does not trace them by itself. They need manual spans.\n7. `jbh-deploy/compose.yaml`**:** add the new env vars to `jbh-personal-finance`.\n\n## Open question for the proposal\n\n* **Which metrics path?** In Quarkus 3.18, OpenTelemetry metrics (`quarkus.otel.metrics.enabled`) were tech preview and a build-time flag. The project is now on 3.33: check their status again. Options: (a) OTel metrics over OTLP, same path as traces; (b) Micrometer with a Prometheus registry, and Alloy scrapes `/q/metrics` on `jbh-private`. Choose one and write why.\n\n## Catch\n\n* **Log content (most important).** Logs leave the VPS. Never log: statement files, OCR text, LLM prompts or answers, IBAN or account numbers, transaction lists, email addresses, API keys. Check the statement import and notification code paths.\n* `jbh-finance-infra/src/main/resources/logback-spring.xml` looks unused (Quarkus uses JBoss LogManager). Confirm it, and do not rely on it.\n* **Metric labels:** no user id, product id or raw path. `userId` stays in logs only.\n* Locally, export is off unless the env var is set.\n* Do not build. The user builds.\n\n## Done when\n\n- [ ] Production log level for `com.jbh` is INFO.\n- [ ] Finance logs are JSON on the VPS and show `traceId`.\n- [ ] A statement import shows as one trace, with the OCR and LLM calls as child spans.\n- [ ] JVM, HTTP and DB pool metrics for `service=jbh-personal-finance` show in Grafana Cloud.\n- [ ] A search in Grafana Cloud for one test IBAN or statement text finds nothing.\n\n## Interview agenda (for pipeline Step 2)\n- MANDATORY — run `grill-me` for ticket comprehension before writing any artifact: scope, what is out of scope, acceptance condition, behaviour that must not change. This is NOT the performance/design grill and does not depend on a design gate firing.\n- Metrics path: (a) OTel metrics over OTLP, or (b) Micrometer + Prometheus registry scraped by Alloy on `/q/metrics`? Check the OTel metrics status in Quarkus 3.33 first.\n- Point 6 depends on JBH-57 (trace-aware `jbh-gateway-client`), not done yet. In scope now, or defer to after JBH-57 is published?\n- Point 7 changes `jbh-deploy/compose.yaml` (another repo). Do it in this run as a separate jbh-deploy commit, or leave it to JBH-56/JBH-61?\n- Point 5: how to make manual spans for the AI adapters (they use `java.net.http.HttpClient`)? For example `@WithSpan` / `opentelemetry-api` in the infra adapters only, keeping application/domain free of OTel.\n- Local dev: also add `quarkus-observability-devservices-lgtm` (scope `provided`) so Grafana runs locally in `quarkus:dev`? Not in the ticket; confirm in or out.\n- Ticket requests /grill-me — no skill directive in the ticket body.\n\n## Pipeline scope for this run\nHALT AFTER STEP 4. Produce the OpenSpec artifacts (proposal / design / specs / tasks) and progress.json, then stop and report. Do NOT dispatch implementation workers (Step 5+), do NOT run the reviewer, do NOT archive. The user reviews the proposal before implementation. Record the source ticket ID and URL in the proposal header so the change is traceable back to Linear.\n",
+  "status": "in-progress",
+  "rollup": {
+    "current": [
+      "E2",
+      "F1",
+      "F2",
+      "F3",
+      "F4"
+    ],
+    "pending": [],
+    "blocked": [],
+    "done": [
+      "T1",
+      "T2",
+      "T3",
+      "A1",
+      "A2",
+      "A3",
+      "B1",
+      "B2",
+      "B3",
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "D1",
+      "D2",
+      "D3",
+      "E1"
+    ]
+  },
+  "created_at": "2026-11-04T18:13:25Z",
+  "updated_at": "2026-11-05T02:08:50Z",
+  "leader": {
+    "assistant": "Claude Code",
+    "model": "claude-opus-5-5"
+  },
+  "git": {
+    "strategy": "auto",
+    "branch": "ft/CH4-JBH-60-platform-add-observability",
+    "base": "db22813",
+    "base_branch": "ft/CH3-JBH-73-jbh-finance-save-statement-movements",
+    "ticket": "JBH-60",
+    "ticket_url": "https://linear.app/kkpa/issue/JBH-60/jbh-personal-finance-json-logs-opentelemetry-traces-and-metrics-safe",
+    "ticket_tracker": "linear",
+    "created_at": "2026-11-04T18:13:25Z"
+  },
+  "test_first": {
+    "status": "approved",
+    "commit": "06048fb",
+    "tests": [
+      "jbh-z-assembly/src/test/java/com/jbh/assembly/config/MetricsTagsConfigTest.java",
+      "jbh-z-assembly/src/test/java/com/jbh/assembly/config/ObservabilityConfigPropertiesTest.java"
+    ],
+    "approved_at": "2026-11-04T20:04:00Z"
+  },
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "MetricsTagsConfigTest: 4 unit tests (test blueprint)",
+      "module": "platform",
+      "depends_on": [],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T19:38:31Z",
+      "completed_at": "2026-11-04T19:39:52Z",
+      "duration_seconds": 81,
+      "notes": "MetricsTagsConfigTest: 4 contract tests with SimpleMeterRegistry; JUnit Assertions (no AssertJ in pom).",
+      "budget": {
+        "five_hour_pct_start": 38,
+        "five_hour_pct_end": 41,
+        "five_hour_pct_delta": 3,
+        "cost_usd_delta": 0.99,
+        "context_pct_end": 16,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave delta for T1+T2+T3 (one serial worker) plus the leader's red check"
+      }
+    },
+    {
+      "id": "T2",
+      "title": "ObservabilityConfigPropertiesTest: 10 unit tests (test blueprint)",
+      "module": "platform",
+      "depends_on": [],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T19:38:31Z",
+      "completed_at": "2026-11-04T19:39:52Z",
+      "duration_seconds": 81,
+      "notes": "ObservabilityConfigPropertiesTest: 10 contract tests; reads src/main/resources/application.properties by relative path (surefire cwd = module dir).",
+      "budget": {
+        "five_hour_pct_start": 38,
+        "five_hour_pct_end": 41,
+        "five_hour_pct_delta": 3,
+        "cost_usd_delta": 0.99,
+        "context_pct_end": 16,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave delta for T1+T2+T3 (one serial worker) plus the leader's red check"
+      }
+    },
+    {
+      "id": "T3",
+      "title": "Skeleton MetricsTagsConfig + Prometheus registry dep + module-info requires",
+      "module": "platform",
+      "depends_on": [],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T19:38:31Z",
+      "completed_at": "2026-11-04T19:39:52Z",
+      "duration_seconds": 81,
+      "notes": "Skeleton MetricsTagsConfig throws not implemented; quarkus-micrometer-registry-prometheus added; requires micrometer.core (Automatic-Module-Name from micrometer-core 1.17.1 jar).",
+      "budget": {
+        "five_hour_pct_start": 38,
+        "five_hour_pct_end": 41,
+        "five_hour_pct_delta": 3,
+        "cost_usd_delta": 0.99,
+        "context_pct_end": 16,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "wave delta for T1+T2+T3 (one serial worker) plus the leader's red check"
+      }
+    },
+    {
+      "id": "A1",
+      "title": "jbh-z-assembly pom: logging-json, opentelemetry, devservices-lgtm (provided)",
+      "module": "platform",
+      "depends_on": [
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T20:04:23Z",
+      "completed_at": "2026-11-04T20:05:40Z",
+      "duration_seconds": 77,
+      "notes": "Added quarkus-logging-json, quarkus-opentelemetry, quarkus-observability-devservices-lgtm (provided) to jbh-z-assembly pom.",
+      "budget": {
+        "five_hour_pct_start": null,
+        "five_hour_pct_end": 6,
+        "five_hour_pct_delta": null,
+        "cost_usd_delta": 1.36,
+        "context_pct_end": 18,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "parallel wave A1-A3,B1-B3 with C1-C5; 5h bucket reset during the wave"
+      }
+    },
+    {
+      "id": "A2",
+      "title": "application.properties: D1 D2 D3 D4 D5 D8 observability section",
+      "module": "platform",
+      "depends_on": [
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T20:04:23Z",
+      "completed_at": "2026-11-04T20:05:40Z",
+      "duration_seconds": 77,
+      "notes": "D1 split per profile; OBSERVABILITY section with D2, D3, D4, D5, D8 keys. datasource.metrics and observability.enabled confirmed via Context7.",
+      "budget": {
+        "five_hour_pct_start": null,
+        "five_hour_pct_end": 6,
+        "five_hour_pct_delta": null,
+        "cost_usd_delta": 1.36,
+        "context_pct_end": 18,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "parallel wave A1-A3,B1-B3 with C1-C5; 5h bucket reset during the wave"
+      }
+    },
+    {
+      "id": "A3",
+      "title": "Implement MetricsTagsConfig MeterFilter producer (D5)",
+      "module": "platform",
+      "depends_on": [
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T20:04:23Z",
+      "completed_at": "2026-11-04T20:05:40Z",
+      "duration_seconds": 77,
+      "notes": "MetricsTagsConfig @Singleton, final fields, @Produces @Singleton MeterFilter commonTags(). Clears the 2 PMD findings.",
+      "budget": {
+        "five_hour_pct_start": null,
+        "five_hour_pct_end": 6,
+        "five_hour_pct_delta": null,
+        "cost_usd_delta": 1.36,
+        "context_pct_end": 18,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "parallel wave A1-A3,B1-B3 with C1-C5; 5h bucket reset during the wave"
+      }
+    },
+    {
+      "id": "B1",
+      "title": "jbh-finance-infra pom + module-info: OTel annotations and api",
+      "module": "platform",
+      "depends_on": [
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T20:04:23Z",
+      "completed_at": "2026-11-04T20:05:40Z",
+      "duration_seconds": 77,
+      "notes": "OTel api + instrumentation-annotations in infra pom; requires io.opentelemetry.api, .context, .instrumentation_annotations (underscore, read from jar manifest).",
+      "budget": {
+        "five_hour_pct_start": null,
+        "five_hour_pct_end": 6,
+        "five_hour_pct_delta": null,
+        "cost_usd_delta": 1.36,
+        "context_pct_end": 18,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "parallel wave A1-A3,B1-B3 with C1-C5; 5h bucket reset during the wave"
+      }
+    },
+    {
+      "id": "B2",
+      "title": "@WithSpan on the 4 AI adapter methods (D6)",
+      "module": "platform",
+      "depends_on": [
+        "B1"
+      ],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T20:04:23Z",
+      "completed_at": "2026-11-04T20:05:40Z",
+      "duration_seconds": 77,
+      "notes": "@WithSpan with D6 names on Azure extractText, OpenRouter/Gemini answer, Jev classify. No @SpanAttribute. ArC self-interception left to I5.",
+      "budget": {
+        "five_hour_pct_start": null,
+        "five_hour_pct_end": 6,
+        "five_hour_pct_delta": null,
+        "cost_usd_delta": 1.36,
+        "context_pct_end": 18,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "parallel wave A1-A3,B1-B3 with C1-C5; 5h bucket reset during the wave"
+      }
+    },
+    {
+      "id": "B3",
+      "title": "StatementImportDispatcher: Context.current().wrap (D7)",
+      "module": "platform",
+      "depends_on": [
+        "B1"
+      ],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T20:04:23Z",
+      "completed_at": "2026-11-04T20:05:40Z",
+      "duration_seconds": 77,
+      "notes": "StatementImportDispatcher.dispatch submits Context.current().wrap(() -> runner.run(command)).",
+      "budget": {
+        "five_hour_pct_start": null,
+        "five_hour_pct_end": 6,
+        "five_hour_pct_delta": null,
+        "cost_usd_delta": 1.36,
+        "context_pct_end": 18,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "parallel wave A1-A3,B1-B3 with C1-C5; 5h bucket reset during the wave"
+      }
+    },
+    {
+      "id": "C1",
+      "title": "Log audit: AsyncTaskExecutorImpl, ProcessMonthlyBalanceServiceImpl, LoggingFilter",
+      "module": "platform",
+      "depends_on": [
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T20:04:35Z",
+      "completed_at": "2026-11-04T20:06:25Z",
+      "duration_seconds": 110,
+      "notes": "AsyncTaskExecutorImpl and ProcessMonthlyBalanceServiceImpl log type() only; LoggingFilter drops client IP, getClientIP removed.",
+      "budget": {
+        "five_hour_pct_start": null,
+        "five_hour_pct_end": 6,
+        "five_hour_pct_delta": null,
+        "cost_usd_delta": 1.36,
+        "context_pct_end": 18,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "parallel wave A1-A3,B1-B3 with C1-C5; 5h bucket reset during the wave"
+      }
+    },
+    {
+      "id": "C2",
+      "title": "Log audit: product input ports and ProductLifecycleServiceImpl",
+      "module": "platform",
+      "depends_on": [
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T20:04:35Z",
+      "completed_at": "2026-11-04T20:06:25Z",
+      "duration_seconds": 110,
+      "notes": "Product input ports and ProductLifecycleServiceImpl log ids instead of names, balances and movement objects.",
+      "budget": {
+        "five_hour_pct_start": null,
+        "five_hour_pct_end": 6,
+        "five_hour_pct_delta": null,
+        "cost_usd_delta": 1.36,
+        "context_pct_end": 18,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "parallel wave A1-A3,B1-B3 with C1-C5; 5h bucket reset during the wave"
+      }
+    },
+    {
+      "id": "C3",
+      "title": "Log audit: movement input ports and ProcessMovementServiceImpl",
+      "module": "platform",
+      "depends_on": [
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T20:04:35Z",
+      "completed_at": "2026-11-04T20:06:25Z",
+      "duration_seconds": 110,
+      "notes": "LiquidateProduct, AddTransferJbhProducts, ProcessMovementServiceImpl log ids and periods; amounts and DTOs removed.",
+      "budget": {
+        "five_hour_pct_start": null,
+        "five_hour_pct_end": 6,
+        "five_hour_pct_delta": null,
+        "cost_usd_delta": 1.36,
+        "context_pct_end": 18,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "parallel wave A1-A3,B1-B3 with C1-C5; 5h bucket reset during the wave"
+      }
+    },
+    {
+      "id": "C4",
+      "title": "Log audit: domain classes (SLF4J only)",
+      "module": "platform",
+      "depends_on": [
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T20:04:35Z",
+      "completed_at": "2026-11-04T20:06:25Z",
+      "duration_seconds": 110,
+      "notes": "MoneyGrowthCalculator, MonthlyBalanceDomain, ProductDomain: amounts removed from log args. SLF4J only.",
+      "budget": {
+        "five_hour_pct_start": null,
+        "five_hour_pct_end": 6,
+        "five_hour_pct_delta": null,
+        "cost_usd_delta": 1.36,
+        "context_pct_end": 18,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "parallel wave A1-A3,B1-B3 with C1-C5; 5h bucket reset during the wave"
+      }
+    },
+    {
+      "id": "C5",
+      "title": "Log audit: notification infra",
+      "module": "platform",
+      "depends_on": [
+        "T1",
+        "T2",
+        "T3"
+      ],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T20:04:35Z",
+      "completed_at": "2026-11-04T20:06:25Z",
+      "duration_seconds": 110,
+      "notes": "QuarkusMailerAdapter no recipient (helper params removed); NotificationService logs notification id and exception class; MailerConfigLogger set/not set, maskEmail removed.",
+      "budget": {
+        "five_hour_pct_start": null,
+        "five_hour_pct_end": 6,
+        "five_hour_pct_delta": null,
+        "cost_usd_delta": 1.36,
+        "context_pct_end": 18,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "parallel wave A1-A3,B1-B3 with C1-C5; 5h bucket reset during the wave"
+      }
+    },
+    {
+      "id": "D1",
+      "title": "Delete unused logback-spring.xml (D9)",
+      "module": "platform",
+      "depends_on": [
+        "A1",
+        "A2",
+        "A3"
+      ],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T21:30:12Z",
+      "completed_at": "2026-11-04T21:31:09Z",
+      "duration_seconds": 57,
+      "notes": "Grepped for logback-spring first: only docs/guides/logging.md referenced it (rewritten in D2). File deleted.",
+      "budget": {
+        "five_hour_pct_start": 13,
+        "five_hour_pct_end": 16,
+        "five_hour_pct_delta": 3,
+        "cost_usd_delta": 0.66,
+        "context_pct_end": 12,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for D1-D3; delta shared across the 3 tasks, includes leader turns"
+      }
+    },
+    {
+      "id": "D2",
+      "title": "Rewrite docs/guides/logging.md",
+      "module": "platform",
+      "depends_on": [
+        "A1",
+        "A2",
+        "A3"
+      ],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T21:30:12Z",
+      "completed_at": "2026-11-04T21:31:09Z",
+      "duration_seconds": 57,
+      "notes": "logging.md rewritten: JBoss LogManager, JSON in prod with flat MDC incl. traceId/spanId, privacy rule list, 5 env vars, OBSERVABILITY keys, /q/metrics, 4 AI span names. Also fixed 2 examples that logged amount/balance and the LoggingFilter IP line.",
+      "budget": {
+        "five_hour_pct_start": 13,
+        "five_hour_pct_end": 16,
+        "five_hour_pct_delta": 3,
+        "cost_usd_delta": 0.66,
+        "context_pct_end": 12,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for D1-D3; delta shared across the 3 tasks, includes leader turns"
+      }
+    },
+    {
+      "id": "D3",
+      "title": "Observability paragraph in .claude/infrastructure/deployment.md",
+      "module": "platform",
+      "depends_on": [
+        "A1",
+        "A2",
+        "A3"
+      ],
+      "parallel_ok": true,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-04T21:30:12Z",
+      "completed_at": "2026-11-04T21:31:09Z",
+      "duration_seconds": 57,
+      "notes": "deployment.md: new 'Observability (JBH-60)' section: /q/metrics on 7777 for Alloy, OTLP jbh-alloy:4317, compose env vars land in jbh-deploy with JBH-56.",
+      "budget": {
+        "five_hour_pct_start": 13,
+        "five_hour_pct_end": 16,
+        "five_hour_pct_delta": 3,
+        "cost_usd_delta": 0.66,
+        "context_pct_end": 12,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for D1-D3; delta shared across the 3 tasks, includes leader turns"
+      }
+    },
+    {
+      "id": "E1",
+      "title": "Leader runs mvn clean verify",
+      "module": "platform",
+      "depends_on": [
+        "A1",
+        "A2",
+        "A3",
+        "B1",
+        "B2",
+        "B3",
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "D1",
+        "D2",
+        "D3"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-11-04T21:31:31Z",
+      "completed_at": "2026-11-04T21:32:40Z",
+      "duration_seconds": 69,
+      "notes": "mvn clean verify -fae -Dmaven.test.failure.ignore=true exit 0: 399 tests, PMD and SpotBugs pass; only the 2 pre-existing DeleteMovementUseCaseTest errors (D15). mvn -q pmd:check exit 0.",
+      "budget": null
+    },
+    {
+      "id": "E2",
+      "title": "Integration checks I1-I9 of design.md",
+      "module": "platform",
+      "depends_on": [
+        "E1"
+      ],
+      "parallel_ok": false,
+      "status": "awaiting-user-verification",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-11-04T21:32:40Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "I9 grep audit run by the leader: pass (hits are ids, periods, dates, message words only). I1-I8 need the jar, Postgres, Docker or a collector: the leader starts no services, so they wait for the user.",
+      "budget": null
+    },
+    {
+      "id": "F1",
+      "title": "Endpoint only in %prod so the LGTM Dev Service sets it in dev",
+      "module": "platform",
+      "depends_on": [
+        "E1"
+      ],
+      "parallel_ok": false,
+      "status": "awaiting-user-verification",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-11-05T00:02:13Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "Endpoint key now %prod only; LGTM Dev Service sets it in dev. Test reads %prod key (D22); new test asserts base key absent. logging.md and design.md D3 updated. Suite not run yet: mvn clean would break the user's running dev mode.",
+      "budget": null
+    },
+    {
+      "id": "F2",
+      "title": "Dev console prints traceId/spanId; dev exports logs to LGTM Loki",
+      "module": "platform",
+      "depends_on": [
+        "F1"
+      ],
+      "parallel_ok": false,
+      "status": "awaiting-user-verification",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-11-05T01:02:02Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "%dev console format with traceId/spanId; %dev.quarkus.otel.logs.enabled=true (build time, tech preview). 2 new config tests; approved tests unchanged. logging.md and design.md D3 updated. Suite pending.",
+      "budget": null
+    },
+    {
+      "id": "F3",
+      "title": "Move local LGTM stack to kkpa-docker-lab; dev exports by default",
+      "module": "platform",
+      "depends_on": [
+        "F2"
+      ],
+      "parallel_ok": false,
+      "status": "awaiting-user-verification",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-11-05T01:29:39Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "Removed devservices-lgtm and quarkus.observability.enabled; %dev SDK on and endpoint localhost:4317. Test replaced (D24) + 1 new. Spec, D8, logging.md updated. Lab side: kkpa-docker-lab lgtm/ (compose, prometheus.yaml, README).",
+      "budget": null
+    },
+    {
+      "id": "F4",
+      "title": "Statement text source default pdfbox (Azure via STATEMENT_TEXT_SOURCE=azure)",
+      "module": "platform",
+      "depends_on": [
+        "F3"
+      ],
+      "parallel_ok": false,
+      "status": "awaiting-user-verification",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-11-05T02:08:50Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "Default azure -> pdfbox in jbh-finance-infra application.properties and .env.example. jbh-deploy: compose.yaml, compose.local.yaml, .env.example, .env.local.example, Fargate default, README AI line. Root cause of import failure: disabled Azure subscription (401).",
+      "budget": null
+    }
+  ],
+  "review": {
+    "status": "approved",
+    "agent": "platform-reviewer",
+    "brief": "Change platform-add-observability (JBH-60), cross-cutting, base db22813 (branch from ft/CH3-JBH-73). Diff: git diff db22813...HEAD. Check against design.md D1-D12 and the user decisions D2-D12, D16, D18, D19 in progress.json decisions[]. Key points: (1) %dev DEBUG / %prod INFO; JSON console only in %prod, MDC fields kept; (2) OTel endpoint and sampler from env, SDK disabled unless env set; (3) Micrometer Prometheus at /q/metrics with common tags service+env (MetricsTagsConfig), no high-cardinality labels; (4) @WithSpan only on the 4 infra AI adapter methods, no @SpanAttribute, no OTel type in application or domain; Context.current().wrap in StatementImportDispatcher; (5) log audit: no amounts, balances, statement/OCR/LLM text, IBAN, e-mail, client IP, API keys, whole domain objects in INFO/WARN/ERROR args (D12 table, I9); (6) logback-spring.xml deleted, docs updated. No DB change, no design gate. Test blueprint approved and frozen: commit 06048fb, tests MetricsTagsConfigTest.java and ObservabilityConfigPropertiesTest.java (jbh-z-assembly/src/test/java/com/jbh/assembly/config/); diff them against 06048fb. Signals: assistant-run by the leader: mvn clean verify exit 0 (399 tests; 2 pre-existing DeleteMovementUseCaseTest errors accepted as D15, date bug, untouched module), PMD and SpotBugs pass, mvn -q pmd:check exit 0, I9 grep audit pass. Not run: I1-I8 (need services), E2 awaiting-user-verification by user decision D18. Security-Gate: run.",
+    "rounds": [
+      {
+        "round": 1,
+        "at": "2026-11-04T21:38:24Z",
+        "verdict": "changes-requested",
+        "security": {
+          "status": "passed",
+          "ran_at": "2026-11-04T21:38:24Z",
+          "scope": "git.base",
+          "findings": [],
+          "note": "Skill diff (origin/HEAD) lists other files; method applied to git.base...HEAD. No exploitable issue. Change removes PII from logs. /q/metrics is not routed by the gateway."
+        },
+        "findings": [
+          {
+            "id": "R1",
+            "lens": "intent",
+            "severity": "major",
+            "note": "jbh-z-assembly/src/main/resources/application.properties:~99: only quarkus.datasource.metrics.enabled=true is set. It covers the default datasource only. Real traffic uses the named datasources finance and preferences (jbh-finance-infra and jbh-preferences-infra application.properties). Their pool metrics (agroal_*) will not appear, so spec 'datasource metrics' and goal G4 fail. I3 would pass wrongly from the idle default pool. Fix: add quarkus.datasource.finance.metrics.enabled=true and quarkus.datasource.preferences.metrics.enabled=true (new keys; the frozen test stays valid).",
+            "status": "rejected",
+            "triage": "rejected",
+            "justification": "Quarkus datasource guide (Context7, /websites/quarkus_io_guides): quarkus.datasource.metrics.enabled is a global setting, not per datasource; with a metrics extension present Agroal collects metrics for all datasources, named ones included. quarkus.datasource.<name>.metrics.enabled does not exist; the per-datasource key is <name>.jdbc.metrics.enabled and is only needed to opt out."
+          }
+        ]
+      },
+      {
+        "round": 2,
+        "at": "2026-11-04T21:40:23Z",
+        "verdict": "approved",
+        "security": {
+          "status": "passed",
+          "ran_at": "2026-11-04T21:40:23Z",
+          "scope": "git.base",
+          "findings": [],
+          "note": "Reused from round 1: diff unchanged (HEAD 16ded07). No exploitable issue; change removes PII from logs."
+        },
+        "findings": [
+          {
+            "id": "R1",
+            "lens": "intent",
+            "severity": "major",
+            "note": "Rejection accepted (my round-1 claim was wrong). Global quarkus.datasource.metrics.enabled=true covers named datasources finance, preferences, notifications. No <name>.metrics.enabled key exists; no per-datasource opt-out is set in any application.properties.",
+            "status": "rejected"
+          }
+        ]
+      }
+    ]
+  },
+  "decisions": [
+    {
+      "id": "D1",
+      "at": "2026-11-04T18:13:25Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "Owner is platform, one standalone change, not a roadmap",
+      "why": "Cross-cutting like platform-upgrade-quarkus-3-33; edits outside jbh-z-assembly are one-argument log edits or annotations",
+      "covered_by": null
+    },
+    {
+      "id": "D2",
+      "at": "2026-11-04T18:13:25Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Point 6 (trace-aware gateway-client for findUserId) deferred",
+      "why": "Depends on JBH-57, not published yet; later only a version bump",
+      "covered_by": null
+    },
+    {
+      "id": "D3",
+      "at": "2026-11-04T18:13:25Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Point 7 compose.yaml env vars go to jbh-deploy with JBH-56",
+      "why": "Alloy does not exist yet; export stays off until the env var is set",
+      "covered_by": null
+    },
+    {
+      "id": "D4",
+      "at": "2026-11-04T18:13:25Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Metrics via Micrometer + Prometheus registry, Alloy scrapes /q/metrics",
+      "why": "OTel metrics and micrometer-opentelemetry bridge are preview in Quarkus 3.33; Micrometer is stable",
+      "covered_by": null
+    },
+    {
+      "id": "D5",
+      "at": "2026-11-04T18:13:25Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "AI spans with @WithSpan on the 4 adapter port methods, infra only",
+      "why": "Least code, no OTel types in application or domain",
+      "covered_by": null
+    },
+    {
+      "id": "D6",
+      "at": "2026-11-04T18:13:25Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Log audit covers all INFO/WARN/ERROR calls in all modules",
+      "why": "Logs leave the VPS; prod runs at INFO so DEBUG is out of scope",
+      "covered_by": null
+    },
+    {
+      "id": "D7",
+      "at": "2026-11-04T18:13:25Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Add quarkus-observability-devservices-lgtm, off by default",
+      "why": "Local Grafana on demand; dev mode works without Docker",
+      "covered_by": null
+    },
+    {
+      "id": "D8",
+      "at": "2026-11-04T18:13:25Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Acceptance = 6 local checks; Grafana Cloud checks move to JBH-56/JBH-61",
+      "why": "Alloy and Grafana Cloud do not exist yet",
+      "covered_by": null
+    },
+    {
+      "id": "D9",
+      "at": "2026-11-04T18:13:25Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "SOLID: SRP only; OCP and DIP not needed",
+      "why": "No extension point; application and domain get no telemetry types",
+      "covered_by": null
+    },
+    {
+      "id": "D10",
+      "at": "2026-11-04T18:13:25Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Accept size over cap (~520 lines, 33 files vs 500/15)",
+      "why": "Audit files are one-line edits; audit must land before JBH-56 ships logs",
+      "covered_by": null
+    },
+    {
+      "id": "D11",
+      "at": "2026-11-04T18:13:25Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Add StatementImportDispatcher context wrap (D7)",
+      "why": "Without it AI spans become separate root traces",
+      "covered_by": null
+    },
+    {
+      "id": "D12",
+      "at": "2026-11-04T18:13:25Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Remove client IP from LoggingFilter log line",
+      "why": "IP can be personal data and logs leave the VPS",
+      "covered_by": null
+    },
+    {
+      "id": "D13",
+      "at": "2026-11-04T18:13:25Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "Concurrency check: no race risk found in any task",
+      "why": "Stateless telemetry config, final fields, immutable Context copy; no shared business data",
+      "covered_by": null
+    },
+    {
+      "id": "D14",
+      "at": "2026-11-04T19:42:21Z",
+      "scope": "task:T1",
+      "made_by": "leader",
+      "decision": "Task timestamps from the leader bracket, not the worker report",
+      "why": "Worker reported placeholder times 00:00:00Z; dispatch and return times are known exactly",
+      "covered_by": null
+    },
+    {
+      "id": "D15",
+      "at": "2026-11-04T19:42:21Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "Red check accepted with 2 old errors in DeleteMovementUseCaseTest",
+      "why": "Pre-existing date bug: YearMonth.now() plus day counter makes future dates on Nov 4; module untouched by this change; not fixed as a side effect, raised to the user",
+      "covered_by": null
+    },
+    {
+      "id": "D16",
+      "at": "2026-11-04T20:04:00Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "Test blueprint approved at red gate; tests frozen",
+      "why": "User reviewed 14 red tests (06048fb) and said go ahead with wave 1",
+      "covered_by": null
+    },
+    {
+      "id": "D17",
+      "at": "2026-11-04T20:04:00Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "Wave 1 = 2 parallel sonnet workers: A1-A3+B1-B3 (serial, B2/B3 after B1) and C1-C5",
+      "why": "Disjoint files, 17 audit files is large, 5h bucket at 41%; B2/B3 folded into wave 1 because one serial worker does B1 first. Rejected: one worker with 12 tasks",
+      "covered_by": null
+    },
+    {
+      "id": "D18",
+      "at": "2026-11-04T21:35:41Z",
+      "scope": "task:E2",
+      "made_by": "user",
+      "decision": "Start the review now; I1-I8 stay awaiting-user-verification",
+      "why": "Suite and static checks pass; I1-I8 confirm runtime config and need services the leader never starts",
+      "covered_by": null
+    },
+    {
+      "id": "D19",
+      "at": "2026-11-04T21:38:24Z",
+      "scope": "review:security-gate",
+      "made_by": "user",
+      "decision": "Run /security-review in the review",
+      "why": "Diff adds dependencies, changes LoggingFilter, and adds an OTLP export; the change is about what data leaves the VPS",
+      "covered_by": null
+    },
+    {
+      "id": "D20",
+      "at": "2026-11-04T21:39:59Z",
+      "scope": "review:R1",
+      "made_by": "leader",
+      "decision": "Reject R1 (named datasource metrics keys)",
+      "why": "Quarkus docs: quarkus.datasource.metrics.enabled is global and covers finance, preferences, notifications; suggested key does not exist",
+      "covered_by": null
+    },
+    {
+      "id": "D21",
+      "at": "2026-11-04T21:44:23Z",
+      "scope": "task:E2",
+      "made_by": "user",
+      "decision": "Close E2 with I1, I3, I4, I7, I8 (jar/dev only); I2, I5, I6 move to JBH-56/JBH-61",
+      "why": "I2, I5, I6 need Docker LGTM or an OTLP collector; Alloy and Grafana Cloud come with JBH-56/JBH-61",
+      "covered_by": "design.md D8 / decision D8"
+    },
+    {
+      "id": "D22",
+      "at": "2026-11-05T00:02:13Z",
+      "scope": "task:F1",
+      "made_by": "user",
+      "decision": "Fix OTLP endpoint so traces reach Grafana in dev (LGTM) and prod; allow test shouldReadEndpointFromEnvWhenConfigured to read the %prod key",
+      "why": "User: 'I'd like to be able to see everything locally and prod. So, traces working on grafana is what i want'",
+      "covered_by": null
+    },
+    {
+      "id": "D23",
+      "at": "2026-11-05T01:02:02Z",
+      "scope": "task:F2",
+      "made_by": "user",
+      "decision": "Add dev console format with traceId/spanId and %dev.quarkus.otel.logs.enabled=true",
+      "why": "User: 'yes please, i want to see traceId spanId for both local prod.' Prod JSON already has them",
+      "covered_by": null
+    },
+    {
+      "id": "D24",
+      "at": "2026-11-05T01:29:39Z",
+      "scope": "task:F3",
+      "made_by": "user",
+      "decision": "Move local LGTM to kkpa-docker-lab; remove Dev Service; replace approved test shouldKeepLgtmOffWhenNoEnvVar; update spec requirement",
+      "why": "User: wants one Grafana, centralized in docker-lab, with fixed port and kept data, not a separate temporary one",
+      "covered_by": null
+    },
+    {
+      "id": "D25",
+      "at": "2026-11-05T01:29:39Z",
+      "scope": "task:F3",
+      "made_by": "user",
+      "decision": "Dev exports traces and logs by default (%dev OTEL_SDK_DISABLED default false)",
+      "why": "User chose on by default: the lab is the normal setup; export warnings accepted while it is down",
+      "covered_by": null
+    },
+    {
+      "id": "D26",
+      "at": "2026-11-05T02:08:50Z",
+      "scope": "task:F4",
+      "made_by": "user",
+      "decision": "Statement text source default pdfbox; Azure OCR only with STATEMENT_TEXT_SOURCE=azure; placed in JBH-60 as F4",
+      "why": "Azure subscription disabled (ReadOnlyDisabledSubscription -> HTTP 401); user chose pdfbox default and F4 placement over a separate change",
+      "covered_by": null
+    }
+  ],
+  "events": [
+    {
+      "at": "2026-11-04T18:13:25Z",
+      "agent": "leader",
+      "event": "branch ft/CH4-JBH-60-platform-add-observability created from ft/CH3-JBH-73 at db22813 (user rule: not from main)"
+    },
+    {
+      "at": "2026-11-04T18:13:25Z",
+      "agent": "leader",
+      "event": "artifacts committed a59f0a7; validate --strict passed; design briefing answered; no design gate (no DB)"
+    },
+    {
+      "at": "2026-11-04T18:13:25Z",
+      "agent": "leader",
+      "event": "run halted after Step 4 by pickup scope; Step 4a (test blueprint, red gate) runs on resume"
+    },
+    {
+      "at": "2026-11-04T18:13:25Z",
+      "agent": "leader",
+      "event": "skill drift: SKILL.md Step 3b says scope 'concurrency', check-progress.py rejects it; used scope 'change'"
+    },
+    {
+      "at": "2026-11-04T19:38:31Z",
+      "agent": "leader",
+      "event": "resume: Step 4a; dispatched worker 'platform' (blueprint mode, sonnet) for wave 0 (T1, T2, T3); budget start 5h 38%, ctx 14%, cost 0.858"
+    },
+    {
+      "at": "2026-11-04T19:39:52Z",
+      "agent": "leader",
+      "event": "wave 0 returned; worker report OK (doc pack named, D4/D5 compliance)"
+    },
+    {
+      "at": "2026-11-04T19:42:21Z",
+      "agent": "leader",
+      "event": "red check by the leader (assistantRunsTests): mvn clean verify -fae -Dmaven.test.failure.ignore=true, exit 1. Compiles. 14/14 new tests fail as expected (4 not implemented, 10 missing keys). Old: all pass except DeleteMovementUseCaseTest 2 errors (pre-existing, date-dependent). PMD: 2 UnusedFormalParameter on the skeleton, fixed by A3."
+    },
+    {
+      "at": "2026-11-04T19:43:00Z",
+      "agent": "leader",
+      "event": "test-blueprint commit 06048fb; red gate posted, waiting for the user"
+    },
+    {
+      "at": "2026-11-04T20:04:00Z",
+      "agent": "leader",
+      "event": "red gate approved by the user; wave 1 dispatched: worker 1 (A1-A3, B1-B3), worker 2 (C1-C5), parallel, sonnet"
+    },
+    {
+      "at": "2026-11-04T20:08:07Z",
+      "agent": "leader",
+      "event": "wave 1 reconciled; leader run (assistantRunsTests): mvn clean verify -fae -Dmaven.test.failure.ignore=true, exit 0. 14 blueprint tests pass, PMD and SpotBugs pass. Only DeleteMovementUseCaseTest 2 errors (pre-existing date bug, D15). No test file changed."
+    },
+    {
+      "at": "2026-11-04T20:09:00Z",
+      "agent": "leader",
+      "event": "wave-1 commit ae16317; checkpoint gate: 5h 6%, ctx 18%, clear. Recommended /clear + resume (3+ waves)."
+    },
+    {
+      "at": "2026-11-04T21:30:12Z",
+      "agent": "leader",
+      "event": "resume: Step 5 wave 2; dispatched worker 'platform' (sonnet, serial) for D1, D2, D3; budget start 5h 13%, ctx 11%, cost 0.769"
+    },
+    {
+      "at": "2026-11-04T21:31:20Z",
+      "agent": "leader",
+      "event": "wave 2 returned; worker report OK (doc pack named, D1-D9, D12 compliance); leader grep: no live logback-spring.xml reference"
+    },
+    {
+      "at": "2026-11-04T21:32:40Z",
+      "agent": "leader",
+      "event": "E1 leader run (assistantRunsTests): mvn clean verify -fae -Dmaven.test.failure.ignore=true, exit 0; 399 tests, 2 pre-existing DeleteMovementUseCaseTest errors (D15); PMD, SpotBugs pass. Complexity-Check mvn -q pmd:check exit 0. D1-D3, E1 done."
+    },
+    {
+      "at": "2026-11-04T21:33:22Z",
+      "agent": "leader",
+      "event": "E2: I9 grep audit pass (leader). I1-I8 need running services (jar + Postgres, collector, Docker): left awaiting-user-verification."
+    },
+    {
+      "at": "2026-11-04T21:33:36Z",
+      "agent": "leader",
+      "event": "wave-2 commit 16ded07; checkpoint gate: 5h 16%, ctx 13%, clear."
+    },
+    {
+      "at": "2026-11-04T21:33:36Z",
+      "agent": "leader",
+      "event": "Step 6 size: git diff --shortstat db22813...HEAD = 39 files, +1796/-289 (estimate 33 files, ~520 lines; actual includes openspec artifacts and progress.json)."
+    },
+    {
+      "at": "2026-11-04T21:35:41Z",
+      "agent": "leader",
+      "event": "Step 6: openspec validate --strict pass; suite pass recorded (E1, leader run); status verified. User chose review now (D18)."
+    },
+    {
+      "at": "2026-11-04T21:38:24Z",
+      "agent": "leader",
+      "event": "Step 7: review brief written; dispatched platform-reviewer round 1 (sonnet), Security-Gate: run; budget start 5h 17%"
+    },
+    {
+      "at": "2026-11-04T21:39:59Z",
+      "agent": "leader",
+      "event": "review round 1: security passed; changes-requested with R1 (major). Leader triage: R1 rejected with docs citation (D20). No code change. Signalling platform-reviewer to re-verify."
+    },
+    {
+      "at": "2026-11-04T21:41:00Z",
+      "agent": "leader",
+      "event": "review round 2: platform-reviewer approved R1 rejection; security passed (reused, diff unchanged). review.status approved; change status left in-review."
+    },
+    {
+      "at": "2026-11-04T21:41:00Z",
+      "agent": "leader",
+      "event": "skill conflict: check-progress.py allows reviewer-approved only when all tasks are done, but E2 is awaiting-user-verification (D18) and SKILL.md Step 8 expects such tasks at archive. Also reviewer file says it writes only review.*, schema says it sets change status. Stopped; E2 needs the user's I1-I8 run."
+    },
+    {
+      "at": "2026-11-04T21:44:23Z",
+      "agent": "leader",
+      "event": "E2: user runs I1, I3, I4, I7, I8 (D21); leader waits for the report."
+    },
+    {
+      "at": "2026-11-05T00:02:13Z",
+      "agent": "leader",
+      "event": "user test in local Grafana: Prometheus OK, I4 pass (uri template). Tempo empty: base quarkus.otel.exporter.otlp.endpoint overrides the LGTM Dev Service endpoint, nothing listens on localhost:4317. Defect found after review approval; status back to in-progress; leader fix F1 (D22)."
+    },
+    {
+      "at": "2026-11-05T00:02:50Z",
+      "agent": "leader",
+      "event": "F1 written by the leader (application.properties, ObservabilityConfigPropertiesTest, logging.md, design.md, tasks.md). Suite deferred until the user stops dev mode; user restarts dev with LGTM first to check Tempo (I5)."
+    },
+    {
+      "at": "2026-11-05T00:24:18Z",
+      "agent": "leader",
+      "event": "F1 check (leader, Tempo API on the user's dev run with LGTM): 2 traces from jbh-personal-finance arrive (were 0 before F1). ai.* spans not seen yet: no statement import since restart."
+    },
+    {
+      "at": "2026-11-05T00:52:52Z",
+      "agent": "leader",
+      "event": "I5/I6 partial (leader, Tempo API, user's dev run): 16 traces; import trace 6273cd5f has POST span + async ai.azure.extract-text in same trace (context wrap OK); span ERROR with exception.type BusinessException, no response text. LLM/Jev spans not reached: Azure OCR failed (env/provider issue, adapter only got @WithSpan)."
+    },
+    {
+      "at": "2026-11-05T01:02:02Z",
+      "agent": "leader",
+      "event": "F2 written by the leader (D23): application.properties, ObservabilityConfigPropertiesTest (+2 tests), logging.md, design.md, tasks.md. Suite pending (user's dev mode running)."
+    },
+    {
+      "at": "2026-11-05T01:29:39Z",
+      "agent": "leader",
+      "event": "F3 written by the leader (D24, D25). kkpa-docker-lab: lgtm/compose.yml, prometheus.yaml, README.md, README row; docker compose config OK. Finance: pom, properties, test, logging.md, design D8, spec, tasks. Suite pending."
+    },
+    {
+      "at": "2026-11-05T02:08:50Z",
+      "agent": "leader",
+      "event": "Azure debug: free GET on model info -> HTTP 401; user upload log confirms 'Azure returned HTTP 401'; portal shows ReadOnlyDisabledSubscription. Root cause: disabled Azure subscription, not code. F4 (D26): default text source pdfbox, finance + jbh-deploy."
+    }
+  ]
+}

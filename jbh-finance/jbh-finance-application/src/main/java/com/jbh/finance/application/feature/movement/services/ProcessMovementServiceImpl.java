@@ -87,11 +87,7 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
 
     if (monthlyProfitReported != null) {
       log.info(
-          "Adding {} dividends movement for productDTO {} and period {} with balance snapshot {}",
-          monthlyProfitReported,
-          accountId,
-          period,
-          nextMonthBalance);
+          "Adding dividends movement for productDTO {} and period {}", accountId, period);
 
       // I decided to put the balance snapshot, to make it real with the current balance of the
       // month
@@ -119,10 +115,9 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
     final var accountId = productPK.productId();
 
     log.info(
-        "Analyzing Movement {} for productDTO: {}, {}",
+        "Analyzing Movement {} for productDTO: {}",
         movementCommand.movementType(),
-        accountId.value(),
-        movementCommand);
+        accountId.value());
 
     // Create MovementDTO from command
     final var movementDTO = MovementMapper.fromCommand(accountId, movementCommand);
@@ -161,8 +156,7 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
     addMovementToProduct(accountPK, dividendsMovement);
 
     log.info(
-        "Dividends movement {} added successfully for productDTO {} and period {}",
-        dividendsAmount,
+        "Dividends movement added successfully for productDTO {} and period {}",
         accountPK.productId(),
         movementDate);
 
@@ -180,8 +174,7 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
       addMovementToProduct(accountPK, incomeWithholdingTaxMovement);
 
       log.info(
-          "Income withholding tax movement {} added successfully for productDTO {} and period {}",
-          incomeWithholdingTaxAmount,
+          "Income withholding tax movement added successfully for productDTO {} and period {}",
           accountPK.productId(),
           movementDate);
     }
@@ -275,10 +268,10 @@ public class ProcessMovementServiceImpl implements ProcessMovementService {
     }
 
     productLifecycleService.save(syncedAccountDTO);
-    log.info("Movement and Account {} persisted successfully", syncedAccountDTO.name());
+    log.info("Movement and Account {} persisted successfully", syncedAccountDTO.id().value());
 
     // Updates (or creates) the monthly balance entry if the product type requires tracking it
-    log.info("Syncing Monthly Balance for new movement {}", movementDTO);
+    log.info("Syncing Monthly Balance for new movement {}", movementDTO.id());
     MonthlyBalanceDTO monthlyBalanceDTO = null;
     if (syncedAccountDTO.productTypeShouldUpdateMonthlyBalance()) {
       if (movementToReverse) {
