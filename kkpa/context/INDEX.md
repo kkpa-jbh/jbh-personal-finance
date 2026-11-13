@@ -39,3 +39,8 @@
 
 | Topic | KB path |
 |---|---|
+| observability | `architecture/observability.md` |
+| logging | `architecture/observability.md` |
+| log privacy (no personal data in logs) | `architecture/observability.md` |
+| traces / OpenTelemetry | `architecture/observability.md` |
+| metrics / `/q/metrics` | `architecture/observability.md` |

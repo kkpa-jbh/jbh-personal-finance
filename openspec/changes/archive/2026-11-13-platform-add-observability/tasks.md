@@ -49,7 +49,7 @@ the sentence. Add no log line. Keep variables `final`. Remove any import that be
 ## Group E - Verification (leader or user). Depends on: A, B, C, D
 
 - [x] E1 Leader runs `mvn clean verify` (tests, PMD, SpotBugs). Compile errors from JPMS `requires` or a wrong key are fixed by the owner of the group.
-- [ ] E2 Run integration checks I1 to I9 of design.md. I2, I5 and I6 need a collector or Docker. Report any miss.
+- [x] E2 Run integration checks I1 to I9 of design.md. I2, I5 and I6 need a collector or Docker. Report any miss.
 
 ## Group F - Fix found in local Grafana (leader). Depends on: E1
 
