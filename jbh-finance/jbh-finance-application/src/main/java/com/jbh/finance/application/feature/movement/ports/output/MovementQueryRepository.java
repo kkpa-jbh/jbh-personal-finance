@@ -15,4 +15,7 @@ public interface MovementQueryRepository {
       UUID userId, ProductId productId, LocalDate startDate, LocalDate endDate);
 
   Optional<MovementDTO> findById(UUID movementId);
+
+  /** The movements created by one statement import, in no particular order. */
+  List<MovementDTO> findByStatementImportId(UUID statementImportId);
 }

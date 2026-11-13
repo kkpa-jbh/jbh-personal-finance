@@ -1,6 +1,6 @@
 package com.jbh.finance.infra.adapters.in.service;
 
-import com.jbh.finance.application.feature.statement.commands.ExtractStatementMovementsCommand;
+import com.jbh.finance.application.feature.statement.commands.RunStatementImportCommand;
 import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.util.concurrent.ExecutorService;
@@ -28,9 +28,9 @@ public class StatementImportDispatcher {
   /**
    * Starts the import and returns at once.
    *
-   * @param command the unlocked PDF
+   * @param command the import id, user, product and the unlocked PDF
    */
-  public void dispatch(final ExtractStatementMovementsCommand command) {
+  public void dispatch(final RunStatementImportCommand command) {
     executor.submit(() -> runner.run(command));
     LOG.info(LOG_PREFIX + " Started in the background");
   }

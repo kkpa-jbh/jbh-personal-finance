@@ -46,7 +46,7 @@ class AddMovementsUploadedFileInputPortLockTest {
                 accountId, userId, JBH_ZERO, JBH_ZERO));
     final ProductLifecycleService productService = mock(ProductLifecycleService.class);
     when(productService.findOrThrowByUserAndProductId(userId, accountId)).thenReturn(product);
-    when(productService.syncByUploadedMovements(any(), any())).thenReturn(product);
+    when(productService.syncByUploadedMovements(any(), any(), any())).thenReturn(product);
 
     final RecordingUnitOfWork unitOfWork = new RecordingUnitOfWork();
     final AtomicBoolean inTransactionOnSync = new AtomicBoolean();
@@ -76,7 +76,7 @@ class AddMovementsUploadedFileInputPortLockTest {
     final InOrder inOrder = inOrder(productService, balanceSyncer);
     inOrder.verify(productService).lockForUpdate(accountId);
     inOrder.verify(productService).findOrThrowByUserAndProductId(userId, accountId);
-    inOrder.verify(productService).syncByUploadedMovements(any(), any());
+    inOrder.verify(productService).syncByUploadedMovements(any(), any(), any());
     inOrder.verify(balanceSyncer).syncForUploadedMovementsAsync(eq(accountId), any());
     assertEquals(1, unitOfWork.transactionCount());
     assertTrue(inTransactionOnSync.get());

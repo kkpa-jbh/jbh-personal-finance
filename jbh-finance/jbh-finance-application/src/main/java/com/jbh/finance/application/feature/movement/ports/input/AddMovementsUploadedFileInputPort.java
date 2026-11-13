@@ -8,6 +8,7 @@ import com.jbh.finance.application.feature.category.services.CategoryService;
 import com.jbh.finance.application.feature.monthlybalance.dto.MonthlyBalanceDTO;
 import com.jbh.finance.application.feature.monthlybalance.services.MonthlyBalanceSyncForUploadedMovements;
 import com.jbh.finance.application.feature.movement.commands.AddMovementUploadedFileCommand;
+import com.jbh.finance.application.feature.movement.commands.UploadMovementsBatchCommand;
 import com.jbh.finance.application.feature.movement.dto.AddMultipleBasicMovementDTO;
 import com.jbh.finance.application.feature.movement.mappers.CategoryMapper;
 import com.jbh.finance.application.feature.movement.mappers.MovementMapper;
@@ -16,11 +17,11 @@ import com.jbh.finance.application.feature.movement.usecases.AddMovementsUploade
 import com.jbh.finance.application.feature.product.dto.ProductDTO;
 import com.jbh.finance.application.feature.product.services.ProductLifecycleService;
 import com.jbh.finance.domain.movement.MovementDomain;
+import com.jbh.finance.domain.movement.vo.MovementId;
 import com.jbh.finance.domain.movement.vo.MovementMetadata;
 import com.jbh.finance.domain.movement.vo.MovementType;
 import com.jbh.finance.domain.product.ProductDomain;
 import com.jbh.finance.domain.product.vo.ProductId;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -67,10 +68,17 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
       final List<AddMovementUploadedFileCommand> allUploadedMovCommand)
       throws BusinessException {
 
-    validateUploadedMovements(allUploadedMovCommand);
+    return uploadMovementsFromFile(
+        userId, accountId, UploadMovementsBatchCommand.forFile(allUploadedMovCommand));
+  }
 
-    return unitOfWork.executeInTransaction(
-        () -> uploadMovementsLocked(userId, accountId, allUploadedMovCommand));
+  @Override
+  public AddMultipleBasicMovementDTO uploadMovementsFromFile(
+      final UUID userId, final ProductId accountId, final UploadMovementsBatchCommand batch)
+      throws BusinessException {
+    validateUploadedMovements(batch.movements());
+
+    return unitOfWork.executeInTransaction(() -> uploadMovementsLocked(userId, accountId, batch));
   }
 
   /**
@@ -80,18 +88,19 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
   private AddMultipleBasicMovementDTO uploadMovementsLocked(
       final UUID userId,
       final ProductId accountId,
-      final List<AddMovementUploadedFileCommand> allUploadedMovCommand)
+      final UploadMovementsBatchCommand batch)
       throws BusinessException {
     accountService.lockForUpdate(accountId);
 
     final ProductDomain accountDomain = findAccountOrElseThrow(userId, accountId);
 
     final List<MovementDomain> uploadedMovements =
-        mapCommandToDomain(allUploadedMovCommand, accountDomain);
+        mapCommandToDomain(batch.movements(), accountDomain);
 
     // Sync productDTO balance
     final ProductDTO accountDTO =
-        accountService.syncByUploadedMovements(accountDomain, uploadedMovements);
+        accountService.syncByUploadedMovements(
+            accountDomain, uploadedMovements, batch.options());
 
     LOG.info("Persisting Movements changes");
     movementRepo.save(uploadedMovements.stream().map(MovementMapper::toDTO).toList());
@@ -134,39 +143,52 @@ public class AddMovementsUploadedFileInputPort implements AddMovementsUploadedFi
       final ProductDomain accountDomain) {
     final var importedAt = LocalDateTime.now();
     return allSimpleMovements.stream()
-        .map(
-            mvmntCommand -> {
-              final BigDecimal totalAmount = mvmntCommand.totalAmount();
-              final MovementType movementType = mvmntCommand.movementType();
-              CategoryDTO categoryDTO = null;
-              if (movementType == MovementType.DEPOSIT) {
-                categoryDTO = getOtherIncomeCategory();
-              } else if (movementType == MovementType.WITHDRAWAL) {
-                categoryDTO = getUnknownExpenseCategory();
-              }
-
-              try {
-                final var mov =
-                    new MovementDomain(
-                        accountDomain.getId(),
-                        movementType,
-                        mvmntCommand.entryDate(),
-                        totalAmount,
-                        mvmntCommand.balanceSnapshot(),
-                        MovementMetadata.createEmpty(),
-                        CategoryMapper.toDomain(categoryDTO),
-                        null);
-
-                mov.validate();
-                mov.getMetadata().putFileImportedAt(importedAt);
-
-                return mov;
-
-              } catch (final BusinessException e) {
-                throw new RuntimeException(e);
-              }
-            })
+        .map(command -> toMovementDomain(command, accountDomain, importedAt))
         .toList();
+  }
+
+  private MovementDomain toMovementDomain(
+      final AddMovementUploadedFileCommand command,
+      final ProductDomain accountDomain,
+      final LocalDateTime importedAt) {
+    try {
+      final var mov =
+          new MovementDomain(
+              MovementId.generate(),
+              accountDomain.getId(),
+              command.movementType(),
+              CategoryMapper.toDomain(resolveCategory(command)),
+              command.totalAmount(),
+              command.entryDate(),
+              command.balanceSnapshot(),
+              MovementMetadata.createEmpty(),
+              command.description(),
+              command.statementImportId());
+
+      mov.validate();
+      mov.getMetadata().putFileImportedAt(importedAt);
+      if (command.review() != null) {
+        mov.getMetadata().putStatementReview(command.review());
+      }
+
+      return mov;
+
+    } catch (final BusinessException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private CategoryDTO resolveCategory(final AddMovementUploadedFileCommand command) {
+    if (command.category() != null) {
+      return command.category();
+    }
+    if (command.movementType() == MovementType.DEPOSIT) {
+      return getOtherIncomeCategory();
+    }
+    if (command.movementType() == MovementType.WITHDRAWAL) {
+      return getUnknownExpenseCategory();
+    }
+    return null;
   }
 
   private CategoryDTO getOtherIncomeCategory() {

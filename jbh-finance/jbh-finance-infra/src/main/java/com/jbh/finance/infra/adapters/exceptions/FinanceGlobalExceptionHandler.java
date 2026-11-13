@@ -3,7 +3,9 @@ package com.jbh.finance.infra.adapters.exceptions;
 import com.jbh.commons.api.ApiResponse;
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.commons.exception.InternalSystemException;
+import com.jbh.finance.application.shared.exceptions.BusinessApplicationExceptionType;
 import jakarta.ws.rs.NotSupportedException;
+import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
@@ -34,9 +36,15 @@ import org.slf4j.LoggerFactory;
 public class FinanceGlobalExceptionHandler implements ExceptionMapper<Exception> {
 
   private static final Logger LOG = LoggerFactory.getLogger(FinanceGlobalExceptionHandler.class);
+  private static final int UNPROCESSABLE_ENTITY = 422;
+  private static final int CONFLICT = Response.Status.CONFLICT.getStatusCode();
 
   @Override
   public Response toResponse(final Exception exception) {
+    if (isRoutingError(exception)) {
+      return handleWebApplicationException((WebApplicationException) exception);
+    }
+
     LOG.error("Exception caught by GlobalExceptionHandler", exception);
 
     if (exception instanceof final BusinessException accountBusinessException) {
@@ -59,6 +67,19 @@ public class FinanceGlobalExceptionHandler implements ExceptionMapper<Exception>
     return handleGenericException(exception);
   }
 
+  /** A JAX-RS error such as an unknown path (404) or a wrong method (405): not a server error. */
+  private static boolean isRoutingError(final Exception exception) {
+    return exception instanceof WebApplicationException
+        && !(exception instanceof NotSupportedException);
+  }
+
+  private Response handleWebApplicationException(final WebApplicationException exception) {
+    final int status = exception.getResponse().getStatus();
+    LOG.warn("HTTP {} raised by the framework: {}", status, exception.getMessage());
+
+    return Response.status(status).entity(ApiResponse.error(exception.getMessage())).build();
+  }
+
   private Response handleAccountBusinessException(final BusinessException exception) {
     final String errorMessage = exception.getMessage();
 
@@ -71,9 +92,15 @@ public class FinanceGlobalExceptionHandler implements ExceptionMapper<Exception>
 
     LOG.warn("Business exception: {}", errorMessage);
 
-    return Response.status(422) // HTTP 422 - Unprocessable Entity
-        .entity(errorResponse)
-        .build();
+    return Response.status(statusOf(exception)).entity(errorResponse).build();
+  }
+
+  /** 422 for every business error, except a statement that was already imported (409). */
+  private static int statusOf(final BusinessException exception) {
+    return exception.getBusinessExceptionType()
+            == BusinessApplicationExceptionType.STATEMENT_ALREADY_IMPORTED
+        ? CONFLICT
+        : UNPROCESSABLE_ENTITY;
   }
 
   private Response handleInternalSystemException(final InternalSystemException exception) {

@@ -57,4 +57,9 @@ public final class MovementMetadata {
     put(MovementMetadataKey.FILE_IMPORTED_AT_TAG, importedAt);
     put(MovementMetadataKey.FILE_IMPORT_TAG, true);
   }
+
+  public void putStatementReview(final MovementReviewVO review) {
+    put(MovementMetadataKey.STATEMENT_CONFIDENCE, review.confidence());
+    put(MovementMetadataKey.STATEMENT_NEEDS_REVIEW, review.needsReview());
+  }
 }

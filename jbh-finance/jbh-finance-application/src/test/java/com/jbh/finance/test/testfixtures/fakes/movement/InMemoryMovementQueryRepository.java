@@ -57,6 +57,13 @@ public class InMemoryMovementQueryRepository implements MovementQueryRepository 
     return Optional.ofNullable(storage.get(movementId));
   }
 
+  @Override
+  public List<MovementDTO> findByStatementImportId(final UUID statementImportId) {
+    return storage.values().stream()
+        .filter(movement -> statementImportId.equals(movement.statementImportId()))
+        .toList();
+  }
+
   public void clearStorage() {
     storage.clear();
   }

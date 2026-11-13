@@ -17,66 +17,71 @@ import java.util.stream.Stream;
 /**
  * The categories a statement movement may get, built once per request.
  *
- * <p>Money in may only get income categories, money out only expense categories. The Unknown
- * category is always the last option.
+ * <p>Money in may only get income categories, money out only expense categories. The last option of
+ * each direction is its fallback: Other income for money in, Unknown expense for money out.
  */
 public final class StatementCategoryCatalog {
 
   public static final String QUESTION_KEY_PREFIX = "m_";
   private static final String ENGLISH = "en";
-  private static final String UNKNOWN_RULE =
+  private static final String FALLBACK_RULE =
       "None of the other categories clearly fits this movement";
   private static final String RULE_SEPARATOR = ": ";
 
   private final Map<CategorySourceVO, List<CategoryOptionDTO>> optionsBySource;
   private final Map<String, CategoryDTO> categoriesByAlias;
+  private final Map<CategorySourceVO, CategoryDTO> fallbackBySource;
   private final String unknownCategoryAlias;
 
   private StatementCategoryCatalog(
       final Map<CategorySourceVO, List<CategoryOptionDTO>> optionsBySource,
       final Map<String, CategoryDTO> categoriesByAlias,
-      final String unknownCategoryAlias) {
+      final Map<CategorySourceVO, CategoryDTO> fallbackBySource) {
     this.optionsBySource = optionsBySource;
     this.categoriesByAlias = categoriesByAlias;
-    this.unknownCategoryAlias = unknownCategoryAlias;
+    this.fallbackBySource = fallbackBySource;
+    this.unknownCategoryAlias = fallbackBySource.get(CategorySourceVO.EXPENSE).getAlias();
   }
 
   /**
-   * Loads the active income and expense categories and the Unknown category.
+   * Loads the active income and expense categories and the two fallback categories.
    *
    * @param categoryQueryRepo source of the active categories
-   * @param categoryService source of the Unknown category
+   * @param categoryService source of the Other income and Unknown expense categories
    * @return the catalog
    */
   public static StatementCategoryCatalog load(
       final CategoryQueryRepo categoryQueryRepo, final CategoryService categoryService) {
-    final CategoryDTO unknown = categoryService.findExpenseUnknown();
-    final String unknownAlias = unknown.getAlias();
-    final CategoryOptionDTO unknownOption = new CategoryOptionDTO(unknownAlias, UNKNOWN_RULE);
+    final Map<CategorySourceVO, CategoryDTO> fallbackBySource =
+        new EnumMap<>(CategorySourceVO.class);
+    fallbackBySource.put(CategorySourceVO.INCOME, categoryService.findIncomeOther());
+    fallbackBySource.put(CategorySourceVO.EXPENSE, categoryService.findExpenseUnknown());
 
     final Map<CategorySourceVO, List<CategoryOptionDTO>> optionsBySource =
         new EnumMap<>(CategorySourceVO.class);
     final Map<String, CategoryDTO> categoriesByAlias = new HashMap<>();
 
     for (final CategorySourceVO source : CategorySourceVO.values()) {
+      final CategoryDTO fallback = fallbackBySource.get(source);
       final List<CategoryDTO> categories = categoryQueryRepo.findActiveBySource(source);
       categories.forEach(category -> categoriesByAlias.put(category.getAlias(), category));
-      optionsBySource.put(source, optionsOf(categories, unknownOption));
+      categoriesByAlias.put(fallback.getAlias(), fallback);
+      optionsBySource.put(source, optionsOf(categories, fallback));
     }
-    categoriesByAlias.put(unknownAlias, unknown);
 
-    return new StatementCategoryCatalog(optionsBySource, categoriesByAlias, unknownAlias);
+    return new StatementCategoryCatalog(optionsBySource, categoriesByAlias, fallbackBySource);
   }
 
-  /** The options of one source: its categories without Unknown, then Unknown last. */
+  /** The options of one source: its categories without the fallback, then the fallback last. */
   private static List<CategoryOptionDTO> optionsOf(
-      final List<CategoryDTO> categories, final CategoryOptionDTO unknownOption) {
-    final String unknownAlias = unknownOption.alias();
+      final List<CategoryDTO> categories, final CategoryDTO fallback) {
+    final String fallbackAlias = fallback.getAlias();
     final Stream<CategoryOptionDTO> known =
         categories.stream()
-            .filter(category -> !unknownAlias.equals(category.getAlias()))
+            .filter(category -> !fallbackAlias.equals(category.getAlias()))
             .map(category -> new CategoryOptionDTO(category.getAlias(), ruleOf(category)));
-    return Stream.concat(known, Stream.of(unknownOption)).toList();
+    return Stream.concat(known, Stream.of(new CategoryOptionDTO(fallbackAlias, FALLBACK_RULE)))
+        .toList();
   }
 
   private static String ruleOf(final CategoryDTO category) {
@@ -146,6 +151,32 @@ public final class StatementCategoryCatalog {
     return optionsFor(direction).stream().anyMatch(option -> option.alias().equals(alias));
   }
 
+  /**
+   * The alias a movement gets when the classifier has no valid answer: Other income for money in,
+   * Unknown expense for money out.
+   *
+   * @param direction money in or money out
+   * @return the fallback alias
+   */
+  public String fallbackAliasFor(final StatementMovementDirection direction) {
+    return fallbackBySource.get(direction.toCategorySource()).getAlias();
+  }
+
+  /**
+   * The category of an alias.
+   *
+   * @param alias the category alias, one of the options or a fallback
+   * @return the category
+   */
+  public CategoryDTO categoryOf(final String alias) {
+    return categoriesByAlias.get(alias);
+  }
+
+  /**
+   * The alias of the Unknown expense category.
+   *
+   * @return the alias
+   */
   public String unknownAlias() {
     return unknownCategoryAlias;
   }

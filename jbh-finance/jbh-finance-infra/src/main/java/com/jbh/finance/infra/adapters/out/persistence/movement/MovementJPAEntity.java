@@ -69,6 +69,9 @@ public class MovementJPAEntity extends PanacheEntityBase {
   @Column(name = "created_at", nullable = false, updatable = false)
   public LocalDateTime createdAt;
 
+  @Column(name = "statement_import_id")
+  public UUID statementImportId;
+
   public static MovementJPAEntity toEntity(final MovementDTO productMovement) {
     final MovementJPAEntity entity = new MovementJPAEntity();
     entity.setId(productMovement.id() != null ? productMovement.id().value() : null);
@@ -82,6 +85,7 @@ public class MovementJPAEntity extends PanacheEntityBase {
         productMovement.metadata() != null ? productMovement.metadata().asMap() : null);
     entity.setDescription(productMovement.description());
     entity.setCreatedAt(productMovement.createdAt());
+    entity.setStatementImportId(productMovement.statementImportId());
     entity.setDescription(productMovement.description());
     entity.setCategory(CategoryJPAEntity.fromDTO(productMovement.category()));
 
@@ -113,6 +117,7 @@ public class MovementJPAEntity extends PanacheEntityBase {
         .metadata(metadata != null ? MovementMetadata.of(metadata) : null)
         .createdAt(createdAt)
         .description(description)
+        .statementImportId(statementImportId)
         .build();
   }
 }

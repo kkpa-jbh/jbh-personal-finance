@@ -19,6 +19,7 @@ import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.finance.domain.product.vo.ProductMetadata;
 import com.jbh.finance.domain.product.vo.ProductMetadataKey;
 import com.jbh.finance.domain.product.vo.ProductType;
+import com.jbh.finance.domain.shared.exceptions.BusinessDomainExceptionType;
 import com.jbh.finance.domain.shared.vo.EntityOperationVO;
 import com.jbh.finance.testfixtures.CategoryFixturesDomain;
 import java.math.BigDecimal;
@@ -695,5 +696,75 @@ public class ProductDomainTest {
             BigDecimal.ZERO,
             MovementType.DEPOSIT,
             CategoryFixturesDomain.OTHER_INCOME));
+  }
+
+  // ========== STATEMENT IMPORT: FUNDS CHECK ==========
+
+  @Test
+  public void shouldThrowInsufficientFundsWhenSavingsWithdrawalExceedsBalanceWithDefaultOptions() {
+    // Arrange
+    final ProductDomain savings =
+        ProductDomainTestBuilder.createSavingProductWithBalance(
+            ProductId.generate(), userId, JBH_ZERO, JBH_ZERO);
+    final MovementDomain withdrawal = statementWithdrawal(savings, "-50.00");
+
+    // Act
+    final BusinessException exception =
+        assertThrows(
+            BusinessException.class,
+            () ->
+                savings.syncBalancesByMovement(
+                    withdrawal, new ProcessMovementOptionsVO(EntityOperationVO.ADD)));
+
+    // Assert
+    assertEquals(
+        BusinessDomainExceptionType.INSUFFICIENT_FUNDS, exception.getBusinessExceptionType());
+  }
+
+  @Test
+  public void shouldAllowNegativeBalanceWhenSavingsWithdrawalIsForStatementImport()
+      throws BusinessException {
+    // Arrange
+    final ProductDomain savings =
+        ProductDomainTestBuilder.createSavingProductWithBalance(
+            ProductId.generate(), userId, JBH_ZERO, JBH_ZERO);
+    final MovementDomain withdrawal = statementWithdrawal(savings, "-50.00");
+
+    // Act
+    savings.syncBalancesByMovement(withdrawal, ProcessMovementOptionsVO.forStatementImport());
+
+    // Assert
+    assertEquals(0, new BigDecimal("-50.00").compareTo(savings.getCurrentBalance()));
+    assertEquals(0, new BigDecimal("-50.00").compareTo(savings.getMovementBalance()));
+  }
+
+  @Test
+  public void shouldAllowNegativeBalanceWhenCreditCardWithdrawalIsForStatementImport()
+      throws BusinessException {
+    // Arrange
+    final ProductDomain creditCard =
+        ProductDomainTestBuilder.createCreditCardProductWithBalance(
+            ProductId.generate(), userId, JBH_ZERO, JBH_ZERO);
+    final MovementDomain withdrawal = statementWithdrawal(creditCard, "-500.00");
+
+    // Act
+    creditCard.syncBalancesByMovement(withdrawal, ProcessMovementOptionsVO.forStatementImport());
+
+    // Assert
+    assertEquals(0, new BigDecimal("-500.00").compareTo(creditCard.getCurrentBalance()));
+  }
+
+  private static MovementDomain statementWithdrawal(
+      final ProductDomain product, final String amount) {
+    return new MovementDomain(
+        MovementId.generate(),
+        product.getId(),
+        MovementType.WITHDRAWAL,
+        CategoryFixturesDomain.SOCIAL_SECURITY_EXPENSE,
+        new BigDecimal(amount),
+        LocalDate.now(),
+        null,
+        MovementMetadata.createEmpty(),
+        null);
   }
 }

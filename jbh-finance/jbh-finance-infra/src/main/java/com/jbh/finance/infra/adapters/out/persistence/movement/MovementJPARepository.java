@@ -40,6 +40,17 @@ public class MovementJPARepository implements PanacheRepository<MovementJPAEntit
         .toList();
   }
 
+  public List<MovementDTO> findByStatementImportId(final UUID statementImportId) {
+    return find(
+            "from MovementJPAEntity m left join fetch m.category"
+                + " where m.statementImportId = :statementImportId",
+            Parameters.with("statementImportId", statementImportId))
+        .list()
+        .stream()
+        .map(MovementJPAEntity::toDTO)
+        .toList();
+  }
+
   public Optional<MovementJPAEntity> findById(final UUID movementId) {
     return find("id = :movementId", Parameters.with(MOVEMENT_ID, movementId))
         .singleResultOptional();

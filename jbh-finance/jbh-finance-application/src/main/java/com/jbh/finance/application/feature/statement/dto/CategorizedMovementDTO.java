@@ -1,5 +1,6 @@
 package com.jbh.finance.application.feature.statement.dto;
 
+import com.jbh.finance.application.feature.category.dto.CategoryDTO;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.Map;
  * @param categoryDisplayName category name per language
  * @param confidence classifier confidence (0 to 1)
  * @param lowConfidence {@code true} when the user should check the category
+ * @param category the chosen category
  */
 public record CategorizedMovementDTO(
     LocalDate date,
@@ -26,4 +28,5 @@ public record CategorizedMovementDTO(
     String categoryAlias,
     Map<String, String> categoryDisplayName,
     BigDecimal confidence,
-    boolean lowConfidence) {}
+    boolean lowConfidence,
+    CategoryDTO category) {}

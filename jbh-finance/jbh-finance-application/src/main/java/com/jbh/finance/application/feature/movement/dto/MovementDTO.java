@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
@@ -29,6 +30,7 @@ public class MovementDTO {
   private final MovementMetadata metadata;
   private final LocalDateTime createdAt;
   private final String description;
+  private final UUID statementImportId;
 
   @Override
   public String toString() {
@@ -83,6 +85,10 @@ public class MovementDTO {
 
   public String description() {
     return description;
+  }
+
+  public UUID statementImportId() {
+    return statementImportId;
   }
 
   public boolean isWithdrawalType() {

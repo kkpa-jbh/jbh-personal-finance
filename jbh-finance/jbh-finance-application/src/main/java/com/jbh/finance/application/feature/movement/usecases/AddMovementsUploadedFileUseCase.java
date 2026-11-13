@@ -2,6 +2,7 @@ package com.jbh.finance.application.feature.movement.usecases;
 
 import com.jbh.finance.application.feature.movement.dto.AddMultipleBasicMovementDTO;
 import com.jbh.finance.application.feature.movement.commands.AddMovementUploadedFileCommand;
+import com.jbh.finance.application.feature.movement.commands.UploadMovementsBatchCommand;
 import com.jbh.finance.domain.product.vo.ProductId;
 import com.jbh.commons.exception.BusinessException;
 import java.util.List;
@@ -52,5 +53,19 @@ public interface AddMovementsUploadedFileUseCase {
    */
   AddMultipleBasicMovementDTO uploadMovementsFromFile(
       UUID userId, ProductId accountId, List<AddMovementUploadedFileCommand> allUploadedMovements)
+      throws BusinessException;
+
+  /**
+   * Uploads and persists a batch of movements, with the processing options of the batch, in a
+   * single transaction. The rules are the same as in the list overload.
+   *
+   * @param userId the user who owns the product
+   * @param accountId the product ID where movements will be added
+   * @param batch the movements and the processing options
+   * @return DTO containing updated product and list of persisted monthly balances
+   * @throws BusinessException if validation fails, product not found, or any movement is invalid
+   */
+  AddMultipleBasicMovementDTO uploadMovementsFromFile(
+      UUID userId, ProductId accountId, UploadMovementsBatchCommand batch)
       throws BusinessException;
 }

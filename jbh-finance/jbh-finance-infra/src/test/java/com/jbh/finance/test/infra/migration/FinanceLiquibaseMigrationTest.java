@@ -61,6 +61,7 @@ class FinanceLiquibaseMigrationTest {
           "products",
           "movements",
           "monthly_balances",
+          "statement_imports",
           "databasechangelog",
           "databasechangeloglock");
 
