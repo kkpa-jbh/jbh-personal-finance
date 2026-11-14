@@ -88,7 +88,7 @@
 - Custom registration class `jbh-z-assembly/.../config/ConsulServiceRegistration.java` (Consul HTTP API, no Quarkus extension)
 - Settings: `consul.*` in `jbh-z-assembly/src/main/resources/application.properties`
 - Registers as `jbh-personal-finance`, health check `/q/health`
-- Consul runs from the `jbh-discovery-nexus` repo (Docker)
+- Consul runs locally from `kkpa-docker-lab/consul` (`make consul up`, Docker)
 
 ## API Gateway
 
