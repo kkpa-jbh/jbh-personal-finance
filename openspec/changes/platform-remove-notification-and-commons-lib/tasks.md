@@ -12,6 +12,7 @@ Prerequisites for any build: `com.jbh:jbh-commons-lib:1.0.0-SNAPSHOT` and the ne
 - [ ] A4 Root `pom.xml`: add the `https://maven.pkg.github.com/kkpa-jbh/jbh-commons-lib` repository to the `github` profile; update its comment (D3). Do NOT add a `jbh-notification` repository.
 - [ ] A5 Root `pom.xml`: remove `distributionManagement` and the comment above it (D4).
 - [ ] A6 `jbh-z-assembly/pom.xml`: remove the `jbh-notification-infra` dependency.
+- [ ] A7 `.github/maven-settings.xml`: add <server> id `github-packages-read-commons` (PACKAGES_READ_TOKEN); update the header comment (D3). Depends on: none.
 - Acceptance: no `jbh-notification` and no `jbh-commons-lib` module in any reactor `<modules>`; `requires jbh.commons` untouched.
 
 ## Group B - Assembly config. Depends on: none
@@ -40,6 +41,7 @@ Prerequisites for any build: `com.jbh:jbh-commons-lib:1.0.0-SNAPSHOT` and the ne
 - [ ] E1 `README.md` (~20, 23, 39-40, 110, 116, 145, 151, 161).
 - [ ] E2 `.claude/CLAUDE.md` (sync trigger ~76, Modules-Root ~83). Report that `jbh-products` has no folder; do not decide.
 - [ ] E3 `.claude/infrastructure/database.md`, `.claude/infrastructure/tech-stack.md`, `.claude/skills/jbh-review-business-rules/SKILL.md`.
+- [ ] E3a Note for E3: commit 3ecb39f already changed one line in `.claude/infrastructure/tech-stack.md` (local Consul). Keep that line; edit only the notification line (~101).
 - [ ] E4 `docs/guides/{jandex-and-modules,logging,maven-enforcer}.md` and `docs/notes/{API_ROUTING,DATABASE_SCHEMA_EXPORT,api-models-inventory}.md`.
 - [ ] E5 `jbh-finance/AGENTS.md` (~41): wording only if it says commons-lib is in this repo.
 - [ ] E6 `openspec/config.yaml` `context`: module list only. Keep the archive domains.
@@ -53,4 +55,4 @@ Prerequisites for any build: `com.jbh:jbh-commons-lib:1.0.0-SNAPSHOT` and the ne
 - [ ] F3 Run the V5 search.
 - [ ] F4 After merge: first finance CI `image` run (V6). If "could not resolve jbh-notification-contracts", open a follow-up for one `<repository>` entry (R1).
 
-Size estimate: ~110 files (about 89 pure deletes: 72 in `jbh-notification`, 16 in `jbh-commons-lib`, 1 workflow; about 21 edited files), ~330 changed lines (deleted code excluded from the line count; tests and docs included)
+Size estimate: ~111 files (about 89 pure deletes: 72 in `jbh-notification`, 16 in `jbh-commons-lib`, 1 workflow; about 22 edited files), ~340 changed lines (deleted code excluded from the line count; tests and docs included)

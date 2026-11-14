@@ -25,6 +25,14 @@ Add `https://maven.pkg.github.com/kkpa-jbh/jbh-commons-lib` next to `jbh-gateway
 `github` profile (id `github-packages-read` style as the existing entry; the worker copies the
 existing entry and changes the url and the id). Update the comment above it: it resolves
 `jbh-gateway-client` and `jbh-commons-lib` from GitHub Packages. Local builds use `~/.m2`.
+Credentials: `.github/maven-settings.xml` holds a `<server>` only for ids `github` (GITHUB_TOKEN) and
+`github-packages-read` (PACKAGES_READ_TOKEN). Maven matches credentials by repository id, and two
+repositories in one profile cannot share an id. So the new `jbh-commons-lib` repository gets its own
+id, `github-packages-read-commons`, and `maven-settings.xml` gets a matching `<server>` with
+username `${env.GITHUB_ACTOR}` and password `${env.PACKAGES_READ_TOKEN}`. Without it CI gets
+401 on `jbh-commons-lib`. The header comment of `maven-settings.xml`, which lists the servers, is
+updated too. The same PAT secret serves both read ids. This supersedes the "id `github-packages-read`
+style" wording above: the worker uses the exact id `github-packages-read-commons`.
 Rejected for now: also add a `jbh-notification` repository. See Risks, R1.
 
 ### D4. Remove `distributionManagement`
