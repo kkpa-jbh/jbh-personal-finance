@@ -98,7 +98,7 @@
 
 - Single entry point for all clients
 - Finds services in Consul (`lb://jbh-personal-finance`)
-- Routes `/jbh-api/finance/**`, `/jbh-api/preferences/**`, `/jbh-api/notifications/**` (and `/jbh-api/products/**`) to this app
+- Routes `/jbh-api/finance/**`, `/jbh-api/preferences/**` (and `/jbh-api/products/**`) to this app
 - JWT validation
 - Rate limiting (10 requests per second per IP)
 

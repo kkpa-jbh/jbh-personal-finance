@@ -139,11 +139,6 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <artifactId>jbh-commons-lib</artifactId>
-        <groupId>com.jbh</groupId>
-        <version>1.0.0-SNAPSHOT</version>
-      </dependency>
-      <dependency>
         <artifactId>jbh-finance-domain</artifactId>
         <groupId>com.jbh</groupId>
         <version>1.0.0-SNAPSHOT</version>

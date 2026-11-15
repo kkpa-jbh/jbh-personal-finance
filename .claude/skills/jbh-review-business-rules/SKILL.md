@@ -70,9 +70,6 @@ If no argument was provided, use the AskUserQuestion tool:
   - `jbh-preferences/jbh-preferences-domain`
   - `jbh-preferences/jbh-preferences-application`
   - `jbh-preferences/jbh-preferences-infra`
-  - `jbh-notification/jbh-notification-domain`
-  - `jbh-notification/jbh-notification-application`
-  - `jbh-notification/jbh-notification-infra`
   - Other (user types the path)
 
 Then ask a second question:

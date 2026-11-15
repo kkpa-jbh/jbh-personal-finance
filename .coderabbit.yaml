@@ -90,7 +90,7 @@ reviews:
         - Response classes: package `...adapters.in.rest.<feature>.response`, suffix `*Response`, NEVER `*DTO`. Built from DTOs with a `fromDTO()` factory.
         - Never return a DTO or a JPA entity from an endpoint.
         - This app does not validate the JWT. The user id comes from `BaseRestAdapter.findUserId(...)` (it asks jbh-iam through jbh-gateway-client). Flag code that parses the token itself.
-        - Paths use the constants (`ApiConstants`, `FinanceApiRoutes`, `PreferencesApiConstants`, `NotificationRoutes`).
+        - Paths use the constants (`ApiConstants`, `FinanceApiRoutes`, `PreferencesApiConstants`).
         - A NEW top-level path under `/jbh-api` needs a route in `jbh-gateway` (`application.yml`) and an update of `jbh-deploy/README.md`. Remind the author when you see one.
         - One REST adapter handles the HTTP concerns of one feature only.
 
@@ -99,7 +99,7 @@ reviews:
         Persistence adapters:
         - JPA entities use the `*Entity` suffix, live in `...adapters.out.persistence.entity`, and never leave the persistence layer.
         - Adapters implement application output ports and honor their contracts.
-        - Each module works only in its own PostgreSQL schema (`finance`, `preferences`, `notifications`). Flag queries that touch another module's schema.
+        - Each module works only in its own PostgreSQL schema (`finance`, `preferences`). Flag queries that touch another module's schema.
         - Look for N+1 queries and for loading whole entities when a projection is enough.
 
     - path: "**/src/main/resources/db/changelog/**"
@@ -130,13 +130,6 @@ reviews:
         - Flag tests that depend on shared static state between methods, when a failure in one method makes the next ones fail.
         - Money values in assertions use `withJBHDecimals`.
 
-    - path: "jbh-notification/jbh-notification-contracts/**"
-      instructions: |
-        Shared contract. `jbh-gateway-client` and `jbh-iam` use it.
-        - Flag any breaking change (removed or renamed public class, field or method).
-        - Remind the author: publish the contracts first (`publish-contracts` workflow, or `mvn install` locally), then rebuild `jbh-gateway-client`, then the services.
-        - A change here must update `jbh-deploy/README.md` if it changes how services talk.
-
     - path: "**/src/main/resources/application*.properties"
       instructions: |
         Configuration:
@@ -146,7 +139,7 @@ reviews:
     - path: ".github/workflows/**"
       instructions: |
         CI:
-        - The publish order matters: `publish-contracts` first, then `jbh-gateway-client`, then the `image` workflow.
+        - The publish order matters: `jbh-commons-lib` and `jbh-gateway-client` must be published before the `image` workflow.
         - Maven runs with `-s .github/maven-settings.xml -Pgithub`. Reading other repos' packages needs the `PACKAGES_READ_TOKEN` secret.
         - Keep `permissions` minimal. Pin actions to a version.
 

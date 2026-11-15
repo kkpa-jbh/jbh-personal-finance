@@ -23,12 +23,10 @@ across modules.
 ```
 jbh-personal-finance/
 ├── pom.xml                    # Root POM with logging dependencies
-├── jbh-finance/
-│   ├── jbh-finance-domain/    # SLF4J API only
-│   ├── jbh-finance-application/ # SLF4J API + Utility classes
-│   └── jbh-finance-infra/     # Full logging implementation
-└── jbh-notification/
-    └── jbh-notification-infra/ # Full logging implementation
+└── jbh-finance/
+    ├── jbh-finance-domain/    # SLF4J API only
+    ├── jbh-finance-application/ # SLF4J API + Utility classes
+    └── jbh-finance-infra/     # Full logging implementation
 ```
 
 ## Dependencies Added
