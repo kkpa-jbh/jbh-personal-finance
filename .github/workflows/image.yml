@@ -1,44 +1,75 @@
-# Builds the jbh-personal-finance image and pushes it to GHCR, tagged with the git SHA.
+# Image: builds the jbh-personal-finance Docker image and pushes it to GHCR
+# (GitHub Container Registry), tagged with the git SHA and with "latest".
+# It runs on every push to main (for example, after a PR is merged), or by hand.
 # The VPS only pulls this image. It never builds Maven itself.
+# The tests do not run here: ci.yml runs them.
+#
+# How GitHub Actions works, in short: see the header of ci.yml.
+
+# The name shown in the GitHub "Actions" tab.
 name: Image
 
 on:
+  # Adds a "Run workflow" button in the Actions tab, to start it by hand.
   workflow_dispatch:
+  # Runs on every push to main.
   push:
     branches: [ main ]
 
+# What the automatic GITHUB_TOKEN may do in this run. Every permission not listed is "none".
 permissions:
+  # Read the code.
   contents: read
+  # Push the image to GHCR and delete old image versions.
   packages: write
 
 jobs:
+  # "image" is the job id.
   image:
+    # The machine type. GitHub gives a clean Ubuntu VM for each run and deletes it after.
     runs-on: ubuntu-latest
     steps:
+      # The VM starts empty. This step downloads the commit's code into it.
       - uses: actions/checkout@v7
 
+      # Installs Java 21 (Temurin build). "cache: maven" saves ~/.m2 between runs,
+      # so Maven does not download every dependency again each time.
       - uses: actions/setup-java@v6
         with:
           java-version: '21'
           distribution: 'temurin'
           cache: maven
 
-      # Tests run in ci.yml. This job only packages the fast-jar.
+      # Builds the Quarkus fast-jar in jbh-z-assembly/target/quarkus-app/ (the Dockerfile copies it).
+      # ./mvnw: the Maven wrapper. -B: batch mode, plain logs with no colours or progress bars.
       # -U: the ~/.m2 cache is restored, so force a check for a newer jbh-gateway-client SNAPSHOT.
+      # -s .github/maven-settings.xml: the CI settings file with the two tokens below.
+      # -Pgithub: JBH packages come from GitHub Packages (URLs in the "github" profile of pom.xml).
+      # -pl jbh-z-assembly -am: build only the assembly module and the modules it needs.
+      # -DskipTests package: no tests (ci.yml runs them), stop at the package phase.
       - name: Package Quarkus app
         run: ./mvnw -B -U -s .github/maven-settings.xml -Pgithub -pl jbh-z-assembly -am -DskipTests package
+        # Read by .github/maven-settings.xml:
+        #   GITHUB_TOKEN        - automatic token of this run.
+        #   PACKAGES_READ_TOKEN - repo secret, a classic token with read:packages,
+        #                         to read the packages of other kkpa-jbh repos.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PACKAGES_READ_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN }}
 
+      # Logs Docker in to ghcr.io, so the next step can push.
+      # The user is the person or bot that started the run. The password is the automatic token.
       - uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Builds the image from jbh-z-assembly/Dockerfile and pushes it with two tags:
+      # the git SHA (a fixed version, used by the deploy and for rollback) and "latest".
       - uses: docker/build-push-action@v7
         with:
+          # The folder Docker sends to the build. The Dockerfile is in this folder.
           context: jbh-z-assembly
           push: true
           # One version per push. Build attestations would add untagged versions that use up the 2 kept slots.
@@ -47,6 +78,7 @@ jobs:
             ghcr.io/kkpa-jbh/jbh-personal-finance:${{ github.sha }}
             ghcr.io/kkpa-jbh/jbh-personal-finance:latest
 
+      # Deletes old versions of the image in GHCR.
       # GitHub Free: 500 MB for private packages. Keep the 2 newest images: the running one and one to roll back to.
       - name: Delete old images
         uses: actions/delete-package-versions@v5

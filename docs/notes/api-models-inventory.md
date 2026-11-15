@@ -25,7 +25,6 @@ This document provides a complete inventory of all REST API endpoints with their
 | POST /jbh-api/finance/products/movements/{productId} | AddMovementRequest | AddBasicMovementResponse |
 | POST /jbh-api/finance/products/transfers/ | AddTransferRequest | None |
 | POST /jbh-api/finance/products/{productId}/liquidate | LiquidateProductRequest | LiquidationResultResponse |
-| POST /jbh-api/notifications/v1 | SendNotificationCommand | NotificationResponse |
 | POST /jbh-api/preferences/team-preferences/v1 | CreateTeamPreferencesRequest | TeamPreferencesResponse |
 | POST /jbh-api/preferences/v1 | None | UserPreferencesResponse |
 | PUT /jbh-api/finance/products/{productId} | EditProductRequest | ProductResponse |
@@ -49,11 +48,7 @@ All API endpoints now follow the proper naming conventions:
    - Created `TeamPreferencesResponse` in `jbh-preferences-infra/adapters/in/rest/vo/`
    - Updated REST adapters to map from DTOs to Response objects
 
-2. **Notification Module** ✅
-   - Renamed `SendNotificationRequest` to `SendNotificationCommand` (shared contract in `-contracts` module)
-   - Command pattern is acceptable for shared contracts between modules
-
-3. **Finance Module - Balance History** ✅
+2. **Finance Module - Balance History** ✅
    - Created `BalanceHistoryResponse` in `jbh-finance-infra/adapters/in/rest/balancehistory/response/`
    - Created `BalanceHistorySummaryResponse` in `jbh-finance-infra/adapters/in/rest/balancehistory/response/`
    - Created `BalanceHistoryEntryResponse` in `jbh-finance-infra/adapters/in/rest/balancehistory/response/`
@@ -71,7 +66,7 @@ All API endpoints now follow the proper naming conventions:
 ### Command Objects (Shared Contracts)
 - **Pattern:** `<ActionName><EntityName>Command`
 - **Location:** `*-contracts/` (for inter-module communication)
-- **Examples:** SendNotificationCommand
+- **Examples:** none in this app at present
 
 ### Response Objects
 - **Pattern:** `<EntityName>Response` or `<EntityName>ApiResponse`

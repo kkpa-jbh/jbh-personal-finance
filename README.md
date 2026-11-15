@@ -17,10 +17,8 @@ It is one service of the JBH system. How it connects to the other services (gate
 
 | Module | Submodules | What it does | Gateway paths |
 |--------|-----------|--------------|---------------|
-| `jbh-commons-lib` | - | Shared code (`api`, `exception`, `time`, `util`) | - |
 | `jbh-finance` | `-domain`, `-application`, `-infra` | Products, movements, transfers, categories, balances, statement import | `/jbh-api/finance/**` |
 | `jbh-preferences` | `-domain`, `-application`, `-contracts`, `-infra` | User and team preferences | `/jbh-api/preferences/v1`, `/jbh-api/preferences/team-preferences/v1` |
-| `jbh-notification` | `-contracts`, `-infra` | Send notifications (email) | `/jbh-api/notifications/v1` |
 | `jbh-z-assembly` | - | Quarkus runner. Depends on all `*-infra` modules and holds `application.properties` | - |
 
 ## Run it
@@ -36,8 +34,8 @@ cp .env.example .env
 # 2. Database jbh_finance and one schema per module
 make create-all-schemas
 
-# 3. Shared libraries. jbh-gateway-client needs the notification contracts first.
-./mvnw -pl jbh-notification/jbh-notification-contracts -am install -DskipTests
+# 3. Shared libraries. Both are external packages, built in their own repos.
+(cd ../jbh-commons-lib && mvn install -DskipTests)
 (cd ../jbh-gateway-client && mvn install -DskipTests)
 
 # 4. Start in dev mode on port 7777
@@ -107,13 +105,11 @@ jbh-app ──► jbh-gateway (JWT check) ──► jbh-personal-finance :7777
 ```
 jbh-personal-finance/
 ├── pom.xml                      (root parent: BOM and plugin versions)
-├── jbh-commons-lib/
 ├── jbh-finance/
 │   ├── jbh-finance-domain/
 │   ├── jbh-finance-application/
 │   └── jbh-finance-infra/       (REST, persistence, gateway client, AI adapters)
 ├── jbh-preferences/
-├── jbh-notification/
 └── jbh-z-assembly/              (Quarkus runner, application.properties, Dockerfile)
 ```
 
@@ -142,13 +138,12 @@ Maven plugin.
 - The async balance sync runs in memory in one instance. If the instance stops, pending tasks are
   lost, and there is no real dead-letter queue yet (`AsyncTaskExecutorImpl`).
 - The net profit formula does not work for credit cards yet (`MonthlyBalanceDomain`).
-- `/jbh-api/notifications/**` has no service-to-service credential. Production blocks it at Caddy.
 - Quarkus runs on 3.33 LTS (3.33.4.1). Plan the next LTS move before this line goes out of support.
 - The statement import does not save movements yet.
 
 ## Makefile
 
-The root `Makefile` calls each module's `.mk` file (`Finance.mk`, `Notification.mk`, `Preferences.mk`).
+The root `Makefile` calls each module's `.mk` file (`Finance.mk`, `Preferences.mk`).
 The `product-*` targets are for the **Finance** module.
 
 - `make help` - Shows help for all modules
@@ -158,7 +153,7 @@ The `product-*` targets are for the **Finance** module.
 - `make check-all-connections` - Tests all database connections
 - `make export-all-schemas` - Exports schemas to `docs/database-schemas`
 
-Module commands (same pattern for `notification-*` and `preferences-*`):
+Module commands (same pattern for `preferences-*`):
 `make product-create-schema`, `make product-drop-schema`, `make product-recreate-schema`,
 `make product-check-connection`.
 

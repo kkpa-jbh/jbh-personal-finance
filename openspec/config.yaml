@@ -6,7 +6,7 @@ context: |
   Specs here describe capability behavior, not architecture.
   Tech stack: Java 21, Quarkus modular monolith (Maven), hexagonal architecture, PostgreSQL,
   Liquibase.
-  Modules: jbh-finance, jbh-notification, jbh-preferences, jbh-products, jbh-commons-lib.
+  Modules: jbh-finance, jbh-preferences, jbh-products.
   Each OpenSpec domain maps to one module.
   Writing: English, B2 level. Short sentences, common words.
   Horizontal scaling: the app runs as more than one instance. Every design must stay correct

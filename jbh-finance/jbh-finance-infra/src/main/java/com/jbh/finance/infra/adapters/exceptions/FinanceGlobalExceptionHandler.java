@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * objects with appropriate HTTP status codes.
  *
  * <p><b>NOTE - Code Duplication by Design:</b> This handler is intentionally duplicated across
- * modules (finance, notification, preferences, etc.). Each module owns its own copy because:
+ * modules (finance, preferences, etc.). Each module owns its own copy because:
  * <ul>
  *   <li>In a modular monolith deployed as a single Quarkus application, all {@code @Provider}
  *       classes are scanned and registered globally. JAX-RS only allows one

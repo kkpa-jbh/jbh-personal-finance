@@ -54,7 +54,7 @@ quarkus.index-dependency.products-domain.group-id=com.jbh
 quarkus.index-dependency.products-domain.artifact-id=jbh-finance-domain
 quarkus.index-dependency.products-application.group-id=com.jbh
 quarkus.index-dependency.products-application.artifact-id=jbh-finance-application
-# ... repeat for preferences, notification, etc.
+# ... repeat for preferences, etc.
 ```
 
 **Purpose:** Index non-CDI classes for OpenAPI/Swagger and reflection:

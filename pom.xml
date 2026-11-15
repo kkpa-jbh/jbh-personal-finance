@@ -151,9 +151,9 @@
 
 
       <dependency>
-        <artifactId>jbh-notification-infra</artifactId>
+        <artifactId>jbh-commons-lib</artifactId>
         <groupId>com.jbh</groupId>
-        <version>${project.version}</version>
+        <version>1.0.0-SNAPSHOT</version>
       </dependency>
 
       <dependency>
@@ -196,14 +196,6 @@
 
     </dependencies>
   </dependencyManagement>
-  <!-- Publishes jbh-notification-contracts (and its parent POMs) for CI builds of other repos. -->
-  <distributionManagement>
-    <repository>
-      <id>github</id>
-      <name>GitHub kkpa-jbh Maven Packages</name>
-      <url>https://maven.pkg.github.com/kkpa-jbh/jbh-personal-finance</url>
-    </repository>
-  </distributionManagement>
   <description>Multi-module personal finance management system</description>
   <groupId>com.jbh</groupId>
   <modelVersion>4.0.0</modelVersion>
@@ -211,9 +203,7 @@
   <!-- PROPERTIES -->
   <!-- =============================================== -->
   <modules>
-    <module>jbh-commons-lib</module>
     <module>jbh-finance</module>
-    <module>jbh-notification</module>
     <module>jbh-preferences</module>
 
     <!-- Assembly module last to ensure all dependencies are built -->
@@ -232,7 +222,7 @@
   <!-- =============================================== -->
   <packaging>pom</packaging>
 
-  <!-- CI only (-Pgithub): resolve jbh-gateway-client from GitHub Packages. Local builds use ~/.m2. -->
+  <!-- CI only (-Pgithub): resolve jbh-gateway-client and jbh-commons-lib from GitHub Packages. Local builds use ~/.m2. -->
   <profiles>
     <profile>
       <id>github</id>
@@ -240,6 +230,13 @@
         <repository>
           <id>github-packages-read</id>
           <url>https://maven.pkg.github.com/kkpa-jbh/jbh-gateway-client</url>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+        </repository>
+        <repository>
+          <id>github-packages-read-commons</id>
+          <url>https://maven.pkg.github.com/kkpa-jbh/jbh-commons-lib</url>
           <snapshots>
             <enabled>true</enabled>
           </snapshots>
