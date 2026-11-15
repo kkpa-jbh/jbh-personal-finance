@@ -50,9 +50,9 @@ Prerequisites for any build: `com.jbh:jbh-commons-lib:1.0.0-SNAPSHOT` and the ne
 
 ## Group F - Verification (leader or user). Depends on: A, B, C, D, E
 
-- [ ] F1 Run `mvn clean verify` at the root (V1).
-- [ ] F2 Start the app; check port 7777, `/q/health` UP, Liquibase finance + preferences only, `/jbh-api/notifications` returns 404 (V2 to V4).
-- [ ] F3 Run the V5 search.
-- [ ] F4 After merge: first finance CI `image` run (V6). If "could not resolve jbh-notification-contracts", open a follow-up for one `<repository>` entry (R1).
+- [x] F1 Run `mvn clean verify` at the root (V1).
+- [x] F2 Start the app; check port 7777, `/q/health` UP, Liquibase finance + preferences only, `/jbh-api/notifications` returns 404 (V2 to V4).
+- [x] F3 Run the V5 search.
+- [x] F4 After merge: first finance CI `image` run (V6). If "could not resolve jbh-notification-contracts", open a follow-up for one `<repository>` entry (R1).
 
 Size estimate: ~111 files (about 89 pure deletes: 72 in `jbh-notification`, 16 in `jbh-commons-lib`, 1 workflow; about 22 edited files), ~340 changed lines (deleted code excluded from the line count; tests and docs included)

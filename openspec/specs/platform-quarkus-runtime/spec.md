@@ -27,7 +27,7 @@ The upgrade SHALL keep the public HTTP behavior and the database state unchanged
 #### Scenario: Application starts and is healthy
 - GIVEN a local PostgreSQL and Consul
 - WHEN the application starts
-- THEN Liquibase runs the `finance`, `preferences` and `notifications` change logs with no error
+- THEN Liquibase runs the `finance` and `preferences` change logs with no error
 - AND `GET /q/health` on port 7777 returns status `UP`
 - AND the OpenAPI page responds with HTTP 200
 
@@ -40,6 +40,12 @@ The upgrade SHALL keep the public HTTP behavior and the database state unchanged
 - GIVEN Quarkus 3.33 requires a Java version above 21
 - WHEN the baseline check runs
 - THEN work stops and the user decides before any change to CI or the pom
+
+#### Scenario: Notification module is not part of the application
+- GIVEN the application is built from this repository
+- WHEN it starts and `GET /jbh-api/notifications` is called
+- THEN the response is HTTP 404
+- AND Liquibase does not run a `notifications` change log
 
 ### Requirement: Version in docs
 The docs SHALL name the new Quarkus version.

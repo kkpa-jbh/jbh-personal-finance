@@ -5,15 +5,10 @@
   "module": "platform",
   "roadmap": null,
   "request": "JBH-74 section 5: remove modules jbh-notification and jbh-commons-lib from the root pom.xml and delete both folders. Finance and preferences modules now use com.jbh:jbh-commons-lib:1.0.0-SNAPSHOT as an external package (add https://maven.pkg.github.com/kkpa-jbh/jbh-commons-lib to the github profile; one entry in dependencyManagement). Remove jbh-notification-infra from jbh-z-assembly/pom.xml and the 'Notification module' index-dependency block from jbh-z-assembly application.properties. Delete .github/workflows/publish-contracts.yml. Remove distributionManagement if nothing deploys a package anymore. Remove leftovers (module-info, *.mk, docs). The app still starts on port 7777. Ticket: JBH-74 (naming only; do NOT move it in Linear — jbh-leader owns the status). Stop after the proposal is committed and the Step 3a briefing is shown; do not dispatch Step 5 until jbh-leader sends \"go section 5\".",
-  "status": "in-progress",
+  "status": "archived",
   "rollup": {
     "current": [],
-    "pending": [
-      "F1",
-      "F2",
-      "F3",
-      "F4"
-    ],
+    "pending": [],
     "blocked": [],
     "done": [
       "A1",
@@ -25,6 +20,9 @@
       "A7",
       "B1",
       "B2",
+      "C1",
+      "C2",
+      "C3",
       "D1",
       "D2",
       "D3",
@@ -37,13 +35,14 @@
       "E5",
       "E6",
       "E7",
-      "C1",
-      "C2",
-      "C3"
+      "F1",
+      "F2",
+      "F3",
+      "F4"
     ]
   },
   "created_at": "2026-11-14T13:42:11Z",
-  "updated_at": "2026-11-15T07:01:38Z",
+  "updated_at": "2026-11-15T11:28:14Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-opus-5-5"
@@ -486,13 +485,13 @@
         "E7"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": "platform",
+      "status": "done",
+      "agent": "leader",
       "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
+      "started_at": "2026-11-15T09:03:44Z",
+      "completed_at": "2026-11-15T09:03:44Z",
+      "duration_seconds": 0,
+      "notes": "mvn -B clean verify exit 0 (leader, wave 1 run at 9f80537 content).",
       "budget": null
     },
     {
@@ -526,13 +525,13 @@
         "E7"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": "platform",
+      "status": "done",
+      "agent": "leader",
       "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
+      "started_at": "2026-11-15T11:28:03Z",
+      "completed_at": "2026-11-15T11:28:03Z",
+      "duration_seconds": 0,
+      "notes": "User report: app starts on 7777, /q/health UP, Liquibase finance+preferences only. /jbh-api/notifications gives 500, as does every unknown path (mapper collision, pre-existing); accepted, follow-up ticket (D17).",
       "budget": null
     },
     {
@@ -566,13 +565,13 @@
         "E7"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": "platform",
+      "status": "done",
+      "agent": "leader",
       "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
+      "started_at": "2026-11-15T09:03:44Z",
+      "completed_at": "2026-11-15T09:03:44Z",
+      "duration_seconds": 0,
+      "notes": "V5 search by leader: only jbh-preferences-contracts/README.md:137,141 (D11).",
       "budget": null
     },
     {
@@ -606,21 +605,36 @@
         "E7"
       ],
       "parallel_ok": false,
-      "status": "pending",
-      "agent": "platform",
+      "status": "done",
+      "agent": "leader",
       "model": null,
-      "started_at": null,
-      "completed_at": null,
-      "duration_seconds": null,
-      "notes": null,
+      "started_at": "2026-11-15T11:28:03Z",
+      "completed_at": "2026-11-15T11:28:03Z",
+      "duration_seconds": 0,
+      "notes": "Not run: moved out of the pipeline to a post-merge check by user decision D16. Check the first finance CI image run after merge (R1).",
       "budget": null
     }
   ],
   "review": {
-    "status": "pending",
-    "agent": null,
-    "brief": null,
-    "rounds": []
+    "status": "reviewer-approved",
+    "agent": "platform-reviewer",
+    "brief": "Review diff 6d47dbc...HEAD (wave commit 9f80537). Removal-only change: no new logic, no DB change, no unit tests (test_first skipped, user plan: no unit tests). User decisions: one change (D1); github profile adds ONLY jbh-commons-lib repo, id github-packages-read-commons + matching server in .github/maven-settings.xml, NO jbh-notification repo (D2, D8; risk R1 accepted); keep preferences-contracts, PreferencesLookupPort/Adapter for a follow-up (D3); size over cap accepted (D4). Leader decisions to check: D11 (preferences-contracts README lines left), D12 (extra .coderabbit.yaml line), D13 (wave suite reused). Check: design.md D2-D7 done exactly; requires jbh.commons kept; no edit to ../jbh-deploy/README.md; tech-stack.md local Consul line (3ecb39f) kept; V5 leftovers. Signals: mvn -B clean verify exit 0 and mvn -q pmd:check exit 0 were assistant-run (leader). F2 (start app) and F4 (CI after merge) are user-only, awaiting-user-verification. Performance-Profile: none. Security-Gate: run (D14).",
+    "rounds": [
+      {
+        "round": 1,
+        "at": "2026-11-15T11:10:00Z",
+        "verdict": "approved",
+        "findings": [],
+        "security": {
+          "status": "passed",
+          "ran_at": "2026-11-15T11:10:00Z",
+          "scope": "origin/HEAD",
+          "findings": [],
+          "note": "Removal-only diff. New read-only server and repository entry use HTTPS and the existing env token pattern. No new attack surface."
+        },
+        "note": "Deletes complete; poms, profile id, settings server, assembly, leftovers match design D2-D7. Observations: tasks.md F1/F3 unticked though progress.json says done; ci.yml/image.yml diff comes from earlier commit a58dd66; server id github in maven-settings.xml is now unused."
+      }
+    ]
   },
   "decisions": [
     {
@@ -722,6 +736,51 @@
       "decision": "keep the worker's extra .coderabbit.yaml edit of the publish-contracts line",
       "why": "the line named the deleted workflow, so it was a leftover in the D7 sense. Rejected: revert to the exact D4 list.",
       "covered_by": null
+    },
+    {
+      "id": "D13",
+      "at": "2026-11-15T09:03:44Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "reuse the wave 1 suite pass as the Step 6 run",
+      "why": "no code changed after the run (only tasks.md and progress.json); the build takes ~47 min. Rejected: run it again.",
+      "covered_by": null
+    },
+    {
+      "id": "D14",
+      "at": "2026-11-15T09:03:44Z",
+      "scope": "review:security-gate",
+      "made_by": "autopilot",
+      "decision": "run /security-review",
+      "why": "diff touches CI credentials (maven-settings.xml) and dependencies, a sensitive path; the user is away, and on autopilot the rule is to run it.",
+      "covered_by": null
+    },
+    {
+      "id": "D15",
+      "at": "2026-11-15T10:53:02Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "mirror review.status reviewer-approved into the top-level status",
+      "why": "the reviewer approved (round 1, security passed) but refused the top-level write: its agent file line 94 contradicts progress-schema.md rule 3. Rejected: block the archive on the drift.",
+      "covered_by": null
+    },
+    {
+      "id": "D16",
+      "at": "2026-11-15T11:10:21Z",
+      "scope": "task:F2",
+      "made_by": "user",
+      "decision": "user runs F2 (start the app) now; F4 becomes a post-merge check outside the pipeline, then archive",
+      "why": "archive needs every task done; F4 can only run after merge. Rejected: archive with no app start; keep the change open until merge.",
+      "covered_by": null
+    },
+    {
+      "id": "D17",
+      "at": "2026-11-15T11:28:03Z",
+      "scope": "task:F2",
+      "made_by": "user",
+      "decision": "accept F2: unknown paths return 500 (PreferencesGlobalExceptionHandler lacks a WebApplicationException branch); fix in a follow-up ticket",
+      "why": "notification route is gone; the 500 is the known mapper collision, not caused by this change. Rejected: fix it here; stop and investigate.",
+      "covered_by": null
     }
   ],
   "events": [
@@ -774,6 +833,46 @@
       "at": "2026-11-15T07:01:38Z",
       "agent": "leader",
       "event": "wave 1 suite: the leader (assistantRunsTests) ran `mvn -B clean verify` exit 0 (BUILD SUCCESS, 0 failures, no notification/commons-lib in reactor) and `mvn -B -q pmd:check` exit 0. V5 search: only jbh-preferences-contracts/README.md:137,141 (D11)"
+    },
+    {
+      "at": "2026-11-15T09:03:44Z",
+      "agent": "leader",
+      "event": "commit 9f80537 wave-1 (tasks.md ticked by leader; worker had not)"
+    },
+    {
+      "at": "2026-11-15T09:03:44Z",
+      "agent": "leader",
+      "event": "Step 6: suite pass from wave 1 run reused, no diff since (D13); openspec validate --strict passed; status verified. Real size: 120 files, +1256 / -5905 vs estimate ~111 files, ~340 lines (deletes excluded)"
+    },
+    {
+      "at": "2026-11-15T10:51:34Z",
+      "agent": "leader",
+      "event": "dispatched platform-reviewer (sonnet), round 1; five_hour_pct 4, context_pct 17"
+    },
+    {
+      "at": "2026-11-15T10:53:02Z",
+      "agent": "leader",
+      "event": "contract drift: kkpa-module-reviewer.md line 94 (owns only review block) vs progress-schema.md rule 3 (reviewer sets change status reviewer-approved). Fix one of the two files."
+    },
+    {
+      "at": "2026-11-15T10:53:21Z",
+      "agent": "leader",
+      "event": "top-level status back to in-review: check-progress needs every task done for reviewer-approved; F2 (start app, user-only) and F4 (post-merge CI) are open. Asking the user."
+    },
+    {
+      "at": "2026-11-15T11:28:03Z",
+      "agent": "user",
+      "event": "F2 reported by the user: start OK on 7777, health UP, Liquibase finance+preferences only; notifications path 500 like any unknown path (leader curl confirmed /nothing-here 500)"
+    },
+    {
+      "at": "2026-11-15T11:28:03Z",
+      "agent": "leader",
+      "event": "top-level status reviewer-approved, mirrored from review.status (D15); all tasks done"
+    },
+    {
+      "at": "2026-11-15T11:28:14Z",
+      "agent": "leader",
+      "event": "archived as 2026-11-15-platform-remove-notification-and-commons-lib; specs synced (platform-observability, platform-quarkus-runtime: 1 modified each). Linear not moved (jbh-leader owns JBH-74)."
     }
   ]
 }
