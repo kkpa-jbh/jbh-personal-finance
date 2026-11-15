@@ -60,8 +60,8 @@ To add the files, run `/kkpa-context-curate observability`. Until then, ask Code
   addresses, API keys, transaction lists, product names, movement descriptions, or a whole domain object.
   Logs leave the VPS (Grafana Cloud).
   _Source: spec platform-observability — Requirement: No personal data in INFO+ logs._
-- **E-mail errors: do not log the exception message.** It can hold the recipient address; log the
-  exception type instead. Same for the subject.
+- **E-mail notification logs are not this service's rules anymore.** The notification flow moved to
+  the `jbh-notification` service, which owns its own log rules. Do not add e-mail sending code here.
   _Source: spec platform-observability — Requirement: No personal data in INFO+ logs._
 - **Dev must start without Docker.** Do not add a Dev Service that starts a telemetry container.
   _Source: spec platform-observability — Requirement: Local telemetry stack is shared and external._
