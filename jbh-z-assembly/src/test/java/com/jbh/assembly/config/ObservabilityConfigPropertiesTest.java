@@ -58,27 +58,35 @@ class ObservabilityConfigPropertiesTest {
   }
 
   @Test
-  void shouldDisableOtelSdkByDefaultWhenNoEnvVar() {
-    assertEquals("${OTEL_SDK_DISABLED:true}", PROPS.getProperty("quarkus.otel.sdk.disabled"));
+  void shouldKeepSdkOnAndExportOffByDefaultWhenNoEnvVar() {
+    assertEquals("false", PROPS.getProperty("quarkus.otel.sdk.disabled"));
+    assertEquals("${OTEL_SDK_DISABLED:true}", PROPS.getProperty("jbh.otel.export-off"));
   }
 
   @Test
   void shouldSampleAllByDefaultWhenNoSamplerEnvVar() {
     assertEquals(
         "${OTEL_TRACES_SAMPLER_ARG:1.0}", PROPS.getProperty("quarkus.otel.traces.sampler.arg"));
+    assertEquals(
+        "${jbh.otel.sampler.${jbh.otel.export-off}:always_off}",
+        PROPS.getProperty("quarkus.otel.traces.sampler"));
+    assertEquals("always_off", PROPS.getProperty("jbh.otel.sampler.true"));
+    assertEquals(
+        "${OTEL_TRACES_SAMPLER:parentbased_traceidratio}",
+        PROPS.getProperty("jbh.otel.sampler.false"));
   }
 
   @Test
   void shouldReadEndpointFromEnvWhenConfigured() {
-    final String endpoint = PROPS.getProperty("%prod.quarkus.otel.exporter.otlp.endpoint");
-
-    assertNotNull(endpoint);
-    assertTrue(endpoint.startsWith("${OTEL_EXPORTER_OTLP_ENDPOINT:"));
+    assertEquals(
+        "${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:14317}",
+        PROPS.getProperty("quarkus.otel.exporter.otlp.endpoint"));
   }
 
   @Test
-  void shouldLeaveBaseEndpointUnset() {
-    assertNull(PROPS.getProperty("quarkus.otel.exporter.otlp.endpoint"));
+  void shouldHaveOneEndpointLineForAllProfiles() {
+    assertNull(PROPS.getProperty("%prod.quarkus.otel.exporter.otlp.endpoint"));
+    assertNull(PROPS.getProperty("%dev.quarkus.otel.exporter.otlp.endpoint"));
   }
 
   @Test
@@ -88,9 +96,8 @@ class ObservabilityConfigPropertiesTest {
 
   @Test
   void shouldExportByDefaultInDevToLocalStack() {
-    assertEquals("${OTEL_SDK_DISABLED:false}", PROPS.getProperty("%dev.quarkus.otel.sdk.disabled"));
-    assertEquals(
-        "http://localhost:4317", PROPS.getProperty("%dev.quarkus.otel.exporter.otlp.endpoint"));
+    assertNull(PROPS.getProperty("%dev.quarkus.otel.sdk.disabled"));
+    assertEquals("${OTEL_SDK_DISABLED:false}", PROPS.getProperty("%dev.jbh.otel.export-off"));
   }
 
   @Test
@@ -100,9 +107,13 @@ class ObservabilityConfigPropertiesTest {
 
   @Test
   void shouldSetEnvPerProfileWhenTagging() {
-    assertEquals("prod", PROPS.getProperty(ENV_KEY));
+    assertEquals("${JBH_ENV:prod}", PROPS.getProperty(ENV_KEY));
     assertEquals("dev", PROPS.getProperty("%dev." + ENV_KEY));
     assertEquals("test", PROPS.getProperty("%test." + ENV_KEY));
+    assertEquals(
+        "service.namespace=jbh,deployment.environment.name=${jbh.metrics.env},"
+            + "service.version=${JBH_SERVICE_VERSION:unknown}",
+        PROPS.getProperty("quarkus.otel.resource.attributes"));
   }
 
   @Test
@@ -115,9 +126,13 @@ class ObservabilityConfigPropertiesTest {
   }
 
   @Test
-  void shouldExportLogsToOtelOnlyInDev() {
-    assertEquals("true", PROPS.getProperty("%dev.quarkus.otel.logs.enabled"));
-    assertNull(PROPS.getProperty("quarkus.otel.logs.enabled"));
-    assertNull(PROPS.getProperty("%prod.quarkus.otel.logs.enabled"));
+  void shouldBuildOtelLogsInEveryProfileAndSwitchByExportFlag() {
+    assertEquals("true", PROPS.getProperty("quarkus.otel.logs.enabled"));
+    assertNull(PROPS.getProperty("%dev.quarkus.otel.logs.enabled"));
+    assertEquals("false", PROPS.getProperty("jbh.otel.logs-handler.true"));
+    assertEquals("true", PROPS.getProperty("jbh.otel.logs-handler.false"));
+    assertEquals(
+        "${jbh.otel.logs-handler.${jbh.otel.export-off}:false}",
+        PROPS.getProperty("quarkus.otel.logs.handler.enabled"));
   }
 }
