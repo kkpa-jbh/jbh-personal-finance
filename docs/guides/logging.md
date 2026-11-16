@@ -419,7 +419,7 @@ error("Failed to process transaction");
 | `OTEL_TRACES_SAMPLER` | `parentbased_traceidratio` | Sampler while export is on. It honors the parent decision. |
 | `OTEL_TRACES_SAMPLER_ARG` | `1.0` | Sampling ratio. `1.0` samples every trace. |
 | `JBH_ENV` | `prod` | Value of the metric tag `env` and of `deployment.environment.name`. Dev and test ignore it. |
-| `JBH_SERVICE_VERSION` | `unknown` | Value of `service.version` on every span, log and metric resource. |
+| `JBH_SERVICE_VERSION` | `unknown` | Value of `service.version` on every span and log record. Prometheus metrics do not carry it. |
 
 To see traces in prod, set both `OTEL_SDK_DISABLED=false` and `OTEL_EXPORTER_OTLP_ENDPOINT`.
 In dev, traces and logs go to `http://localhost:14317` (the Alloy dev port) by default. To use the LGTM

@@ -5,7 +5,7 @@
   "module": "platform",
   "roadmap": null,
   "request": "JBH-55 section 5 (sub-issue JBH-81, record as git.ticket): jbh-personal-finance \u2014 OTLP export switch reused from jbh-notification design.md D8 (quarkus.otel.sdk.disabled=false always; jbh.otel.export-off=${OTEL_SDK_DISABLED:true}, %dev false; sampler and logs handler picked by lookup keys), OTLP logs in every profile, one endpoint line ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:14317}, jbh.metrics.env from ${JBH_ENV:prod}, resource attributes (service.namespace=jbh, deployment.environment.name from JBH_ENV, service.version from JBH_SERVICE_VERSION), shared HTTP server histogram buckets MeterFilter in MetricsTagsConfig, remove trackingId/X-Tracking-ID and requestId/X-Request-ID, pass Quarkus OpenTelemetry to JbhGatewayClientBuilder.openTelemetry(...) in both GatewayClientBuilder classes, check @WithSpan attributes carry no personal data, Observability docs in .claude/infrastructure/deployment.md. Plan: ../kkpa/tickets/JBH-55/JBH-55.md section 5. Unit tests: excluded. Branch from local main (keep commit 2906bd1 in the PR). Leave openspec/.DS_Store unstaged. Linear: leader moves the ticket, do not run kkpa-pickup-linear-ticket.",
-  "status": "in-progress",
+  "status": "in-review",
   "rollup": {
     "current": [
       "7.1"
@@ -26,7 +26,7 @@
     ]
   },
   "created_at": "2026-11-15T23:30:28Z",
-  "updated_at": "2026-11-15T23:46:22Z",
+  "updated_at": "2026-11-16T00:10:00Z",
   "leader": {
     "assistant": "Claude Code",
     "model": "claude-opus-5-5"
@@ -329,10 +329,49 @@
     }
   ],
   "review": {
-    "status": "pending",
-    "agent": null,
-    "brief": null,
-    "rounds": []
+    "status": "reviewer-approved",
+    "agent": "platform-reviewer",
+    "brief": "Change platform-join-system-trace (JBH-81, JBH-55 section 5). Diff: git diff 2906bd1...HEAD. User decisions: SRP only, bucket filter inside MetricsTagsConfig (no new class); no new unit tests (only ObservabilityConfigPropertiesTest updated per D9); export switch must equal jbh-notification D8 keys/values exactly; service.version=${JBH_SERVICE_VERSION:unknown}; test-only NoopOpenTelemetryProducer in finance-infra and preferences-infra tests (user chose it over optional prod injection); task 6.2 (docs/guides/logging.md) in scope; security-review skipped by the user. No DB change. Check: D1-D10 compliance; no trackingId/requestId/X-Tracking-ID/X-Request-ID left in main code; plain-language comments (the comment 'Export switch. When it is on, only the OTLP export stops' may be unclear); no ticket or decision IDs in code comments; docs match the final property names. Signals: mvn -q clean verify exit 0, run by the leader (assistantRunsTests). Manual curl checks (buckets, headers, trace in Tempo) not run: user step.",
+    "rounds": [
+      {
+        "round": 1,
+        "at": "2026-11-15T23:59:00Z",
+        "verdict": "approved",
+        "security": {
+          "status": "skipped",
+          "ran_at": null,
+          "scope": null,
+          "findings": [],
+          "note": "Skipped by the user (decision D9, review:security-gate): no secrets or auth code changed; span data checked in task 5.1."
+        },
+        "findings": [
+          {
+            "id": "R1",
+            "lens": "conventions",
+            "severity": "minor",
+            "status": "open",
+            "note": "jbh-z-assembly/src/main/resources/application.properties (Export switch comment): 'When it is on, only the OTLP export (traces and logs) stops' is unclear. 'It' is the env var OTEL_SDK_DISABLED=true. Suggest: 'OTEL_SDK_DISABLED=true stops only the OTLP export (traces and logs).'",
+            "triage": "accepted"
+          },
+          {
+            "id": "R2",
+            "lens": "intent",
+            "severity": "minor",
+            "status": "open",
+            "note": "docs/guides/logging.md env table: JBH_SERVICE_VERSION says 'on every span, log and metric resource'. Metrics are scraped by Prometheus and carry no OTel resource attributes. Say 'on every span and log record'.",
+            "triage": "accepted"
+          },
+          {
+            "id": "R3",
+            "lens": "conventions",
+            "severity": "minor",
+            "status": "open",
+            "note": "MetricsTagsConfig.java LATENCY_BUCKET_MILLIS mixes 1000/2500/5000 with 10_000. Use 10_000 only where PMD asks, or group consistently. Cosmetic.",
+            "triage": "rejected"
+          }
+        ]
+      }
+    ]
   },
   "decisions": [
     {
@@ -406,6 +445,24 @@
       "decision": "test-only noop OpenTelemetry producer in finance-infra and preferences-infra tests",
       "why": "Infra test apps lack quarkus-opentelemetry, so the new constructor was unsatisfied. Rejected: optional prod injection (hides a missing bean), test-scope extension (extra config).",
       "covered_by": null
+    },
+    {
+      "id": "D9",
+      "at": "2026-11-15T23:52:00Z",
+      "scope": "review:security-gate",
+      "made_by": "user",
+      "decision": "skip /security-review",
+      "why": "User chose skip: no secrets or auth code changed; span data already checked in task 5.1 (D7).",
+      "covered_by": null
+    },
+    {
+      "id": "D10",
+      "at": "2026-11-16T00:10:00Z",
+      "scope": "review:R3",
+      "made_by": "leader",
+      "decision": "reject R3 (keep 10_000 next to 1000)",
+      "why": "PMD UseUnderscoresInNumericLiterals needs underscores only from 5 digits; 10000 failed the build. Changing 1000/2500/5000 adds noise.",
+      "covered_by": null
     }
   ],
   "events": [
@@ -438,6 +495,26 @@
       "at": "2026-11-15T23:46:22Z",
       "agent": "leader",
       "event": "verifier: the leader (assistantRunsTests). mvn -q clean verify exit 0 (tests, PMD incl. Complexity-Check rules, SpotBugs) after fix round 2 (PMD 10_000). Wave 1 tasks done."
+    },
+    {
+      "at": "2026-11-15T23:48:00Z",
+      "agent": "leader",
+      "event": "wave-1 commit 4fbdfff"
+    },
+    {
+      "at": "2026-11-15T23:48:00Z",
+      "agent": "leader",
+      "event": "real size (code+docs, no openspec): 11 files changed, 231 insertions(+), 189 deletions(-); estimate 9 files ~300 lines"
+    },
+    {
+      "at": "2026-11-15T23:52:00Z",
+      "agent": "leader",
+      "event": "dispatched platform-reviewer round 1 (sonnet), Security-Gate: skip"
+    },
+    {
+      "at": "2026-11-16T00:10:00Z",
+      "agent": "leader",
+      "event": "triage round 1: R1, R2 accepted and fixed by the leader (comment in application.properties, row in docs/guides/logging.md; text only, no rebuild); R3 rejected (D10)"
     }
   ]
 }
