@@ -15,6 +15,7 @@ module jbh.preferences.infra {
   requires resteasy.reactive.common;
   requires io.smallrye.config;
   requires com.jbh.gateway;
+  requires io.opentelemetry.api;
   requires jbh.commons;
 
   exports com.jbh.preferences.infra.adapters.out.intermodule;

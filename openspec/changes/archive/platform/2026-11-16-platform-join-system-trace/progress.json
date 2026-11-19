@@ -1,0 +1,554 @@
+{
+  "schema_version": 1,
+  "kind": "change",
+  "change": "platform-join-system-trace",
+  "module": "platform",
+  "roadmap": null,
+  "request": "JBH-55 section 5 (sub-issue JBH-81, record as git.ticket): jbh-personal-finance \u2014 OTLP export switch reused from jbh-notification design.md D8 (quarkus.otel.sdk.disabled=false always; jbh.otel.export-off=${OTEL_SDK_DISABLED:true}, %dev false; sampler and logs handler picked by lookup keys), OTLP logs in every profile, one endpoint line ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:14317}, jbh.metrics.env from ${JBH_ENV:prod}, resource attributes (service.namespace=jbh, deployment.environment.name from JBH_ENV, service.version from JBH_SERVICE_VERSION), shared HTTP server histogram buckets MeterFilter in MetricsTagsConfig, remove trackingId/X-Tracking-ID and requestId/X-Request-ID, pass Quarkus OpenTelemetry to JbhGatewayClientBuilder.openTelemetry(...) in both GatewayClientBuilder classes, check @WithSpan attributes carry no personal data, Observability docs in .claude/infrastructure/deployment.md. Plan: ../kkpa/tickets/JBH-55/JBH-55.md section 5. Unit tests: excluded. Branch from local main (keep commit 2906bd1 in the PR). Leave openspec/.DS_Store unstaged. Linear: leader moves the ticket, do not run kkpa-pickup-linear-ticket.",
+  "status": "verified",
+  "rollup": {
+    "current": [
+      "7.1"
+    ],
+    "pending": [],
+    "blocked": [],
+    "done": [
+      "1.1",
+      "1.2",
+      "2.1",
+      "3.1",
+      "3.2",
+      "4.1",
+      "4.2",
+      "5.1",
+      "6.1",
+      "6.2"
+    ]
+  },
+  "created_at": "2026-11-15T23:30:28Z",
+  "updated_at": "2026-11-16T00:30:00Z",
+  "leader": {
+    "assistant": "Claude Code",
+    "model": "claude-opus-5-5"
+  },
+  "git": {
+    "strategy": "auto",
+    "branch": "ft/CH6-JBH-81-platform-join-system-trace",
+    "base": "2906bd1",
+    "ticket": "JBH-81",
+    "ticket_url": "https://linear.app/kkpa/issue/JBH-81/jbh-personal-finance-otlp-logs-one-trace-id-latency-histograms",
+    "ticket_tracker": "linear",
+    "created_at": "2026-11-15T23:16:55Z"
+  },
+  "test_first": {
+    "status": "skipped",
+    "commit": null,
+    "tests": [],
+    "approved_at": null
+  },
+  "tasks": [
+    {
+      "id": "1.1",
+      "title": "OBSERVABILITY properties (D1, D2, D3, D8)",
+      "module": "platform",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-15T23:31:30Z",
+      "completed_at": "2026-11-15T23:44:00Z",
+      "duration_seconds": 750,
+      "notes": "OBSERVABILITY block matches D1, D3, D8. OTEL_SDK_DISABLED only in the two export-off lines.",
+      "budget": {
+        "five_hour_pct_start": 47,
+        "five_hour_pct_end": 56,
+        "five_hour_pct_delta": 9,
+        "cost_usd_delta": 2.18,
+        "context_pct_end": 20,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 1.1-6.2 plus two leader fix rounds"
+      }
+    },
+    {
+      "id": "1.2",
+      "title": "Update ObservabilityConfigPropertiesTest (D9)",
+      "module": "platform",
+      "depends_on": [
+        "1.1"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-15T23:31:30Z",
+      "completed_at": "2026-11-15T23:44:00Z",
+      "duration_seconds": 750,
+      "notes": "Assertions follow D9; five methods renamed, none added.",
+      "budget": {
+        "five_hour_pct_start": 47,
+        "five_hour_pct_end": 56,
+        "five_hour_pct_delta": 9,
+        "cost_usd_delta": 2.18,
+        "context_pct_end": 20,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 1.1-6.2 plus two leader fix rounds"
+      }
+    },
+    {
+      "id": "2.1",
+      "title": "Latency MeterFilter in MetricsTagsConfig (D4)",
+      "module": "platform",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-15T23:31:30Z",
+      "completed_at": "2026-11-15T23:44:00Z",
+      "duration_seconds": 750,
+      "notes": "httpServerLatency() filter, 11 buckets in nanos. Leader fixed PMD UseUnderscoresInNumericLiterals (10_000).",
+      "budget": {
+        "five_hour_pct_start": 47,
+        "five_hour_pct_end": 56,
+        "five_hour_pct_delta": 9,
+        "cost_usd_delta": 2.18,
+        "context_pct_end": 20,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 1.1-6.2 plus two leader fix rounds"
+      }
+    },
+    {
+      "id": "3.1",
+      "title": "Remove tracking/request id from LoggingFilter (D5)",
+      "module": "platform",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-15T23:31:30Z",
+      "completed_at": "2026-11-15T23:44:00Z",
+      "duration_seconds": 750,
+      "notes": "Removed tracking/request id, both response headers, UUID import.",
+      "budget": {
+        "five_hour_pct_start": 47,
+        "five_hour_pct_end": 56,
+        "five_hour_pct_delta": 9,
+        "cost_usd_delta": 2.18,
+        "context_pct_end": 20,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 1.1-6.2 plus two leader fix rounds"
+      }
+    },
+    {
+      "id": "3.2",
+      "title": "Remove tracking/request id from LoggingContext (D5)",
+      "module": "platform",
+      "depends_on": [
+        "3.1"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-15T23:31:30Z",
+      "completed_at": "2026-11-15T23:44:00Z",
+      "duration_seconds": 750,
+      "notes": "No other callers; no trackingId/requestId left in main code.",
+      "budget": {
+        "five_hour_pct_start": 47,
+        "five_hour_pct_end": 56,
+        "five_hour_pct_delta": 9,
+        "cost_usd_delta": 2.18,
+        "context_pct_end": 20,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 1.1-6.2 plus two leader fix rounds"
+      }
+    },
+    {
+      "id": "4.1",
+      "title": "Finance GatewayClientBuilder passes OpenTelemetry (D6)",
+      "module": "platform",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-15T23:31:30Z",
+      "completed_at": "2026-11-15T23:44:00Z",
+      "duration_seconds": 750,
+      "notes": "Injects OpenTelemetry (3 params), calls .openTelemetry(...). Leader added test-only NoopOpenTelemetryProducer (user decision D8).",
+      "budget": {
+        "five_hour_pct_start": 47,
+        "five_hour_pct_end": 56,
+        "five_hour_pct_delta": 9,
+        "cost_usd_delta": 2.18,
+        "context_pct_end": 20,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 1.1-6.2 plus two leader fix rounds"
+      }
+    },
+    {
+      "id": "4.2",
+      "title": "Preferences GatewayClientBuilder passes OpenTelemetry (D6)",
+      "module": "platform",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-15T23:31:30Z",
+      "completed_at": "2026-11-15T23:44:00Z",
+      "duration_seconds": 750,
+      "notes": "Same; opentelemetry-api comes through jbh-gateway-client. Test-only noop producer added.",
+      "budget": {
+        "five_hour_pct_start": 47,
+        "five_hour_pct_end": 56,
+        "five_hour_pct_delta": 9,
+        "cost_usd_delta": 2.18,
+        "context_pct_end": 20,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 1.1-6.2 plus two leader fix rounds"
+      }
+    },
+    {
+      "id": "5.1",
+      "title": "Safety check of span attributes (D7, read-only)",
+      "module": "platform",
+      "depends_on": [],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-15T23:31:30Z",
+      "completed_at": "2026-11-15T23:44:00Z",
+      "duration_seconds": 750,
+      "notes": "No personal data: @WithSpan names only; routes hold UUIDs only.",
+      "budget": {
+        "five_hour_pct_start": 47,
+        "five_hour_pct_end": 56,
+        "five_hour_pct_delta": 9,
+        "cost_usd_delta": 2.18,
+        "context_pct_end": 20,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 1.1-6.2 plus two leader fix rounds"
+      }
+    },
+    {
+      "id": "6.1",
+      "title": "Observability section in deployment.md",
+      "module": "platform",
+      "depends_on": [
+        "1.1",
+        "1.2",
+        "3.1",
+        "3.2"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-15T23:31:30Z",
+      "completed_at": "2026-11-15T23:44:00Z",
+      "duration_seconds": 750,
+      "notes": "Observability section rewritten; all env vars named; trackingId gone.",
+      "budget": {
+        "five_hour_pct_start": 47,
+        "five_hour_pct_end": 56,
+        "five_hour_pct_delta": 9,
+        "cost_usd_delta": 2.18,
+        "context_pct_end": 20,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 1.1-6.2 plus two leader fix rounds"
+      }
+    },
+    {
+      "id": "6.2",
+      "title": "Remove trackingId/requestId from docs/guides/logging.md",
+      "module": "platform",
+      "depends_on": [
+        "1.1",
+        "1.2",
+        "3.1",
+        "3.2"
+      ],
+      "parallel_ok": false,
+      "status": "done",
+      "agent": "platform",
+      "model": "claude-sonnet-5-5",
+      "started_at": "2026-11-15T23:31:30Z",
+      "completed_at": "2026-11-15T23:44:00Z",
+      "duration_seconds": 750,
+      "notes": "trackingId/requestId removed; env table, Traces and async example updated.",
+      "budget": {
+        "five_hour_pct_start": 47,
+        "five_hour_pct_end": 56,
+        "five_hour_pct_delta": 9,
+        "cost_usd_delta": 2.18,
+        "context_pct_end": 20,
+        "source": "statusline-cache",
+        "approx": true,
+        "note": "one serial worker for 1.1-6.2 plus two leader fix rounds"
+      }
+    },
+    {
+      "id": "7.1",
+      "title": "Leader runs mvn clean verify and lists manual checks",
+      "module": "platform",
+      "depends_on": [
+        "1.1",
+        "1.2",
+        "2.1",
+        "3.1",
+        "3.2",
+        "4.1",
+        "4.2",
+        "5.1",
+        "6.1",
+        "6.2"
+      ],
+      "parallel_ok": false,
+      "status": "awaiting-user-verification",
+      "agent": "leader",
+      "model": "claude-opus-5-5",
+      "started_at": "2026-11-15T23:44:00Z",
+      "completed_at": null,
+      "duration_seconds": null,
+      "notes": "mvn -q clean verify passed (exit 0). Manual checks need a running service: user step.",
+      "budget": null
+    }
+  ],
+  "review": {
+    "status": "reviewer-approved",
+    "agent": "platform-reviewer",
+    "brief": "Change platform-join-system-trace (JBH-81, JBH-55 section 5). Diff: git diff 2906bd1...HEAD. User decisions: SRP only, bucket filter inside MetricsTagsConfig (no new class); no new unit tests (only ObservabilityConfigPropertiesTest updated per D9); export switch must equal jbh-notification D8 keys/values exactly; service.version=${JBH_SERVICE_VERSION:unknown}; test-only NoopOpenTelemetryProducer in finance-infra and preferences-infra tests (user chose it over optional prod injection); task 6.2 (docs/guides/logging.md) in scope; security-review skipped by the user. No DB change. Check: D1-D10 compliance; no trackingId/requestId/X-Tracking-ID/X-Request-ID left in main code; plain-language comments (the comment 'Export switch. When it is on, only the OTLP export stops' may be unclear); no ticket or decision IDs in code comments; docs match the final property names. Signals: mvn -q clean verify exit 0, run by the leader (assistantRunsTests). Manual curl checks (buckets, headers, trace in Tempo) not run: user step.",
+    "rounds": [
+      {
+        "round": 1,
+        "at": "2026-11-15T23:59:00Z",
+        "verdict": "approved",
+        "security": {
+          "status": "skipped",
+          "ran_at": null,
+          "scope": null,
+          "findings": [],
+          "note": "Skipped by the user (decision D9, review:security-gate): no secrets or auth code changed; span data checked in task 5.1."
+        },
+        "findings": [
+          {
+            "id": "R1",
+            "lens": "conventions",
+            "severity": "minor",
+            "status": "open",
+            "note": "jbh-z-assembly/src/main/resources/application.properties (Export switch comment): 'When it is on, only the OTLP export (traces and logs) stops' is unclear. 'It' is the env var OTEL_SDK_DISABLED=true. Suggest: 'OTEL_SDK_DISABLED=true stops only the OTLP export (traces and logs).'",
+            "triage": "accepted"
+          },
+          {
+            "id": "R2",
+            "lens": "intent",
+            "severity": "minor",
+            "status": "open",
+            "note": "docs/guides/logging.md env table: JBH_SERVICE_VERSION says 'on every span, log and metric resource'. Metrics are scraped by Prometheus and carry no OTel resource attributes. Say 'on every span and log record'.",
+            "triage": "accepted"
+          },
+          {
+            "id": "R3",
+            "lens": "conventions",
+            "severity": "minor",
+            "status": "open",
+            "note": "MetricsTagsConfig.java LATENCY_BUCKET_MILLIS mixes 1000/2500/5000 with 10_000. Use 10_000 only where PMD asks, or group consistently. Cosmetic.",
+            "triage": "rejected"
+          }
+        ]
+      }
+    ]
+  },
+  "decisions": [
+    {
+      "id": "D1",
+      "at": "2026-11-15T23:16:55Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "one platform change, not a roadmap",
+      "why": "Precedent platform-add-observability; edits outside jbh-z-assembly are small (filter, context, two builders). A 3-tier roadmap would add cost for little gain.",
+      "covered_by": null
+    },
+    {
+      "id": "D2",
+      "at": "2026-11-15T23:16:55Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "SRP only; MetricsTagsConfig gets the bucket filter, no new class; SRP lines confirmed",
+      "why": "Step 2 SOLID check answers.",
+      "covered_by": "JBH-55 plan section 5"
+    },
+    {
+      "id": "D3",
+      "at": "2026-11-15T23:16:55Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "no new unit tests; test_first skipped",
+      "why": "User excluded unit tests for the whole JBH-55 plan.",
+      "covered_by": "JBH-55 plan header"
+    },
+    {
+      "id": "D4",
+      "at": "2026-11-15T23:16:55Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "continue at 95% 5-hour budget",
+      "why": "User chose 'Go on anyway' at Step 0.",
+      "covered_by": null
+    },
+    {
+      "id": "D5",
+      "at": "2026-11-15T23:29:00Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "design briefing approved, incl. task 6.2 (docs/guides/logging.md)",
+      "why": "User replied OK to the Step 3a briefing.",
+      "covered_by": null
+    },
+    {
+      "id": "D6",
+      "at": "2026-11-15T23:29:00Z",
+      "scope": "concurrency",
+      "made_by": "leader",
+      "decision": "no race risk",
+      "why": "Config, a stateless MeterFilter, removal of per-request MDC keys, builder injection. No shared writer, no check-then-act, no async.",
+      "covered_by": null
+    },
+    {
+      "id": "D7",
+      "at": "2026-11-15T23:30:28Z",
+      "scope": "change",
+      "made_by": "leader",
+      "decision": "run groups 1-6 in one serial sonnet worker (waves 1+2 joined)",
+      "why": "Docs group only waits for groups 1 and 3; one worker reads the doc pack once. Parallel would re-read it.",
+      "covered_by": null
+    },
+    {
+      "id": "D8",
+      "at": "2026-11-15T23:50:00Z",
+      "scope": "task:4.1",
+      "made_by": "user",
+      "decision": "test-only noop OpenTelemetry producer in finance-infra and preferences-infra tests",
+      "why": "Infra test apps lack quarkus-opentelemetry, so the new constructor was unsatisfied. Rejected: optional prod injection (hides a missing bean), test-scope extension (extra config).",
+      "covered_by": null
+    },
+    {
+      "id": "D9",
+      "at": "2026-11-15T23:52:00Z",
+      "scope": "review:security-gate",
+      "made_by": "user",
+      "decision": "skip /security-review",
+      "why": "User chose skip: no secrets or auth code changed; span data already checked in task 5.1 (D7).",
+      "covered_by": null
+    },
+    {
+      "id": "D10",
+      "at": "2026-11-16T00:10:00Z",
+      "scope": "review:R3",
+      "made_by": "leader",
+      "decision": "reject R3 (keep 10_000 next to 1000)",
+      "why": "PMD UseUnderscoresInNumericLiterals needs underscores only from 5 digits; 10000 failed the build. Changing 1000/2500/5000 adds noise.",
+      "covered_by": null
+    },
+    {
+      "id": "D11",
+      "at": "2026-11-16T00:18:00Z",
+      "scope": "change",
+      "made_by": "user",
+      "decision": "archive with task 7.1 open; status stays verified",
+      "why": "Manual curl checks need a running service. Checker forbids archived/reviewer-approved with 7.1 open. Same as platform-add-observability.",
+      "covered_by": null
+    }
+  ],
+  "events": [
+    {
+      "at": "2026-11-15T23:16:55Z",
+      "agent": "leader",
+      "event": "branch ft/CH6-JBH-81-platform-join-system-trace from 2906bd1; counter 6->7"
+    },
+    {
+      "at": "2026-11-15T23:29:00Z",
+      "agent": "leader",
+      "event": "artifacts committed 57282ce; size estimate 9 files ~300 lines (cap 500/15)"
+    },
+    {
+      "at": "2026-11-15T23:31:30Z",
+      "agent": "leader",
+      "event": "dispatched platform worker (sonnet) for wave 1 (tasks 1.1-6.2); budget start 5h 47%, cost $3.97"
+    },
+    {
+      "at": "2026-11-15T23:44:00Z",
+      "agent": "leader",
+      "event": "worker wave 1 returned (reported timestamps were placeholders; leader used dispatch/return times). Build run 1: mvn -q clean verify exit 1, jbh-finance-infra QuarkusTest: Unsatisfied dependency OpenTelemetry"
+    },
+    {
+      "at": "2026-11-15T23:50:00Z",
+      "agent": "leader",
+      "event": "fix round 1: leader added NoopOpenTelemetryProducer (test sources, 2 modules); re-running mvn -q clean verify"
+    },
+    {
+      "at": "2026-11-15T23:46:22Z",
+      "agent": "leader",
+      "event": "verifier: the leader (assistantRunsTests). mvn -q clean verify exit 0 (tests, PMD incl. Complexity-Check rules, SpotBugs) after fix round 2 (PMD 10_000). Wave 1 tasks done."
+    },
+    {
+      "at": "2026-11-15T23:48:00Z",
+      "agent": "leader",
+      "event": "wave-1 commit 4fbdfff"
+    },
+    {
+      "at": "2026-11-15T23:48:00Z",
+      "agent": "leader",
+      "event": "real size (code+docs, no openspec): 11 files changed, 231 insertions(+), 189 deletions(-); estimate 9 files ~300 lines"
+    },
+    {
+      "at": "2026-11-15T23:52:00Z",
+      "agent": "leader",
+      "event": "dispatched platform-reviewer round 1 (sonnet), Security-Gate: skip"
+    },
+    {
+      "at": "2026-11-16T00:10:00Z",
+      "agent": "leader",
+      "event": "triage round 1: R1, R2 accepted and fixed by the leader (comment in application.properties, row in docs/guides/logging.md; text only, no rebuild); R3 rejected (D10)"
+    },
+    {
+      "at": "2026-11-16T00:14:00Z",
+      "agent": "leader",
+      "event": "review-round-1 commit f038b71"
+    },
+    {
+      "at": "2026-11-16T00:14:00Z",
+      "agent": "leader",
+      "event": "archived to openspec/changes/archive/platform/2026-11-16-platform-join-system-trace; spec platform-observability synced (+5, ~3)"
+    },
+    {
+      "at": "2026-11-16T00:15:00Z",
+      "agent": "leader",
+      "event": "folder archived; status stays verified (user decision D11): task 7.1 manual checks await the user; review.status is reviewer-approved."
+    },
+    {
+      "at": "2026-11-16T00:30:00Z",
+      "agent": "leader",
+      "event": "KB sync commit 48a6b4c (user chose to commit it into this PR)"
+    },
+    {
+      "at": "2026-11-16T00:30:00Z",
+      "agent": "leader",
+      "event": "pushed origin/ft/CH6-JBH-81-platform-join-system-trace; draft PR #31 https://github.com/kkpa-jbh/jbh-personal-finance/pull/31"
+    }
+  ]
+}

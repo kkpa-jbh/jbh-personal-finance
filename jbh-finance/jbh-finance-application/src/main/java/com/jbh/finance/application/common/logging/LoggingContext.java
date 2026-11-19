@@ -6,12 +6,10 @@ import org.slf4j.MDC;
 
 public final class LoggingContext {
 
-  public static final String TRACKING_ID = "trackingId";
   public static final String USER_ID = "userId";
   public static final String PRODUCT_ID = "productId";
   public static final String MOVEMENT_ID = "movementId";
   public static final String MODULE = "module";
-  public static final String REQUEST_ID = "requestId";
 
   private LoggingContext() {
     // Utility class
@@ -37,18 +35,6 @@ public final class LoggingContext {
     MDC.put(MODULE, module);
   }
 
-  public static String getRequestId() {
-    return MDC.get(REQUEST_ID);
-  }
-
-  public static void setRequestId(final String requestId) {
-    MDC.put(REQUEST_ID, requestId);
-  }
-
-  public static void setRequestId(final UUID requestId) {
-    setRequestId(requestId != null ? requestId.toString() : null);
-  }
-
   public static <T> T withContext(final Runnable action) {
     try {
       action.run();
@@ -68,41 +54,6 @@ public final class LoggingContext {
     } finally {
       clear();
     }
-  }
-
-  public static void withTrackingId(final String trackingId, final Runnable action) {
-    withTrackingId(
-        trackingId,
-        () -> {
-          action.run();
-          return null;
-        });
-  }
-
-  public static <T> T withTrackingId(final String trackingId, final Supplier<T> action) {
-    final String previousTrackingId = getTrackingId();
-    try {
-      setTrackingId(trackingId);
-      return action.get();
-    } finally {
-      if (previousTrackingId != null) {
-        setTrackingId(previousTrackingId);
-      } else {
-        remove(TRACKING_ID);
-      }
-    }
-  }
-
-  public static String getTrackingId() {
-    return MDC.get(TRACKING_ID);
-  }
-
-  public static void setTrackingId(final String trackingId) {
-    MDC.put(TRACKING_ID, trackingId);
-  }
-
-  public static void setTrackingId(final UUID trackingId) {
-    setTrackingId(trackingId != null ? trackingId.toString() : null);
   }
 
   public static void remove(final String key) {
@@ -185,22 +136,10 @@ public final class LoggingContext {
 
   public static class Builder {
 
-    private String trackingId;
     private String userId;
     private String accountId;
     private String movementId;
     private String module;
-    private String requestId;
-
-    public Builder trackingId(final String trackingId) {
-      this.trackingId = trackingId;
-      return this;
-    }
-
-    public Builder trackingId(final UUID trackingId) {
-      this.trackingId = trackingId != null ? trackingId.toString() : null;
-      return this;
-    }
 
     public Builder userId(final String userId) {
       this.userId = userId;
@@ -237,16 +176,6 @@ public final class LoggingContext {
       return this;
     }
 
-    public Builder requestId(final String requestId) {
-      this.requestId = requestId;
-      return this;
-    }
-
-    public Builder requestId(final UUID requestId) {
-      this.requestId = requestId != null ? requestId.toString() : null;
-      return this;
-    }
-
     public void execute(final Runnable action) {
       execute(
           () -> {
@@ -265,9 +194,6 @@ public final class LoggingContext {
     }
 
     public void apply() {
-      if (trackingId != null) {
-        setTrackingId(trackingId);
-      }
       if (userId != null) {
         setUserId(userId);
       }
@@ -279,9 +205,6 @@ public final class LoggingContext {
       }
       if (module != null) {
         setModule(module);
-      }
-      if (requestId != null) {
-        setRequestId(requestId);
       }
     }
   }

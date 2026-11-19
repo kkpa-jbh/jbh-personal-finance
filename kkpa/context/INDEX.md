@@ -44,3 +44,8 @@
 | log privacy (no personal data in logs) | `architecture/observability.md` |
 | traces / OpenTelemetry | `architecture/observability.md` |
 | metrics / `/q/metrics` | `architecture/observability.md` |
+| trace id / `traceparent` | `architecture/observability.md` |
+| latency histogram / buckets | `architecture/observability.md` |
+| Quarkus runtime | `architecture/quarkus-runtime.md` |
+| Quarkus version / upgrade | `architecture/quarkus-runtime.md` |
+| application startup (port 7777, health) | `architecture/quarkus-runtime.md` |

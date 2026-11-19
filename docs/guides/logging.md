@@ -83,9 +83,9 @@ Quarkus runs on JBoss LogManager. There is no Logback configuration file. Everyt
 
 **Key Features:**
 
-- **MDC Support**: Tracks `trackingId`, `userId`, `productId`, `transactionId`, `module`
+- **MDC Support**: Tracks `userId`, `productId`, `transactionId`, `module`
 - **JSON in prod**: `quarkus-logging-json`, one JSON object per line. Dev and test use plain text.
-- **Trace correlation**: `traceId` and `spanId` come from OpenTelemetry when the SDK is on
+- **Trace correlation**: `traceId` and `spanId` come from OpenTelemetry. They are in every log line that has an incoming or own trace, also while export is off
 - **Level per profile**: `com.jbh` is DEBUG in dev and INFO in prod
 
 ## Utility Classes
@@ -100,10 +100,7 @@ Quarkus runs on JBoss LogManager. There is no Logback configuration file. Everyt
 
 ```java
 // Set context values
-LoggingContext.setTrackingId("abc-123");
-LoggingContext.
-
-setUserId("user-456");
+LoggingContext.setUserId("user-456");
 LoggingContext.
 
 setAccountId("acc-789");
@@ -114,10 +111,7 @@ LoggingContext.
 builder()
     .
 
-trackingId("abc-123")
-    .
-
-userId("user-456") 
+userId("user-456")
     .
 
 accountId("acc-789")
@@ -127,7 +121,7 @@ accountId("acc-789")
     });
 
 // Automatic cleanup
-    LoggingContext.withTrackingId("abc-123",()->{
+    LoggingContext.withUserId("user-456",()->{
     // Business logic - context auto-cleared after
     });
 ```
@@ -156,7 +150,7 @@ private static final StructuredLogger structuredLogger =
 
 **Features:**
 
-- Auto-generates `trackingId` and `requestId`
+- Does not make or send a tracking id or a request id. The trace id (`traceId`) is the only request id.
 - Extracts `userId` from headers
 - Logs request/response timing
 - Does not log the client IP address (privacy rule)
@@ -266,13 +260,11 @@ public class AsyncTransactionProcessor {
 
   public CompletableFuture<Void> processAsync(TransactionDomain transaction) {
     // Capture current context
-    String currentTrackingId = LoggingContext.getTrackingId();
     String currentAccountId = LoggingContext.getAccountId();
 
     return CompletableFuture.runAsync(() -> {
       // Restore context in async thread
       LoggingContext.builder()
-          .trackingId(currentTrackingId)
           .accountId(currentAccountId)
           .transactionId(transaction.getId().value())
           .module("async-processor")
@@ -308,7 +300,6 @@ Fields in the examples are illustrative. Ids are fake.
   "level": "INFO",
   "loggerName": "com.jbh.finance.infra.adapters.in.rest.product.ProductRestAdapter",
   "message": "Received request for product: 4b1f0c1e",
-  "trackingId": "abc-123-def",
   "userId": "user-456",
   "module": "product-controller",
   "traceId": "4bf92f3577b34da6a3ce929d0e0e4736",
@@ -317,20 +308,20 @@ Fields in the examples are illustrative. Ids are fake.
 }
 ```
 
-MDC entries (`trackingId`, `userId`, `productId`, `transactionId`, `module`, and the OpenTelemetry
+MDC entries (`userId`, `productId`, `transactionId`, `module`, and the OpenTelemetry
 `traceId`, `spanId`, `sampled`) are top-level fields because of `quarkus.log.console.json.mdc.flat-fields=true`.
-`traceId`, `spanId` and `sampled` appear only while the SDK is on and a span is active.
+`traceId`, `spanId` and `sampled` appear while a span is active. Export off does not remove them.
 
-In dev the console is plain text. Each line prints `traceId=... spanId=...` (empty while the SDK is off):
+In dev the console is plain text. Each line prints `traceId=... spanId=...` (empty only without an incoming or own trace):
 
 ```
 2026-11-04 19:30:12,345 INFO  traceId=6273cd5f1fb6002a22538d67e9853981 spanId=a1b2c3d4e5f60718 [c.j.f.i.a.i.r.m.MovementRestAdapter] (executor-thread-1) Adding movement to Product 0b6f1c2e-5d4a-4f3b-9c1d-2e7a8b9c0d1e
 ```
 
 Copy the `traceId` into Grafana → Explore → Tempo → TraceQL to open the request.
-In dev, `%dev.quarkus.otel.logs.enabled=true` also sends the logs to the local LGTM stack (see below). Query them in
+In dev, the export switch is on by default, so the logs also go to the local LGTM stack (see below). Query them in
 Explore → Loki with `{service_name="jbh-personal-finance"}`. Each record carries `trace_id`, with a link to Tempo.
-Prod does not export logs with OpenTelemetry: it writes JSON to stdout, and Alloy collects it.
+Prod does not export logs with OpenTelemetry until the export switch is on: it writes JSON to stdout, and Alloy collects it.
 
 ## Privacy Rule
 
@@ -358,7 +349,7 @@ typed by the user, so log the product id.
 LoggingContext.builder()
     .
 
-trackingId(trackingId)
+userId(userId)
     .
 
 accountId(accountId)
@@ -371,7 +362,7 @@ execute(() ->{
 // ❌ Bad - Manual setup without cleanup
     LoggingContext.
 
-setTrackingId(trackingId);
+setUserId(userId);
 // Business logic - context might leak
 ```
 
@@ -423,13 +414,16 @@ error("Failed to process transaction");
 
 | Variable | Default | Effect |
 |----------|---------|--------|
-| `OTEL_SDK_DISABLED` | `true` | Set to `false` to turn traces on. While `true`, nothing is exported and no exporter error appears. |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:4317` | Prod profile only. OTLP gRPC endpoint of the collector (`http://jbh-alloy:4317` in prod). Dev always uses `http://localhost:4317` (the local LGTM stack). |
-| `OTEL_TRACES_SAMPLER` | `parentbased_traceidratio` | Sampler. It honors the parent decision. |
+| `OTEL_SDK_DISABLED` | `true` (dev: `false`) | Export switch. `true` stops only the OTLP export of traces and logs. Tracing stays on, so logs keep `traceId`. Use the exact values `true` or `false`; any other value means export off. |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:14317` | OTLP gRPC endpoint for all profiles (`http://jbh-alloy:4317` in Docker). |
+| `OTEL_TRACES_SAMPLER` | `parentbased_traceidratio` | Sampler while export is on. It honors the parent decision. |
 | `OTEL_TRACES_SAMPLER_ARG` | `1.0` | Sampling ratio. `1.0` samples every trace. |
+| `JBH_ENV` | `prod` | Value of the metric tag `env` and of `deployment.environment.name`. Dev and test ignore it. |
+| `JBH_SERVICE_VERSION` | `unknown` | Value of `service.version` on every span and log record. Prometheus metrics do not carry it. |
 
 To see traces in prod, set both `OTEL_SDK_DISABLED=false` and `OTEL_EXPORTER_OTLP_ENDPOINT`.
-In dev, traces and logs go to `http://localhost:4317` by default (`OTEL_SDK_DISABLED` defaults to `false` in dev).
+In dev, traces and logs go to `http://localhost:14317` (the Alloy dev port) by default. To use the LGTM
+stack directly, set `OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317`.
 
 ### Local LGTM stack (Grafana, Tempo, Loki, Prometheus)
 
@@ -454,16 +448,23 @@ All keys are in `jbh-z-assembly/src/main/resources/application.properties`, sect
 quarkus.log.console.json.enabled=false
 %prod.quarkus.log.console.json.enabled=true
 quarkus.log.console.json.mdc.flat-fields=true
-# Traces
-quarkus.otel.sdk.disabled=${OTEL_SDK_DISABLED:true}
-%dev.quarkus.otel.sdk.disabled=${OTEL_SDK_DISABLED:false}
-%prod.quarkus.otel.exporter.otlp.endpoint=${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4317}
-%dev.quarkus.otel.exporter.otlp.endpoint=http://localhost:4317
-quarkus.otel.traces.sampler=${OTEL_TRACES_SAMPLER:parentbased_traceidratio}
+# Traces and logs: the SDK is always on; jbh.otel.export-off decides if anything is sent
+quarkus.otel.sdk.disabled=false
+quarkus.otel.logs.enabled=true
+jbh.otel.export-off=${OTEL_SDK_DISABLED:true}
+%dev.jbh.otel.export-off=${OTEL_SDK_DISABLED:false}
+jbh.otel.sampler.true=always_off
+jbh.otel.sampler.false=${OTEL_TRACES_SAMPLER:parentbased_traceidratio}
+jbh.otel.logs-handler.true=false
+jbh.otel.logs-handler.false=true
+quarkus.otel.traces.sampler=${jbh.otel.sampler.${jbh.otel.export-off}:always_off}
+quarkus.otel.logs.handler.enabled=${jbh.otel.logs-handler.${jbh.otel.export-off}:false}
 quarkus.otel.traces.sampler.arg=${OTEL_TRACES_SAMPLER_ARG:1.0}
+quarkus.otel.exporter.otlp.endpoint=${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:14317}
+quarkus.otel.resource.attributes=service.namespace=jbh,deployment.environment.name=${jbh.metrics.env},service.version=${JBH_SERVICE_VERSION:unknown}
 # Metrics
 quarkus.datasource.metrics.enabled=true
-jbh.metrics.env=prod
+jbh.metrics.env=${JBH_ENV:prod}
 ```
 
 ### Profile-Based Configuration
@@ -487,9 +488,9 @@ Rules and metric list: `jbh-gateway-client/README.md`, "Circuit breaker". Dashbo
 
 ## Traces
 
-OpenTelemetry traces are off until `OTEL_SDK_DISABLED=false`. The four AI calls have their own spans:
+OpenTelemetry tracing is always on, but traces are exported only when `OTEL_SDK_DISABLED=false` (default in dev). With export off, the sampler is `always_off`: logs keep `traceId`, but the outgoing `traceparent` has sampled=0. The gateway client joins the trace with `jbh-iam`. The four AI calls have their own spans:
 `ai.azure.extract-text`, `ai.openrouter.answer`, `ai.gemini.answer`, `ai.jev.classify`. A span has only a
-name, a duration, a status and the exception. It never has text, prompts or answers. `/q/*` is not traced.
+name, a duration, a status and the exception. It never has text, prompts or answers. No span attribute may hold personal data (e-mail, name, amount, statement content, free text). `/q/*` is not traced.
 
 ## Monitoring & Analysis
 
@@ -497,6 +498,6 @@ Logs, traces and metrics go to Grafana (Loki, Tempo, Prometheus) through Alloy. 
 
 1. Take the `traceId` from a log line in Loki.
 2. Open the same `traceId` in Tempo to see the spans.
-3. Use `trackingId` to find all lines of one request, including other modules.
+3. Search the same `traceId` in the logs of the other services to find all lines of one request.
 
 Metrics and traces are per instance. Grafana merges them. The app runs as 2 or more instances.
