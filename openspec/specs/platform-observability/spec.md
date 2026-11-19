@@ -33,7 +33,7 @@ The service SHALL write the console log as one JSON object per line in the `prod
 - THEN the line is plain text, not JSON
 
 ### Requirement: Traces export only when asked
-The service SHALL create traces in every profile and in every mode. It SHALL send traces and logs over OTLP only when the export is on. The env var `OTEL_SDK_DISABLED` SHALL switch only the export, never the tracing. The default is export off in the `prod` and `test` profiles, and export on in the `dev` profile. The endpoint and the sampling come from env vars. The default sampling is 100% when the export is on.
+The service SHALL create traces in every profile and in every mode. It SHALL send traces and logs over OTLP only when the export is on. The env var `OTEL_SDK_DISABLED` SHALL switch only the export, never the tracing. The default is export off in the `prod` and `test` profiles, and export on in the `dev` profile. The endpoint and the sampling come from env vars. The default sampling is 100% when the export is on. The sampling env vars (`OTEL_TRACES_SAMPLER`, `OTEL_TRACES_SAMPLER_ARG`) SHALL apply only when the export is on. When the export is off, the sampler SHALL stay `always_off`, whatever these env vars say.
 
 #### Scenario: No env var in prod, no export, trace id still in logs
 - GIVEN the `prod` profile and no OpenTelemetry env var
@@ -47,6 +47,18 @@ The service SHALL create traces in every profile and in every mode. It SHALL sen
 - WHEN the service handles a request
 - THEN a trace for the request and its log records are sent to that endpoint
 - AND the trace id equals the `traceId` in the log lines of the request
+
+#### Scenario: Switch set to true keeps the trace id
+- GIVEN `OTEL_SDK_DISABLED=true`
+- WHEN the service handles a request that has no `traceparent` header
+- THEN no span and no log record is sent over OTLP
+- AND the log lines of the request carry a valid generated `traceId`
+
+#### Scenario: Sampler env var cannot turn export on
+- GIVEN the export is off and `OTEL_TRACES_SAMPLER=always_on`
+- WHEN the service handles a request
+- THEN no span is sampled
+- AND no span is sent over OTLP
 
 #### Scenario: Invalid switch value is safe
 - GIVEN `OTEL_SDK_DISABLED=1`

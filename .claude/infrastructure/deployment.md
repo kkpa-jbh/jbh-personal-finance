@@ -86,7 +86,7 @@
 |----------|---------|---------|
 | `OTEL_SDK_DISABLED` | `true` (dev: `false`) | Export switch. Stops only the OTLP export. Tracing stays on. Use `true` or `false` only. |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | `http://localhost:14317` | OTLP gRPC endpoint. `http://jbh-alloy:4317` in Docker. |
-| `OTEL_TRACES_SAMPLER_ARG` | `1.0` | Sampling ratio while export is on. |
+| `OTEL_TRACES_SAMPLER_ARG` | `1.0` | Sampling ratio while export is on. Ignored while export is off (`OTEL_TRACES_SAMPLER` too). |
 | `JBH_ENV` | `prod` | Metric tag `env` and `deployment.environment.name`. Dev and test ignore it. |
 | `JBH_SERVICE_VERSION` | `unknown` | `service.version` resource attribute. |
 

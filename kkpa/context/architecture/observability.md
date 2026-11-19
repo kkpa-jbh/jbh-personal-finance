@@ -26,6 +26,7 @@ To add the files, run `/kkpa-context-curate observability`. Until then, ask Code
    off in `prod` and `test`, on in `dev`. A bad value (for example `1`) keeps export off and the service
    starts. With export off, logs still carry the `traceId` of the incoming `traceparent`, and no exporter
    error is logged. Sampling comes from `OTEL_TRACES_SAMPLER_ARG`; the default is 100% when export is on.
+   With export off, the sampler stays `always_off`, even if `OTEL_TRACES_SAMPLER` is set.
 4. **One trace across services.** The service joins the caller's `traceparent` and passes the same trace to
    every call through `jbh-gateway-client` (one client span per call). With export off, the outgoing
    `traceparent` keeps the trace id but has sampled flag `00`.
@@ -58,6 +59,9 @@ To add the files, run `/kkpa-context-curate observability`. Until then, ask Code
 - **`OTEL_SDK_DISABLED` switches only the export.** Never use `quarkus.otel.sdk.disabled` as the switch: it
   turns all OpenTelemetry off, so logs lose `traceId` and `traceparent` is not passed on. Prod must run
   with no collector and no exporter error. Do not hard-code an OTLP endpoint per profile.
+  The SDK reads `OTEL_*` env vars itself, and they win over `application.properties`. So the switch is
+  enforced after the env, in `OtelExportGateCustomizer` (`jbh-z-assembly`). A new rule that must beat an
+  `OTEL_*` env var goes there, not in `application.properties`.
   _Source: spec platform-observability — Requirement: Traces export only when asked._
 - **Pass the trace to every outgoing gateway call.** A new gateway client builder must get the Quarkus
   `OpenTelemetry`, or the trace stops at this service.
