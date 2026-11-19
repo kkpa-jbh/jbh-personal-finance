@@ -153,6 +153,11 @@
       <groupId>com.jbh</groupId>
       <version>1.0.0-SNAPSHOT</version>
     </dependency>
+    <!-- OpenTelemetry in GatewayClientBuilder. Declared here, not only through jbh-gateway-client, so IDE builds find it. -->
+    <dependency>
+      <artifactId>opentelemetry-api</artifactId>
+      <groupId>io.opentelemetry</groupId>
+    </dependency>
 
     <dependency>
       <artifactId>quarkus-arc</artifactId>
