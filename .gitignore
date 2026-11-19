@@ -1,5 +1,7 @@
 # IDE
 .idea/
+# IntelliJ shared run configs. They can hold real env vars (API keys).
+.run/
 *.iml
 *.ipr
 *.iws
