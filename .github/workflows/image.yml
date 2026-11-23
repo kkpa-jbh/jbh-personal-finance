@@ -1,10 +1,18 @@
-# Image: builds the jbh-personal-finance Docker image and pushes it to GHCR
-# (GitHub Container Registry), tagged with the git SHA and with "latest".
-# It runs on every push to main (for example, after a PR is merged), or by hand.
+# Image: builds the jbh-personal-finance Docker image for two CPU types (amd64 and arm64)
+# and pushes both to GHCR (GitHub Container Registry) under ONE tag: the git SHA, and "latest".
+#
+# When it runs: on every push to main (for example, after a PR is merged), or by hand.
+# What it changes: the GHCR package ghcr.io/kkpa-jbh/jbh-personal-finance. It deploys nothing.
 # The VPS only pulls this image. It never builds Maven itself.
 # The tests do not run here: ci.yml runs them.
 #
-# How GitHub Actions works, in short: see the header of ci.yml.
+# Jobs, in order:
+# 1. package - builds the Quarkus fast-jar once (it does not depend on the CPU type).
+# 2. image   - calls the reusable workflow jbh-deploy/.github/workflows/multi-arch-image.yml. It builds
+#              "Build image (amd64)" and "Build image (arm64)" on native runners, publishes one tag for both,
+#              and keeps the 10 newest tagged images. One file in jbh-deploy serves all 5 service repos.
+#
+# How GitHub Actions works, in short: see the header of ci.yml. More: jbh-deploy/CI.md.
 
 # The name shown in the GitHub "Actions" tab.
 name: Image
@@ -16,25 +24,38 @@ on:
   push:
     branches: [ main ]
 
-# What the automatic GITHUB_TOKEN may do in this run. Every permission not listed is "none".
-permissions:
-  # Read the code.
-  contents: read
-  # Push the image to GHCR and delete old image versions.
-  packages: write
+# The automatic GITHUB_TOKEN gets no permission at the top. Each job asks only for what it needs.
+permissions: {}
+
+# One run at a time per branch, in push order, so an older run never moves "latest" after a newer one.
+# cancel-in-progress: false -> a running build is never stopped halfway (that could leave pushed digests with no tag).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  # "image" is the job id.
-  image:
-    # The machine type. GitHub gives a clean Ubuntu VM for each run and deletes it after.
+  # Builds the Quarkus fast-jar once. Machine: a GitHub-hosted Ubuntu VM, deleted after the run.
+  # The fast-jar is plain Java bytecode, so the same files go into the amd64 and the arm64 image.
+  package:
+    name: Build the app package
     runs-on: ubuntu-latest
+    # A Maven package without tests takes about 5 minutes. 20 leaves room for a cold cache.
+    timeout-minutes: 20
+    permissions:
+      # Read the code.
+      contents: read
+      # .github/maven-settings.xml uses GITHUB_TOKEN to read this repo's own GitHub Packages.
+      packages: read
     steps:
       # The VM starts empty. This step downloads the commit's code into it.
-      - uses: actions/checkout@v7
+      # Actions are pinned to a full commit SHA (the version is in the comment), so a moved tag cannot change them.
+      - name: Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Installs Java 21 (Temurin build). "cache: maven" saves ~/.m2 between runs,
       # so Maven does not download every dependency again each time.
-      - uses: actions/setup-java@v6
+      - name: Set up Java 21
+        uses: actions/setup-java@77dd5b2ce225ea11469928ac317850245a74ae78 # v6.2.0
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -51,38 +72,38 @@ jobs:
         run: ./mvnw -B -U -s .github/maven-settings.xml -Pgithub -pl jbh-z-assembly -am -DskipTests package
         # Read by .github/maven-settings.xml:
         #   GITHUB_TOKEN        - automatic token of this run.
-        #   PACKAGES_READ_TOKEN - repo secret, a classic token with read:packages,
-        #                         to read the packages of other kkpa-jbh repos.
+        #   PACKAGES_READ_TOKEN - repo secret (Settings → Secrets and variables → Actions), a classic token
+        #                         with read:packages, to read the packages of other kkpa-jbh repos.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PACKAGES_READ_TOKEN: ${{ secrets.PACKAGES_READ_TOKEN }}
 
-      # Logs Docker in to ghcr.io, so the next step can push.
-      # The user is the person or bot that started the run. The password is the automatic token.
-      - uses: docker/login-action@v4
+      # Hands the fast-jar folder to the image jobs (each job runs on its own VM, so files do not carry over).
+      # The whole folder: quarkus-run.jar needs lib/, app/ and quarkus/ next to it.
+      # retention-days: 1 -> the artifact is only needed during this run.
+      - name: Upload the app package
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          name: app-package
+          path: jbh-z-assembly/target/quarkus-app/
+          retention-days: 1
 
-      # Builds the image from jbh-z-assembly/Dockerfile and pushes it with two tags:
-      # the git SHA (a fixed version, used by the deploy and for rollback) and "latest".
-      - uses: docker/build-push-action@v7
-        with:
-          # The folder Docker sends to the build. The Dockerfile is in this folder.
-          context: jbh-z-assembly
-          push: true
-          # One version per push. Build attestations would add untagged versions that use up the 2 kept slots.
-          provenance: false
-          tags: |
-            ghcr.io/kkpa-jbh/jbh-personal-finance:${{ github.sha }}
-            ghcr.io/kkpa-jbh/jbh-personal-finance:latest
-
-      # Deletes old versions of the image in GHCR.
-      # GitHub Free: 500 MB for private packages. Keep the 2 newest images: the running one and one to roll back to.
-      - name: Delete old images
-        uses: actions/delete-package-versions@v5
-        with:
-          package-name: jbh-personal-finance
-          package-type: container
-          min-versions-to-keep: 2
+  # Builds, tags and cleans the image, through the reusable workflow in jbh-deploy.
+  # needs: package -> it waits for the fast-jar (the artifact "app-package").
+  # Pinned to a jbh-deploy commit SHA, like an action: a change there reaches this repo only when you bump the SHA.
+  # In the Actions tab its jobs show as "Build and publish the image / Build image (amd64)", and so on.
+  image:
+    name: Build and publish the image
+    needs: package
+    # The most the called jobs may use: read the code, push and delete images in GHCR.
+    permissions:
+      contents: read
+      packages: write
+    uses: kkpa-jbh/jbh-deploy/.github/workflows/multi-arch-image.yml@b43ac11f520b62fbe5d90516669692316380d00c # JBH-86
+    with:
+      image: ghcr.io/kkpa-jbh/jbh-personal-finance
+      package-name: jbh-personal-finance
+      # The folder Docker builds from. The Dockerfile is in this folder.
+      context: jbh-z-assembly
+      # The Dockerfile copies target/quarkus-app/ (relative to the context).
+      app-package-path: jbh-z-assembly/target/quarkus-app
