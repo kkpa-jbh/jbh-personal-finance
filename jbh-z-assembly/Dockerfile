@@ -3,13 +3,15 @@
 # so this image only copies target/quarkus-app. No Maven and no registry token inside Docker.
 FROM eclipse-temurin:21-jre-alpine
 
-RUN addgroup -S jbh && adduser -S jbh -G jbh
+# A fixed numeric user and group (10001). Kubernetes "runAsNonRoot" can only check a number:
+# with a user name (USER jbh) the pod fails with "image has non-numeric user".
+RUN addgroup -S -g 10001 jbh && adduser -S -u 10001 -G jbh jbh
 WORKDIR /app
 
 # Keep the fast-jar layout: quarkus-run.jar needs lib/, app/ and quarkus/ next to it.
-COPY --chown=jbh:jbh target/quarkus-app/ /app/
+COPY --chown=10001:10001 target/quarkus-app/ /app/
 
-USER jbh
+USER 10001:10001
 EXPOSE 7777
 
 # JAVA_OPTS carries the heap cap (-Xmx) from compose. exec keeps java as PID 1 for clean shutdown.
