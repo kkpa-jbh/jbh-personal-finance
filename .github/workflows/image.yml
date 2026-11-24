@@ -1,5 +1,5 @@
 # Image: builds the jbh-personal-finance Docker image for two CPU types (amd64 and arm64)
-# and pushes both to GHCR (GitHub Container Registry) under ONE tag: the git SHA, and "latest".
+# and pushes both to GHCR (GitHub Container Registry) under ONE tag: the git SHA (and "latest", only for the newest commit on main).
 #
 # When it runs: on every push to main (for example, after a PR is merged), or by hand.
 # What it changes: the GHCR package ghcr.io/kkpa-jbh/jbh-personal-finance. It deploys nothing.
@@ -27,7 +27,8 @@ on:
 # The automatic GITHUB_TOKEN gets no permission at the top. Each job asks only for what it needs.
 permissions: {}
 
-# One run at a time for the whole repo, in push order, so an older run never moves "latest" after a newer one.
+# One run at a time for the whole repo. GitHub does not promise the order of waiting runs,
+# so the reusable workflow moves "latest" only for the newest commit on main.
 # - group: the workflow name only, not the branch. A run started by hand on another branch waits too.
 #   Otherwise its cleanup could delete the untagged digests of a run that has not tagged them yet.
 # - queue: max -> every waiting run stays in the queue (up to 100). The default (single) cancels a waiting run
@@ -104,7 +105,7 @@ jobs:
     permissions:
       contents: read
       packages: write
-    uses: kkpa-jbh/jbh-deploy/.github/workflows/multi-arch-image.yml@b43ac11f520b62fbe5d90516669692316380d00c # JBH-86
+    uses: kkpa-jbh/jbh-deploy/.github/workflows/multi-arch-image.yml@8e2034e55480624e869863dbced9d10f04eb799c # JBH-86
     with:
       image: ghcr.io/kkpa-jbh/jbh-personal-finance
       package-name: jbh-personal-finance
