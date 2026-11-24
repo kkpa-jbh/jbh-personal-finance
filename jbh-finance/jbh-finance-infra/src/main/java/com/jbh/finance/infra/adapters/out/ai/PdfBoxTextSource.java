@@ -2,6 +2,7 @@ package com.jbh.finance.infra.adapters.out.ai;
 
 import com.jbh.commons.exception.BusinessException;
 import com.jbh.finance.infra.adapters.exceptions.FinanceInfraBusinessExceptionType;
+import io.opentelemetry.instrumentation.annotations.WithSpan;
 import jakarta.enterprise.context.ApplicationScoped;
 import java.io.IOException;
 import org.apache.pdfbox.Loader;
@@ -34,6 +35,8 @@ public class PdfBoxTextSource implements StatementTextSource {
   // The cause is dropped on purpose: PDFBox messages may carry details of the document.
   @SuppressWarnings("PMD.PreserveStackTrace")
   @Override
+  // Span for the p95 of the PDF text step (dashboard jbh-statement-import).
+  @WithSpan("ai.pdfbox.extract-text")
   public String extractText(final byte[] pdfContent) throws BusinessException {
     final long started = System.nanoTime();
     final String text;
